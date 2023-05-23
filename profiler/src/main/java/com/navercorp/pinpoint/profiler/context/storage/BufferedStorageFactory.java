@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import java.util.Objects;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanType;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
+
+import java.util.Objects;
 
 /**
  * @author emeroad

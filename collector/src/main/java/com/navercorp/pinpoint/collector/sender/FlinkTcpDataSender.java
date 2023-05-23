@@ -16,12 +16,12 @@
 package com.navercorp.pinpoint.collector.sender;
 
 import com.navercorp.pinpoint.io.request.FlinkRequest;
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.TBaseSerializer;
-import org.apache.thrift.TBase;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.thrift.sender.TcpDataSender;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;

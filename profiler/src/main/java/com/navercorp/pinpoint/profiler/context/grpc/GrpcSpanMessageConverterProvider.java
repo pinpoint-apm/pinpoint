@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

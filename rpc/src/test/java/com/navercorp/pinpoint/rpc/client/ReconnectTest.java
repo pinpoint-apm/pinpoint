@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;

@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +34,6 @@ import java.util.List;
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcSpanProcessorV2Test {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
 

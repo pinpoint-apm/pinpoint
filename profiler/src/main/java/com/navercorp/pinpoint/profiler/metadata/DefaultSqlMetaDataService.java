@@ -17,12 +17,13 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import java.util.Objects;
-
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,9 +35,9 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
     private final CachingSqlNormalizer cachingSqlNormalizer;
 
-    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
 
-    public DefaultSqlMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> sqlCache) {
+    public DefaultSqlMetaDataService(EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender, SimpleCache<String> sqlCache) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
 
         Objects.requireNonNull(sqlCache, "sqlCache");

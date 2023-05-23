@@ -17,10 +17,11 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,7 @@ public class DefaultApiMetaDataServiceTest {
 
     @Test
     public void cacheApi() {
-        EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
+        EnhancedDataSender<MetaDataType, ResponseMessage> dataSender = mock(EnhancedDataSender.class);
         SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(1));
         ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService(dataSender, cache);
 

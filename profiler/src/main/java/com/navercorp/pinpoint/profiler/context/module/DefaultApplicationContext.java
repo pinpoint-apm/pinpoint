@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
@@ -45,9 +46,8 @@ import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootload
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;

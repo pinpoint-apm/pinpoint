@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.io.TCommandType;

@@ -27,12 +27,6 @@ public interface ProfilerCommandServiceLocator<REQ, RES> {
 
     ProfilerCommandService getService(short commandCode);
 
-    ProfilerSimpleCommandService<REQ> getSimpleService(short commandCode);
-
-    ProfilerRequestCommandService<REQ, RES> getRequestService(short commandCode);
-
-    ProfilerStreamCommandService<REQ> getStreamService(short commandCode);
-
     ProfilerGrpcCommandService getGrpcService(short commandCode);
 
     Set<Short> getCommandServiceCodes();

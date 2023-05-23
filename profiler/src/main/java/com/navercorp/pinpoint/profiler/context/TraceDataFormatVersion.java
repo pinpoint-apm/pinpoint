@@ -26,6 +26,7 @@ public enum TraceDataFormatVersion {
     V1(SpanVersion.TRACE_V1),
     V2(SpanVersion.TRACE_V2);
 
+    @Deprecated
     public static final String THRIFT_TRACE_VERSION_KEY = "profiler.transport.thrift.trace.dataformat.version";
 
     public static final String GRPC_TRACE_VERSION_KEY = "profiler.transport.grpc.trace.dataformat.version";

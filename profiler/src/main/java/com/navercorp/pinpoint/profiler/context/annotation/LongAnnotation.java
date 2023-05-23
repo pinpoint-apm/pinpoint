@@ -20,15 +20,12 @@ import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
-import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
-import com.navercorp.pinpoint.profiler.context.thrift.ThriftAnnotationSerializable;
-import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 /**
  * @author emeroad
  */
 public class LongAnnotation implements Annotation<Long>,
-        GrpcAnnotationSerializable, ThriftAnnotationSerializable {
+        GrpcAnnotationSerializable {
     private final int key;
     private final long value;
 
@@ -55,10 +52,6 @@ public class LongAnnotation implements Annotation<Long>,
         return builder.build();
     }
 
-    @Override
-    public TAnnotationValue apply(AnnotationValueThriftMapper context) {
-        return TAnnotationValue.longValue(this.value);
-    }
 
     @Override
     public String toString() {

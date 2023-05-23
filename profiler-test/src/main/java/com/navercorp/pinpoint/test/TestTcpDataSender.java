@@ -15,12 +15,12 @@
  */
 package com.navercorp.pinpoint.test;
 
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.test.util.BiHashMap;
 import com.navercorp.pinpoint.test.util.Pair;
 
@@ -37,7 +37,7 @@ import java.util.function.BiConsumer;
  * @author Jongho Moon
  * @author jaehong.kim
  */
-public class TestTcpDataSender implements EnhancedDataSender<MetaDataType> {
+public class TestTcpDataSender implements EnhancedDataSender<MetaDataType, ResponseMessage> {
 
     private final List<Object> datas = Collections.synchronizedList(new ArrayList<>());
 

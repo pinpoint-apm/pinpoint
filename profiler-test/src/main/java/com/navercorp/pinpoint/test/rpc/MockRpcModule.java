@@ -21,24 +21,25 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.SpanType;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcMessageToResultConverterProvider;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.module.ModuleLifeCycle;
 import com.navercorp.pinpoint.profiler.context.module.ResultConverter;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.context.thrift.ThriftMessageToResultConverterProvider;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.TestTcpDataSender;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -69,25 +70,25 @@ public class MockRpcModule extends PrivateModule {
         bind(statDataSenderKey).toInstance(statDataSender);
         expose(statDataSenderKey);
 
-        EnhancedDataSender<MetaDataType> enhancedDataSender = new TestTcpDataSender();
+        EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender = new TestTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
+        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {
         };
         bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
         expose(dataSenderTypeLiteral);
 
-        Key<EnhancedDataSender<MetaDataType>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
+        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
         bind(agentDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(agentDataSender);
 
-        Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
+        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
         bind(metadataDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(metadataDataSender);
 
 
         TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {};
         Key<MessageConverter<Object, ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
-        bind(resultMessageConverterKey).toProvider(ThriftMessageToResultConverterProvider.class ).in(Scopes.SINGLETON);
+        bind(resultMessageConverterKey).toProvider(GrpcMessageToResultConverterProvider.class).in(Scopes.SINGLETON);
         expose(resultMessageConverterKey);
 
 

@@ -43,39 +43,6 @@ public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServ
         return profilerCommandServiceRepository.get(commandCode);
     }
 
-    @Override
-    public ProfilerSimpleCommandService getSimpleService(short commandCode) {
-
-        final ProfilerCommandService service = profilerCommandServiceRepository.get(commandCode);
-        if (service instanceof ProfilerSimpleCommandService) {
-            return (ProfilerSimpleCommandService) service;
-        }
-
-        return null;
-    }
-
-    @Override
-    public ProfilerRequestCommandService getRequestService(short commandCode) {
-
-        final ProfilerCommandService service = profilerCommandServiceRepository.get(commandCode);
-        if (service instanceof ProfilerRequestCommandService) {
-            return (ProfilerRequestCommandService) service;
-        }
-
-        return null;
-    }
-
-    @Override
-    public ProfilerStreamCommandService getStreamService(short commandCode) {
-
-        final ProfilerCommandService service = profilerCommandServiceRepository.get(commandCode);
-        if (service instanceof ProfilerStreamCommandService) {
-            return (ProfilerStreamCommandService) service;
-        }
-
-        return null;
-    }
-
 
     @Override
     public ProfilerGrpcCommandService getGrpcService(short commandCode) {

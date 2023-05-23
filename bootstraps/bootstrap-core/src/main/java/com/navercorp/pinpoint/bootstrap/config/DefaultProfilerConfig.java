@@ -47,7 +47,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private final Properties properties;
 
-    private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.THRIFT;
+    private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.GRPC;
 
     @Value("${profiler.enable:true}")
     private boolean profileEnable = false;

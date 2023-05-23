@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.monitor;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.EmptyDataSender;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
@@ -30,8 +32,6 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollec
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EmptyDataSender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -116,7 +116,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     // eg) executor.scheduleAtFixedRate(collectJob, 0(initialDelay is zero), this.collectionIntervalMs, TimeUnit.MILLISECONDS);
     private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
         logger.debug("pre-load class start");
-        CollectJob collectJob = new CollectJob(EmptyDataSender.<MetricType>instance(), agentId, agentStartTimestamp, agentStatCollector, 1);
+        CollectJob collectJob = new CollectJob(EmptyDataSender.instance(), agentId, agentStartTimestamp, agentStatCollector, 1);
 
         // It is called twice to initialize some fields.
         collectJob.run();

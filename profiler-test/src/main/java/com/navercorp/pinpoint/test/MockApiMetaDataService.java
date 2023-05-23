@@ -17,13 +17,14 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.profiler.cache.IdAllocator;
+import com.navercorp.pinpoint.profiler.cache.Result;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
-import com.navercorp.pinpoint.profiler.cache.Result;
-import com.navercorp.pinpoint.profiler.cache.IdAllocator;
-import com.navercorp.pinpoint.profiler.cache.SimpleCache;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 import java.util.Objects;
 
@@ -34,9 +35,9 @@ public class MockApiMetaDataService implements ApiMetaDataService {
 
     private final SimpleCache<String> apiCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator());
 
-    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
 
-    public MockApiMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender) {
+    public MockApiMetaDataService(EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
     }
 

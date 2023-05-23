@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
-import org.apache.thrift.TBase;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.thrift.sender.TcpDataSender;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
 import java.util.List;

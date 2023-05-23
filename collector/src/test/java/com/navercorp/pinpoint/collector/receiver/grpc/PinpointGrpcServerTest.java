@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;

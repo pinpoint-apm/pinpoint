@@ -22,24 +22,19 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public enum TransportModule {
-    THRIFT,
     GRPC;
 
     public static TransportModule parse(String transportModule) {
         Objects.requireNonNull(transportModule, "transportModule");
 
-        if (isEquals(THRIFT, transportModule)) {
-            return THRIFT;
-        }
-        if (isEquals(GRPC, transportModule)) {
+        if (equalsIgnoreCase(TransportModule.GRPC.name(), transportModule)) {
             return GRPC;
         }
-        return null;
+        return GRPC;
     }
 
-    private static boolean isEquals(TransportModule transportModule, String transportModuleString) {
-        final String transportModuleName = transportModule.name();
-        return transportModuleName.equalsIgnoreCase(transportModuleString);
+    private static boolean equalsIgnoreCase(String str1, String str2) {
+        return str1.equalsIgnoreCase(str2);
     }
 
     public static TransportModule parse(String transportModule, TransportModule defaultModule) {

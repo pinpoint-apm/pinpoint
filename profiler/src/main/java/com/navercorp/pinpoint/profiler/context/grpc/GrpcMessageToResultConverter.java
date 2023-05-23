@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.sender.ResultResponse;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.io.ResponseMessage;
 
 /**
  * @author jaehong.kim

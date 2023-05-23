@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.web.vo.activethread;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.profiler.context.thrift.ThreadDumpThriftMessageConverter;
-import com.navercorp.pinpoint.profiler.context.thrift.ThreadStateThriftMessageConverter;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
@@ -26,6 +24,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
+import com.navercorp.pinpoint.thrift.sender.message.ThreadDumpThriftMessageConverter;
+import com.navercorp.pinpoint.thrift.sender.message.ThreadStateThriftMessageConverter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -17,14 +17,15 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
-import java.util.Objects;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
+
+import java.util.Objects;
 
 
 /**

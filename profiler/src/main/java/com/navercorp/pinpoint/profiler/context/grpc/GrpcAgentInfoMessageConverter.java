@@ -20,6 +20,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
 import com.navercorp.pinpoint.grpc.trace.PJvmInfo;
@@ -27,7 +28,6 @@ import com.navercorp.pinpoint.grpc.trace.PServerMetaData;
 import com.navercorp.pinpoint.grpc.trace.PServiceInfo;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 

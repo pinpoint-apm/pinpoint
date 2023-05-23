@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.cluster;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import org.apache.thrift.TBase;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -28,8 +30,13 @@ public class FailedPinpointRouteResponse implements PinpointRouteResponse {
     private final TBase<?, ?> response;
 
     public FailedPinpointRouteResponse(TRouteResult routeResult, TBase<?, ?> response) {
-        this.routeResult = routeResult;
-        this.response = response;
+        this.routeResult = Objects.requireNonNull(routeResult, "routeResult");
+        this.response = Objects.requireNonNull(response, "response");
+    }
+
+    public FailedPinpointRouteResponse(TRouteResult routeResult) {
+        this.routeResult = Objects.requireNonNull(routeResult, "routeResult");
+        this.response = null;
     }
 
     @Override

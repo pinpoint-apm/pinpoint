@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

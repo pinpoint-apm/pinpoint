@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
 import com.navercorp.pinpoint.grpc.trace.PActiveTraceHistogram;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -38,7 +40,6 @@ import com.navercorp.pinpoint.grpc.trace.PTotalThread;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
@@ -57,8 +58,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
-
-import com.google.protobuf.GeneratedMessageV3;
 
 import java.util.List;
 

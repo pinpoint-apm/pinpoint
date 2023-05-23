@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;

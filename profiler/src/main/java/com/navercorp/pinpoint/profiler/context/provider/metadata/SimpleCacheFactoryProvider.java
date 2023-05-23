@@ -30,9 +30,10 @@ public class SimpleCacheFactoryProvider implements Provider<SimpleCacheFactory> 
 
     @Inject
     public SimpleCacheFactoryProvider(TransportModule transportModule) {
-        if (TransportModule.THRIFT == transportModule) {
-            this.type = IdAllocator.ID_TYPE.ZIGZAG;
-        } else if (TransportModule.GRPC == transportModule) {
+//        if (TransportModule.THRIFT == transportModule) {
+//            this.type = IdAllocator.ID_TYPE.ZIGZAG;
+//        }
+        if (TransportModule.GRPC == transportModule) {
             this.type = IdAllocator.ID_TYPE.BYPASS;
         } else {
             throw new IllegalStateException("Unsupported transportModule:" + transportModule);

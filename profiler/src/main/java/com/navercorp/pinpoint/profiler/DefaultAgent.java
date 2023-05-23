@@ -23,10 +23,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolver;
@@ -36,11 +32,13 @@ import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProv
 import com.navercorp.pinpoint.profiler.logging.Log4j2LoggingSystem;
 import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
-import com.navercorp.pinpoint.rpc.ClassPreLoader;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 
@@ -81,10 +79,6 @@ public class DefaultAgent implements Agent {
 
         changeStatus(AgentStatus.INITIALIZING);
 
-        if (Boolean.valueOf(System.getProperty("pinpoint.profiler.ClassPreLoader", "false"))) {
-            // Preload classes related to pinpoint-rpc module.
-            ClassPreLoader.preload();
-        }
         preloadOnStartup();
 
         this.applicationContext = newApplicationContext(agentOption);

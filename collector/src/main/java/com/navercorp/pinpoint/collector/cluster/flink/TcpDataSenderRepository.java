@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.collector.cluster.flink;
 
 import com.navercorp.pinpoint.collector.service.SendDataToFlinkService;
 import com.navercorp.pinpoint.collector.util.Address;
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import com.navercorp.pinpoint.thrift.sender.TcpDataSender;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;

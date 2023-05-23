@@ -16,23 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import java.util.Objects;
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-
-import com.google.protobuf.GeneratedMessageV3;
-
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;

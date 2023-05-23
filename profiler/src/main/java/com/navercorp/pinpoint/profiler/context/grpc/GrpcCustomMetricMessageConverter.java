@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetric;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PDoubleValue;
@@ -26,7 +27,6 @@ import com.navercorp.pinpoint.grpc.trace.PIntValue;
 import com.navercorp.pinpoint.grpc.trace.PLongCountMetric;
 import com.navercorp.pinpoint.grpc.trace.PLongGaugeMetric;
 import com.navercorp.pinpoint.grpc.trace.PLongValue;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
