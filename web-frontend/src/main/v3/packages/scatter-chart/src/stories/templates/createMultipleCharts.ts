@@ -75,7 +75,6 @@ export const createMultipleCharts = () => {
             },
           },
           y: {
-            width: 100,
             min: 0,
             max: 10,
             tick: {

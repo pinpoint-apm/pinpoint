@@ -36,6 +36,7 @@ export class Legend {
   static LEGEND_CONTAINER_CLASS = `${Legend.LEGEND_CLASS}_container`;
   static MARK_CLASS = `${Legend.LEGEND_CLASS}_mark`;
   static COUNT_CLASS = `${Legend.LEGEND_CLASS}_count`;
+  private uniqId = new Date().getTime();
   private rootWrapper;
   private options;
   private dataStyleMap!: DataStyleMap;
@@ -128,12 +129,12 @@ export class Legend {
       // label
       const labelElement = document.createElement('label');
       const formattedLabel = options?.formatLabel?.(type) || type;
-      labelElement.htmlFor = `${Legend.LEGEND_CLASS}_${type}_input`;
+      labelElement.htmlFor = `${Legend.LEGEND_CLASS}_${type}_input_${this.uniqId}`;
       labelElement.append(`${formattedLabel}`, countElement);
 
       // input
       const inputElement = document.createElement('input');
-      inputElement.id = `${Legend.LEGEND_CLASS}_${type}_input`;
+      inputElement.id = `${Legend.LEGEND_CLASS}_${type}_input_${this.uniqId}`;
       inputElement.type = 'checkbox';
       inputElement.dataset.name = type;
       inputElement.checked = true;

@@ -202,13 +202,15 @@ export class ScatterChart {
 
   private setRatio() {
     const axisOption = this.options?.axis;
+    const xAxis = this.xAxis.getOption();
+    const yAxis = this.yAxis.getOption();
     const padding = this.options.padding;
     const width = this.viewport.canvas.width / this.viewport.viewLayer.dpr;
     const height = this.viewport.canvas.height / this.viewport.viewLayer.dpr;
-    const minX = axisOption.x.min;
-    const maxX = axisOption.x.max;
-    const minY = axisOption.y.min;
-    const maxY = axisOption.y.max;
+    const minX = xAxis.min;
+    const maxX = xAxis.max;
+    const minY = yAxis.min;
+    const maxY = yAxis.max;
     const innerPaddingX = axisOption.x.padding ?? this.xAxis.innerPadding;
     const innerPaddingY = axisOption.y.padding ?? this.yAxis?.innerPadding;
 
@@ -626,6 +628,10 @@ export class ScatterChart {
     this.gridAxis.setSize(this.width, this.height).render();
 
     this.render(this.data);
+  }
+
+  get isRealtime() {
+    return !!this.reqAnimation;
   }
 
   public clear() {
