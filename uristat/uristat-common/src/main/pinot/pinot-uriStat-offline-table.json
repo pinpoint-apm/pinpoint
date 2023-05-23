@@ -22,6 +22,12 @@
       "loadMode": "MMAP",
       "nullHandlingEnabled": true
     },
-    "metadata": {}
+    "metadata": {},
+    "ingestionConfig": {
+      "batchIngestionConfig": {
+        "segmentIngestionType": "APPEND",
+        "segmentIngestionFrequency": "DAILY"
+      }
+    }
   }
 }
