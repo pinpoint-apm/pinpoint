@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PThreadState;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
 /**
  * @author jaehong.kim

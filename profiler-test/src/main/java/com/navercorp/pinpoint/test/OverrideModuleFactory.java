@@ -21,12 +21,13 @@ import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.test.rpc.MockRpcModule;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -44,7 +45,7 @@ public class OverrideModuleFactory implements ModuleFactory {
     public Module newModule(AgentOption agentOption) {
 
         DefaultProfilerConfig profilerConfig = (DefaultProfilerConfig) agentOption.getProfilerConfig();
-        profilerConfig.setTransportModule(TransportModule.THRIFT.name());
+        profilerConfig.setTransportModule(TransportModule.GRPC.name());
 
         ModuleFactory moduleFactory = new ApplicationContextModuleFactory() {
             @Override

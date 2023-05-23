@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.DefaultApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
-import com.navercorp.pinpoint.profiler.cache.SimpleCache;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 import java.util.Objects;
 
@@ -32,11 +33,11 @@ import java.util.Objects;
  */
 public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> {
 
-    private final Provider<EnhancedDataSender<MetaDataType>> enhancedDataSenderProvider;
+    private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> enhancedDataSenderProvider;
     private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
-    public ApiMetaDataServiceProvider(@MetadataDataSender Provider<EnhancedDataSender<MetaDataType>> enhancedDataSenderProvider, SimpleCacheFactory simpleCacheFactory) {
+    public ApiMetaDataServiceProvider(@MetadataDataSender Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> enhancedDataSenderProvider, SimpleCacheFactory simpleCacheFactory) {
         this.enhancedDataSenderProvider = Objects.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider");
         this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
 
@@ -44,7 +45,7 @@ public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> 
 
     @Override
     public ApiMetaDataService get() {
-        final EnhancedDataSender<MetaDataType> enhancedDataSender = this.enhancedDataSenderProvider.get();
+        final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender = this.enhancedDataSenderProvider.get();
         final SimpleCache<String> simpleCache = simpleCacheFactory.newSimpleCache();
         return new DefaultApiMetaDataService(enhancedDataSender, simpleCache);
     }

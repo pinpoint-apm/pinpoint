@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 
 /**

@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import io.grpc.stub.StreamObserver;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,9 +28,15 @@ public final class StreamUtils {
     private StreamUtils() {
     }
 
-    public static void close(final StreamObserver<?> streamObserver) {
+    public static void close(final StreamObserver<?> streamObserver, Logger logger) {
         if (streamObserver != null) {
-            streamObserver.onCompleted();
+            try {
+                streamObserver.onCompleted();
+            } catch (Throwable th) {
+                if (logger != null) {
+                    logger.info("StreamObserver.onCompleted error", th);
+                }
+            }
         }
     }
 }

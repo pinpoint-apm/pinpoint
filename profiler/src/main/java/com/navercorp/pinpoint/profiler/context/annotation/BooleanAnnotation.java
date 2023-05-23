@@ -20,15 +20,12 @@ import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
-import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
-import com.navercorp.pinpoint.profiler.context.thrift.ThriftAnnotationSerializable;
-import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 /**
  * @author emeroad
  */
 public class BooleanAnnotation implements Annotation<Boolean>,
-        GrpcAnnotationSerializable, ThriftAnnotationSerializable {
+        GrpcAnnotationSerializable {
     private final int key;
     private final boolean value;
 
@@ -53,11 +50,6 @@ public class BooleanAnnotation implements Annotation<Boolean>,
         PAnnotationValue.Builder builder = context.getAnnotationBuilder();
         builder.setBoolValue(this.value);
         return builder.build();
-    }
-
-    @Override
-    public TAnnotationValue apply(AnnotationValueThriftMapper context) {
-        return TAnnotationValue.boolValue(this.value);
     }
 
     @Override

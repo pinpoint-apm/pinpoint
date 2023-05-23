@@ -27,9 +27,8 @@ public class TransportModuleTest {
     @Test
     public void parse() {
         Assertions.assertEquals(TransportModule.parse("GRPC"), TransportModule.GRPC);
-        Assertions.assertEquals(TransportModule.parse("THRIFT"), TransportModule.THRIFT);
 
-        Assertions.assertNull(TransportModule.parse("ERROR"));
+        Assertions.assertEquals(TransportModule.parse("ERROR"), TransportModule.GRPC);
     }
 
     @Test

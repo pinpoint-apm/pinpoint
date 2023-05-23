@@ -17,16 +17,14 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -46,28 +44,6 @@ public class ThreadDumpRequest {
     private final boolean threadNameFilter;
     private final StackTrace stackTrace;
 
-
-    public static ThreadDumpRequest create(TCmdActiveThreadDump request) {
-        Objects.requireNonNull(request, "request");
-
-        final int limit = getLimit(request.getLimit());
-
-        final List<Long> localTransactionIdList = request.getLocalTraceIdList();
-        final List<String> threadNameList = request.getThreadNameList();
-
-        return new ThreadDumpRequest(StackTrace.DUMP, limit, localTransactionIdList, threadNameList);
-    }
-
-    public static ThreadDumpRequest create(TCmdActiveThreadLightDump request) {
-        Objects.requireNonNull(request, "request");
-
-        int limit = getLimit(request.getLimit());
-
-        final List<Long> localTransactionIdList = request.getLocalTraceIdList();
-        final List<String> threadNameList = request.getThreadNameList();
-
-        return new ThreadDumpRequest(StackTrace.SKIP, limit, localTransactionIdList, threadNameList);
-    }
 
     public static ThreadDumpRequest create(PCmdActiveThreadDump request) {
         Objects.requireNonNull(request, "request");
@@ -128,7 +104,7 @@ public class ThreadDumpRequest {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptySet();
         }
-        return new HashSet<T>(list);
+        return new HashSet<>(list);
     }
 
     public int getLimit() {

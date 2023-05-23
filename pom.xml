@@ -103,6 +103,7 @@
         <module>plugins</module>
         <module>plugins-loader</module>
         <module>profiler</module>
+        <module>profiler-thrift-datasender</module>
         <module>profiler-logging</module>
         <module>profiler-optional</module>
         <module>profiler-test</module>
@@ -406,6 +407,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-profiler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>thrift-datasender</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

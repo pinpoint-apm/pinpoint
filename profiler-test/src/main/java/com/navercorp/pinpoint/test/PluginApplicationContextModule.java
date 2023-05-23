@@ -20,7 +20,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.google.inject.util.Providers;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.SpanType;
@@ -30,12 +32,9 @@ import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
@@ -67,11 +66,9 @@ public class PluginApplicationContextModule extends AbstractModule {
 
         bind(StorageFactory.class).to(TestSpanStorageFactory.class);
 
-        bind(PinpointClientFactory.class).toProvider(Providers.of(null));
-
-        EnhancedDataSender<MetaDataType> enhancedDataSender = newTcpDataSender();
+        EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender = newTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {};
+        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {};
         bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
 
         ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
@@ -92,7 +89,7 @@ public class PluginApplicationContextModule extends AbstractModule {
         return sender;
     }
 
-    private EnhancedDataSender<MetaDataType> newTcpDataSender() {
+    private EnhancedDataSender<MetaDataType, ResponseMessage> newTcpDataSender() {
         return new TestTcpDataSender();
     }
 

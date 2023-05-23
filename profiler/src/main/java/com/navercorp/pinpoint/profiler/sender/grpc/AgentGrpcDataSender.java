@@ -17,19 +17,18 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
 import io.grpc.stub.StreamObserver;
-import org.jboss.netty.buffer.ChannelBuffers;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
@@ -37,13 +36,7 @@ import java.util.function.BiConsumer;
 /**
  * @author jaehong.kim
  */
-public class AgentGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T> {
-
-    static {
-        // preClassLoad
-        ChannelBuffers.buffer(2);
-    }
-
+public class AgentGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T, ResponseMessage> {
     private final AgentGrpc.AgentStub agentInfoStub;
     private final AgentGrpc.AgentStub agentPingStub;
     private final GrpcCommandService grpcCommandService;

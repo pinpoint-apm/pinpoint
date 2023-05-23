@@ -21,9 +21,6 @@ import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
-import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
-import com.navercorp.pinpoint.profiler.context.thrift.ThriftAnnotationSerializable;
-import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 import java.util.Objects;
 
@@ -31,7 +28,7 @@ import java.util.Objects;
  * @author emeroad
  */
 public class BytesAnnotation implements Annotation<byte[]>,
-        GrpcAnnotationSerializable, ThriftAnnotationSerializable {
+        GrpcAnnotationSerializable {
     private final int key;
     private final byte[] value;
 
@@ -55,11 +52,6 @@ public class BytesAnnotation implements Annotation<byte[]>,
         PAnnotationValue.Builder builder = context.getAnnotationBuilder();
         builder.setBinaryValue(ByteString.copyFrom(this.value));
         return builder.build();
-    }
-
-    @Override
-    public TAnnotationValue apply(AnnotationValueThriftMapper context) {
-        return TAnnotationValue.binaryValue(this.value);
     }
 
     @Override

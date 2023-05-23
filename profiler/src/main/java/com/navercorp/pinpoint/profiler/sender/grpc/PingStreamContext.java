@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import java.util.Objects;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
@@ -25,9 +24,10 @@ import com.navercorp.pinpoint.grpc.trace.PPing;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -140,7 +140,7 @@ public class PingStreamContext {
 
     public void close() {
         logger.info("{} close()", streamId);
-        StreamUtils.close(this.requestObserver);
+        StreamUtils.close(this.requestObserver, this.logger);
     }
 
     @Override

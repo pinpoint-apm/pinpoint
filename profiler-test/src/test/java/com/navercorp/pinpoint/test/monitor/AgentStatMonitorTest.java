@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.test.monitor;
 
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
@@ -24,10 +25,9 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
-import com.navercorp.pinpoint.test.TBaseRecorder;
-import com.navercorp.pinpoint.test.TBaseRecorderAdaptor;
+import com.navercorp.pinpoint.test.Recorder;
+import com.navercorp.pinpoint.test.RecorderAdaptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +48,7 @@ public class AgentStatMonitorTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private TBaseRecorder<AgentStatMetricSnapshotBatch> tBaseRecorder;
+    private Recorder<AgentStatMetricSnapshotBatch> recorder;
     private DataSender<MetricType> dataSender;
 
     @Mock
@@ -58,8 +58,8 @@ public class AgentStatMonitorTest {
     public void beforeEach() {
         when(agentStatCollector.collect()).thenReturn(new AgentStatMetricSnapshot());
 
-        this.tBaseRecorder = new TBaseRecorder<>();
-        ListenableDataSender.Listener<? extends MetricType> recorderAdaptor = new TBaseRecorderAdaptor<>(tBaseRecorder);
+        this.recorder = new Recorder<>();
+        ListenableDataSender.Listener<? extends MetricType> recorderAdaptor = new RecorderAdaptor<>(recorder);
 
         ListenableDataSender<MetricType> listenableDataSender = new ListenableDataSender<>("testDataSender");
         listenableDataSender.setListener((ListenableDataSender.Listener<MetricType>) recorderAdaptor);
@@ -88,8 +88,8 @@ public class AgentStatMonitorTest {
         Thread.sleep(totalTestDurationMs);
         monitor.stop();
         // Then
-        assertTrue(tBaseRecorder.size() >= minNumBatchToTest);
-        for (AgentStatMetricSnapshotBatch agentStatBatch : tBaseRecorder) {
+        assertTrue(recorder.size() >= minNumBatchToTest);
+        for (AgentStatMetricSnapshotBatch agentStatBatch : recorder) {
             logger.debug("agentStatBatch:{}", agentStatBatch);
             assertTrue(agentStatBatch.getAgentStats().size() <= numCollectionsPerBatch);
         }

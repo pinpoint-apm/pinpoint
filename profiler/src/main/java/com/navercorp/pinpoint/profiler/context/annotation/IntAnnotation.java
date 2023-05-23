@@ -20,15 +20,12 @@ import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
-import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
-import com.navercorp.pinpoint.profiler.context.thrift.ThriftAnnotationSerializable;
-import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 /**
  * @author emeroad
  */
 public class IntAnnotation implements Annotation<Integer>,
-        GrpcAnnotationSerializable, ThriftAnnotationSerializable {
+        GrpcAnnotationSerializable {
     private final int key;
     private final int value;
 
@@ -55,10 +52,6 @@ public class IntAnnotation implements Annotation<Integer>,
         return builder.build();
     }
 
-    @Override
-    public TAnnotationValue apply(AnnotationValueThriftMapper context) {
-        return TAnnotationValue.intValue(this.value);
-    }
 
     @Override
     public String toString() {

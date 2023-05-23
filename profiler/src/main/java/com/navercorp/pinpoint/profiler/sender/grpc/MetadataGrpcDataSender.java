@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
@@ -25,9 +27,7 @@ import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -42,7 +42,7 @@ import java.util.function.BiConsumer;
 /**
  * @author jaehong.kim
  */
-public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T> {
+public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T, ResponseMessage> {
     private final MetadataGrpc.MetadataStub metadataStub;
     private final int maxAttempts;
     private final int retryDelayMillis;

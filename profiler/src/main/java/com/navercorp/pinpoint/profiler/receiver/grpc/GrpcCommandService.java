@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import java.util.Objects;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.client.SupportCommandCodeClientInterceptor;
@@ -27,11 +26,12 @@ import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.Reconnector;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamUtils;
-
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -157,14 +157,14 @@ public class GrpcCommandService {
         @Override
         public void onCompleted() {
             logger.info("onCompleted");
-            StreamUtils.close(requestStream);
+            StreamUtils.close(requestStream, GrpcCommandService.this.logger);
             // TODO : needs to check whether needs new action
             reserveReconnect();
         }
 
         private void stop() {
             logger.info("stop");
-            StreamUtils.close(requestStream);
+            StreamUtils.close(requestStream, GrpcCommandService.this.logger);
             commandDispatcher.close();
         }
 

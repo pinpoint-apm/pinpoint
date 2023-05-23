@@ -20,12 +20,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
 
 import java.util.Objects;
@@ -39,16 +40,16 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final Provider<EnhancedDataSender<MetaDataType>> agentDataSenderProvider;
-    private final Provider<EnhancedDataSender<MetaDataType>> metadataDataSenderProvider;
+    private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSenderProvider;
+    private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSenderProvider;
     private final Provider<DataSender<SpanType>> spanDataSenderProvider;
     private final Provider<DataSender<MetricType>> statDataSenderProvider;
 
     private final Provider<ExecutorService> dnsExecutorServiceProvider;
     private final Provider<ScheduledExecutorService> reconnectScheduledExecutorProvider;
 
-    private EnhancedDataSender<MetaDataType> agentDataSender;
-    private EnhancedDataSender<MetaDataType> metadataDataSender;
+    private EnhancedDataSender<MetaDataType, ResponseMessage> agentDataSender;
+    private EnhancedDataSender<MetaDataType, ResponseMessage> metadataDataSender;
 
     private DataSender<SpanType> spanDataSender;
     private DataSender<MetricType> statDataSender;
@@ -60,8 +61,8 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     @Inject
     public GrpcModuleLifeCycle(
-            @AgentDataSender Provider<EnhancedDataSender<MetaDataType>> agentDataSenderProvider,
-            @MetadataDataSender Provider<EnhancedDataSender<MetaDataType>> metadataDataSenderProvider,
+            @AgentDataSender Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSenderProvider,
+            @MetadataDataSender Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSenderProvider,
             @SpanDataSender Provider<DataSender<SpanType>> spanDataSenderProvider,
             @StatDataSender Provider<DataSender<MetricType>> statDataSenderProvider,
             Provider<ExecutorService> dnsExecutorServiceProvider,

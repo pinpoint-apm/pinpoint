@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
@@ -170,7 +170,7 @@ public class AgentServiceImpl implements AgentService {
     public PinpointRouteResponse invoke(ClusterKey clusterKey, byte[] payload, long timeout) throws TException {
         final List<PinpointSocket> socketList = clusterManager.getSocket(clusterKey);
         if (CollectionUtils.nullSafeSize(socketList) != 1) {
-            return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
+            return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND);
         }
         final PinpointSocket socket = socketList.get(0);
 
@@ -225,12 +225,12 @@ public class AgentServiceImpl implements AgentService {
             ResponseMessage responseMessage = future.get(timeout, TimeUnit.MILLISECONDS);
             return routeResponseParser.parse(responseMessage.getMessage());
         } catch (ExecutionException e) {
-            return new FailedPinpointRouteResponse(TRouteResult.UNKNOWN, null);
+            return new FailedPinpointRouteResponse(TRouteResult.UNKNOWN);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return new FailedPinpointRouteResponse(TRouteResult.UNKNOWN, null);
+            return new FailedPinpointRouteResponse(TRouteResult.UNKNOWN);
         } catch (TimeoutException e) {
-            return new FailedPinpointRouteResponse(TRouteResult.TIMEOUT, null);
+            return new FailedPinpointRouteResponse(TRouteResult.TIMEOUT);
         }
     }
 

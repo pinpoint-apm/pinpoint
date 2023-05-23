@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -50,11 +50,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
             logger.info("load GrpcModule");
             return new GrpcModule(profilerConfig);
         }
-        if (TransportModule.THRIFT == transportModule) {
-            logger.info("load ThriftModule");
-            return new ThriftModule(profilerConfig);
-        }
-        logger.info("load ThriftModule");
-        return new ThriftModule(profilerConfig);
+        logger.info("load GrpcModule");
+        return new GrpcModule(profilerConfig);
     }
 }

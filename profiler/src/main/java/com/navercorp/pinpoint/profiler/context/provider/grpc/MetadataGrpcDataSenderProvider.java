@@ -19,17 +19,18 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.MetadataGrpcDataSender;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
@@ -43,7 +44,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
+public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -74,7 +75,7 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
     }
 
     @Override
-    public EnhancedDataSender<MetaDataType> get() {
+    public EnhancedDataSender<MetaDataType, ResponseMessage> get() {
         final String collectorIp = grpcTransportConfig.getMetadataCollectorIp();
         final int collectorPort = grpcTransportConfig.getMetadataCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isMetadataSslEnable();

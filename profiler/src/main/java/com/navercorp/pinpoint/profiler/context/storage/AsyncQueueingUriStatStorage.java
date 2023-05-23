@@ -19,13 +19,13 @@ package com.navercorp.pinpoint.profiler.context.storage;
 import com.navercorp.pinpoint.bootstrap.plugin.http.URITemplate;
 import com.navercorp.pinpoint.common.profiler.clock.Clock;
 import com.navercorp.pinpoint.common.profiler.clock.TickClock;
+import com.navercorp.pinpoint.common.profiler.concurrent.executor.AsyncQueueingExecutor;
+import com.navercorp.pinpoint.common.profiler.concurrent.executor.MultiConsumer;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
-import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutor;
-import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutorListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,19 +40,19 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     private static final Logger LOGGER = LogManager.getLogger(AsyncQueueingUriStatStorage.class);
     private static final ThrottledLogger TLogger = ThrottledLogger.getLogger(LOGGER, 100);
-    private final ExecutorListener executorListener;
+    private final UriStatConsumer consumer;
 
     public AsyncQueueingUriStatStorage(int queueSize, int uriStatDataLimitSize, String executorName) {
-        this(queueSize, executorName, new ExecutorListener(uriStatDataLimitSize));
+        this(queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize));
     }
 
     public AsyncQueueingUriStatStorage(int queueSize, int uriStatDataLimitSize, String executorName, int collectInterval) {
-        this(queueSize, executorName, new ExecutorListener(uriStatDataLimitSize, collectInterval));
+        this(queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize, collectInterval));
     }
 
-    private AsyncQueueingUriStatStorage(int queueSize, String executorName, ExecutorListener executorListener) {
-        super(queueSize, executorName, executorListener);
-        this.executorListener = executorListener;
+    private AsyncQueueingUriStatStorage(int queueSize, String executorName, UriStatConsumer consumer) {
+        super(queueSize, executorName, consumer);
+        this.consumer = consumer;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     @Override
     public AgentUriStatData poll() {
-        return executorListener.pollCompletedData();
+        return consumer.pollCompletedData();
     }
 
     @Override
@@ -79,10 +79,10 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     @Override
     protected void pollTimeout(long timeout) {
-        executorListener.executePollTimeout();
+        consumer.executePollTimeout();
     }
 
-    static class ExecutorListener implements AsyncQueueingExecutorListener<UriStatInfo> {
+    static class UriStatConsumer implements MultiConsumer<UriStatInfo> {
 
         private static final int DEFAULT_COLLECT_INTERVAL = 30000; // 30s
 
@@ -94,11 +94,11 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
         private final Snapshot<AgentUriStatData> snapshotManager;
 
 
-        public ExecutorListener(int uriStatDataLimitSize) {
+        public UriStatConsumer(int uriStatDataLimitSize) {
             this(uriStatDataLimitSize, DEFAULT_COLLECT_INTERVAL);
         }
 
-        public ExecutorListener(int uriStatDataLimitSize, int collectInterval) {
+        public UriStatConsumer(int uriStatDataLimitSize, int collectInterval) {
             Assert.isTrue(uriStatDataLimitSize > 0, "uriStatDataLimitSize must be ' > 0'");
 
             Assert.isTrue(collectInterval > 0, "collectInterval must be ' > 0'");
@@ -109,7 +109,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
         }
 
         @Override
-        public void execute(Collection<UriStatInfo> messageList) {
+        public void acceptN(Collection<UriStatInfo> messageList) {
             final long currentBaseTimestamp = clock.millis();
             checkAndFlushOldData(currentBaseTimestamp);
 
@@ -122,7 +122,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
         }
 
         @Override
-        public void execute(UriStatInfo message) {
+        public void accept(UriStatInfo message) {
             long currentBaseTimestamp = clock.millis();
             checkAndFlushOldData(currentBaseTimestamp);
 

@@ -19,17 +19,19 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
@@ -37,7 +39,6 @@ import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadCountServic
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadDumpService;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadLightDumpService;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcEchoService;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.ClientInterceptor;
@@ -54,7 +55,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * @author jaehong.kim
  */
-public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
+public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -100,7 +101,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     }
 
     @Override
-    public EnhancedDataSender<MetaDataType> get() {
+    public EnhancedDataSender<MetaDataType, ResponseMessage> get() {
         final String collectorIp = grpcTransportConfig.getAgentCollectorIp();
         final int collectorPort = grpcTransportConfig.getAgentCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isAgentSslEnable();
@@ -118,7 +119,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
                 channelFactory, reconnectExecutor, retransmissionExecutor, profilerCommandServiceLocator);
     }
 
-    protected EnhancedDataSender<MetaDataType> newAgentGrpcDataSender(String collectorIp, int collectorPort, int senderExecutorQueueSize,
+    protected EnhancedDataSender<MetaDataType, ResponseMessage> newAgentGrpcDataSender(String collectorIp, int collectorPort, int senderExecutorQueueSize,
                                                                 MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
                                                                 ChannelFactory channelFactory, ReconnectExecutor reconnectExecutor,
                                                                 ScheduledExecutorService retransmissionExecutor,

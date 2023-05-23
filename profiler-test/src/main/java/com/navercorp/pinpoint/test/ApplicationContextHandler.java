@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.test;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
@@ -29,8 +32,6 @@ import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,10 +72,10 @@ public class ApplicationContextHandler {
     }
 
     private TestTcpDataSender findTestTcpDataSender(Injector injector) {
-        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
+        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {
         };
-        Key<EnhancedDataSender<MetaDataType>> dataSenderKey = Key.get(dataSenderTypeLiteral);
-        EnhancedDataSender<MetaDataType> dataSender = injector.getInstance(dataSenderKey);
+        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderKey = Key.get(dataSenderTypeLiteral);
+        EnhancedDataSender<MetaDataType, ResponseMessage> dataSender = injector.getInstance(dataSenderKey);
         if (dataSender instanceof TestTcpDataSender) {
             return (TestTcpDataSender) dataSender;
         }

@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,7 +49,7 @@ public class AgentInfoSender {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final EnhancedDataSender<MetaDataType> dataSender;
+    private final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
     private final AgentInfoFactory agentInfoFactory;
     private final long refreshIntervalMs;
     private final long sendIntervalMs;
@@ -207,14 +207,14 @@ public class AgentInfoSender {
     }
 
     public static class Builder {
-        private final EnhancedDataSender<MetaDataType> dataSender;
+        private final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
         private final AgentInfoFactory agentInfoFactory;
         private long refreshIntervalMs = DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS;
         private long sendIntervalMs = DEFAULT_AGENT_INFO_SEND_INTERVAL_MS;
         private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
         private MessageConverter<Object, ResultResponse> messageConverter;
 
-        public Builder(EnhancedDataSender<MetaDataType> dataSender, AgentInfoFactory agentInfoFactory) {
+        public Builder(EnhancedDataSender<MetaDataType, ResponseMessage> dataSender, AgentInfoFactory agentInfoFactory) {
             this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
             this.agentInfoFactory = Objects.requireNonNull(agentInfoFactory, "agentInfoFactory");
         }

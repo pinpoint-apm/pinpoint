@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 
 /**
  * @author emeroad
