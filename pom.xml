@@ -229,7 +229,7 @@
         <plugin.assembly.version>3.6.0</plugin.assembly.version>
         <plugin.jar.version>3.3.0</plugin.jar.version>
         <plugin.antrun.version>3.0.0</plugin.antrun.version>
-        <plugin.build-helper.version>3.3.0</plugin.build-helper.version>
+        <plugin.build-helper.version>3.4.0</plugin.build-helper.version>
 
         <plugin.spotbugs.version>4.4.2.2</plugin.spotbugs.version>
         <plugin.pmd.version>3.16.0</plugin.pmd.version>
