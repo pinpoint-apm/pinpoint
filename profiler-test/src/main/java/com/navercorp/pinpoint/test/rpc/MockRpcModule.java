@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.SpanType;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcMessageToResultConverterProvider;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.module.ModuleLifeCycle;
@@ -88,7 +87,7 @@ public class MockRpcModule extends PrivateModule {
 
         TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {};
         Key<MessageConverter<Object, ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
-        bind(resultMessageConverterKey).toProvider(GrpcMessageToResultConverterProvider.class).in(Scopes.SINGLETON);
+        bind(resultMessageConverterKey).to(MockMessageConverter.class).in(Scopes.SINGLETON);
         expose(resultMessageConverterKey);
 
 
