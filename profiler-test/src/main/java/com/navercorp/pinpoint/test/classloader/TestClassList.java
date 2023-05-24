@@ -25,12 +25,12 @@ import java.util.List;
  */
 public class TestClassList {
 
-    private List<String> testClassList = new ArrayList<>();
+    private final List<String> testClassList = new ArrayList<>();
 
     public TestClassList() {
         add("com.navercorp.pinpoint.bootstrap.");
         add("com.navercorp.pinpoint.common.");
-        add("com.navercorp.pinpoint.thrift.");
+
         add("com.navercorp.pinpoint.profiler.context.");
 
         add("com.navercorp.pinpoint.test.MockApplicationContext");
@@ -42,7 +42,7 @@ public class TestClassList {
         add("com.navercorp.pinpoint.test.junit4.TestContext");
 
         add("com.navercorp.pinpoint.test.junit4.IsRootSpan");
-        add("org.apache.thrift.TBase");
+
         add("junit.");
         add("org.hamcrest.");
         add("org.assertj.");

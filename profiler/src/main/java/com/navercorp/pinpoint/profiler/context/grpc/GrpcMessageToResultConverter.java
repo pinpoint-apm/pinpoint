@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.navercorp.pinpoint.common.profiler.message.DefaultResultResponse;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -33,17 +34,7 @@ public class GrpcMessageToResultConverter implements MessageConverter<Object, Re
             final byte[] byteMessage = responseMessage.getMessage();
             try {
                 final PResult pResult = PResult.parseFrom(byteMessage);
-                return new ResultResponse() {
-                    @Override
-                    public boolean isSuccess() {
-                        return pResult.getSuccess();
-                    }
-
-                    @Override
-                    public String getMessage() {
-                        return pResult.getMessage();
-                    }
-                };
+                return new DefaultResultResponse(pResult.getSuccess(), pResult.getMessage());
             } catch (InvalidProtocolBufferException e) {
                 throw new IllegalArgumentException("invalid message data. response message=" + responseMessage, e);
             }
