@@ -16,17 +16,17 @@
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.plugin.vertx.HttpClientRequestClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import io.vertx.core.http.HttpClientRequest;
 
@@ -39,14 +39,10 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
-    private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
 
     public HttpClientImplDoRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-
-        ClientHeaderAdaptor<HttpClientRequest> clientHeaderAdaptor = new HttpClientRequestClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -60,10 +56,6 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             return;
         }
 
-        if (!trace.canSampled()) {
-            return;
-        }
-
         trace.traceBlockBegin();
     }
 
@@ -73,35 +65,29 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
-        HttpClientRequest resultToRequest = null;
-        if (validate(result)) {
-            resultToRequest = (HttpClientRequest) result;
-        }
-        final HttpClientRequest request = resultToRequest;
-
-        if (!trace.canSampled()) {
-            if (request != null) {
-                requestTraceWriter.write(request);
-            }
-            return;
-        }
-
         try {
+            HttpClientRequest resultToRequest = null;
+            if (validate(result)) {
+                resultToRequest = (HttpClientRequest) result;
+            }
+            final HttpClientRequest request = resultToRequest;
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
-            recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
 
-            final String hostAndPort = toHostAndPort(args);
-            if (hostAndPort != null) {
-                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
-                if (isDebug) {
-                    logger.debug("Set hostAndPort {}", hostAndPort);
+            if (trace.canSampled()) {
+                recorder.recordApi(methodDescriptor);
+                recorder.recordException(throwable);
+                recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
+                final String hostAndPort = toHostAndPort(args);
+                if (hostAndPort != null) {
+                    recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
+                    if (isDebug) {
+                        logger.debug("Set hostAndPort {}", hostAndPort);
+                    }
                 }
             }
 

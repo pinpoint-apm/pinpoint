@@ -49,7 +49,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
@@ -90,7 +90,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
@@ -102,9 +102,11 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(methodDescriptor);
-            recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
-            recorder.recordException(throwable);
+            if (trace.canSampled()) {
+                recorder.recordApi(methodDescriptor);
+                recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
+                recorder.recordException(throwable);
+            }
         } finally {
             trace.traceBlockEnd();
         }

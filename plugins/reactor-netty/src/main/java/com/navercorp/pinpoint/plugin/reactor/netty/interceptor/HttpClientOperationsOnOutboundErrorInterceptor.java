@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
@@ -38,14 +39,20 @@ public class HttpClientOperationsOnOutboundErrorInterceptor extends AsyncContext
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
-        Throwable th = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
-        if (th != null) {
-            recorder.recordException(th);
-        } else {
-            recorder.recordException(throwable);
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
+            Throwable th = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
+            if (th != null) {
+                recorder.recordException(th);
+            } else {
+                recorder.recordException(throwable);
+            }
         }
+    }
+
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
     }
 }

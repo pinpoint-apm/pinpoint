@@ -35,7 +35,6 @@ public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndP
 
     public HttpServerResponseImplInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);
-
         this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
     }
 
@@ -44,7 +43,13 @@ public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndP
     }
 
     @Override
-    public void prepareAfter(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
+            recorder.recordException(throwable);
+        }
+
         if (target instanceof HttpServerResponse) {
             final HttpServerResponse response = (HttpServerResponse) target;
             final SpanRecorder spanRecorder = trace.getSpanRecorder();
@@ -54,8 +59,5 @@ public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndP
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
-        recorder.recordException(throwable);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class ChannelOperationsChannelMethodInterceptor implements AroundIntercep
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (traceContext.currentTraceObject() == null) {
+        if (traceContext.currentRawTraceObject() == null) {
             return;
         }
 
