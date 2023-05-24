@@ -20,15 +20,14 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.Recorder;
+import com.navercorp.pinpoint.test.SpanRecorder;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,40 +36,23 @@ import java.util.List;
 @RunWith(value = PinpointJUnit4ClassRunner.class)
 public abstract class BasePinpointTest {
 
-    private volatile Recorder<SpanType> recorder;
+    private volatile SpanRecorder recorder;
     private volatile ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     protected List<SpanEvent> getCurrentSpanEvents() {
-        List<SpanEvent> spanEvents = new ArrayList<>();
-        for (SpanType value : this.recorder) {
-            if (value instanceof SpanChunk) {
-                final SpanChunk spanChunk = (SpanChunk) value;
-                for (SpanEvent tSpanEvent : spanChunk.getSpanEventList()) {
-                    SpanEvent spanEvent = tSpanEvent;
-                    spanEvents.add(spanEvent);
-                }
-            }
-        }
-        return spanEvents;
+        return this.recorder.getCurrentSpanEvents();
     }
 
     protected List<Span> getCurrentRootSpans() {
-        List<Span> rootSpans = new ArrayList<>();
-        for (Object value : this.recorder) {
-            if (value instanceof Span) {
-                Span span = (Span) value;
-                rootSpans.add(span);
-            }
-        }
-        return rootSpans;
+        return this.recorder.getCurrentSpans();
     }
 
     protected ServerMetaData getServerMetaData() {
         return this.serverMetaDataRegistryService.getServerMetaData();
     }
 
-    private void setTBaseRecorder(Recorder<SpanType> recorder) {
-        this.recorder = recorder;
+    private void setRecorder(Recorder<SpanType> recorder) {
+        this.recorder = new SpanRecorder(recorder);
     }
 
     private void setServerMetaDataRegistryService(ServerMetaDataRegistryService serverMetaDataRegistryService) {
@@ -84,15 +66,15 @@ public abstract class BasePinpointTest {
         if (spanDataSender instanceof ListenableDataSender) {
             ListenableDataSender<SpanType> listenableDataSender = (ListenableDataSender<SpanType>) spanDataSender;
 
-            final Recorder<SpanType> tBaseRecord = new Recorder<>();
+            final Recorder<SpanType> recorder = new Recorder<>();
 
             listenableDataSender.setListener(new ListenableDataSender.Listener<SpanType>() {
                 @Override
                 public boolean handleSend(SpanType data) {
-                    return tBaseRecord.add(data);
+                    return recorder.add(data);
                 }
             });
-            setTBaseRecorder(tBaseRecord);
+            setRecorder(recorder);
         }
 
         ServerMetaDataRegistryService serverMetaDataRegistryService = mockApplicationContext.getServerMetaDataRegistryService();
