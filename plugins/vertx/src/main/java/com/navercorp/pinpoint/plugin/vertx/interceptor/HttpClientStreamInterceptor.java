@@ -15,7 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -72,7 +76,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
@@ -89,12 +93,16 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
                 // defense code.
                 return;
             }
-            final String host = (String) args[1];
-            // generate next trace id.
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
 
-            requestTraceWriter.write(request, nextId, host);
+            if (trace.canSampled()) {
+                final String host = (String) args[1];
+                // generate next trace id.
+                final TraceId nextId = trace.getTraceId().getNextTraceId();
+                recorder.recordNextSpanId(nextId.getSpanId());
+                requestTraceWriter.write(request, nextId, host);
+            } else {
+                requestTraceWriter.write(request);
+            }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
@@ -124,31 +132,33 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
         try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-            recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
+            if (trace.canSampled()) {
+                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                recorder.recordApi(descriptor);
+                recorder.recordException(throwable);
+                recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
 
-            if (!validate(args)) {
-                return;
+                if (!validate(args)) {
+                    return;
+                }
+
+                final HttpRequest request = (HttpRequest) args[0];
+                final HttpHeaders headers = request.headers();
+                if (headers == null) {
+                    return;
+                }
+
+                final String host = (String) args[1];
+                ClientRequestWrapper clientRequest = new VertxHttpClientRequestWrapper(request, host);
+                this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+                this.cookieRecorder.record(recorder, request, throwable);
             }
-
-            final HttpRequest request = (HttpRequest) args[0];
-            final HttpHeaders headers = request.headers();
-            if (headers == null) {
-                return;
-            }
-
-            final String host = (String) args[1];
-            ClientRequestWrapper clientRequest = new VertxHttpClientRequestWrapper(request, host);
-            this.clientRequestRecorder.record(recorder, clientRequest, throwable);
-            this.cookieRecorder.record(recorder, request, throwable);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", t.getMessage(), t);

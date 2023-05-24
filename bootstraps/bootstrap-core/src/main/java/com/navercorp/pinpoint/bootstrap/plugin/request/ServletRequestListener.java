@@ -66,25 +66,17 @@ public class ServletRequestListener<REQ> {
                                   final ProxyRequestRecorder<REQ> proxyRequestRecorder,
                                   final ServerRequestRecorder<REQ> serverRequestRecorder,
                                   final HttpStatusCodeRecorder httpStatusCodeRecorder,
-                                  final boolean  recordStatusCode) {
+                                  final boolean recordStatusCode) {
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
         this.requestTraceReader = Objects.requireNonNull(requestTraceReader, "requestTraceReader");
-
         this.proxyRequestRecorder = Objects.requireNonNull(proxyRequestRecorder, "proxyRequestRecorder");
-
         this.excludeUrlFilter = Objects.requireNonNull(excludeUrlFilter, "excludeUrlFilter");
-        
         this.parameterRecorder = Objects.requireNonNull(parameterRecorder, "parameterRecorder");
-
-
         this.serverRequestRecorder = Objects.requireNonNull(serverRequestRecorder, "serverRequestRecorder");
-
         this.httpStatusCodeRecorder = Objects.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
-
         this.recordStatusCode = recordStatusCode;
-
         this.traceContext.cacheApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
     }
 
@@ -95,7 +87,8 @@ public class ServletRequestListener<REQ> {
         Objects.requireNonNull(methodDescriptor, "methodDescriptor");
 
         if (isDebug) {
-            logger.debug("Initialized requestEvent. request={}, serviceType={}, methodDescriptor={}", request, serviceType, methodDescriptor);
+            // An error may occur when the request variable is output to the log.
+            logger.debug("Initialized requestEvent. serviceType={}, methodDescriptor={}", serviceType, methodDescriptor);
         }
 
         final Trace trace = createTrace(request);
@@ -103,13 +96,11 @@ public class ServletRequestListener<REQ> {
             return;
         }
 
-        if (!trace.canSampled()) {
-            return;
-        }
-
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(serviceType);
-        recorder.recordApi(methodDescriptor);
+        if (trace.canSampled()) {
+            recorder.recordServiceType(serviceType);
+            recorder.recordApi(methodDescriptor);
+        }
     }
 
     private Trace createTrace(REQ request) {
@@ -135,13 +126,14 @@ public class ServletRequestListener<REQ> {
     }
 
     /**
-     * @param request request
-     * @param throwable error
+     * @param request    request
+     * @param throwable  error
      * @param statusCode status code
      */
     public void destroyed(REQ request, final Throwable throwable, final int statusCode) {
         if (isDebug) {
-            logger.debug("Destroyed requestEvent. request={}, throwable={}, statusCode={}", request, throwable, statusCode);
+            // An error may occur when the request variable is output to the log.
+            logger.debug("Destroyed requestEvent. throwable={}, statusCode={}", throwable, statusCode);
         }
 
         final Trace trace = this.traceContext.currentRawTraceObject();
@@ -149,29 +141,21 @@ public class ServletRequestListener<REQ> {
             return;
         }
 
-//        final String rpcName = requestAdaptor.getRpcName(request);
-
         if (this.recordStatusCode) {
             this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), statusCode);
         }
 
-        // TODO STATDISABLE this logic was added to disable statistics tracing
-        if (!trace.canSampled()) {
-            traceContext.removeTraceObject();
-            trace.close();
-            return;
-        }
-
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordException(throwable);
-            // Must be executed in destroyed()
-            this.parameterRecorder.record(recorder, request, throwable);
+            if (trace.canSampled()) {
+                recorder.recordException(throwable);
+                // Must be executed in destroyed()
+                this.parameterRecorder.record(recorder, request, throwable);
+            }
         } finally {
             trace.traceBlockEnd();
             this.traceContext.removeTraceObject();
             trace.close();
         }
     }
-
 }

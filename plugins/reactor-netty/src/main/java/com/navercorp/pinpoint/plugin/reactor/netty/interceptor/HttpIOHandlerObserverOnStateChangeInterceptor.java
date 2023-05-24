@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -28,7 +29,6 @@ import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.reactor.netty.HttpCallContext;
 import com.navercorp.pinpoint.plugin.reactor.netty.HttpCallContextAccessor;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
-import reactor.netty.ConnectionObserver;
 
 public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
     // The request has been prepared and ready for I/O handler to be invoked
@@ -82,27 +82,35 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        // for compatibility.
-        final Object state = ArrayArgumentUtils.getArgument(args, 1, Object.class);
-        if (state == null) {
-            return;
-        }
-        final String rawState = state.toString();
-        if (isReady(rawState)) {
-            final String value = "READY " + rawState;
-            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, value);
-        } else if (isClosed(rawState)) {
-            if (target instanceof HttpCallContextAccessor) {
-                final HttpCallContext httpCallContext = ((HttpCallContextAccessor) target)._$PINPOINT$_getHttpCallContext();
-                final IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) httpCallContext.getWriteElapsedTime(), httpCallContext.isWriteFail(), (int) httpCallContext.getReadElapsedTime(), httpCallContext.isReadFail());
-                recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
-                // Clear HttpCallContext
-                ((HttpCallContextAccessor) target)._$PINPOINT$_setHttpCallContext(null);
+    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        if (trace.canSampled()) {
+            // for compatibility.
+            final Object state = ArrayArgumentUtils.getArgument(args, 1, Object.class);
+            if (state == null) {
+                return;
             }
-            final String value = "CLOSED " + rawState;
-            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, value);
+            final String rawState = state.toString();
+            if (isReady(rawState)) {
+                final String value = "READY " + rawState;
+                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, value);
+            } else if (isClosed(rawState)) {
+                if (target instanceof HttpCallContextAccessor) {
+                    final HttpCallContext httpCallContext = ((HttpCallContextAccessor) target)._$PINPOINT$_getHttpCallContext();
+                    if (httpCallContext != null) {
+                        final IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) httpCallContext.getWriteElapsedTime(), httpCallContext.isWriteFail(), (int) httpCallContext.getReadElapsedTime(), httpCallContext.isReadFail());
+                        recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
+                        // Clear HttpCallContext
+                        ((HttpCallContextAccessor) target)._$PINPOINT$_setHttpCallContext(null);
+                    }
+                }
+                final String value = "CLOSED " + rawState;
+                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, value);
+            }
         }
+    }
+
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
     }
 
     @Override
@@ -127,10 +135,16 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
     }
 
     @Override
+    protected void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordException(throwable);
+            recorder.recordApi(methodDescriptor);
+            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
+        }
+    }
+
+    @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordException(throwable);
-        recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }
 
     boolean isReady(String state) {

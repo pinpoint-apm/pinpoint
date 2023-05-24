@@ -38,12 +38,12 @@ public class ListenerConstructorInterceptor extends SpanEventSimpleAroundInterce
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(GrpcConstants.SERVICE_TYPE_INTERNAL);
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         if (target instanceof AsyncContextAccessor) {
             // set asynchronous trace
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();

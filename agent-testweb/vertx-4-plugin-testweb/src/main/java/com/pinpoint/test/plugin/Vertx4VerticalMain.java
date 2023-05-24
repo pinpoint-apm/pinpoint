@@ -1,6 +1,9 @@
 package com.pinpoint.test.plugin;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -8,8 +11,11 @@ import io.vertx.core.Vertx;
 public class Vertx4VerticalMain {
 
     public static void main(String[] args) {
-//        Launcher launcher = new Launcher(args);
-        Vertx vertx = Vertx.vertx();
+        VertxOptions options = new VertxOptions();
+        options.setBlockedThreadCheckInterval(60 * 60 * 1000);
+        options.setBlockedThreadCheckIntervalUnit(TimeUnit.MILLISECONDS);
+
+        Vertx vertx = Vertx.vertx(options);
         vertx.deployVerticle(new Vertx4PluginTestStarter());
     }
 }

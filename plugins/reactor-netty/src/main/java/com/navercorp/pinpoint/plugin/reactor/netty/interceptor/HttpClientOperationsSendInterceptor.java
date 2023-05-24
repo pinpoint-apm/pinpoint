@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,32 +59,27 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
             return null;
         }
 
+        return AsyncContextAccessorUtils.getAsyncContext(target);
+    }
+
+    @Override
+    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
         final HttpClientRequest request = (HttpClientRequest) target;
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (asyncContext == null) {
+        if (trace.canSampled()) {
+            final TraceId nextId = trace.getTraceId().getNextTraceId();
+            recorder.recordNextSpanId(nextId.getSpanId());
+            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT);
+
+            final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
+            this.requestTraceWriter.write(request, nextId, clientRequestWrapper.getDestinationId());
+        } else {
             // Set sampling rate to false
             this.requestTraceWriter.write(request);
-            return null;
         }
-        return asyncContext;
     }
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        final Trace trace = asyncContext.currentAsyncTraceObject();
-        if (trace == null) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Unexpected error, Current async trace is null");
-            }
-            return;
-        }
-        final TraceId nextId = trace.getTraceId().getNextTraceId();
-        recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT);
-
-        final HttpClientRequest request = (HttpClientRequest) target;
-        final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
-        this.requestTraceWriter.write(request, nextId, clientRequestWrapper.getDestinationId());
     }
 
     // AFTER
@@ -98,13 +93,19 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordException(throwable);
 
-        final HttpClientRequest request = (HttpClientRequest) target;
-        final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
-        this.clientRequestRecorder.record(recorder, clientRequestWrapper, throwable);
+            final HttpClientRequest request = (HttpClientRequest) target;
+            final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
+            this.clientRequestRecorder.record(recorder, clientRequestWrapper, throwable);
+        }
+    }
+
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
     }
 
     private boolean validate(final Object target) {

@@ -41,7 +41,7 @@ public class ServletResponseListener<RESP> {
 
     public ServletResponseListener(final TraceContext traceContext,
                                    final ServerResponseHeaderRecorder<RESP> serverResponseHeaderRecorder,
-                                  final HttpStatusCodeRecorder httpStatusCodeRecorder) {
+                                   final HttpStatusCodeRecorder httpStatusCodeRecorder) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.serverResponseHeaderRecorder = Objects.requireNonNull(serverResponseHeaderRecorder, "serverResponseHeaderRecorder");
         this.httpStatusCodeRecorder = Objects.requireNonNull(httpStatusCodeRecorder, "statusCodeRecorder");
@@ -54,7 +54,8 @@ public class ServletResponseListener<RESP> {
         Objects.requireNonNull(methodDescriptor, "methodDescriptor");
 
         if (isDebug) {
-            logger.debug("Initialized responseEvent. response={}, serviceType={}, methodDescriptor={}", response, serviceType, methodDescriptor);
+            // An error may occur when the response variable is output to the log.
+            logger.debug("Initialized responseEvent. serviceType={}, methodDescriptor={}", serviceType, methodDescriptor);
         }
     }
 
@@ -62,7 +63,8 @@ public class ServletResponseListener<RESP> {
         Objects.requireNonNull(response, "response");
 
         if (isDebug) {
-            logger.debug("Destroyed responseEvent. response={}, throwable={}, statusCode={}", response, throwable, statusCode);
+            // An error may occur when the response variable is output to the log.
+            logger.debug("Destroyed responseEvent. throwable={}, statusCode={}", throwable, statusCode);
         }
 
         final Trace trace = this.traceContext.currentRawTraceObject();
@@ -76,5 +78,4 @@ public class ServletResponseListener<RESP> {
             this.serverResponseHeaderRecorder.recordHeader(spanRecorder, response);
         }
     }
-
 }

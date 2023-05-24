@@ -70,7 +70,7 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
         try {
             // trace event for default & async.
             final SpanEventRecorder recorder = trace.traceBlockBegin();
-            prepareBefore(asyncContext, trace, recorder, target, args);
+            beforeTrace(asyncContext, trace, recorder, target, args);
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -79,7 +79,7 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
         }
     }
 
-    protected void prepareBefore(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+    protected void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     protected abstract void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args);
@@ -115,7 +115,7 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            prepareAfter(asyncContext, trace, recorder, target, args, result, throwable);
+            afterTrace(asyncContext, trace, recorder, target, args, result, throwable);
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -130,7 +130,7 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
         }
     }
 
-    protected void prepareAfter(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);

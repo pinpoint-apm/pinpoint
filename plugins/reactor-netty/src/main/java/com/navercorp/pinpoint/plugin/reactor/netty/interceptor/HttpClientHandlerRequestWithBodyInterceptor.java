@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
@@ -41,7 +42,7 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends AsyncContextSpa
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
         if (ArrayUtils.isEmpty(args)) {
             // Skip
             return;
@@ -54,26 +55,39 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends AsyncContextSpa
                 logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
             }
         }
-        // Set hostname
-        if (args[0] instanceof ChannelOperations) {
-            try {
-                final ChannelOperations channelOperations = (ChannelOperations) args[0];
-                final InetSocketAddress inetSocketAddress = (InetSocketAddress) channelOperations.channel().remoteAddress();
-                if (inetSocketAddress != null) {
-                    final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
-                    if (hostName != null) {
-                        recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, HostAndPort.toHostAndPortString(hostName, inetSocketAddress.getPort()));
+
+        if (trace.canSampled()) {
+            // Set hostname
+            if (args[0] instanceof ChannelOperations) {
+                try {
+                    final ChannelOperations channelOperations = (ChannelOperations) args[0];
+                    final InetSocketAddress inetSocketAddress = (InetSocketAddress) channelOperations.channel().remoteAddress();
+                    if (inetSocketAddress != null) {
+                        final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
+                        if (hostName != null) {
+                            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, HostAndPort.toHostAndPortString(hostName, inetSocketAddress.getPort()));
+                        }
                     }
+                } catch (Exception ignored) {
                 }
-            } catch (Exception ignored) {
             }
         }
     }
 
     @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    }
+
+    @Override
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordException(throwable);
+            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
+        }
+    }
+
+    @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }
 }
