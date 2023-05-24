@@ -103,7 +103,7 @@
         <module>plugins</module>
         <module>plugins-loader</module>
         <module>profiler</module>
-        <module>profiler-thrift-datasender</module>
+        <module>thrift-datasender</module>
         <module>profiler-logging</module>
         <module>profiler-optional</module>
         <module>profiler-test</module>
