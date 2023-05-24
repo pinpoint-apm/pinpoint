@@ -35,7 +35,6 @@
 
         <spring-boot-build-skip>true</spring-boot-build-skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
         <main.verticle>com.pinpoint.test.plugin.Vertx3PluginTestStarter</main.verticle>
@@ -60,7 +59,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven-shade-plugin.version}</version>
+                <version>${plugin.shade.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
