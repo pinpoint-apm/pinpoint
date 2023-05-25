@@ -1552,6 +1552,13 @@
                         </excludes>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${plugin.shade.version}</version>
+                    <configuration>
+                        <createDependencyReducedPom>false</createDependencyReducedPom>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
