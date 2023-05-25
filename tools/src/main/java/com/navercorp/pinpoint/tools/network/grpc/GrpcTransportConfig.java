@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.tools.network.grpc;
 
-import com.navercorp.pinpoint.common.config.Value;
-import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
+
+import com.navercorp.pinpoint.tools.utils.PropertyResolver;
 
 import java.util.Properties;
+
+import static com.navercorp.pinpoint.tools.utils.NumberUtils.parseInt;
 
 /**
  * @author Roy Kim
@@ -31,75 +33,55 @@ public class GrpcTransportConfig {
     private static final int DEFAULT_STAT_COLLECTOR_PORT = 9992;
     private static final int DEFAULT_SPAN_COLLECTOR_PORT = 9993;
 
-    @Value("${profiler.transport.grpc.agent.collector.ip}")
-    private String agentCollectorIp = DEFAULT_IP;
-    @Value("${profiler.transport.grpc.agent.collector.port}")
-    private int agentCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
+    private final PropertyResolver resolver;
 
-    @Value("${profiler.transport.grpc.metadata.collector.ip}")
-    private String metadataCollectorIp = DEFAULT_IP;
-    @Value("${profiler.transport.grpc.metadata.collector.port}")
-    private int metadataCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
 
-    @Value("${profiler.transport.grpc.stat.collector.ip}")
-    private String statCollectorIp = DEFAULT_IP;
-    @Value("${profiler.transport.grpc.stat.collector.port}")
-    private int statCollectorPort = DEFAULT_STAT_COLLECTOR_PORT;
-
-    @Value("${profiler.transport.grpc.span.collector.ip}")
-    private String spanCollectorIp = DEFAULT_IP;
-    @Value("${profiler.transport.grpc.span.collector.port}")
-    private int spanCollectorPort = DEFAULT_SPAN_COLLECTOR_PORT;
-
-    public void read(Properties properties) {
-        final ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(this, properties);
+    public GrpcTransportConfig(Properties resolver) {
+        this.resolver = new PropertyResolver(resolver);
     }
 
     public String getAgentCollectorIp() {
-        return agentCollectorIp;
+        return resolve("profiler.transport.grpc.agent.collector.ip", DEFAULT_IP);
+    }
+
+    private String resolve(String key) {
+        return resolver.resolve(key, null);
+    }
+
+    private String resolve(String key, String defaultValue) {
+        return resolver.resolve(key, defaultValue);
     }
 
     public int getAgentCollectorPort() {
-        return agentCollectorPort;
+        return parseInt(resolve("profiler.transport.grpc.agent.collector.port"), DEFAULT_AGENT_COLLECTOR_PORT);
     }
 
     public String getMetadataCollectorIp() {
-        return metadataCollectorIp;
+        return resolve("profiler.transport.grpc.metadata.collector.ip", DEFAULT_IP);
     }
 
     public int getMetadataCollectorPort() {
-        return metadataCollectorPort;
+        return parseInt(resolve("profiler.transport.grpc.metadata.collector.port"), DEFAULT_AGENT_COLLECTOR_PORT);
     }
 
     public String getStatCollectorIp() {
-        return statCollectorIp;
+        return resolve("profiler.transport.grpc.stat.collector.ip", DEFAULT_IP);
     }
 
     public int getStatCollectorPort() {
-        return statCollectorPort;
+        return parseInt(resolve("profiler.transport.grpc.stat.collector.port"), DEFAULT_STAT_COLLECTOR_PORT);
     }
 
     public String getSpanCollectorIp() {
-        return spanCollectorIp;
+        return resolve("profiler.transport.grpc.span.collector.ip", DEFAULT_IP);
     }
 
     public int getSpanCollectorPort() {
-        return spanCollectorPort;
+        return parseInt(resolve("profiler.transport.grpc.span.collector.port"), DEFAULT_SPAN_COLLECTOR_PORT);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GrpcTransportConfig{");
-        sb.append("agentCollectorIp='").append(agentCollectorIp).append('\'');
-        sb.append(", agentCollectorPort=").append(agentCollectorPort);
-        sb.append(", metadataCollectorIp='").append(metadataCollectorIp).append('\'');
-        sb.append(", metadataCollectorPort=").append(metadataCollectorPort);
-        sb.append(", statCollectorIp='").append(statCollectorIp).append('\'');
-        sb.append(", statCollectorPort=").append(statCollectorPort);
-        sb.append(", spanCollectorIp='").append(spanCollectorIp).append('\'');
-        sb.append(", spanCollectorPort=").append(spanCollectorPort);
-        sb.append('}');
-        return sb.toString();
+        return resolver.toString();
     }
 }

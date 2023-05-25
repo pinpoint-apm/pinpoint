@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.tools.network;
 
 import com.navercorp.pinpoint.tools.utils.HostResolver;
+import com.navercorp.pinpoint.tools.utils.Logger;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,6 +16,8 @@ public abstract class AbstractNetworkChecker implements NetworkChecker {
 
     private static final String WHITE_SPACE = "    "; // 4space
     private static final String LINE_SEPARATOR = System.lineSeparator();
+
+    private final Logger logger = new Logger();
 
     private final String testName;
 
@@ -43,8 +46,7 @@ public abstract class AbstractNetworkChecker implements NetworkChecker {
             report.append(createReport(ipAddress, check));
         }
 
-        System.out.println(report);
-
+        logger.info(report);
     }
 
     @Override
@@ -59,7 +61,7 @@ public abstract class AbstractNetworkChecker implements NetworkChecker {
             report.append(createReport(ipAddress, check));
         }
 
-        System.out.println(report);
+        logger.info(report);
     }
 
     private String getHostName(InetSocketAddress hostAddress) {
@@ -70,10 +72,9 @@ public abstract class AbstractNetworkChecker implements NetworkChecker {
         String ip = getIp(socketAddress, socketAddress.getHostName());
         int port = socketAddress.getPort();
 
-        StringBuilder report = new StringBuilder();
-        report.append(WHITE_SPACE).append("=> ").append(ip).append(":").append(port);
-        report.append(" [").append(check ? "SUCCESS" : "FAIL").append("]").append(LINE_SEPARATOR);
-        return report.toString();
+        String report = WHITE_SPACE + "=> " + ip + ":" + port +
+                " [" + (check ? "SUCCESS" : "FAIL") + "]" + LINE_SEPARATOR;
+        return report;
     }
 
     protected String getIp(InetSocketAddress socketAddress, String defaultValue) {
