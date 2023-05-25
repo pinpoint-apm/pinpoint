@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.tools.network;
 
 import com.navercorp.pinpoint.tools.utils.IOUtils;
+import com.navercorp.pinpoint.tools.utils.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,8 @@ import java.util.Arrays;
  * @author Taejin Koo
  */
 public class TCPChecker extends AbstractNetworkChecker {
+
+    private static final Logger logger = new Logger();
 
     public TCPChecker(String testName, String hostName, int port) throws UnknownHostException {
         this(testName, new InetSocketAddress(hostName, port));
@@ -29,7 +32,7 @@ public class TCPChecker extends AbstractNetworkChecker {
         try (Socket socket = createSocket(address)) {
             return socket.isConnected();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info(e);
         }
         return false;
     }
@@ -43,17 +46,16 @@ public class TCPChecker extends AbstractNetworkChecker {
 
             return Arrays.equals(expectedResponseData, responseData);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info(e);
         }
         return false;
     }
 
     private Socket createSocket(InetSocketAddress socketAddress) throws IOException {
-        try (Socket socket = new Socket()) {
-            socket.setSoTimeout(3000);
-            socket.connect(socketAddress);
-            return socket;
-        }
+        Socket socket = new Socket();
+        socket.setSoTimeout(3000);
+        socket.connect(socketAddress);
+        return socket;
     }
 
     private void write(Socket socket, byte[] requestData) throws IOException {

@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.tools.utils;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.Socket;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,19 +31,13 @@ public final class IOUtils {
     private IOUtils() {
     }
 
-    public static void closeQuietly(Socket socket) {
-        if (socket != null) {
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
             try {
-                socket.close();
+                closeable.close();
             } catch (IOException ignored) {
                 // skip
             }
-        }
-    }
-
-    public static void closeQuietly(DatagramSocket socket) {
-        if (socket != null) {
-            socket.close();
         }
     }
 

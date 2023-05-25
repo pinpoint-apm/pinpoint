@@ -16,24 +16,16 @@
 
 package com.navercorp.pinpoint.tools;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
-import com.navercorp.pinpoint.bootstrap.config.Profiles;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 import com.navercorp.pinpoint.tools.network.NetworkChecker;
 import com.navercorp.pinpoint.tools.network.TCPChecker;
-import com.navercorp.pinpoint.tools.network.UDPChecker;
 import com.navercorp.pinpoint.tools.network.grpc.GrpcTransportConfig;
-import com.navercorp.pinpoint.tools.network.thrift.ThriftTransportConfig;
-import org.apache.thrift.TException;
+import com.navercorp.pinpoint.tools.utils.Logger;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -41,100 +33,79 @@ import java.util.Properties;
  */
 public class NetworkAvailabilityChecker {
 
-    private static final String SEPARATOR = File.separator;
+    public static final String ACTIVE_PROFILE_KEY = "pinpoint.profiler.profiles.active";
+    public static final String CONFIG_FILE_NAME = "pinpoint-root.config";
+    public static final String PROFILE_CONFIG_FILE_NAME = "pinpoint.config";
+
+    private static final Logger logger = new Logger();
 
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.out.println("usage : " + NetworkAvailabilityChecker.class.getSimpleName() + " AGENT_CONFIG_FILE");
+            logger.info("usage : " + NetworkAvailabilityChecker.class.getSimpleName() + " AGENT_CONFIG_FILE");
             return;
         }
 
         String configPath = args[0];
+        Path filePath = Paths.get(configPath);
 
         final Properties defaultProperties = new Properties();
-        loadFileProperties(defaultProperties, configPath);
+        loadFileProperties(defaultProperties, filePath);
 
-        File file = new File(configPath);
-        String path = file.getAbsoluteFile().getParent();
+        Path path = filePath.toAbsolutePath().getParent();
 
-        if (configPath.contains(Profiles.CONFIG_FILE_NAME)) {
+        if (configPath.contains(CONFIG_FILE_NAME)) {
             // 2. load profile
             final String activeProfile = getActiveProfile(defaultProperties);
-            System.out.println("Active profile : " + activeProfile);
+            logger.info("Active profile : " + activeProfile);
 
             if (activeProfile == null) {
-                System.out.println("Could not find activeProfile : null");
+                logger.info("Could not find activeProfile : null");
                 return;
             }
 
-            final File activeProfileConfigFile = new File(path, "profiles" + SEPARATOR + activeProfile + SEPARATOR + Profiles.PROFILE_CONFIG_FILE_NAME);
-            loadFileProperties(defaultProperties, activeProfileConfigFile.getAbsolutePath());
+            final Path activeProfileConfigFile = Paths.get(path.toString(), "profiles", activeProfile, PROFILE_CONFIG_FILE_NAME);
+
+            loadFileProperties(defaultProperties, activeProfileConfigFile.toAbsolutePath());
         }
 
-        final ProfilerConfig profilerConfig = ProfilerConfigLoader.load(defaultProperties);
-        if (profilerConfig.getTransportModule().toString().equals("GRPC")) {
+        logger.info("Transport Module set to GRPC");
 
-            System.out.println("Transport Module set to GRPC");
+        GrpcTransportConfig grpcTransportConfig = new GrpcTransportConfig(defaultProperties);
 
-            GrpcTransportConfig grpcTransportConfig = new GrpcTransportConfig();
-            grpcTransportConfig.read(defaultProperties);
-
-            try {
-                checkGRPCBase(grpcTransportConfig);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                checkGRPCMeta(grpcTransportConfig);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                checkGRPCStat(grpcTransportConfig);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                checkGRPCSpan(grpcTransportConfig);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } else {
-
-            System.out.println("Transport Module set to THRIFT");
-            ThriftTransportConfig thriftTransportConfig = new ThriftTransportConfig();
-            thriftTransportConfig.read(defaultProperties);
-            try {
-                checkUDPStat(thriftTransportConfig);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                checkUDPSpan(thriftTransportConfig);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                checkTCP(thriftTransportConfig);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            checkGRPCBase(grpcTransportConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        try {
+            checkGRPCMeta(grpcTransportConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            checkGRPCStat(grpcTransportConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            checkGRPCSpan(grpcTransportConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private static String getActiveProfile(Properties defaultProperties) {
-        return defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY, "release");
+        return defaultProperties.getProperty(ACTIVE_PROFILE_KEY, "release");
     }
 
-    private static void loadFileProperties(Properties properties, String filePath) {
+    private static void loadFileProperties(Properties properties, Path filePath) {
         try {
-            PropertyUtils.loadProperty(properties, Paths.get(filePath));
+            InputStream inputStream = Files.newInputStream(filePath);
+            properties.load(inputStream);
         } catch (IOException e) {
             throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()), e);
         }
@@ -170,40 +141,6 @@ public class NetworkAvailabilityChecker {
 
         NetworkChecker checker = new TCPChecker("TCP Span", ip, port);
         checker.check();
-    }
-
-    private static void checkUDPStat(ThriftTransportConfig profilerConfig) throws Exception {
-        String ip = profilerConfig.getCollectorStatServerIp();
-        int port = profilerConfig.getCollectorStatServerPort();
-
-        NetworkChecker checker = new UDPChecker("UDP-STAT", ip, port);
-        checker.check(getNetworkCheckPayload(), getNetworkCheckResponsePayload());
-    }
-
-
-    private static void checkUDPSpan(ThriftTransportConfig profilerConfig) throws Exception {
-        String ip = profilerConfig.getCollectorSpanServerIp();
-        int port = profilerConfig.getCollectorSpanServerPort();
-
-        NetworkChecker checker = new UDPChecker("UDP-SPAN", ip, port);
-        checker.check(getNetworkCheckPayload(), getNetworkCheckResponsePayload());
-    }
-
-    private static void checkTCP(ThriftTransportConfig profilerConfig) throws Exception {
-        String ip = profilerConfig.getCollectorTcpServerIp();
-        int port = profilerConfig.getCollectorTcpServerPort();
-
-        NetworkChecker checker = new TCPChecker("TCP", ip, port);
-        checker.check();
-    }
-
-    private static byte[] getNetworkCheckPayload() throws TException {
-        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(65535).createSerializer();
-        return serializer.serialize(new NetworkAvailabilityCheckPacket());
-    }
-
-    private static byte[] getNetworkCheckResponsePayload() {
-        return Arrays.copyOf(NetworkAvailabilityCheckPacket.DATA_OK, NetworkAvailabilityCheckPacket.DATA_OK.length);
     }
 
 }
