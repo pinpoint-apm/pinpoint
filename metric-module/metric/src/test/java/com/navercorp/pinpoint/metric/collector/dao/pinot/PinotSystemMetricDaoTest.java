@@ -83,7 +83,7 @@ public class PinotSystemMetricDaoTest {
 
     private List<DoubleMetric> createDoubleCounterList() {
         List<DoubleMetric> doubleMetricList = new ArrayList<>();
-        int numCounter = random.nextInt(100);
+        int numCounter = random.nextInt(100) + 1;
         for (int i = 0; i < numCounter; i++) {
             doubleMetricList.add(doubleMetric);
         }
