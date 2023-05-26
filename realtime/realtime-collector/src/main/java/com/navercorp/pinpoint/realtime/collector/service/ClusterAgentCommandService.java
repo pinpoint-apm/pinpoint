@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.realtime.collector.service;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
-import com.navercorp.pinpoint.collector.cluster.ThriftAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.io.ResponseMessage;
@@ -25,7 +24,6 @@ import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.realtime.util.ScheduleUtil;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
@@ -132,14 +130,6 @@ class ClusterAgentCommandService implements AgentCommandService {
     }
 
     private CompletableFuture<ResponseMessage> request(ClusterPoint<?> clusterPoint, TBase<?, ?> command) throws TException {
-        if (clusterPoint instanceof ThriftAgentConnection) {
-            final byte[] payload = serialize(command);
-
-            final ThriftAgentConnection thriftPoint = (ThriftAgentConnection) clusterPoint;
-            final PinpointServer pinpointServer = thriftPoint.getPinpointServer();
-            return pinpointServer.request(payload);
-        }
-
         if (clusterPoint instanceof GrpcAgentConnection) {
             final GrpcAgentConnection grpcPoint = (GrpcAgentConnection) clusterPoint;
             return grpcPoint.request(command);
@@ -176,17 +166,9 @@ class ClusterAgentCommandService implements AgentCommandService {
             ClusterPoint<?> clusterPoint,
             ClientStreamChannelEventHandler handler,
             TBase<?, ?> command
-    ) throws TException, StreamException {
+    ) throws StreamException {
         if (!clusterPoint.isSupportCommand(command)) {
             throw new RuntimeException("Unsupported command: " + command);
-        }
-
-        if (clusterPoint instanceof ThriftAgentConnection) {
-            final byte[] payload = commandSerializerFactory.createSerializer().serialize(command);
-            final long timeoutMillis = 3000;
-            return ((ThriftAgentConnection) clusterPoint)
-                    .getPinpointServer()
-                    .openStreamAndAwait(payload, handler, timeoutMillis);
         }
 
         if (clusterPoint instanceof GrpcAgentConnection) {

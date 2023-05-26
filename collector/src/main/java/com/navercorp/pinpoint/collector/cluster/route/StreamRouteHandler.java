@@ -19,12 +19,10 @@ package com.navercorp.pinpoint.collector.cluster.route;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
-import com.navercorp.pinpoint.collector.cluster.ThriftAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
@@ -109,16 +107,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
         try {
-            if (clusterPoint instanceof ThriftAgentConnection) {
-                StreamRouteManager routeManager = new StreamRouteManager(event);
-
-                ServerStreamChannel consumerStreamChannel = event.getStreamChannel();
-                consumerStreamChannel.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
-
-                ClientStreamChannel producerStreamChannel = createStreamChannel((ThriftAgentConnection) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
-                routeManager.setProducer(producerStreamChannel);
-                return createResponse(TRouteResult.OK);
-            } else if (clusterPoint instanceof GrpcAgentConnection) {
+            if (clusterPoint instanceof GrpcAgentConnection) {
                 StreamRouteManager routeManager = new StreamRouteManager(event);
 
                 ServerStreamChannel consumerStreamChannel = event.getStreamChannel();
@@ -140,11 +129,6 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
         return createResponse(TRouteResult.UNKNOWN);
-    }
-
-    private ClientStreamChannel createStreamChannel(ThriftAgentConnection clusterPoint, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
-        PinpointServer pinpointServer = clusterPoint.getPinpointServer();
-        return pinpointServer.openStreamAndAwait(payload, streamChannelEventHandler, 3000);
     }
 
     public void close(ServerStreamChannel consumerStreamChannel) {

@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -47,35 +46,9 @@ public class PropertiesVerificationTest {
     public void checkCollectionPropertiesTest() throws Exception {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-collector-root.properties");
 
-        String receiverIp = properties.getProperty("collector.receiver.base.ip");
-        assertEquals("0.0.0.0", receiverIp);
+        String receiverIp = properties.getProperty("pinpoint.zookeeper.address");
+        assertEquals("localhost", receiverIp);
 
-        receiverIp = properties.getProperty("collector.receiver.stat.udp.ip");
-        assertEquals("0.0.0.0", receiverIp);
-
-        receiverIp = properties.getProperty("collector.receiver.stat.tcp.ip");
-        assertEquals("0.0.0.0", receiverIp);
-
-        receiverIp = properties.getProperty("collector.receiver.span.udp.ip");
-        assertEquals("0.0.0.0", receiverIp);
-
-        receiverIp = properties.getProperty("collector.receiver.span.tcp.ip");
-        assertEquals("0.0.0.0", receiverIp);
-
-        String l4Ip = properties.getProperty("collector.l4.ip");
-        assertThat(l4Ip).isNullOrEmpty();
-
-        String pinpointZKAddress = properties.getProperty("pinpoint.zookeeper.address");
-        assertEquals(LOCAL_HOST, pinpointZKAddress);
-
-        String zookeeperAddress = properties.getProperty("cluster.zookeeper.address");
-        assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
-
-        zookeeperAddress = properties.getProperty("flink.cluster.zookeeper.address");
-        assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
-
-        String clusterListenIp = properties.getProperty("cluster.listen.ip");
-        assertThat(clusterListenIp).isNullOrEmpty();
     }
 
 }

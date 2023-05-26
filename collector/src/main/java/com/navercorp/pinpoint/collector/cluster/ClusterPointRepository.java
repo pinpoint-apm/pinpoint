@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.collector.cluster;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +34,7 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    @GuardedBy("this")
     private final Map<ClusterKey, Set<T>> clusterPointRepository = new HashMap<>();
 
     public boolean addAndIsKeyCreated(T clusterPoint) {
@@ -93,12 +94,7 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
                 final ClusterKey key = entry.getKey();
                 final Set<T> clusterPointSet = entry.getValue();
                 for (T clusterPoint : clusterPointSet) {
-                    if (clusterPoint instanceof ThriftAgentConnection) {
-                        PinpointServer pinpointServer = ((ThriftAgentConnection) clusterPoint).getPinpointServer();
-                        if (SocketStateCode.isRunDuplex(pinpointServer.getCurrentStateCode())) {
-                            availableAgentKeySet.add(key);
-                        }
-                    } else if (clusterPoint instanceof GrpcAgentConnection) {
+                    if (clusterPoint instanceof GrpcAgentConnection) {
                         PinpointGrpcServer pinpointGrpcServer = ((GrpcAgentConnection) clusterPoint).getPinpointGrpcServer();
                         if (SocketStateCode.isRunDuplex(pinpointGrpcServer.getState())) {
                             availableAgentKeySet.add(key);

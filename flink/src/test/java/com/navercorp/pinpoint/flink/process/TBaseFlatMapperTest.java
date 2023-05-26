@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.util.Collector;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class TBaseFlatMapperTest {
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch();
         List<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
-        ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
+        Collector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
         RawData rawData = newRawData(tfAgentStatBatch);
         mapper.flatMap(rawData, collector);
 
@@ -163,7 +164,7 @@ public class TBaseFlatMapperTest {
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch2();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
-        ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
+        Collector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
         RawData rawdata = newRawData(tfAgentStatBatch);
         mapper.flatMap(rawdata, collector);
 
@@ -242,7 +243,7 @@ public class TBaseFlatMapperTest {
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch3();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
-        ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
+        Collector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
         RawData rawData = newRawData(tfAgentStatBatch);
         mapper.flatMap(rawData, collector);
 
@@ -333,7 +334,7 @@ public class TBaseFlatMapperTest {
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch4();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
-        ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
+        Collector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
         RawData rawData = newRawData(tfAgentStatBatch);
         mapper.flatMap(rawData, collector);
 
@@ -413,7 +414,7 @@ public class TBaseFlatMapperTest {
 
         TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch5();
         ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
-        ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
+        Collector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
         RawData rawData = newRawData(tfAgentStatBatch);
         mapper.flatMap(rawData, collector);
 

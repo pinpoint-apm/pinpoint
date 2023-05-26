@@ -20,7 +20,6 @@ import org.springframework.context.annotation.ImportResource;
         "classpath:servlet-context-collector.xml",
 
         "classpath:applicationContext-collector-grpc.xml",
-        "classpath:applicationContext-collector-thrift.xml",
         "classpath:applicationContext-collector-hbase.xml",
 })
 @Import({

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.cluster.route;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
-import com.navercorp.pinpoint.collector.cluster.ThriftAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
@@ -87,10 +86,7 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
         }
 
         CompletableFuture<ResponseMessage> future;
-        if (clusterPoint instanceof ThriftAgentConnection) {
-            ThriftAgentConnection thriftAgentConnection = (ThriftAgentConnection) clusterPoint;
-            future = thriftAgentConnection.request(event.getDeliveryCommand().getPayload());
-        } else if (clusterPoint instanceof GrpcAgentConnection) {
+        if (clusterPoint instanceof GrpcAgentConnection) {
             GrpcAgentConnection grpcAgentConnection = (GrpcAgentConnection) clusterPoint;
             future = grpcAgentConnection.request(event.getRequestObject());
         } else {

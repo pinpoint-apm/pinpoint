@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.thrift.config;
+package com.navercorp.pinpoint.flink.config;
 
 import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
@@ -24,34 +24,32 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
 /**
  * @author Taejin Koo
  */
-@Component("baseDataReceiverProperties")
-public class AgentBaseDataReceiverProperties {
+public class DataReceiverProperties {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    @Value("${collector.receiver.base.ip:0.0.0.0}")
+    @Value("${flink.receiver.base.ip:0.0.0.0}")
     private String bindIp;
 
-    @Value("${collector.receiver.base.port:9994}")
+    @Value("${flink.receiver.base.port:9994}")
     private int bindPort;
 
-    @Value("${collector.receiver.base.worker.threadSize:128}")
+    @Value("${flink.receiver.base.worker.threadSize:128}")
     private int workerThreadSize;
 
-    @Value("${collector.receiver.base.worker.queueSize:5120}")
+    @Value("${flink.receiver.base.worker.queueSize:5120}")
     private int workerQueueSize;
 
-    @Value("${collector.receiver.base.worker.monitor:false}")
+    @Value("${flink.receiver.base.worker.monitor:false}")
     private boolean workerMonitorEnable;
 
 
-    public AgentBaseDataReceiverProperties() {
+    public DataReceiverProperties() {
     }
 
 

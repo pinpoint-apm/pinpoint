@@ -21,7 +21,7 @@
     <bean id="flinkProperties" class="com.navercorp.pinpoint.flink.config.FlinkProperties"/>
     <bean class="com.navercorp.pinpoint.flink.dao.hbase.ApplicationDaoConfiguration"/>
 
-    <bean id="tcpReceiverProperties" class="com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverProperties"/>
+    <bean id="tcpReceiverProperties" class="com.navercorp.pinpoint.flink.config.DataReceiverProperties"/>
 
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TBaseFlatMapper"/>
 
