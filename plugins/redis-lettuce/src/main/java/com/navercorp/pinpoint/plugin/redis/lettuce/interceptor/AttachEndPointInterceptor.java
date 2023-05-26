@@ -16,16 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor;
-import io.lettuce.core.ConnectionFuture;
-import io.lettuce.core.cluster.StatefulRedisClusterConnectionImpl;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author jaehong.kim
