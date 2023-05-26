@@ -16,19 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor;
-
 import io.lettuce.core.RedisURI;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author messi-gao
@@ -37,8 +34,7 @@ public class RedisClusterClientConstructorInterceptor implements AroundIntercept
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public RedisClusterClientConstructorInterceptor(final TraceContext traceContext,
-                                                    final MethodDescriptor methodDescriptor) {
+    public RedisClusterClientConstructorInterceptor() {
     }
 
     @Override

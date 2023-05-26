@@ -15,13 +15,12 @@
  */
 package com.navercorp.pinpoint.plugin.redis.jedis.interceptor;
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-import redis.clients.jedis.Client;
-
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.redis.jedis.EndPointAccessor;
+import redis.clients.jedis.Client;
 
 /**
  * @author jaehong.kim
@@ -54,21 +53,22 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (ArrayUtils.isEmpty(args) || args[0] == null) {
+        final Object arg0 = ArrayArgumentUtils.getArgument(args, 0, Object.class);
+        if (arg0 == null) {
             if (isDebug) {
                 logger.debug("Invalid arguments. Null or not found args({}).", args);
             }
             return false;
         }
 
-        if (!(args[0] instanceof Client)) {
+        if (!(arg0 instanceof Client)) {
             if (isDebug) {
-                logger.debug("Invalid arguments. Expect Client but args[0]({}).", args[0]);
+                logger.debug("Invalid arguments. Expect Client but args[0]({}).", arg0);
             }
             return false;
         }
 
-        if (!(args[0] instanceof EndPointAccessor)) {
+        if (!(arg0 instanceof EndPointAccessor)) {
             if (isDebug) {
                 logger.debug("Invalid args[0] object. Need field accessor({}).", EndPointAccessor.class.getName());
             }

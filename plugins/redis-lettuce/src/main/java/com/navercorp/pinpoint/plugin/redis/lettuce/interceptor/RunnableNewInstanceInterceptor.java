@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -31,7 +29,7 @@ public class RunnableNewInstanceInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public RunnableNewInstanceInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public RunnableNewInstanceInterceptor() {
     }
 
     @Override
