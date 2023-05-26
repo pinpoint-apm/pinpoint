@@ -10,7 +10,7 @@ public final class ArrayArgumentUtils {
 
     @SuppressWarnings("unchecked")
     public static <T> T getArgument(Object[] args, int index, Class<T> type, T defaultValue) {
-        if (args == null) {
+        if (ArrayUtils.isEmpty(args)) {
             return defaultValue;
         }
         final Object arg = getArg(args, index);
@@ -21,8 +21,7 @@ public final class ArrayArgumentUtils {
     }
 
     private static Object getArg(Object[] args, int index) {
-        final int length = args.length;
-        if (index >= 0 && length > index) {
+        if (index >= 0 && index < args.length) {
             return args[index];
         }
         return null;
