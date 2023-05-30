@@ -20,6 +20,7 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
+import com.navercorp.pinpoint.collector.util.RequestManager;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
@@ -30,11 +31,9 @@ import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.common.SocketState;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
@@ -79,13 +78,13 @@ public class PinpointGrpcServer {
 
     private final InetSocketAddress remoteAddress;
     private final ClusterKey clusterKey;
-    private final RequestManager requestManager;
+    private final RequestManager<ResponseMessage> requestManager;
     private final ProfilerClusterManager profilerClusterManager;
     private final StreamObserver<PCmdRequest> requestObserver;
 
-    private Runnable onCloseHandler;
+    private volatile Runnable onCloseHandler;
 
-    public PinpointGrpcServer(InetSocketAddress remoteAddress, ClusterKey clusterKey, RequestManager requestManager, ProfilerClusterManager profilerClusterManager, StreamObserver<PCmdRequest> requestObserver) {
+    public PinpointGrpcServer(InetSocketAddress remoteAddress, ClusterKey clusterKey, RequestManager<ResponseMessage> requestManager, ProfilerClusterManager profilerClusterManager, StreamObserver<PCmdRequest> requestObserver) {
         this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
         this.clusterKey = Objects.requireNonNull(clusterKey, "clusterKey");
         this.requestManager = Objects.requireNonNull(requestManager, "requestManager");
@@ -207,14 +206,20 @@ public class PinpointGrpcServer {
         if (isInfo) {
             logger.info("{} handleMessage:{}", clusterKey, MessageFormatUtils.debugLog(message));
         }
-        TBase<?, ?> tMessage = messageConverter.toMessage(message);
 
+        final CompletableFuture<ResponseMessage> responseFuture = requestManager.messageReceived(responseId, clusterKey::format);
+        if (responseFuture == null) {
+            logger.warn("Response future is timeout responseId:{}", responseId);
+            return;
+        }
         try {
+            TBase<?, ?> tMessage = messageConverter.toMessage(message);
             byte[] serialize = SerializationUtils.serialize(tMessage, commandHeaderTBaseSerializerFactory);
-            ResponsePacket responsePacket = new ResponsePacket(responseId, serialize);
-            requestManager.messageReceived(responsePacket, clusterKey.format());
+
+            ResponseMessage responseMessage = ResponseMessage.wrap(serialize);
+            responseFuture.complete(responseMessage);
         } catch (TException e) {
-            setFailMessageToFuture(responseId, e.getMessage());
+            responseFuture.completeExceptionally(new PinpointSocketException(e.getMessage()));
         }
     }
 

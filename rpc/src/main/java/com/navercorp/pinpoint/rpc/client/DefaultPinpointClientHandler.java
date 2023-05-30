@@ -92,7 +92,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private final MessageListener messageListener;
     private final ServerStreamChannelMessageHandler serverStreamChannelMessageHandler;
 
-    private final RequestManager requestManager;
+    private final RequestManager<ResponseMessage> requestManager;
 
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write success.");
@@ -120,7 +120,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         this.socketAddressProvider = Objects.requireNonNull(socketAddressProvider, "socketAddressProvider");
 
         this.channelTimer = Objects.requireNonNull(channelTimer, "channelTimer");
-        this.requestManager = new RequestManager(channelTimer, clientOption.getRequestTimeoutMillis());
+        this.requestManager = new RequestManager<>(channelTimer, clientOption.getRequestTimeoutMillis());
         this.clientOption = Objects.requireNonNull(clientOption, "clientOption");
 
 
@@ -372,7 +372,8 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             final short packetType = packet.getPacketType();
             switch (packetType) {
                 case PacketType.APPLICATION_RESPONSE:
-                    this.requestManager.messageReceived((ResponsePacket) message, objectUniqName);
+                    ResponsePacket responsePacket = (ResponsePacket) message;
+                    this.requestManager.messageReceived(responsePacket, () -> ResponseMessage.wrap(responsePacket.getPayload()), objectUniqName::toString);
                     return;
                 // have to handle a request message through connector
                 case PacketType.APPLICATION_REQUEST:

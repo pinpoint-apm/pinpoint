@@ -18,17 +18,18 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
+import com.navercorp.pinpoint.collector.util.RequestManager;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.io.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
-import org.jboss.netty.util.Timer;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,6 +40,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -55,7 +57,8 @@ public class PinpointGrpcServerTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        testTimer = TimerFactory.createHashedWheelTimer(PinpointGrpcServerTest.class + "-Timer", 100, TimeUnit.MILLISECONDS, 512);
+        ThreadFactory threadFactory = new PinpointThreadFactory(PinpointGrpcServerTest.class + "-Timer", true);
+        testTimer = new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512);
     }
 
     @AfterAll
@@ -69,7 +72,8 @@ public class PinpointGrpcServerTest {
     public void stateTest() {
         RecordedStreamObserver recordedStreamObserver = new RecordedStreamObserver();
 
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), clusterKey, new RequestManager(testTimer, 3000), Mockito.mock(ProfilerClusterManager.class), recordedStreamObserver);
+        RequestManager<ResponseMessage> requestManager = new RequestManager<>(testTimer, 3000);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), clusterKey, requestManager, Mockito.mock(ProfilerClusterManager.class), recordedStreamObserver);
         assertCurrentState(SocketStateCode.NONE, pinpointGrpcServer);
         CompletableFuture<ResponseMessage> future = pinpointGrpcServer.request(request);
         requestOnInvalidState(future, recordedStreamObserver);
