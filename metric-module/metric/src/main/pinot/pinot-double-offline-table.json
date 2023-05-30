@@ -20,5 +20,11 @@
   },
   "metadata": {
     "customConfigs": {}
+  },
+  "ingestionConfig": {
+    "batchIngestionConfig": {
+      "segmentIngestionType": "APPEND",
+      "segmentIngestionFrequency": "DAILY"
+    }
   }
 }
