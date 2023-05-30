@@ -15,13 +15,12 @@
  */
 package com.navercorp.pinpoint.realtime.collector.activethread.dump.service;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.realtime.collector.service.AgentCommandService;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
-import com.navercorp.pinpoint.realtime.dto.mapper.ATDDemandMapper;
-import com.navercorp.pinpoint.realtime.dto.mapper.ATDSupplyMapper;
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.realtime.dto.mapper.grpc.GrpcDtoMapper;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
@@ -40,20 +39,12 @@ class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
     @Override
     public Mono<ATDSupply> getDump(ATDDemand demand) {
         final ClusterKey clusterKey = demand.getClusterKey();
-        final TBase<?, ?> command = ATDDemandMapper.toThrift(demand);
-        final Mono<TBase<?, ?>> responseMono = this.commandService.request(clusterKey, command);
+        final GeneratedMessageV3 command = GrpcDtoMapper.buildGeneratedMessage(demand);
+        final Mono<GeneratedMessageV3> responseMono = this.commandService.request(clusterKey, command);
         if (responseMono == null) {
             return null;
         }
-        return responseMono.flatMap(ActiveThreadDumpServiceImpl::compose);
-    }
-
-    private static Mono<ATDSupply> compose(TBase<?, ?> res) {
-        ATDSupply supply = ATDSupplyMapper.fromThrift(res);
-        if (supply == null) {
-            return Mono.empty();
-        }
-        return Mono.just(supply);
+        return responseMono.mapNotNull(GrpcDtoMapper::buildATDSupply);
     }
 
 }

@@ -31,10 +31,10 @@ import org.springframework.context.annotation.Import;
 public class CollectorActiveThreadCountServiceConfig {
 
     @Value("${pinpoint.collector.realtime.atc.demand.duration:14500}")
-    long demandDurationMillis;
+    private long demandDurationMillis;
 
     @Value("${pinpoint.collector.realtime.atc.supply.throttle.termMillis:100}")
-    long throttleTermMillis;
+    private long throttleTermMillis;
 
     @Bean
     @ConditionalOnBean(name = "commandHeaderTBaseDeserializerFactory")

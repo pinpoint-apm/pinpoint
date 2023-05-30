@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author youngjin.kim2
  */
 @ExtendWith(MockitoExtension.class)
-public class RedisActiveThreadCountSupplyPublishServiceTest {
+public class ATCSupplyFactoryTest {
 
     @Test
     public void shouldBuildSupply() {

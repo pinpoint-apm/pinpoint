@@ -15,11 +15,15 @@
  */
 package com.navercorp.pinpoint.realtime.collector.echo.service;
 
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
+import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.realtime.collector.service.AgentCommandService;
 import com.navercorp.pinpoint.realtime.dto.Echo;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
-import org.apache.thrift.TBase;
 import reactor.core.publisher.Mono;
+
+import java.util.Objects;
 
 /**
  * @author youngjin.kim2
@@ -29,27 +33,25 @@ class EchoServiceImpl implements EchoService {
     private final AgentCommandService commandService;
 
     EchoServiceImpl(AgentCommandService commandService) {
-        this.commandService = commandService;
+        this.commandService = Objects.requireNonNull(commandService, "commandService");
     }
 
     @Override
     public Mono<Echo> echo(Echo echo) {
-        final TCommandEcho command = new TCommandEcho(echo.getMessage());
-        final Mono<TBase<?, ?>> response = this.commandService.request(echo.getAgentKey(), command);
+        final PCmdEcho command = PCmdEcho.newBuilder().setMessage(echo.getMessage()).build();
+        final Mono<GeneratedMessageV3> response = this.commandService.request(echo.getAgentKey(), command);
         if (response == null) {
             return null;
         }
-        return response
-                .flatMap(EchoServiceImpl::compose)
-                .map(message -> new Echo(echo.getAgentKey(), message));
+        return response.map(res -> compose(res, echo.getAgentKey()));
     }
 
-    private static Mono<String> compose(TBase<?, ?> res) {
-        if (res instanceof TCommandEcho) {
-            final TCommandEcho echo = (TCommandEcho) res;
-            return Mono.just(echo.getMessage());
+    private static Echo compose(GeneratedMessageV3 res, ClusterKey clusterKey) {
+        if (res instanceof PCmdEchoResponse) {
+            final PCmdEchoResponse echo = (PCmdEchoResponse) res;
+            return new Echo(clusterKey, echo.getMessage());
         }
-        return Mono.empty();
+        throw new RuntimeException("Failed to parse echo");
     }
 
 }

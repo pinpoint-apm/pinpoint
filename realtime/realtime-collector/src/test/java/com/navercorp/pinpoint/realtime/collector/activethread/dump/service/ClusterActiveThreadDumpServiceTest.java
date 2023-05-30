@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.realtime.collector.activethread.dump.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.realtime.collector.service.AgentCommandService;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -40,10 +43,12 @@ public class ClusterActiveThreadDumpServiceTest {
     public void shouldCallAgentCommandService() {
         final ActiveThreadDumpService service = new ActiveThreadDumpServiceImpl(agentCommandService);
 
-        when(agentCommandService.request(any(), any())).thenReturn(Mono.empty());
+        when(agentCommandService.request(any(), any())).thenReturn(Mono.just(PCmdActiveThreadLightDumpRes.newBuilder().build()));
 
         final ATDDemand demand = new ATDDemand();
         demand.setClusterKey(ClusterKey.parse("test-application:test-agent:12345"));
+        demand.setThreadNameList(List.of());
+        demand.setLocalTraceIdList(List.of());
         demand.setLight(true);
         demand.setLimit(100);
 

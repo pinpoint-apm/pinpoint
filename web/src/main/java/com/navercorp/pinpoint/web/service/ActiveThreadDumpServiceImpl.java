@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
@@ -23,8 +25,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
-import com.navercorp.pinpoint.web.vo.activethread.ThreadDumpResult;
+import com.navercorp.pinpoint.web.mapper.ThriftToGrpcConverter;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,7 @@ public class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
     }
 
     @Override
-    public TCmdActiveThreadDumpRes getDetailedDump(
+    public PCmdActiveThreadDumpRes getDetailedDump(
             ClusterKey clusterKey,
             List<String> threadNames,
             List<Long> localTraceIds,
@@ -67,7 +68,7 @@ public class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
             if (isSuccessResponse(pinpointRouteResponse)) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result instanceof TCmdActiveThreadDumpRes) {
-                    return (TCmdActiveThreadDumpRes) result;
+                    return ThriftToGrpcConverter.convert((TCmdActiveThreadDumpRes) result);
                 }
             }
             throw new ResponseStatusException(
@@ -80,7 +81,7 @@ public class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
     }
 
     @Override
-    public TCmdActiveThreadLightDumpRes getLightDump(
+    public PCmdActiveThreadLightDumpRes getLightDump(
             ClusterKey clusterKey,
             List<String> threadNames,
             List<Long> localTraceIds,
@@ -102,7 +103,7 @@ public class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
             if (isSuccessResponse(pinpointRouteResponse)) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result instanceof TCmdActiveThreadLightDumpRes) {
-                    return (TCmdActiveThreadLightDumpRes) result;
+                    return ThriftToGrpcConverter.convert((TCmdActiveThreadLightDumpRes) result);
                 }
             }
             throw new ResponseStatusException(
@@ -121,15 +122,6 @@ public class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
 
         TRouteResult routeResult = pinpointRouteResponse.getRouteResult();
         return routeResult == TRouteResult.OK;
-    }
-
-    private ThreadDumpResult createResponseData(
-            AgentActiveThreadDumpList activeThreadDumpList,
-            String type,
-            String subType,
-            String version
-    ) {
-        return new ThreadDumpResult(activeThreadDumpList, type, subType, version);
     }
 
     private String handleFailedResponseMessage(PinpointRouteResponse response) {
