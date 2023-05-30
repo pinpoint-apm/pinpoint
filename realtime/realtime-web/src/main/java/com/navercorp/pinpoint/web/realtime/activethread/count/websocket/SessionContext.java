@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
 import org.springframework.web.socket.WebSocketSession;
 import reactor.core.Disposable;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -31,13 +32,13 @@ final class SessionContext {
 
     private static final String KEY_ATTR = "atcAttrs";
 
-    private final TimerTaskDecorator taskDecorator;
+    private final @Nullable TimerTaskDecorator taskDecorator;
 
     private final Lock lock = new ReentrantLock();
     private final long sessionCreatedAt = System.currentTimeMillis();
     private Disposable subscription = null;
 
-    private SessionContext(TimerTaskDecorator taskDecorator) {
+    private SessionContext(@Nullable TimerTaskDecorator taskDecorator) {
         this.taskDecorator = taskDecorator;
     }
 
@@ -76,6 +77,7 @@ final class SessionContext {
         return sessionCreatedAt;
     }
 
+    @Nullable
     TimerTaskDecorator getTaskDecorator() {
         return taskDecorator;
     }

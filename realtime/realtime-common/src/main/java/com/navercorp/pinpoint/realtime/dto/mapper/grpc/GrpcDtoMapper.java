@@ -13,31 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.realtime.dto.mapper.grpc;
 
-import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
-
-import java.util.List;
+import com.navercorp.pinpoint.realtime.dto.ATDDemand;
+import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 
 /**
  * @author youngjin.kim2
  */
-public interface ActiveThreadDumpService {
+public class GrpcDtoMapper {
 
-    PCmdActiveThreadLightDumpRes getLightDump(
-            ClusterKey clusterKey,
-            List<String> threadNames,
-            List<Long> localTraceIds,
-            int limit
-    );
+    public static GeneratedMessageV3 buildGeneratedMessage(ATDDemand s) {
+        return ATDDemandMapper.into(s);
+    }
 
-    PCmdActiveThreadDumpRes getDetailedDump(
-            ClusterKey clusterKey,
-            List<String> threadNames,
-            List<Long> localTraceIds,
-            int limit
-    );
+    public static ATDSupply buildATDSupply(GeneratedMessageV3 s) {
+        return ATDSupplyMapper.from(s);
+    }
+
+    public static PCmdActiveThreadDumpRes buildDetailedDumpResult(ATDSupply s) {
+        return ATDSupplyMapper.buildDetailedDumpResult(s);
+    }
+
+    public static PCmdActiveThreadLightDumpRes buildLightDumpResult(ATDSupply s) {
+        return ATDSupplyMapper.buildLightDumpResult(s);
+    }
 
 }

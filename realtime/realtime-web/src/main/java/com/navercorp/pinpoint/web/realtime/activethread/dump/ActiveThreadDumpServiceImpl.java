@@ -16,12 +16,12 @@
 package com.navercorp.pinpoint.web.realtime.activethread.dump;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.pubsub.endpoint.PubSubMonoClient;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
-import com.navercorp.pinpoint.realtime.dto.mapper.ATDSupplyMapper;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.realtime.dto.mapper.grpc.GrpcDtoMapper;
 import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,15 +44,17 @@ class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
     }
 
     @Override
-    public TCmdActiveThreadLightDumpRes getLightDump(ClusterKey clusterKey, List<String> threadNames, List<Long> localTraceIds, int limit) {
+    public PCmdActiveThreadLightDumpRes getLightDump(ClusterKey clusterKey, List<String> threadNames,
+                                                     List<Long> localTraceIds, int limit) {
         final ATDSupply supply = get(clusterKey, threadNames, localTraceIds, limit, true);
-        return ATDSupplyMapper.toThriftLight(supply);
+        return GrpcDtoMapper.buildLightDumpResult(supply);
     }
 
     @Override
-    public TCmdActiveThreadDumpRes getDetailedDump(ClusterKey clusterKey, List<String> threadNames, List<Long> localTraceIds, int limit) {
+    public PCmdActiveThreadDumpRes getDetailedDump(ClusterKey clusterKey, List<String> threadNames,
+                                                   List<Long> localTraceIds, int limit) {
         final ATDSupply supply = get(clusterKey, threadNames, localTraceIds, limit, false);
-        return ATDSupplyMapper.toThriftDetailed(supply);
+        return GrpcDtoMapper.buildDetailedDumpResult(supply);
     }
 
     private ATDSupply get(

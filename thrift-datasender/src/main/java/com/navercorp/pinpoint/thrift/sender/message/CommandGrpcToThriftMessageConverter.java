@@ -19,17 +19,24 @@ package com.navercorp.pinpoint.thrift.sender.message;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PActiveThreadLightDump;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
@@ -48,18 +55,52 @@ public class CommandGrpcToThriftMessageConverter implements MessageConverter<Obj
     @Override
     public TBase<?, ?> toMessage(Object message) {
         if (message instanceof PCmdEchoResponse) {
-            return buildTCommandEcho((PCmdEchoResponse) message);
+            return buildTCommandEchoRes((PCmdEchoResponse) message);
         } else if (message instanceof PCmdActiveThreadCountRes) {
             return buildTCmdActiveThreadCountRes((PCmdActiveThreadCountRes) message);
         } else if (message instanceof PCmdActiveThreadDumpRes) {
             return buildTCmdActiveThreadDumpRes((PCmdActiveThreadDumpRes) message);
         } else if (message instanceof PCmdActiveThreadLightDumpRes) {
             return buildTCmdActiveThreadLightDumpRes((PCmdActiveThreadLightDumpRes) message);
+        } else if (message instanceof PCmdEcho) {
+            return buildTCommandEcho((PCmdEcho) message);
+        } else if (message instanceof PCmdActiveThreadCount) {
+            return buildTCmdActiveThreadCount();
+        } else if (message instanceof PCmdActiveThreadDump) {
+            return buildTCmdActiveThreadDump((PCmdActiveThreadDump) message);
+        } else if (message instanceof PCmdActiveThreadLightDump) {
+            return buildTCmdActiveThreadLightDump((PCmdActiveThreadLightDump) message);
         }
         return null;
     }
 
-    private TCommandEcho buildTCommandEcho(PCmdEchoResponse echoMessage) {
+    private TBase<?,?> buildTCommandEcho(PCmdEcho message) {
+        final TCommandEcho echo = new TCommandEcho();
+        echo.setMessage(message.getMessage());
+        return echo;
+    }
+
+    private TBase<?, ?> buildTCmdActiveThreadCount() {
+        return new TCmdActiveThreadCount();
+    }
+
+    private TBase<?, ?> buildTCmdActiveThreadDump(PCmdActiveThreadDump message) {
+        final TCmdActiveThreadDump result = new TCmdActiveThreadDump();
+        result.setLimit(message.getLimit());
+        result.setThreadNameList(message.getThreadNameList());
+        result.setLocalTraceIdList(message.getLocalTraceIdList());
+        return result;
+    }
+
+    private TBase<?, ?> buildTCmdActiveThreadLightDump(PCmdActiveThreadLightDump message) {
+        final TCmdActiveThreadLightDump result = new TCmdActiveThreadLightDump();
+        result.setLimit(message.getLimit());
+        result.setThreadNameList(message.getThreadNameList());
+        result.setLocalTraceIdList(message.getLocalTraceIdList());
+        return result;
+    }
+
+    private TCommandEcho buildTCommandEchoRes(PCmdEchoResponse echoMessage) {
         String message = echoMessage.getMessage();
         return new TCommandEcho(message);
     }

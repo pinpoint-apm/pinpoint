@@ -13,28 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.realtime.dto.mapper;
+package com.navercorp.pinpoint.realtime.dto.mapper.grpc;
 
-import com.navercorp.pinpoint.realtime.dto.MonitorInfo;
-import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author youngjin.kim2
  */
-public class MonitorInfoMapper {
+class MapperUtils {
 
-    public static MonitorInfo fromThrift(TMonitorInfo s) {
-        final MonitorInfo t = new MonitorInfo();
-        t.setStackDepth(s.getStackDepth());
-        t.setStackFrame(s.getStackFrame());
-        return t;
+    static <T, R> List<R> mapList(List<T> src, Function<T, R> mapper) {
+        if (src == null) {
+            return List.of();
+        }
+        final List<R> res = new ArrayList<>(src.size());
+        for (final T item: src) {
+            res.add(mapper.apply(item));
+        }
+        return res;
     }
 
-    public static TMonitorInfo toThrift(MonitorInfo s) {
-        final TMonitorInfo t = new TMonitorInfo();
-        t.setStackDepth(s.getStackDepth());
-        t.setStackFrame(s.getStackFrame());
-        return t;
+    static <T> List<T> nonNullList(List<T> src) {
+        return Objects.requireNonNullElse(src, List.of());
     }
 
 }

@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.realtime.collector.service;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import org.apache.thrift.TBase;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,7 +36,7 @@ public interface AgentCommandService {
      * @return Flux of response from agent
      */
     @Nullable
-    Flux<TBase<?, ?>> requestStream(ClusterKey clusterKey, TBase<?, ?> command, long durationMillis);
+    Flux<GeneratedMessageV3> requestStream(ClusterKey clusterKey, GeneratedMessageV3 command, long durationMillis);
 
     /**
      * Find an active agent which has the cluster key and send the command to the agent.
@@ -46,6 +46,6 @@ public interface AgentCommandService {
      * @return Mono of response from agent
      */
     @Nullable
-    Mono<TBase<?, ?>> request(ClusterKey clusterKey, TBase<?, ?> command);
+    Mono<GeneratedMessageV3> request(ClusterKey clusterKey, GeneratedMessageV3 command);
 
 }

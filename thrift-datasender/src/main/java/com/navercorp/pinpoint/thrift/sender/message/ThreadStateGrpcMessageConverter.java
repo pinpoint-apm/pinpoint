@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,41 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.navercorp.pinpoint.thrift.sender.message;
 
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
+import com.navercorp.pinpoint.grpc.trace.PThreadState;
 
 /**
- * @author jaehong.kim
+ * @author youngjin.kim2
  */
-public class ThreadStateThriftMessageConverter implements MessageConverter<Object, TThreadState> {
+public class ThreadStateGrpcMessageConverter implements MessageConverter<Object, PThreadState> {
+
     @Override
-    public TThreadState toMessage(Object message) {
+    public PThreadState toMessage(Object message) {
         if (message instanceof Thread.State) {
-            final Thread.State threadState = (Thread.State) message;
-            return convertThreadState(threadState);
+            return toMessage((Thread.State) message);
         } else {
             throw new IllegalArgumentException("invalid message type. message=" + message);
         }
     }
 
-    private TThreadState convertThreadState(Thread.State threadState) {
+    private PThreadState toMessage(Thread.State threadState) {
         switch (threadState) {
             case NEW:
-                return TThreadState.NEW;
+                return PThreadState.THREAD_STATE_NEW;
             case RUNNABLE:
-                return TThreadState.RUNNABLE;
+                return PThreadState.THREAD_STATE_RUNNABLE;
             case BLOCKED:
-                return TThreadState.BLOCKED;
+                return PThreadState.THREAD_STATE_BLOCKED;
             case WAITING:
-                return TThreadState.WAITING;
+                return PThreadState.THREAD_STATE_WAITING;
             case TIMED_WAITING:
-                return TThreadState.TIMED_WAITING;
+                return PThreadState.THREAD_STATE_TIMED_WAITING;
             case TERMINATED:
-                return TThreadState.TERMINATED;
+                return PThreadState.THREAD_STATE_TERMINATED;
         }
-        return TThreadState.UNKNOWN;
+        return PThreadState.THREAD_STATE_UNKNOWN;
     }
+
 }

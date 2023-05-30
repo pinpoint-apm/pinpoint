@@ -15,13 +15,13 @@
  */
 package com.navercorp.pinpoint.realtime.collector.activethread.count.service;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.realtime.collector.service.AgentCommandService;
 import com.navercorp.pinpoint.realtime.dto.ATCDemand;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
-import org.apache.thrift.TBase;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -39,16 +39,16 @@ class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
     ActiveThreadCountServiceImpl(
             AgentCommandService commandService,
             long demandDurationMillis,
-            long minPublishTermNanos
+            long minPublishTermMillis
     ) {
         this.commandService = Objects.requireNonNull(commandService, "commandService");
-        this.supplyFactory = new ATCSupplyFactory(minPublishTermNanos);
+        this.supplyFactory = new ATCSupplyFactory(minPublishTermMillis);
         this.demandDurationMillis = demandDurationMillis;
     }
 
     @Override
     public Flux<ATCSupply> requestAsync(ATCDemand demand) {
-        final TCmdActiveThreadCount command = new TCmdActiveThreadCount();
+        final PCmdActiveThreadCount command = PCmdActiveThreadCount.newBuilder().build();
 
         final ClusterKey clusterKey = new ClusterKey(
                 demand.getApplicationName(),
@@ -56,7 +56,7 @@ class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
                 demand.getStartTimestamp()
         );
 
-        final Flux<TBase<?, ?>> resFlux = commandService.requestStream(clusterKey, command, this.demandDurationMillis);
+        final Flux<GeneratedMessageV3> resFlux = commandService.requestStream(clusterKey, command, this.demandDurationMillis);
         if (resFlux == null) {
             return null;
         }
@@ -70,9 +70,9 @@ class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         return Flux.concat(notifier, supplyFlux);
     }
 
-    private static List<Integer> deserialize(TBase<?, ?> data) {
-        if (data instanceof  TCmdActiveThreadCountRes) {
-            return ((TCmdActiveThreadCountRes) data).getActiveThreadCount();
+    private static List<Integer> deserialize(GeneratedMessageV3 data) {
+        if (data instanceof PCmdActiveThreadCountRes) {
+            return ((PCmdActiveThreadCountRes) data).getActiveThreadCountList();
         } else {
             return null;
         }

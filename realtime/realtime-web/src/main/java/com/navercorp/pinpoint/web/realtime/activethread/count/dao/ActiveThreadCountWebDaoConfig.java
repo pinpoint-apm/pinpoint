@@ -40,10 +40,10 @@ import java.util.concurrent.TimeUnit;
 public class ActiveThreadCountWebDaoConfig {
 
     @Value("${pinpoint.web.realtime.atc.supply.expireInMs:3000}")
-    long supplyExpireInMs;
+    private long supplyExpireInMs;
 
     @Value("${pinpoint.web.realtime.atc.supply.prepareInMs:10000}")
-    long prepareInMs;
+    private long prepareInMs;
 
     @Bean
     PubSubFluxClient<ATCDemand, ATCSupply> atcEndpoint(PubSubClientFactory clientFactory) {
