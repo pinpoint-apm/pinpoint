@@ -62,6 +62,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 /**
  * @author Taejin Koo
@@ -73,7 +74,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private final long startTimestamp = System.currentTimeMillis();
 
     private final Channel channel;
-    private final RequestManager requestManager;
+    private final RequestManager<ResponseMessage> requestManager;
 
     private final DefaultPinpointServerState state;
     private final CyclicStateChecker stateChecker;
@@ -123,7 +124,7 @@ public class DefaultPinpointServer implements PinpointServer {
             this.stateChangeEventListeners.add(ServerStateChangeEventHandler.DISABLED_INSTANCE);
         }
 
-        RequestManager requestManager = new RequestManager(serverConfig.getRequestManagerTimer(), serverConfig.getDefaultRequestTimeout());
+        RequestManager<ResponseMessage> requestManager = new RequestManager<>(serverConfig.getRequestManagerTimer(), serverConfig.getDefaultRequestTimeout());
         this.requestManager = requestManager;
 
         
@@ -137,7 +138,11 @@ public class DefaultPinpointServer implements PinpointServer {
 
         this.localClusterOption = serverConfig.getClusterOption();
     }
-    
+
+    private ResponseMessage toResponseMessage(ResponsePacket responsePacket1) {
+        return ResponseMessage.wrap(responsePacket1.getPayload());
+    }
+
     public void start() {
         logger.info("{} start() started. channel:{}.", objectUniqName, channel);
         
@@ -366,7 +371,12 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     private void handleResponse(ResponsePacket responsePacket) {
-        this.requestManager.messageReceived(responsePacket, this);
+        this.requestManager.messageReceived(responsePacket, new Supplier<ResponseMessage>() {
+            @Override
+            public ResponseMessage get() {
+                return ResponseMessage.wrap(responsePacket.getPayload());
+            }
+        }, this::toString);
     }
 
     private void handleStreamEvent(StreamPacket streamPacket) {

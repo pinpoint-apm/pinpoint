@@ -32,4 +32,11 @@ public class DefaultResponseMessage implements ResponseMessage {
     public byte[] getMessage() {
         return message;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultResponseMessage{" +
+                "message.length=" + message.length +
+                '}';
+    }
 }

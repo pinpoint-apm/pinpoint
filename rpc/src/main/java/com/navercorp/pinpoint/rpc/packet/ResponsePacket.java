@@ -63,8 +63,7 @@ public class ResponsePacket extends BasicPacket {
         if (payload == null) {
             return null;
         }
-        ResponsePacket responsePacket = new ResponsePacket(messageId, payload.array());
-        return responsePacket;
+        return new ResponsePacket(messageId, payload.array());
 
     }
 

@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service.command;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.cluster.ClusterService;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServerRepository;
+import com.navercorp.pinpoint.collector.util.RequestManager;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.StatusError;
@@ -34,17 +37,15 @@ import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
-import com.navercorp.pinpoint.rpc.client.RequestManager;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
-
-import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.io.ResponseMessage;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import org.jboss.netty.util.Timer;
-import org.apache.logging.log4j.Logger;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -73,7 +74,13 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     public GrpcCommandService(ClusterService clusterService) {
         Objects.requireNonNull(clusterService, "clusterService");
         this.profilerClusterManager = Objects.requireNonNull(clusterService.getProfilerClusterManager(), "profilerClusterManager");
-        this.timer = TimerFactory.createHashedWheelTimer("GrpcCommandService-Timer", 100, TimeUnit.MILLISECONDS, 512);
+        this.timer = newTimer();
+
+    }
+
+    private Timer newTimer() {
+        final PinpointThreadFactory threadFactory = new PinpointThreadFactory("GrpcCommandService-Timer", true);
+        return new HashedWheelTimer(threadFactory, 100,  TimeUnit.MILLISECONDS, 512);
     }
 
     @Override
@@ -213,7 +220,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     }
 
     private PinpointGrpcServer createPinpointGrpcServer(StreamObserver<PCmdRequest> requestObserver, ClusterKey clusterKey) {
-        final RequestManager requestManager = new RequestManager(timer, 3000);
+        final RequestManager<ResponseMessage> requestManager = new RequestManager<>(timer, 3000);
         return new PinpointGrpcServer(getRemoteAddress(), clusterKey, requestManager, profilerClusterManager, requestObserver);
     }
 
