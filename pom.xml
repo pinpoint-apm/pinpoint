@@ -411,7 +411,7 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>thrift-datasender</artifactId>
+                <artifactId>pinpoint-thrift-datasender</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
