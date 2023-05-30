@@ -45,11 +45,11 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(8)
-@Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.0.0][3.0.16][3.1.0][3.1.16],[3.2.1,3.6.0)", WebServer.VERSION, PluginITConstants.VERSION})
+@JvmVersion(11)
+@Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.6.0,3.max)", WebServer.VERSION, PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-cxf-plugin", "com.navercorp.pinpoint:pinpoint-jdk-http-plugin"})
 @PinpointConfig("cxf/pinpoint-cxf-test.config")
-public class CxfClientIT {
+public class CxfClient_3_6_x_IT {
 
     public static WebServer webServer;
 
