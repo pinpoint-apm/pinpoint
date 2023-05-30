@@ -72,7 +72,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>thrift-datasender</artifactId>
+            <artifactId>pinpoint-thrift-datasender</artifactId>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

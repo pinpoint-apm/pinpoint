@@ -9,7 +9,7 @@
         <version>2.6.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>thrift-datasender</artifactId>
+    <artifactId>pinpoint-thrift-datasender</artifactId>
     <packaging>jar</packaging>
     <description>pinpoint profiler thrift(deprecated)</description>
 
