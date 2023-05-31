@@ -153,7 +153,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
                 if (!httpHandlerClassNameFilter.filter(httpHandlerClassName)) {
                     return false;
                 }
-                return false;
+                return true;
             }
 
             @Override
