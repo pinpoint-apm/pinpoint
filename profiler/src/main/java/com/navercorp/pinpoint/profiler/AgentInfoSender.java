@@ -20,9 +20,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
+import com.navercorp.pinpoint.profiler.monitor.processor.ReSetConfigProcessorFactory;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
@@ -54,6 +56,7 @@ public class AgentInfoSender {
     private final int maxTryPerAttempt;
     private final Scheduler scheduler;
     private final MessageConverter<ResultResponse> messageConverter;
+    private final ProfilerConfig profilerConfig;
 
     private AgentInfoSender(Builder builder) {
         this.dataSender = builder.dataSender;
@@ -63,6 +66,7 @@ public class AgentInfoSender {
         this.maxTryPerAttempt = builder.maxTryPerAttempt;
         this.scheduler = new Scheduler();
         this.messageConverter = builder.messageConverter;
+        this.profilerConfig = builder.profilerConfig;
     }
 
     public void start() {
@@ -163,9 +167,15 @@ public class AgentInfoSender {
                 this.cancel();
                 return;
             }
-            boolean isSuccessful = sendAgentInfo();
-            if (isSuccessful) {
-                logger.info("AgentInfo sent.");
+            if(ReSetConfigProcessorFactory.isEnableCollect(profilerConfig)){
+                boolean isSuccessful = sendAgentInfo();
+                if (isSuccessful) {
+                    logger.info("AgentInfo sent.");
+                    this.cancel();
+                    taskHandler.onSuccess();
+                }
+            }else{
+                logger.info("AgentInfo don't sent.");
                 this.cancel();
                 taskHandler.onSuccess();
             }
@@ -211,6 +221,7 @@ public class AgentInfoSender {
         private long sendIntervalMs = DEFAULT_AGENT_INFO_SEND_INTERVAL_MS;
         private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
         private MessageConverter<ResultResponse> messageConverter;
+        private ProfilerConfig profilerConfig;
 
         public Builder(EnhancedDataSender dataSender, AgentInfoFactory agentInfoFactory) {
             this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
@@ -234,6 +245,10 @@ public class AgentInfoSender {
 
         public Builder setMessageConverter(MessageConverter<ResultResponse> messageConverter) {
             this.messageConverter = messageConverter;
+            return this;
+        }
+        public Builder setProfilerConfig(ProfilerConfig profilerConfig) {
+            this.profilerConfig = profilerConfig;
             return this;
         }
 

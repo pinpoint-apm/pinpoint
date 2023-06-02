@@ -45,6 +45,7 @@ public class AgentStatMetricSnapshot {
     private BufferMetricSnapshot directBuffer;
     private TotalThreadMetricSnapshot totalThreadCount;
     private String metadata;
+    private String reservedField;
 
     public String getAgentId() {
         return agentId;
@@ -160,6 +161,12 @@ public class AgentStatMetricSnapshot {
 
     public void setMetadata(String metadata) {
         this.metadata = metadata;
+    }
+    public String getReservedField() {
+        return reservedField;
+    }
+    public void setReservedField(String reservedField) {
+        this.reservedField = reservedField;
     }
 
     @Override

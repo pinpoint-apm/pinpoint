@@ -16,15 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
+import com.alibaba.nacos.api.NacosFactory;
+import com.alibaba.nacos.api.config.ConfigService;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilePropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
+import com.navercorp.pinpoint.common.util.*;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
@@ -37,6 +39,9 @@ import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootload
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
+import com.navercorp.pinpoint.profiler.monitor.DefaultRemoteConfigMonitor;
+import com.navercorp.pinpoint.profiler.monitor.RemoteConfigMonitor;
+import com.navercorp.pinpoint.profiler.monitor.processor.ReSetConfigProcessorFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 import com.google.inject.Guice;
@@ -51,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
+import java.util.Properties;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -64,6 +70,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final DeadlockMonitor deadlockMonitor;
     private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
+    private final RemoteConfigMonitor remoteConfigMonitor;
 
     private final TraceContext traceContext;
 
@@ -80,6 +87,8 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final Injector injector;
 
+    private ConfigService configService;
+
     public DefaultApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
         Assert.requireNonNull(agentOption, "agentOption");
         Assert.requireNonNull(moduleFactory, "moduleFactory");
@@ -90,7 +99,7 @@ public class DefaultApplicationContext implements ApplicationContext {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
 
-        final Module applicationContextModule = moduleFactory.newModule(agentOption);
+        final Module applicationContextModule = moduleFactory.newModule(agentOption, this);
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
         this.profilerConfig = injector.getInstance(ProfilerConfig.class);
@@ -129,6 +138,109 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+        this.remoteConfigMonitor = injector.getInstance(RemoteConfigMonitor.class);
+        initRemoteConfig(agentOption);
+        initNacosConfigService();
+    }
+    private void initRemoteConfig(AgentOption agentOption){
+        try {
+            Properties propertiesOrigin = profilerConfig.getProperties();
+            Object remoteEnable = propertiesOrigin.get("profiler.remote.config.init.enable");
+            if(remoteEnable !=null && Boolean.parseBoolean(remoteEnable.toString())){
+                logger.info("activate the remote initialization configuration");
+                //get remote properties
+                String remoteConfigStr = loadAndSetRemoteProfile(propertiesOrigin, agentOption.getAgentLicence(), agentOption.getApplicationName());
+                if(null != remoteConfigStr && !"".equals(remoteConfigStr) && !"null".equals(remoteConfigStr)){
+                    //reset profilerConfig
+                    ((DefaultProfilerConfig)profilerConfig).resetDefaultProfilerConfig(propertiesOrigin);
+                    //reinit some config
+                    ReSetConfigProcessorFactory reSetConfigProcessorFactory = ((DefaultRemoteConfigMonitor) this.remoteConfigMonitor).getReSetConfigProcessorFactory();
+                    reSetConfigProcessorFactory.dealConfigInfo(remoteConfigStr);
+                }
+            }else{
+                logger.info("skip the remote initialization configuration");
+            }
+        } catch (Exception e) {
+            logger.error("initRemoteConfig error:"+e.getMessage());
+        }
+    }
+    private void initNacosConfigService(){
+        try {
+            //init configService
+            if(DefaultRemoteConfigMonitor.startRemoteMonitorIsBeginNacos(this.profilerConfig)){
+                Properties nacosProperties = DefaultRemoteConfigMonitor.getNacosProperties(this.profilerConfig);
+                this.configService = NacosFactory.createConfigService(nacosProperties);
+            }else{
+                logger.info("Uninitialized nacos");
+            }
+        } catch (Exception e) {
+            logger.error("initNacosConfigService error:"+e.getMessage());
+        }
+    }
+    private static final String NACOS_USERNAME="username";
+    private static final String NACOS_PASSWORD="password";
+    private static final String NACOS_NAMESPANCE="namespaceCenter";
+
+    private String loadAndSetRemoteProfile(Properties defaultProperties, String licence, String appName){
+        String profileStr = null;
+        String nacosUrl = "http://%s/nacos/v1/cs/configs?username="+NACOS_USERNAME+"&password="+NACOS_PASSWORD+"&tenant="+NACOS_NAMESPANCE+"&dataId=%s&group=%s";
+
+        if(!StringUtils.isEmpty(licence)
+                && !StringUtils.isEmpty(appName)
+                && null!=defaultProperties
+                && !StringUtils.isEmpty(defaultProperties.getProperty("profiler.remote.config.addr"))
+        ){
+            String remoteAddrRoot = defaultProperties.getProperty("profiler.remote.config.addr");
+            int connectTimeout = 3000;
+            int readTimeout = 2000;
+            try {
+                connectTimeout = Integer.parseInt(defaultProperties.getProperty("profiler.remote.config.connectTimeout", "3000"));
+                readTimeout = Integer.parseInt(defaultProperties.getProperty("profiler.remote.config.readTimeout", "2000"));
+            } catch (Exception e) {
+            }
+            int forSize = remoteAddrRoot.contains(",") ? remoteAddrRoot.split(",").length : 1;
+            for(int i=0; i<forSize; i++){
+                try {
+                    String remoteAddr = remoteAddrRoot.contains(",") ? remoteAddrRoot.split(",")[i] : remoteAddrRoot;
+                    //精准匹配licence和appName dataId=licence&&group=appName
+                    String level = licence+":"+ appName;
+                    profileStr = HttpUtils.doGet(String.format(nacosUrl
+                            , remoteAddr
+                            , licence
+                            , appName)
+                            , connectTimeout, readTimeout);
+                    if(StringUtils.isEmpty(profileStr)){
+                        //无精准匹配则二次匹配 licence dataId=licence&&group=default
+                        level = licence+":default";
+                        profileStr = HttpUtils.doGet(String.format(nacosUrl
+                                , remoteAddr
+                                , licence
+                                , "default")
+                                , connectTimeout, readTimeout);
+                    }
+                    if(StringUtils.isEmpty(profileStr)){
+                        //三次匹配采用 默认模板 dataId=default&&group=default
+                        level = "default:default";
+                        profileStr = HttpUtils.doGet(String.format(nacosUrl
+                                , remoteAddr
+                                , "default"
+                                , "default")
+                                , connectTimeout, readTimeout);
+                    }
+
+                    if(!StringUtils.isEmpty(profileStr)){
+                        logger.info(String.format("use remote config level: [%s]", level));
+                        ProfilePropertyLoader.loadFilePropertiesByProfileStr(defaultProperties, profileStr);
+                        logger.info("loadAngSetRemoteProfile successes!");
+                    }
+                    break;
+                }catch (Exception e){
+                    logger.info(String.format("loadAngSetRemoteProfile failed[%s], cause by:%s", i, e.getMessage()));
+                }
+
+            }
+        }
+        return profileStr;
     }
 
     private void lambdaFactorySetup(Instrumentation instrumentation, ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
@@ -216,6 +328,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor.start();
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
+        this.remoteConfigMonitor.start(this.configService);
     }
 
     @Override

@@ -24,4 +24,5 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
  */
 public interface ModuleFactory {
     Module newModule(AgentOption agentOption);
+    Module newModule(AgentOption agentOption, ApplicationContext applicationContext);
 }

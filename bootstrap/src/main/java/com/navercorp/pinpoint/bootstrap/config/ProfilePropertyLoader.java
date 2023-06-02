@@ -31,7 +31,7 @@ import java.util.Set;
  * @author yjqg6666
  * @author Woonduk Kang(emeroad)
  */
-class ProfilePropertyLoader implements PropertyLoader {
+public class ProfilePropertyLoader implements PropertyLoader {
 
     private static final String SEPARATOR = File.separator;
 
@@ -122,6 +122,14 @@ class ProfilePropertyLoader implements PropertyLoader {
         } catch (IOException e) {
             logger.info(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
             throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
+        }
+    }
+    public static void loadFilePropertiesByProfileStr(Properties properties, String profileStr) {
+        try {
+            PropertyUtils.FileInputStreamFactory fileInputStreamFactory = new PropertyUtils.FileInputStreamFactory(profileStr, Boolean.TRUE);
+            PropertyUtils.loadProperty(properties, fileInputStreamFactory, PropertyUtils.DEFAULT_ENCODING);
+        } catch (Exception e) {
+            throw new IllegalStateException(String.format("remote properties load fail Caused by:%s",  e.getMessage()));
         }
     }
 

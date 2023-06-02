@@ -27,14 +27,7 @@ import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
-import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
-import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
-import com.navercorp.pinpoint.profiler.context.module.Container;
-import com.navercorp.pinpoint.profiler.context.module.PluginJarPaths;
-import com.navercorp.pinpoint.profiler.context.module.PluginJars;
+import com.navercorp.pinpoint.profiler.context.module.*;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
@@ -89,7 +82,7 @@ public class ConfigModule extends AbstractModule {
 
         bindBootstrapCoreInformation();
 
-        bindAgentInformation(agentOption.getAgentId(), agentOption.getApplicationName(), agentOption.isContainer());
+        bindAgentInformation(agentOption.getAgentLicence() ,agentOption.getAgentId(), agentOption.getApplicationName(), agentOption.isContainer());
     }
 
     private void bindBootstrapCoreInformation() {
@@ -115,8 +108,8 @@ public class ConfigModule extends AbstractModule {
         bindConstant().annotatedWith(DeadlockMonitorInterval.class).to(profilerConfig.getDeadlockMonitorInterval());
     }
 
-    private void bindAgentInformation(String agentId, String applicationName, boolean isContainer) {
-
+    private void bindAgentInformation(String agentLicence, String agentId, String applicationName, boolean isContainer) {
+        bind(String.class).annotatedWith(AgentLicence.class).toInstance(agentLicence);
         bind(String.class).annotatedWith(AgentId.class).toInstance(agentId);
         bind(String.class).annotatedWith(ApplicationName.class).toInstance(applicationName);
         bind(Boolean.class).annotatedWith(Container.class).toInstance(isContainer);

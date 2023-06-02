@@ -30,6 +30,7 @@ public class DefaultAgentOption implements AgentOption {
 
     private final Instrumentation instrumentation;
 
+    private final String agentLicence;
     private final String agentId;
     private final String applicationName;
     private final boolean isContainer;
@@ -38,8 +39,9 @@ public class DefaultAgentOption implements AgentOption {
     private final List<String> pluginJars;
     private final List<String> bootstrapJarPaths;
 
-    public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final boolean isContainer, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
+    public DefaultAgentOption(final Instrumentation instrumentation, String agentLicence, String agentId, String applicationName, final boolean isContainer, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
         this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.agentLicence = agentLicence;
         this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.isContainer = isContainer;
@@ -55,6 +57,11 @@ public class DefaultAgentOption implements AgentOption {
     @Override
     public Instrumentation getInstrumentation() {
         return this.instrumentation;
+    }
+
+    @Override
+    public String getAgentLicence() {
+        return agentLicence;
     }
 
     @Override

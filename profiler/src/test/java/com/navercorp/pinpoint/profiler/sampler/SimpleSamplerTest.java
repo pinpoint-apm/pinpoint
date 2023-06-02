@@ -33,13 +33,13 @@ public class SimpleSamplerTest {
 
     @Test
     public void test() {
-        SamplingRateSampler simpleSampler = new SamplingRateSampler(1);
+        SamplingRateSampler simpleSampler = new SamplingRateSampler(true,1,null);
         assertChoice(simpleSampler);
         assertChoice(simpleSampler);
         assertChoice(simpleSampler);
         assertChoice(simpleSampler);
 
-         SamplingRateSampler simpleSampler2 = new SamplingRateSampler(2);
+         SamplingRateSampler simpleSampler2 = new SamplingRateSampler(true,2,null);
         assertChoice(simpleSampler2);
         assertDrop(simpleSampler2);
         assertChoice(simpleSampler2);

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.test.rpc.MockRpcModule;
@@ -55,5 +56,9 @@ public class OverrideModuleFactory implements ModuleFactory {
         };
         Module module = moduleFactory.newModule(agentOption);
         return Modules.override(module).with(overrideModule);
+    }
+    @Override
+    public Module newModule(AgentOption agentOption, ApplicationContext applicationContext) {
+        return newModule(agentOption);
     }
 }

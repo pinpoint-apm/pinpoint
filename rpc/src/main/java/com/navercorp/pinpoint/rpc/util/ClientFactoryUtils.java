@@ -36,7 +36,7 @@ public final class ClientFactoryUtils {
 
     public interface PinpointClientProvider {
         PinpointClient get();
-
+        PinpointClient get(String host, int port);
         String getAddressAsString();
     }
 
@@ -63,6 +63,16 @@ public final class ClientFactoryUtils {
         @Override
         public PinpointClient get() {
             return createPinpointClient(host, port, clientFactory);
+        }
+        @Override
+        public PinpointClient get(String host, int port) {
+            PinpointClient pinpointClient = null;
+            try {
+                pinpointClient = clientFactory.connect(host, port);
+            } catch (Exception e) {
+                LOGGER.warn("tcp connect fail. remote:{}/{} try reconnect, retryCount:{}", host, port, "remoteConfig");
+            }
+            return pinpointClient;
         }
     }
 

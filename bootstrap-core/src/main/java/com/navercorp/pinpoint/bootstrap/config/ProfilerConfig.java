@@ -309,4 +309,10 @@ public interface ProfilerConfig {
         String resolve(String value, Properties properties);
     }
 
+    boolean getRemoteEnable();
+    String getRemoteAddr();
+    String getRemoteType();
+    long getRemoteType1Gap();
+    long getRemoteType2Gap();
+    Properties getProperties();
 }

@@ -16,15 +16,22 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
+import com.navercorp.pinpoint.profiler.monitor.processor.PropertiesKey;
+import com.navercorp.pinpoint.profiler.monitor.processor.ReSetConfigProcessorFactory;
+import com.navercorp.pinpoint.profiler.monitor.processor.changelog.LogLevelChangeProcessor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,11 +50,17 @@ public class CollectJob implements Runnable {
     private int collectCount = 0;
     private long prevCollectionTimestamp = System.currentTimeMillis();
     private List<AgentStatMetricSnapshot> agentStats;
+    private ProfilerConfig profilerConfig;
+    private Properties properties;
+    private final Sampler sampler;
+    private final String licence;
+    private final String appName;
 
     public CollectJob(DataSender dataSender,
-                       String agentId, long agentStartTimestamp,
-                       AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
-                       int numCollectionsPerBatch) {
+                      String agentId, long agentStartTimestamp,
+                      AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
+                      int numCollectionsPerBatch, ProfilerConfig profilerConfig
+            , Sampler sampler, String licence, String appName) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender");
         }
@@ -57,10 +70,22 @@ public class CollectJob implements Runnable {
         this.agentStatCollector = agentStatCollector;
         this.numCollectionsPerBatch = numCollectionsPerBatch;
         this.agentStats = new ArrayList<AgentStatMetricSnapshot>(numCollectionsPerBatch);
+
+        this.profilerConfig=profilerConfig;
+        if(profilerConfig != null && profilerConfig instanceof DefaultProfilerConfig){
+            properties = ((DefaultProfilerConfig)profilerConfig).getProperties();
+        }
+        this.sampler=sampler;
+        this.licence=licence;
+        this.appName=appName;
     }
 
     @Override
     public void run() {
+        if(!ReSetConfigProcessorFactory.isEnableCollect(profilerConfig)){
+            logger.info("CollectJob is disabled.");
+            return;
+        }
         final long currentCollectionTimestamp = System.currentTimeMillis();
         final long collectInterval = currentCollectionTimestamp - this.prevCollectionTimestamp;
         try {
@@ -69,6 +94,7 @@ public class CollectJob implements Runnable {
             agentStat.setCollectInterval(collectInterval);
             this.agentStats.add(agentStat);
             if (++this.collectCount >= numCollectionsPerBatch) {
+                setMoreAgentInfos(agentStat);
                 sendAgentStats();
                 this.collectCount = 0;
             }
@@ -76,6 +102,38 @@ public class CollectJob implements Runnable {
             logger.warn("AgentStat collect failed. Caused:{}", ex.getMessage(), ex);
         } finally {
             this.prevCollectionTimestamp = currentCollectionTimestamp;
+        }
+    }
+    private static Boolean isFirst =  Boolean.TRUE;
+    public void setMoreAgentInfos(AgentStatMetricSnapshot agentStat){
+        try {
+            if(isFirst){
+                LogLevelChangeProcessor logLevelChangeProcessor = new LogLevelChangeProcessor(properties);
+                logLevelChangeProcessor.resetConfig(properties);
+                LogLevelChangeProcessor.setLogLevel(properties);
+                isFirst = Boolean.FALSE;
+            }
+            Map<String, Object> propertiesMap = new HashMap<String, Object>(PropertiesKey.values().length+1);
+            for(PropertiesKey propertiesKey : PropertiesKey.values()) {
+                propertiesMap.put(propertiesKey.key, properties.get(propertiesKey.key));
+            }
+            //追加licence回去
+            propertiesMap.put("profiler.licence", this.licence);
+            propertiesMap.put("profiler.appName", this.appName);
+            propertiesMap.put("profiler.agentId", this.agentId);
+            propertiesMap.put("profiler.collectTime", agentStat.getTimestamp());
+            propertiesMap.put("profiler.remote.config.addr", profilerConfig.getRemoteAddr());
+
+            String reservedField = agentStat.getReservedField();
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map reservedFieldMap = new HashMap(2);
+            if(!StringUtils.isEmpty(reservedField)){
+                reservedFieldMap = objectMapper.readValue(reservedField, Map.class);
+            }
+            reservedFieldMap.put("properties", propertiesMap);
+            agentStat.setReservedField(objectMapper.writeValueAsString(reservedFieldMap));
+        } catch (Exception ex) {
+            logger.warn("setMoreAgentInfos failed. Caused:{}", ex.getMessage(), ex);
         }
     }
 

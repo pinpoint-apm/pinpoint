@@ -102,16 +102,21 @@ public final class PropertyUtils {
     public static class FileInputStreamFactory implements  InputStreamFactory {
         private final String filePath;
 
+        private final Boolean isPropertiesStr;
         public FileInputStreamFactory(String filePath) {
-            if (filePath == null) {
+            this(filePath, Boolean.FALSE);
+        }
+        public FileInputStreamFactory(String propertiesStr, Boolean isPropertiesStr) {
+            if (propertiesStr == null) {
                 throw new NullPointerException("filePath");
             }
-            this.filePath = filePath;
+            this.filePath = propertiesStr;
+            this.isPropertiesStr = isPropertiesStr;
         }
 
         @Override
         public InputStream openInputStream() throws IOException {
-            return new FileInputStream(filePath);
+            return isPropertiesStr ? new ByteArrayInputStream(filePath.getBytes()) : new FileInputStream(filePath);
         }
     }
 

@@ -46,7 +46,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // TestAgent only
     public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
 
-    private final Properties properties;
+    private Properties properties;
 
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
 
@@ -166,6 +166,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean customMetricEnable = false;
     private int customMetricLimitSize = 10;
+    private boolean remoteEnable = false;
+    private String remoteAddr = "";
+    private String remoteType = "";
+    private long remoteType1Gap;
+    private long remoteType2Gap;
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -173,6 +178,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     public DefaultProfilerConfig(Properties properties) {
+        resetDefaultProfilerConfig(properties);
+    }
+    public void resetDefaultProfilerConfig(Properties properties) {
         if (properties == null) {
             throw new NullPointerException("properties");
         }
@@ -674,6 +682,32 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return customMetricLimitSize;
     }
 
+    @Override
+    public boolean getRemoteEnable() {
+        return remoteEnable;
+    }
+    @Override
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+    @Override
+    public String getRemoteType() {
+        return remoteType;
+    }
+    @Override
+    public long getRemoteType1Gap() {
+        return remoteType1Gap;
+    }
+    @Override
+    public long getRemoteType2Gap() {
+        return remoteType2Gap;
+    }
+
+    @Override
+    public Properties getProperties() {
+        return properties;
+    }
+
     // for test
     void readPropertyValues() {
 
@@ -771,7 +805,19 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.customMetricEnable = readBoolean("profiler.custommetric.enable", false);
         this.customMetricLimitSize = readInt("profiler.custommetric.limit.size", 10);
 
+        buildAndSetRemoteConfig();
+
         logger.info("configuration loaded successfully.");
+    }
+
+    private void buildAndSetRemoteConfig(){
+        this.remoteEnable = readBoolean("profiler.remote.config.additional.enable", false);
+        if(this.remoteEnable){
+            this.remoteAddr =  readString("profiler.remote.config.addr", "");
+            this.remoteType =readString("profiler.remote.config.additional.type", "1");
+            this.remoteType1Gap =readLong("profiler.remote.config.additional.type1.gap", 86400000);
+            this.remoteType2Gap =readLong("profiler.remote.config.additional.type2.gap", 300000);
+        }
     }
 
     private ThriftTransportConfig readThriftTransportConfig(DefaultProfilerConfig profilerConfig) {
@@ -785,7 +831,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public String readString(String propertyName, String defaultValue) {
         return readString(propertyName, defaultValue, BypassResolver.RESOLVER);
     }
-
+    @Override
     public String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
         if (valueResolver == null) {
             throw new NullPointerException("valueResolver");
@@ -840,10 +886,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public List<String> readList(String propertyName) {
         String value = properties.getProperty(propertyName);
-        if (StringUtils.isEmpty(value)) {
+        return readListFromParam(value);
+    }
+    public static List<String> readListFromParam(String param){
+        if (StringUtils.isEmpty(param)) {
             return Collections.emptyList();
         }
-        return StringUtils.tokenizeToStringList(value, ",");
+        return StringUtils.tokenizeToStringList(param, ",");
     }
 
     @Override
@@ -876,7 +925,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         return result;
     }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultProfilerConfig{");

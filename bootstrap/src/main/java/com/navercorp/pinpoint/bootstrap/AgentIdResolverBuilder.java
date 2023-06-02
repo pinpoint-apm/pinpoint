@@ -33,7 +33,7 @@ public class AgentIdResolverBuilder {
         Assert.requireNonNull(system, "system");
 
         AgentProperties systemProperties = new AgentProperties(AgentIdSourceType.SYSTEM, system,
-                AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY);
+                AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY, AgentIdResolver.LICENCE_PROPERTY);
         this.agentProperties.add(systemProperties);
     }
 
@@ -41,7 +41,7 @@ public class AgentIdResolverBuilder {
         Assert.requireNonNull(agentArguments, "agentArguments");
 
         AgentProperties agentArgument = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArguments,
-                AgentIdResolver.AGENT_ID, AgentIdResolver.APPLICATION_NAME);
+                AgentIdResolver.AGENT_ID, AgentIdResolver.APPLICATION_NAME, AgentIdResolver.AGENT_LICENCE);
         this.agentProperties.add(agentArgument);
     }
 

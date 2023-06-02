@@ -18,6 +18,14 @@ package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.Charsets;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * @author emeroad
  */
@@ -53,5 +61,62 @@ public final class HttpUtils {
         contentType = contentType.substring(charsetStart, charsetEnd);
 
         return contentType.trim();
+    }
+
+    public static String doGet(String httpUrl, int connectTimeout, int readTimeout) throws IOException {
+        //链接
+        HttpURLConnection connection=null;
+        InputStream is=null;
+        BufferedReader br = null;
+        StringBuffer result=new StringBuffer();
+        try {
+            //创建连接
+            URL url=new URL(httpUrl);
+            connection= (HttpURLConnection) url.openConnection();
+            //设置请求方式
+            connection.setRequestMethod("GET");
+            //设置连接超时时间
+            connection.setConnectTimeout(connectTimeout);
+            //设置读取超时时间
+            connection.setReadTimeout(readTimeout);
+            //开始连接
+            connection.connect();
+            //获取响应数据
+            if(connection.getResponseCode()==200){
+                //获取返回的数据
+                is=connection.getInputStream();
+                if(is!=null){
+                    br=new BufferedReader(new InputStreamReader(is,"UTF-8"));
+                    String temp = null;
+                    while ((temp=br.readLine())!=null){
+                        result.append(temp+"\r\n");
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
+            throw e;
+        } catch (IOException e) {
+            throw e;
+        }finally {
+            if(br!=null){
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(is!=null){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            connection.disconnect();// 关闭远程连接
+        }
+        return result.toString();
+    }
+    public static String doGet(String httpUrl) throws IOException {
+        return doGet(httpUrl, 3000, 2000);
     }
 }
