@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
+import com.navercorp.pinpoint.profiler.context.module.*;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
@@ -60,12 +59,18 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
     private final StatMonitorJob statMonitorJob;
 
+    private final String licence;
+    private final String appName;
+
     @Inject
     public DefaultAgentStatMonitor(@StatDataSender DataSender dataSender,
                                    @AgentId String agentId, @AgentStartTime long agentStartTimestamp,
                                    @Named("AgentStatCollector") AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    CustomMetricRegistryService customMetricRegistryService,
-                                   ProfilerConfig profilerConfig) {
+                                   ProfilerConfig profilerConfig,
+                                   Sampler sampler,
+                                   @AgentLicence String licence,
+                                   @ApplicationName String appName) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender");
         }
@@ -89,10 +94,12 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
             numCollectionsPerBatch = DEFAULT_NUM_COLLECTIONS_PER_SEND;
         }
         this.collectionIntervalMs = collectionIntervalMs;
+        this.licence = licence;
+        this.appName = appName;
 
         List<Runnable> runnableList = new ArrayList<Runnable>();
 
-        Runnable statCollectingJob = new CollectJob(dataSender, agentId, agentStartTimestamp, agentStatCollector, numCollectionsPerBatch);
+        Runnable statCollectingJob = new CollectJob(dataSender, agentId, agentStartTimestamp, agentStatCollector, numCollectionsPerBatch, profilerConfig, sampler, licence, appName);
         runnableList.add(statCollectingJob);
 
         if (profilerConfig.isCustomMetricEnable() && customMetricRegistryService != null) {
@@ -102,7 +109,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
         this.statMonitorJob = new StatMonitorJob(runnableList);
 
-        preLoadClass(agentId, agentStartTimestamp, agentStatCollector);
+        preLoadClass(agentId, agentStartTimestamp, agentStatCollector, profilerConfig, sampler);
     }
 
     // https://github.com/naver/pinpoint/issues/2881
@@ -110,9 +117,9 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     // prevent deadlock for JDK6
     // Single thread execution is more safe than multi thread execution.
     // eg) executor.scheduleAtFixedRate(collectJob, 0(initialDelay is zero), this.collectionIntervalMs, TimeUnit.MILLISECONDS);
-    private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
+    private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector, ProfilerConfig profilerConfig, Sampler sampler) {
         logger.debug("pre-load class start");
-        CollectJob collectJob = new CollectJob(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, agentStatCollector, 1);
+        CollectJob collectJob = new CollectJob(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, agentStatCollector, 1, profilerConfig, sampler, licence, appName);
 
         // It is called twice to initialize some fields.
         collectJob.run();

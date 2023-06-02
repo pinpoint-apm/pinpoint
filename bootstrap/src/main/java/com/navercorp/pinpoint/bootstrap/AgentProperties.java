@@ -29,12 +29,20 @@ public class AgentProperties {
     private final Properties properties;
     private final String agentKey;
     private final String applicationNameKey;
+    private final String licenceNameKey;
 
-    public AgentProperties(AgentIdSourceType type, Properties properties, String agentKey, String applicationNameKey) {
+    public AgentProperties(AgentIdSourceType type, Properties properties, String agentKey, String applicationNameKey, String licenceNameKey) {
         this.type = Assert.requireNonNull(type, "type");
         this.properties = Assert.requireNonNull(properties, "properties");
         this.agentKey = Assert.requireNonNull(agentKey, "agentKey");
         this.applicationNameKey = Assert.requireNonNull(applicationNameKey, "applicationNameKey");
+        this.licenceNameKey = licenceNameKey;
+    }
+    public AgentProperties(AgentIdSourceType type, Map<String, String> properties, String agentKey, String applicationNameKey, String licenceNameKey) {
+        this(type, toProperties(properties), agentKey, applicationNameKey, licenceNameKey);
+    }
+    public AgentProperties(AgentIdSourceType type, Properties properties, String agentKey, String applicationNameKey) {
+        this(type, properties, agentKey, applicationNameKey, "");
     }
 
     public AgentProperties(AgentIdSourceType type, Map<String, String> properties, String agentKey, String applicationNameKey) {
@@ -67,6 +75,14 @@ public class AgentProperties {
 
     public String getApplicationNameKey() {
         return applicationNameKey;
+    }
+
+    public String getLicenceName() {
+        return trim(this.properties.getProperty(licenceNameKey));
+    }
+
+    public String getLicenceNameKey() {
+        return licenceNameKey;
     }
 
     private String trim(String string) {

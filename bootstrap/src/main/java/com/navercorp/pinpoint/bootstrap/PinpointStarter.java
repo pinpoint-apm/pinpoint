@@ -102,6 +102,7 @@ class PinpointStarter {
         if (applicationName == null) {
             return false;
         }
+        final String licenceName = agentIds.getAgentLicence();
 
         final ContainerResolver containerResolver = new ContainerResolver();
         final boolean isContainer = containerResolver.isContainer();
@@ -128,7 +129,7 @@ class PinpointStarter {
             logger.info(String.format("pinpoint agent [%s] starting...", bootClass));
 
             final List<String> pluginJars = agentDirectory.getPlugins();
-            AgentOption option = createAgentOption(agentId, applicationName, isContainer, profilerConfig, instrumentation, pluginJars, agentDirectory);
+            AgentOption option = createAgentOption(licenceName, agentId, applicationName, isContainer, profilerConfig, instrumentation, pluginJars, agentDirectory);
             Agent pinpointAgent = agentBootLoader.boot(option);
             pinpointAgent.start();
             pinpointAgent.registerStopHandler();
@@ -206,13 +207,13 @@ class PinpointStarter {
 
     }
 
-    private AgentOption createAgentOption(String agentId, String applicationName, boolean isContainer,
+    private AgentOption createAgentOption(String agentLicence, String agentId, String applicationName, boolean isContainer,
                                           ProfilerConfig profilerConfig,
                                           Instrumentation instrumentation,
                                           List<String> pluginJars,
                                           AgentDirectory agentDirectory) {
         List<String> bootstrapJarPaths = agentDirectory.getBootDir().toList();
-        return new DefaultAgentOption(instrumentation, agentId, applicationName, isContainer, profilerConfig, pluginJars, bootstrapJarPaths);
+        return new DefaultAgentOption(instrumentation, agentLicence, agentId, applicationName, isContainer, profilerConfig, pluginJars, bootstrapJarPaths);
     }
 
     // for test

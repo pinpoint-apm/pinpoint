@@ -27,10 +27,12 @@ import java.util.List;
 public class AgentIdResolver {
     public static final String APPLICATION_NAME = "applicationName";
     public static final String AGENT_ID = "agentId";
+    public static final String AGENT_LICENCE = "licence";
 
     public static final String SYSTEM_PROPERTY_PREFIX = "pinpoint.";
     public static final String APPLICATION_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "applicationName";
     public static final String AGENT_ID_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentId";
+    public static final String LICENCE_PROPERTY = SYSTEM_PROPERTY_PREFIX + "licence";
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
 
@@ -55,6 +57,8 @@ public class AgentIdResolver {
                 touch = true;
             }
 
+            final String licenceName = agentProperty.getLicenceName();
+
             if (touch) {
                 if (StringUtils.isEmpty(agentId)) {
                     String error = agentProperty.getType() + " agentId is missing";
@@ -66,7 +70,11 @@ public class AgentIdResolver {
                     logger.warn(error);
                     return null;
                 }
-                return new AgentIds(agentProperty.getType(), agentId, applicationName);
+                if (StringUtils.isEmpty(licenceName)) {
+                    String error = agentProperty.getType() + " licenceName is missing";
+                    logger.warn(error);
+                }
+                return new AgentIds(agentProperty.getType(), agentId, applicationName, licenceName);
             }
         }
         

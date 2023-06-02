@@ -40,6 +40,6 @@ public class SamplerProvider implements Provider<Sampler> {
         int samplingRate = profilerConfig.getSamplingRate();
 
         SamplerFactory samplerFactory = new SamplerFactory();
-        return samplerFactory.createSampler(samplingEnable, samplingRate);
+        return samplerFactory.createSampler(samplingEnable, samplingRate, profilerConfig);
     }
 }

@@ -25,11 +25,13 @@ public class AgentIds {
     private final String agentId;
     private final String applicationName;
     private final AgentIdSourceType type;
+    private final String agentLicence;
 
-    public AgentIds(AgentIdSourceType type, String agentId, String applicationName) {
+    public AgentIds(AgentIdSourceType type, String agentId, String applicationName, String agentLicence) {
         this.type = Assert.requireNonNull(type, "type");
         this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentLicence = agentLicence;
     }
 
     public AgentIdSourceType getSourceType() {
@@ -42,5 +44,9 @@ public class AgentIds {
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public String getAgentLicence() {
+        return agentLicence;
     }
 }

@@ -30,19 +30,24 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationContextModuleFactory implements ModuleFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private ApplicationContext applicationContext;
 
     @Override
     public Module newModule(AgentOption agentOption) {
         final Module config = new ConfigModule(agentOption);
         final Module pluginModule = new PluginModule();
-        final Module applicationContextModule = new ApplicationContextModule();
+        final Module applicationContextModule = new ApplicationContextModule(applicationContext);
         final Module rpcModule = newRpcModule(agentOption);
         final Module statsModule = new StatsModule();
         final Module thriftStatsModule = new ThriftStatsModule();
 
         return Modules.combine(config, pluginModule, applicationContextModule, rpcModule, statsModule, thriftStatsModule);
     }
-
+    @Override
+    public Module newModule(AgentOption agentOption, ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        return newModule(agentOption);
+    }
     protected Module newRpcModule(AgentOption agentOption) {
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
         final TransportModule transportModule = profilerConfig.getTransportModule();

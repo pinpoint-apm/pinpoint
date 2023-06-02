@@ -28,6 +28,8 @@ public interface AgentOption {
 
     Instrumentation getInstrumentation();
 
+    String getAgentLicence();
+
     String getAgentId();
 
     String getApplicationName();

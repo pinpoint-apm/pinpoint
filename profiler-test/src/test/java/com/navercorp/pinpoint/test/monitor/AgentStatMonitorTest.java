@@ -81,7 +81,7 @@ public class AgentStatMonitorTest {
 
         // When
         AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
-                agentStatCollector, null, mockProfilerConfig);
+                agentStatCollector, null, mockProfilerConfig, null, null, null);
         monitor.start();
         Thread.sleep(totalTestDurationMs);
         monitor.stop();
