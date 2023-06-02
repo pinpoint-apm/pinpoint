@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
-import javax.inject.Provider;
 import java.util.Objects;
 
 
