@@ -139,16 +139,9 @@ class ProfilePropertyLoader implements PropertyLoader {
             profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY);
         }
         if (profile == null) {
-            final String profileCandidates = javaSystemProperty.getProperty(
-                    Profiles.ACTIVE_PROFILE_CANDIDATES_KEY,
-                    defaultProperties.getProperty(
-                            Profiles.ACTIVE_PROFILE_CANDIDATES_KEY,
-                            Profiles.DEFAULT_ACTIVE_PROFILE_CANDIDATES
-                    )
-            );
             throw new RuntimeException("Failed to detect pinpoint profile. Please add -D" +
                     Profiles.ACTIVE_PROFILE_KEY +
-                    "=<profile> to VM option. Valid profiles are \"" + profileCandidates + "\"");
+                    "=<profile> to VM option. Valid profiles are \"" + String.join(" | ", supportedProfiles) + "\"");
         }
 
         // prevent directory traversal attack

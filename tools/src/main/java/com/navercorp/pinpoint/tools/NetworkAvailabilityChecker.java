@@ -37,6 +37,8 @@ public class NetworkAvailabilityChecker {
     public static final String CONFIG_FILE_NAME = "pinpoint-root.config";
     public static final String PROFILE_CONFIG_FILE_NAME = "pinpoint.config";
 
+    private static final String DEFAULT_PROFILE = "release";
+
     private static final Logger logger = new Logger();
 
     public static void main(String[] args) {
@@ -99,7 +101,7 @@ public class NetworkAvailabilityChecker {
     }
 
     private static String getActiveProfile(Properties defaultProperties) {
-        return defaultProperties.getProperty(ACTIVE_PROFILE_KEY, "release");
+        return defaultProperties.getProperty(ACTIVE_PROFILE_KEY, DEFAULT_PROFILE);
     }
 
     private static void loadFileProperties(Properties properties, Path filePath) {
