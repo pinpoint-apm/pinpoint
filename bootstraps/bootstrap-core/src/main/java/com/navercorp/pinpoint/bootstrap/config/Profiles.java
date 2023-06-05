@@ -34,9 +34,6 @@ public final class Profiles {
 
     public static final String ACTIVE_PROFILE_KEY = "pinpoint.profiler.profiles.active";
 
-    public static final String ACTIVE_PROFILE_CANDIDATES_KEY = "pinpoint.profiler.profiles.candidates";
-    public static final String DEFAULT_ACTIVE_PROFILE_CANDIDATES = "local | release";
-
     // 1. default config
     public static final String CONFIG_FILE_NAME = "pinpoint-root.config";
     // 2. profile config
