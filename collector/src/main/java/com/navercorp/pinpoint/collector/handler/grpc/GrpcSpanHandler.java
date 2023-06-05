@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
@@ -28,12 +29,12 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,13 +48,15 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
     private final Logger logger = LogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final TraceService traceService;
+    private final TraceService[] traceServices;
 
     private final GrpcSpanFactory spanFactory;
 
-    public GrpcSpanHandler(TraceService traceService, GrpcSpanFactory spanFactory) {
-        this.traceService = Objects.requireNonNull(traceService, "traceService");
+    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory) {
+        this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
+
+        logger.info("TraceServices {}", Arrays.toString(traceServices));
     }
 
     @Override
@@ -72,12 +75,14 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
             logger.debug("Handle PSpan={}", createSimpleSpanLog(span));
         }
 
-        try {
-            Header agentInfo = ServerContext.getAgentInfo();
-            final SpanBo spanBo = spanFactory.buildSpanBo(span, agentInfo);
-            traceService.insertSpan(spanBo);
-        } catch (Exception e) {
-            logger.warn("Failed to handle span={}", MessageFormatUtils.debugLog(span), e);
+        final Header agentInfo = ServerContext.getAgentInfo();
+        final SpanBo spanBo = spanFactory.buildSpanBo(span, agentInfo);
+        for (TraceService traceService : traceServices) {
+            try {
+                traceService.insertSpan(spanBo);
+            } catch (Throwable e) {
+                logger.warn("Failed to handle span={}", MessageFormatUtils.debugLog(span), e);
+            }
         }
     }
 
@@ -86,7 +91,7 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
             return "";
         }
 
-        StringBuilder log = new StringBuilder();
+        StringBuilder log = new StringBuilder(64);
 
         PTransactionId transactionId = span.getTransactionId();
         log.append(" transactionId:");
@@ -94,16 +99,16 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
 
         log.append(" spanId:").append(span.getSpanId());
 
-        StringBuilder spanEventSequenceLog = new StringBuilder();
-        List<PSpanEvent> spanEventList = span.getSpanEventList();
-        for (PSpanEvent pSpanEvent : spanEventList) {
-            if (pSpanEvent == null) {
-                continue;
+        final List<PSpanEvent> spanEventList = span.getSpanEventList();
+        if (CollectionUtils.hasLength(spanEventList)) {
+            log.append(" spanEventSequence:");
+            for (PSpanEvent pSpanEvent : spanEventList) {
+                if (pSpanEvent == null) {
+                    continue;
+                }
+                log.append(pSpanEvent.getSequence()).append(" ");
             }
-            spanEventSequenceLog.append(pSpanEvent.getSequence()).append(" ");
         }
-
-        log.append(" spanEventSequence:").append(spanEventSequenceLog.toString());
 
         return log.toString();
     }

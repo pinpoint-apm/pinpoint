@@ -28,10 +28,11 @@ import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -42,10 +43,11 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
     private final Logger logger = LogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final SqlMetaDataService sqlMetaDataService;
+    private final SqlMetaDataService[] sqlMetaDataServices;
 
-    public GrpcSqlMetaDataHandler(SqlMetaDataService sqlMetaDataService) {
-        this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
+    public GrpcSqlMetaDataHandler(SqlMetaDataService[] sqlMetaDataServices) {
+        this.sqlMetaDataServices = Objects.requireNonNull(sqlMetaDataServices, "sqlMetaDataServices");
+        logger.info("SqlMetaDataServices {}", Arrays.toString(sqlMetaDataServices));
     }
 
 
@@ -66,19 +68,33 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
             logger.debug("Handle PSqlMetaData={}", MessageFormatUtils.debugLog(sqlMetaData));
         }
 
-        try {
-            final Header agentInfo = ServerContext.getAgentInfo();
-            final String agentId = agentInfo.getAgentId();
-            final long agentStartTime = agentInfo.getAgentStartTime();
+        final Header agentInfo = ServerContext.getAgentInfo();
+        final String agentId = agentInfo.getAgentId();
+        final long agentStartTime = agentInfo.getAgentStartTime();
 
-            final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(agentId, agentStartTime, sqlMetaData.getSqlId(), sqlMetaData.getSql());
+        final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(agentId, agentStartTime, sqlMetaData.getSqlId(), sqlMetaData.getSql());
 
-            sqlMetaDataService.insert(sqlMetaDataBo);
-            return PResult.newBuilder().setSuccess(true).build();
-        } catch (Exception e) {
-            logger.warn("Failed to handle sqlMetaData={}", MessageFormatUtils.debugLog(sqlMetaData), e);
-            // Avoid detailed error messages.
-            return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
+        boolean result = true;
+        for (SqlMetaDataService sqlMetaDataService : sqlMetaDataServices) {
+            try {
+                sqlMetaDataService.insert(sqlMetaDataBo);
+            } catch (Throwable e) {
+                // Avoid detailed error messages.
+                logger.warn("Failed to handle sqlMetaData={}", MessageFormatUtils.debugLog(sqlMetaData), e);
+                result = false;
+            }
         }
+
+        return newResult(result);
+    }
+
+    private static PResult newResult(boolean success) {
+        final PResult.Builder builder = PResult.newBuilder();
+        if (success) {
+            builder.setSuccess(true);
+        } else {
+            builder.setSuccess(false).setMessage("Internal Server Error");
+        }
+        return builder.build();
     }
 }
