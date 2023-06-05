@@ -22,8 +22,9 @@ import com.navercorp.pinpoint.uristat.collector.util.StringPrecondition;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static com.navercorp.pinpoint.common.server.util.ObjectUtils.EMPTY_STRING;
+
 public class UriStat {
-    private static final String EMPTY_STRING = "";
     private static final long EMPTY_NUMBER = 0L;
     private final String tenantId;
     private final String serviceName;

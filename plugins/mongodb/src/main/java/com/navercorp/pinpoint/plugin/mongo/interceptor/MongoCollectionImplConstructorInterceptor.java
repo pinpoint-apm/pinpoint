@@ -77,7 +77,7 @@ public class MongoCollectionImplConstructorInterceptor implements AroundIntercep
             }
 
             final DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
-                    null, null, Collections.EMPTY_LIST, databaseId, collectionName, readPreferenceName, writeConcernName);
+                    null, null, Collections.emptyList(), databaseId, collectionName, readPreferenceName, writeConcernName);
             ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             if (isDebug) {
                 logger.debug("Set databaseInfo={}", databaseId);

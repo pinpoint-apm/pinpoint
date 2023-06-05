@@ -19,20 +19,18 @@ package com.navercorp.pinpoint.common.server.trace;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import static com.navercorp.pinpoint.common.server.util.ObjectUtils.EMPTY_STRING_ARRAY;
 
 /**
  * Similar to MethodDescriptor, but instead parses string-based values.
  * @author emeroad
  */
 public class ApiDescriptionParser {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final char DOT = '.';
     private static final char METHOD_PARAM_START = '(';
     private static final char METHOD_PARAM_END = ')';

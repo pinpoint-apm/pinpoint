@@ -17,20 +17,20 @@
 package com.navercorp.pinpoint.uristat.web.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.navercorp.pinpoint.common.server.util.ObjectUtils;
 import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class UriStatGroup implements TimeseriesValueGroupView {
-    private static final String EMPTY_STRING = "";
     private final String uri;
 
     private final List<TimeSeriesValueView> values;
@@ -38,7 +38,7 @@ public class UriStatGroup implements TimeseriesValueGroupView {
     public static final UriStatGroup EMPTY_URI_STAT_GROUP = new UriStatGroup();
 
     public UriStatGroup() {
-        this.uri = EMPTY_STRING;
+        this.uri = ObjectUtils.EMPTY_STRING;
         this.values = Collections.emptyList();
     }
 
