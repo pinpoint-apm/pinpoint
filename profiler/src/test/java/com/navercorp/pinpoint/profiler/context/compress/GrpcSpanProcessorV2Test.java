@@ -77,7 +77,7 @@ public class GrpcSpanProcessorV2Test {
 
         PSpan.Builder builder = PSpan.newBuilder();
         for (SpanEvent spanEvent : span.getSpanEventList()) {
-            PSpanEvent.Builder pSpanEvent = converter.buildPSpanEvent(spanEvent);
+            PSpanEvent pSpanEvent = converter.buildPSpanEvent(spanEvent);
             builder.addSpanEvent(pSpanEvent);
         }
 
