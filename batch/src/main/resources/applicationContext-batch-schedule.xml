@@ -11,7 +11,7 @@
         <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *"/>
         <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="0 0 2 * * *"/>
         <task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/10 * * * *"/>
-        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchConfiguration['cleanupInactiveAgentsCron']}"/>
+        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchProperties['cleanupInactiveAgentsCron']}"/>
     </task:scheduled-tasks>
 
     <task:scheduler id="scheduler" pool-size="4"/>
