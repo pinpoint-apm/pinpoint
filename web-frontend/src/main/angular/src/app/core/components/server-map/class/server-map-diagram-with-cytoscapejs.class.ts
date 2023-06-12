@@ -10,9 +10,17 @@ import {IServerMapOption} from './server-map-factory';
 import {ServerMapTemplate} from './server-map-template';
 import {isEmpty} from 'app/core/utils/util';
 
+const enum GraphStyle {
+    NODE_WIDTH = 100,
+    NODE_HEIGHT = 100,
+    NODE_RADIUS = GraphStyle.NODE_HEIGHT / 2,
+    NODE_GAP = 30,
+    RANK_SEP = 200
+}
+
 export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
     private cy: any;
-    private addedNodes: any[] = [];
+    private addedNodes: any;
     protected computedStyle = getComputedStyle(document.body);
     protected serverMapColor = {
         text: this.computedStyle.getPropertyValue('--text-primary'),
@@ -55,8 +63,8 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                     // TODO: Restructure ServerMapTheme and replace the style string with constant from it
                     selector: 'node',
                     style: {
-                        width: 100,
-                        height: 100,
+                        width: GraphStyle.NODE_WIDTH,
+                        height: GraphStyle.NODE_HEIGHT,
                         'background-color': this.serverMapColor.nodeBackground,
                         'border-width': '3',
                         'border-color': this.serverMapColor.nodeBorderOutLine,
@@ -133,32 +141,78 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         });
 
         this.cy.on('layoutstop', () => {
-            this.cy.nodes().unlock();
-            // Check overlay and adjust the position
-            this.addedNodes.forEach((addedNode: any) => {
-                const isOverlaid = this.cy.nodes().toArray().some((node: any) => addedNode.id() !== node.id() && this.areTheyOverlaid(addedNode, node));
+            // TODO: Add experimental flag
+            // this.cy.nodes().unlock();
+            // // Check overlay and adjust the position
+            // const rootNodes = this.cy.nodes().roots().toArray();
+            // const leafNodes = this.cy.nodes().leaves().toArray();
 
-                if (!isOverlaid) {
-                    return;
-                }
+            // this.addedNodes.forEach((addedNode: any) => {
+            //     const {y} = addedNode.position();
+            //     const {h, y1} = addedNode.boundingBox();
+            //     const labelHeight = h - (y - y1) * 2;
+            //     const isRootNode = rootNodes.some((node: any) => node.id() === addedNode.id());
+            //     const isLeafNode = leafNodes.some((node: any) => node.id() === addedNode.id());
 
-                const {x, y} = addedNode.position();
-                const {h, y1} = addedNode.boundingBox();
-                const labelHeight = h - (y - y1) * 2;
+            //     if (isRootNode || isLeafNode) {
+            //         const sameTypeNodes = isRootNode ? rootNodes.filter((node: any) => node.id() !== addedNode.id())
+            //             : leafNodes.filter((node: any) => node.id() !== addedNode.id());
+            //         const newX = sameTypeNodes.reduce((acc: number, node: any) => {
+            //             const {x} = node.position();
 
-                const nodesAtSameX = this.cy.nodes().filter((node: any) => {
-                    return x === node.position().x;
-                });
-                const topY = Math.min(...nodesAtSameX.map((node: any) => node.boundingBox().y1));
-                const newY2 = topY - 30; // 30: padding between nodes
-                const newY1 = newY2 - h;
-                const newY = (h - labelHeight) / 2 + newY1;
+            //             return acc + x;
+            //         }, 0) / sameTypeNodes.length;
 
-                addedNode.position({
-                    x,
-                    y: newY
-                });
-            });
+            //         const overlayableNodes = this.cy.nodes().toArray().filter((node: any) => {
+            //             return this.isXPosOverlaid(addedNode, node);
+            //         });
+
+            //         let newY1;
+
+            //         if (Math.random() >= 0.5) {
+            //             // Add at the top
+            //             const topY = Math.min(...overlayableNodes.map((node: any) => node.boundingBox().y1));
+            //             const newY2 = topY - GraphStyle.NODE_GAP;
+                        
+            //             newY1 = newY2 - h;
+            //         } else {
+            //             // Add at the bottom
+            //             const bottomY = Math.max(...overlayableNodes.map((node: any) => node.boundingBox().y2));
+                        
+            //             newY1 = bottomY + GraphStyle.NODE_GAP;
+            //         }
+
+            //         const newY = (h - labelHeight) / 2 + newY1;
+
+            //         addedNode.position({
+            //             x: newX,
+            //             y: newY
+            //         });
+            //     } else {
+            //         const isOverlaid = this.cy.nodes().toArray().some((node: any) => addedNode.id() !== node.id() && this.areTheyOverlaid(addedNode, node));
+    
+            //         if (!isOverlaid) {
+            //             return;
+            //         }
+    
+            //         const {x, y} = addedNode.position();
+            //         const {h, y1} = addedNode.boundingBox();
+            //         const labelHeight = h - (y - y1) * 2;
+    
+            //         const nodesAtSameX = this.cy.nodes().filter((node: any) => {
+            //             return x === node.position().x;
+            //         });
+            //         const topY = Math.min(...nodesAtSameX.map((node: any) => node.boundingBox().y1));
+            //         const newY2 = topY - GraphStyle.NODE_GAP;
+            //         const newY1 = newY2 - h;
+            //         const newY = (h - labelHeight) / 2 + newY1;
+    
+            //         addedNode.position({
+            //             x,
+            //             y: newY
+            //         });
+            //     }
+            // });
         });
 
         this.cy.on('select', 'node', ({target}: any) => {
@@ -304,7 +358,6 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         if (!isRemovedNode) {
                             return;
                         }
-                        console.log('removed!');
 
                         if (this.isMergedElement(ele)) {
                             this.cy.remove(ele);
@@ -341,16 +394,22 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                     return {nodes, edges};
                 }),
                 tap((elements: { [key: string]: any }) => {
-                    if (elements.nodes.length !== 0) {
-                        console.log('node 추가!');
-                    }
-                    this.addedNodes = this.cy.add(elements).nodes().toArray();
+                    this.addedNodes = this.cy.add(elements).nodes();
                 }),
-                filter(() => !isEmpty(this.addedNodes))
-            ).subscribe((elements: { [key: string]: any }) => {
+                // filter(() => !isEmpty(this.addedNodes))
+                filter(() => !this.addedNodes.empty())
+            ).subscribe((elements: {[key: string]: any}) => {
+                console.log('node 추가!');
+                console.log(this.addedNodes.map((node: any) => node.id()));
+                // TODO: Add experimental option
                 // this.cy.nodes().lock();
-                // this.initLayout(); // ! 얘도 문제다?
+                // this.initLayout();
                 // this.adjustStyle(elements);
+
+                // this.updateLayout();
+                // this.updateLayoutWithRank();
+                this.updateLayoutWithoutRank();
+                this.adjustStyle(elements);
             });
         } else {
             // * Update Entirely
@@ -390,6 +449,60 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
 
         this.serverMapData = serverMapData;
         this.baseApplicationKey = baseApplicationKey;
+    }
+
+    private updateLayoutWithoutRank(): void {
+        const centerNode = this.cy.getElementById(this.baseApplicationKey);
+        const {x: centerNodeX, y: centerNodeY} = centerNode.position();
+        const {y1: centerNodeY1, y2: centerNodeY2} = centerNode.boundingBox();
+        let rankDiff: number; // Indicates rank diff between added node and the center node
+
+        this.addedNodes.forEach((addedNode: any) => {
+            rankDiff = 0;
+            const predecessors = addedNode.predecessors();
+            const successors = addedNode.successors();
+
+            const hasIncomers = predecessors.contains(centerNode); // or hasOutgoers
+            const traverseTarget = hasIncomers ? predecessors : successors;
+
+            rankDiff = traverseTarget.nodes().toArray().findIndex((ele: any) => ele.id() === this.baseApplicationKey) + 1;
+            const newX = centerNodeX + (rankDiff * (GraphStyle.RANK_SEP + GraphStyle.NODE_WIDTH) * (hasIncomers ? 1 : -1));
+
+            const {y} = addedNode.position();
+            const {h, y1} = addedNode.boundingBox();
+            const labelHeight = h - (y - y1) * 2;
+
+            const overlayableNodes = this.cy.nodes().filter((node: any) => {
+                const isSameNode = node.same(addedNode);
+                const {x} = node.position();
+                const width = node.width();
+                const isXPosOverlaid = Math.abs(newX - x) <= width;
+
+                return !isSameNode && isXPosOverlaid;
+            });
+
+            let newY1;
+
+            if (Math.random() >= 0.5) {
+                // Add at the top
+                const topY = Math.min(...overlayableNodes.map((node: any) => node.position().y - GraphStyle.NODE_RADIUS), centerNodeY - GraphStyle.NODE_RADIUS);
+                const newY2 = topY - GraphStyle.NODE_GAP;
+                
+                newY1 = newY2 - h;
+            } else {
+                // Add at the bottom
+                const bottomY = Math.max(...overlayableNodes.map((node: any) => node.boundingBox().y2), centerNodeY2);
+                
+                newY1 = bottomY + GraphStyle.NODE_GAP;
+            }
+
+            const newY = (h - labelHeight) / 2 + newY1;
+
+            addedNode.position({
+                x: newX,
+                y: newY
+            });
+        })
     }
 
     private getResponseInfo(linkData: ILinkInfo | any): any {
@@ -485,6 +598,14 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
 
     private isMergedElement(ele: any): boolean {
         return ele.data('isMerged');
+    }
+
+    private isXPosOverlaid(ele1: any, ele2: any): boolean {
+        const ele1Width = ele1.width();
+        const {x1, x2} = ele1.boundingBox();
+        const {x1: x3, x2: x4} = ele2.boundingBox();
+
+        return x4 >= x1 && x3 <= x2;
     }
 
     private areTheyOverlaid(ele1: any, ele2: any): boolean {
@@ -585,7 +706,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
             name: 'dagre',
             rankDir: 'LR',
             fit: false,
-            rankSep: 200,
+            rankSep: GraphStyle.RANK_SEP,
         }).run();
     }
 
