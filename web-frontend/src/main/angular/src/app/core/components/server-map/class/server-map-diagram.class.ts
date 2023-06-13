@@ -26,4 +26,6 @@ export abstract class ServerMapDiagram {
     abstract refresh(): void;
 
     abstract clear(): void;
+
+    abstract setUpdateLayoutOption(updateLayoutManually: boolean): void;
 }

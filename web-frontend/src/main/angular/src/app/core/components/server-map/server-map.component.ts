@@ -34,6 +34,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     @Input() type: ServerMapType;
     @Input() shouldRefresh = true;
     @Input() enableServerMapRealTime: boolean;
+    @Input() updateServerMapLayoutManually: boolean;
     @Output() outClickNode = new EventEmitter<any>();
     @Output() outContextClickNode = new EventEmitter<string>();
     @Output() outClickLink = new EventEmitter<any>();
@@ -97,6 +98,8 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
             this.serverMapDiagram.setMapData(this.mapData, this.baseApplicationKey, this.shouldRefresh);
             this.hasRenderData = false;
         }
+
+        this.serverMapDiagram.setUpdateLayoutOption(this.updateServerMapLayoutManually);
     }
 
     addEventHandler(): void {

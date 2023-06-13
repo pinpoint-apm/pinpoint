@@ -8,7 +8,6 @@ import {ServerMapDiagram} from './server-map-diagram.class';
 import {ServerMapData} from './server-map-data.class';
 import {IServerMapOption} from './server-map-factory';
 import {ServerMapTemplate} from './server-map-template';
-import {isEmpty} from 'app/core/utils/util';
 
 const enum GraphStyle {
     NODE_WIDTH = 100,
@@ -19,8 +18,9 @@ const enum GraphStyle {
 }
 
 export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
+    private updateLayoutManually: boolean;
     private cy: any;
-    private addedNodes: any;
+    private addedNodes: any = [];
     protected computedStyle = getComputedStyle(document.body);
     protected serverMapColor = {
         text: this.computedStyle.getPropertyValue('--text-primary'),
@@ -141,78 +141,34 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         });
 
         this.cy.on('layoutstop', () => {
-            // TODO: Add experimental flag
-            // this.cy.nodes().unlock();
-            // // Check overlay and adjust the position
-            // const rootNodes = this.cy.nodes().roots().toArray();
-            // const leafNodes = this.cy.nodes().leaves().toArray();
-
-            // this.addedNodes.forEach((addedNode: any) => {
-            //     const {y} = addedNode.position();
-            //     const {h, y1} = addedNode.boundingBox();
-            //     const labelHeight = h - (y - y1) * 2;
-            //     const isRootNode = rootNodes.some((node: any) => node.id() === addedNode.id());
-            //     const isLeafNode = leafNodes.some((node: any) => node.id() === addedNode.id());
-
-            //     if (isRootNode || isLeafNode) {
-            //         const sameTypeNodes = isRootNode ? rootNodes.filter((node: any) => node.id() !== addedNode.id())
-            //             : leafNodes.filter((node: any) => node.id() !== addedNode.id());
-            //         const newX = sameTypeNodes.reduce((acc: number, node: any) => {
-            //             const {x} = node.position();
-
-            //             return acc + x;
-            //         }, 0) / sameTypeNodes.length;
-
-            //         const overlayableNodes = this.cy.nodes().toArray().filter((node: any) => {
-            //             return this.isXPosOverlaid(addedNode, node);
-            //         });
-
-            //         let newY1;
-
-            //         if (Math.random() >= 0.5) {
-            //             // Add at the top
-            //             const topY = Math.min(...overlayableNodes.map((node: any) => node.boundingBox().y1));
-            //             const newY2 = topY - GraphStyle.NODE_GAP;
-                        
-            //             newY1 = newY2 - h;
-            //         } else {
-            //             // Add at the bottom
-            //             const bottomY = Math.max(...overlayableNodes.map((node: any) => node.boundingBox().y2));
-                        
-            //             newY1 = bottomY + GraphStyle.NODE_GAP;
-            //         }
-
-            //         const newY = (h - labelHeight) / 2 + newY1;
-
-            //         addedNode.position({
-            //             x: newX,
-            //             y: newY
-            //         });
-            //     } else {
-            //         const isOverlaid = this.cy.nodes().toArray().some((node: any) => addedNode.id() !== node.id() && this.areTheyOverlaid(addedNode, node));
+            if (!this.updateLayoutManually) {
+                this.cy.nodes().unlock();
+                // Check overlay and adjust the position
+                this.addedNodes.forEach((addedNode: any) => {
+                    const isOverlaid = this.cy.nodes().some((node: any) => addedNode.id() !== node.id() && this.areTheyOverlaid(addedNode, node));
     
-            //         if (!isOverlaid) {
-            //             return;
-            //         }
+                    if (!isOverlaid) {
+                        return;
+                    }
     
-            //         const {x, y} = addedNode.position();
-            //         const {h, y1} = addedNode.boundingBox();
-            //         const labelHeight = h - (y - y1) * 2;
+                    const {x, y} = addedNode.position();
+                    const {h, y1} = addedNode.boundingBox();
+                    const labelHeight = h - (y - y1) * 2;
     
-            //         const nodesAtSameX = this.cy.nodes().filter((node: any) => {
-            //             return x === node.position().x;
-            //         });
-            //         const topY = Math.min(...nodesAtSameX.map((node: any) => node.boundingBox().y1));
-            //         const newY2 = topY - GraphStyle.NODE_GAP;
-            //         const newY1 = newY2 - h;
-            //         const newY = (h - labelHeight) / 2 + newY1;
+                    const nodesAtSameX = this.cy.nodes().filter((node: any) => {
+                        return x === node.position().x;
+                    });
+                    const topY = Math.min(...nodesAtSameX.map((node: any) => node.boundingBox().y1));
+                    const newY2 = topY - GraphStyle.NODE_GAP;
+                    const newY1 = newY2 - h;
+                    const newY = (h - labelHeight) / 2 + newY1;
     
-            //         addedNode.position({
-            //             x,
-            //             y: newY
-            //         });
-            //     }
-            // });
+                    addedNode.position({
+                        x,
+                        y: newY
+                    });
+                });
+            }
         });
 
         this.cy.on('select', 'node', ({target}: any) => {
@@ -396,19 +352,15 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                 tap((elements: { [key: string]: any }) => {
                     this.addedNodes = this.cy.add(elements).nodes();
                 }),
-                // filter(() => !isEmpty(this.addedNodes))
                 filter(() => !this.addedNodes.empty())
             ).subscribe((elements: {[key: string]: any}) => {
-                console.log('node 추가!');
-                console.log(this.addedNodes.map((node: any) => node.id()));
-                // TODO: Add experimental option
-                // this.cy.nodes().lock();
-                // this.initLayout();
-                // this.adjustStyle(elements);
+                if (this.updateLayoutManually) {
+                    this.updateLayout();    
+                } else {
+                    this.cy.nodes().lock();
+                    this.initLayout();
+                }
 
-                // this.updateLayout();
-                // this.updateLayoutWithRank();
-                this.updateLayoutWithoutRank();
                 this.adjustStyle(elements);
             });
         } else {
@@ -451,7 +403,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         this.baseApplicationKey = baseApplicationKey;
     }
 
-    private updateLayoutWithoutRank(): void {
+    private updateLayout(): void {
         const centerNode = this.cy.getElementById(this.baseApplicationKey);
         const {x: centerNodeX, y: centerNodeY} = centerNode.position();
         const {y1: centerNodeY1, y2: centerNodeY2} = centerNode.boundingBox();
@@ -708,6 +660,10 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
             fit: false,
             rankSep: GraphStyle.RANK_SEP,
         }).run();
+    }
+
+    setUpdateLayoutOption(updateLayoutManually: boolean): void {
+        this.updateLayoutManually = updateLayoutManually;
     }
 
     redraw(): void {

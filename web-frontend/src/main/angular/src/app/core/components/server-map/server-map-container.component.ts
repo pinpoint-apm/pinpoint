@@ -62,6 +62,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     interval = 2000;
     shouldRefresh: boolean;
     enableServerMapRealTime: boolean;
+    updateServerMapLayoutManually: boolean;
 
     constructor(
         private router: Router,
@@ -84,7 +85,10 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
             const enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
+            const updateServerMapLayoutManually = this.webAppSettingDataService.getExperimentalOption('updateServerMapLayoutManually');
+
             this.enableServerMapRealTime = enableServerMapRealTime === null ? configuration.enableServerMapRealTime.value : enableServerMapRealTime;
+            this.updateServerMapLayoutManually = updateServerMapLayoutManually === null ? configuration.updateServerMapLayoutManually.value : updateServerMapLayoutManually;
         });
 
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
