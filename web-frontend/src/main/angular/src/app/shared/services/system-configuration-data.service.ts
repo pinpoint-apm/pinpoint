@@ -9,7 +9,8 @@ export enum ExperimentalConfigurationLocalStorageKey {
     useStatisticsAgentState = 'statisticsAgentState',
     enableServerMapRealTime = 'serverMapRealTime',
     sampleScatter = 'scatterSampling',
-    useScatterChartV2 = 'useScatterChartV2'
+    useScatterChartV2 = 'useScatterChartV2',
+    updateServerMapLayoutManually = 'updateServerMapLayoutManually',
 }
 
 type ExperimentalConfigMetaItem = {
@@ -18,8 +19,8 @@ type ExperimentalConfigMetaItem = {
 }
 
 enum ClientExperimentalConfig {
-    // enableSideNavigationUI = 'enableSideNavigationUI',
-    useScatterChartV2 = 'useScatterChartV2'
+    useScatterChartV2 = 'useScatterChartV2',
+    updateServerMapLayoutManually = 'updateServerMapLayoutManually'
 }
 
 export type ExperimentalConfigurationKeyType = keyof typeof ExperimentalConfigurationLocalStorageKey
@@ -57,7 +58,11 @@ export class SystemConfigurationDataService {
     getClientExperimentalConfiguration(): Record<ClientExperimentalConfig, ExperimentalConfigMetaItem> {
         return {
             useScatterChartV2: {
-                description: 'Use ScatterChart v2',
+                description: 'Use ScatterChart v2.',
+                value: false
+            },
+            updateServerMapLayoutManually: {
+                description: 'Update server-map layout manually.',
                 value: false
             }
         };
