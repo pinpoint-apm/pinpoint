@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.realtime.service;
 
+import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
@@ -28,8 +29,8 @@ public class RealtimeWebServiceConfig {
 
     @Bean
     @ConditionalOnBean(AgentService.class)
-    AgentLookupService agentLookupService(AgentService agentService) {
-        return new AgentLookupServiceImpl(agentService);
+    AgentLookupService agentLookupService(AgentInfoService agentInfoService) {
+        return new AgentLookupServiceImpl(agentInfoService);
     }
 
 }
