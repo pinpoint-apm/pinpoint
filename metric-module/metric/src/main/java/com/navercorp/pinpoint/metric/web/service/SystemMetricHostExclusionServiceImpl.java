@@ -25,13 +25,20 @@ public class SystemMetricHostExclusionServiceImpl implements SystemMetricHostExc
     }
 
     @Override
+    public List<String> getHostGroupNameList(String tenantId) {
+        List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList(tenantId);
+        hostGroupNameList.sort(Comparator.naturalOrder());
+        return hostGroupNameList;
+    }
+
+    @Override
     public SystemMetricHostGroupInfo getHostGroupInfo(String tenantId, String hostGroupName) {
         boolean excluded = systemMetricHostExclusionDao.selectExcludedHostGroupNameList().contains(hostGroupName);
         return new SystemMetricHostGroupInfo(hostGroupName, excluded);
     }
 
     @Override
-    public List<SystemMetricHostInfo> getHostInfoList(String tenantId, String hostGroupName) {
+    public List<SystemMetricHostInfo> getHostInfoList(String tenantId, String hostGroupName, String orderBy) {
         List<SystemMetricHostInfo> result = new ArrayList<>();
         List<String> hostNames = systemMetricHostInfoDao.selectHostList(tenantId, hostGroupName);
         List<String> excludedHostNames = systemMetricHostExclusionDao.selectExcludedHostNameList(hostGroupName);
@@ -44,7 +51,11 @@ public class SystemMetricHostExclusionServiceImpl implements SystemMetricHostExc
             }
         }
 
-        result.sort(Comparator.comparing(SystemMetricHostInfo::getHostName));
+        if ("excluded".equals(orderBy)) {
+            result.sort(Comparator.comparing(SystemMetricHostInfo::isExcluded));
+        } else {
+            result.sort(Comparator.comparing(SystemMetricHostInfo::getHostName));
+        }
         return result;
     }
 
@@ -66,17 +77,6 @@ public class SystemMetricHostExclusionServiceImpl implements SystemMetricHostExc
     @Override
     public void deleteHostExclusion(String hostGroupName, String hostName) {
         systemMetricHostExclusionDao.deleteHostExclusion(hostGroupName, hostName);
-    }
-
-    @Override
-    public void deleteUnusedHostExclusions(String tenantId, String hostGroupName) {
-        List<String> hostNames = systemMetricHostInfoDao.selectHostList(tenantId, hostGroupName);
-        List<String> excludedHostNames = systemMetricHostExclusionDao.selectExcludedHostNameList(hostGroupName);
-        for (String excludedHostName : excludedHostNames) {
-            if (!hostNames.contains(excludedHostName)) {
-                systemMetricHostExclusionDao.deleteHostExclusion(hostGroupName, excludedHostName);
-            }
-        }
     }
 
     @Override

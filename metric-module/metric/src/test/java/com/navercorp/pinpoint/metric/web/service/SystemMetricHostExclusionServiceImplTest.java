@@ -59,7 +59,7 @@ public class SystemMetricHostExclusionServiceImplTest {
     void getExcludedHostInfoTest() {
         when(systemMetricHostInfoDao.selectHostList("tenantId", "hostGroupName")).thenReturn(List.of("hostName", "excludedHostName"));
         when(systemMetricHostExclusionDao.selectExcludedHostNameList("hostGroupName")).thenReturn(List.of("excludedHostName", "anotherExcludedHostName"));
-        List<SystemMetricHostInfo> hostResultList = systemMetricHostExclusionService.getHostInfoList("tenantId", "hostGroupName");
+        List<SystemMetricHostInfo> hostResultList = systemMetricHostExclusionService.getHostInfoList("tenantId", "hostGroupName", "hostName");
 
         hostResultList.sort(Comparator.comparing(SystemMetricHostInfo::getHostName));
         assertThat(hostResultList.get(0).getHostName()).isEqualTo("anotherExcludedHostName");
@@ -68,19 +68,6 @@ public class SystemMetricHostExclusionServiceImplTest {
         assertThat(hostResultList.get(1).isExcluded()).isTrue();
         assertThat(hostResultList.get(2).getHostName()).isEqualTo("hostName");
         assertThat(hostResultList.get(2).isExcluded()).isFalse();
-    }
-
-    @Test
-    public void deleteUnusedHostExclusionsTest() {
-        when(systemMetricHostExclusionDao.selectExcludedHostNameList("hostGroupName")).thenReturn(List.of("liveHostName", "deadHostName"));
-        when(systemMetricHostInfoDao.selectHostList("tenantId", "hostGroupName")).thenReturn(List.of("liveHostName"));
-        lenient().doNothing().when(systemMetricHostExclusionDao).deleteHostExclusion("hostGroupName", "liveHostName");
-        doNothing().when(systemMetricHostExclusionDao).deleteHostExclusion("hostGroupName", "deadHostName");
-
-        systemMetricHostExclusionService.deleteUnusedHostExclusions("tenantId", "hostGroupName");
-
-        verify(systemMetricHostExclusionDao, never()).deleteHostExclusion("hostGroupName", "liveHostName");
-        verify(systemMetricHostExclusionDao).deleteHostExclusion("hostGroupName", "deadHostName");
     }
 
     @Test

@@ -4,47 +4,47 @@
 <mapper namespace="com.navercorp.pinpoint.metric.web.dao.mysql.MysqlSystemMetricHostExclusionDao">
 
     <select id="selectExcludedHostGroupNames" resultType="string">
-        SELECT hostGroupName
+        SELECT host_group_name as hostGroupName
         FROM system_metric_host_group_exclusion
     </select>
 
     <insert id="insertHostGroupExclusion" parameterType="string">
-        INSERT INTO system_metric_host_group_exclusion (hostGroupName)
+        INSERT INTO system_metric_host_group_exclusion (host_group_name)
         VALUES (#{hostGroupName})
     </insert>
 
     <delete id="deleteHostGroupExclusion" parameterType="string">
         DELETE
         FROM system_metric_host_group_exclusion
-        WHERE hostGroupName = #{hostGroupName}
+        WHERE host_group_name = #{hostGroupName}
     </delete>
 
     <select id="selectExcludedHostNames" parameterType="string" resultType="string">
-        SELECT hostName
+        SELECT host_name as hostName
         FROM system_metric_host_exclusion
-        WHERE hostGroupName = #{hostGroupName}
+        WHERE host_group_name = #{hostGroupName}
     </select>
 
     <insert id="insertHostExclusion" parameterType="HostExclusionSearchKey">
-        INSERT INTO system_metric_host_exclusion (hostGroupName, hostName)
+        INSERT INTO system_metric_host_exclusion (host_group_name, host_name)
         VALUES (#{hostGroupName}, #{hostName})
     </insert>
 
     <delete id="deleteHostExclusion" parameterType="HostExclusionSearchKey">
         DELETE
         FROM system_metric_host_exclusion
-        WHERE hostGroupName = #{hostGroupName}
-            AND hostName = #{hostName}
+        WHERE host_group_name = #{hostGroupName}
+            AND host_name = #{hostName}
     </delete>
 
     <select id="selectGroupNamesFromHostExclusion" resultType="string">
-        SELECT DISTINCT hostGroupName
+        SELECT DISTINCT host_group_name as hostGroupName
         FROM system_metric_host_exclusion
     </select>
 
     <delete id="deleteHostExclusions" parameterType="string">
         DELETE
         FROM system_metric_host_exclusion
-        WHERE hostGroupName = #{hostGroupName}
+        WHERE host_group_name = #{hostGroupName}
     </delete>
 </mapper>

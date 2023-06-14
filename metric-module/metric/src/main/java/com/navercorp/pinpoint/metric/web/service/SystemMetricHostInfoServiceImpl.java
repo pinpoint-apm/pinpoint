@@ -59,15 +59,13 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     @Override
-    public List<String> getHostGroupNameList(String tenantId, boolean showAll) {
+    public List<String> getHostGroupNameList(String tenantId) {
         List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList(tenantId);
-        if (!showAll){
-            try {
-                List<String> excludedHostGroupList = systemMetricHostExclusionDao.selectExcludedHostGroupNameList();
-                hostGroupNameList.removeAll(excludedHostGroupList);
-            } catch (Exception e) {
-                throttledLogger.warn("error getting excludedHostGroupNameList", e);
-            }
+        try {
+            List<String> excludedHostGroupList = systemMetricHostExclusionDao.selectExcludedHostGroupNameList();
+            hostGroupNameList.removeAll(excludedHostGroupList);
+        } catch (Exception e) {
+            throttledLogger.warn("error getting excludedHostGroupNameList", e);
         }
 
         hostGroupNameList.sort(Comparator.naturalOrder());
@@ -75,15 +73,13 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     @Override
-    public List<String> getHostList(String tenantId, String hostGroupName, boolean showAll) {
+    public List<String> getHostList(String tenantId, String hostGroupName) {
         List<String> hostList = systemMetricHostInfoDao.selectHostList(tenantId, hostGroupName);
-        if (!showAll) {
-            try {
-                List<String> excludedHostList = systemMetricHostExclusionDao.selectExcludedHostNameList(hostGroupName);
-                hostList.removeAll(excludedHostList);
-            } catch (Exception e) {
-                throttledLogger.warn("error getting excludedHostNameList", e);
-            }
+        try {
+            List<String> excludedHostList = systemMetricHostExclusionDao.selectExcludedHostNameList(hostGroupName);
+            hostList.removeAll(excludedHostList);
+        } catch (Exception e) {
+            throttledLogger.warn("error getting excludedHostNameList", e);
         }
 
         hostList.sort(Comparator.naturalOrder());

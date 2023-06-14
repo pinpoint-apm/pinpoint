@@ -28,9 +28,9 @@ import java.util.List;
  * @author minwoo.jung
  */
 public interface SystemMetricHostInfoService {
-    List<String> getHostGroupNameList(String tenantId, boolean showAll);
+    List<String> getHostGroupNameList(String tenantId);
 
-    List<String> getHostList(String tenantId, String hostGroupName, boolean showAll);
+    List<String> getHostList(String tenantId, String hostGroupName);
 
     List<MetricInfo> getCollectedMetricInfoV2(String tenantId, String hostGroupName, String hostName);
 

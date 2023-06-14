@@ -7,9 +7,11 @@ import java.util.List;
 
 public interface SystemMetricHostExclusionService {
 
+    List<String> getHostGroupNameList(String tenantId);
+
     SystemMetricHostGroupInfo getHostGroupInfo(String tenantId, String hostGroupName);
 
-    List<SystemMetricHostInfo> getHostInfoList(String tenantId, String hostGroupName);
+    List<SystemMetricHostInfo> getHostInfoList(String tenantId, String hostGroupName, String orderBy);
 
     void insertHostGroupExclusion(String hostGroupName);
 
@@ -18,8 +20,6 @@ public interface SystemMetricHostExclusionService {
     void insertHostExclusion(String hostGroupName, String hostName);
 
     void deleteHostExclusion(String hostGroupName, String hostName);
-
-    void deleteUnusedHostExclusions(String tenantId, String hostGroupName);
 
     void deleteUnusedGroupExclusions(String tenantId);
 }

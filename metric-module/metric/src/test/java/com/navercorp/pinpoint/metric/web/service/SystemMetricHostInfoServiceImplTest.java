@@ -49,7 +49,7 @@ public class SystemMetricHostInfoServiceImplTest {
         when(systemMetricHostInfoDao.selectHostGroupNameList("tenantId")).thenReturn(hostGroupNames);
         when(systemMetricHostExclusionDao.selectExcludedHostGroupNameList()).thenReturn(excludedHostGroupNames);
 
-        List<String> result = systemMetricHostInfoService.getHostGroupNameList("tenantId", false);
+        List<String> result = systemMetricHostInfoService.getHostGroupNameList("tenantId");
 
         verify(systemMetricHostInfoDao).selectHostGroupNameList("tenantId");
         verify(systemMetricHostExclusionDao).selectExcludedHostGroupNameList();
@@ -68,7 +68,7 @@ public class SystemMetricHostInfoServiceImplTest {
         when(systemMetricHostInfoDao.selectHostGroupNameList("tenantId")).thenReturn(hostGroupNames);
         when(systemMetricHostExclusionDao.selectExcludedHostGroupNameList()).thenThrow(new RuntimeException("Test Exception"));
 
-        List<String> result = systemMetricHostInfoService.getHostGroupNameList("tenantId", false);
+        List<String> result = systemMetricHostInfoService.getHostGroupNameList("tenantId");
 
         verify(systemMetricHostInfoDao).selectHostGroupNameList("tenantId");
         verify(systemMetricHostExclusionDao).selectExcludedHostGroupNameList();
@@ -83,7 +83,7 @@ public class SystemMetricHostInfoServiceImplTest {
         when(systemMetricHostInfoDao.selectHostList("tenantId", "hostGroupName")).thenReturn(hostNames);
         when(systemMetricHostExclusionDao.selectExcludedHostNameList("hostGroupName")).thenReturn(List.of("hostName1", "hostName3"));
 
-        List<String> result = systemMetricHostInfoService.getHostList("tenantId", "hostGroupName", false);
+        List<String> result = systemMetricHostInfoService.getHostList("tenantId", "hostGroupName");
 
         verify(systemMetricHostInfoDao).selectHostList("tenantId", "hostGroupName");
         verify(systemMetricHostExclusionDao).selectExcludedHostNameList("hostGroupName");
@@ -98,7 +98,7 @@ public class SystemMetricHostInfoServiceImplTest {
         when(systemMetricHostInfoDao.selectHostList("tenantId", "hostGroupName")).thenReturn(hostNames);
         when(systemMetricHostExclusionDao.selectExcludedHostNameList("hostGroupName")).thenThrow(new RuntimeException("Test Exception"));
 
-        List<String> result = systemMetricHostInfoService.getHostList("tenantId", "hostGroupName", false);
+        List<String> result = systemMetricHostInfoService.getHostList("tenantId", "hostGroupName");
 
         verify(systemMetricHostInfoDao).selectHostList("tenantId", "hostGroupName");
         verify(systemMetricHostExclusionDao).selectExcludedHostNameList("hostGroupName");

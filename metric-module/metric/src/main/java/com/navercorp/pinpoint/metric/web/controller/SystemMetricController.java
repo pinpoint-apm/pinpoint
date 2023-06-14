@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2020 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class SystemMetricController {
     private final TenantProvider tenantProvider;
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, 200);
-
+    
     public SystemMetricController(SystemMetricDataService systemMetricDataService,
                                   SystemMetricHostInfoService systemMetricHostInfoService,
                                   YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager,
@@ -62,16 +62,15 @@ public class SystemMetricController {
     }
 
     @GetMapping(value = "/hostGroup")
-    public List<String> getHostGroup(@RequestParam(value = "showAll", defaultValue = "false", required = false) boolean showAll) {
+    public List<String> getHostGroup() {
         String tenantId = tenantProvider.getTenantId();
-        return systemMetricHostInfoService.getHostGroupNameList(tenantId, showAll);
+        return systemMetricHostInfoService.getHostGroupNameList(tenantId);
     }
 
     @GetMapping(value = "/hostGroup/host")
-    public List<String> getHostGroup(@RequestParam("hostGroupName") String hostGroupName,
-                                     @RequestParam(value = "showAll", defaultValue = "false", required = false) boolean showAll) {
+    public List<String> getHostGroup(@RequestParam("hostGroupName") String hostGroupName) {
         String tenantId = tenantProvider.getTenantId();
-        return systemMetricHostInfoService.getHostList(tenantId, hostGroupName, showAll);
+        return systemMetricHostInfoService.getHostList(tenantId, hostGroupName);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricInfoV2")

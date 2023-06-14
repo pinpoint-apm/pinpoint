@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.metric.web.authorization.controller;
+package com.navercorp.pinpoint.metric.web.controller;
 
 import com.navercorp.pinpoint.metric.web.service.SystemMetricHostExclusionService;
 import com.navercorp.pinpoint.metric.web.view.SystemMetricHostGroupInfo;
@@ -30,19 +30,23 @@ public class SystemMetricExclusionController {
         this.tenantProvider = tenantProvider;
     }
 
-    @GetMapping(value = "/hostGroup/hostGroupInfo")
+    @GetMapping(value = "/hostGroup")
+    public List<String> getHostGroupNameList() {
+        String tenantId = tenantProvider.getTenantId();
+        return systemMetricHostExclusionService.getHostGroupNameList(tenantId);
+    }
+
+    @GetMapping(value = "/hostGroup", params = {"hostGroupName"})
     public SystemMetricHostGroupInfo getHostGroupExclusionInfo(@RequestParam("hostGroupName") String hostGroupName) {
         String tenantId = tenantProvider.getTenantId();
         return systemMetricHostExclusionService.getHostGroupInfo(tenantId, hostGroupName);
     }
 
-    @GetMapping(value = "/hostGroup/hostInfoList")
-    public List<SystemMetricHostInfo> getHostExclusionInfoList(
-            @RequestParam("hostGroupName") String hostGroupName) {
+    @GetMapping(value = "/hostGroup/host")
+    public List<SystemMetricHostInfo> getHostExclusionInfoList(@RequestParam("hostGroupName") String hostGroupName,
+                                                               @RequestParam(value = "orderBy", defaultValue = "hostName") String orderBy) {
         String tenantId = tenantProvider.getTenantId();
-        List<SystemMetricHostInfo> result = systemMetricHostExclusionService.getHostInfoList(tenantId, hostGroupName);
-
-        return result;
+        return systemMetricHostExclusionService.getHostInfoList(tenantId, hostGroupName, orderBy);
     }
 
     @PostMapping(value = "/hostGroup")
@@ -95,18 +99,6 @@ public class SystemMetricExclusionController {
         }
     }
 
-    @DeleteMapping(value = "/hostGroup/unusedHosts")
-    public String deleteUnusedHostExclusions(@RequestParam("hostGroupName") String hostGroupName) {
-        logger.debug("delete unused host exclusions - hostGroupName: [{}]", hostGroupName);
-        String tenantId = tenantProvider.getTenantId();
-        try {
-            systemMetricHostExclusionService.deleteUnusedHostExclusions(tenantId, hostGroupName);
-            return "OK";
-        } catch (Exception e) {
-            logger.error("error while deleting unused host exclusions", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
-    }
 
     @DeleteMapping(value = "/unusedGroups")
     public String deleteUnusedGroupExclusions() {
