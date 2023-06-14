@@ -16,15 +16,17 @@
 package com.navercorp.pinpoint.web.realtime.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
-import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
+import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
+import com.navercorp.pinpoint.web.vo.tree.InstancesList;
+import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,37 +35,35 @@ import java.util.Objects;
  */
 class AgentLookupServiceImpl implements AgentLookupService {
 
-    private static final Logger logger = LogManager.getLogger(AgentLookupServiceImpl.class);
+    private final AgentInfoService agentInfoService;
 
-    private final AgentService agentService;
-
-    AgentLookupServiceImpl(AgentService agentService) {
-        this.agentService = Objects.requireNonNull(agentService, "agentService");
+    AgentLookupServiceImpl(AgentInfoService agentInfoService) {
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     @Override
-    public List<ClusterKey> getRecentAgents(String applicationName, long timeDiffMs) {
-        final List<ClusterKeyAndStatus> keyAndStatuses = getRecentAgentInfoList0(applicationName, timeDiffMs);
-        final List<ClusterKey> keys = new ArrayList<>(keyAndStatuses.size());
-        for (final ClusterKeyAndStatus keyAndStatus: keyAndStatuses) {
-            if (isActive(keyAndStatus.getStatus())) {
-                keys.add(keyAndStatus.getClusterKey());
+    public List<ClusterKey> getRecentAgents(String applicationName) {
+        final long now = System.currentTimeMillis();
+        return intoClusterKeyList(this.agentInfoService.getAgentsListByApplicationName(
+                new AgentStatusFilterChain(AgentStatusFilter::filterRunning),
+                applicationName,
+                Range.between(now, now),
+                SortByAgentInfo.Rules.AGENT_NAME_ASC
+        ));
+    }
+
+    private static List<ClusterKey> intoClusterKeyList(AgentsMapByHost src) {
+        final List<ClusterKey> result = new ArrayList<>(src.getAgentsListsList().size());
+        for (final InstancesList<AgentStatusAndLink> instancesList: src.getAgentsListsList()) {
+            for (final AgentStatusAndLink instance: instancesList.getInstancesList()) {
+                result.add(intoClusterKey(instance.getAgentInfo()));
             }
         }
-        return keys;
+        return result;
     }
 
-    private List<ClusterKeyAndStatus> getRecentAgentInfoList0(String applicationName, long timeDiffMs) {
-        try {
-            return agentService.getRecentAgentInfoList(applicationName, timeDiffMs);
-        } catch (Exception e) {
-            logger.warn("Failed to get recent agent info list for {}", applicationName, e);
-        }
-        return Collections.emptyList();
-    }
-
-    private boolean isActive(AgentStatus agentStatus) {
-        return agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN;
+    private static ClusterKey intoClusterKey(AgentInfo src) {
+        return new ClusterKey(src.getApplicationName(), src.getAgentId(), src.getStartTimestamp());
     }
 
 }

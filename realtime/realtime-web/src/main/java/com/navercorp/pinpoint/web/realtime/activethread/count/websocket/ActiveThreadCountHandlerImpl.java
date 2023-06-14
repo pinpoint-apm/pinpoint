@@ -114,8 +114,7 @@ class ActiveThreadCountHandlerImpl extends ActiveThreadCountHandler implements P
     }
 
     private Consumer<Long> makeTickHandler(SessionContext ctx, WebSocketSession session, String applicationName) {
-        final List<ClusterKey> agentKeys =
-                this.agentLookupService.getRecentAgents(applicationName, TimeUnit.HOURS.toMillis(1));
+        final List<ClusterKey> agentKeys = this.agentLookupService.getRecentAgents(applicationName);
         final TickHandler handler = new TickHandler(session, applicationName, agentKeys, getFetchers(agentKeys));
         final Runnable decoratedHandler = decorateHandler(ctx.getTaskDecorator(), handler);
         return t -> decoratedHandler.run();
