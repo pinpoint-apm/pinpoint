@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -34,22 +35,28 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcSpanMessageConverterProvider implements Provider<MessageConverter<SpanType, GeneratedMessageV3>> {
+    public static final String SPAN_COLLECTED_URI_CONFIG = "profiler.span.collected.uri.type";
 
     private final String agentId;
     private final short applicationServiceTypeCode;
 
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor;
 
+    private final String spanCollectedUriType;
+
     @Inject
     public GrpcSpanMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
-                                            SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor) {
+                                            SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor,
+                                            ProfilerConfig profilerConfig) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceTypeCode = applicationServiceType.getCode();
         this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.spanCollectedUriType = profilerConfig.readString(SPAN_COLLECTED_URI_CONFIG, "TEMPLATE");
     }
 
     @Override
     public MessageConverter<SpanType, GeneratedMessageV3> get() {
-        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor);
+        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor, spanCollectedUriType);
     }
 }
