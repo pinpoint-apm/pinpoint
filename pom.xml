@@ -133,6 +133,8 @@
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <maven.build.cache.enabled>false</maven.build.cache.enabled>
+
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
@@ -1429,6 +1431,14 @@
     </dependencyManagement>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.extensions</groupId>
+                <artifactId>maven-build-cache-extension</artifactId>
+                <version>1.0.1</version>
+            </extension>
+        </extensions>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -1757,6 +1767,16 @@
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
                 <spring-boot-maven-plugin.attatch>true</spring-boot-maven-plugin.attatch>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>cache</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <maven.build.cache.enabled>true</maven.build.cache.enabled>
             </properties>
         </profile>
 
