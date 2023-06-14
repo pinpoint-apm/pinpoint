@@ -80,11 +80,19 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
 
+    public enum SpanUriType {
+        TEMPLATE, RAW
+    }
+
+    private final SpanUriType spanCollectedUriType;
+
     public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
-                                    SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor) {
+                                    SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor,
+                                    String spanCollectedUriType) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceType = applicationServiceType;
         this.spanProcessor = Objects.requireNonNull(spanProcessor, "spanProcessor");
+        this.spanCollectedUriType = SpanUriType.valueOf(spanCollectedUriType);
     }
 
     @Override
@@ -188,7 +196,13 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         }
 
         final Shared shared = span.getTraceRoot().getShared();
-        final String rpc = shared.getRpcName();
+        final String rpc;
+        if (spanCollectedUriType == SpanUriType.RAW) {
+            rpc = shared.getRpcName();
+        } else {
+            rpc = shared.getUriTemplate();
+        }
+
         if (StringUtils.isEmpty(rpc)) {
             hasEmptyValue = true;
             builder.setRpc(DEFAULT_RPC_NAME);
