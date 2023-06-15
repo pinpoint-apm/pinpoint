@@ -26,6 +26,10 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanAutoUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanRawUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanTemplateUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 
@@ -42,7 +46,12 @@ public class GrpcSpanMessageConverterProvider implements Provider<MessageConvert
 
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor;
 
-    private final String spanCollectedUriType;
+    public enum SpanUriType {
+        TEMPLATE, RAW, AUTO
+    }
+
+    private final SpanUriGetter spanUriGetter;
+
 
     @Inject
     public GrpcSpanMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
@@ -52,11 +61,23 @@ public class GrpcSpanMessageConverterProvider implements Provider<MessageConvert
         this.applicationServiceTypeCode = applicationServiceType.getCode();
         this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
         Objects.requireNonNull(profilerConfig, "profilerConfig");
-        this.spanCollectedUriType = profilerConfig.readString(SPAN_COLLECTED_URI_CONFIG, "TEMPLATE");
+        SpanUriType spanCollectedUriType = SpanUriType.valueOf(profilerConfig.readString(SPAN_COLLECTED_URI_CONFIG, "AUTO"));
+        this.spanUriGetter = getSpanUriGetter(spanCollectedUriType);
     }
 
     @Override
     public MessageConverter<SpanType, GeneratedMessageV3> get() {
-        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor, spanCollectedUriType);
+        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor, spanUriGetter);
+    }
+
+    private SpanUriGetter getSpanUriGetter(SpanUriType spanCollectedUriType) {
+        switch (spanCollectedUriType) {
+            case RAW:
+                return new SpanRawUriGetter();
+            case TEMPLATE:
+                return new SpanTemplateUriGetter();
+            default:
+                return new SpanAutoUriGetter();
+        }
     }
 }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanAutoUriGetter;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.jupiter.api.Assertions;
@@ -37,7 +38,7 @@ public class GrpcSpanProcessorV2Test {
 
     private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
 
-    private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2, "TEMPLATE");
+    private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2, new SpanAutoUriGetter());
 
     @Test
     public void preProcess() {

@@ -47,6 +47,7 @@ import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
@@ -80,19 +81,15 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
 
-    public enum SpanUriType {
-        TEMPLATE, RAW
-    }
-
-    private final SpanUriType spanCollectedUriType;
+    private final SpanUriGetter spanUriGetter;
 
     public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
                                     SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor,
-                                    String spanCollectedUriType) {
+                                    SpanUriGetter spanUriGetter) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceType = applicationServiceType;
         this.spanProcessor = Objects.requireNonNull(spanProcessor, "spanProcessor");
-        this.spanCollectedUriType = SpanUriType.valueOf(spanCollectedUriType);
+        this.spanUriGetter = Objects.requireNonNull(spanUriGetter);
     }
 
     @Override
@@ -196,13 +193,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         }
 
         final Shared shared = span.getTraceRoot().getShared();
-        final String rpc;
-        if (spanCollectedUriType == SpanUriType.RAW) {
-            rpc = shared.getRpcName();
-        } else {
-            rpc = shared.getUriTemplate();
-        }
-
+        final String rpc = spanUriGetter.getCollectedUri(shared);
         if (StringUtils.isEmpty(rpc)) {
             hasEmptyValue = true;
             builder.setRpc(DEFAULT_RPC_NAME);
