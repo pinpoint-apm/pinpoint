@@ -12,11 +12,13 @@ import java.util.List;
 @Configuration
 public class WebServerConfig {
     @Bean
-    public FilterRegistrationBean etagFilterBean() {
-        FilterRegistrationBean filterBean = new FilterRegistrationBean();
+    public FilterRegistrationBean<Filter> etagFilterBean() {
         Filter filter = new ShallowEtagHeaderFilter();
+
+        FilterRegistrationBean<Filter> filterBean = new FilterRegistrationBean<>();
         filterBean.setFilter(filter);
-        filterBean.setUrlPatterns(List.of("*"));
+        filterBean.setName(filter.getClass().getSimpleName());
+        filterBean.setUrlPatterns(List.of("/assets/*", "*.html", "/main"));
         return filterBean;
     }
 
