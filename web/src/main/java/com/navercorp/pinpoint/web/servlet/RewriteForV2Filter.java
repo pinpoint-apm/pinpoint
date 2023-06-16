@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.servlet;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 
 /**
@@ -41,6 +40,7 @@ public class RewriteForV2Filter implements Filter {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final char PATH_DELIMITER = '/';
+    private static final String PINPOINT_REST_API_SUFFIX = ".pinpoint";
 
     private final String[] rewriteTargetArray = {
             "/auth",
@@ -59,8 +59,6 @@ public class RewriteForV2Filter implements Filter {
             "/urlStatistic",
             "/metric",
     };
-
-    private static final String PINPOINT_REST_API_SUFFIX = ".pinpoint";
 
     private final boolean enable;
 
@@ -82,13 +80,10 @@ public class RewriteForV2Filter implements Filter {
             String requestURI = req.getRequestURI();
 
             if (isRedirectTarget(requestURI)) {
-                HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
-                RequestDispatcher dispatcher = wrapper.getRequestDispatcher(DEFAULT_INDEX);
-
                 if (isDebug) {
-                    logger.debug("requestUri:" + requestURI + " ->(forward) " + DEFAULT_INDEX );
+                    logger.debug("requestUri:{} --(forward)--> {}", requestURI, DEFAULT_INDEX );
                 }
-
+                RequestDispatcher dispatcher = req.getRequestDispatcher(DEFAULT_INDEX);
                 dispatcher.forward(request, response);
             } else {
                 chain.doFilter(request, response);
