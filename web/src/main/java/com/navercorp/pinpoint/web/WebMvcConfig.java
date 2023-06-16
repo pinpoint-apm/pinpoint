@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 @EnableWebMvc
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private static final String[] RESOURCE_LOCATION = {"classpath:/resources/", "classpath:/META-INF/resources/", "classpath:/static/", "classpath:/public/", "/"};
+    private static final String[] RESOURCE_LOCATION = {"classpath:/static/"};
 
     private static final String[] LONG_TIME_AVAILABLE_RESOURCE_TYPE = {"/**/**.ico", "/**/**.png", "/**/**.gif", "/**/**.jpg", "/**/**.woff", "/**/**.woff2"};
 
