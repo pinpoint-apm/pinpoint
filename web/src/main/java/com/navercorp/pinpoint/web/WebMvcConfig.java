@@ -17,13 +17,18 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.web.vo.tree.SortByRequestConverter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.resource.EncodedResourceResolver;
+import org.springframework.web.servlet.resource.ResourceResolver;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,35 +45,66 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private static final String[] SHORT_TIME_AVAILABLE_RESOURCE_TYPE = {"/**/**.js", "/**/**.css", "/**/**.html"};
 
+
+    @Value("${pinpoint.web.cache-resources:false}")
+    private boolean cacheResource;
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         // For using like WelcomePageHandler
         registry.addViewController("/").setViewName("forward:/index.html");
     }
 
+    @Bean
+    public ResourceHandlerBuilder resourceHandlerBuilder() {
+        return new ResourceHandlerBuilder(cacheResource);
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        final ResourceHandlerBuilder builder = resourceHandlerBuilder();
 
         // index.html no-cache
-        registry.addResourceHandler("/index.html")
+        builder.apply(registry.addResourceHandler("/index.html")
                 .addResourceLocations(RESOURCE_LOCATION)
-                .setCacheControl(CacheControl.noCache());
+                .setCacheControl(CacheControl.noCache())
+        );
 
         // Resources that don't change well : 1 day
-        registry.addResourceHandler(LONG_TIME_AVAILABLE_RESOURCE_TYPE)
+        builder.apply(registry.addResourceHandler(LONG_TIME_AVAILABLE_RESOURCE_TYPE)
                 .addResourceLocations(RESOURCE_LOCATION)
-                .setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS).cachePublic());
+                .setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS).cachePublic())
+        );
 
         // Resources that change well : 2 minutes
-        registry.addResourceHandler(SHORT_TIME_AVAILABLE_RESOURCE_TYPE)
+        builder.apply(registry.addResourceHandler(SHORT_TIME_AVAILABLE_RESOURCE_TYPE)
                 .addResourceLocations(RESOURCE_LOCATION)
-                .setCacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES).cachePublic());
+                .setCacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES).cachePublic())
+        );
 
         // default resource handler
-        registry.addResourceHandler("/**")
+        builder.apply(registry.addResourceHandler("/**")
                 .addResourceLocations(RESOURCE_LOCATION)
-                .setCacheControl(CacheControl.noCache());
+                .setCacheControl(CacheControl.noCache())
+        );
     }
+
+    static class ResourceHandlerBuilder {
+
+        private final boolean cacheResources;
+        private final ResourceResolver encodedResourceResolve = new EncodedResourceResolver();
+
+        public ResourceHandlerBuilder(boolean cacheResources) {
+            this.cacheResources = cacheResources;
+        }
+
+        public void apply(ResourceHandlerRegistration registration) {
+            registration.resourceChain(cacheResources)
+                    .addResolver(encodedResourceResolve);
+        }
+
+    }
+
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
