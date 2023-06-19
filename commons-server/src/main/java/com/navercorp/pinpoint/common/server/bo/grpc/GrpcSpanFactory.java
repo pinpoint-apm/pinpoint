@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.grpc;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 
@@ -26,7 +25,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
  * @author Woonduk Kang(emeroad)
  */
 public interface GrpcSpanFactory {
-    SpanBo buildSpanBo(PSpan pSpan, Header header);
+    SpanBo buildSpanBo(PSpan pSpan, BindAttribute attribute);
 
-    SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, Header header);
+    SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute);
 }

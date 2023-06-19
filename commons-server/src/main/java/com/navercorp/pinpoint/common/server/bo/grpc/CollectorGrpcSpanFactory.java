@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -36,21 +34,16 @@ import java.util.Objects;
 public class CollectorGrpcSpanFactory implements GrpcSpanFactory {
 
     private final SpanEventFilter spanEventFilter;
-    private final AcceptedTimeService acceptedTimeService;
     private final GrpcSpanBinder grpcBinder;
 
-    public CollectorGrpcSpanFactory(GrpcSpanBinder grpcBinder, SpanEventFilter spanEventFilter, AcceptedTimeService acceptedTimeService) {
+    public CollectorGrpcSpanFactory(GrpcSpanBinder grpcBinder, SpanEventFilter spanEventFilter) {
         this.grpcBinder = Objects.requireNonNull(grpcBinder, "grpcBinder");
         this.spanEventFilter = spanEventFilter;
-        this.acceptedTimeService = acceptedTimeService;
     }
 
     @Override
-    public SpanBo buildSpanBo(PSpan pSpan, Header header) {
-        final SpanBo spanBo = this.grpcBinder.bindSpanBo(pSpan, header);
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
-        spanBo.setCollectorAcceptTime(acceptedTime);
-
+    public SpanBo buildSpanBo(PSpan pSpan, BindAttribute attribute) {
+        final SpanBo spanBo = this.grpcBinder.bindSpanBo(pSpan, attribute);
         final List<PSpanEvent> pSpanEventList = pSpan.getSpanEventList();
         List<SpanEventBo> spanEventBos = buildSpanEventBoList(pSpanEventList);
         spanBo.addSpanEventBoList(spanEventBos);
@@ -59,12 +52,8 @@ public class CollectorGrpcSpanFactory implements GrpcSpanFactory {
     }
 
     @Override
-    public SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, Header header) {
-        final SpanChunkBo spanChunkBo = this.grpcBinder.bindSpanChunkBo(pSpanChunk, header);
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
-        spanChunkBo.setCollectorAcceptTime(acceptedTime);
-
-
+    public SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute) {
+        final SpanChunkBo spanChunkBo = this.grpcBinder.bindSpanChunkBo(pSpanChunk, attribute);
         final List<PSpanEvent> pSpanEventList = pSpanChunk.getSpanEventList();
         List<SpanEventBo> spanEventList = buildSpanEventBoList(pSpanEventList);
         spanChunkBo.addSpanEventBoList(spanEventList);
