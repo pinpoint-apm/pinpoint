@@ -1,5 +1,4 @@
 {
-  "OFFLINE": {
     "tableName": "uriStat",
     "tableType": "OFFLINE",
     "segmentsConfig": {
@@ -29,5 +28,4 @@
         "segmentIngestionFrequency": "DAILY"
       }
     }
-  }
 }
