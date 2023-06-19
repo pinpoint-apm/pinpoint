@@ -5,7 +5,9 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -36,9 +38,12 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final GrpcSpanFactory spanFactory;
 
-    public GrpcSpanChunkHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory) {
+    private final AcceptedTimeService acceptedTimeService;
+
+    public GrpcSpanChunkHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, AcceptedTimeService acceptedTimeService) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
+        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
 
         logger.info("TraceServices {}", Arrays.toString(traceServices));
     }
@@ -61,8 +66,9 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
         }
 
 
-        final Header agentInfo = ServerContext.getAgentInfo();
-        final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(spanChunk, agentInfo);
+        final Header header = ServerContext.getAgentInfo();
+        final BindAttribute attribute = BindAttribute.of(header, acceptedTimeService.getAcceptedTime());
+        final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(spanChunk, attribute);
         for (TraceService traceService : traceServices) {
             try {
                 traceService.insertSpanChunk(spanChunkBo);

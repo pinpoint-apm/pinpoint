@@ -20,7 +20,9 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -52,9 +54,12 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final GrpcSpanFactory spanFactory;
 
-    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory) {
+    private final AcceptedTimeService acceptedTimeService;
+
+    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, AcceptedTimeService acceptedTimeService) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
+        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
 
         logger.info("TraceServices {}", Arrays.toString(traceServices));
     }
@@ -75,8 +80,9 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
             logger.debug("Handle PSpan={}", createSimpleSpanLog(span));
         }
 
-        final Header agentInfo = ServerContext.getAgentInfo();
-        final SpanBo spanBo = spanFactory.buildSpanBo(span, agentInfo);
+        final Header header = ServerContext.getAgentInfo();
+        final BindAttribute attribute = BindAttribute.of(header, acceptedTimeService.getAcceptedTime());
+        final SpanBo spanBo = spanFactory.buildSpanBo(span, attribute);
         for (TraceService traceService : traceServices) {
             try {
                 traceService.insertSpan(spanBo);
