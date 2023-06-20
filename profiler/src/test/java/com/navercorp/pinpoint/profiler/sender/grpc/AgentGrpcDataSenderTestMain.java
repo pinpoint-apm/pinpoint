@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
@@ -82,7 +81,7 @@ public class AgentGrpcDataSenderTestMain {
     private AgentInfo newAgentInfo() {
         AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
         JvmInformation jvmInformation = new JvmInformation("1.0", JvmGcType.G1);
-        ServerMetaData serverInfo = new DefaultServerMetaData("serverInfo", Collections.<String>emptyList(), Collections.<Integer, String>emptyMap(), Collections.<ServiceInfo>emptyList());
+        ServerMetaData serverInfo = new DefaultServerMetaData("serverInfo", Collections.emptyList(), Collections.emptyMap(), Collections.emptyList());
         return new AgentInfo(agentInformation, serverInfo, jvmInformation);
     }
 

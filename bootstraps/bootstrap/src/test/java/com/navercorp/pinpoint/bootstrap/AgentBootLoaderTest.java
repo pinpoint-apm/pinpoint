@@ -51,7 +51,7 @@ public class AgentBootLoaderTest {
         AgentBootLoader agentBootLoader = new AgentBootLoader("com.navercorp.pinpoint.bootstrap.DummyAgent", classLoader);
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", agentName, "testCaseAppName", false,
-                new DefaultProfilerConfig(), Collections.<String>emptyList(), Collections.<String>emptyList());
+                new DefaultProfilerConfig(), Collections.emptyList(), Collections.emptyList());
         Agent boot = agentBootLoader.boot(option);
         boot.start();
         boot.stop();

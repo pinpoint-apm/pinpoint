@@ -55,7 +55,7 @@ public class OkHttpResponseAdaptor implements ResponseAdaptor<Response> {
     @Override
     public Collection<String> getHeaderNames(Response response) {
         final Headers headers = response.headers();
-        return headers == null ? Collections.<String>emptySet(): headers.names();
+        return headers == null ? Collections.emptySet(): headers.names();
     }
 
 }

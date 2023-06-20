@@ -64,7 +64,7 @@ public class ErrorHandlerBuilderTest {
 
 
     private IgnoreErrorHandler newErrorHandler(String exceptionClass, boolean nested, boolean parent) {
-        Descriptor descriptor = new Descriptor("testHandler", Collections.singletonList(exceptionClass), Collections.<String>emptyList(), nested, parent);
+        Descriptor descriptor = new Descriptor("testHandler", Collections.singletonList(exceptionClass), Collections.emptyList(), nested, parent);
         ErrorHandlerBuilder errorHandlerBuilder = new ErrorHandlerBuilder(Collections.singletonList(descriptor));
         return errorHandlerBuilder.build();
     }
