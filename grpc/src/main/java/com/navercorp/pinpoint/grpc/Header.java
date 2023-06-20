@@ -65,7 +65,7 @@ public class Header {
                   long socketId, List<Integer> supportCommandCodeList) {
         this(name, agentId, agentName, applicationName,
                 serviceType, agentStartTime,
-                socketId, supportCommandCodeList, Collections.<String, Object>emptyMap());
+                socketId, supportCommandCodeList, Collections.emptyMap());
     }
 
     public Header(String name,

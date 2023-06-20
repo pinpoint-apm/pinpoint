@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
@@ -42,8 +41,8 @@ import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,10 +62,10 @@ public class GrpcSpanBinder {
     }
 
 
-    public SpanBo bindSpanBo(PSpan pSpan, Header header) {
+    public SpanBo bindSpanBo(PSpan pSpan, BindAttribute attribute) {
         checkVersion(pSpan.getVersion());
 
-        return newSpanBo(pSpan, header);
+        return newSpanBo(pSpan, attribute);
     }
 
     private void checkVersion(int version) {
@@ -76,12 +75,13 @@ public class GrpcSpanBinder {
     }
 
     // for test
-    SpanBo newSpanBo(PSpan pSpan, Header header) {
+    SpanBo newSpanBo(PSpan pSpan, BindAttribute attribute) {
         final SpanBo spanBo = new SpanBo();
         spanBo.setVersion(pSpan.getVersion());
-        spanBo.setAgentId(header.getAgentId());
-        spanBo.setApplicationId(header.getApplicationName());
-        spanBo.setAgentStartTime(header.getAgentStartTime());
+        spanBo.setAgentId(attribute.getAgentId());
+        spanBo.setApplicationId(attribute.getApplicationName());
+        spanBo.setAgentStartTime(attribute.getAgentStartTime());
+        spanBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 
         if (!pSpan.hasTransactionId()) {
             throw new IllegalStateException("hasTransactionId() is false " + MessageFormatUtils.debugLog(pSpan));
@@ -226,10 +226,10 @@ public class GrpcSpanBinder {
 
     }
 
-    public SpanChunkBo bindSpanChunkBo(PSpanChunk pSpanChunk, Header header) {
+    public SpanChunkBo bindSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute) {
         checkVersion(pSpanChunk.getVersion());
 
-        final SpanChunkBo spanChunkBo = newSpanChunkBo(pSpanChunk, header);
+        final SpanChunkBo spanChunkBo = newSpanChunkBo(pSpanChunk, attribute);
         if (pSpanChunk.hasLocalAsyncId()) {
             final PLocalAsyncId pLocalAsyncId = pSpanChunk.getLocalAsyncId();
             LocalAsyncIdBo localAsyncIdBo = new LocalAsyncIdBo(pLocalAsyncId.getAsyncId(), pLocalAsyncId.getSequence());
@@ -241,12 +241,13 @@ public class GrpcSpanBinder {
 
 
     // for test
-    SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, Header header) {
+    SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setVersion(pSpanChunk.getVersion());
-        spanChunkBo.setAgentId(header.getAgentId());
-        spanChunkBo.setApplicationId(header.getApplicationName());
-        spanChunkBo.setAgentStartTime(header.getAgentStartTime());
+        spanChunkBo.setAgentId(attribute.getAgentId());
+        spanChunkBo.setApplicationId(attribute.getApplicationName());
+        spanChunkBo.setAgentStartTime(attribute.getAgentStartTime());
+        spanChunkBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 
         spanChunkBo.setApplicationServiceType((short)pSpanChunk.getApplicationServiceType());
 
@@ -318,8 +319,7 @@ public class GrpcSpanBinder {
     private AnnotationBo newAnnotationBo(PAnnotation pAnnotation) {
         Objects.requireNonNull(pAnnotation, "pAnnotation");
 
-        AnnotationBo annotationBo = annotationFactory.buildAnnotation(pAnnotation);
-        return annotationBo;
+        return annotationFactory.buildAnnotation(pAnnotation);
     }
 
 

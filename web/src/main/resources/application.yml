@@ -20,8 +20,10 @@ pinpoint.modules.web:
     # basicLogin
     login:
 
+pinpoint.web.cache-resources: true
+
 ---
 spring.config.activate.on-profile: local
-pinpoint.web.cache-resources: true
+pinpoint.web.cache-resources: false
 
 

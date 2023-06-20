@@ -30,7 +30,7 @@ public class DefaultInternalClassMetadataTest {
 
     @Test
     public void base() throws Exception {
-        DefaultInternalClassMetadata classMetadata = new DefaultInternalClassMetadata("java/lang/String", "java/lang/Object", Arrays.asList("java/lang/Comparable", "java/lang/Serializable"), Collections.<String>emptyList(), false, false, false, false);
+        DefaultInternalClassMetadata classMetadata = new DefaultInternalClassMetadata("java/lang/String", "java/lang/Object", Arrays.asList("java/lang/Comparable", "java/lang/Serializable"), Collections.emptyList(), false, false, false, false);
         // name
         assertEquals("java/lang/String", classMetadata.getClassInternalName());
         // super
@@ -46,7 +46,7 @@ public class DefaultInternalClassMetadataTest {
 
     @Test
     public void interfaceNamesNull() {
-        DefaultInternalClassMetadata classMetadata = new DefaultInternalClassMetadata("java/lang/String", "java/lang/Object", null, Collections.<String>emptyList(), false, false, false, false);
+        DefaultInternalClassMetadata classMetadata = new DefaultInternalClassMetadata("java/lang/String", "java/lang/Object", null, Collections.emptyList(), false, false, false, false);
         assertThat(classMetadata.getInterfaceInternalNames()).isEmpty();
     }
 

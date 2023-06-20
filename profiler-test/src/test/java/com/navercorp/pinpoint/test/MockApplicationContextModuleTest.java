@@ -54,7 +54,7 @@ public class MockApplicationContextModuleTest {
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
                 "mockAgentId", "mockAgentName", "mockApplicationName", false,
-                profilerConfig, Collections.<String>emptyList(), Collections.<String>emptyList());
+                profilerConfig, Collections.emptyList(), Collections.emptyList());
 
         PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
         try {
@@ -72,7 +72,7 @@ public class MockApplicationContextModuleTest {
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
                 "mockAgentId", "mockAgentName", "mockApplicationName", false,
-                profilerConfig, Collections.<String>emptyList(), Collections.<String>emptyList());
+                profilerConfig, Collections.emptyList(), Collections.emptyList());
 
         Module pluginModule = new PluginApplicationContextModule();
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
