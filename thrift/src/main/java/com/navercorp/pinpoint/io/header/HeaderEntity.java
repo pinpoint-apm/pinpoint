@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 public class HeaderEntity {
 
-    public static final HeaderEntity EMPTY_HEADER_ENTITY = new HeaderEntity(Collections.<String, String>emptyMap());
+    public static final HeaderEntity EMPTY_HEADER_ENTITY = new HeaderEntity(Collections.emptyMap());
 
     private final Map<String, String> entity;
 

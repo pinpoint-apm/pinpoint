@@ -128,7 +128,7 @@ public class ControlPacketServerTest {
     }
 
     private int sendAndReceiveRegisterPacket(TestRawSocket testRawSocket) throws ProtocolException, IOException {
-        return sendAndReceiveRegisterPacket(testRawSocket, Collections.<String, Object>emptyMap());
+        return sendAndReceiveRegisterPacket(testRawSocket, Collections.emptyMap());
     }
 
     private int sendAndReceiveRegisterPacket(TestRawSocket testRawSocket, Map<String, Object> properties) throws ProtocolException, IOException {

@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author hyungil.jeong
@@ -127,7 +127,7 @@ public class ServiceInfoBo {
                 this.serviceName = "";
             }
             if (this.serviceLibs == null) {
-                this.serviceLibs = Collections.<String>emptyList();
+                this.serviceLibs = Collections.emptyList();
             }
             return new ServiceInfoBo(this);
         }
