@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
-import com.navercorp.pinpoint.common.hbase.rowmapper.ResultSizeMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareDynamicRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapperAdaptor;
+import com.navercorp.pinpoint.common.hbase.rowmapper.ResultSizeMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RowMapperResultAdaptor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -35,11 +35,10 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
-import com.navercorp.pinpoint.web.mapper.SpanMapperV2;
 import com.navercorp.pinpoint.web.mapper.FilteringSpanDecoder;
+import com.navercorp.pinpoint.web.mapper.SpanMapperV2;
 import com.navercorp.pinpoint.web.service.FetchResult;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -50,8 +49,8 @@ import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -93,6 +92,9 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Value("${web.hbase.mapper.cache.string.size:-1}")
     private int stringCacheSize;
 
+    @Value("${web.hbase.trace.max.results.limit:50000}")
+    private int traceMaxResultsPerColumnFamily;
+
     private final Filter spanFilter = createSpanQualifierFilter();
 
     public HbaseTraceDaoV2(HbaseOperations2 template2,
@@ -127,6 +129,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
 
         final Get get = new Get(transactionIdRowKey);
+        get.setMaxResultsPerColumnFamily(traceMaxResultsPerColumnFamily);
         get.addFamily(DESCRIPTOR.getName());
         if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
             Filter columnCountGetFilter = new ColumnCountGetFilter(columnGetCount.getLimit());
@@ -264,7 +267,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private Get createGet(TransactionId transactionId, byte[] columnFamily, Filter filter) {
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
         final Get get = new Get(transactionIdRowKey);
-
+        get.setMaxResultsPerColumnFamily(traceMaxResultsPerColumnFamily);
         get.addFamily(columnFamily);
         if (filter != null) {
             get.setFilter(filter);
