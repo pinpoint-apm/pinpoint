@@ -35,13 +35,3 @@
     color:var(--icon-default);
     font-size:18px;
 }
-
-.l-tooltip-caret {
-    width: 0;
-    height: 0;
-    position: absolute;
-    bottom: 100%;
-    border-bottom: 7px solid var(--border-knockout);
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-}

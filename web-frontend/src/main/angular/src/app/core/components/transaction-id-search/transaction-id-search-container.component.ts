@@ -64,6 +64,7 @@ export class TransactionIdSearchContainerComponent implements OnInit, AfterViewI
         if (this.coord) {
             this.renderer.setStyle(this.el.nativeElement, 'position', 'absolute');
             this.renderer.setStyle(this.el.nativeElement.querySelector('.l-search-input'), 'border-top', 0);
+            this.el.nativeElement.querySelector('.l-search-input').focus();
             this.outCreated.emit({
                 coordX: this.posX,
                 coordY: this.coord.coordY + PopupConstant.SPACE_FROM_BUTTON + PopupConstant.TOOLTIP_TRIANGLE_HEIGHT
