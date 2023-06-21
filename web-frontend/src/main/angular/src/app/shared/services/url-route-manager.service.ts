@@ -79,7 +79,9 @@ export class UrlRouteManagerService {
         if (urlService.hasValue(UrlPathId.APPLICATION)) {
             const isRealTimeMode = urlService.isRealTimeMode()
             const app = urlService.getPathValue(UrlPathId.APPLICATION) as IApplication;
-            const period = urlService.getPathValue(UrlPathId.PERIOD) as Period;
+            const selectedPeriod = urlService.getPathValue(UrlPathId.PERIOD) as Period;
+            const periodList = this.webAppSettingDataService.getPeriodList(rootRoute);
+            const period = periodList[periodList.length - 1].getValue() < selectedPeriod.getValue() ? this.webAppSettingDataService.getSystemDefaultPeriod() : selectedPeriod;
             const endTime = urlService.getPathValue(UrlPathId.END_TIME) as EndTime;
 
             if (isRealTimeMode) {
