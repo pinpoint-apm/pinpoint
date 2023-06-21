@@ -63,7 +63,7 @@ export class SystemConfigurationDataService {
             },
             updateServerMapLayoutManually: {
                 description: 'Update server-map layout manually.',
-                value: false
+                value: true
             }
         };
     }
