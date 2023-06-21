@@ -3,7 +3,7 @@
     <pp-server-map-options-container *ngIf="showServermapOption"></pp-server-map-options-container>
     <pp-period-selector-container *ngIf="isAppSelected$ | async"></pp-period-selector-container>
     <div class="l-widget-group-right">
-        <ng-container *ngIf="showTransactionIdSearch && isAppSelected$ | async">
+        <ng-container *ngIf="showTransactionIdSearch">
             <ng-container *ngIf="isScreenWideEnough$ | async; else searchIcon">
                 <pp-transaction-id-search-container></pp-transaction-id-search-container>
             </ng-container>
