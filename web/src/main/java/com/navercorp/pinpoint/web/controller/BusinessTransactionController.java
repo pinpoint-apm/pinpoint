@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
-import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCountFactory;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -97,7 +96,7 @@ public class BusinessTransactionController {
                                                     @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false") boolean useLoadHistogramFormat) {
         logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceId, focusTimestamp, agentId, spanId, viewVersion);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
-        final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
+        final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
         Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
         // select spans
@@ -143,7 +142,7 @@ public class BusinessTransactionController {
         logger.debug("GET /transactionTimelineInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
                 traceId, focusTimestamp, agentId, spanId);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
-        final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
+        final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
         // select spans
         Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
@@ -171,7 +170,7 @@ public class BusinessTransactionController {
 
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
 
-        final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
+        final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
         // select spans
         Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);

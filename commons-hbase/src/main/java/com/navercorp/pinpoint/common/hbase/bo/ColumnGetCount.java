@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.common.hbase.bo;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
+import org.apache.hadoop.hbase.filter.Filter;
 
 /**
  * @author Taejin Koo
@@ -26,6 +28,14 @@ public class ColumnGetCount {
     public static final ColumnGetCount UNLIMITED_COLUMN_GET_COUNT = new UnlimitedColumnGetCount();
 
     private final int limit;
+
+    public static ColumnGetCount of(int limit) {
+        if (limit == -1 || limit == Integer.MAX_VALUE) {
+            return ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT;
+        } else {
+            return new ColumnGetCount(limit);
+        }
+    }
 
     ColumnGetCount(int limit) {
         Assert.isTrue(limit > 0, "limit must be 'limit >= 0'");
@@ -40,6 +50,15 @@ public class ColumnGetCount {
         return resultSize >= limit;
     }
 
+    public static Filter toFilter(ColumnGetCount columnGetCount) {
+        if (columnGetCount == null) {
+            return null;
+        }
+        if (columnGetCount.getLimit() != Integer.MAX_VALUE) {
+            return new ColumnCountGetFilter(columnGetCount.getLimit());
+        }
+        return null;
+    }
 
     @Override
     public boolean equals(Object o) {
