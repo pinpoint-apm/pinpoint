@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase.bo;
 
+import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,10 +27,10 @@ public class ColumnGetCountTest {
 
     @Test
     public void columnGetCountTest() {
-        ColumnGetCount columnGetCount = ColumnGetCountFactory.create(-1);
+        ColumnGetCount columnGetCount = ColumnGetCount.of(-1);
         Assertions.assertEquals(Integer.MAX_VALUE, columnGetCount.getLimit());
 
-        columnGetCount = ColumnGetCountFactory.create(Integer.MAX_VALUE);
+        columnGetCount = ColumnGetCount.of(Integer.MAX_VALUE);
         Assertions.assertEquals(Integer.MAX_VALUE, columnGetCount.getLimit());
 
         Assertions.assertFalse(columnGetCount.isReachedLimit(Integer.MAX_VALUE));
@@ -40,7 +41,7 @@ public class ColumnGetCountTest {
     public void columnGetCountTest2() {
         int countValue = 10;
 
-        ColumnGetCount columnGetCount = ColumnGetCountFactory.create(countValue);
+        ColumnGetCount columnGetCount = ColumnGetCount.of(countValue);
         Assertions.assertEquals(countValue, columnGetCount.getLimit());
 
         Assertions.assertFalse(columnGetCount.isReachedLimit(0));
@@ -49,4 +50,15 @@ public class ColumnGetCountTest {
 
     }
 
+    @Test
+    void toFilter() {
+        ColumnCountGetFilter filter = (ColumnCountGetFilter) ColumnGetCount.toFilter(new ColumnGetCount(1));
+        Assertions.assertEquals(1, filter.getLimit());
+    }
+
+    @Test
+    void toFilter_null() {
+        Assertions.assertNull(ColumnGetCount.toFilter(null));
+        Assertions.assertNull(ColumnGetCount.toFilter(ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT));
+    }
 }

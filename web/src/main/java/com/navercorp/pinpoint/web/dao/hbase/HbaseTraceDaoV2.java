@@ -28,15 +28,10 @@ import com.navercorp.pinpoint.common.hbase.rowmapper.ResultSizeMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RowMapperResultAdaptor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.web.dao.TraceDao;
-import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
-import com.navercorp.pinpoint.web.mapper.FilteringSpanDecoder;
-import com.navercorp.pinpoint.web.mapper.SpanMapperV2;
+import com.navercorp.pinpoint.web.mapper.SpanMapperFactory;
 import com.navercorp.pinpoint.web.service.FetchResult;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import org.apache.commons.collections4.CollectionUtils;
@@ -45,7 +40,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.ByteArrayComparable;
-import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
@@ -55,12 +49,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -79,18 +71,13 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private final RowKeyEncoder<TransactionId> rowKeyEncoder;
 
-    private final RowKeyDecoder<TransactionId> rowKeyDecoder;
-
-    private RowMapper<List<SpanBo>> spanMapperV2;
+    private final SpanMapperFactory spanMapperFactory;
 
     @Value("${web.hbase.selectSpans.limit:500}")
     private int selectSpansLimit;
 
     @Value("${web.hbase.selectAllSpans.limit:500}")
     private int selectAllSpansLimit;
-
-    @Value("${web.hbase.mapper.cache.string.size:-1}")
-    private int stringCacheSize;
 
     @Value("${web.hbase.trace.max.results.limit:50000}")
     private int traceMaxResultsPerColumnFamily;
@@ -99,22 +86,12 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     public HbaseTraceDaoV2(HbaseOperations2 template2,
                            TableNameProvider tableNameProvider,
-                           @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder, @Qualifier("traceRowKeyDecoderV2") RowKeyDecoder<TransactionId> rowKeyDecoder) {
+                           @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
+                           SpanMapperFactory spanMapperFactory) {
         this.template2 = Objects.requireNonNull(template2, "template2");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
-        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
-    }
-
-    @PostConstruct
-    private void setup() {
-        SpanMapperV2 spanMapperV2 = new SpanMapperV2(rowKeyDecoder, stringCacheSize);
-        final Logger logger = LogManager.getLogger(spanMapperV2.getClass());
-        if (logger.isDebugEnabled()) {
-            this.spanMapperV2 = CellTraceMapper.wrap(spanMapperV2);
-        } else {
-            this.spanMapperV2 = spanMapperV2;
-        }
+        this.spanMapperFactory = Objects.requireNonNull(spanMapperFactory, "spanMapperFactory");
     }
 
     @Override
@@ -131,14 +108,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
         final Get get = new Get(transactionIdRowKey);
         get.setMaxResultsPerColumnFamily(traceMaxResultsPerColumnFamily);
         get.addFamily(DESCRIPTOR.getName());
-        if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
-            Filter columnCountGetFilter = new ColumnCountGetFilter(columnGetCount.getLimit());
-            get.setFilter(columnCountGetFilter);
+        final Filter filter = ColumnGetCount.toFilter(columnGetCount);
+        if (filter != null) {
+            get.setFilter(filter);
         }
 
         TableName traceTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         ResultSizeMapper<List<SpanBo>> resultSizeMapper = new ResultSizeMapper<>();
-        RowMapper<List<SpanBo>> rowMapper = new RowMapperResultAdaptor<>(spanMapperV2, resultSizeMapper);
+        RowMapper<List<SpanBo>> rowMapper = new RowMapperResultAdaptor<>(spanMapperFactory.getSpanMapper(), resultSizeMapper);
 
         List<SpanBo> spanBos = template2.get(traceTableName, get, rowMapper);
 
@@ -173,12 +150,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @Override
     public List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList, ColumnGetCount columnGetCount) {
-        if (columnGetCount == null || columnGetCount == ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
-            return selectAllSpans(transactionIdList, selectAllSpansLimit, null);
-        } else {
-            Filter columnCountGetFilter = new ColumnCountGetFilter(columnGetCount.getLimit());
-            return selectAllSpans(transactionIdList, selectAllSpansLimit, columnCountGetFilter);
-        }
+        Filter filter = ColumnGetCount.toFilter(columnGetCount);
+        return selectAllSpans(transactionIdList, selectAllSpansLimit, filter);
     }
 
     List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList, int eachPartitionSize, Filter filter) {
@@ -231,12 +204,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
 
     private RowMapper<List<SpanBo>> getSpanMapper(SpanQuery spanQuery) {
-        final Predicate<SpanBo> spanFilter = spanQuery.getSpanFilter();
-        if (spanFilter == null) {
-            return spanMapperV2;
-        }
-        final SpanDecoder targetSpanDecoder = new FilteringSpanDecoder(new SpanDecoderV0(), spanFilter);
-        return new SpanMapperV2(rowKeyDecoder, targetSpanDecoder, stringCacheSize);
+        return spanMapperFactory.getSpanMapper(spanQuery.getSpanFilter());
     }
 
     private List<Get> createGetList(List<SpanQuery> spanQueryList, byte[] columnFamily, Filter defaultFilter) {
