@@ -1,9 +1,9 @@
 import React from 'react';
-import cytoscape from 'cytoscape';
+import cytoscape, { InputEventObject } from 'cytoscape';
 import dagre, { DagreLayoutOptions } from 'cytoscape-dagre';
 
-import { Node, Edge, MergedNode, MergedEdge } from '../types';
-import { getServerMapData } from '../core/merge';
+import { Node, Edge, MergedNode, MergedEdge, MergeInfo } from '../types';
+import { getMergedData } from '../core/merge';
 import { getServerMapStyle, getTheme } from '../constants/style/theme-helper';
 import { ServerMapTheme } from '../constants/style/theme';
 import { keyBy } from 'lodash';
@@ -27,6 +27,7 @@ export interface ServerMapProps
   onClickNode?: ClickEventHandler<MergedNode>;
   onClickEdge?: ClickEventHandler<MergedEdge>;
   onClickBackground?: ClickEventHandler<{}>;
+  onDataMerged?: (mergeInfo: MergeInfo) => void;
   renderNodeLabel?: (node: MergedNode) => string | undefined;
   renderEdgeLabel?: (edge: MergedEdge) => string | undefined;
 }
@@ -38,6 +39,7 @@ export const ServerMap = ({
   onClickNode,
   onClickEdge,
   onClickBackground,
+  onDataMerged,
   renderNodeLabel,
   renderEdgeLabel,
   className,
@@ -105,9 +107,9 @@ export const ServerMap = ({
     if (data) {
       const cy = cyRef.current;
       if (cy) {
-        const newData = getServerMapData(data);
+        const { serverMapData: newData, mergeInfo } = getMergedData(data);
+        onDataMerged?.(mergeInfo);
 
-        console.time();
         cy.batch(() => {
           cy.removeData();
           cy.data(keyBy(newData, 'data.id'));
@@ -159,7 +161,6 @@ export const ServerMap = ({
           } as DagreLayoutOptions);
           layoutRef.current.run();
         }
-        console.timeEnd();
       }
     }
   }, [data]);
@@ -186,11 +187,17 @@ export const ServerMap = ({
         cy.resize();
         cy.center(mainNode);
       })
-        .on('tap', ({ target, originalEvent }) => {
+        .on('mouseover', ({ target }) => {
+          cy.container()!.style.cursor = target === cy ? 'default' : 'pointer';
+        })
+        .on('mouseout', () => {
+          cy.container()!.style.cursor = 'default';
+        })
+        .on('tap', ({ target, originalEvent, renderedPosition }: InputEventObject) => {
           const eventType = 'left';
           const position = {
-            x: originalEvent.clientX,
-            y: originalEvent.clientY,
+            x: renderedPosition.x,
+            y: renderedPosition.y,
           };
 
           if (target === cy) {
@@ -216,11 +223,11 @@ export const ServerMap = ({
             });
           }
         })
-        .on('cxttap', ({ target, originalEvent }) => {
+        .on('cxttap', ({ target, renderedPosition }: InputEventObject) => {
           const eventType = 'right';
           const position = {
-            x: originalEvent.clientX,
-            y: originalEvent.clientY,
+            x: renderedPosition.x,
+            y: renderedPosition.y,
           };
 
           if (target === cy) {

@@ -21,6 +21,10 @@ export interface Edge {
   };
 }
 
+export interface MergeInfo {
+  types: string[];
+}
+
 export interface MergedNode extends Node {
   nodes?: Node[];
 }
