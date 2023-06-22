@@ -105,8 +105,9 @@ const groupByType = (groupBySource: GroupBySource, nodes: Node[]) => {
   );
 };
 
-export const getServerMapData = (data: { nodes: Node[]; edges: Edge[] }) => {
+export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
   const { edges, nodes } = data;
+  const mergedTypes = new Set<string>();
   const targetNodeIds = edges.map((edge) => edge.target);
 
   // [ t1, t1, t1, t2, t2, t3, t3, t3, t3, t4, t5 ]
@@ -212,6 +213,8 @@ export const getServerMapData = (data: { nodes: Node[]; edges: Edge[] }) => {
     Object.entries(groupByTypeOnSingle).forEach(([source, typeAndTargetIds]) => {
       Object.entries(typeAndTargetIds).forEach(([type, targetIds]) => {
         if (targetIds.length > 1) {
+          mergedTypes.add(type);
+
           const id = `${source}_${type}_MergeSingleNodesByServerMap`;
           const imgPath = mergedNodes.find((node) => node.id === targetIds[0])?.imgPath;
 
@@ -263,6 +266,8 @@ export const getServerMapData = (data: { nodes: Node[]; edges: Edge[] }) => {
     Object.entries(groupByTypeOnMulti).forEach(([source, typeAndTargetIds]) => {
       Object.entries(typeAndTargetIds).forEach(([type, targetIds]) => {
         if (targetIds.length > 1) {
+          mergedTypes.add(type);
+
           const id = `${source}_${type}_MergeMultiNodesByServerMap`;
           const imgPath = mergedNodes.find((node) => node.id === targetIds[0])?.imgPath;
           const [notToMergeNodes, toMergeNodes] = _.partition(
@@ -316,19 +321,24 @@ export const getServerMapData = (data: { nodes: Node[]; edges: Edge[] }) => {
 
   const finalData = mergeMultieNodes();
 
-  return [
-    ...finalData.nodes.map((node) => {
-      return {
+  return {
+    serverMapData: [
+      ...finalData.nodes.map((node) => {
+        return {
+          data: {
+            ...node,
+            imgArr: [node?.imgPath, getTransactionStatusSVGString(node)],
+          },
+        };
+      }),
+      ...finalData.edges.map((edge) => ({
         data: {
-          ...node,
-          imgArr: [node?.imgPath, getTransactionStatusSVGString(node)],
+          ...edge,
         },
-      };
-    }),
-    ...finalData.edges.map((edge) => ({
-      data: {
-        ...edge,
-      },
-    })),
-  ];
+      })),
+    ],
+    mergeInfo: {
+      types: Array.from(mergedTypes),
+    },
+  };
 };

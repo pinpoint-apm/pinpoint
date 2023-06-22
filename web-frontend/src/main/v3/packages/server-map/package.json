@@ -1,6 +1,6 @@
 {
   "name": "@pinpoint-fe/server-map",
-  "version": "0.0.4-rc.2",
+  "version": "0.0.4-rc.5",
   "description": "Open-source network-map library, specifically for application topology, written in React.js",
   "repository": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web-frontend/src/main/v3/packages/server-map/README.md",
   "author": "NAVER",
@@ -31,8 +31,7 @@
     "cytoscape-dagre": "^2.5.0",
     "date-fns": "^2.28.0",
     "lodash": "^4.17.21",
-    "react": "^18.2.0",
-    "react-cytoscapejs": "^2.0.0"
+    "react": "^18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
