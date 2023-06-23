@@ -29,7 +29,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
@@ -59,6 +61,7 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
             if (CollectionUtils.isEmpty(agentDownloadInfoList)) {
                 return result;
             }
+            agentDownloadInfoList = cleanup(agentDownloadInfoList);
 
             for (GithubAgentDownloadInfo agentDownloadInfo : agentDownloadInfoList) {
                 if (STABLE_VERSION_PATTERN.matcher(agentDownloadInfo.getVersion()).matches()) {
@@ -70,6 +73,13 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
         }
 
         return result;
+    }
+
+    private List<GithubAgentDownloadInfo> cleanup(List<GithubAgentDownloadInfo> agentDownloadInfoList) {
+        return agentDownloadInfoList
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }
