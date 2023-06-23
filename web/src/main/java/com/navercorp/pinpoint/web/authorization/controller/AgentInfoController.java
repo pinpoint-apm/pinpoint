@@ -23,21 +23,21 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.view.tree.SimpleTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeNode;
+import com.navercorp.pinpoint.web.view.tree.TreeView;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
-import com.navercorp.pinpoint.web.vo.tree.InstancesList;
-import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
-import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.DefaultAgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
-import com.navercorp.pinpoint.web.view.tree.SimpleTreeView;
-import com.navercorp.pinpoint.web.view.tree.TreeView;
+import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
+import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
+import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,7 +60,7 @@ public class AgentInfoController {
 
     private final AgentEventService agentEventService;
 
-    private SortByAgentInfo.Rules DEFAULT_SORTBY = SortByAgentInfo.Rules.AGENT_ID_ASC;
+    private final SortByAgentInfo.Rules DEFAULT_SORTBY = SortByAgentInfo.Rules.AGENT_ID_ASC;
 
     public AgentInfoController(AgentInfoService agentInfoService, AgentEventService agentEventService) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
@@ -78,7 +78,6 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentStatusFilter filter = new DefaultAgentStatusFilter(from);
-        long timestamp = to;
         AgentsMapByApplication<AgentAndStatus> allAgentsList = this.agentInfoService.getAllAgentsList(filter, Range.between(from, to));
         return treeView(allAgentsList);
     }
