@@ -32,8 +32,6 @@ import com.navercorp.pinpoint.web.authorization.controller.UserController;
 import com.navercorp.pinpoint.web.authorization.controller.UserGroupController;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
-import com.navercorp.pinpoint.web.install.controller.AgentDownloadController;
-import com.navercorp.pinpoint.web.install.service.AgentDownLoadService;
 import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.service.AgentEventService;
@@ -128,9 +126,5 @@ public class AuthorizationConfig {
         return new UserGroupController(userGroupService);
     }
 
-    @Bean
-    public AgentDownloadController createAgentDownloadController(AgentDownLoadService agentDownLoadService) {
-        return new AgentDownloadController(agentDownLoadService);
-    }
 
 }

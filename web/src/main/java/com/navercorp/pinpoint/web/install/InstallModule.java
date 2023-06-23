@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.install;
 
+import com.navercorp.pinpoint.web.install.controller.AgentDownloadController;
 import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.dao.GithubAgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.dao.MemoryAgentDownloadInfoDao;
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 //        "com.navercorp.pinpoint.web.install.controller",
         "com.navercorp.pinpoint.web.install.service",
 })
+@Import(AgentDownloadController.class)
 public class InstallModule {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
