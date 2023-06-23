@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import com.navercorp.pinpoint.web.vo.UserGroupMemberParam;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,7 +58,7 @@ public class UserGroupController {
     }
 
     @PostMapping()
-    public Response createUserGroup(@RequestBody UserGroup userGroup) {
+    public CreateUserGroupResponse createUserGroup(@RequestBody UserGroup userGroup) {
         if (!ValueValidator.validateUserGroupId(userGroup.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usergroupId pattern is invalid to create user group");
         }

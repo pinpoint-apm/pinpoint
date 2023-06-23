@@ -18,11 +18,13 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -52,7 +54,7 @@ public class AdminController {
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing applicationName", e);
-            return e.getMessage();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -66,7 +68,7 @@ public class AdminController {
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing agentId", e);
-            return e.getMessage();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -78,7 +80,7 @@ public class AdminController {
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing inactive agents for the last " + durationDays + " days.", e);
-            return e.getMessage();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
