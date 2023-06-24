@@ -5,11 +5,23 @@ import com.navercorp.pinpoint.metric.web.util.TagUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TagUtilsTest {
+
+    @Test
+    public void emptyListCompareTest() {
+        List<Tag> tagList = List.of(
+                new Tag("key", "value")
+        );
+
+        List<Tag> comparedTagList = new ArrayList<>();
+
+        assertThat(tagList).containsAll(comparedTagList);
+    }
 
     @Test
     public void parseTagTest() {

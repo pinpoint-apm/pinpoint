@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.metric.web;
 
 
+import com.navercorp.pinpoint.metric.web.config.MetricWebMysqlDaoConfiguration;
 import com.navercorp.pinpoint.metric.web.config.MetricWebPinotDaoConfiguration;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -14,7 +15,8 @@ import org.springframework.context.annotation.Profile;
 @Import({
         WebMetricPropertySources.class,
         MetricWebPinotDaoConfiguration.class,
-        PinotConfiguration.class
+        PinotConfiguration.class,
+        MetricWebMysqlDaoConfiguration.class
 })
 @Profile("metric")
 public class MetricWebApp {
