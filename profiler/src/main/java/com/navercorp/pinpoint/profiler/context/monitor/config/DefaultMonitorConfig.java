@@ -33,6 +33,13 @@ public class DefaultMonitorConfig implements MonitorConfig {
     @Value("${profiler.uri.stat.completed.data.limit.size}")
     private int completedUriStatDataLimitSize = 1000;
 
+    @Value("${profiler.exceptiontrace.enable}")
+    private boolean exceptionTraceEnable = false;
+    @Value("${profiler.exceptiontrace.new.throughput}")
+    private double exceptionTraceNewThroughPut = 1000;
+    @Value("${profiler.exceptiontrace.max.depth}")
+    private int exceptionTraceMaxDepth = 0;
+
     @Value("${profiler.jvm.stat.collect.interval}")
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
     @Value("${profiler.jvm.stat.batch.send.count}")
@@ -76,16 +83,33 @@ public class DefaultMonitorConfig implements MonitorConfig {
     }
 
     @Override
+    public boolean isExceptionTraceEnable() {
+        return exceptionTraceEnable;
+    }
+
+    @Override
+    public double getExceptionTraceNewThroughput() {
+        return exceptionTraceNewThroughPut;
+    }
+
+    @Override
+    public int getExceptionTraceMaxDepth() {
+        return exceptionTraceMaxDepth;
+    }
+
+    @Override
     public String toString() {
         return "DefaultMonitorConfig{" +
                 "customMetricEnable=" + customMetricEnable +
                 ", customMetricLimitSize=" + customMetricLimitSize +
                 ", uriStatEnable=" + uriStatEnable +
                 ", completedUriStatDataLimitSize=" + completedUriStatDataLimitSize +
+                ", exceptionTraceEnable=" + exceptionTraceEnable +
+                ", exceptionTraceNewThroughPut=" + exceptionTraceNewThroughPut +
+                ", exceptionTraceMaxDepth=" + exceptionTraceMaxDepth +
                 ", profileJvmStatCollectIntervalMs=" + profileJvmStatCollectIntervalMs +
                 ", profileJvmStatBatchSendCount=" + profileJvmStatBatchSendCount +
                 ", profilerJvmStatCollectDetailedMetrics=" + profilerJvmStatCollectDetailedMetrics +
                 '}';
     }
-
 }

@@ -54,7 +54,6 @@ public class Span extends DefaultFrameAttachment implements SpanType {
 
     private IntStringValue exceptionInfo; // optional
 
-
     public Span(final TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
     }
@@ -159,7 +158,7 @@ public class Span extends DefaultFrameAttachment implements SpanType {
     }
 
     public void markAfterTime(long currentTime) {
-        final int after = (int)(currentTime - this.getStartTime());
+        final int after = (int) (currentTime - this.getStartTime());
         this.setElapsedTime(after);
     }
 
@@ -174,7 +173,6 @@ public class Span extends DefaultFrameAttachment implements SpanType {
         final IntStringValue exceptionInfo = new IntStringValue(exceptionClassId, exceptionMessage);
         this.setExceptionInfo(exceptionInfo);
     }
-
 
     public boolean isTimeRecording() {
         return timeRecording;

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.LoggingAsyncState;
@@ -131,8 +132,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
         final SpanRecorder spanRecorder = recorderFactory.newTraceRootSpanRecorder(traceRoot);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
+        final ExceptionRecordingContext exceptionRecordingContext = ExceptionRecordingContext.newContext();
 
-        return new AsyncChildTrace(traceRoot, callStack, storage, spanRecorder, wrappedSpanEventRecorder, localAsyncId);
+        return new AsyncChildTrace(traceRoot, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionRecordingContext, localAsyncId);
     }
 
     @Override
@@ -196,10 +198,11 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
         final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
+        final ExceptionRecordingContext exceptionRecordingContext = ExceptionRecordingContext.newContext();
 
         final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
         final CloseListener closeListener = new DefaultCloseListener(traceRoot, handle, uriStatStorage);
-        return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, closeListener);
+        return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionRecordingContext, closeListener);
     }
 
     private AsyncDefaultTrace newAsyncDefaultTrace(TraceRoot traceRoot) {
@@ -214,8 +217,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
         final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot, asyncState);
+        final ExceptionRecordingContext exceptionRecordingContext = ExceptionRecordingContext.newContext();
 
-        return new AsyncDefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, asyncState);
+        return new AsyncDefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionRecordingContext, asyncState);
     }
 
 
