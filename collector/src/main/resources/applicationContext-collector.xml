@@ -40,9 +40,6 @@
         <property name="preStartAllCoreThreads" value="true"/>
     </bean>
 
-    <bean id="agentEventMessageSerializerV1"
-          class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1"/>
-
     <bean id="agentLifeCycleChangeEventHandler"
           class="com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandler"/>
 
