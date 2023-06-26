@@ -47,11 +47,14 @@ public class PubSubMonoClientImpl<D, S> extends PubSubClient<D, S> implements Pu
         final Identifier id = identifierFactory.get();
         final SubChannel<SupplyMessage<S>> supplyChannel = supplyRouter.apply(id);
         final SubConsumer<SupplyMessage<S>> subConsumer = new ShortTermSubConsumer<>(sink, id, subscriptionRef);
-        subscriptionRef.set(supplyChannel.subscribe(subConsumer));
+        final Subscription subscription = supplyChannel.subscribe(subConsumer);
+        subscriptionRef.set(subscription);
 
         demandRouter.apply(id).publish(DemandMessage.ok(id, demand));
 
-        return sink.asMono().timeout(this.options.getRequestTimeout());
+        return sink.asMono()
+                .doFinally(e -> subscription.unsubscribe())
+                .timeout(this.options.getRequestTimeout());
     }
 
     static class ShortTermSubConsumer<S> implements SubConsumer<SupplyMessage<S>> {

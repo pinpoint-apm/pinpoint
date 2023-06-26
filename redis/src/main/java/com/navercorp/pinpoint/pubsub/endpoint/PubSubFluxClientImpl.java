@@ -51,11 +51,13 @@ public class PubSubFluxClientImpl<D, S> extends PubSubClient<D, S> implements Pu
         final Identifier id = identifierFactory.get();
         final SubChannel<SupplyMessage<S>> supplyChannel = supplyRouter.apply(id);
         final SubConsumer<SupplyMessage<S>> subConsumer = new LongTermSubConsumer<>(sink, id, subscriptionRef);
-        subscriptionRef.set(supplyChannel.subscribe(subConsumer));
+        final Subscription subscription = supplyChannel.subscribe(subConsumer);
+        subscriptionRef.set(subscription);
 
         demandRouter.apply(id).publish(DemandMessage.ok(id, demand));
 
-        return sink.asFlux();
+        return sink.asFlux()
+                .doFinally(e -> subscription.unsubscribe());
     }
 
     static class LongTermSubConsumer<S> implements SubConsumer<SupplyMessage<S>> {
