@@ -100,25 +100,17 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
 
         // visible
         visibility$.pipe(
-            filter(() => {
-                return !document.hidden;
-            }),
-            filter(() => {
-                return !this.realTimeWebSocketService.isOpened();
-            })
+            filter(() => !document.hidden),
+            filter(() => !this.realTimeWebSocketService.isOpened()),
         ).subscribe(() => {
             this.onRetry();
         });
 
         // hidden
         visibility$.pipe(
-            filter(() => {
-                return document.hidden;
-            }),
-            delay(60000),
-            filter(() => {
-                return document.hidden;
-            }),
+            filter(() => document.hidden),
+            delay(10000),
+            filter(() => document.hidden),
         ).subscribe(() => {
             this.realTimeWebSocketService.close();
         });

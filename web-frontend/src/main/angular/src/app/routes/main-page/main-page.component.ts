@@ -1,18 +1,13 @@
 import { Component, OnInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
-import { Observable, fromEvent, Subject } from 'rxjs';
-import { takeUntil, delay, filter } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { Observable, Subject } from 'rxjs';
 
 import {
     WebAppSettingDataService,
-    NewUrlStateNotificationService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
     DynamicPopupService,
-    UrlRouteManagerService
 } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
 
 @Component({
     selector: 'pp-main-page',
@@ -22,54 +17,20 @@ import { MessagePopupContainerComponent } from 'app/core/components/message-popu
 })
 export class MainPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
-    private guideText: string;
 
     isAppSelected$: Observable<boolean>;
 
     constructor(
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private webAppSettingDataService: WebAppSettingDataService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
-        private translateService: TranslateService,
-        private urlRouteManagerService: UrlRouteManagerService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {}
 
     ngOnInit() {
-        this.translateService.get('MAIN.VISIBILITY_HIDDEN').subscribe((text: string) => {
-            this.guideText = text;
-        });
         this.webAppSettingDataService.getVersion().subscribe((version: string) => {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.VERSION, version);
-        });
-
-        this.addEventListener();
-    }
-
-    private addEventListener(): void {
-        fromEvent(document, 'visibilitychange').pipe(
-            takeUntil(this.unsubscribe),
-            filter(() => document.hidden),
-            filter(() => this.newUrlStateNotificationService.isRealTimeMode()),
-            delay(10000),
-            filter(() => document.hidden),
-        ).subscribe(() => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Notice',
-                    contents: this.guideText,
-                    type: 'html'
-                },
-                component: MessagePopupContainerComponent,
-                onCloseCallback: () => {
-                    this.urlRouteManagerService.reload();
-                }
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
         });
     }
 

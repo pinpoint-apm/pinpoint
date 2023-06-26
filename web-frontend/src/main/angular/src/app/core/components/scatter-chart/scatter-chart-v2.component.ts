@@ -345,6 +345,11 @@ export class ScatterChartV2Component implements OnInit, OnDestroy, OnChanges, Af
             this.SC.stopRealtime();
             // this.addToWindow();
         });
+        this.scatterChartInteractionService.onStopRealtime$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe(() => {
+            this.SC.stopRealtime();
+        })
     }
 
     ngOnDestroy() {

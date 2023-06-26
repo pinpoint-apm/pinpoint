@@ -50,6 +50,9 @@ export class ScatterChartInteractionService {
     private outError = new Subject<IServerError>();
     public onError$: Observable<IServerError>;
 
+    private outStopRealtime = new Subject<void>();
+    public onStopRealtime$: Observable<void>;
+
     constructor() {
         this.onChartData$ = this.outChartData.asObservable();
         this.onViewType$ = this.outViewType.asObservable();
@@ -58,6 +61,7 @@ export class ScatterChartInteractionService {
         this.onInvokeDownloadChart$ = this.outInvokeDownloadChart.asObservable();
         this.onReset$ = this.outReset.asObservable();
         this.onError$ = this.outError.asObservable();
+        this.onStopRealtime$ = this.outStopRealtime.asObservable();
     }
 
     addChartData(instanceKey: string, data: IScatterData): void {
@@ -99,5 +103,9 @@ export class ScatterChartInteractionService {
 
     setError(error: IServerError): void {
         this.outError.next(error);
+    }
+
+    stopRealtime(): void {
+        this.outStopRealtime.next();
     }
 }
