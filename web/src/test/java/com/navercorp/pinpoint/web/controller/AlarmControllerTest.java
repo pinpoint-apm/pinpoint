@@ -53,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Disabled
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-web.xml"})
 public class AlarmControllerTest {
     private final static String APPLICATION_ID = "test-application";
     private final static String APPLICATION_ID_UPDATED = "test-application-tomcat";

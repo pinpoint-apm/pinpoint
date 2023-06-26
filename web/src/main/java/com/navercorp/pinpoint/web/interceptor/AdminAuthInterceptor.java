@@ -16,19 +16,15 @@
 
 package com.navercorp.pinpoint.web.interceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * FIXME temporary interceptor for admin operations.
@@ -37,13 +33,14 @@ import java.nio.charset.StandardCharsets;
  */
 public class AdminAuthInterceptor implements HandlerInterceptor {
 
-    private static final Charset UTF_8 = StandardCharsets.UTF_8;
-
     private final Logger logger = LogManager.getLogger(this.getClass());
     
-    @Value("${admin.password:}")
-    private String password;
-    
+    private final String password;
+
+    public AdminAuthInterceptor(String password) {
+        this.password = password;
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestUri = request.getRequestURI();

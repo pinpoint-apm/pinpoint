@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.web;
 
+import com.navercorp.pinpoint.web.interceptor.AdminAuthInterceptor;
 import com.navercorp.pinpoint.web.vo.tree.SortByRequestConverter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.CacheControl;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -47,20 +48,29 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${pinpoint.web.cache-resources:false}")
     private boolean cacheResource;
 
+    @Value("${admin.password:}")
+    private String password;
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         // For using like WelcomePageHandler
         registry.addViewController("/").setViewName("forward:/index.html");
     }
 
-    @Bean
-    public ResourceHandlerBuilder resourceHandlerBuilder() {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new AdminAuthInterceptor(password))
+                .addPathPatterns("/admin/**");
+    }
+
+    public ResourceHandlerBuilder newResourceHandlerBuilder() {
         return new ResourceHandlerBuilder(cacheResource);
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        final ResourceHandlerBuilder builder = resourceHandlerBuilder();
+        final ResourceHandlerBuilder builder = newResourceHandlerBuilder();
 
         // index.html no-cache
         builder.apply(registry.addResourceHandler("/index.html")
@@ -85,6 +95,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.noCache())
         );
+    }
+
+    private ResourceHandlerBuilder newuilder() {
+        return new ResourceHandlerBuilder(cacheResource);
     }
 
     static class ResourceHandlerBuilder {

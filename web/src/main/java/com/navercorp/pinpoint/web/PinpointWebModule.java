@@ -24,7 +24,6 @@ import org.springframework.core.env.StandardEnvironment;
 @Configuration
 @ImportResource({
         "classpath:applicationContext-web.xml",
-        "classpath:servlet-context-web.xml",
 
         "classpath:applicationContext-web-dao-config.xml",
 })
