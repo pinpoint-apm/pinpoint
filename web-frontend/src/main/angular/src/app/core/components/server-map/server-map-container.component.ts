@@ -9,8 +9,8 @@ import {
     ChangeDetectionStrategy
 } from '@angular/core';
 import {Router, NavigationStart, RouterEvent} from '@angular/router';
-import {Subject, of, interval, EMPTY, fromEvent} from 'rxjs';
-import {takeUntil, filter, switchMap, tap, delayWhen, pluck, startWith, catchError, delay} from 'rxjs/operators';
+import {Subject, of, interval, EMPTY, fromEvent, merge} from 'rxjs';
+import {takeUntil, filter, switchMap, tap, delayWhen, pluck, startWith, catchError, delay, withLatestFrom} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
 
 import {
@@ -48,7 +48,7 @@ import {ServerMapRangeHandlerService} from './server-map-range-handler.service';
 })
 export class ServerMapContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
-    private visibilityHidden = new Subject<void>();
+    private dataLoad = new Subject<boolean>();
 
     i18nText: { [key: string]: string } = {
         NO_AGENTS: ''
@@ -107,25 +107,31 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             this.cd.detectChanges();
         });
 
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            tap((urlService: NewUrlStateNotificationService) => {
-                this.showLoading = true;
-                this.useDisable = true;
-                this.baseApplicationKey = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
-                this.shouldRefresh = true;
+        merge(
+            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                tap((urlService: NewUrlStateNotificationService) => {
+                    this.showLoading = true;
+                    this.useDisable = true;
+                    this.baseApplicationKey = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
+                    this.shouldRefresh = true;
+    
+                    if (urlService.isValueChanged(UrlPathId.APPLICATION)) {
+                        this.mapData = null;
+                    }
+                }),
+            ),
+            this.dataLoad.pipe(filter((load: boolean) => load))
+        ).pipe(
+            switchMap(() => {
+                const urlService = this.newUrlStateNotificationService;
 
-                if (urlService.isValueChanged(UrlPathId.APPLICATION)) {
-                    this.mapData = null;
-                }
-            }),
-            switchMap((urlService: NewUrlStateNotificationService) => {
                 if (urlService.isRealTimeMode()) {
-                    const endTime = urlService.getUrlServerTimeData();
+                    const endTime = Date.now();
                     const period = this.webAppSettingDataService.getSystemDefaultPeriod();
                     const range = [endTime - period.getMiliSeconds(), endTime];
 
                     return this.serverMapRangeHandlerService.onFetchCompleted$.pipe(
-                        takeUntil(this.visibilityHidden),
+                        takeUntil(this.dataLoad.pipe(filter((load: boolean) => !load))),
                         delayWhen(({delay: delayTime}: { delay: number }) => interval(delayTime)),
                         pluck('range'),
                         tap(() => this.shouldRefresh = false),
@@ -211,14 +217,35 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     }
 
     private addEventListener(): void {
-        fromEvent(document, 'visibilitychange').pipe(
+        const visibility$ = fromEvent(document, 'visibilitychange').pipe(
             takeUntil(this.unsubscribe),
+            filter(() => this.newUrlStateNotificationService.isRealTimeMode())
+        );
+
+        // visible
+        visibility$.pipe(
+            filter(() => !document.hidden),
+            withLatestFrom(this.dataLoad),
+            filter(([, dataLoad]: [Event, boolean]) => !dataLoad),
+            tap(() => {
+                this.mapData = null;
+                this.showLoading = true;
+                this.useDisable = true;
+                this.shouldRefresh = true;
+                this.cd.detectChanges();
+            }),
+            delay(1000)
+        ).subscribe(() => {
+            this.dataLoad.next(true);
+        });
+
+        // hidden
+        visibility$.pipe(
             filter(() => document.hidden),
-            filter(() => this.newUrlStateNotificationService.isRealTimeMode()),
             delay(10000),
             filter(() => document.hidden),
         ).subscribe(() => {
-            this.visibilityHidden.next();
+            this.dataLoad.next(false)
         });
     }
 

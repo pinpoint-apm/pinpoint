@@ -197,6 +197,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
             filter(() => document.hidden),
         ).subscribe(() => {
             this.scatterChartDataService.stopLoad();
+            this.scatterChartInteractionService.stopRealtime();
         });
     }
 

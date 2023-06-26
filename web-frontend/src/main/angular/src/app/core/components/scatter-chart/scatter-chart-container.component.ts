@@ -209,12 +209,13 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             filter(() => document.hidden),
         ).subscribe(() => {
             this.scatterChartDataService.stopLoad();
+            this.scatterChartInteractionService.stopRealtime();
         });
     }
 
     private setScatterY() {
         const {min, max} = this.webAppSettingDataService.getScatterY(this.instanceKey);
-        // 0, 8000
+
         this.fromY = min;
         this.toY = max;
     }
@@ -245,7 +246,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             if (!this.shouldHide) {
                 this.selectedAgent = '';
                 this.selectedApplication = node[0];
-                this.reset({fromX: this.fromX, toX: this.toX});
+                this.reset(this.scatterChartMode === ScatterChart.MODE.REALTIME ? null : {fromX: this.fromX, toX: this.toX});
                 this.getScatterData();
             }
 

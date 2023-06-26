@@ -8,8 +8,8 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 import {Router, RouterEvent, NavigationStart} from '@angular/router';
-import {Subject, Observable, merge} from 'rxjs';
-import {filter, tap, mapTo, map, takeUntil} from 'rxjs/operators';
+import {Subject, Observable, merge, fromEvent} from 'rxjs';
+import {filter, tap, mapTo, map, takeUntil, delay} from 'rxjs/operators';
 
 import {MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService} from 'app/shared/services';
 import {ServerMapData} from 'app/core/components/server-map/class';
@@ -52,11 +52,20 @@ export class SideBarContainerComponent implements OnInit, OnDestroy {
     }
 
     private addPageLoadingHandler(): void {
-        this.router.events.pipe(
-            takeUntil(this.unsubscribe),
-            filter((e: RouterEvent) => {
-                return e instanceof NavigationStart;
-            })
+        merge(
+            this.router.events.pipe(
+                takeUntil(this.unsubscribe),
+                filter((e: RouterEvent) => {
+                    return e instanceof NavigationStart;
+                })
+            ),
+            fromEvent(document, 'visibilitychange').pipe(
+                takeUntil(this.unsubscribe),
+                filter(() => this.newUrlStateNotificationService.isRealTimeMode()),
+                filter(() => document.hidden),
+                delay(10000),
+                filter(() => document.hidden)
+            )
         ).subscribe(() => {
             this.showLoading = true;
             this.useDisable = true;
