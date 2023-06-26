@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.util.IntStringValue;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,8 @@ public class SpanEvent extends DefaultFrameAttachment {
     private int apiId; // optional
     private IntStringValue exceptionInfo; // optional
 
+    private SpanEventException flushedException; // optional
+
     private AsyncId asyncIdObject;
 
     public SpanEvent() {
@@ -64,6 +67,14 @@ public class SpanEvent extends DefaultFrameAttachment {
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         this.exceptionInfo = new IntStringValue(exceptionClassId, exceptionMessage);
+    }
+
+    public SpanEventException getFlushedException() {
+        return flushedException;
+    }
+
+    public void setFlushedException(SpanEventException flushedException) {
+        this.flushedException = flushedException;
     }
 
     public void markStartTime() {

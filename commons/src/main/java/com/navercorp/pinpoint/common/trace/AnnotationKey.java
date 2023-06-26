@@ -47,6 +47,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>-40</td><td>cached_args[N]</td></tr>
  * <tr><td>-50</td><td>Exception</td></tr>
  * <tr><td>-51</td><td>ExceptionClass</td></tr>
+ * <tr><td>-52</td><td>ExceptionLinkId</td></tr>
  * <tr><td>-100</td><td>Asynchronous Invocation</td></tr>
  * <tr><td>-9999</td><td>UNKNOWN</td></tr>
  *
@@ -240,6 +241,7 @@ public interface AnnotationKey {
     AnnotationKey EXCEPTION = AnnotationKeyFactory.of(-50, "Exception", VIEW_IN_RECORD_SET);
     @Deprecated
     AnnotationKey EXCEPTION_CLASS = AnnotationKeyFactory.of(-51, "ExceptionClass");
+    AnnotationKey EXCEPTION_LINK_ID = AnnotationKeyFactory.of(-52, "ExceptionLinkId", VIEW_IN_RECORD_SET);
     AnnotationKey UNKNOWN = AnnotationKeyFactory.of(-9999, "UNKNOWN");
 
     AnnotationKey ASYNC = AnnotationKeyFactory.of(-100, "Asynchronous Invocation", VIEW_IN_RECORD_SET);

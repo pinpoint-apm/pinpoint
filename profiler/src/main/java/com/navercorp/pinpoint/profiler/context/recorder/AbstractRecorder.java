@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+
 import java.util.Objects;
 
 import com.navercorp.pinpoint.common.util.DataType;
@@ -26,6 +27,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -37,11 +39,16 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
     protected final IgnoreErrorHandler ignoreErrorHandler;
+    protected final ExceptionRecordingService exceptionRecordingService;
 
-    public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler ignoreErrorHandler) {
+    public AbstractRecorder(final StringMetaDataService stringMetaDataService,
+                            SqlMetaDataService sqlMetaDataService,
+                            IgnoreErrorHandler ignoreErrorHandler,
+                            ExceptionRecordingService exceptionRecordingService) {
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
         this.ignoreErrorHandler = Objects.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
+        this.exceptionRecordingService = Objects.requireNonNull(exceptionRecordingService, "exceptionRecordingService");
     }
 
     public void recordError() {
@@ -53,6 +60,7 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     public void recordException(boolean markError, Throwable throwable) {
+        recordDetailedException(throwable);
         if (throwable == null) {
             return;
         }
@@ -66,6 +74,8 @@ public abstract class AbstractRecorder implements AttributeRecorder {
             }
         }
     }
+
+    abstract void recordDetailedException(Throwable throwable);
 
     abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
 

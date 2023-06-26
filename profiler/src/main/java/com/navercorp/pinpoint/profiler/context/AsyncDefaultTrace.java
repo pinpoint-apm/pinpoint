@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
@@ -15,8 +16,9 @@ public class AsyncDefaultTrace extends DefaultTrace {
                              Storage storage,
                              SpanRecorder spanRecorder,
                              WrappedSpanEventRecorder wrappedSpanEventRecorder,
+                             ExceptionRecordingContext exceptionRecordingContext,
                              AsyncState asyncState) {
-        super(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
+        super(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionRecordingContext, CloseListener.EMPTY);
         this.asyncState = Objects.requireNonNull(asyncState, "asyncState");
     }
 

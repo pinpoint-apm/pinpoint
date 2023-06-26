@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
@@ -46,6 +47,8 @@ public class AsyncChildTrace implements Trace {
     private final SpanRecorder spanRecorder;
     private final WrappedSpanEventRecorder wrappedSpanEventRecorder;
 
+    private final ExceptionRecordingContext exceptionRecordingContext;
+
     private boolean closed = false;
     // lazy initialize
     private DefaultTraceScopePool scopePool;
@@ -54,7 +57,9 @@ public class AsyncChildTrace implements Trace {
     private final LocalAsyncId localAsyncId;
 
     public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage,
-                           SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
+                           SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
+                           ExceptionRecordingContext exceptionRecordingContext,
+                           final LocalAsyncId localAsyncId) {
 
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.callStack = Objects.requireNonNull(callStack, "callStack");
@@ -62,6 +67,7 @@ public class AsyncChildTrace implements Trace {
 
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
+        this.exceptionRecordingContext = Objects.requireNonNull(exceptionRecordingContext, "exceptionRecordingContext");
 
         this.localAsyncId = Objects.requireNonNull(localAsyncId, "localAsyncId");
         traceBlockBegin(ASYNC_BEGIN_STACK_ID);
@@ -73,7 +79,7 @@ public class AsyncChildTrace implements Trace {
     }
 
     private SpanEventRecorder wrappedSpanEventRecorder(WrappedSpanEventRecorder wrappedSpanEventRecorder, SpanEvent spanEvent) {
-        wrappedSpanEventRecorder.setWrapped(spanEvent);
+        wrappedSpanEventRecorder.setWrapped(spanEvent, this.exceptionRecordingContext);
         return wrappedSpanEventRecorder;
     }
 
@@ -149,7 +155,7 @@ public class AsyncChildTrace implements Trace {
         logSpan(spanEvent);
         // state restore
         final SpanEvent previous = callStack.peek();
-        wrappedSpanEventRecorder.setWrapped(previous);
+        wrappedSpanEventRecorder(wrappedSpanEventRecorder, previous);
     }
 
 
