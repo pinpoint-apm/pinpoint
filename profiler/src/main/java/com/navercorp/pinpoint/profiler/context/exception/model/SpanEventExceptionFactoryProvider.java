@@ -17,22 +17,23 @@ package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 
+import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
 public class SpanEventExceptionFactoryProvider implements Provider<SpanEventExceptionFactory> {
-    private final MonitorConfig monitorConfig;
+    private final ExceptionTraceConfig exceptionTraceConfig;
 
     @Inject
-    public SpanEventExceptionFactoryProvider(MonitorConfig monitorConfig) {
-        this.monitorConfig = monitorConfig;
+    public SpanEventExceptionFactoryProvider(ExceptionTraceConfig exceptionTraceConfig) {
+        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
     }
 
     @Override
     public SpanEventExceptionFactory get() {
-        return new SpanEventExceptionFactory(monitorConfig.getExceptionTraceMaxDepth());
+        return new SpanEventExceptionFactory(exceptionTraceConfig.getExceptionTraceMaxDepth());
     }
 }

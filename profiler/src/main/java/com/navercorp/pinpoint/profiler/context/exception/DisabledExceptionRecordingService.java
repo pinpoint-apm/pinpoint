@@ -15,9 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception;
 
-import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 
 /**
  * @author intr3p1d
@@ -27,12 +26,7 @@ public class DisabledExceptionRecordingService implements ExceptionRecordingServ
     public static final DisabledExceptionRecordingService INSTANCE = new DisabledExceptionRecordingService();
 
     @Override
-    public SpanEventException recordException(ExceptionRecordingContext context, Throwable current, long startTime) {
-        return null;
-    }
+    public void recordException(ExceptionRecordingContext exceptionRecordingContext, SpanEvent spanEvent, Throwable throwable) {
 
-    @Override
-    public Annotation<Long> recordExceptionLinkId(ExceptionRecordingContext context) {
-        return null;
     }
 }

@@ -15,11 +15,10 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
-import java.util.ArrayList;
+import com.navercorp.pinpoint.common.util.StringUtils;
+
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author intr3p1d
@@ -28,13 +27,13 @@ public class ExceptionWrapper {
     private static final String EMPTY_STRING = "";
     private final String exceptionClassName;
     private final String exceptionMessage;
-    private final StackTraceElementWrapper[] stackTraceElements;
+    private final StackTraceElement[] stackTraceElements;
 
     private ExceptionWrapper(Throwable throwable) {
         Objects.requireNonNull(throwable);
-        this.exceptionClassName = Optional.ofNullable(throwable.getClass().getSimpleName()).orElse(EMPTY_STRING);
-        this.exceptionMessage = Optional.ofNullable(throwable.getMessage()).orElse(EMPTY_STRING);
-        this.stackTraceElements = StackTraceElementWrapper.valueOf(throwable.getStackTrace());
+        this.exceptionClassName = StringUtils.defaultIfEmpty(throwable.getClass().getSimpleName(), EMPTY_STRING);
+        this.exceptionMessage = StringUtils.defaultIfEmpty(throwable.getMessage(), EMPTY_STRING);
+        this.stackTraceElements = throwable.getStackTrace();
     }
 
     public static ExceptionWrapper newException(Throwable throwable) {
@@ -52,7 +51,7 @@ public class ExceptionWrapper {
         return exceptionMessage;
     }
 
-    public StackTraceElementWrapper[] getStackTraceElements() {
+    public StackTraceElement[] getStackTraceElements() {
         return stackTraceElements;
     }
 

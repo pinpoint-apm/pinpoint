@@ -17,13 +17,11 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.profiler.context.DefaultReference;
 import com.navercorp.pinpoint.profiler.context.Reference;
-import com.navercorp.pinpoint.profiler.context.exception.id.AtomicExceptionIdGenerator;
-import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -39,11 +37,10 @@ public class DefaultExceptionRecordingServiceTest {
 
     private final static Logger logger = LogManager.getLogger(DefaultExceptionRecordingServiceTest.class);
 
-    ExceptionIdGenerator exceptionIdGenerator = new AtomicExceptionIdGenerator();
-    ExceptionTraceSampler exceptionTraceSampler = new ExceptionTraceSampler(1000, exceptionIdGenerator);
+    ExceptionTraceSampler exceptionTraceSampler = new ExceptionTraceSampler(1000);
     SpanEventExceptionFactory spanEventExceptionFactory = new SpanEventExceptionFactory(10);
     DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
-            exceptionIdGenerator, exceptionTraceSampler, spanEventExceptionFactory
+            exceptionTraceSampler, spanEventExceptionFactory
     );
 
     ExceptionRecordingContext context;

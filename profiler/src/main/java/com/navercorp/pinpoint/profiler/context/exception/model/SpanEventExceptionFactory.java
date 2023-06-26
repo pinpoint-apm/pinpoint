@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,15 +30,15 @@ public class SpanEventExceptionFactory {
     }
 
     public SpanEventException newSpanEventException(Throwable throwable, long startTime, long exceptionId) {
-        ExceptionWrapper[] wrappers = newExceptionWrappers(throwable);
+        List<ExceptionWrapper> wrappers = newExceptionWrappers(throwable);
         return new SpanEventException(
                 wrappers, startTime, exceptionId
         );
     }
 
-    private ExceptionWrapper[] newExceptionWrappers(Throwable throwable) {
+    private List<ExceptionWrapper> newExceptionWrappers(Throwable throwable) {
         if (throwable == null) {
-            return new ExceptionWrapper[0];
+            return Collections.emptyList();
         }
         List<ExceptionWrapper> exceptionWrappers = new ArrayList<>();
         Throwable curr = throwable;
@@ -47,7 +48,7 @@ public class SpanEventExceptionFactory {
             curr = curr.getCause();
             depth++;
         }
-        return exceptionWrappers.toArray(new ExceptionWrapper[0]);
+        return exceptionWrappers;
     }
 
 }

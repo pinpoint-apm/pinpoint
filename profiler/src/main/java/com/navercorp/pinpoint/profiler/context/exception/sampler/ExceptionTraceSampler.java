@@ -16,9 +16,8 @@
 package com.navercorp.pinpoint.profiler.context.exception.sampler;
 
 import com.google.common.util.concurrent.RateLimiter;
-import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
 
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -26,9 +25,12 @@ import java.util.Objects;
  */
 public class ExceptionTraceSampler {
 
-    final RateLimiter rateLimiter;
+    public static final long INITIAL_EXCEPTION_ID = 1L;
 
-    final ExceptionIdGenerator idGenerator;
+    private final RateLimiter rateLimiter;
+
+    private final AtomicLong errorId = new AtomicLong(INITIAL_EXCEPTION_ID);
+
 
     public final static SamplingState DISABLED = new SamplingState() {
         @Override
@@ -42,19 +44,20 @@ public class ExceptionTraceSampler {
         }
     };
 
-    public ExceptionTraceSampler(
-            final double maxNewThroughput,
-            ExceptionIdGenerator exceptionIdGenerator
-    ) {
+    public ExceptionTraceSampler(final double maxNewThroughput) {
         this.rateLimiter = RateLimiter.create(maxNewThroughput);
-        this.idGenerator = Objects.requireNonNull(exceptionIdGenerator, "exceptionIdGenerator");
     }
 
     public SamplingState isSampled() {
         if (rateLimiter.tryAcquire()) {
-            return newState(idGenerator.nextExceptionId());
+            long errorId = nextErrorId();
+            return newState(errorId);
         }
         return DISABLED;
+    }
+
+    private long nextErrorId() {
+        return this.errorId.getAndIncrement();
     }
 
     public SamplingState continuingSampled(SamplingState samplingState) {

@@ -30,11 +30,10 @@ import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -182,19 +181,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     void recordDetailedException(Throwable throwable) {
-        SpanEventException spanEventException = exceptionRecordingService.recordException(
-                this.exceptionRecordingContext,
-                throwable,
-                spanEvent.getStartTime()
-        );
-        spanEvent.setFlushedException(spanEventException);
-        if (this.exceptionRecordingContext.hasValidExceptionId()) {
-            spanEvent.addAnnotation(
-                    exceptionRecordingService.recordExceptionLinkId(
-                            this.exceptionRecordingContext
-                    )
-            );
-        }
+        this.exceptionRecordingService.recordException(exceptionRecordingContext, spanEvent, throwable);
     }
 
     @Override
