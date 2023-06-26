@@ -56,7 +56,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Disabled
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-web.xml"})
 public class UserGroupControllerTest {
 
     private final static String TEST_USER_GROUP_ID = "testUserGroup";

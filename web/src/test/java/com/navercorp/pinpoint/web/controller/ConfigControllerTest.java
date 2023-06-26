@@ -34,11 +34,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
 
 /**
  * @author minwoo.jung
@@ -46,7 +46,7 @@ import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
 @Disabled
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-web.xml"})
 public class ConfigControllerTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
     @Autowired
