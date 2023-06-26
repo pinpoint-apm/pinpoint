@@ -16,31 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
+import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindVariableService;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.exception.id.AtomicExceptionIdGenerator;
-import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceProvider;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSamplerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.BindVariableServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
-import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
-import com.navercorp.pinpoint.profiler.transformer.DefaultDynamicTransformerRegistry;
-import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
@@ -80,6 +70,7 @@ import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypePro
 import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AsyncTraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.BindVariableServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CallStackFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DataSourceMonitorRegistryServiceProvider;
@@ -97,6 +88,7 @@ import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistrySe
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
 import com.navercorp.pinpoint.profiler.context.provider.metadata.ApiMetaDataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.metadata.SimpleCacheFactory;
 import com.navercorp.pinpoint.profiler.context.provider.metadata.SimpleCacheFactoryProvider;
@@ -114,6 +106,7 @@ import com.navercorp.pinpoint.profiler.context.recorder.DefaultRequestRecorderFa
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserLoaderService;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -129,13 +122,11 @@ import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContextLoader;
+import com.navercorp.pinpoint.profiler.transformer.DefaultDynamicTransformerRegistry;
+import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
-import com.google.inject.TypeLiteral;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -172,10 +163,6 @@ public class ApplicationContextModule extends AbstractModule {
         bind(IdGenerator.class).to(AtomicIdGenerator.class).in(Scopes.SINGLETON);
         bind(AsyncIdGenerator.class).to(DefaultAsyncIdGenerator.class).in(Scopes.SINGLETON);
         bind(TransactionCounter.class).to(DefaultTransactionCounter.class).in(Scopes.SINGLETON);
-
-        bind(ExceptionIdGenerator.class).to(AtomicExceptionIdGenerator.class).in(Scopes.SINGLETON);
-        bind(ExceptionTraceSampler.class).toProvider(ExceptionTraceSamplerProvider.class).in(Scopes.SINGLETON);
-        bind(SpanEventExceptionFactory.class).toProvider(SpanEventExceptionFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
         bind(TraceSampler.class).toProvider(TraceSamplerProvider.class).in(Scopes.SINGLETON);
@@ -249,7 +236,6 @@ public class ApplicationContextModule extends AbstractModule {
         bind(StringMetaDataService.class).toProvider(StringMetadataServiceProvider.class).in(Scopes.SINGLETON);
         bind(ApiMetaDataService.class).toProvider(ApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
         bind(SqlMetaDataService.class).toProvider(SqlMetadataServiceProvider.class).in(Scopes.SINGLETON);
-        bind(ExceptionRecordingService.class).toProvider(ExceptionRecordingServiceProvider.class).in(Scopes.SINGLETON);
         bind(PredefinedMethodDescriptorRegistry.class).to(DefaultPredefinedMethodDescriptorRegistry.class).in(Scopes.SINGLETON);
     }
 

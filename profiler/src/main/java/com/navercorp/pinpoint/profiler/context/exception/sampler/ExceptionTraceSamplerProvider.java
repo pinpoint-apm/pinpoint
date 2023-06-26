@@ -17,27 +17,23 @@ package com.navercorp.pinpoint.profiler.context.exception.sampler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
-import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
+
+import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
 public class ExceptionTraceSamplerProvider implements Provider<ExceptionTraceSampler> {
-    private final MonitorConfig monitorConfig;
-    private final ExceptionIdGenerator exceptionIdGenerator;
+    private final ExceptionTraceConfig exceptionTraceConfig;
 
     @Inject
-    public ExceptionTraceSamplerProvider(MonitorConfig monitorConfig, ExceptionIdGenerator exceptionIdGenerator) {
-        this.monitorConfig = monitorConfig;
-        this.exceptionIdGenerator = exceptionIdGenerator;
+    public ExceptionTraceSamplerProvider(ExceptionTraceConfig exceptionTraceConfig) {
+        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
     }
 
     @Override
     public ExceptionTraceSampler get() {
-        return new ExceptionTraceSampler(
-                monitorConfig.getExceptionTraceNewThroughput(),
-                exceptionIdGenerator
-        );
+        return new ExceptionTraceSampler(exceptionTraceConfig.getExceptionTraceNewThroughput());
     }
 }

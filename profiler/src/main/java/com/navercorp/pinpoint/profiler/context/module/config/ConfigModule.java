@@ -22,7 +22,6 @@ import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
-import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
@@ -163,19 +162,6 @@ public class ConfigModule extends AbstractModule {
         bind(Boolean.class).annotatedWith(Container.class).toInstance(isContainer);
         bind(Long.class).annotatedWith(AgentStartTime.class).toProvider(AgentStartTimeProvider.class).in(Scopes.SINGLETON);
         bind(ServiceType.class).annotatedWith(ConfiguredApplicationType.class).toProvider(ConfiguredApplicationTypeProvider.class).in(Scopes.SINGLETON);
-    }
-
-    private static class ConfigurationLoader {
-        private final ValueAnnotationProcessor process = new ValueAnnotationProcessor();
-        private final Properties properties;
-
-        public ConfigurationLoader(Properties properties) {
-            this.properties = Objects.requireNonNull(properties, "properties");
-        }
-
-        public <T> void load(T config) {
-            process.process(config, properties);
-        }
     }
 
 

@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Properties;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -40,7 +42,13 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         final Module statsModule = new StatsModule();
         final Module thriftStatsModule = new ThriftStatsModule();
 
-        return Modules.combine(config, pluginModule, applicationContextModule, rpcModule, statsModule, thriftStatsModule);
+        final Properties properties = agentOption.getProfilerConfig().getProperties();
+        final Module exceptionTraceModule = new ExceptionTraceModule(properties);
+
+        return Modules.combine(config, pluginModule, applicationContextModule,
+                rpcModule,
+                statsModule, thriftStatsModule,
+                exceptionTraceModule);
     }
 
     protected Module newRpcModule(AgentOption agentOption) {

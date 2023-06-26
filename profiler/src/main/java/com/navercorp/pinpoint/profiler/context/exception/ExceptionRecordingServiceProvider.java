@@ -17,39 +17,36 @@ package com.navercorp.pinpoint.profiler.context.exception;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
-import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
+
+import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
 public class ExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
 
-    private final MonitorConfig monitorConfig;
-    private final ExceptionIdGenerator exceptionIdGenerator;
+    private final ExceptionTraceConfig exceptionTraceConfig;
     private final ExceptionTraceSampler exceptionTraceSampler;
     private final SpanEventExceptionFactory spanEventExceptionFactory;
 
     @Inject
     public ExceptionRecordingServiceProvider(
-            MonitorConfig monitorConfig,
-            ExceptionIdGenerator exceptionIdGenerator,
+            ExceptionTraceConfig exceptionTraceConfig ,
             ExceptionTraceSampler exceptionTraceSampler,
             SpanEventExceptionFactory spanEventExceptionFactory
     ) {
-        this.monitorConfig = monitorConfig;
-        this.exceptionIdGenerator = exceptionIdGenerator;
-        this.exceptionTraceSampler = exceptionTraceSampler;
-        this.spanEventExceptionFactory = spanEventExceptionFactory;
+        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
+        this.exceptionTraceSampler = Objects.requireNonNull(exceptionTraceSampler, "exceptionTraceSampler");
+        this.spanEventExceptionFactory = Objects.requireNonNull(spanEventExceptionFactory, "spanEventExceptionFactory");
     }
 
     @Override
     public ExceptionRecordingService get() {
-        if (monitorConfig.isExceptionTraceEnable()) {
+        if (exceptionTraceConfig.isExceptionTraceEnable()) {
             return new DefaultExceptionRecordingService(
-                    exceptionIdGenerator,
                     exceptionTraceSampler,
                     spanEventExceptionFactory
             );

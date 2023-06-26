@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.profiler.context.exception;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
-import com.navercorp.pinpoint.profiler.context.exception.id.ExceptionIdGenerator;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
@@ -33,32 +33,26 @@ import java.util.Objects;
  */
 public class DefaultExceptionRecordingService implements ExceptionRecordingService {
 
-    private static final Logger logger = LogManager.getLogger(DefaultExceptionRecordingService.class);
+    private final Logger logger = LogManager.getLogger(getClass());
 
-    private static final boolean IS_DEBUG = logger.isDebugEnabled();
+    private final boolean IS_DEBUG = logger.isDebugEnabled();
 
-    private final ExceptionIdGenerator exceptionIdGenerator;
     private final ExceptionTraceSampler exceptionTraceSampler;
     private final SpanEventExceptionFactory spanEventExceptionFactory;
 
-    public DefaultExceptionRecordingService(
-            ExceptionIdGenerator exceptionIdGenerator,
-            ExceptionTraceSampler exceptionTraceSampler,
+    public DefaultExceptionRecordingService(ExceptionTraceSampler exceptionTraceSampler,
             SpanEventExceptionFactory spanEventExceptionFactory
     ) {
-        this.exceptionIdGenerator = exceptionIdGenerator;
         this.exceptionTraceSampler = exceptionTraceSampler;
         this.spanEventExceptionFactory = spanEventExceptionFactory;
     }
 
-    @Override
     public SpanEventException recordException(ExceptionRecordingContext context, Throwable current, long startTime) {
         Objects.requireNonNull(context);
-        SpanEventException spanEventException = null;
 
         ExceptionRecordingState state = ExceptionRecordingState.stateOf(context.getPrevious(), current);
         ExceptionTraceSampler.SamplingState samplingState = getSamplingState(state, context);
-        spanEventException = state.checkAndApply(context, current, startTime, samplingState, spanEventExceptionFactory);
+        SpanEventException spanEventException = state.checkAndApply(context, current, startTime, samplingState, spanEventExceptionFactory);
 
         logException(spanEventException);
 
@@ -85,8 +79,21 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         }
     }
 
-    @Override
-    public Annotation<Long> recordExceptionLinkId(ExceptionRecordingContext context) {
+    public Annotation<Long> newExceptionLinkId(ExceptionRecordingContext context) {
         return Annotations.of(AnnotationKey.EXCEPTION_LINK_ID.getCode(), context.getExceptionId());
+    }
+
+    @Override
+    public void recordException(ExceptionRecordingContext exceptionRecordingContext, SpanEvent spanEvent, Throwable throwable) {
+        SpanEventException spanEventException = this.recordException(
+                exceptionRecordingContext,
+                throwable,
+                spanEvent.getStartTime()
+        );
+        spanEvent.setFlushedException(spanEventException);
+        if (exceptionRecordingContext.hasValidExceptionId()) {
+            Annotation<Long> linkId = newExceptionLinkId(exceptionRecordingContext);
+            spanEvent.addAnnotation(linkId);
+        }
     }
 }

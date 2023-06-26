@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -23,13 +23,13 @@ import java.util.Objects;
  */
 public class SpanEventException {
 
-    private final ExceptionWrapper[] exceptionWrappers;
+    private final List<ExceptionWrapper> exceptionWrappers;
 
     private final long startTime;
 
     private final long exceptionId;
 
-    public SpanEventException(ExceptionWrapper[] exceptionWrappers, long startTime, long exceptionId) {
+    public SpanEventException(List<ExceptionWrapper> exceptionWrappers, long startTime, long exceptionId) {
         this.exceptionWrappers = exceptionWrappers;
         this.startTime = startTime;
         this.exceptionId = exceptionId;
@@ -39,13 +39,35 @@ public class SpanEventException {
         return startTime;
     }
 
-    public ExceptionWrapper[] getExceptionWrappers() {
+    public List<ExceptionWrapper> getExceptionWrappers() {
         return exceptionWrappers;
     }
 
     public long getExceptionId() {
         return exceptionId;
     }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//
+//        SpanEventException that = (SpanEventException) o;
+//
+//        if (startTime != that.startTime) return false;
+//        if (exceptionId != that.exceptionId) return false;
+//        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+//        return Arrays.equals(exceptionWrappers, that.exceptionWrappers);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int result = Arrays.hashCode(exceptionWrappers);
+//        result = 31 * result + (int) (startTime ^ (startTime >>> 32));
+//        result = 31 * result + (int) (exceptionId ^ (exceptionId >>> 32));
+//        return result;
+//    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -56,13 +78,12 @@ public class SpanEventException {
 
         if (startTime != that.startTime) return false;
         if (exceptionId != that.exceptionId) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        return Arrays.equals(exceptionWrappers, that.exceptionWrappers);
+        return Objects.equals(exceptionWrappers, that.exceptionWrappers);
     }
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(exceptionWrappers);
+        int result = exceptionWrappers != null ? exceptionWrappers.hashCode() : 0;
         result = 31 * result + (int) (startTime ^ (startTime >>> 32));
         result = 31 * result + (int) (exceptionId ^ (exceptionId >>> 32));
         return result;
@@ -71,7 +92,7 @@ public class SpanEventException {
     @Override
     public String toString() {
         return "SpanEventException{" +
-                "exceptionWrappers=" + Arrays.toString(exceptionWrappers) +
+                "exceptionWrappers=" + exceptionWrappers +
                 ", startTime=" + startTime +
                 ", exceptionId=" + exceptionId +
                 '}';
