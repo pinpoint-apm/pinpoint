@@ -38,17 +38,11 @@
         </constructor-arg>
     </bean>
 
-    <bean id="agentEventMessageDeserializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1"/>
-
-
     <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
         <constructor-arg ref="typeLoaderService"/>
     </bean>
 
     <bean id="apiParserProvider" class="com.navercorp.pinpoint.common.server.trace.ApiParserProvider">
-    </bean>
-
-    <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
     </bean>
 
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">

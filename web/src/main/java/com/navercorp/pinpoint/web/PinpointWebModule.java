@@ -52,7 +52,10 @@ import org.springframework.core.env.StandardEnvironment;
         "com.navercorp.pinpoint.web.mapper",
         "com.navercorp.pinpoint.web.filter",
         "com.navercorp.pinpoint.web.view",
-        "com.navercorp.pinpoint.web.applicationmap"
+        "com.navercorp.pinpoint.web.applicationmap",
+
+        "com.navercorp.pinpoint.web.controller",
+        "com.navercorp.pinpoint.web.util"
 })
 public class PinpointWebModule {
     @Bean
