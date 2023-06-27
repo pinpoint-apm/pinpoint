@@ -64,49 +64,45 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/admin/**");
     }
 
-    public ResourceHandlerBuilder newResourceHandlerBuilder() {
-        return new ResourceHandlerBuilder(cacheResource);
+    public ResourceHandlerConfigure newResourceHandlerConfigure() {
+        return new ResourceHandlerConfigure(cacheResource);
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        final ResourceHandlerBuilder builder = newResourceHandlerBuilder();
+        final ResourceHandlerConfigure configure = newResourceHandlerConfigure();
 
         // index.html no-cache
-        builder.apply(registry.addResourceHandler("/index.html")
+        configure.apply(registry.addResourceHandler("/index.html")
                 .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.noCache())
         );
 
         // Resources that don't change well : 1 day
-        builder.apply(registry.addResourceHandler(LONG_TIME_AVAILABLE_RESOURCE_TYPE)
+        configure.apply(registry.addResourceHandler(LONG_TIME_AVAILABLE_RESOURCE_TYPE)
                 .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS).cachePublic())
         );
 
         // Resources that change well : 2 minutes
-        builder.apply(registry.addResourceHandler(SHORT_TIME_AVAILABLE_RESOURCE_TYPE)
+        configure.apply(registry.addResourceHandler(SHORT_TIME_AVAILABLE_RESOURCE_TYPE)
                 .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES).cachePublic())
         );
 
         // default resource handler
-        builder.apply(registry.addResourceHandler("/**")
+        configure.apply(registry.addResourceHandler("/**")
                 .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.noCache())
         );
     }
 
-    private ResourceHandlerBuilder newuilder() {
-        return new ResourceHandlerBuilder(cacheResource);
-    }
-
-    static class ResourceHandlerBuilder {
+    static class ResourceHandlerConfigure {
 
         private final boolean cacheResources;
         private final ResourceResolver encodedResourceResolve = new EncodedResourceResolver();
 
-        public ResourceHandlerBuilder(boolean cacheResources) {
+        public ResourceHandlerConfigure(boolean cacheResources) {
             this.cacheResources = cacheResources;
         }
 
