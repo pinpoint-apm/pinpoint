@@ -4,6 +4,7 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+      use-suffix-pattern: true
   profiles:
     active: release, metric
 
