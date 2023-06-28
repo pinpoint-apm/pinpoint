@@ -20,7 +20,11 @@ import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Objects;
 
 /**
@@ -29,6 +33,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 @Service
+@Validated
 public class AgentInfoService {
 
     private final AgentInfoDao agentInfoDao;
@@ -40,12 +45,12 @@ public class AgentInfoService {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
     }
 
-    public void insert(final AgentInfoBo agentInfoBo) {
+    public void insert(@Valid final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
         applicationIndexDao.insert(agentInfoBo);
     }
 
-    public AgentInfoBo getAgentInfo(final String agentId, final long timestamp) {
+    public AgentInfoBo getAgentInfo(@NotBlank final String agentId, @PositiveOrZero final long timestamp) {
         return agentInfoDao.getAgentInfo(agentId, timestamp);
     }
 }

@@ -27,6 +27,9 @@ import java.util.Map;
  */
 public interface AdminService {
 
+    int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
+    String MIN_DURATION_DAYS_FOR_INACTIVITY_STR = "" + MIN_DURATION_DAYS_FOR_INACTIVITY;
+
     void removeApplicationName(String applicationName);
 
     void removeAgentId(String applicationName, String agentId);

@@ -18,13 +18,15 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentEventDao;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
 
 @Service
+@Validated
 public class AgentEventService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 

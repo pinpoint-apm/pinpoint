@@ -16,17 +16,20 @@
 
 package com.navercorp.pinpoint.web.alarm.vo;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * @author minwoo.jung
  */
 public class Rule {
 
     private String ruleId;
-    private String applicationId;
+    @NotBlank private String applicationId;
     private String serviceType;
-    private String checkerName;
-    private Integer threshold;
-    private String userGroupId;
+    @NotBlank private String checkerName;
+    @NotNull private Integer threshold;
+    @NotBlank private String userGroupId;
     private boolean smsSend;
     private boolean emailSend;
     private boolean webhookSend;

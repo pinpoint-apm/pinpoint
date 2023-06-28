@@ -23,10 +23,9 @@ import com.navercorp.pinpoint.web.response.AlarmResponse;
 import com.navercorp.pinpoint.web.response.Response;
 import com.navercorp.pinpoint.web.response.SuccessResponse;
 import com.navercorp.pinpoint.web.service.AlarmService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,8 +45,8 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping(value={"/alarmRule", "/application/alarmRule"})
+@Validated
 public class AlarmController {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public final static String USER_GROUP_ID = "userGroupId";
     public final static String APPLICATION_ID = "applicationId";
@@ -60,33 +60,26 @@ public class AlarmController {
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
     }
 
-
-    private boolean isRuleDataValidForPost(Rule rule) {
-        if (StringUtils.isEmpty(rule.getApplicationId())) {
-            return false;
-        }
-        if (StringUtils.isEmpty(rule.getCheckerName())) {
-            return false;
-        }
-        if (StringUtils.isEmpty(rule.getUserGroupId())) {
-            return false;
-        }
-        if (rule.getThreshold() == null) {
-            return false;
-        }
-        return true;
+    private boolean isRuleInvalidForPost(Rule rule) {
+        return StringUtils.isEmpty(rule.getApplicationId()) ||
+                StringUtils.isEmpty(rule.getCheckerName()) ||
+                StringUtils.isEmpty(rule.getUserGroupId()) ||
+                rule.getThreshold() == null;
     }
 
-    @PostMapping()
+    @PostMapping
     public AlarmResponse insertRule(@RequestBody Rule rule) {
-        if (!isRuleDataValidForPost(rule)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
+        if (isRuleInvalidForPost(rule)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "there is not applicationId/checkerName/userGroupId/threshold to insert alarm rule"
+            );
         }
-        String ruleId = alarmService.insertRule(rule);
+        final String ruleId = alarmService.insertRule(rule);
         return new AlarmResponse("SUCCESS", ruleId);
     }
 
-    @DeleteMapping()
+    @DeleteMapping
     public Response deleteRule(@RequestBody Rule rule) {
         if (StringUtils.isEmpty(rule.getRuleId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not ruleId to delete alarm rule");
@@ -94,48 +87,70 @@ public class AlarmController {
         alarmService.deleteRule(rule);
         return SuccessResponse.ok();
     }
-    
-    @GetMapping()
-    public List<Rule> getRule(@RequestParam(value=USER_GROUP_ID, required=false) String userGroupId, @RequestParam(value=APPLICATION_ID, required=false) String applicationId) {
-        if (StringUtils.isEmpty(userGroupId) && StringUtils.isEmpty(applicationId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not userGroupId or applicationID to get alarm rule");
-        }
-        if (StringUtils.hasLength(userGroupId)) {
-            return alarmService.selectRuleByUserGroupId(userGroupId);
-        }
+
+    @GetMapping(params = USER_GROUP_ID)
+    public List<Rule> getRulesByUserGroup(@RequestParam(value = USER_GROUP_ID) @NotBlank String userGroupId) {
+        return alarmService.selectRuleByUserGroupId(userGroupId);
+    }
+
+    @GetMapping(params = APPLICATION_ID)
+    public List<Rule> getRulesByApplication(@RequestParam(value = APPLICATION_ID) @NotBlank String applicationId) {
         return alarmService.selectRuleByApplicationId(applicationId);
     }
 
-    @PutMapping()
+    @PutMapping
     public Response updateRule(@RequestBody Rule rule) {
-        if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not ruleId/userGroupId/applicationid/checkerName to update alarm rule");
+        if (isRuleInvalid(rule)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "There is not ruleId/userGroupId/applicationId/checkerName to update alarm rule"
+            );
         }
         alarmService.updateRule(rule);
         return SuccessResponse.ok();
     }
 
+    private static boolean isRuleInvalid(Rule rule) {
+        return StringUtils.isEmpty(rule.getRuleId()) ||
+                StringUtils.isEmpty(rule.getApplicationId()) ||
+                StringUtils.isEmpty(rule.getCheckerName()) ||
+                StringUtils.isEmpty(rule.getUserGroupId()) ||
+                rule.getThreshold() == null;
+    }
+
     @PostMapping(value = "/includeWebhooks")
     public AlarmResponse insertRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
-        Rule rule = ruleWithWebhooks.getRule();
-        if (!isRuleDataValidForPost(rule)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
+        final Rule rule = ruleWithWebhooks.getRule();
+        if (isRuleInvalidForPost(rule)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "there is not applicationId/checkerName/userGroupId/threshold to insert alarm rule"
+            );
         }
         if (!webhookEnable) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook should be enabled to bind webhook to an alarm");
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "webhook should be enabled to bind webhook to an alarm"
+            );
         }
-        String ruleId = alarmService.insertRuleWithWebhooks(rule, ruleWithWebhooks.getWebhookIds());
+        final String ruleId = alarmService.insertRuleWithWebhooks(rule, ruleWithWebhooks.getWebhookIds());
         return new AlarmResponse("SUCCESS", ruleId);
     }
 
     @PutMapping(value = "/includeWebhooks")
     public Response updateRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
-        Rule rule = ruleWithWebhooks.getRule();
-        if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not ruleId/userGroupId/applicationid/checkerName to update alarm rule");
+        final Rule rule = ruleWithWebhooks.getRule();
+        if (isRuleInvalid(rule)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "there is not ruleId/userGroupId/applicationId/checkerName to update alarm rule"
+            );
         }
         if (!webhookEnable) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook should be enabled to bind webhook to an alarm");
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "webhook should be enabled to bind webhook to an alarm"
+            );
         }
         alarmService.updateRuleWithWebhooks(rule, ruleWithWebhooks.getWebhookIds());
         return SuccessResponse.ok();
@@ -155,4 +170,5 @@ public class AlarmController {
         public void setWebhookIds(List<String> webhookIds) { this.webhookIds = webhookIds; }
         public List<String> getWebhookIds() { return webhookIds; }
     }
+
 }

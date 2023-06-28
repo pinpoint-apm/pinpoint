@@ -29,9 +29,6 @@ public final class LimitUtils {
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
-        if (limit > MAX) {
-            return MAX;
-        }
-        return limit;
+        return Math.min(limit, MAX);
     }
 }

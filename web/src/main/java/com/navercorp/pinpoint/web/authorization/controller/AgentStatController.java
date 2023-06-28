@@ -17,24 +17,26 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 
-
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatService;
 import com.navercorp.pinpoint.web.util.FixedTimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Map;
 
@@ -45,24 +47,28 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/getAgentStat/{chartType}")
-public  class AgentStatController<DP extends AgentStatDataPoint> {
+@Validated
+public class AgentStatController<DP extends AgentStatDataPoint> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Map<String, AgentStatService<DP>> agentStatServiceMap;
 
-    private final Map<String, AgentStatChartService> agentStatChartServiceMap;
+    private final Map<String, AgentStatChartService<?>> agentStatChartServiceMap;
 
-    public AgentStatController(List<AgentStatService<DP>> agentStatServiceList, List<AgentStatChartService> agentStatChartServiceLIst) {
+    public AgentStatController(
+            List<AgentStatService<DP>> agentStatServiceList,
+            List<AgentStatChartService<?>> agentStatChartServiceList
+    ) {
         this.agentStatServiceMap = buildDispatchMap(agentStatServiceList);
-        this.agentStatChartServiceMap = buildDispatchMap(agentStatChartServiceLIst);
+        this.agentStatChartServiceMap = buildDispatchMap(agentStatChartServiceList);
     }
 
     private <T> Map<String, T> buildDispatchMap(List<T> list) {
-        ChartTypeMappingBuilder<T> mapping = new ChartTypeMappingBuilder<>();
+        final ChartTypeMappingBuilder<T> mapping = new ChartTypeMappingBuilder<>();
 
-        Map<String, T> map = mapping.build(list);
+        final Map<String, T> map = mapping.build(list);
 
-        for (Map.Entry<String, T> entry : map.entrySet()) {
+        for (final Map.Entry<String, T> entry : map.entrySet()) {
             Class<?> serviceClass = entry.getValue().getClass();
             String chartType = entry.getKey();
             logger.info("chartType:{} {}", chartType, serviceClass.getSimpleName());
@@ -70,9 +76,8 @@ public  class AgentStatController<DP extends AgentStatDataPoint> {
         return map;
     }
 
-
-    private <T> T getChartService(Map<String, T> map, String chartType) {
-        T service = map.get(chartType);
+    private static <T> T getChartService(Map<String, T> map, String chartType) {
+        final T service = map.get(chartType);
         if (service == null) {
             throw new IllegalArgumentException("chartType pathVariable not found chartType:" + chartType);
         }
@@ -81,72 +86,76 @@ public  class AgentStatController<DP extends AgentStatDataPoint> {
 
     @GetMapping()
     public List<DP> getAgentStat(
-            @RequestParam("agentId") String agentId,
-            @PathVariable("chartType") String chartType,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
-        Range rangeToScan = Range.between(from, to);
+            @RequestParam("agentId") @NotBlank String agentId,
+            @PathVariable("chartType") @NotBlank String chartType,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
+        final Range rangeToScan = Range.between(from, to);
 
-        AgentStatService<DP> agentStatService = getChartService(this.agentStatServiceMap, chartType);
+        final AgentStatService<DP> agentStatService = getChartService(this.agentStatServiceMap, chartType);
         return agentStatService.selectAgentStatList(agentId, rangeToScan);
     }
 
 
     @GetMapping(value = "/chart")
-    public StatChart getAgentStatChart(
-            @RequestParam("agentId") String agentId,
-            @PathVariable("chartType") String chartType,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
-        TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+    public StatChart<?> getAgentStatChart(
+            @RequestParam("agentId") @NotBlank String agentId,
+            @PathVariable("chartType") @NotBlank String chartType,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
+        final TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
+        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
 
-        AgentStatChartService agentStatChartService = getChartService(this.agentStatChartServiceMap, chartType);
+        final AgentStatChartService<?> agentStatChartService =
+                getChartService(this.agentStatChartServiceMap, chartType);
         return agentStatChartService.selectAgentChart(agentId, timeWindow);
     }
 
     @GetMapping(value = "/chart", params = {"interval"})
-    public StatChart getAgentStatChart(
-            @RequestParam("agentId") String agentId,
-            @PathVariable("chartType") String chartType,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam("interval") Integer interval) {
+    public StatChart<?> getAgentStatChart(
+            @RequestParam("agentId") @NotBlank String agentId,
+            @PathVariable("chartType") @NotBlank String chartType,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("interval") @PositiveOrZero Integer interval) {
         final int minSamplingInterval = 5;
         final long intervalMs = interval < minSamplingInterval ? minSamplingInterval * 1000L : interval * 1000L;
-        TimeWindowSampler sampler = new FixedTimeWindowSampler(intervalMs);
-        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+        final TimeWindowSampler sampler = new FixedTimeWindowSampler(intervalMs);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
 
-        AgentStatChartService<StatChart> agentStatChartService = getChartService(this.agentStatChartServiceMap, chartType);
+        final AgentStatChartService<? extends StatChart<?>> agentStatChartService =
+                getChartService(this.agentStatChartServiceMap, chartType);
         return agentStatChartService.selectAgentChart(agentId, timeWindow);
     }
 
     @GetMapping(value = "/chartList")
-    public List<StatChart> getAgentStatChartList(
-            @RequestParam("agentId") String agentId,
-            @PathVariable("chartType") String chartType,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
-        TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+    public List<? extends StatChart<?>> getAgentStatChartList(
+            @RequestParam("agentId") @NotBlank String agentId,
+            @PathVariable("chartType") @NotBlank String chartType,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
+        final TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
+        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
 
-        AgentStatChartService<StatChart> agentStatChartService = getChartService(this.agentStatChartServiceMap, chartType);
+        final AgentStatChartService<? extends StatChart<?>> agentStatChartService =
+                getChartService(this.agentStatChartServiceMap, chartType);
         return agentStatChartService.selectAgentChartList(agentId, timeWindow);
     }
 
     @GetMapping(value = "/chartList", params = {"interval"})
-    public List<StatChart> getAgentStatChartList(
-            @RequestParam("agentId") String agentId,
-            @PathVariable("chartType") String chartType,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
+    public List<? extends StatChart<?>> getAgentStatChartList(
+            @RequestParam("agentId") @NotBlank String agentId,
+            @PathVariable("chartType") @NotBlank String chartType,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
             @RequestParam("interval") Integer interval) {
         final int minSamplingInterval = 5;
         final long intervalMs = interval < minSamplingInterval ? minSamplingInterval * 1000L : interval * 1000L;
-        TimeWindowSampler sampler = new FixedTimeWindowSampler(intervalMs);
-        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+        final TimeWindowSampler sampler = new FixedTimeWindowSampler(intervalMs);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
 
-        AgentStatChartService agentStatChartService = getChartService(this.agentStatChartServiceMap, chartType);
+        final AgentStatChartService<?> agentStatChartService =
+                getChartService(this.agentStatChartServiceMap, chartType);
         return agentStatChartService.selectAgentChartList(agentId, timeWindow);
     }
 

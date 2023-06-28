@@ -30,11 +30,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@Validated
 public class HbaseTraceService implements TraceService {
     private final Logger logger = LogManager.getLogger(getClass());
 
@@ -63,7 +66,7 @@ public class HbaseTraceService implements TraceService {
     }
 
     @Override
-    public void insertSpanChunk(final SpanChunkBo spanChunkBo) {
+    public void insertSpanChunk(@Valid final SpanChunkBo spanChunkBo) {
         traceDao.insertSpanChunk(spanChunkBo);
         final ServiceType applicationServiceType = getApplicationServiceType(spanChunkBo);
         final List<SpanEventBo> spanEventList = spanChunkBo.getSpanEventBoList();
@@ -79,7 +82,7 @@ public class HbaseTraceService implements TraceService {
     }
 
     @Override
-    public void insertSpan(final SpanBo spanBo) {
+    public void insertSpan(@Valid final SpanBo spanBo) {
         traceDao.insert(spanBo);
         applicationTraceIndexDao.insert(spanBo);
         insertAcceptorHost(spanBo);

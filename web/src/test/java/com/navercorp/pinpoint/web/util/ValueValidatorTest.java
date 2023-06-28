@@ -160,20 +160,20 @@ public class ValueValidatorTest {
     @Test
     public void testValidatePhonenumber() {
         //length test
-        assertFalse(ValueValidator.validatePhonenumber(""));
-        assertFalse(ValueValidator.validatePhonenumber("12"));
-        assertFalse(ValueValidator.validatePhonenumber("1234567890123456789012345"));
-        assertTrue(ValueValidator.validatePhonenumber("123456789012345678901234"));
+        assertFalse(ValueValidator.validatePhoneNumber(""));
+        assertFalse(ValueValidator.validatePhoneNumber("12"));
+        assertFalse(ValueValidator.validatePhoneNumber("1234567890123456789012345"));
+        assertTrue(ValueValidator.validatePhoneNumber("123456789012345678901234"));
 
         //character test
-        assertFalse(ValueValidator.validatePhonenumber("AAA"));
-        assertFalse(ValueValidator.validatePhonenumber("aaa"));
-        assertFalse(ValueValidator.validatePhonenumber("!#$"));
-        assertFalse(ValueValidator.validatePhonenumber("123AABB"));
-        assertFalse(ValueValidator.validatePhonenumber("123!@bb"));
+        assertFalse(ValueValidator.validatePhoneNumber("AAA"));
+        assertFalse(ValueValidator.validatePhoneNumber("aaa"));
+        assertFalse(ValueValidator.validatePhoneNumber("!#$"));
+        assertFalse(ValueValidator.validatePhoneNumber("123AABB"));
+        assertFalse(ValueValidator.validatePhoneNumber("123!@bb"));
 
         //success test
-        assertTrue(ValueValidator.validatePhonenumber("123455667"));
+        assertTrue(ValueValidator.validatePhoneNumber("123455667"));
     }
 
     @Test

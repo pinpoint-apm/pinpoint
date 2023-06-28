@@ -10,18 +10,22 @@ import com.navercorp.pinpoint.web.scatter.heatmap.HeatMap;
 import com.navercorp.pinpoint.web.scatter.heatmap.Point;
 import com.navercorp.pinpoint.web.service.HeatMapService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
+import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.transactionlist.DotMetaDataView;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionDotMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController()
 @RequestMapping("/heatmap")
+@Validated
 public class HeatMapController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -41,34 +46,34 @@ public class HeatMapController {
 
     @GetMapping(value = "/drag")
     public ResultView dragScatterArea(
-            @RequestParam("application") String applicationName,
+            @RequestParam("application") @NotBlank String applicationName,
             @RequestParam("x1") long x1,
             @RequestParam("x2") long x2,
             @RequestParam("y1") long y1,
             @RequestParam("y2") long y2,
-            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam(value = "agentId", required = false) @NullOrNotBlank String agentId,
             @RequestParam(value = "dotStatus", required = false) Boolean boolDotStatus,
-            @RequestParam(name = "limit", required = false, defaultValue = "50") int limit) {
+            @RequestParam(name = "limit", required = false, defaultValue = "50") int limitParam) {
 
-        limit = LimitUtils.checkRange(limit);
+        final int limit = LimitUtils.checkRange(limitParam);
 
-        DragArea dragArea = DragArea.normalize(x1, x2, y1, y2);
+        final DragArea dragArea = DragArea.normalize(x1, x2, y1, y2);
 
         // TODO range check verification exception occurs. "from" is bigger than "to"
         final Range range = Range.newUncheckedRange(x1, x2);
         logger.debug("drag scatter data. RANGE={}, LIMIT={}", range, limit);
-        Dot.Status dotStatus = toDotStatus(boolDotStatus);
-        DragAreaQuery query = new DragAreaQuery(dragArea, agentId, dotStatus);
+        final Dot.Status dotStatus = toDotStatus(boolDotStatus);
+        final DragAreaQuery query = new DragAreaQuery(dragArea, agentId, dotStatus);
 
         final LimitedScanResult<List<DotMetaData>> dotMetaData = heatMap.dragScatterDataV2(applicationName, query, limit);
         if (logger.isDebugEnabled()) {
             logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, dotMetaData.getScanData().size());
         }
 
-        List<DotMetaData> scanData = dotMetaData.getScanData();
-        TransactionDotMetaDataViewModel transaction = new TransactionDotMetaDataViewModel(scanData);
-        boolean complete = scanData.size() < limit;
-        PagingStatus scanStatus = new PagingStatus(complete, dotMetaData.getLimitedTime());
+        final List<DotMetaData> scanData = dotMetaData.getScanData();
+        final TransactionDotMetaDataViewModel transaction = new TransactionDotMetaDataViewModel(scanData);
+        final boolean complete = scanData.size() < limit;
+        final PagingStatus scanStatus = new PagingStatus(complete, dotMetaData.getLimitedTime());
         return new ResultView(transaction.getMetadata(), scanStatus);
 
     }
@@ -124,17 +129,17 @@ public class HeatMapController {
 
     @GetMapping(value = "/get")
     public HeatMapController.HeatMapViewModel getHeatMapData(
-            @RequestParam("application") String applicationName,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
 
         // TODO range check verification exception occurs. "from" is bigger than "to"
         final Range range = Range.newUncheckedRange(from, to);
         logger.debug("fetch getHeatMapData. RANGE={}, ", range);
 
-        LimitedScanResult<HeatMap> scanResult = this.heatMap.getHeatMap(applicationName, range, TimeUnit.SECONDS.toMillis(10), LimitUtils.MAX);
-        Status status = new Status(System.currentTimeMillis(), range);
-
+        final LimitedScanResult<HeatMap> scanResult =
+                this.heatMap.getHeatMap(applicationName, range, TimeUnit.SECONDS.toMillis(10), LimitUtils.MAX);
+        final Status status = new Status(System.currentTimeMillis(), range);
 
         return new HeatMapController.HeatMapViewModel(scanResult.getScanData(), status);
     }
@@ -148,7 +153,6 @@ public class HeatMapController {
             this.heatMap = Objects.requireNonNull(heatMap, "heatMap");
             this.status = Objects.requireNonNull(status, "status");
         }
-
 
         @JsonProperty("data")
         public List<long[]> getData() {

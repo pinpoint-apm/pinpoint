@@ -23,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 /**
@@ -44,7 +45,7 @@ public class PinotAgentStatService implements AgentStatService {
     }
 
     @Override
-    public void save(AgentStatBo agentStatBo) {
+    public void save(@Valid AgentStatBo agentStatBo) {
         for (AgentStatDao agentStatDao : agentStatDaoList) {
             try {
                 agentStatDao.dispatch(agentStatBo);

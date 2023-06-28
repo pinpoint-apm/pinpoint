@@ -21,13 +21,16 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @Service("sendAgentStatService")
+@Validated
 public class SendAgentStatService implements AgentStatService {
     private final boolean flinkClusterEnable;
     private final SendDataToFlinkService flinkService;
@@ -40,7 +43,7 @@ public class SendAgentStatService implements AgentStatService {
     }
 
     @Override
-    public void save(AgentStatBo agentStatBo) {
+    public void save(@Valid AgentStatBo agentStatBo) {
         if (!flinkClusterEnable) {
             return;
         }

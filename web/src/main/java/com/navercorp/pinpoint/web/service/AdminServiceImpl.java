@@ -42,8 +42,6 @@ public class AdminServiceImpl implements AdminService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
-
     private final ApplicationIndexDao applicationIndexDao;
 
     private final AgentInfoService agentInfoService;

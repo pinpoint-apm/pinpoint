@@ -17,17 +17,18 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * @author Taejin Koo
  */
 @ConditionalOnMissingBean(value = AgentUriStatService.class, ignored = EmptyAgentUriStatService.class)
 @Service
+@Validated
 public class EmptyAgentUriStatService implements AgentUriStatService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 

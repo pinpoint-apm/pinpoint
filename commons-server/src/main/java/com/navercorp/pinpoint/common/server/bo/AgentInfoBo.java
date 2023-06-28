@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * @author emeroad
  * @author hyungil.jeong
@@ -28,9 +30,9 @@ public class AgentInfoBo {
     private final String hostName;
     private final String ip;
     private final String ports;
-    private final String agentId;
+    @NotBlank private final String agentId;
     private final String agentName;
-    private final String applicationName;
+    @NotBlank private final String applicationName;
     private final short serviceTypeCode;
     private final int pid;
     private final String vmVersion;

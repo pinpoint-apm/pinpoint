@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +32,10 @@ public class SpanBo implements Event, BasicSpan {
     private byte version = 0;
 
     //  private AgentKeyBo agentKeyBo;
-    private String agentId;
+    @NotBlank private String agentId;
     private String agentName;
-    private String applicationId;
-    private long agentStartTime;
+    @NotBlank private String applicationId;
+    @PositiveOrZero private long agentStartTime;
 
     private TransactionId transactionId;
 

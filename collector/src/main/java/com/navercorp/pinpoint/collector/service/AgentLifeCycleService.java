@@ -19,10 +19,13 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 @Service
+@Validated
 public class AgentLifeCycleService {
 
     private final AgentLifeCycleDao agentLifeCycleDao;
@@ -31,7 +34,7 @@ public class AgentLifeCycleService {
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
     }
 
-    public void insert(final AgentLifeCycleBo agentLifeCycleBo) {
+    public void insert(@Valid final AgentLifeCycleBo agentLifeCycleBo) {
         this.agentLifeCycleDao.insert(agentLifeCycleBo);
     }
 

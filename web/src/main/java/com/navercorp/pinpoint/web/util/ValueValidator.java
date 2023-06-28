@@ -26,14 +26,14 @@ import java.util.regex.Pattern;
  */
 public class ValueValidator {
 
-    private static final int USER_ID_MAX_LENGTH = 24;
-    private static final int USER_ID_MIN_LENGTH = 4;
-    private static final String USER_ID_PATTERN_EXPRESSION = "[a-z0-9\\-_]+";
-    private static final Pattern USER_ID_PATTERN = Pattern.compile(USER_ID_PATTERN_EXPRESSION);
+    public static final int USER_ID_MAX_LENGTH = 24;
+    public static final int USER_ID_MIN_LENGTH = 4;
+    public static final String USER_ID_PATTERN_EXPRESSION = "[a-z0-9\\-_]+";
+    public static final Pattern USER_ID_PATTERN = Pattern.compile(USER_ID_PATTERN_EXPRESSION);
 
     private static final int PASSWORD_MAX_LENGTH = 30;
     private static final int PASSWORD_MIN_LENGTH = 8;
-    private static final String PASSWORD_PATTERN_EXPRESSION = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%\\^&*\\(\\)])[A-Za-z\\d!@#$%\\^&*\\(\\)]+$";
+    private static final String PASSWORD_PATTERN_EXPRESSION = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()])[A-Za-z\\d!@#$%\\^&*\\(\\)]+$";
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_PATTERN_EXPRESSION);
 
     private static final int NAME_MAX_LENGTH = 30;
@@ -67,7 +67,7 @@ public class ValueValidator {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_PATTERN_EXPRESSION);
 
     public static boolean validateUserId(String userId) {
-        if (validateLength(userId, USER_ID_MAX_LENGTH, USER_ID_MIN_LENGTH) == false) {
+        if (!validateLength(userId, USER_ID_MAX_LENGTH, USER_ID_MIN_LENGTH)) {
             return false;
         }
 
@@ -84,15 +84,11 @@ public class ValueValidator {
             return false;
         }
 
-        if (value.length() < min) {
-            return false;
-        }
-
-        return true;
+        return value.length() >= min;
     }
 
     public static boolean validatePassword(String password) {
-        if (validateLength(password, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH) == false) {
+        if (!validateLength(password, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH)) {
             return false;
         }
 
@@ -101,7 +97,7 @@ public class ValueValidator {
     }
 
     public static boolean validateDepartment(String department) {
-        if (validateLength(department, DEPARTMENT_MAX_LENGTH, DEPARTMENT_MIN_LENGTH) == false) {
+        if (!validateLength(department, DEPARTMENT_MAX_LENGTH, DEPARTMENT_MIN_LENGTH)) {
             return false;
         }
 
@@ -110,7 +106,7 @@ public class ValueValidator {
     }
 
     public static boolean validateName(String name) {
-        if (validateLength(name, NAME_MAX_LENGTH, NAME_MIN_LENGTH) == false) {
+        if (!validateLength(name, NAME_MAX_LENGTH, NAME_MIN_LENGTH)) {
             return false;
         }
 
@@ -119,7 +115,7 @@ public class ValueValidator {
     }
 
     public static boolean validateRoleId(String roleId) {
-        if (validateLength(roleId, ROLE_ID_MAX_LENGTH, ROLE_ID_MIN_LENGTH) == false) {
+        if (!validateLength(roleId, ROLE_ID_MAX_LENGTH, ROLE_ID_MIN_LENGTH)) {
             return false;
         }
 
@@ -128,7 +124,7 @@ public class ValueValidator {
     }
 
     public static boolean validateUserGroupId(String userGroupId) {
-        if (validateLength(userGroupId, USER_GROUP_ID_MAX_LENGTH, USER_GROUP_ID_MIN_LENGTH) == false) {
+        if (!validateLength(userGroupId, USER_GROUP_ID_MAX_LENGTH, USER_GROUP_ID_MIN_LENGTH)) {
             return false;
         }
 
@@ -136,17 +132,17 @@ public class ValueValidator {
         return matcher.matches();
     }
 
-    public static boolean validatePhonenumber(String phonenumber) {
-        if (validateLength(phonenumber, PHONENUMBER_MAX_LENGTH, PHONENUMBER_MIN_LENGTH) == false) {
+    public static boolean validatePhoneNumber(String phoneNumber) {
+        if (!validateLength(phoneNumber, PHONENUMBER_MAX_LENGTH, PHONENUMBER_MIN_LENGTH)) {
             return false;
         }
 
-        final Matcher matcher = PHONENUMBER_PATTERN.matcher(phonenumber);
+        final Matcher matcher = PHONENUMBER_PATTERN.matcher(phoneNumber);
         return matcher.matches();
     }
 
     public static boolean validateEmail(String email) {
-        if (validateLength(email, EMAIL_MAX_LENGTH, EMAIL_MIN_LENGTH) == false) {
+        if (!validateLength(email, EMAIL_MAX_LENGTH, EMAIL_MIN_LENGTH)) {
             return false;
         }
 
@@ -155,26 +151,24 @@ public class ValueValidator {
     }
 
     public static boolean validateUser(User user) {
-        if (validateUserId(user.getUserId()) == false) {
+        if (!validateUserId(user.getUserId())) {
             return false;
         }
-        if (validateName(user.getName()) == false) {
+        if (!validateName(user.getName())) {
             return false;
         }
         if (StringUtils.hasLength(user.getDepartment())) {
-            if (validateDepartment(user.getDepartment()) == false) {
+            if (!validateDepartment(user.getDepartment())) {
                 return false;
             }
         }
         if (StringUtils.hasLength(user.getPhoneNumber())) {
-            if (validatePhonenumber(user.getPhoneNumber()) == false) {
+            if (!validatePhoneNumber(user.getPhoneNumber())) {
                 return false;
             }
         }
         if (StringUtils.hasLength(user.getEmail())) {
-            if (validateEmail(user.getEmail()) == false) {
-                return false;
-            }
+            return validateEmail(user.getEmail());
         }
 
         return true;

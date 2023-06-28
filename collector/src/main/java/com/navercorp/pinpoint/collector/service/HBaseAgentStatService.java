@@ -17,16 +17,19 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @Service("hBaseAgentStatService")
+@Validated
 public class HBaseAgentStatService implements AgentStatService {
 
     private final Logger logger = LogManager.getLogger(HBaseAgentStatService.class);
@@ -42,7 +45,7 @@ public class HBaseAgentStatService implements AgentStatService {
     }
 
     @Override
-    public void save(AgentStatBo agentStatBo) {
+    public void save(@Valid AgentStatBo agentStatBo) {
         for (AgentStatDao<?> agentStatDao : agentStatDaoList) {
             try {
                 agentStatDao.dispatch(agentStatBo);
