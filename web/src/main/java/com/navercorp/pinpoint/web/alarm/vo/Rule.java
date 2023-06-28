@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.alarm.vo;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author minwoo.jung
  */
@@ -126,7 +128,24 @@ public class Rule {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-    
+
+    public static boolean isRuleDataValidForPost(Rule rule) {
+        if (StringUtils.isEmpty(rule.getApplicationId())) {
+            return false;
+        }
+        if (StringUtils.isEmpty(rule.getCheckerName())) {
+            return false;
+        }
+        if (StringUtils.isEmpty(rule.getUserGroupId())) {
+            return false;
+        }
+        if (rule.getThreshold() == null) {
+            return false;
+        }
+        return true;
+    }
+
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Rule{");

@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.web.service;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.vo.UserGroup;
+
+import java.util.List;
 
 /**
  * @author minwoo.jung
@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 public interface AlarmService {
 
     String insertRule(Rule rule);
-
-    String insertRuleWithWebhooks(Rule rule, List<String> webhookIds);
 
     void deleteRule(Rule rule);
 
@@ -38,8 +36,6 @@ public interface AlarmService {
     List<String> selectApplicationId();
 
     void updateRule(Rule rule);
-
-    void updateRuleWithWebhooks(Rule rule, List<String> webhookIds);
 
     void deleteRuleByUserGroupId(String groupId);
 
