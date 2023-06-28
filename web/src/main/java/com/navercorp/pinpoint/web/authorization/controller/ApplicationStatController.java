@@ -7,17 +7,21 @@ import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/getApplicationStat/{chartType}/chart")
+@Validated
 public class ApplicationStatController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -29,24 +33,28 @@ public class ApplicationStatController {
     }
 
     private Map<String, ApplicationStatChartService> build(List<ApplicationStatChartService> statChartServiceList) {
-        ChartTypeMappingBuilder<ApplicationStatChartService> mapping = new ChartTypeMappingBuilder<>();
-        Map<String, ApplicationStatChartService> map = mapping.build(statChartServiceList);
+        final ChartTypeMappingBuilder<ApplicationStatChartService> mapping = new ChartTypeMappingBuilder<>();
+        final Map<String, ApplicationStatChartService> map = mapping.build(statChartServiceList);
 
-        for (Map.Entry<String, ApplicationStatChartService> entry : map.entrySet()) {
-            logger.info("ApplicationStatChartService chartType:{} {}", entry.getKey(), entry.getValue().getClass().getSimpleName());
+        for (final Map.Entry<String, ApplicationStatChartService> entry : map.entrySet()) {
+            logger.info(
+                    "ApplicationStatChartService chartType: {} {}",
+                    entry.getKey(),
+                    entry.getValue().getClass().getSimpleName()
+            );
         }
         return map;
     }
 
     @GetMapping
-    public StatChart getAgentStatChart(@RequestParam("applicationId") String applicationId,
-                                       @PathVariable("chartType") String chartType,
-                                       @RequestParam("from") long from,
-                                       @RequestParam("to") long to) {
-        TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+    public StatChart getAgentStatChart(@RequestParam("applicationId") @NotBlank String applicationId,
+                                       @PathVariable("chartType") @NotBlank String chartType,
+                                       @RequestParam("from") @PositiveOrZero long from,
+                                       @RequestParam("to") @PositiveOrZero long to) {
+        final TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
+        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
         try {
-            ApplicationStatChartService<? extends StatChart> service = getService(chartType);
+            final ApplicationStatChartService<? extends StatChart> service = getService(chartType);
             return service.selectApplicationChart(applicationId, timeWindow);
         } catch (Exception e) {
             logger.error("error", e);
@@ -55,7 +63,7 @@ public class ApplicationStatController {
     }
 
     private ApplicationStatChartService<? extends StatChart> getService(String chartType) {
-        ApplicationStatChartService<? extends StatChart> service = this.chartServiceMap.get(chartType);
+        final ApplicationStatChartService<? extends StatChart> service = this.chartServiceMap.get(chartType);
         if (service == null) {
             throw new IllegalArgumentException("chartType pathVariable not found chartType:" + chartType);
         }

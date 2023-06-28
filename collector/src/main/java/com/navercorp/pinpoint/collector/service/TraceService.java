@@ -3,8 +3,10 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 
-public interface TraceService {
-    void insertSpanChunk(SpanChunkBo spanChunkBo);
+import javax.validation.Valid;
 
-    void insertSpan(SpanBo spanBo);
+public interface TraceService {
+    void insertSpanChunk(@Valid SpanChunkBo spanChunkBo);
+
+    void insertSpan(@Valid SpanBo spanBo);
 }

@@ -21,16 +21,20 @@ import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.EchoService;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Objects;
 
 @RestController
 @RequestMapping("/command")
+@Validated
 public class CommandController {
 
     // FIX ME: created for a simple ping/pong test for now
@@ -45,12 +49,19 @@ public class CommandController {
     }
 
     @GetMapping(value = "/echo")
-    public CodeResult<String> echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
-                                          @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) {
-
+    public CodeResult<String> echo(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam("agentId") @NotBlank String agentId,
+            @RequestParam("startTimeStamp") @PositiveOrZero long startTimeStamp,
+            @RequestParam("message") @NotBlank String message
+    ) {
         final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId, startTimeStamp);
         if (clusterKey == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    String.format("Can't find suitable PinpointServer(%s/%s/%d).",
+                            applicationName, agentId, startTimeStamp)
+            );
         }
 
         return CodeResult.ok(this.echoService.echo(clusterKey, message));

@@ -16,15 +16,15 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.web.response.Response;
+import com.navercorp.pinpoint.web.response.SuccessResponse;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.util.ValueValidator;
 import com.navercorp.pinpoint.web.vo.User;
-
-import com.navercorp.pinpoint.web.response.Response;
-import com.navercorp.pinpoint.web.response.SuccessResponse;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,6 +44,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping(value = "/user")
+@Validated
 public class UserController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -55,49 +56,80 @@ public class UserController {
         this.userService = Objects.requireNonNull(userService, "userService");
     }
 
-    @PostMapping()
+    @PostMapping
     public Response insertUser(@RequestBody User user) {
         if (!ValueValidator.validateUser(user)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User information validation failed to creating user information.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "User information validation failed to creating user information."
+            );
         }
         userService.insertUser(user);
         return SuccessResponse.ok();
     }
 
-    @DeleteMapping()
-    public Response deletetUser(@RequestBody User user) {
+    @DeleteMapping
+    public Response deleteUser(@RequestBody User user) {
         if (StringUtils.isEmpty(user.getUserId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not userId in params to delete user");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "there is not userId in params to delete user"
+            );
         }
         userService.deleteUser(user.getUserId());
         return SuccessResponse.ok();
     }
 
-    @GetMapping()
-    public List<User> getUser(@RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "searchKey", required = false) String searchKey) {
+    @GetMapping(params = "userId")
+    public List<User> getUserByUserId(@RequestParam("userId") @NotBlank String userId) {
         try {
-            if (userId != null) {
-                List<User> users = new ArrayList<>(1);
-                users.add(userService.selectUserByUserId(userId));
-                return users;
-            } else if (searchKey != null) {
-                List<User> users = userService.searchUser(searchKey);
-                return users;
-            } else {
-                return userService.selectUser();
-            }
+            final User user = userService.selectUserByUserId(userId);
+            return List.of(user);
         } catch (Exception e) {
-            logger.error("can't select user", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "This api need to collect condition for search.");
+            logger.error("Cannot select user", e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "This api need to collect condition for search."
+            );
         }
     }
 
-    @PutMapping()
+    @GetMapping(params = "searchKey")
+    public List<User> getUserBySearchKey(@RequestParam("searchKey") @NotBlank String searchKey) {
+        try {
+            return userService.searchUser(searchKey);
+        } catch (Exception e) {
+            logger.error("Cannot select user", e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "This api need to collect condition for search."
+            );
+        }
+    }
+
+    @GetMapping
+    public List<User> getUsers() {
+        try {
+            return userService.selectUser();
+        } catch (Exception e) {
+            logger.error("Cannot select user", e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "This api need to collect condition for search."
+            );
+        }
+    }
+
+    @PutMapping
     public Response updateUser(@RequestBody User user) {
         if (!ValueValidator.validateUser(user)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User information validation failed to creating user infomation.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "User information validation failed to creating user information"
+            );
         }
         userService.updateUser(user);
         return SuccessResponse.ok();
     }
+
 }

@@ -19,10 +19,13 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 @Service
+@Validated
 public class ApiMetaDataService {
 
     private final ApiMetaDataDao sqlMetaDataDao;
@@ -31,7 +34,7 @@ public class ApiMetaDataService {
         this.sqlMetaDataDao = Objects.requireNonNull(sqlMetaDataDao, "sqlMetaDataDao");
     }
 
-    public void insert(final ApiMetaDataBo apiMetaDataBo) {
+    public void insert(@Valid final ApiMetaDataBo apiMetaDataBo) {
         sqlMetaDataDao.insert(apiMetaDataBo);
     }
 }

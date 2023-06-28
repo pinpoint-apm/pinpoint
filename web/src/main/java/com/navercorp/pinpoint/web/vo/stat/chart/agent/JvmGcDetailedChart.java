@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcDetailedChart implements StatChart {
+public class JvmGcDetailedChart implements StatChart<AgentStatPoint<?>> {
 
     public enum JvmGcDetailedChartType implements StatChartGroup.AgentChartType {
         JVM_DETAILED_GC_NEW_COUNT,
@@ -74,7 +74,7 @@ public class JvmGcDetailedChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getCharts() {
+    public StatChartGroup<AgentStatPoint<?>> getCharts() {
         Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Long>>> longMap = LONG_BUILDER.buildMap(timeWindow, statList);
         Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Double>>> doubleMap = DOUBLE_BUILDER.buildMap(timeWindow, statList);
 

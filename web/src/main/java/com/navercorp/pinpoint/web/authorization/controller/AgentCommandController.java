@@ -27,12 +27,14 @@ import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
 import com.navercorp.pinpoint.web.vo.activethread.ThreadDumpResult;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +43,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping("/agent")
+@Validated
 public class AgentCommandController {
     private final ConfigProperties webProperties;
     private final AgentService agentService;
@@ -58,8 +61,8 @@ public class AgentCommandController {
 
     @GetMapping(value = "/activeThreadDump")
     public CodeResult<ThreadDumpResult> getActiveThreadDump(
-            @RequestParam(value = "applicationName") String applicationName,
-            @RequestParam(value = "agentId") String agentId,
+            @RequestParam(value = "applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "agentId") @NotBlank String agentId,
             @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
             @RequestParam(value = "threadName", required = false) List<String> threadNameList,
             @RequestParam(value = "localTraceId", required = false) List<Long> localTraceIdList
@@ -82,8 +85,8 @@ public class AgentCommandController {
 
     @GetMapping(value = "/activeThreadLightDump")
     public CodeResult<ThreadDumpResult> getActiveThreadLightDump(
-            @RequestParam(value = "applicationName") String applicationName,
-            @RequestParam(value = "agentId") String agentId,
+            @RequestParam(value = "applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "agentId") @NotBlank String agentId,
             @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
             @RequestParam(value = "threadName", required = false) List<String> threadNameList,
             @RequestParam(value = "localTraceId", required = false) List<Long> localTraceIdList
@@ -104,13 +107,19 @@ public class AgentCommandController {
     }
 
     private ClusterKey getClusterKey(String applicationName, String agentId) {
-        if (!webProperties.isEnableActiveThreadDump()) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+        if (!this.webProperties.isEnableActiveThreadDump()) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'"
+            );
         }
 
-        final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId);
+        final ClusterKey clusterKey = this.agentService.getClusterKey(applicationName, agentId);
         if (clusterKey == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    String.format("Cannot find suitable agent(%s/%s)", applicationName, agentId)
+            );
         }
         return clusterKey;
     }

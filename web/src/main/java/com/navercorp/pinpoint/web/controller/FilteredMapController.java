@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
@@ -28,14 +29,18 @@ import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.util.LimitUtils;
+import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +50,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 @RestController
+@Validated
 public class FilteredMapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -52,7 +58,11 @@ public class FilteredMapController {
     private final FilterBuilder<List<SpanBo>> filterBuilder;
     private final ServiceTypeRegistryService registry;
 
-    public FilteredMapController(FilteredMapService filteredMapService, FilterBuilder<List<SpanBo>> filterBuilder, ServiceTypeRegistryService registry) {
+    public FilteredMapController(
+            FilteredMapService filteredMapService,
+            FilterBuilder<List<SpanBo>> filterBuilder,
+            ServiceTypeRegistryService registry
+    ) {
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
         this.registry = Objects.requireNonNull(registry, "registry");
@@ -60,70 +70,95 @@ public class FilteredMapController {
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeCode")
     public FilterMapWrap getFilteredServerMapDataMadeOfDotGroup(
-            @RequestParam("applicationName") String applicationName,
+            @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
             @RequestParam("originTo") long originTo,
             @RequestParam("xGroupUnit") int xGroupUnit,
             @RequestParam("yGroupUnit") int yGroupUnit,
-            @RequestParam(value = "filter", required = false) String filterText,
-            @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
+            @RequestParam(value = "filter", required = false) @NullOrNotBlank String filterText,
+            @RequestParam(value = "hint", required = false) @NullOrNotBlank String filterHint,
+            @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limit,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
-        String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapDataMadeOfDotGroup(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion, useStatisticsAgentState, useLoadHistogramFormat);
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
+            boolean useLoadHistogramFormat
+    ) {
+        final String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
+        return getFilteredServerMapDataMadeOfDotGroup(
+                applicationName,
+                serviceTypeName,
+                from,
+                to,
+                originTo,
+                xGroupUnit,
+                yGroupUnit,
+                filterText,
+                filterHint,
+                limit,
+                viewVersion,
+                useStatisticsAgentState,
+                useLoadHistogramFormat
+        );
     }
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeName")
     public FilterMapWrap getFilteredServerMapDataMadeOfDotGroup(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeName") String serviceTypeName,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
             @RequestParam("originTo") long originTo,
-            @RequestParam("xGroupUnit") int xGroupUnit,
-            @RequestParam("yGroupUnit") int yGroupUnit,
-            @RequestParam(value = "filter", required = false) String filterText,
-            @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
+            @RequestParam("xGroupUnit") @Positive int xGroupUnit,
+            @RequestParam("yGroupUnit") @Positive int yGroupUnit,
+            @RequestParam(value = "filter", required = false) @NullOrNotBlank String filterText,
+            @RequestParam(value = "hint", required = false) @NullOrNotBlank String filterHint,
+            @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limitParam,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
-        if (xGroupUnit <= 0) {
-            throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
-        }
-        if (yGroupUnit <= 0) {
-            throw new IllegalArgumentException("yGroupUnit(" + yGroupUnit + ") must be positive number");
-        }
-
-        limit = LimitUtils.checkRange(limit);
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
+            boolean useLoadHistogramFormat
+    ) {
+        final int limit = Math.min(limitParam, LimitUtils.MAX);
         final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
         final Range range = Range.between(from, to);
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
+        final LimitedScanResult<List<TransactionId>> limitedScanResult =
+                filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
         final long lastScanTime = limitedScanResult.getLimitedTime();
         // original range: needed for visual chart data sampling
         final Range originalRange = Range.between(from, originTo);
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, to);
-        logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(limitedScanResult.getScanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        logger.debug("originalRange: {}, scannerRange: {}", originalRange, scannerRange);
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(
+                limitedScanResult.getScanData(),
+                originalRange,
+                xGroupUnit,
+                yGroupUnit,
+                filter,
+                viewVersion
+        ).setUseStatisticsAgentState(useStatisticsAgentState).build();
         final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(option);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
+            logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}",
+                    limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        FilterMapWrap mapWrap;
-        if (useLoadHistogramFormat) {
-            mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V2);
-        } else {
-            mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V1);
-        }
+        final FilterMapWrap mapWrap = new FilterMapWrap(map, getTimeHistogramFormat(useLoadHistogramFormat));
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
+    }
+
+    private static TimeHistogramFormat getTimeHistogramFormat(boolean useLoadHistogramFormat) {
+        if (useLoadHistogramFormat) {
+            return TimeHistogramFormat.V2;
+        } else {
+            return TimeHistogramFormat.V1;
+        }
     }
 }

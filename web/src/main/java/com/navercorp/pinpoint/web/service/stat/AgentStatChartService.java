@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public interface AgentStatChartService<OUT extends StatChart> extends ChartTypeSupport {
+public interface AgentStatChartService<OUT extends StatChart<?>> extends ChartTypeSupport {
 
     OUT selectAgentChart(String agentId, TimeWindow timeWindow);
 

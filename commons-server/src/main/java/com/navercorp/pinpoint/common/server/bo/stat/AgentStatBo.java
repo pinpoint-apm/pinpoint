@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 
 import com.navercorp.pinpoint.common.server.util.FilterUtils;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,8 +30,8 @@ import java.util.Objects;
  */
 public class AgentStatBo {
 
-    private final String agentId;
-    private final long startTimestamp;
+    @NotBlank private final String agentId;
+    @PositiveOrZero private final long startTimestamp;
 
     private final List<JvmGcBo> jvmGcBos;
     private final List<JvmGcDetailedBo> jvmGcDetailedBos;

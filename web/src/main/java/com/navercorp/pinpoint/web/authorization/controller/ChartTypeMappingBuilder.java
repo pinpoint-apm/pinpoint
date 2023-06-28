@@ -13,11 +13,11 @@ public class ChartTypeMappingBuilder<T> {
     }
 
     public Map<String, T> build(List<T> serviceList) {
-        Map<String, T> map = new HashMap<>();
-        for (T service : serviceList) {
+        final Map<String, T> map = new HashMap<>();
+        for (final T service : serviceList) {
             final String chartType = getChartType(service);
 
-            T duplicate = map.put(chartType, service);
+            final T duplicate = map.put(chartType, service);
             if (duplicate != null) {
                 String errorMessage = String.format("Duplicated ChartService chartType:%s %s:%s", chartType, service, duplicate);
                 throw new IllegalArgumentException(errorMessage);
@@ -29,7 +29,7 @@ public class ChartTypeMappingBuilder<T> {
 
     protected String getChartType(T service) {
         if (service instanceof ChartTypeSupport) {
-            ChartTypeSupport a = (ChartTypeSupport)service;
+            final ChartTypeSupport a = (ChartTypeSupport)service;
             return a.getChartType();
         }
         throw new RuntimeException("Unknown ChartTypeSupport " + service);

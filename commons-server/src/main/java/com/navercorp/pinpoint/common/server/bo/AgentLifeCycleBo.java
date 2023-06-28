@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
+
 /**
  * @author HyunGil Jeong
  */
@@ -26,9 +29,9 @@ public class AgentLifeCycleBo {
     public static final int CURRENT_VERSION = 0;
 
     private final byte version;
-    private final String agentId;
-    private final long startTimestamp;
-    private final long eventTimestamp;
+    @NotBlank private final String agentId;
+    @PositiveOrZero private final long startTimestamp;
+    @PositiveOrZero private final long eventTimestamp;
     private final long eventIdentifier;
     private final AgentLifeCycleState agentLifeCycleState;
     

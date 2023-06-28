@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,8 +26,8 @@ import java.util.List;
  */
 public class AgentUriStatBo {
     private String serviceName;
-    private String applicationName;
-    private String agentId;
+    @NotBlank private String applicationName;
+    @NotBlank private String agentId;
     private byte bucketVersion;
     private List<EachUriStatBo> eachUriStatBoList = new ArrayList<>();
 

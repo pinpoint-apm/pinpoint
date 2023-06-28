@@ -19,10 +19,13 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 @Service
+@Validated
 public class HbaseSqlMetaDataService implements SqlMetaDataService {
     private final SqlMetaDataDao sqlMetaDataDao;
 
@@ -31,7 +34,7 @@ public class HbaseSqlMetaDataService implements SqlMetaDataService {
     }
 
     @Override
-    public void insert(final SqlMetaDataBo sqlMetaDataBo) {
+    public void insert(@Valid final SqlMetaDataBo sqlMetaDataBo) {
         this.sqlMetaDataDao.insert(sqlMetaDataBo);
     }
 }

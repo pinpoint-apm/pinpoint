@@ -17,18 +17,22 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Objects;
 
 /**
@@ -36,6 +40,7 @@ import java.util.Objects;
  */
 
 @RestController
+@Validated
 public class ApplicationController {
     public static final int MAX_PAGING_LIMIT = 100;
 
@@ -50,9 +55,10 @@ public class ApplicationController {
 
     @GetMapping(value = "/getApplicationHostInfo")
     public ApplicationAgentHostList getApplicationHostInfo (
-            @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-            @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
-            @RequestParam(value = "durationDays", required = false) Integer durationDays) {
+            @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
+            @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
+            @RequestParam(value = "durationDays", required = false) @PositiveOrZero Integer durationDays
+    ) {
         int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
         durationDays = ObjectUtils.defaultIfNull(durationDays, AgentInfoService.NO_DURATION);
 
@@ -60,13 +66,19 @@ public class ApplicationController {
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")
-    public CodeResult<String> isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
-        final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
+    public CodeResult<String> isAvailableApplicationName(
+            @RequestParam("applicationName") @NotBlank String applicationName
+    ) {
+        final IdValidateUtils.CheckResult result =
+                IdValidateUtils.checkId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "length range is 1 ~ 24");
         }
         if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")"
+            );
         }
 
         if (applicationService.isExistApplicationName(applicationName)) {

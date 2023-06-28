@@ -24,6 +24,7 @@ import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,21 +33,25 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value={"/error"})
+@Validated
 public class NonWhiteLabelErrorController extends AbstractErrorController {
     private final ErrorProperties errorProperties;
 
-    public NonWhiteLabelErrorController(@Autowired ErrorAttributes errorAttributes, @Autowired ServerProperties serverProperties) {
+    public NonWhiteLabelErrorController(
+            @Autowired ErrorAttributes errorAttributes,
+            @Autowired ServerProperties serverProperties
+    ) {
         super(errorAttributes);
         this.errorProperties = serverProperties.getError();
     }
 
     @RequestMapping
     public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
-        HttpStatus status = this.getStatus(request);
+        final HttpStatus status = this.getStatus(request);
         if (status == HttpStatus.NO_CONTENT) {
             return new ResponseEntity<>(status);
         } else {
-            Map<String, Object> body = this.getErrorAttributes(request, this.getErrorAttributeOptions(request));
+            final Map<String, Object> body = this.getErrorAttributes(request, this.getErrorAttributeOptions(request));
             return new ResponseEntity<>(body, status);
         }
     }
