@@ -27,11 +27,11 @@ import java.util.Objects;
 // TODO : (minwoo) It would be better to combine it with com.navercorp.pinpoint.metric.web.model.SystemMetricData.
 public class InspectorMetricData {
     private final String title;
-    private final List<Long> timeStampList;
+    private final List<Long> timestampList;
     private final List<InspectorMetricValue> metricValueList;
-    public InspectorMetricData(String title, List<Long> timeStampList, List<InspectorMetricValue> metricValueList) {
+    public InspectorMetricData(String title, List<Long> timestampList, List<InspectorMetricValue> metricValueList) {
         this.title = StringPrecondition.requireHasLength(title, "title");
-        this.timeStampList = Objects.requireNonNull(timeStampList, "timeStampList");
+        this.timestampList = Objects.requireNonNull(timestampList, "timeStampList");
         this.metricValueList = Objects.requireNonNull(metricValueList, "metricValueList");
     }
 
@@ -39,8 +39,8 @@ public class InspectorMetricData {
         return title;
     }
 
-    public List<Long> getTimeStampList() {
-        return timeStampList;
+    public List<Long> getTimestampList() {
+        return timestampList;
     }
 
     public List<InspectorMetricValue> getMetricValueList() {

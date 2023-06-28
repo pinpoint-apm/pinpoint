@@ -40,14 +40,14 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping("/getAgentStatV2")
-public class AgentStatController {
+public class AgentStatV2Controller {
 
     AgentStatService agentStatChartService;
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(5000L, 200);
     private final TenantProvider tenantProvider;
 
-    public AgentStatController(AgentStatService agentStatChartService, TenantProvider tenantProvider) {
+    public AgentStatV2Controller(AgentStatService agentStatChartService, TenantProvider tenantProvider) {
         this.agentStatChartService = Objects.requireNonNull(agentStatChartService, "agentStatChartService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }

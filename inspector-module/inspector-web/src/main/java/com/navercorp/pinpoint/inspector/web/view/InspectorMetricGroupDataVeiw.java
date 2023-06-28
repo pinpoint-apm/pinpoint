@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.web.model.MetricValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,7 @@ public class InspectorMetricGroupDataVeiw {
         return inspectorMetricGroupData.getTitle();
     }
 
-    public List<Long> getTimeStamp() {
+    public List<Long> getTimestamp() {
         return inspectorMetricGroupData.getTimeStampList();
     }
 

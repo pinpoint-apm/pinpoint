@@ -38,8 +38,8 @@ public class InspectorMetricView {
         return inspectorMetricData.getTitle();
     }
 
-    public List<Long> getTimeStamp() {
-        return inspectorMetricData.getTimeStampList();
+    public List<Long> getTimestamp() {
+        return inspectorMetricData.getTimestampList();
     }
 
     public List<MetricValueView> getMetricValues() {
