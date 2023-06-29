@@ -7,7 +7,7 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
 
 @Injectable()
 export class AgentHistogramDataService {
-    readonly url = 'getResponseTimeHistogramDataV2.pinpoint';
+    readonly url = 'api/getResponseTimeHistogramDataV2';
 
     private previousFrom: number;
     private previousTo: number;

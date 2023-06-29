@@ -7,8 +7,8 @@ import { WebAppSettingDataService } from 'app/shared/services/web-app-setting-da
 
 @Injectable()
 export class TransactionDetailDataService {
-    private requestURL = 'transactionInfo.pinpoint';
-    private requestTimelineURL = 'transactionTimelineInfo.pinpoint';
+    private requestURL = 'api/transactionInfo';
+    private requestTimelineURL = 'api/transactionTimelineInfo';
     private lastKey: string;
     private lastTimelineKey: string;
 

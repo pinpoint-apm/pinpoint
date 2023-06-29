@@ -16,7 +16,7 @@ export interface IUrlStatInfoDataParams {
     providedIn: 'root'
 })
 export class UrlStatisticInfoDataService {
-    private url = 'uriStat/summary.pinpoint';
+    private url = 'api/uriStat/summary';
 
     constructor(
         private http: HttpClient,

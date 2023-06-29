@@ -8,7 +8,7 @@ export interface IPinpointUserResponse {
 
 @Injectable()
 export class PinpointUserDataService {
-    private url = 'user.pinpoint';
+    private url = 'api/user';
 
     constructor(
         private http: HttpClient

@@ -8,7 +8,7 @@ import {getAgentId} from './inspector-chart-util';
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class ApplicationActiveRequestChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getApplicationStat/activeTrace/chart.pinpoint';
+    private apiUrl = 'api/getApplicationStat/activeTrace/chart';
     private minAgentIdList: string[];
     private maxAgentIdList: string[];
 

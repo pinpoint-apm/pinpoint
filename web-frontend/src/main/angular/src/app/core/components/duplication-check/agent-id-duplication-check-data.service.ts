@@ -9,7 +9,7 @@ export interface IAgentIdAvailable {
 
 @Injectable()
 export class AgentIdDuplicationCheckDataService {
-    private requestURL = 'isAvailableAgentId.pinpoint';
+    private requestURL = 'api/isAvailableAgentId';
 
     constructor(
         private http: HttpClient,

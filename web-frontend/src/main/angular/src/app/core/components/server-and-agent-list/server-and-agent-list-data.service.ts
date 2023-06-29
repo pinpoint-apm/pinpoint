@@ -13,7 +13,7 @@ const enum SortOptionParamKey {
 
 @Injectable({providedIn: 'root'})
 export class ServerAndAgentListDataService {
-    private url = 'agents/search-application.pinpoint';
+    private url = 'api/agents/search-application';
 
     // TODO: Agent-list fetch service 일원화
     constructor(

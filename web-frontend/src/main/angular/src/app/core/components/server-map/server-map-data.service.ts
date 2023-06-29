@@ -7,7 +7,7 @@ import {NewUrlStateNotificationService, WebAppSettingDataService} from 'app/shar
 
 @Injectable()
 export class ServerMapDataService {
-    private url = 'getServerMapDataV2.pinpoint';
+    private url = 'api/getServerMapDataV2';
 
     constructor(
         private http: HttpClient,

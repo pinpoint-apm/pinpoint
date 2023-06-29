@@ -5,7 +5,7 @@ import {tap} from 'rxjs/operators';
 
 @Injectable()
 export class AgentStatisticDataService {
-    private url = 'agents/statistics.pinpoint';
+    private url = 'api/agents/statistics';
     private lastRequestTime: number;
 
     constructor(

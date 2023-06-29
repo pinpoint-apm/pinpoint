@@ -8,7 +8,7 @@ import {getAgentId} from './inspector-chart-util';
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class ApplicationTotalThreadCountChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getApplicationStat/totalThreadCount/chart.pinpoint';
+    private apiUrl = 'api/getApplicationStat/totalThreadCount/chart';
     private minAgentIdList: string[];
     private maxAgentIdList: string[];
 

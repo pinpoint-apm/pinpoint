@@ -10,7 +10,7 @@ export interface IApdexFormulaData {
 
 @Injectable({providedIn: 'root'})
 export class ApdexScoreDataService {
-    private url = 'getApdexScore.pinpoint';
+    private url = 'api/getApdexScore';
 
     constructor(
         private http: HttpClient,

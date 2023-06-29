@@ -7,7 +7,7 @@ import {IInspectorChartData, InspectorChartDataService} from './inspector-chart-
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class AgentMappedBufferCountChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getAgentStat/directBuffer/chart.pinpoint';
+    private apiUrl = 'api/getAgentStat/directBuffer/chart';
 
     defaultYMax = 100;
     title = 'Mapped Buffer Count';

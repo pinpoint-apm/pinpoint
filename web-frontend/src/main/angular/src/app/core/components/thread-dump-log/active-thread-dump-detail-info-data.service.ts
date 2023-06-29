@@ -26,7 +26,7 @@ export interface IActiveThreadDumpResponse {
 
 @Injectable()
 export class ActiveThreadDumpDetailInfoDataService {
-    private requestURL = 'agent/activeThreadDump.pinpoint';
+    private requestURL = 'api/agent/activeThreadDump';
 
     constructor(
         private http: HttpClient

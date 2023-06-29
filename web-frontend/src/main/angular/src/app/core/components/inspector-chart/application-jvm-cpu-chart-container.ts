@@ -8,7 +8,7 @@ import {getAgentId} from './inspector-chart-util';
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class ApplicationJVMCpuChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getApplicationStat/cpuLoad/chart.pinpoint';
+    private apiUrl = 'api/getApplicationStat/cpuLoad/chart';
     private minAgentIdList: string[];
     private maxAgentIdList: string[];
 

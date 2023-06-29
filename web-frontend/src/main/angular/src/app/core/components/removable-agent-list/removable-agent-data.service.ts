@@ -5,9 +5,9 @@ import {Observable} from 'rxjs';
 
 @Injectable()
 export class RemovableAgentDataService {
-    private listUrl = 'agents/search-application.pinpoint';
-    private removeApplicationUrl = 'admin/removeApplicationName.pinpoint';
-    private removeAgentUrl = 'admin/removeAgentId.pinpoint';
+    private listUrl = 'api/agents/search-application';
+    private removeApplicationUrl = 'api/admin/removeApplicationName';
+    private removeAgentUrl = 'api/admin/removeAgentId';
 
     constructor(
         private http: HttpClient

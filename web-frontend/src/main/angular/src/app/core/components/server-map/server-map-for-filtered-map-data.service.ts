@@ -18,7 +18,7 @@ import {
 
 @Injectable()
 export class ServerMapForFilteredMapDataService {
-    private url = 'getFilteredServerMapDataMadeOfDotGroup.pinpoint';
+    private url = 'api/getFilteredServerMapDataMadeOfDotGroup';
     private REQUEST_LIMIT = 5000;
     // 아래 두 값은 scatter-chart에서 사용되는 파라미터 값
     private X_GROUP_UNIT = 987;

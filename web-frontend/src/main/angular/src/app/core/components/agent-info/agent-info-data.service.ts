@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 
 @Injectable()
 export class AgentInfoDataService {
-    private requestURL = 'getDetailedAgentInfo.pinpoint';
+    private requestURL = 'api/getDetailedAgentInfo';
 
     constructor(
         private http: HttpClient

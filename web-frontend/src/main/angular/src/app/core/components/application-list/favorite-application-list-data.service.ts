@@ -8,7 +8,7 @@ import {WebAppSettingDataService} from 'app/shared/services';
     providedIn: 'root'
 })
 export class FavoriteApplicationListDataService {
-    // private url = 'userConfiguration/favoriteApplications.pinpoint';
+    // private url = 'api/userConfiguration/favoriteApplications';
 
     constructor(
         private http: HttpClient,

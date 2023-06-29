@@ -13,7 +13,7 @@ export interface IInstallationData {
 
 @Injectable()
 export class ConfigurationInstallationDataService {
-    private dataRequestURL = 'getAgentInstallationInfo.pinpoint';
+    private dataRequestURL = 'api/getAgentInstallationInfo';
 
     constructor(
         private http: HttpClient

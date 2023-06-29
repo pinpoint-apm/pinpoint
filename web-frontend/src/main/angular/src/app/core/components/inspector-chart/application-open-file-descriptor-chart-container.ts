@@ -8,7 +8,7 @@ import {getAgentId} from './inspector-chart-util';
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class ApplicationOpenFileDescriptorChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getApplicationStat/fileDescriptor/chart.pinpoint';
+    private apiUrl = 'api/getApplicationStat/fileDescriptor/chart';
     private minAgentIdList: string[];
     private maxAgentIdList: string[];
 

@@ -14,7 +14,7 @@ export class ServerTimeDataService {
     ) {}
 
     getServerTime(): Observable<number> {
-        return this.http.get<IServerTime>('serverTime.pinpoint').pipe(
+        return this.http.get<IServerTime>('api/serverTime').pipe(
             map(res => {
                 return res.currentServerTime;
             })

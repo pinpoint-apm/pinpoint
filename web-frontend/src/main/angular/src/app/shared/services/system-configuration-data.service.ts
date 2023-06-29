@@ -33,7 +33,7 @@ interface ISystemConfigurationWithExperimental extends ISystemConfiguration {
 
 @Injectable()
 export class SystemConfigurationDataService {
-    private url = 'configuration.pinpoint';
+    private url = 'api/configuration';
     private defaultConfiguration: ISystemConfigurationWithExperimental = {
         editUserInfo: false,
         enableServerMapRealTime: false,

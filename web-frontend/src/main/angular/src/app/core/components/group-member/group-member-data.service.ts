@@ -16,7 +16,7 @@ export interface IGroupMemberResponse {
 
 @Injectable()
 export class GroupMemberDataService {
-    private url = 'userGroup/member.pinpoint';
+    private url = 'api/userGroup/member';
 
     constructor(
         private http: HttpClient

@@ -15,7 +15,7 @@ export interface IUserGroupDeleted {
 
 @Injectable()
 export class UserGroupDataService {
-    private url = 'userGroup.pinpoint';
+    private url = 'api/userGroup';
 
     constructor(
         private http: HttpClient
