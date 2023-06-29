@@ -33,7 +33,9 @@ import java.util.Objects;
 public class BasicStarter {
     protected String externalPropertySourceName;
     protected String externalConfigurationKey;
-    protected List<String> externalProfiles = new ArrayList<>();
+    private final List<String> externalProfiles = new ArrayList<>();
+
+    private WebApplicationType webApplicationType = WebApplicationType.SERVLET;
 
     private final Class<?>[] sources;
 
@@ -45,11 +47,15 @@ public class BasicStarter {
         externalProfiles.addAll(List.of(profiles));
     }
 
+    public void setWebApplicationType(WebApplicationType webApplicationType) {
+        this.webApplicationType = Objects.requireNonNull(webApplicationType, "webApplicationType");
+    }
+
     public void start(String[] args) {
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
 
         builder.sources(sources);
-        builder.web(WebApplicationType.SERVLET);
+        builder.web(webApplicationType);
         builder.bannerMode(Banner.Mode.OFF);
 
         builder.listeners(new AdditionalProfileListener(externalProfiles));
