@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.uristat.web.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.common.server.util.ObjectUtils;
 import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
+import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
 import java.util.ArrayList;
@@ -32,19 +32,25 @@ import java.util.stream.Collectors;
 
 public class UriStatGroup implements TimeseriesValueGroupView {
     private final String uri;
-
     private final List<TimeSeriesValueView> values;
+    private final TimeseriesChartType chartType;
+    private final String unit;
 
     public static final UriStatGroup EMPTY_URI_STAT_GROUP = new UriStatGroup();
 
     public UriStatGroup() {
         this.uri = ObjectUtils.EMPTY_STRING;
         this.values = Collections.emptyList();
+        this.chartType = TimeseriesChartType.bar;
+        this.unit = ObjectUtils.EMPTY_STRING;
     }
 
     public UriStatGroup(String uri, int dataSize, TimeWindow timeWindow, List<UriStatChartValue> uriStats, List<String> fieldNames) {
+        Objects.requireNonNull(uriStats);
         this.uri = uri;
         this.values = UriStatValue.createChartValueList(dataSize, timeWindow, uriStats, fieldNames);
+        this.chartType = uriStats.isEmpty()? TimeseriesChartType.bar: uriStats.get(0).getChartType();
+        this.unit = uriStats.isEmpty()? ObjectUtils.EMPTY_STRING: uriStats.get(0).getUnit();
     }
 
     @Override
@@ -57,9 +63,20 @@ public class UriStatGroup implements TimeseriesValueGroupView {
         return values;
     }
 
+    @Override
+    public TimeseriesChartType getChartType() {
+        return chartType;
+    }
+
+    @Override
+    public String getUnit() {
+        return unit;
+    }
+
     public static class UriStatValue implements TimeSeriesValueView {
         private final String fieldName;
         private final List<Double> values;
+        private static final List<String> tags = Arrays.asList();
 
         private static Double nullToNegativeOne(Double d) {
             if (d == null) {
@@ -70,8 +87,6 @@ public class UriStatGroup implements TimeseriesValueGroupView {
         }
 
         public static List<TimeSeriesValueView> createChartValueList(int dataSize, TimeWindow timeWindow, List<UriStatChartValue> uriStats, List<String> fieldNames) {
-            Objects.requireNonNull(uriStats);
-
             List<TimeSeriesValueView> values = new ArrayList<>();
 
             final int bucketSize = uriStats.get(0).getValues().size();
@@ -103,9 +118,8 @@ public class UriStatGroup implements TimeseriesValueGroupView {
         }
 
         @Override
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         public List<String> getTags() {
-            return null;
+            return tags;
         }
 
         @Override

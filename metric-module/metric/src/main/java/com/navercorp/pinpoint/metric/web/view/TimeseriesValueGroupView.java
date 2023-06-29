@@ -21,5 +21,9 @@ public interface TimeseriesValueGroupView {
     String getGroupName();
 
     List<TimeSeriesValueView> getMetricValues();
+    
+    TimeseriesChartType getChartType();
+    
+    String getUnit();
 
 }

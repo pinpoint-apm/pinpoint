@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.uristat.web.view;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.model.UriStatGroup;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
@@ -58,12 +57,6 @@ public class UriStatView implements TimeSeriesView {
     @Override
     public String getTitle() {
         return "uriStat";
-    }
-
-    @Override
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getUnit() {
-        return null;
     }
 
     @Override

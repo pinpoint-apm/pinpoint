@@ -20,8 +20,6 @@ import java.util.List;
 public interface TimeSeriesView {
     String getTitle();
 
-    String getUnit();
-
     List<Long> getTimestamp();
 
     List<TimeseriesValueGroupView> getMetricValueGroups();
