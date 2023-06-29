@@ -22,28 +22,27 @@ public class SystemMetricView implements TimeSeriesView {
     }
 
     @Override
-    public String getUnit() {
-        return systemMetricData.getUnit();
-    }
-
-    @Override
     public List<Long> getTimestamp() {
         return systemMetricData.getTimeStampList();
     }
 
     @Override
     public List<TimeseriesValueGroupView> getMetricValueGroups() {
+        String unit = systemMetricData.getUnit();
         return systemMetricData.getMetricValueGroupList()
                 .stream()
-                .map(MetricValueGroupView::new)
-                .collect(Collectors.toList());
+                .map((value) -> {
+                    return new MetricValueGroupView(value, unit);
+                }).collect(Collectors.toList());
     }
 
     public static class MetricValueGroupView implements TimeseriesValueGroupView {
         private final MetricValueGroup<? extends Number> value;
+        private final String unit;
 
-        public MetricValueGroupView(MetricValueGroup value) {
+        public MetricValueGroupView(MetricValueGroup value, String unit) {
             this.value = Objects.requireNonNull(value, "value");
+            this.unit = Objects.requireNonNull(unit, "unit");
         }
 
         @Override
@@ -57,6 +56,16 @@ public class SystemMetricView implements TimeSeriesView {
                     .stream()
                     .map(MetricValueView::new)
                     .collect(Collectors.toList());
+        }
+
+        @Override
+        public TimeseriesChartType getChartType() {
+            return TimeseriesChartType.line;
+        }
+
+        @Override
+        public String getUnit() {
+            return unit;
         }
     }
 
