@@ -9,7 +9,7 @@ import {Application} from 'app/core/models/application';
     providedIn: 'root'
 })
 export class ApplicationListDataService {
-    private url = 'applications.pinpoint';
+    private url = 'api/applications';
 
     constructor(
         private http: HttpClient,

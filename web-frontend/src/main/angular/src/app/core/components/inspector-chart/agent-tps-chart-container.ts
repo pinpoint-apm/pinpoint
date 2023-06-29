@@ -7,7 +7,7 @@ import {IInspectorChartData, InspectorChartDataService} from './inspector-chart-
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class AgentTPSChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getAgentStat/transaction/chart.pinpoint';
+    private apiUrl = 'api/getAgentStat/transaction/chart';
 
     defaultYMax = 4;
     title = 'Transactions Per Second';

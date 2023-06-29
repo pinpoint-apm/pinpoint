@@ -18,7 +18,7 @@ export interface IAgentTimeline {
 
 @Injectable()
 export class AgentTimelineDataService {
-    private requestURL = 'getAgentStatusTimeline.pinpoint';
+    private requestURL = 'api/getAgentStatusTimeline';
 
     constructor(
         private http: HttpClient

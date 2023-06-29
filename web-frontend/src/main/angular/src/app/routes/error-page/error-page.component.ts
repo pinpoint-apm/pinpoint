@@ -10,13 +10,13 @@ export class ErrorPageComponent implements OnInit {
     stateList = ['serverTime', 'configuration'];
     state: any = {
         serverTime: {
-            url: 'serverTime.pinpoint',
+            url: 'api/serverTime',
             loading: true,
             success: false,
             message: ''
         },
         configuration: {
-            url: 'configuration.pinpoint',
+            url: 'api/configuration',
             loading: true,
             success: false,
             message: ''

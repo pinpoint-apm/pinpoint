@@ -15,7 +15,7 @@ export interface IUrlStatChartDataParams {
     providedIn: 'root'
 })
 export class UrlStatisticChartDataService {
-    private url = 'uriStat/chart.pinpoint'
+    private url = 'api/uriStat/chart'
 
     constructor(
         private http: HttpClient,

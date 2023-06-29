@@ -24,8 +24,8 @@ export interface IWebhookAlarm extends Pick<IWebhook, 'webhookId'> {
 
 @Injectable()
 export class WebhookDataService {
-    private apiUrl = 'application/webhook.pinpoint';
-    private alarmApiUrl = 'application/webhookSendInfo.pinpoint';
+    private apiUrl = 'api/application/webhook';
+    private alarmApiUrl = 'api/application/webhookSendInfo';
 
     constructor(
         private http: HttpClient

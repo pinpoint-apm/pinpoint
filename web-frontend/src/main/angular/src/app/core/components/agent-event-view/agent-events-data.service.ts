@@ -16,7 +16,7 @@ export interface IEventStatus {
 
 @Injectable()
 export class AgentEventsDataService {
-    private requestURL = 'getAgentEvents.pinpoint';
+    private requestURL = 'api/getAgentEvents';
 
     constructor(
         private http: HttpClient,

@@ -15,7 +15,7 @@ export interface IAgentDataSourceChart extends IInspectorChartData {
 
 @Injectable()
 export class AgentDataSourceChartDataService {
-    private requestURL = 'getAgentStat/dataSource/chartList.pinpoint';
+    private requestURL = 'api/getAgentStat/dataSource/chartList';
 
     constructor(
         private http: HttpClient,

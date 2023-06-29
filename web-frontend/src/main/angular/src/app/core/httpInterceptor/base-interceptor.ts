@@ -8,7 +8,8 @@ const urlPrefix = '/';
 export class BaseInterceptor implements HttpInterceptor {
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         let patchedReq = req;
-        if (/.*\.pinpoint(ws)?$/.test(req.url)) {
+        // if (/.*\.pinpoint(ws)?$/.test(req.url)) {
+        if (req.url.includes('api/')) {
             patchedReq = req.clone({
                 url: urlPrefix + req.url
             });

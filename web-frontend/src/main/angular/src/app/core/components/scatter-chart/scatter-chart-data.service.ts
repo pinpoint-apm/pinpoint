@@ -17,7 +17,7 @@ interface IScatterRequest {
 
 @Injectable()
 export class ScatterChartDataService {
-    private url = 'getScatterData.pinpoint';
+    private url = 'api/getScatterData';
     private realtime = {
         interval: 2000,
         resetTimeGap: 20000

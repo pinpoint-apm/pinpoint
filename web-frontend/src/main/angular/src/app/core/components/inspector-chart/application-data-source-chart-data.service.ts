@@ -13,7 +13,7 @@ export interface IApplicationDataSourceChart extends IInspectorChartData {
 
 @Injectable()
 export class ApplicationDataSourceChartDataService {
-    private requestURL = 'getApplicationStat/dataSource/chart.pinpoint';
+    private requestURL = 'api/getApplicationStat/dataSource/chart';
 
     constructor(
         private http: HttpClient,

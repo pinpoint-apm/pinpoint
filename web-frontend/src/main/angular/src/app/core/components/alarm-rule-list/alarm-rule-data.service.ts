@@ -34,9 +34,9 @@ export interface IAlarmRuleDelete extends Pick<IAlarmRule, 'applicationId' | 'ru
 
 @Injectable()
 export class AlarmRuleDataService {
-    private alarmRuleURL = 'application/alarmRule.pinpoint';
-    private alarmRuleWithWebhookURL = 'application/alarmRule/includeWebhooks.pinpoint';
-    private checkerListURL = 'application/alarmRule/checker.pinpoint';
+    private alarmRuleURL = 'api/application/alarmRule';
+    private alarmRuleWithWebhookURL = 'api/application/alarmRule/includeWebhooks';
+    private checkerListURL = 'api/application/alarmRule/checker';
     private cache$: Observable<any>;
 
     constructor(

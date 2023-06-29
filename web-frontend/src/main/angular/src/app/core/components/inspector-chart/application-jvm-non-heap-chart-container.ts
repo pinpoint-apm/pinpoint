@@ -8,7 +8,7 @@ import {getAgentId} from './inspector-chart-util';
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class ApplicationJVMNonHeapChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getApplicationStat/memory/chart.pinpoint';
+    private apiUrl = 'api/getApplicationStat/memory/chart';
     private minAgentIdList: string[];
     private maxAgentIdList: string[];
 

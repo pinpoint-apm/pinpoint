@@ -7,7 +7,7 @@ import {IInspectorChartContainer} from './inspector-chart-container-factory';
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class AgentActiveRequestChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getAgentStat/activeTrace/chart.pinpoint';
+    private apiUrl = 'api/getAgentStat/activeTrace/chart';
 
     defaultYMax = 4;
     title = 'Active Request';

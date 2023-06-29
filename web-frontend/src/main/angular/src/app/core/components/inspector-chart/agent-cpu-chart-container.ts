@@ -7,7 +7,7 @@ import {IInspectorChartData, InspectorChartDataService} from './inspector-chart-
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class AgentCPUChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getAgentStat/cpuLoad/chart.pinpoint';
+    private apiUrl = 'api/getAgentStat/cpuLoad/chart';
 
     defaultYMax = 100;
     title = 'JVM/System CPU Usage';

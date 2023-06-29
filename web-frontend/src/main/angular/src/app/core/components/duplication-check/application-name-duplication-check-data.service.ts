@@ -9,7 +9,7 @@ export interface IApplicationAvailable {
 
 @Injectable()
 export class ApplicationNameDuplicationCheckDataService {
-    private requestURL = 'isAvailableApplicationName.pinpoint';
+    private requestURL = 'api/isAvailableApplicationName';
 
     constructor(
         private http: HttpClient

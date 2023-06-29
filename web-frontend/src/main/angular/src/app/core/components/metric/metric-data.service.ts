@@ -16,8 +16,8 @@ export interface IMetricDataParams {
     providedIn: 'root'
 })
 export class MetricDataService {
-    private metricDataUrl = 'systemMetric/hostGroup/host/collectedMetricData.pinpoint';
-    private tagUrl = 'systemMetric/hostGroup/host/collectedTags.pinpoint';
+    private metricDataUrl = 'api/systemMetric/hostGroup/host/collectedMetricData';
+    private tagUrl = 'api/systemMetric/hostGroup/host/collectedTags';
 
     constructor(
         private http: HttpClient,

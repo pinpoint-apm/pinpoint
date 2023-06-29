@@ -11,7 +11,7 @@ export interface IMetricInfo {
     providedIn: 'root'
 })
 export class MetricContentsDataService {
-    private url = 'systemMetric/hostGroup/host/collectedMetricInfoV2.pinpoint';
+    private url = 'api/systemMetric/hostGroup/host/collectedMetricInfoV2';
 
     constructor(
         private http: HttpClient,

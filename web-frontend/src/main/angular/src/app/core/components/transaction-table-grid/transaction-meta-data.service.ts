@@ -17,8 +17,8 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
 
 @Injectable()
 export class TransactionMetaDataService {
-    private requestURLV1 = 'transactionmetadata.pinpoint';
-    private requestURLV2 = 'heatmap/drag.pinpoint';
+    private requestURLV1 = 'api/transactionmetadata';
+    private requestURLV2 = 'api/heatmap/drag';
     private retrieveErrorMessage: string;
     private lastFetchedFrom: number;
     private lastFetchedIndex = 0;

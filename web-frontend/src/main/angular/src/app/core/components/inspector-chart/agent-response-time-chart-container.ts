@@ -7,7 +7,7 @@ import {IInspectorChartData, InspectorChartDataService} from './inspector-chart-
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class AgentResponseTimeChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getAgentStat/responseTime/chart.pinpoint';
+    private apiUrl = 'api/getAgentStat/responseTime/chart';
 
     defaultYMax = 100;
     title = 'Response Time';

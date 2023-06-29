@@ -7,7 +7,7 @@ import {IInspectorChartData, InspectorChartDataService} from './inspector-chart-
 import {InspectorChartThemeService} from './inspector-chart-theme.service';
 
 export class AgentJVMNonHeapChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getAgentStat/jvmGc/chart.pinpoint';
+    private apiUrl = 'api/getAgentStat/jvmGc/chart';
     private fgcCount: number[];
 
     defaultYMax = 100;

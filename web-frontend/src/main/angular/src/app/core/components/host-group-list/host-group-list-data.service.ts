@@ -6,7 +6,7 @@ import {Observable, of} from 'rxjs';
     providedIn: 'root'
 })
 export class HostGroupListDataService {
-    private url = 'systemMetric/hostGroup.pinpoint';
+    private url = 'api/systemMetric/hostGroup';
 
     constructor(
         private http: HttpClient,

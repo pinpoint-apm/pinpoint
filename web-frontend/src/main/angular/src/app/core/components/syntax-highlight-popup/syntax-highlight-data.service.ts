@@ -9,7 +9,7 @@ enum TYPE {
 
 @Injectable()
 export class SyntaxHighlightDataService {
-    private url = 'bind.pinpoint';
+    private url = 'api/bind';
     constructor(private http: HttpClient) { }
     getData({type, originalContents, bindValue}: ISyntaxHighlightData): Observable<{bindedQuery: string}> {
         let requestType;

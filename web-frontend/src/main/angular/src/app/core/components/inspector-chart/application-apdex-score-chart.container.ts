@@ -10,7 +10,7 @@ import {NewUrlStateNotificationService} from 'app/shared/services';
 import {UrlPathId} from 'app/shared/models';
 
 export class ApplicationApdexScoreChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getApplicationStat/apdexScore/chart.pinpoint';
+    private apiUrl = 'api/getApplicationStat/apdexScore/chart';
     private minAgentIdList: string[];
     private maxAgentIdList: string[];
 
