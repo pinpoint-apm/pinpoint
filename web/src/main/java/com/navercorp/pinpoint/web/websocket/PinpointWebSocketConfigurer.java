@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.websocket;
 
 
 import com.navercorp.pinpoint.web.config.ConfigProperties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.WebSocketHandler;
@@ -27,7 +29,6 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -35,10 +36,9 @@ import java.util.Objects;
  */
 public class PinpointWebSocketConfigurer implements WebSocketConfigurer {
 
-    private static final String[] DEFAULT_ALLOWED_ORIGIN = new String[0];
+    private static final Logger logger = LogManager.getLogger(PinpointWebSocketConfigurer.class);
 
-    private static final List<String> WEBSOCKET_PREFIX_LIST = List.of("/", "/api/");
-    private static final String WEBSOCKET_SUFFIX = "";
+    private static final String[] DEFAULT_ALLOWED_ORIGIN = new String[0];
 
     private final PinpointWebSocketHandlerManager handlerRepository;
     private final String[] allowedOrigins;
@@ -70,11 +70,11 @@ public class PinpointWebSocketConfigurer implements WebSocketConfigurer {
     }
 
     private void registerPinpointWebSocketHandler(WebSocketHandlerRegistry registry, PinpointWebSocketHandler handler) {
-        for (final String prefix: WEBSOCKET_PREFIX_LIST) {
-            final WebSocketHandler webSocketHandler = webSocketHandlerDecoratorFactory.decorate(handler);
-            final String path = pathJoin(prefix, handler.getRequestMapping(), WEBSOCKET_SUFFIX);
-            this.setupRegistration(registry.addHandler(webSocketHandler, path));
-        }
+        final WebSocketHandler webSocketHandler = webSocketHandlerDecoratorFactory.decorate(handler);
+
+        logger.info("Registering WebSocketHandler {} for path {}",
+                webSocketHandler.getClass().getSimpleName(), handler.getRequestMapping());
+        this.setupRegistration(registry.addHandler(webSocketHandler, handler.getRequestMapping()));
     }
 
     private void setupRegistration(WebSocketHandlerRegistration registration) {
@@ -91,20 +91,6 @@ public class PinpointWebSocketConfigurer implements WebSocketConfigurer {
             return DEFAULT_ALLOWED_ORIGIN;
         }
         return StringUtils.tokenizeToStringArray(allowedOrigins, ",");
-    }
-
-    private static String pathJoin(String prefix, String main, String suffix) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(prefix);
-        if (!main.startsWith("/")) {
-            sb.append("/");
-        }
-        sb.append(main);
-        if (!main.endsWith("/")) {
-            sb.append("/");
-        }
-        sb.append(suffix);
-        return sb.toString();
     }
 
 }
