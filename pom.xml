@@ -239,7 +239,7 @@
         <plugin.enforcer.version>3.3.0</plugin.enforcer.version>
 
         <!-- frontend-plugin -->
-        <plugin.frontend.version>1.12.0</plugin.frontend.version>
+        <plugin.frontend.version>1.13.4</plugin.frontend.version>
         <!-- https://nodejs.org/ko/download/releases/ -->
         <plugin.frontend.node.version>v16.17.1</plugin.frontend.node.version>
         <plugin.frontend.yarn.version>v1.22.19</plugin.frontend.yarn.version>
