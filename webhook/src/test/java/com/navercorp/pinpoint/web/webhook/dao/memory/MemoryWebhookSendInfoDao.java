@@ -1,6 +1,22 @@
+/*
+ * Copyright 2023 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.navercorp.pinpoint.web.webhook.dao.memory;
 
-import com.navercorp.pinpoint.web.dao.memory.IdGenerator;
 import com.navercorp.pinpoint.web.webhook.dao.WebhookDao;
 import com.navercorp.pinpoint.web.webhook.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.webhook.model.Webhook;
@@ -8,13 +24,14 @@ import com.navercorp.pinpoint.web.webhook.model.WebhookSendInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
-    private final Map<String, WebhookSendInfo> webhookSendInfos = new ConcurrentHashMap<>();
-    private final IdGenerator webhookSendInfoIdGenerator = new IdGenerator();
+    private final ConcurrentMap<String, WebhookSendInfo> webhookSendInfos = new ConcurrentHashMap<>();
+    private final AtomicLong webhookIdGenerator = new AtomicLong();
 
     private final WebhookDao webhookDao;
 
@@ -22,9 +39,13 @@ public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
         this.webhookDao = Objects.requireNonNull(webhookDao, "webhookDao");
     }
 
+    private String nextWebhookId() {
+        return String.valueOf(webhookIdGenerator.getAndIncrement());
+    }
+
     @Override
     public String insertWebhookSendInfo(WebhookSendInfo webhookSendInfo) {
-        String webhookSendInfoId = webhookSendInfoIdGenerator.getId();
+        String webhookSendInfoId = nextWebhookId();
         webhookSendInfo.setWebhookSendInfoId(webhookSendInfoId);
         webhookSendInfos.put(webhookSendInfoId, webhookSendInfo);
         return webhookSendInfoId;

@@ -112,6 +112,7 @@
         <module>grpc</module>
         <module>test</module>
         <module>web</module>
+        <module>webhook</module>
         <module>web-frontend</module>
         <module>hbase</module>
         <module>flink</module>
@@ -457,6 +458,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-webhook</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

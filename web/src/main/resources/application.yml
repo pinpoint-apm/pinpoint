@@ -23,6 +23,8 @@ pinpoint.modules.web:
     install.type: github
     # basicLogin
     login:
+    webhook: true
+
 
 pinpoint.web.cache-resources: true
 

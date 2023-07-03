@@ -13,7 +13,7 @@ import com.navercorp.pinpoint.web.config.WebMysqlDataSourceConfiguration;
 import com.navercorp.pinpoint.web.frontend.FrontendConfigExportConfiguration;
 import com.navercorp.pinpoint.web.install.InstallModule;
 import com.navercorp.pinpoint.web.query.QueryServiceConfiguration;
-import com.navercorp.pinpoint.web.webhook.WebhookModule;
+import com.navercorp.pinpoint.web.webhook.WebhookFacadeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +43,7 @@ import org.springframework.core.env.StandardEnvironment;
         WebHbaseModule.class,
 
         InstallModule.class,
-        WebhookModule.class,
+        WebhookFacadeModule.class,
         FrontendConfigExportConfiguration.class,
         QueryServiceConfiguration.class
 })

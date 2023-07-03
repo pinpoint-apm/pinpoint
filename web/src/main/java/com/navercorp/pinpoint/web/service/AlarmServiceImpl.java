@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.alram.event.DeleteRuleEvent;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.vo.UserGroup;
-import com.navercorp.pinpoint.web.webhook.dao.WebhookSendInfoDao;
-import com.navercorp.pinpoint.web.webhook.model.WebhookSendInfo;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,36 +34,27 @@ import java.util.Objects;
 @Transactional(rollbackFor = {Exception.class})
 public class AlarmServiceImpl implements AlarmService {
     private final AlarmDao alarmDao;
-    private final WebhookSendInfoDao webhookSendInfoDao;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public AlarmServiceImpl(AlarmDao alarmDao, WebhookSendInfoDao webhookSendInfoDao) {
+    public AlarmServiceImpl(AlarmDao alarmDao, ApplicationEventPublisher eventPublisher) {
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
-        this.webhookSendInfoDao = Objects.requireNonNull(webhookSendInfoDao, "webhookSendInfoDao");
+        this.eventPublisher = Objects.requireNonNull(eventPublisher, "eventPublisher");
     }
-    
+
+
     @Override
     public String insertRule(Rule rule) {
         return alarmDao.insertRuleExceptWebhookSend(rule);
     }
 
-    @Override
-    public String insertRuleWithWebhooks(Rule rule, List<String> webhookIds) {
-        String ruleId = alarmDao.insertRule(rule);
-
-        for (String webhookId : webhookIds) {
-            webhookSendInfoDao.insertWebhookSendInfo(new WebhookSendInfo("", webhookId, ruleId));
-        }
-
-        return ruleId;
-    }
     
     @Override
     public void deleteRule(Rule rule) {
         alarmDao.deleteRule(rule);
         alarmDao.deleteCheckerResult(rule.getRuleId());
-        if (rule.isWebhookSend()) {
-            webhookSendInfoDao.deleteWebhookSendInfoByRuleId(rule.getRuleId());
-        }
+
+        DeleteRuleEvent event = new DeleteRuleEvent(rule.getRuleId(), rule.isWebhookSend());
+        eventPublisher.publishEvent(event);
     }
     
     @Override
@@ -88,27 +79,6 @@ public class AlarmServiceImpl implements AlarmService {
     public void updateRule(Rule rule) {
         alarmDao.updateRuleExceptWebhookSend(rule);
         alarmDao.deleteCheckerResult(rule.getRuleId());
-    }
-
-    @Override
-    public void updateRuleWithWebhooks(Rule rule, List<String> webhookIds) {
-        alarmDao.updateRule(rule);
-        alarmDao.deleteCheckerResult(rule.getRuleId());
-
-        List<WebhookSendInfo> oldListofWebhookInfos = webhookSendInfoDao.selectWebhookSendInfoByRuleId(rule.getRuleId());
-
-        for (WebhookSendInfo webhookSendInfo : oldListofWebhookInfos) {
-            // remove already existing webhook mapping to this alarm from webhookIds
-            if (!webhookIds.remove(webhookSendInfo.getWebhookId())) {
-                // webhook not linked to this alarm anymore, so delete from mysql
-                webhookSendInfoDao.deleteWebhookSendInfo(webhookSendInfo);
-            }
-        }
-
-        // adds newly mapped webhooks to this alarm
-        for (String webhookId : webhookIds) {
-            webhookSendInfoDao.insertWebhookSendInfo(new WebhookSendInfo("", webhookId, rule.getRuleId()));
-        }
     }
 
     @Override

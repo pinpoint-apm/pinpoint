@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
+import com.navercorp.pinpoint.common.server.response.Response;
+import com.navercorp.pinpoint.common.server.response.SuccessResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class SuccessResponseTest {
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void testStaticOk() throws JsonProcessingException {

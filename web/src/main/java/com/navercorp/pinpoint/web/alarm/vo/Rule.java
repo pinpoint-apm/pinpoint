@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.alarm.vo;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -129,7 +131,24 @@ public class Rule {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-    
+
+    public static boolean isRuleInvalidForPost(Rule rule) {
+        return StringUtils.isEmpty(rule.getApplicationId()) ||
+                StringUtils.isEmpty(rule.getCheckerName()) ||
+                StringUtils.isEmpty(rule.getUserGroupId()) ||
+                rule.getThreshold() == null;
+    }
+
+
+    public static boolean isRuleInvalid(Rule rule) {
+        return StringUtils.isEmpty(rule.getRuleId()) ||
+                StringUtils.isEmpty(rule.getApplicationId()) ||
+                StringUtils.isEmpty(rule.getCheckerName()) ||
+                StringUtils.isEmpty(rule.getUserGroupId()) ||
+                rule.getThreshold() == null;
+    }
+
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Rule{");

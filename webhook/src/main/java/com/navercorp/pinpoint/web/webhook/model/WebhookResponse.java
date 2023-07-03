@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.webhook.model;
 
-import com.navercorp.pinpoint.web.response.SuccessResponse;
+
+import com.navercorp.pinpoint.common.server.response.SuccessResponse;
 
 import java.util.Objects;
 
