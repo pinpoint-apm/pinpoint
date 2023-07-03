@@ -39,11 +39,9 @@ public class WebhookSendInfo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("WebhookSendInfo{");
-        sb.append("webhookSendInfoId='").append(webhookSendInfoId).append('\'');
-        sb.append("webhookId='").append(webhookId).append('\'');
-        sb.append("ruleId='").append(ruleId).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "WebhookSendInfo{" + "webhookSendInfoId='" + webhookSendInfoId + '\'' +
+                "webhookId='" + webhookId + '\'' +
+                "ruleId='" + ruleId + '\'' +
+                '}';
     }
 }

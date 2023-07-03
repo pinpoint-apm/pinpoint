@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class CodeResult<T> {
 
     public static final int CODE_SUCCESS = 0;

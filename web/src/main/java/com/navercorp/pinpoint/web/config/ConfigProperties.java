@@ -71,7 +71,7 @@ public class ConfigProperties {
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
     
-    @Value("${webhook.enable:false}")
+    @Value("${pinpoint.modules.web.webhook:false}")
     private boolean webhookEnable;
 
     public String getSecurityGuideUrl() {
@@ -151,7 +151,6 @@ public class ConfigProperties {
         sb.append(", showApplicationStat=").append(showApplicationStat);
         sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
-        sb.append(", webhookEnable=").append(webhookEnable);
         sb.append('}');
         return sb.toString();
     }

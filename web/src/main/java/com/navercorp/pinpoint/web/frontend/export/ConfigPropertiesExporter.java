@@ -29,7 +29,6 @@ public class ConfigPropertiesExporter implements FrontendConfigExporter {
         export.put("showSystemMetric", webProperties.isShowSystemMetric());
         export.put("showUrlStat", webProperties.isShowUrlStat());
         export.put("openSource", webProperties.isOpenSource());
-        export.put("webhookEnable", webProperties.isWebhookEnable());
 
         export.put("version", Version.VERSION);
 

@@ -1,13 +1,12 @@
 package com.navercorp.pinpoint.web.webhook.controller;
 
-import com.navercorp.pinpoint.web.response.Response;
-import com.navercorp.pinpoint.web.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.Response;
+import com.navercorp.pinpoint.common.server.response.SuccessResponse;
 import com.navercorp.pinpoint.web.webhook.model.Webhook;
 import com.navercorp.pinpoint.web.webhook.model.WebhookResponse;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,19 +36,13 @@ public class WebhookController {
 
     private final WebhookService webhookService;
 
-    @Value("${webhook.enable:false}")
-    private boolean webhookEnable;
 
     public WebhookController(WebhookService webhookService) {
         this.webhookService = Objects.requireNonNull(webhookService, "webhookService");
     }
 
     @PostMapping()
-    public Response insertWebhook(@RequestBody Webhook webhook) {
-        if (!webhookEnable) {
-            logger.info("Unavailable: webhook disabled");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unavailable: webhook disabled");
-        }
+    public WebhookResponse insertWebhook(@RequestBody Webhook webhook) {
 
         if (!StringUtils.hasText(webhook.getUrl()) || !(StringUtils.hasText(webhook.getApplicationId())
                 || StringUtils.hasText(webhook.getServiceName()))) {
@@ -70,10 +63,6 @@ public class WebhookController {
 
     @DeleteMapping()
     public Response deleteWebhook(@RequestBody Webhook webhook) {
-        if (!webhookEnable) {
-            logger.info("Unavailable: webhook disabled");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unavailable: webhook disabled");
-        }
 
         if (!StringUtils.hasText(webhook.getWebhookId())) {
             logger.info("Missing argument: webhookId");
@@ -87,10 +76,6 @@ public class WebhookController {
     public List<Webhook> getWebhook(@RequestParam(value=APPLICATION_ID, required=false) String applicationId,
                                     @RequestParam(value=SERVICE_NAME, required=false) String serviceName,
                                     @RequestParam(value=ALARM_RULE_ID, required=false) String ruleId) {
-        if (!webhookEnable) {
-            logger.info("Unavailable: webhook disabled");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unavailable: webhook disabled");
-        }
 
         if (!StringUtils.hasText(applicationId) && !StringUtils.hasText(serviceName) && !StringUtils.hasText(ruleId)) {
             logger.info("Missing argument: applicationId/serviceName/ruleId");
@@ -110,11 +95,7 @@ public class WebhookController {
 
     @PutMapping()
     public Response updateWebhook(@RequestBody Webhook webhook) {
-        if (!webhookEnable) {
-            logger.info("Unavailable: webhook disabled");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unavailable: webhook disabled");
-        }
-        
+
         if (!StringUtils.hasText(webhook.getWebhookId()) || !StringUtils.hasText(webhook.getUrl()) ||
                 !(StringUtils.hasText(webhook.getApplicationId()) || StringUtils.hasText(webhook.getServiceName()))) {
             logger.info("Missing arguments: webhook.id, webhook.url, applicationId/serviceName");

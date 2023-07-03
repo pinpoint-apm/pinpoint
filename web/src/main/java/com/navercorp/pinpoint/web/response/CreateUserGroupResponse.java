@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.web.response;
 
+import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+
 import java.util.Objects;
 
 public class CreateUserGroupResponse extends SuccessResponse {

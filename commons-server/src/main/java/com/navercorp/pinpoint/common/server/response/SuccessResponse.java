@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.response;
+package com.navercorp.pinpoint.common.server.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

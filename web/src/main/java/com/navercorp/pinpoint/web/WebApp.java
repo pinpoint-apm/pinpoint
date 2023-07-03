@@ -34,7 +34,9 @@ import org.springframework.context.annotation.Import;
         SecurityAutoConfiguration.class
 })
 @Import({
-        PinpointWebModule.class
+        PinpointWebModule.class,
+
+
 })
 public class WebApp  {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
