@@ -80,7 +80,7 @@ const PROXY_CONFIG = [
     },
     {
         context: [
-            "/agent/activeThread.pinpointws"
+            "/api/agent/activeThread"
         ],
         target: "http://localhost:8080",
         secure: false,

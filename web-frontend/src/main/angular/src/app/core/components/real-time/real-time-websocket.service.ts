@@ -42,7 +42,7 @@ export const enum ResponseCode {
 
 @Injectable()
 export class RealTimeWebSocketService {
-    private url = 'agent/activeThread.pinpointws';
+    private url = 'api/agent/activeThread';
     private timeoutLimit = 5; // 서버로부터의 timeout response를 무시하는 최대횟수
     private timeoutCount: { [key: string]: number } = {}; // 각 agent별 timeout된 횟수
     private prevData: { [key: string]: IActiveRequestCounts } = {}; // Success일때의 데이터({ code, message, status })를 킵
