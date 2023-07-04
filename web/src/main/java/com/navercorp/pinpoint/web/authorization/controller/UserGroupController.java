@@ -102,12 +102,12 @@ public class UserGroupController {
     }
 
     @GetMapping(params = USER_ID)
-    public List<UserGroup> getUserGroupOfUser(@RequestParam(USER_ID) @NotBlank String userId) {
+    public List<UserGroup> getUserGroupOfUser(@RequestParam(USER_ID) String userId) {
         return userGroupService.selectUserGroupByUserId(userId);
     }
 
     @GetMapping(params = USER_GROUP_ID)
-    public List<UserGroup> getUserGroupById(@RequestParam(USER_GROUP_ID) @NotBlank String userGroupId) {
+    public List<UserGroup> getUserGroupById(@RequestParam(USER_GROUP_ID) String userGroupId) {
         return userGroupService.selectUserGroupByUserGroupId(userGroupId);
     }
 

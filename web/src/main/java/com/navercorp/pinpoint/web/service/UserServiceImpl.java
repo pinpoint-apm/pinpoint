@@ -130,6 +130,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public String getUserIdFromSecurity() {
-        return SecurityContextUtils.defaultStringPrincipal(EMPTY);
+        return SecurityContextUtils.getPrincipalName(EMPTY);
     }
 }
