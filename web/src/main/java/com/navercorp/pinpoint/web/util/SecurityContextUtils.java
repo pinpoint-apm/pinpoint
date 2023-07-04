@@ -1,11 +1,14 @@
 package com.navercorp.pinpoint.web.util;
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.security.Principal;
 import java.util.Objects;
 
 /**
@@ -29,6 +32,23 @@ public final class SecurityContextUtils {
 
     public static <T> T getPrincipal(Class<T> clazz) {
         return defaultPrincipal(clazz, null);
+    }
+
+    public static String getPrincipalName(String defaultValue) {
+        final Object principal = getPrincipal(Object.class);
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        if (principal instanceof AuthenticatedPrincipal) {
+            return ((AuthenticatedPrincipal) principal).getName();
+        }
+        if (principal instanceof Principal) {
+            return ((Principal) principal).getName();
+        }
+        if (principal instanceof String) {
+            return (String) principal;
+        }
+        return defaultValue;
     }
 
     public static <T> T defaultPrincipal(Class<T> clazz, T defaultPrincipal) {
