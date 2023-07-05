@@ -43,8 +43,6 @@
     <import resource="classpath:applicationContext-web-datasource.xml" />
     <import resource="classpath:applicationContext-web-dao-config.xml" />
 
-    <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
-
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
