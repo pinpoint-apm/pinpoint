@@ -69,9 +69,6 @@
         <property name="logRate" value="100"/>
     </bean>
 
-    <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
-    </bean>
-
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot">
     </bean>
 
