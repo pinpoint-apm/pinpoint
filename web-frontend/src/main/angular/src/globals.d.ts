@@ -515,6 +515,8 @@ interface IUrlStatChartData {
     timestamp: number[];
     metricValueGroups: {
         groupName: string;
-        metricValues: IMetricValue[]
+        metricValues: IMetricValue[];
+        unit: string;
+        chartType: string;
     }[];
 }

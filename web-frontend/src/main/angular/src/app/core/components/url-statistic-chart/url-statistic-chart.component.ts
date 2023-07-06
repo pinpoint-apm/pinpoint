@@ -49,6 +49,7 @@ export class UrlStatisticChartComponent implements OnInit, OnChanges {
         const unload = currKeys.length === 0;
 
         this.chartInstance.config('data.empty.label.text', currentValue.dataConfig.empty.label.text);
+
         if (unload) {
             this.chartInstance.config('axis.y.padding', {top: 0, bottom: 0});
             this.chartInstance.config('axis.y.max', y.default[1]);
