@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.metric.collector;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration;
 import com.navercorp.pinpoint.metric.collector.config.MetricKafkaConfiguration;
 import com.navercorp.pinpoint.metric.common.config.MetricCollectorPinotDaoConfiguration;
@@ -11,7 +10,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
@@ -41,13 +39,6 @@ import org.springframework.context.annotation.Profile;
 })
 @Profile("metric")
 public class MetricCollectorApp {
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
-
-
 
 
 }
