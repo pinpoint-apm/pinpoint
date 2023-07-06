@@ -406,8 +406,7 @@ caption {
     opacity: 1 !important;
 }
 
-.l-load-chart .bb-line,
-.l-url-statistic-chart .bb-line {
+.l-load-chart .bb-line {
     stroke-width: 0;
 }
 

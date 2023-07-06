@@ -1,20 +1,39 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
-import { combineLatest, EMPTY, forkJoin, iif, Observable, of, Subject } from 'rxjs';
+import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, ElementRef, HostBinding, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { combineLatest, EMPTY, forkJoin, of, Subject } from 'rxjs';
 import { catchError, filter, map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { Data, PrimitiveArray, bar, zoom } from 'billboard.js';
-import * as moment from 'moment-timezone';
 import { TranslateService } from '@ngx-translate/core';
 
-import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService, StoreHelperService, WebAppSettingDataService } from 'app/shared/services';
+import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService } from 'app/shared/services';
 import { IUrlStatChartDataParams, UrlStatisticChartDataService } from './url-statistic-chart-data.service';
 import { UrlPathId } from 'app/shared/models';
-import { makeYData, makeXData, getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
 import { isEmpty } from 'app/core/utils/util';
+import { UrlStatisticBarChartComponent } from './url-statistic-bar-chart.component';
+import { UrlStatisticLineChartComponent } from './url-statistic-line-chart.component';
 
 export enum Layer {
     LOADING = 'loading',
     RETRY = 'retry',
     CHART = 'chart'
+}
+
+enum ChartKey {
+    TOTAL = 'total',
+    FAILURE = 'failure',
+    APDEX = 'apdex',
+    LATENCY = 'latency'
+}
+
+enum ChartType {
+    LINE = 'line',
+    BAR = 'bar',
+}
+
+export type ChartConfig = {
+    colors?: string[];
+    valueFormat?: (v: number) => string;
+    yAxis?: {
+        label?: string;
+    };
 }
 
 @Component({
@@ -23,28 +42,25 @@ export enum Layer {
 	styleUrls: ['./url-statistic-chart-container.component.css']
 })
 export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
-    private clickTab = new Subject<string>();
+    @HostBinding('class') hostClass = 'url-statistic-chart-container';
+    @ViewChild('chartContainer', {read: ViewContainerRef, static: false}) chartContainer: ViewContainerRef;
+
+    private clickTab = new Subject<ChartKey>();
     private onClickTab$ = this.clickTab.asObservable();
 	private unsubscribe = new Subject<void>();
-	private defaultYMax = 1;
-    private chartColorList: string[];
-    private timezone: string;
-    private dateFormatMonth: string;
-    private dateFormatDay: string;
 	private cachedData: {
         [key: string]: { // url
             [key: string]: { // chart type (total, failure, ...)
                 timestamp: number[],
-                metricValues: IMetricValue[]
+                metricValues: IMetricValue[],
+                chartType: string,
             }
         }
      } = {};
-    private fieldNameList: string[];
     private previousParams: IUrlStatChartDataParams;
+    private componentRefMap = new Map<string, ComponentRef<UrlStatisticBarChartComponent | UrlStatisticLineChartComponent>>();
     
-    isUriSelected: boolean;
     selectedUri = '';
-	chartConfig: IChartConfig;
     showLoading: boolean;
     showRetry: boolean;
     retryMessage: string;
@@ -54,35 +70,30 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
     _activeLayer: Layer;
 
     tabList: {id: string, display: string}[];
-    activeTabId = 'total';
+    activeTabId = ChartKey.TOTAL;
+    defaultChartConfig: IChartConfig;
+    chartConfig: Partial<Record<ChartKey, ChartConfig>>;
+    defaultChartMessage: string;
 
 	constructor(
 		private messageQueueService: MessageQueueService,
-		private webAppSettingDataService: WebAppSettingDataService,
-        private storeHelperService: StoreHelperService,
 		private newUrlStateNotificationService: NewUrlStateNotificationService,
 		private urlStatisticChartDataService: UrlStatisticChartDataService,
         private translateService: TranslateService,
         private el: ElementRef,
-        private cd: ChangeDetectorRef
+        private cd: ChangeDetectorRef,
+        private componentFactoryResolver: ComponentFactoryResolver,
 	) { }
 
 	ngOnInit() {
-        this.initFieldNameList();
-		this.initChartColorList();
         this.initI18nText();
         this.initTabList();
-        // this.initDefaultChartConfig();
-        this.listenToEmitter();
+        this.initChartConfig();
 
 		this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-			takeUntil(this.unsubscribe)
+			takeUntil(this.unsubscribe),
 		).subscribe(() => {
 			this.cachedData = {};
-            // this.isUriSelected = false;
-            this.selectedUri = null;
-            // this.chartConfig = null;
-            // this.initDefaultChartConfig();
 		});
 
         combineLatest([
@@ -92,7 +103,7 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
                 }),
             ),
             this.onClickTab$.pipe(
-                startWith(this.activeTabId)
+                startWith(this.activeTabId),
             )
         ]).pipe(
             filter(([uri, _]: string[]) => {
@@ -102,8 +113,10 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
                     }
                     return true;
                 } else {
-                    this.initDefaultChartConfig();
+                    this.defaultChartMessage = uri === '' ? this.guideMessage : this.emptyMessage;
+                    this.componentRefMap.clear();
                     this.cd.detectChanges();
+
                     return false;
                 }
             }),
@@ -123,7 +136,11 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 
 					return this.urlStatisticChartDataService.getData(params).pipe(
 						map(({timestamp, metricValueGroups}: IUrlStatChartData) => {
-							this.cachedData[uri][tabId] = {timestamp, metricValues: metricValueGroups[0].metricValues};
+							this.cachedData[uri][tabId] = {
+                                timestamp,
+                                metricValues: metricValueGroups[0].metricValues,
+                                chartType: metricValueGroups[0].chartType
+                            };
 							return this.cachedData[uri][tabId];
 						}),
                         catchError((error: IServerError) => {
@@ -135,15 +152,65 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 					);	
 				}
 			})
-        ).subscribe((data: {timestamp: number[], metricValues: IMetricValue[]}) => {
-			this.setChartConfig(this.makeChartData(data));
+        ).subscribe((data: {timestamp: number[], metricValues: IMetricValue[], chartType: string}) => {
+            this.loadComponent(this.activeTabId, data);
 		});
 	}
 
 	ngOnDestroy(): void {
 		this.unsubscribe.next();
 		this.unsubscribe.complete();
+        if (this.chartContainer) {
+            this.chartContainer.get(0).destroy();
+        }
 	}
+
+    private loadComponent(key: ChartKey, {timestamp, metricValues, chartType}: {timestamp: number[], metricValues: IMetricValue[], chartType: string}): void {
+        const componentRef = this.componentRefMap.get(key);
+
+        if (!componentRef) {
+            let componentRef;
+
+            if (chartType === ChartType.BAR) {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(UrlStatisticBarChartComponent);
+                componentRef = this.chartContainer.createComponent(componentFactory);
+            } else {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(UrlStatisticLineChartComponent);
+                componentRef = this.chartContainer.createComponent(componentFactory);
+            }
+
+            const component = componentRef.instance;
+
+            this.componentRefMap.set(key, componentRef);
+
+            component.chartData = {
+                x: timestamp,
+                y: metricValues.reduce((acc: {[key: string]: number[]}, {fieldName, values}: IMetricValue) => {
+                    return {...acc, [fieldName]: values.map((v: number) => v < 0 ? null : v)};
+                }, {})
+            };
+            component.chartOptions = {
+                type: chartType,
+                ...this.chartConfig[key]
+            }
+            component.emptyMessage = this.emptyMessage;
+
+            component.outRendered.subscribe(() => {
+                this.onRendered();
+            });
+        } else {
+            if (this.chartContainer.indexOf(componentRef.hostView) === -1) {
+                this.chartContainer.insert(componentRef.hostView);
+            }
+            // TODO: Filter the case when the user just switches over the tab without clicking other uri data
+            componentRef.instance.updateChart({
+                x: timestamp,
+                y: metricValues.reduce((acc: {[key: string]: number[]}, {fieldName, values}: IMetricValue) => {
+                    return {...acc, [fieldName]: values.map((v: number) => v < 0 ? null : v)};
+                }, {})
+            });
+        }
+    }
 
     set activeLayer(layer: Layer) {
         this._activeLayer = layer;
@@ -162,22 +229,35 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
     }
 
     private initTabList(): void {
-        this.tabList = [{
-            id: 'total',
-            display: 'Total Count',
-        },
-        {
-            id: 'failure',
-            display: 'Failure Count',
-        }];
+        this.tabList = [
+            {
+                id: 'total',
+                display: 'Total Count',
+            },
+            {
+                id: 'failure',
+                display: 'Failure Count',
+            },
+            {
+                id: 'apdex',
+                display: 'Apdex',
+            },
+            {
+                id: 'latency',
+                display: 'Latency',
+            },
+        ];
     }
 
-    onTabClick(tabId: string): void {
+    onTabClick(tabId: ChartKey): void {
         if (tabId === this.activeTabId) {
             return;
         }
 
         this.activeTabId = tabId;
+        if (this.chartContainer)  {
+            this.chartContainer.detach(0);
+        }
         this.clickTab.next(tabId);
     }
 
@@ -193,7 +273,11 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         this.activeLayer = Layer.LOADING;
         this.urlStatisticChartDataService.getData(this.previousParams).pipe(
             map(({timestamp, metricValueGroups}: IUrlStatChartData) => {
-                this.cachedData[this.selectedUri][this.activeTabId] = {timestamp, metricValues: metricValueGroups[0].metricValues};
+                this.cachedData[this.selectedUri][this.activeTabId] = {
+                    timestamp,
+                    metricValues: metricValueGroups[0].metricValues,
+                    chartType: metricValueGroups[0].chartType
+                };
                 return this.cachedData[this.selectedUri][this.activeTabId];
             }),
             catchError((error: IServerError) => {
@@ -201,28 +285,9 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
                 this.setRetryMessage(error.message);
                 return EMPTY;
             }),
-        ).subscribe((data: {timestamp: number[], metricValues: IMetricValue[]}) => {
-            this.setChartConfig(this.makeChartData(data));
+        ).subscribe((data: {timestamp: number[], metricValues: IMetricValue[], chartType: string}) => {
+            this.loadComponent(this.activeTabId, data);
         });
-    }
-
-    private initFieldNameList(): void {
-        this.fieldNameList = this.webAppSettingDataService.getUrlStatFieldNameList();
-    }
-
-	private initChartColorList(): void {
-        const computedStyle = getComputedStyle(this.el.nativeElement);
-
-        this.chartColorList = [
-            computedStyle.getPropertyValue('--chart-most-success'),
-            computedStyle.getPropertyValue('--chart-success'),
-            computedStyle.getPropertyValue('--chart-kinda-success'),
-            computedStyle.getPropertyValue('--chart-almost-normal'),
-            computedStyle.getPropertyValue('--chart-normal'),
-            computedStyle.getPropertyValue('--chart-slow'),
-            computedStyle.getPropertyValue('--chart-very-slow'),
-            computedStyle.getPropertyValue('--chart-fail'),
-        ]
     }
 
     private initI18nText(): void {
@@ -235,162 +300,85 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    private initDefaultChartConfig(): void {
+    private initChartConfig(): void {
+        const computedStyle = getComputedStyle(this.el.nativeElement);
+
         this.chartConfig = {
-            dataConfig: {
-                x: 'x',
-                columns: [],
-                empty: {
-                    label: {
-                        text: this.selectedUri === '' ? this.guideMessage : this.emptyMessage
-                    }
-                },
-                type: bar(),
-                colors: this.fieldNameList.reduce((acc: {[key: string]: string}, curr: string, i: number) => {
-                    return {...acc, [curr]: this.chartColorList[i]};
-                }, {}),
-                groups: [this.fieldNameList],
-                order: null
+            [ChartKey.TOTAL]: {
+                colors: [
+                    computedStyle.getPropertyValue('--chart-most-success'),
+                    computedStyle.getPropertyValue('--chart-success'),
+                    computedStyle.getPropertyValue('--chart-kinda-success'),
+                    computedStyle.getPropertyValue('--chart-almost-normal'),
+                    computedStyle.getPropertyValue('--chart-normal'),
+                    computedStyle.getPropertyValue('--chart-slow'),
+                    computedStyle.getPropertyValue('--chart-very-slow'),
+                    computedStyle.getPropertyValue('--chart-fail'),
+                ],
+                valueFormat: (v: number) => this.convertWithUnit(v),
+                yAxis: {
+                    label: 'Total Count'
+                }
             },
-            elseConfig: this.makeElseOption()
+            [ChartKey.FAILURE]: {
+                colors: [
+                    computedStyle.getPropertyValue('--chart-most-success'),
+                    computedStyle.getPropertyValue('--chart-success'),
+                    computedStyle.getPropertyValue('--chart-kinda-success'),
+                    computedStyle.getPropertyValue('--chart-almost-normal'),
+                    computedStyle.getPropertyValue('--chart-normal'),
+                    computedStyle.getPropertyValue('--chart-slow'),
+                    computedStyle.getPropertyValue('--chart-very-slow'),
+                    computedStyle.getPropertyValue('--chart-fail'),
+                ],
+                valueFormat: (v: number) => this.convertWithUnit(v),
+                yAxis: {
+                    label: 'Failure Count'
+                }
+            },
+            [ChartKey.APDEX]: {
+                colors: [
+                    '#41c464'
+                ],
+                valueFormat: (v) => this.numberInDecimal(v, 2),
+                yAxis: {
+                    label: 'Apdex Score'
+                }
+            },
+            [ChartKey.LATENCY]: {
+                colors: [
+                    '#5d19a3',
+                    '#0066CC'
+                ],
+                valueFormat: (v) => `${this.numberInInteger(v)}ms`,
+                yAxis: {
+                    label: 'Latency(ms)'
+                }
+            }
         }
-    }
-
-    private listenToEmitter(): void {
-        this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
-            this.timezone = timezone;
-        });
-
-        this.storeHelperService.getDateFormatArray(this.unsubscribe, 6, 7).subscribe(([dateFormatMonth, dateFormatDay]: string[]) => {
-            this.dateFormatMonth = dateFormatMonth;
-            this.dateFormatDay = dateFormatDay;
-        });
-    }
-
-    private setRetryMessage(message: string): void {
-        this.retryMessage = message;
-    }
-
-	private makeChartData({timestamp, metricValues}: {[key: string]: any}): PrimitiveArray[] {
-		return [
-            ['x', ...makeXData(timestamp)],
-            ...metricValues.map(({values}: IMetricValue, i: number) => {
-                return [this.fieldNameList[i], ...values.map((v: number) => v < 0 ? null : v)];
-            })
-        ];
-    }
-
-    private setChartConfig(data: PrimitiveArray[]): void {
-        this.chartConfig =  {
-            dataConfig: this.makeDataOption(data),
-            // elseConfig: this.makeElseOption(getMaxTickValue(getStackedData(data), 1)),
-            elseConfig: this.makeElseOption(),
-        };
-    }
-
-    private makeDataOption(columns: PrimitiveArray[]): Data {
-        const keyList = columns.slice(1).map(([key]: PrimitiveArray) => key as string);
-
-        return {
-            x: 'x',
-            columns,
-            empty: {
-                label: {
-                    text: this.emptyMessage
-                }
-            },
-            // type: bar(),
-            // type: areaStep(),
-            // colors: keyList.reduce((acc: {[key: string]: string}, curr: string, i: number) => {
-            //     return {...acc, [curr]: this.chartColorList[i]};
-            // }, {}),
-            // groups: [keyList],
-            // order: null
-        };
-    }
-
-    private makeElseOption(): {[key: string]: any} {
-        return {
-            bar: {
-                width: {
-                    ratio: 0.8
-                }
-            },
-            padding: {
-                top: 20,
-                bottom: 20,
-                right: 20
-            },
-            axis: {
-                x: {
-                    type: 'timeseries',
-                    tick: {
-                        count: 6,
-                        show: false,
-                        format: (time: Date) => {
-                            return moment(time).tz(this.timezone).format(this.dateFormatMonth) + '\n' + moment(time).tz(this.timezone).format(this.dateFormatDay);
-                        }
-                    },
-                    padding: {
-                        left: 0,
-                        right: 0
-                    }
-                },
-                y: {
-                    label: {
-                        text: 'Total Count',
-                        position: 'outer-middle'
-                    },
-                    tick: {
-                        count: 2,
-                        format: (v: number): string => this.convertWithUnit(v),
-                    },
-                    padding: {
-                        // top: 0,
-                        bottom: 0
-                    },
-                    min: 0,
-                    // max: yMax,
-                    default: [0, this.defaultYMax]
-                }
-            },
-            grid: {
-                y: {
-                    show: true
-                }
-            },
-            point: {
-                show: false,
-            },
-            tooltip: {
-                order: '',
-                format: {
-                    // value: (v: number): string => this.addComma(v.toString())
-                    value: (v: number): string => this.convertWithUnit(v)
-                }
-            },
-            transition: {
-                duration: 0
-            },
-            zoom: {
-                enabled: zoom()
-            },
-        };
-    }
-
-    private addComma(str: string): string {
-        return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
     }
 
     private convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
-
+    
         return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {
             const v = Number(acc);
-
+    
             return v >= 1000
                 ? (v / 1000).toString()
                 : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
         }, value.toString());
+    }
+    
+    private numberInDecimal(v: number, decimalPlace: number): string {
+        return (Math.floor(v * 100) / 100).toFixed(decimalPlace);
+    }
+    
+    private numberInInteger(v: number): string {
+        return Number(Math.round(v)).toLocaleString();
+    }
+
+    private setRetryMessage(message: string): void {
+        this.retryMessage = message;
     }
 }
