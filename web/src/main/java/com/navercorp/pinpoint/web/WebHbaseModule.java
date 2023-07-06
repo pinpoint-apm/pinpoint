@@ -25,7 +25,6 @@ import org.springframework.context.annotation.PropertySource;
         ApplicationMetricConfiguration.class,
         SampledAgentStatDaoConfiguration.class,
 
-
         HbaseNamespaceConfiguration.class,
         DistributorConfiguration.class,
 })
@@ -48,7 +47,7 @@ import org.springframework.context.annotation.PropertySource;
         "classpath:profiles/${pinpoint.profiles.active:release}/hbase.properties"
 })
 public class WebHbaseModule {
-    private final Logger logger = LogManager.getLogger(WebHbaseModule.class);
+    private final Logger logger = LogManager.getLogger(getClass());
 
     public WebHbaseModule() {
         logger.info("Install {}", WebHbaseModule.class.getSimpleName());

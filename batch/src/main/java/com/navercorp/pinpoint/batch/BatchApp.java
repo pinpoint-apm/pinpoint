@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch;
 
-import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
+import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.web.WebHbaseModule;
@@ -49,8 +49,9 @@ import org.springframework.context.annotation.ImportResource;
         TypeLoaderConfiguration.class,
         BatchAppPropertySources.class,
         WebhookModule.class,
-        WebHbaseModule.class
+        WebHbaseModule.class,
 
+        RestTemplateConfiguration.class
 })
 public class BatchApp {
 

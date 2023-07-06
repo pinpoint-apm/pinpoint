@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.install;
 
+import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.web.install.controller.AgentDownloadController;
 import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.dao.GithubAgentDownloadInfoDao;
@@ -23,7 +24,10 @@ import org.springframework.web.client.RestTemplate;
 //        "com.navercorp.pinpoint.web.install.controller",
         "com.navercorp.pinpoint.web.install.service",
 })
-@Import(AgentDownloadController.class)
+@Import({
+        RestTemplateConfiguration.class,
+        AgentDownloadController.class
+})
 public class InstallModule {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
