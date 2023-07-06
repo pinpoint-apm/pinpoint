@@ -54,40 +54,6 @@
         <constructor-arg ref="metadataRowKeyDistributor2"/>
     </bean>
 
-
-    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-        <property name="messageConverters">
-            <list>
-                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-                    <property name="objectMapper">
-                        <bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
-                    </property>
-                    <property name="supportedMediaTypes">
-                        <list>
-                            <value>text/json</value>
-                            <value>application/json</value>
-                        </list>
-                    </property>
-                </bean>
-                <bean class="org.springframework.http.converter.FormHttpMessageConverter">
-                    <property name="supportedMediaTypes">
-                        <list>
-                            <value>application/x-www-form-urlencoded</value>
-                        </list>
-                    </property>
-                </bean>
-                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
-                    <property name="supportedMediaTypes">
-                        <list>
-                            <value>text/plain</value>
-                            <value>text/html</value>
-                        </list>
-                    </property>
-                </bean>
-            </list>
-        </property>
-    </bean>
-
     <bean id="requestContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator"/>
     <bean id="securityContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator"/>
     <bean id="contextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.ChainedTaskDecorator">
