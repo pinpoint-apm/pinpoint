@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.buffer;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Constructor;
 
@@ -53,7 +53,7 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
             Class<BufferMetric> bufferMetricClass = (Class<BufferMetric>) Class.forName(classToLoad);
             Constructor<BufferMetric> bufferMetricConstructor = bufferMetricClass.getConstructor();
             return bufferMetricConstructor.newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             logger.warn("BufferMetric initialize fail: {}", classToLoad);
             return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
         }

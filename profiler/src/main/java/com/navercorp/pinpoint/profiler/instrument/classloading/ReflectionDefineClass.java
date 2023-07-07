@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -34,7 +33,7 @@ final class ReflectionDefineClass implements DefineClass {
         try {
             DEFINE_CLASS = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
             DEFINE_CLASS.setAccessible(true);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Cannot access ClassLoader.defineClass(String, byte[], int, int)", e);
         }
     }
@@ -46,9 +45,7 @@ final class ReflectionDefineClass implements DefineClass {
         }
         try {
             return (Class<?>) DEFINE_CLASS.invoke(classLoader, name, bytes, 0, bytes.length);
-        } catch (IllegalAccessException e) {
-            throw handleDefineClassFail(classLoader, name, e);
-        } catch (InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw handleDefineClassFail(classLoader, name, e);
         }
     }

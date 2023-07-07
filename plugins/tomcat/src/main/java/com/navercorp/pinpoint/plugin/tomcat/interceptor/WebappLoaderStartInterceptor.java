@@ -16,7 +16,18 @@
 
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
-import java.lang.reflect.InvocationTargetException;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import org.apache.catalina.Container;
+import org.apache.catalina.Context;
+import org.apache.catalina.Engine;
+import org.apache.catalina.Host;
+import org.apache.catalina.loader.WebappLoader;
+
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,19 +36,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.catalina.Container;
-import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Host;
-import org.apache.catalina.loader.WebappLoader;
-
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author hyungil.jeong
@@ -77,7 +75,6 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
     }
     
     private String extractContextKey(WebappLoader webappLoader) {
-        final String defaultContextName = "";
         try {
             Container container = extractContext(webappLoader);
             // WebappLoader's associated Container should be a Context.
@@ -94,17 +91,17 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
                 sb.append(contextName);
                 return sb.toString();
             }
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             // Same action for any and all exceptions.
             logger.warn("Error extracting context name.", e);
         }
-        return defaultContextName;
+        return "";
     }
 
     // FIXME Use reflection until we provide separate packages for instrumented libraries.
     // Tomcat 8's WebappLoader does not have getContainer() method.
     // Providing an optional package that calls WebappLoader.getContext() method could be an option.
-    private Container extractContext(WebappLoader webappLoader) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private Container extractContext(WebappLoader webappLoader) throws ReflectiveOperationException {
         Method m;
         try {
             // Tomcat 6, 7 - org.apache.catalina.loader.getContainer() 
