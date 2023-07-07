@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
@@ -43,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AgentActiveThreadDumpListSerializerTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
     private final MessageConverter<Object, PThreadDump> threadDumpConverter = new ThreadDumpGrpcMessageConverter();
 
     @Test

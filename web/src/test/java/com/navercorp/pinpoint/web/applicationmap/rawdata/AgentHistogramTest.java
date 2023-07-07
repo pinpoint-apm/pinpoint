@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -36,7 +37,7 @@ public class AgentHistogramTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
     @Test
     public void testDeepCopy() {
         AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));

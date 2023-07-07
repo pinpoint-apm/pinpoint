@@ -18,41 +18,37 @@ package com.navercorp.pinpoint.inspector.web.dao.pinot;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.util.TagUtils;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
-import org.apache.pinot.common.utils.PinotDataType;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
 public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
 
-    private final static ObjectMapper OBJECT_MAPPER;
+    private final static ObjectMapper OBJECT_MAPPER = getMapper();
+    private final TypeReference<List<Tag>> REF_LIST_TAG = new TypeReference<>() {
+    };
 
-    static {
-        OBJECT_MAPPER = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(List.class, new CustomObjectListDeserializer());
-        OBJECT_MAPPER.registerModule(module);
+    private static ObjectMapper getMapper() {
+        return Jackson.newBuilder()
+                .deserializerByType(List.class, new CustomObjectListDeserializer())
+                .build();
     }
 
     @Override
@@ -65,8 +61,7 @@ public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
         String jsonString = rs.getString(columnName);
 
         try {
-            List<Tag> tagList = OBJECT_MAPPER.readValue(jsonString, TypeFactory.defaultInstance().constructCollectionType(List.class, Tag.class));
-            return tagList;
+            return OBJECT_MAPPER.readValue(jsonString, REF_LIST_TAG);
         } catch (JsonProcessingException e) {
             throw new SQLException(e);
         }
@@ -87,10 +82,14 @@ public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
     }
 
     static class CustomObjectListDeserializer extends JsonDeserializer<List<Tag>> {
+
+        private static final TypeReference<List<String>> REF = new TypeReference<>() {
+        };
+
         @Override
         public List<Tag> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-            List<String> list = jsonParser.readValueAs(ArrayList.class);
 
+            List<String> list = jsonParser.readValueAs(REF);
             List<Tag> tagList = new ArrayList<>();
             for (String tagString : list) {
                 Tag tag = TagUtils.parseTag(tagString);

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.install;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
@@ -74,7 +75,7 @@ public class AgentDownloadInfoTest {
     void defaultTest() throws Exception {
         String mockResponseString = getMockJsonString();
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = Jackson.newMapper();
         TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<>() {
         };
         List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(mockResponseString, typeReference);

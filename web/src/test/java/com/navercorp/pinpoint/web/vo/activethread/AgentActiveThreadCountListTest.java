@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo.activethread;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import org.junit.jupiter.api.Assertions;
@@ -33,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AgentActiveThreadCountListTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
 
     @Test
     public void testName() throws Exception {
