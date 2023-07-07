@@ -18,7 +18,6 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -125,7 +124,7 @@ final class MethodDescriptionUtils {
         if (startIndex == -1) {
             return name;
         } else {
-            return name.substring(startIndex + 1, name.length());
+            return name.substring(startIndex + 1);
         }
     }
 }

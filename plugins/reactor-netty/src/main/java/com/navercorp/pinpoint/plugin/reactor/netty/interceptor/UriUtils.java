@@ -46,7 +46,7 @@ public class UriUtils {
         if (index == -1) {
             return null;
         }
-        params = params.substring(index + 1, params.length());
+        params = params.substring(index + 1);
         index = params.indexOf('#');
         if (index > -1) {
             params = params.substring(0, index);

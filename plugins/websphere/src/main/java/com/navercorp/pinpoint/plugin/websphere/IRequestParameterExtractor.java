@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -74,10 +75,16 @@ public class IRequestParameterExtractor implements ParameterExtractor<IRequest> 
             for (String pair : pairs) {
                 int idx = pair.indexOf('=');
                 if (idx > 0) {
-                    query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+                    String key = pair.substring(0, idx);
+                    String value = pair.substring(idx + 1);
+                    query_pairs.put(decode(key), decode(value));
                 }
             }
         }
         return query_pairs;
+    }
+
+    private String decode(String keyStr) throws UnsupportedEncodingException {
+        return URLDecoder.decode(keyStr, StandardCharsets.UTF_8.name());
     }
 }
