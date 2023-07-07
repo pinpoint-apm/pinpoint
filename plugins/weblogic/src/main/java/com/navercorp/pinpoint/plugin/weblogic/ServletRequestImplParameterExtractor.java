@@ -22,6 +22,7 @@ import weblogic.servlet.internal.ServletRequestImpl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -76,14 +77,17 @@ public class ServletRequestImplParameterExtractor implements ParameterExtractor<
             String[] pairs = query.split("&");
             for (String pair : pairs) {
                 int idx = pair.indexOf('=');
-                if (idx > 0)
-                    query_pairs.put(decode(pair.substring(0, idx)), decode(pair.substring(idx + 1)));
+                if (idx > 0) {
+                    String key = pair.substring(0, idx);
+                    String value = pair.substring(idx + 1);
+                    query_pairs.put(decode(key), decode(value));
+                }
             }
         }
         return query_pairs;
     }
 
     private String decode(String substring) throws UnsupportedEncodingException {
-        return URLDecoder.decode(substring, "UTF-8");
+        return URLDecoder.decode(substring, StandardCharsets.UTF_8.name());
     }
 }
