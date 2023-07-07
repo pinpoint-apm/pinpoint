@@ -36,7 +36,7 @@ final class DefineClassFactory {
                 Class<DefineClass> defineClassClazz = (Class<DefineClass>) agentClassLoader.loadClass(name);
                 Constructor<DefineClass> constructor = defineClassClazz.getDeclaredConstructor();
                 return constructor.newInstance();
-            } catch (Exception e) {
+            } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException(name + " create fail Caused by:" + e.getMessage(), e);
             }
         }

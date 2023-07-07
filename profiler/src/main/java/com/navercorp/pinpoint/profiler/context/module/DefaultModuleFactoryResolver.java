@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exception.PinpointException;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
@@ -71,7 +71,7 @@ public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
                     (Class<? extends ModuleFactory>) Class.forName(moduleFactoryClazzName, true, classLoader);
             Constructor<? extends ModuleFactory> constructor = moduleFactoryClass.getConstructor();
             return constructor.newInstance();
-        } catch (Exception ex) {
+        } catch (ReflectiveOperationException ex) {
             logger.warn("{} ModuleFactory initialize fail", moduleFactoryClazzName, ex);
             throw new PinpointException(moduleFactoryClazzName + " ModuleFactory initialize fail", ex);
         }

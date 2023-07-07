@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,7 +42,7 @@ public class URLClassLoaderHandler implements ClassInjector {
         try {
             ADD_URL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
             ADD_URL.setAccessible(true);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Cannot access URLClassLoader.addURL(URL)", e);
         }
     }
@@ -63,7 +62,7 @@ public class URLClassLoaderHandler implements ClassInjector {
                 addPluginURLIfAbsent(urlClassLoader);
                 return (Class<T>) urlClassLoader.loadClass(className);
             }
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
             throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
         }
@@ -78,14 +77,14 @@ public class URLClassLoaderHandler implements ClassInjector {
                 addPluginURLIfAbsent(urlClassLoader);
                 return targetClassLoader.getResourceAsStream(internalName);
             }
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             logger.warn("Failed to load plugin resource as stream {} with classLoader {}", internalName, targetClassLoader, e);
             return null;
         }
         return null;
     }
 
-    private void addPluginURLIfAbsent(URLClassLoader classLoader) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private void addPluginURLIfAbsent(URLClassLoader classLoader) throws ReflectiveOperationException {
         final URL[] urls = classLoader.getURLs();
         if (urls != null) {
             final boolean hasPluginJar = hasPluginJar(urls);

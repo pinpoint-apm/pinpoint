@@ -37,7 +37,6 @@ import org.objectweb.asm.tree.ClassNode;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +64,7 @@ public class LambdaFactoryTest {
 
 
     @Test
-    public void transformTest() throws IOException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    public void transformTest() throws IOException, ReflectiveOperationException {
 
         ClassLoader classLoader = this.getClass().getClassLoader();
         String name = JavaAssistUtils.javaClassNameToJvmResourceName(UnsafeClassMock.class.getName());

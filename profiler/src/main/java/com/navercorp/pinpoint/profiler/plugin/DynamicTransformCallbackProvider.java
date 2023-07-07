@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -49,7 +49,7 @@ public class DynamicTransformCallbackProvider implements TransformCallbackProvid
             final Class<? extends TransformCallback> transformCallbackClass = instrumentContext.injectClass(loader, transformCallbackClassName);
             Constructor<? extends TransformCallback> constructor = transformCallbackClass.getConstructor(parameterTypes);
             return constructor.newInstance(parameters);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new PinpointException(transformCallbackClassName + " load fail Caused by:" + e.getMessage(), e);
         }
     }

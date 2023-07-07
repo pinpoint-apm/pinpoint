@@ -23,13 +23,11 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.instrument.transformer.InnerClassLambdaMetafactoryTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -98,7 +96,7 @@ public class LambdaTransformBootloader {
         }
     }
 
-    private void invoke(final LambdaBytecodeHandler lambdaBytecodeHandler, Class<?> clazz) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private void invoke(final LambdaBytecodeHandler lambdaBytecodeHandler, Class<?> clazz) throws ReflectiveOperationException {
         final Method register = clazz.getMethod("register", LambdaBytecodeHandler.class);
         final boolean success = (Boolean) register.invoke(clazz, lambdaBytecodeHandler);
         if (success) {

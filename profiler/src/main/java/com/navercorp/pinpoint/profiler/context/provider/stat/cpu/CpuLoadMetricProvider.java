@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.util.JvmType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
@@ -85,7 +85,7 @@ public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
                 logger.warn("Unknown CpuLoadMetric : {}", classToLoad);
                 return CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
             }
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             logger.warn("Error creating CpuLoadMetric [" + classToLoad + "]");
             return CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC;
         }

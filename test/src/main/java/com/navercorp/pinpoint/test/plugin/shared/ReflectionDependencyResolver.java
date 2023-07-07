@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
@@ -71,7 +70,7 @@ public class ReflectionDependencyResolver {
         }
     }
 
-    private void initialize() throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    private void initialize() throws ReflectiveOperationException {
         Class<?> factory = classLoader.loadClass("com.navercorp.pinpoint.test.plugin.DependencyResolverFactory");
         Object factoryObject = factory.newInstance();
         Method resolverGet = factory.getMethod("get", String[].class);

@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.ShutdownHookRegister;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
@@ -105,7 +105,7 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
                 logger.warn("Unknown ShutdownHookRegister : {}", classToLoad);
                 return RUNTIME_SHUTDOWN_HOOK_REGISTER;
             }
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             logger.warn("Error creating ShutdownHookRegister [" + classToLoad + "]", e);
         }
         return RUNTIME_SHUTDOWN_HOOK_REGISTER;

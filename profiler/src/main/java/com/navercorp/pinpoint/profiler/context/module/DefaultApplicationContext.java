@@ -149,7 +149,7 @@ public class DefaultApplicationContext implements ApplicationContext {
             Class<ClassFileTransformer> cftClass = (Class<ClassFileTransformer>) forName(moduleWrap, Object.class.getClassLoader());
             Constructor<ClassFileTransformer> constructor = cftClass.getDeclaredConstructor(ClassFileTransformModuleAdaptor.class);
             return constructor.newInstance(classFileTransformer);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(moduleWrap + " load fail Caused by:" + e.getMessage(), e);
         }
     }

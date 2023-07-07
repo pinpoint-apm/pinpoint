@@ -37,7 +37,7 @@ public final class JavaModuleFactoryFinder {
         try {
             Constructor<JavaModuleFactory> constructor = javaModuleFactory.getDeclaredConstructor(Instrumentation.class);
             return constructor.newInstance(instrumentation);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("JavaModuleFactory() invoke fail Caused by:" + e.getMessage(), e);
         }
     }

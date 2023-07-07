@@ -79,7 +79,7 @@ class ModuleBootLoader {
         try {
             Constructor<?> constructor = bootStrapClass.getDeclaredConstructor();
             return constructor.newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("ModuleSupportFactory() initialize fail", e);
         }
     }

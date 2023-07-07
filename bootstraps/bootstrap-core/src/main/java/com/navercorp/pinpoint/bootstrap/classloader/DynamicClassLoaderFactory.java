@@ -36,9 +36,8 @@ public class DynamicClassLoaderFactory implements ClassLoaderFactory {
         try {
             final Class<? extends ClassLoader> classLoaderClazz =
                     (Class<? extends ClassLoader>) Class.forName(classLoaderName, true, classLoader);
-            Constructor<? extends ClassLoader> constructor = classLoaderClazz.getDeclaredConstructor(String.class, URL[].class, ClassLoader.class, List.class);
-            return constructor;
-        } catch (Exception ex) {
+            return classLoaderClazz.getDeclaredConstructor(String.class, URL[].class, ClassLoader.class, List.class);
+        } catch (ReflectiveOperationException ex) {
             throw new IllegalStateException(classLoaderName +  " initialize fail Caused by:" + ex.getMessage(), ex);
         }
     }
@@ -48,7 +47,7 @@ public class DynamicClassLoaderFactory implements ClassLoaderFactory {
     public ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
         try {
             return constructor.newInstance(name, urls, parent, libClass);
-        } catch (Exception ex) {
+        } catch (ReflectiveOperationException ex) {
             throw new IllegalStateException(constructor + " invoke fail Caused by:" + ex.getMessage(), ex);
         }
     }

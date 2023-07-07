@@ -75,7 +75,7 @@ public final class PinpointClassLoaderFactory {
                     (Class<? extends ClassLoaderFactory>) Class.forName(PARALLEL_CLASS_LOADER_FACTORY, true, classLoader);
             Constructor<? extends ClassLoaderFactory> constructor = classLoaderFactoryClazz.getDeclaredConstructor();
             return constructor.newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(PARALLEL_CLASS_LOADER_FACTORY  + " create fail Caused by:" + e.getMessage(), e);
         }
     }
