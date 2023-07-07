@@ -488,10 +488,11 @@ interface IMetricData {
     title: string;
     timestamp: number[];
     metricValueGroups: {
-        groupName: string,
-        metricValues: IMetricValue[]
+        groupName: string;
+        metricValues: IMetricValue[];
+        unit: string;
+        chartType: string;
     }[];
-    unit: string;
 }
 
 interface IMetricValue {

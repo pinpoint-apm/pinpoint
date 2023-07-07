@@ -116,12 +116,12 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
             }),
             tap(() => this.cachedData = {}),
             map((data: IMetricData) => {
-                const {title, timestamp, metricValueGroups, unit} = data;
+                const {title, timestamp, metricValueGroups} = data;
 
                 this.title = title;
                 this.isGroupedMetric = this.metricInfo.tagGroup;
                 this.selectedTag = metricValueGroups[0].groupName;
-                this.metaInfo = getMetaInfo(unit as Unit);
+                this.metaInfo = getMetaInfo(metricValueGroups[0].unit as Unit);
                 this.cachedData[this.selectedTag] = {timestamp, metricValues: metricValueGroups[0].metricValues};
 
                 return this.cachedData[this.selectedTag];
