@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -35,7 +36,7 @@ public class HistogramSerializerTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = Jackson.newMapper();
 
 
     @Test

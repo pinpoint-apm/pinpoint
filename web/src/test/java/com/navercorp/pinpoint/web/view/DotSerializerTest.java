@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +33,7 @@ public class DotSerializerTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
 
     @Test
     public void testSerialize() throws Exception {

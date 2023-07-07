@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.install;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.web.install.model.AgentInstallationInfo;
 import com.navercorp.pinpoint.web.install.model.GithubAgentDownloadInfo;
@@ -35,7 +36,7 @@ public class AgentInstallationInfoTest {
     public void testName() throws Exception {
         AgentInstallationInfo agentInstallInfo = new AgentInstallationInfo(new GithubAgentDownloadInfo("1.0.0", "downloadUrl"));
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = Jackson.newMapper();
         String jsonString = objectMapper.writeValueAsString(agentInstallInfo);
         Map<String, Object> map = objectMapper.readValue(jsonString, TypeRef.map());
 

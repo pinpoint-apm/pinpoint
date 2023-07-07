@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
@@ -33,19 +33,12 @@ import java.io.IOException;
 public class ApplicationMapTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper MAPPER = newObjectMapper();
-
-    private ObjectMapper newObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        return mapper;
-    }
-
+    private final ObjectMapper mapper = Jackson.newMapper();
 
     @Test
     public void root() throws IOException {
         ApplicationMap app = new DefaultApplicationMap(Range.between(0, 1), new NodeList(), new LinkList());
-        String s = MAPPER.writeValueAsString(app);
+        String s = mapper.writeValueAsString(app);
         logger.debug(s);
     }
 }

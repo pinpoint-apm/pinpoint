@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -52,7 +53,7 @@ public class DataSourceChartSerializerTest {
 
     private final DataSourceSampler sampler = new DataSourceSampler();
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
 
     @Mock
     private ServiceTypeRegistryService serviceTypeRegistryService;

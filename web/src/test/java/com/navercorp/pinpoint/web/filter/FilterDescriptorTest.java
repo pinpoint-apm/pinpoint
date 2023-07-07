@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.filter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -38,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FilterDescriptorTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
 
     @Test
     public void convert() throws IOException {

@@ -19,10 +19,11 @@ package com.navercorp.pinpoint.web.websocket.message;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class PinpointWebSocketMessageConverter {
 
     private static final Logger LOGGER = LogManager.getLogger(PinpointWebSocketMessageConverter.class);
 
-    private static final ObjectMapper JSON_SERIALIZER = new ObjectMapper();
+    private static final ObjectMapper JSON_SERIALIZER = Jackson.newMapper();
 
     private final String pingMessage;
     private final String pongMessage;

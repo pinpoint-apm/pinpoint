@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
@@ -36,7 +37,7 @@ import org.junit.jupiter.api.Test;
  */
 public class LinkSerializerTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = Jackson.newMapper();
     private final Logger logger = LogManager.getLogger(this.getClass());
 
 

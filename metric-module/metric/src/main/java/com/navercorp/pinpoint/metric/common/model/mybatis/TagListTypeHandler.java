@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.metric.common.model.mybatis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.json.Tags;
 import org.apache.ibatis.type.JdbcType;
@@ -37,19 +37,16 @@ import java.util.List;
  * @author minwoo.jung
  */
 @MappedJdbcTypes({JdbcType.VARCHAR})
-public class  TagListTypeHandler implements TypeHandler<List<Tag>> {
+public class TagListTypeHandler implements TypeHandler<List<Tag>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final static ObjectMapper OBJECT_MAPPER = createObjectMapper();
+    private final static ObjectMapper OBJECT_MAPPER = getMapper();
 
 
-    public static ObjectMapper createObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        SimpleModule module = new SimpleModule();
-        Class<List<Tag>> type = ((Class) List.class);
-        module.addSerializer(type, new TagMySqlSerializer());
-        return objectMapper.registerModule(module);
+    static ObjectMapper getMapper() {
+        return Jackson.newBuilder()
+                .serializerByType(List.class, new TagMySqlSerializer())
+                .build();
     }
 
     @Override

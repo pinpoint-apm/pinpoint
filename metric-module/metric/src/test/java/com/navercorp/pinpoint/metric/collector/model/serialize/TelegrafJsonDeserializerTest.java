@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.metric.collector.model.serialize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
 import org.apache.logging.log4j.LogManager;
@@ -17,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TelegrafJsonDeserializerTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
 
 
     @Test

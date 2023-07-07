@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
@@ -79,7 +80,7 @@ public class UserGroupControllerTest {
     @Autowired
     private UserDao userDao;
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
 
     private MockMvc mockMvc;
 

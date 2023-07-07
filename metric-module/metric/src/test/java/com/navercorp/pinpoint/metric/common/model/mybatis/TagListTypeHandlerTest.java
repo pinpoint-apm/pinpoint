@@ -17,7 +17,7 @@ public class TagListTypeHandlerTest {
 
     @Test
     public void test() throws JsonProcessingException {
-        ObjectMapper mapper = TagListTypeHandler.createObjectMapper();
+        ObjectMapper mapper = TagListTypeHandler.getMapper();
 
         List<Tag> list = List.of(
                 new Tag("a", "1"),

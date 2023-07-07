@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.web.util;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +30,7 @@ public class JacksonParameterNamesModuleTest {
 
     @Test
     void parameterNamesModule_args1() throws JsonProcessingException {
-        ObjectMapper mapper = newMapper();
+        ObjectMapper mapper = Jackson.newMapper();
 
         Person1 user = new Person1("user");
         String json = mapper.writeValueAsString(user);
@@ -43,7 +43,7 @@ public class JacksonParameterNamesModuleTest {
 
     @Test
     void parameterNamesModule_arg2() throws JsonProcessingException {
-        ObjectMapper mapper = newMapper();
+        ObjectMapper mapper = Jackson.newMapper();
 
         Person2 user = new Person2("user", 10);
         String json = mapper.writeValueAsString(user);
@@ -51,12 +51,6 @@ public class JacksonParameterNamesModuleTest {
         Person2 user2 = mapper.readValue(json, Person2.class);
 
         Assertions.assertThat(user).isEqualTo(user2);
-    }
-
-    private ObjectMapper newMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ParameterNamesModule());
-        return mapper;
     }
 
 

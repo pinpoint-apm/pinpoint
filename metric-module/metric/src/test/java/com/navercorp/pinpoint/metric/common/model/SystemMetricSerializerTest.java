@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.metric.common.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +33,7 @@ import java.util.List;
 public class SystemMetricSerializerTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = Jackson.newMapper();
 
     @Test
     public void testLongCounterWithTags() throws JsonProcessingException {
