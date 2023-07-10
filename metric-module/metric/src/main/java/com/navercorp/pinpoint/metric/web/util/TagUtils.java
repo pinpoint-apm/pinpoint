@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.metric.web.util;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,12 +70,13 @@ public class TagUtils {
     public static Tag parseTag(String tagString) {
         Objects.requireNonNull(tagString, "tagString");
 
-        String[] tag = tagString.split(":",2);
+        String[] tag = StringUtils.split(tagString, ":", 2);
         return new Tag(tag[0], tag[1]);
     }
 
     private static String[] parseMultiValueFieldList(String string) {
-        return MULTI_VALUE_FIELD_PATTERN.matcher(string).replaceAll("").split(",");
+        String cleanStr = MULTI_VALUE_FIELD_PATTERN.matcher(string).replaceAll("");
+        return StringUtils.split(cleanStr, ',');
     }
 
     public static String toTagString(String jsonTagString) {

@@ -95,13 +95,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
     }
 
     List<Tag> tagListCopy(List<Tag> tags) {
-        List<Tag> tagList = new ArrayList<>(tags.size());
-
-        for (Tag tag : tags) {
-            tagList.add(tag.copy());
-        }
-
-        return tagList;
+        return new ArrayList<>(tags);
     }
 
     boolean isEquals(List<Tag> tagList1, List<Tag> tagList2) {
