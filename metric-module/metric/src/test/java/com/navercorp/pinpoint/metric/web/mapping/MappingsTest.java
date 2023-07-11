@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.mapping;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ public class MappingsTest {
     public void test2() throws IOException {
         InputStream resource = getClass().getResourceAsStream("/pinot-web/telegraf-metric.yml");
 
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        YAMLMapper mapper = Jackson.newYamlMapper();
 
         Mappings mappings = mapper.readValue(resource, Mappings.class);
         Metric metric = mappings.getMappings().get(0);

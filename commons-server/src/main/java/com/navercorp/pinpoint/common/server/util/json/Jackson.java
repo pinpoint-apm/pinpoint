@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.util.ClassUtils;
@@ -64,5 +65,14 @@ public final class Jackson {
         return builder;
     }
 
+
+    public static YAMLMapper newYamlMapper() {
+        YAMLMapper mapper = new YAMLMapper();
+
+        Jackson2ObjectMapperBuilder builder = Jackson.newBuilder();
+        builder.configure(mapper);
+
+        return mapper;
+    }
 
 }

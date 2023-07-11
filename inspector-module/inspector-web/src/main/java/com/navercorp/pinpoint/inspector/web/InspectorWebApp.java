@@ -16,12 +16,21 @@
 
 package com.navercorp.pinpoint.inspector.web;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.navercorp.pinpoint.common.server.config.YamlConfiguration;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebPinotDaoConfiguration;
+import com.navercorp.pinpoint.inspector.web.definition.Mappings;
+import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.Resource;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author minwoo.jung
@@ -31,8 +40,20 @@ import org.springframework.context.annotation.Profile;
         "com.navercorp.pinpoint.inspector.web"
 })
 @Import({
-        InspectorWebPinotDaoConfiguration.class
+        InspectorWebPinotDaoConfiguration.class,
+        YamlConfiguration.class
 })
 @Profile("inspector")
 public class InspectorWebApp {
+
+    @Bean
+    public Mappings inspectorDefinition(@Value(YMLInspectorManager.DEFINITION_YML)
+                                                      Resource inspectorMetric,
+                                                      YAMLMapper mapper) throws IOException {
+
+        InputStream stream = inspectorMetric.getInputStream();
+
+        return mapper.readValue(stream, Mappings.class);
+    }
+
 }

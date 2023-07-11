@@ -16,20 +16,14 @@
 
 package com.navercorp.pinpoint.metric.web.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.metric.web.mapping.Mappings;
 import com.navercorp.pinpoint.metric.web.mapping.Metric;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -45,26 +40,18 @@ import java.util.function.BiFunction;
 @Service
 public class YMLSystemMetricBasicGroupManager {
 
-    public static final String TELEGRAF_METRIC = "/pinot-web/telegraf-metric.yml";
+    public static final String TELEGRAF_METRIC = "classpath:/pinot-web/telegraf-metric.yml";
     private final Map<String, Metric> definitionIdMap;
     private final Map<String, List<String>> metricIdMap;
     private final Comparator<MetricInfo> metricInfoComparator;
 
-    public YMLSystemMetricBasicGroupManager() throws IOException {
-        this(new ClassPathResource(TELEGRAF_METRIC));
-    }
+    public YMLSystemMetricBasicGroupManager(Mappings metrics) {
+        Objects.requireNonNull(metrics, "metrics");
 
-    public YMLSystemMetricBasicGroupManager(Resource telegrafMetric) throws IOException {
-        Objects.requireNonNull(telegrafMetric, "telegrafMetric");
-
-        InputStream stream = telegrafMetric.getInputStream();
-
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        Mappings mappings = mapper.readValue(stream, Mappings.class);
-        List<Metric> metrics = mappings.getMappings();
+        List<Metric> mappings = metrics.getMappings();
 
         Map<String, Metric> definitionIdMap = new HashMap<>();
-        for (Metric metric : metrics) {
+        for (Metric metric : mappings) {
             Metric exist = definitionIdMap.put(metric.getDefinitionId(), metric);
             Assert.state(exist == null, "duplicated metric " + metric + " / " + exist);
         }
@@ -72,7 +59,7 @@ public class YMLSystemMetricBasicGroupManager {
 
 
         Map<String, List<String>> metricIdMap = new HashMap<>();
-        for (Metric metric : metrics) {
+        for (Metric metric : mappings) {
             String definitionId = metric.getDefinitionId();
             metricIdMap.compute(metric.getName(), new BiFunction<String, List<String>, List<String>>() {
                 @Override
@@ -87,11 +74,10 @@ public class YMLSystemMetricBasicGroupManager {
         }
         this.metricIdMap = metricIdMap;
 
-
-        List<String> metricIdSortOrder = new ArrayList<>(metrics.size());
-        for (Metric metric : metrics) {
-            metricIdSortOrder.add(metric.getDefinitionId());
-        }
+        List<String> metricIdSortOrder = mappings
+                .stream()
+                .map(Metric::getDefinitionId)
+                .collect(Collectors.toList());
         metricInfoComparator = Comparator.comparing(metricInfo -> metricIdSortOrder.indexOf(metricInfo.getMetricDefinitionId()));
     }
 

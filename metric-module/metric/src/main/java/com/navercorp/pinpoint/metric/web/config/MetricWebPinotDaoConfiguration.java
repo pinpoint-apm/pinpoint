@@ -1,6 +1,9 @@
 package com.navercorp.pinpoint.metric.web.config;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
+import com.navercorp.pinpoint.metric.web.mapping.Mappings;
+import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
 import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.ibatis.session.Configuration;
@@ -20,6 +23,8 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -77,5 +82,15 @@ public class MetricWebPinotDaoConfiguration {
     public PinotAsyncTemplate pinotAsyncTemplate(
             @Qualifier("sqlPinotSessionFactory") SqlSessionFactory sessionFactory) {
         return new PinotAsyncTemplate(sessionFactory);
+    }
+
+    @Bean
+    public Mappings telegrafMetricDefinition(@Value(YMLSystemMetricBasicGroupManager.TELEGRAF_METRIC)
+                                            Resource telegrafMetric,
+                                            YAMLMapper mapper) throws IOException {
+
+        InputStream stream = telegrafMetric.getInputStream();
+
+        return mapper.readValue(stream, Mappings.class);
     }
 }
