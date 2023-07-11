@@ -16,19 +16,12 @@
 
 package com.navercorp.pinpoint.inspector.web.definition;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
-import com.navercorp.pinpoint.metric.web.mapping.Metric;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -36,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -44,33 +38,25 @@ import java.util.function.BiFunction;
 // TODO : (minwoo) It seems that it can be integrated with the metric's com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasic GroupManager.
 public class YMLInspectorManager {
 
-    public static final String TELEGRAF_METRIC = "/inspector/web/inspector-definition.yml";
+    public static final String DEFINITION_YML = "classpath:/inspector/web/inspector-definition.yml";
     private final Map<String, MetricDefinition> definitionIdMap;
     private final Map<String, List<String>> metricIdMap;
     private final Comparator<MetricInfo> metricInfoComparator;
 
-    public YMLInspectorManager() throws IOException {
-        this(new ClassPathResource(TELEGRAF_METRIC));
-    }
+    public YMLInspectorManager(Mappings metricDefinitions) {
+        Objects.requireNonNull(metricDefinitions, "metricDefinitions");
 
-    public YMLInspectorManager(ClassPathResource inspectorDefinitionFile) throws IOException {
-        Objects.requireNonNull(inspectorDefinitionFile, "inspectorDefinitionFile");
-
-        InputStream stream = inspectorDefinitionFile.getInputStream();
-
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        Mappings mappings = mapper.readValue(stream, Mappings.class);
-        List<MetricDefinition> metricDefinitions = mappings.getMappings();
+        final List<MetricDefinition> mappings = metricDefinitions.getMappings();
 
         Map<String, MetricDefinition> definitionIdMap = new HashMap<>();
-        for (MetricDefinition metric : metricDefinitions) {
+        for (MetricDefinition metric : mappings) {
             MetricDefinition exist = definitionIdMap.put(metric.getDefinitionId(), metric);
             Assert.state(exist == null, "duplicated metric " + metric + " / " + exist);
         }
         this.definitionIdMap = definitionIdMap;
 
         Map<String, List<String>> metricIdMap = new HashMap<>();
-        for (MetricDefinition metric : metricDefinitions) {
+        for (MetricDefinition metric : mappings) {
             String definitionId = metric.getDefinitionId();
             metricIdMap.compute(metric.getMetricName(), new BiFunction<String, List<String>, List<String>>() {
                 @Override
@@ -85,10 +71,11 @@ public class YMLInspectorManager {
         }
         this.metricIdMap = metricIdMap;
 
-        List<String> metricIdSortOrder = new ArrayList<>(metricDefinitions.size());
-        for (MetricDefinition metric : metricDefinitions) {
-            metricIdSortOrder.add(metric.getDefinitionId());
-        }
+        List<String> metricIdSortOrder = mappings
+                .stream()
+                .map(MetricDefinition::getDefinitionId)
+                .collect(Collectors.toList());
+
         metricInfoComparator = Comparator.comparing(metricInfo -> metricIdSortOrder.indexOf(metricInfo.getMetricDefinitionId()));
     }
 
