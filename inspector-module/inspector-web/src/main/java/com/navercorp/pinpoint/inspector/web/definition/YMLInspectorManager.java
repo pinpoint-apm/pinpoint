@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -58,16 +57,8 @@ public class YMLInspectorManager {
         Map<String, List<String>> metricIdMap = new HashMap<>();
         for (MetricDefinition metric : mappings) {
             String definitionId = metric.getDefinitionId();
-            metricIdMap.compute(metric.getMetricName(), new BiFunction<String, List<String>, List<String>>() {
-                @Override
-                public List<String> apply(String metricId, List<String> definitionIdList) {
-                    if (definitionIdList == null) {
-                        definitionIdList = new ArrayList<>();
-                    }
-                    definitionIdList.add(definitionId);
-                    return definitionIdList;
-                }
-            });
+            List<String> definitionIdList = metricIdMap.computeIfAbsent(metric.getMetricName(), k -> new ArrayList<>());
+            definitionIdList.add(definitionId);
         }
         this.metricIdMap = metricIdMap;
 
