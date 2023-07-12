@@ -17,7 +17,8 @@
     "dist/**"
   ],
   "scripts": {
-    "lint": "eslint",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "lint": "npm run format && eslint ./src/**/*.ts --config .eslintrc.cjs",
     "test": "jest",
     "storybook": "start-storybook -p 6008",
     "build-storybook": "build-storybook",
@@ -52,11 +53,16 @@
     "@types/cytoscape-dagre": "^2.3.0",
     "@types/jest": "^28.1.4",
     "@types/react": "^18.0.14",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "babel-loader": "^8.2.5",
     "chromatic": "^6.5.4",
     "eslint": "^8.15.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "jest": "^28.1.0",
     "jest-environment-jsdom": "^28.1.2",
+    "prettier": "^3.0.0",
     "ts-jest": "^28.0.5",
     "tsup": "^6.2.1",
     "typescript": "^4.5.5"
