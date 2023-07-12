@@ -53,16 +53,20 @@ public class HbaseTraceService implements TraceService {
 
     private final ServiceTypeRegistryService registry;
 
+    private final SpanEventPublisherService publisher;
+
     public HbaseTraceService(TraceDao traceDao,
                              ApplicationTraceIndexDao applicationTraceIndexDao,
                              HostApplicationMapDao hostApplicationMapDao,
                              StatisticsService statisticsService,
-                             ServiceTypeRegistryService registry) {
+                             ServiceTypeRegistryService registry,
+                             SpanEventPublisherService spanEventPublisherService) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
         this.statisticsService = Objects.requireNonNull(statisticsService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
+        this.publisher = Objects.requireNonNull(spanEventPublisherService, "spanEventPublisherService");
     }
 
     @Override
@@ -74,6 +78,9 @@ public class HbaseTraceService implements TraceService {
             // TODO need to batch update later.
             insertSpanEventList(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getEndPoint());
         }
+
+        // TODO should be able to tell whether the span chunk is successfully inserted
+        publisher.publishSpanChunkInsertion(spanChunkBo, true);
     }
 
     private ServiceType getApplicationServiceType(SpanChunkBo spanChunk) {
@@ -83,11 +90,13 @@ public class HbaseTraceService implements TraceService {
 
     @Override
     public void insertSpan(@Valid final SpanBo spanBo) {
-        traceDao.insert(spanBo);
+        boolean success = traceDao.insert(spanBo);
         applicationTraceIndexDao.insert(spanBo);
         insertAcceptorHost(spanBo);
         insertSpanStat(spanBo);
         insertSpanEventStat(spanBo);
+
+        publisher.publishSpanInsertion(spanBo, success);
     }
 
     private void insertAcceptorHost(SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
