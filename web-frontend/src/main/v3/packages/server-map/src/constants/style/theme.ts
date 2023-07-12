@@ -1,39 +1,47 @@
-import { Css } from 'cytoscape'
+import { Css } from 'cytoscape';
 
 type DeepNonNullable<T> = {
   [P in keyof T]-?: NonNullable<T[P]>;
+};
+
+export enum GraphStyle {
+  NODE_WIDTH = 100,
+  NODE_HEIGHT = 100,
+  NODE_RADIUS = GraphStyle.NODE_HEIGHT / 2,
+  NODE_GAP = 30,
+  RANK_SEP = 200,
 }
 
 export type ServerMapTheme = {
   transactionStatus?: {
     default?: {
-      stroke?: string,
-      strokeWidth?: number,
-    }, 
+      stroke?: string;
+      strokeWidth?: number;
+    };
     good?: {
-      stroke?: string,
-      strokeWidth?: number,
-    },
+      stroke?: string;
+      strokeWidth?: number;
+    };
     slow?: {
-      stroke?: string,
-      strokeWidth?: number,
-    },
+      stroke?: string;
+      strokeWidth?: number;
+    };
     bad?: {
-      stroke?: string,
-      strokeWidth?: number,
-    },
-  },
+      stroke?: string;
+      strokeWidth?: number;
+    };
+  };
   node?: {
-    default?: Css.Node,
-    highlight?: Css.Node,
-    main?: Css.Node,
-  },
+    default?: Css.Node;
+    highlight?: Css.Node;
+    main?: Css.Node;
+  };
   edge?: {
-    default?: Css.Edge,
-    highlight?: Css.Edge,
-    loop?: Css.Edge,
-  }
-} 
+    default?: Css.Edge;
+    highlight?: Css.Edge;
+    loop?: Css.Edge;
+  };
+};
 
 export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
   transactionStatus: {
@@ -52,7 +60,7 @@ export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
     bad: {
       stroke: '#F0515B',
       strokeWidth: 10,
-    }
+    },
   },
   node: {
     default: {
@@ -69,21 +77,21 @@ export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
       'text-wrap': 'wrap',
       'text-max-width': '200',
       'line-height': 1.5,
-      'color': '#000',
+      color: '#000',
     },
     highlight: {
       'font-weight': 'bold',
       'font-size': 14,
-      'border-color': '#4A61D1'
+      'border-color': '#4A61D1',
     },
     main: {
       'font-weight': 'bold',
       'font-size': 14,
-    }
+    },
   },
   edge: {
     default: {
-      'width': 1.5,
+      width: 1.5,
       'font-size': '12px',
       'font-weight': 'normal',
       'line-color': '#C0C3C8',
@@ -101,12 +109,12 @@ export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
       'font-size': '14px',
       'font-weight': 'bold',
       'line-color': '#4763d0',
-      'target-arrow-color': '#4763d0'
+      'target-arrow-color': '#4763d0',
     },
     loop: {
       'control-point-step-size': 70,
       'loop-direction': '0deg',
-      'loop-sweep': '-90deg'
-    }
-  }
+      'loop-sweep': '-90deg',
+    },
+  },
 };

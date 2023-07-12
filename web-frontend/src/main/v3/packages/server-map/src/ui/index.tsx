@@ -1,4 +1,1 @@
-export {
-  ServerMap,
-  type ServerMapProps,
-} from './ServerMap';
+export { ServerMap, type ServerMapProps } from './ServerMap';

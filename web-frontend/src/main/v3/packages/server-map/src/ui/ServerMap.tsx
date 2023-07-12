@@ -5,19 +5,14 @@ import dagre, { DagreLayoutOptions } from 'cytoscape-dagre';
 import { Node, Edge, MergedNode, MergedEdge, MergeInfo } from '../types';
 import { getMergedData } from '../core/merge';
 import { getServerMapStyle, getTheme } from '../constants/style/theme-helper';
-import { ServerMapTheme } from '../constants/style/theme';
+import { GraphStyle, ServerMapTheme } from '../constants/style/theme';
 import { keyBy } from 'lodash';
 
 cytoscape.use(dagre);
 
-type ClickEventHandler<T> = (param: {
-  data?: T;
-  eventType: 'right' | 'left';
-  position: cytoscape.Position;
-}) => void;
+type ClickEventHandler<T> = (param: { data?: T; eventType: 'right' | 'left'; position: cytoscape.Position }) => void;
 
-export interface ServerMapProps
-  extends Pick<React.HTMLProps<HTMLDivElement>, 'className' | 'style'> {
+export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'className' | 'style'> {
   data: {
     nodes: Node[];
     edges: Edge[];
@@ -50,6 +45,7 @@ export const ServerMap = ({
   const cyRef = React.useRef<cytoscape.Core>();
   const layoutRef = React.useRef<cytoscape.Layouts>();
   const serverMapTheme = getTheme(customTheme);
+  const [selectedElementId, setSelectedElementId] = React.useState(baseNodeId);
 
   React.useEffect(() => {
     return () => {
@@ -83,7 +79,7 @@ export const ServerMap = ({
         theme: serverMapTheme,
         edgeLabelRenderer: renderEdgeLabel,
         nodeLabelRenderer: renderNodeLabel,
-      })
+      }),
     );
 
     addEventListener();
@@ -98,7 +94,7 @@ export const ServerMap = ({
           theme: serverMapTheme,
           edgeLabelRenderer: renderEdgeLabel,
           nodeLabelRenderer: renderNodeLabel,
-        })
+        }),
       );
     }
   }, [renderNodeLabel, renderEdgeLabel]);
@@ -107,47 +103,41 @@ export const ServerMap = ({
     if (data) {
       const cy = cyRef.current;
       if (cy) {
-        const { serverMapData: newData, mergeInfo } = getMergedData(data);
+        const { nodes: newNodes, edges: newEdges, mergeInfo } = getMergedData(data);
+        let addedNodes: cytoscape.CollectionReturnValue[] | undefined;
         onDataMerged?.(mergeInfo);
 
         cy.batch(() => {
           cy.removeData();
-          cy.data(keyBy(newData, 'data.id'));
+          cy.data(keyBy([...newNodes, ...newEdges], 'data.id'));
 
-          const currentNodes = cy.nodes();
-          const currentEdges = cy.edges();
+          const oldNodeKeys = cy.nodes().map((node) => node.id());
+          const newNodeKeys = newNodes.map(({ data }) => data.id);
 
-          currentNodes.forEach((node) => {
-            const nodeData = node.data();
+          new Set([...oldNodeKeys, ...newNodeKeys]).forEach((key) => {
+            const isOldNodes = oldNodeKeys.includes(key);
+            const isNewNodes = newNodeKeys.includes(key);
+            const shouldRemove = isOldNodes && !isNewNodes;
+            const shouldAdd = !isOldNodes && isNewNodes;
 
-            if (!cy.data()[nodeData.id]) {
+            if (shouldRemove) {
+              const node = cy.getElementById(key);
+
               node.remove();
-            }
-          });
+              node.connectedEdges().remove();
+            } else if (shouldAdd) {
+              const { data } = newNodes.find(({ data }) => data.id === key)!;
+              const connectedEdges = newEdges.filter(({ data }) => data.source === key || data.target === key);
 
-          currentEdges.forEach((edge) => {
-            const edgeData = edge.data();
+              addedNodes = addedNodes ? [...addedNodes, cy.add({ data })] : [cy.add({ data })]; // add node
+              connectedEdges.forEach(({ data }) => {
+                const sourceNode = cy.getElementById(data.source);
+                const targetNode = cy.getElementById(data.target);
 
-            if (!cy.data()[edgeData.id]) {
-              edge.remove();
-            }
-          });
-
-          const removedNodes = cy.nodes();
-          const removedEdges = cy.edges();
-
-          newData.forEach(({ data }) => {
-            if ((data as Edge).source) {
-              // edge
-              if (!removedEdges.some((edges) => edges.data().id === data.id)) {
-                cy.add({ data });
-              }
+                sourceNode.inside() && targetNode.inside() && cy.add({ data }); // add edge
+              });
             } else {
-              //node
-              if (!removedNodes.some((node) => node.data().id === data.id)) {
-                // newNodeIds.push(data.id);
-                cy.add({ data });
-              }
+              return;
             }
           });
         });
@@ -160,6 +150,71 @@ export const ServerMap = ({
             rankSep: 200,
           } as DagreLayoutOptions);
           layoutRef.current.run();
+        } else {
+          if (addedNodes && addedNodes.length > 0) {
+            const centerNode = cy.getElementById(baseNodeId);
+            const { x: centerNodeX, y: centerNodeY } = centerNode.position();
+            const { y1: centerNodeY1, y2: centerNodeY2 } = centerNode.boundingBox();
+            let rankDiff: number; // Indicates rank diff between added node and the center node
+
+            addedNodes.forEach((addedNode: any) => {
+              rankDiff = 0;
+              const predecessors = addedNode.predecessors();
+              const successors = addedNode.successors();
+
+              const hasIncomers = predecessors.contains(centerNode); // or hasOutgoers
+              const traverseTarget = hasIncomers ? predecessors : successors;
+
+              rankDiff =
+                traverseTarget
+                  .nodes()
+                  .toArray()
+                  .findIndex((ele: any) => ele.id() === baseNodeId) + 1;
+              const newX =
+                centerNodeX + rankDiff * (GraphStyle.RANK_SEP + GraphStyle.NODE_WIDTH) * (hasIncomers ? 1 : -1);
+
+              const { y } = addedNode.position();
+              const { h, y1 } = addedNode.boundingBox();
+              const labelHeight = h - (y - y1) * 2;
+
+              const overlayableNodes = cy.nodes().filter((node: any) => {
+                const isSameNode = node.same(addedNode);
+                const { x } = node.position();
+                const width = node.width();
+                const isXPosOverlaid = Math.abs(newX - x) <= width;
+
+                return !isSameNode && isXPosOverlaid;
+              });
+
+              let newY1;
+
+              if (Math.random() >= 0.5) {
+                // Add at the top
+                const topY = Math.min(
+                  ...overlayableNodes.map((node: any) => node.position().y - GraphStyle.NODE_RADIUS),
+                  centerNodeY - GraphStyle.NODE_RADIUS,
+                );
+                const newY2 = topY - GraphStyle.NODE_RADIUS;
+
+                newY1 = newY2 - h;
+              } else {
+                // Add at the bottom
+                const bottomY = Math.max(...overlayableNodes.map((node: any) => node.boundingBox().y2), centerNodeY2);
+
+                newY1 = bottomY + GraphStyle.NODE_RADIUS;
+              }
+
+              const newY = (h - labelHeight) / 2 + newY1;
+
+              addedNode.position({
+                x: newX,
+                y: newY,
+              });
+            });
+            const selectedElement = cy.getElementById(selectedElementId);
+
+            selectedElement.isNode() ? highlightNode(selectedElement) : hightlightEdge(selectedElement);
+          }
         }
       }
     }
@@ -267,9 +322,7 @@ export const ServerMap = ({
     cy.nodes().style(serverMapTheme.node?.default!);
     cy.edges().style(serverMapTheme.edge?.default!);
     cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
-    target
-      .connectedNodes()
-      .style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
+    target.connectedNodes().style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
     target.style(serverMapTheme.edge?.highlight!);
   };
 

@@ -41,17 +41,10 @@ const getSVGCircle = (style: SVGCircleParam) => {
 };
 
 const calcArc = (sum: number, value: number): number => {
-  return value === 0
-    ? 0
-    : value / sum < MIN_ARC_RATIO
-    ? DIAMETER * MIN_ARC_RATIO
-    : (value / sum) * DIAMETER;
+  return value === 0 ? 0 : value / sum < MIN_ARC_RATIO ? DIAMETER * MIN_ARC_RATIO : (value / sum) * DIAMETER;
 };
 
-const getTransactionStatusSVGCircle = (
-  transactionInfo: TransactionInfo,
-  isMerged: boolean
-): string => {
+const getTransactionStatusSVGCircle = (transactionInfo: TransactionInfo, isMerged: boolean): string => {
   const { transactionStatus } = defaultTheme;
 
   if (isMerged || !transactionInfo) {
@@ -62,7 +55,7 @@ const getTransactionStatusSVGCircle = (
   } else {
     const sum = Object.keys(transactionInfo).reduce(
       (prev: number, curr: string) => prev + transactionInfo[curr as keyof TransactionInfo],
-      0
+      0,
     );
     const slowArc = calcArc(sum, transactionInfo.slow);
     const badArc = calcArc(sum, transactionInfo.bad);
