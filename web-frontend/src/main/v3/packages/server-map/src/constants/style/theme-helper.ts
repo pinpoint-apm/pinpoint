@@ -1,7 +1,7 @@
 import cytoscape from 'cytoscape';
 import _ from 'lodash';
 import { ServerMapProps } from '../../ui';
-import { defaultTheme, ServerMapTheme } from './theme';
+import { defaultTheme, GraphStyle, ServerMapTheme } from './theme';
 
 export const getTheme = (theme: ServerMapTheme) => {
   return _.merge({}, defaultTheme, theme);
@@ -23,8 +23,8 @@ export const getServerMapStyle = ({
       selector: 'node',
       style: {
         ...theme.node?.default,
-        width: 100,
-        height: 100,
+        width: GraphStyle.NODE_WIDTH,
+        height: GraphStyle.NODE_HEIGHT,
         label: (el: cytoscape.NodeCollection) => {
           const nodeData = cy.data(el.data()?.id)?.data;
           return nodeLabelRenderer?.(nodeData) || nodeData?.label || '';

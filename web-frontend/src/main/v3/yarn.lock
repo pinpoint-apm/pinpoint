@@ -2117,19 +2117,6 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@pinpoint-fe/server-map@*":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@pinpoint-fe/server-map/-/server-map-0.0.3.tgz#f95d9b02937510d449eb58f08496bcd12cb66605"
-  integrity sha512-ERuuyTcb7kg4+YItw9WgUpVgOKwzme7y3Chznr3ruz3ujwVaYLvKpYacZJspMXlFhcwjCBA1Btp3bYyno4LzAw==
-  dependencies:
-    cytoscape "^3.22.1"
-    cytoscape-dagre "^2.4.0"
-    date-fns "^2.28.0"
-    lodash "^4.17.21"
-    react "^18.2.0"
-    react-dom "^18.2.0"
-    react-icons "^4.3.1"
-
 "@pkgr/utils@^2.3.1":
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/@pkgr/utils/-/utils-2.4.2.tgz#9e638bbe9a6a6f165580dc943f138fd3309a2cbc"
@@ -5938,14 +5925,14 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.2.tgz#673b5f233bf34d8e602b949429f8171d9121bea3"
   integrity sha512-0sVXIohTfLqVIW3kb/0n6IiWF3Ifj5nm2XaSrLq2DI6fKIGa2fYAZdk917rUneaeLVpYfFcyXE2ft0fe3remsA==
 
-cytoscape-dagre@^2.4.0, cytoscape-dagre@^2.5.0:
+cytoscape-dagre@^2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/cytoscape-dagre/-/cytoscape-dagre-2.5.0.tgz#47d9835ab64dd0b596d9c94731f070282f82fc5a"
   integrity sha512-VG2Knemmshop4kh5fpLO27rYcyUaaDkRw+6PiX4bstpB+QFt0p2oauMrsjVbUamGWQ6YNavh7x2em2uZlzV44g==
   dependencies:
     dagre "^0.8.5"
 
-cytoscape@^3.22.1, cytoscape@^3.24.0:
+cytoscape@^3.24.0:
   version "3.25.0"
   resolved "https://registry.yarnpkg.com/cytoscape/-/cytoscape-3.25.0.tgz#5289e9d18be0293b073bfe93f83bb95b908b2dc1"
   integrity sha512-7MW3Iz57mCUo6JQCho6CmPBCbTlJr7LzyEtIkutG255HLVd4XuBg2I9BkTZLI/e4HoaOB/BiAzXuQybQ95+r9Q==
