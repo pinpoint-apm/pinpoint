@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.provider.exception;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
-import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 
 import java.util.Objects;
 
@@ -28,30 +29,23 @@ import java.util.Objects;
  */
 public class ExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
 
-    private final ExceptionTraceConfig exceptionTraceConfig;
     private final ExceptionTraceSampler exceptionTraceSampler;
-    private final SpanEventExceptionFactory spanEventExceptionFactory;
+    private final ExceptionWrapperFactory exceptionWrapperFactory;
 
     @Inject
     public ExceptionRecordingServiceProvider(
-            ExceptionTraceConfig exceptionTraceConfig ,
             ExceptionTraceSampler exceptionTraceSampler,
-            SpanEventExceptionFactory spanEventExceptionFactory
+            ExceptionWrapperFactory exceptionWrapperFactory
     ) {
-        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
         this.exceptionTraceSampler = Objects.requireNonNull(exceptionTraceSampler, "exceptionTraceSampler");
-        this.spanEventExceptionFactory = Objects.requireNonNull(spanEventExceptionFactory, "spanEventExceptionFactory");
+        this.exceptionWrapperFactory = Objects.requireNonNull(exceptionWrapperFactory, "exceptionWrapperFactory");
     }
 
     @Override
     public ExceptionRecordingService get() {
-        if (exceptionTraceConfig.isExceptionTraceEnable()) {
-            return new DefaultExceptionRecordingService(
-                    exceptionTraceSampler,
-                    spanEventExceptionFactory
-            );
-        } else {
-            return DisabledExceptionRecordingService.INSTANCE;
-        }
+        return new DefaultExceptionRecordingService(
+                exceptionTraceSampler,
+                exceptionWrapperFactory
+        );
     }
 }

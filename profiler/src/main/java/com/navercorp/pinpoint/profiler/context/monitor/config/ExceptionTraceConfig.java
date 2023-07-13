@@ -6,4 +6,6 @@ public interface ExceptionTraceConfig {
     double getExceptionTraceNewThroughput();
 
     int getExceptionTraceMaxDepth();
+
+    int getIoBufferingBufferSize();
 }

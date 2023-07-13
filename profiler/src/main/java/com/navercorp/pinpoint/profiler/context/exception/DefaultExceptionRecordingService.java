@@ -19,9 +19,8 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,30 +37,26 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     private final boolean IS_DEBUG = logger.isDebugEnabled();
 
     private final ExceptionTraceSampler exceptionTraceSampler;
-    private final SpanEventExceptionFactory spanEventExceptionFactory;
+    private final ExceptionWrapperFactory exceptionWrapperFactory;
 
     public DefaultExceptionRecordingService(ExceptionTraceSampler exceptionTraceSampler,
-            SpanEventExceptionFactory spanEventExceptionFactory
+                                            ExceptionWrapperFactory exceptionWrapperFactory
     ) {
         this.exceptionTraceSampler = exceptionTraceSampler;
-        this.spanEventExceptionFactory = spanEventExceptionFactory;
+        this.exceptionWrapperFactory = exceptionWrapperFactory;
     }
 
-    public SpanEventException recordException(ExceptionRecordingContext context, Throwable current, long startTime) {
+    public void recordException(ExceptionContext context, Throwable current, long startTime) {
         Objects.requireNonNull(context);
 
-        ExceptionRecordingState state = ExceptionRecordingState.stateOf(context.getPrevious(), current);
+        ExceptionRecordingState state = context.stateOf(current);
         ExceptionTraceSampler.SamplingState samplingState = getSamplingState(state, context);
-        SpanEventException spanEventException = state.checkAndApply(context, current, startTime, samplingState, spanEventExceptionFactory);
-
-        logException(spanEventException);
-
-        return spanEventException;
+        state.checkAndApply(context, current, startTime, samplingState, exceptionWrapperFactory);
     }
 
     private ExceptionTraceSampler.SamplingState getSamplingState(
             ExceptionRecordingState state,
-            ExceptionRecordingContext context
+            ExceptionContext context
     ) {
         if (state.needsNewExceptionId()) {
             return exceptionTraceSampler.isSampled();
@@ -73,27 +68,27 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         return ExceptionTraceSampler.DISABLED;
     }
 
-    private void logException(SpanEventException spanEventException) {
-        if (IS_DEBUG && spanEventException != null) {
-            logger.debug(spanEventException);
+    public void recordExceptionIdAnnotation(SpanEvent spanEvent, ExceptionContext context) {
+        if (context.hasValidExceptionId()) {
+            Annotation<Long> linkId = Annotations.of(AnnotationKey.EXCEPTION_LINK_ID.getCode(), context.getExceptionId());
+            spanEvent.addAnnotation(linkId);
         }
-    }
-
-    public Annotation<Long> newExceptionLinkId(ExceptionRecordingContext context) {
-        return Annotations.of(AnnotationKey.EXCEPTION_LINK_ID.getCode(), context.getExceptionId());
     }
 
     @Override
-    public void recordException(ExceptionRecordingContext exceptionRecordingContext, SpanEvent spanEvent, Throwable throwable) {
-        SpanEventException spanEventException = this.recordException(
-                exceptionRecordingContext,
+    public void recordException(
+            ExceptionContext exceptionContext,
+            SpanEvent spanEvent,
+            Throwable throwable
+    ) {
+        this.recordException(
+                exceptionContext,
                 throwable,
                 spanEvent.getStartTime()
         );
-        spanEvent.setFlushedException(spanEventException);
-        if (exceptionRecordingContext.hasValidExceptionId()) {
-            Annotation<Long> linkId = newExceptionLinkId(exceptionRecordingContext);
-            spanEvent.addAnnotation(linkId);
-        }
+        this.recordExceptionIdAnnotation(
+                spanEvent,
+                exceptionContext
+        );
     }
 }

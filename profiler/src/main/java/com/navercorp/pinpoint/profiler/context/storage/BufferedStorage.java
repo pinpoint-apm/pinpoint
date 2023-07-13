@@ -107,6 +107,7 @@ public class BufferedStorage implements Storage {
         }
     }
 
+    @Override
     public void flush() {
         final List<SpanEvent> spanEventList = clearBuffer();
         if (CollectionUtils.hasLength(spanEventList)) {

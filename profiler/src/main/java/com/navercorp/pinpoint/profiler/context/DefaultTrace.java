@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
@@ -50,7 +50,7 @@ public class DefaultTrace implements Trace {
     private final SpanRecorder spanRecorder;
     private final WrappedSpanEventRecorder wrappedSpanEventRecorder;
 
-    private final ExceptionRecordingContext exceptionRecordingContext;
+    private final ExceptionContext exceptionContext;
 
     private boolean closed = false;
     // lazy initialize
@@ -62,14 +62,14 @@ public class DefaultTrace implements Trace {
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
-                        ExceptionRecordingContext exceptionRecordingContext) {
-        this(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionRecordingContext, CloseListener.EMPTY);
+                        ExceptionContext exceptionContext) {
+        this(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionContext, CloseListener.EMPTY);
     }
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
                         SpanRecorder spanRecorder,
                         WrappedSpanEventRecorder wrappedSpanEventRecorder,
-                        ExceptionRecordingContext exceptionRecordingContext,
+                        ExceptionContext exceptionContext,
                         CloseListener closeListener) {
 
         this.span = Objects.requireNonNull(span, "span");
@@ -78,7 +78,7 @@ public class DefaultTrace implements Trace {
 
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
-        this.exceptionRecordingContext = Objects.requireNonNull(exceptionRecordingContext, "exceptionRecordingContext");
+        this.exceptionContext = Objects.requireNonNull(exceptionContext, "exceptionRecordingContext");
 
         this.closeListener = closeListener;
 
@@ -95,7 +95,7 @@ public class DefaultTrace implements Trace {
     }
 
     private SpanEventRecorder wrappedSpanEventRecorder(WrappedSpanEventRecorder wrappedSpanEventRecorder, SpanEvent spanEvent) {
-        wrappedSpanEventRecorder.setWrapped(spanEvent, this.exceptionRecordingContext);
+        wrappedSpanEventRecorder.setWrapped(spanEvent, this.exceptionContext);
         return wrappedSpanEventRecorder;
     }
 
@@ -201,6 +201,7 @@ public class DefaultTrace implements Trace {
             logSpan();
         }
 
+        this.exceptionContext.flush();
         this.storage.close();
         this.closeListener.close(afterTime);
     }

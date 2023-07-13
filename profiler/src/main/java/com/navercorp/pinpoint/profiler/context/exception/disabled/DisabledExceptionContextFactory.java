@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.exception.disabled;
 
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
  * @author intr3p1d
  */
-public interface ExceptionRecordingService {
+public class DisabledExceptionContextFactory implements ExceptionContextFactory {
 
-    void recordException(ExceptionContext exceptionContext, SpanEvent spanEvent, Throwable throwable);
+    public static final DisabledExceptionContextFactory INSTANCE = new DisabledExceptionContextFactory();
+
+    @Override
+    public ExceptionContext newExceptionContext(TraceRoot traceRoot) {
+        return DisabledExceptionContext.INSTANCE;
+    }
 }

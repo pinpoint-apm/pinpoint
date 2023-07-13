@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
+import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorageFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -49,6 +51,7 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
     private final RecorderFactory recorderFactory;
 
     private final ActiveTraceRepository activeTraceRepository;
+    private final ExceptionContextFactory exceptionContextFactory;
     private final UriStatStorage uriStatStorage;
 
     @Inject
@@ -59,7 +62,8 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
                                     SpanFactory spanFactory,
                                     RecorderFactory recorderFactory,
                                     ActiveTraceRepository activeTraceRepository,
-                                    UriStatStorage uriStatStorage) {
+                                    UriStatStorage uriStatStorage,
+                                    ExceptionContextFactory exceptionContextFactory) {
         this.traceRootFactory = Objects.requireNonNull(traceRootFactory, "traceRootFactory");
 
         this.callStackFactory = Objects.requireNonNull(callStackFactory, "callStackFactory");
@@ -69,13 +73,14 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
         this.recorderFactory = Objects.requireNonNull(recorderFactory, "recorderFactory");
         this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
+        this.exceptionContextFactory = Objects.requireNonNull(exceptionContextFactory, "exceptionContextFactory");
         this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
     }
 
     @Override
     public BaseTraceFactory get() {
         BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, traceSampler,
-                spanFactory, recorderFactory, activeTraceRepository, uriStatStorage);
+                spanFactory, recorderFactory, activeTraceRepository, exceptionContextFactory, uriStatStorage);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
         }

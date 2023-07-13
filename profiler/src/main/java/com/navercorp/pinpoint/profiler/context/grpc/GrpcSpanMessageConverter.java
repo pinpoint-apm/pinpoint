@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
-import com.navercorp.pinpoint.grpc.trace.PSpanEventException;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Annotation;
@@ -49,8 +48,6 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
@@ -81,8 +78,6 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
     private final GrpcAnnotationValueMapper grpcAnnotationValueMapper = new GrpcAnnotationValueMapper();
 
     private final PSpanEvent.Builder pSpanEventBuilder = PSpanEvent.newBuilder();
-    private final GrpcExceptionTraceConverter grpcExceptionTraceConverter = new GrpcExceptionTraceConverter();
-
     private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
 
     private final SpanUriGetter spanUriGetter;
@@ -136,10 +131,6 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         pSpan.setFlag(traceId.getFlags());
         Shared shared = span.getTraceRoot().getShared();
         pSpan.setErr(shared.getErrorCode());
-        final String uriTemplate = shared.getUriTemplate();
-        if (uriTemplate != null) {
-            pSpan.setUriTemplate(uriTemplate);
-        }
 
         pSpan.setApiId(span.getApiId());
 
@@ -288,10 +279,6 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         if (endPoint != null) {
             pSpanChunk.setEndPoint(endPoint);
         }
-        final String uriTemplate = shared.getUriTemplate();
-        if (uriTemplate != null) {
-            pSpanChunk.setUriTemplate(uriTemplate);
-        }
 
         if (spanChunk instanceof AsyncSpanChunk) {
             final AsyncSpanChunk asyncSpanChunk = (AsyncSpanChunk) spanChunk;
@@ -358,11 +345,6 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
                 builder.addAllAnnotation(pAnnotations);
             }
 
-            final SpanEventException spanEventException = spanEvent.getFlushedException();
-            if (spanEventException != null) {
-                final PSpanEventException pSpanEventException = grpcExceptionTraceConverter.buildPSpanEventException(spanEventException);
-                builder.setFlushedException(pSpanEventException);
-            }
             return builder.build();
         } finally {
             builder.clear();

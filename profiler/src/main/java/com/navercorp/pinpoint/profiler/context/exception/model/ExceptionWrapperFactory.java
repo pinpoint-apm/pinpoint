@@ -22,21 +22,21 @@ import java.util.List;
 /**
  * @author intr3p1d
  */
-public class SpanEventExceptionFactory {
+public class ExceptionWrapperFactory {
     private final int maxDepth;
 
-    public SpanEventExceptionFactory(int maxDepth) {
+    public ExceptionWrapperFactory(int maxDepth) {
         this.maxDepth = maxDepth;
     }
 
-    public SpanEventException newSpanEventException(Throwable throwable, long startTime, long exceptionId) {
-        List<ExceptionWrapper> wrappers = newExceptionWrappers(throwable);
-        return new SpanEventException(
-                wrappers, startTime, exceptionId
-        );
+    public List<ExceptionWrapper> newExceptionWrappers(ExceptionContext context) {
+        if (context == null) {
+            return null;
+        }
+        return newExceptionWrappers(context.getPrevious(), context.getStartTime(), context.getExceptionId());
     }
 
-    private List<ExceptionWrapper> newExceptionWrappers(Throwable throwable) {
+    public List<ExceptionWrapper> newExceptionWrappers(Throwable throwable, long startTime, long exceptionId) {
         if (throwable == null) {
             return Collections.emptyList();
         }
@@ -44,11 +44,10 @@ public class SpanEventExceptionFactory {
         Throwable curr = throwable;
         int depth = 0;
         while (curr != null && (maxDepth == 0 || depth < maxDepth)) {
-            exceptionWrappers.add(ExceptionWrapper.newException(curr));
+            exceptionWrappers.add(ExceptionWrapper.newException(curr, startTime, exceptionId, depth));
             curr = curr.getCause();
             depth++;
         }
         return exceptionWrappers;
     }
-
 }

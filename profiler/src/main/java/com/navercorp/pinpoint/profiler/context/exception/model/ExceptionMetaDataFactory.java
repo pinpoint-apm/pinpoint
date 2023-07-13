@@ -15,25 +15,25 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  * @author intr3p1d
  */
-public class SpanEventExceptionFactoryProvider implements Provider<SpanEventExceptionFactory> {
-    private final ExceptionTraceConfig exceptionTraceConfig;
+public class ExceptionMetaDataFactory {
 
-    @Inject
-    public SpanEventExceptionFactoryProvider(ExceptionTraceConfig exceptionTraceConfig) {
-        this.exceptionTraceConfig = Objects.requireNonNull(exceptionTraceConfig, "exceptionTraceConfig");
+    private final TraceRoot traceRoot;
+
+    public ExceptionMetaDataFactory(TraceRoot traceRoot) {
+        this.traceRoot = traceRoot;
     }
 
-    @Override
-    public SpanEventExceptionFactory get() {
-        return new SpanEventExceptionFactory(exceptionTraceConfig.getExceptionTraceMaxDepth());
+    public ExceptionMetaData newExceptionMetaData(List<ExceptionWrapper> wrappers) {
+        return new ExceptionMetaData(
+                wrappers, traceRoot
+        );
     }
 }
