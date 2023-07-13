@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
+import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
@@ -144,6 +145,10 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
             final PStringMetaData stringMetaData = (PStringMetaData) message;
             final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
             this.metadataStub.requestStringMetaData(stringMetaData, responseObserver);
+        } else if (message instanceof PExceptionMetaData) {
+            final PExceptionMetaData exceptionMetaData = (PExceptionMetaData) message;
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            this.metadataStub.requestExceptionMetaData(exceptionMetaData, responseObserver);
         } else {
             logger.warn("Unsupported message {}", MessageFormatUtils.debugLog(message));
         }

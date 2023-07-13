@@ -29,18 +29,25 @@ public class ExceptionWrapper {
     private final String exceptionMessage;
     private final StackTraceElement[] stackTraceElements;
 
-    private ExceptionWrapper(Throwable throwable) {
+    private final long startTime;
+    private final long exceptionId;
+    private final int exceptionDepth;
+
+    private ExceptionWrapper(Throwable throwable, long startTime, long exceptionId, int exceptionDepth) {
         Objects.requireNonNull(throwable);
         this.exceptionClassName = StringUtils.defaultIfEmpty(throwable.getClass().getSimpleName(), EMPTY_STRING);
         this.exceptionMessage = StringUtils.defaultIfEmpty(throwable.getMessage(), EMPTY_STRING);
         this.stackTraceElements = throwable.getStackTrace();
+        this.startTime = startTime;
+        this.exceptionId = exceptionId;
+        this.exceptionDepth = exceptionDepth;
     }
 
-    public static ExceptionWrapper newException(Throwable throwable) {
+    public static ExceptionWrapper newException(Throwable throwable, long startTime, long exceptionId, int exceptionDepth) {
         if (throwable == null) {
             return null;
         }
-        return new ExceptionWrapper(throwable);
+        return new ExceptionWrapper(throwable, startTime, exceptionId, exceptionDepth);
     }
 
     public String getExceptionClassName() {
@@ -55,6 +62,17 @@ public class ExceptionWrapper {
         return stackTraceElements;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getExceptionId() {
+        return exceptionId;
+    }
+
+    public int getExceptionDepth() {
+        return exceptionDepth;
+    }
 
     @Override
     public boolean equals(Object o) {

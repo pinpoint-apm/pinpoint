@@ -15,11 +15,12 @@
  */
 package com.navercorp.pinpoint.profiler.context.exception;
 
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventException;
-import com.navercorp.pinpoint.profiler.context.exception.model.SpanEventExceptionFactory;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -28,16 +29,16 @@ import java.util.Objects;
 public enum ExceptionRecordingState {
     CLEAN {
         @Override
-        public SpanEventException getException(
-                ExceptionRecordingContext context,
-                SpanEventExceptionFactory factory) {
+        public List<ExceptionWrapper> getExceptions(
+                ExceptionContext context,
+                ExceptionWrapperFactory factory) {
             // do nothing
             return null;
         }
 
         @Override
         public void update(
-                ExceptionRecordingContext context,
+                ExceptionContext context,
                 Throwable current,
                 long currentStartTime,
                 ExceptionTraceSampler.SamplingState samplingState
@@ -47,94 +48,90 @@ public enum ExceptionRecordingState {
     },
     STARTED {
         @Override
-        public SpanEventException getException(
-                ExceptionRecordingContext context,
-                SpanEventExceptionFactory factory) {
+        public List<ExceptionWrapper> getExceptions(
+                ExceptionContext context,
+                ExceptionWrapperFactory factory) {
             Objects.requireNonNull(context);
             return null;
         }
 
         @Override
         public void update(
-                ExceptionRecordingContext context,
+                ExceptionContext context,
                 Throwable current,
                 long currentStartTime,
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setPrevious(current);
-            context.setStartTime(currentStartTime);
-            context.setSamplingState(samplingState);
+            context.setWrapped(current);
+            context.chainStart(currentStartTime, samplingState);
         }
     },
     STACKING {
         @Override
-        public SpanEventException getException(
-                ExceptionRecordingContext context,
-                SpanEventExceptionFactory factory) {
+        public List<ExceptionWrapper> getExceptions(
+                ExceptionContext context,
+                ExceptionWrapperFactory factory) {
             Objects.requireNonNull(context);
             return null;
         }
 
         @Override
         public void update(
-                ExceptionRecordingContext context,
+                ExceptionContext context,
                 Throwable current,
                 long currentStartTime,
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setPrevious(current);
+            context.setWrapped(current);
         }
     },
     FLUSH_AND_START {
         @Override
-        public SpanEventException getException(
-                ExceptionRecordingContext context,
-                SpanEventExceptionFactory factory) {
+        public List<ExceptionWrapper> getExceptions(
+                ExceptionContext context,
+                ExceptionWrapperFactory factory) {
             Objects.requireNonNull(context);
             Objects.requireNonNull(factory);
-            return newSpanEventException(
-                    context, factory
+            return factory.newExceptionWrappers(
+                    context
             );
         }
 
         @Override
         public void update(
-                ExceptionRecordingContext context,
+                ExceptionContext context,
                 Throwable current,
                 long currentStartTime,
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.setPrevious(current);
-            context.setStartTime(currentStartTime);
-            context.setSamplingState(samplingState);
+            context.setWrapped(current);
+            context.chainStart(currentStartTime, samplingState);
         }
     },
     FLUSH {
         @Override
-        public SpanEventException getException(
-                ExceptionRecordingContext context,
-                SpanEventExceptionFactory factory) {
+        public List<ExceptionWrapper> getExceptions(
+                ExceptionContext context,
+                ExceptionWrapperFactory factory) {
             Objects.requireNonNull(context);
             Objects.requireNonNull(factory);
-            return newSpanEventException(
-                    context, factory
+            return factory.newExceptionWrappers(
+                    context
             );
         }
 
         @Override
         public void update(
-                ExceptionRecordingContext context,
+                ExceptionContext context,
                 Throwable current,
                 long currentStartTime,
                 ExceptionTraceSampler.SamplingState samplingState
         ) {
             Objects.requireNonNull(context);
-            context.resetPrevious();
-            context.resetStartTime();
-            context.resetExceptionId();
+            context.reset();
         }
     };
 
@@ -165,32 +162,33 @@ public enum ExceptionRecordingState {
         return false;
     }
 
-    public SpanEventException checkAndApply(
-            ExceptionRecordingContext context,
+    public void checkAndApply(
+            ExceptionContext context,
             Throwable current,
             long currentStartTime,
             ExceptionTraceSampler.SamplingState samplingState,
-            SpanEventExceptionFactory factory
+            ExceptionWrapperFactory factory
     ) {
-        SpanEventException spanEventException = null;
         if (samplingState.isSampling()) {
-            spanEventException = this.getException(
+            final List<ExceptionWrapper> wrappers = this.getExceptions(
                     context, factory
             );
+            if (wrappers != null) {
+                context.store(wrappers);
+            }
         }
         this.update(
                 context, current, currentStartTime, samplingState
         );
-        return spanEventException;
     }
 
-    public abstract SpanEventException getException(
-            ExceptionRecordingContext context,
-            SpanEventExceptionFactory factory
+    public abstract List<ExceptionWrapper> getExceptions(
+            ExceptionContext context,
+            ExceptionWrapperFactory factory
     );
 
     public abstract void update(
-            ExceptionRecordingContext context,
+            ExceptionContext context,
             Throwable current,
             long currentStartTime,
             ExceptionTraceSampler.SamplingState samplingState
@@ -207,11 +205,4 @@ public enum ExceptionRecordingState {
     public boolean notNeedExceptionId() {
         return this == STARTED;
     }
-
-    private static SpanEventException newSpanEventException(ExceptionRecordingContext context, SpanEventExceptionFactory factory) {
-        return factory.newSpanEventException(
-                context.getPrevious(), context.getStartTime(), context.getExceptionId()
-        );
-    }
-
 }

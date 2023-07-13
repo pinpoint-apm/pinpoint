@@ -9,6 +9,8 @@ public class DefaultExceptionTraceConfig implements ExceptionTraceConfig {
     private double exceptionTraceNewThroughPut = 1000;
     @Value("${profiler.exceptiontrace.max.depth}")
     private int exceptionTraceMaxDepth = 0;
+    @Value("${profiler.exceptiontrace.io.buffering.buffersize}")
+    private int ioBufferingBufferSize = 20;
 
     @Override
     public boolean isExceptionTraceEnable() {
@@ -26,11 +28,17 @@ public class DefaultExceptionTraceConfig implements ExceptionTraceConfig {
     }
 
     @Override
+    public int getIoBufferingBufferSize() {
+        return ioBufferingBufferSize;
+    }
+
+    @Override
     public String toString() {
         return "DefaultExceptionTraceConfig{" +
                 "exceptionTraceEnable=" + exceptionTraceEnable +
                 ", exceptionTraceNewThroughPut=" + exceptionTraceNewThroughPut +
                 ", exceptionTraceMaxDepth=" + exceptionTraceMaxDepth +
+                ", ioBufferingBufferSize=" + ioBufferingBufferSize +
                 '}';
     }
 }

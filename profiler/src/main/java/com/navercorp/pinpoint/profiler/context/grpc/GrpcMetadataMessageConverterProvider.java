@@ -39,7 +39,10 @@ public class GrpcMetadataMessageConverterProvider implements Provider<MessageCon
     public MessageConverter<MetaDataType, GeneratedMessageV3> get() {
         MessageConverter<MetaDataType, GeneratedMessageV3> metadataMessageConverter = new GrpcMetadataMessageConverter();
         MessageConverter<MetaDataType, GeneratedMessageV3> agentMessageConverter = new GrpcAgentInfoMessageConverter();
+        MessageConverter<MetaDataType, GeneratedMessageV3> exceptionMessageConverter = new GrpcExceptionMetaDataConverter();
 
-        return MessageConverterGroup.wrap(Arrays.asList(metadataMessageConverter, agentMessageConverter));
+        return MessageConverterGroup.wrap(
+                Arrays.asList(metadataMessageConverter, agentMessageConverter, exceptionMessageConverter)
+        );
     }
 }

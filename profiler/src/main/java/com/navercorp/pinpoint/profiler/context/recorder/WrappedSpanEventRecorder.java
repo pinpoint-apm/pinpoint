@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -57,7 +57,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     private SpanEvent spanEvent;
 
-    private ExceptionRecordingContext exceptionRecordingContext;
+    private ExceptionContext exceptionContext;
 
     public WrappedSpanEventRecorder(TraceRoot traceRoot,
                                     AsyncContextFactory asyncContextFactory,
@@ -83,9 +83,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         this.asyncState = asyncState;
     }
 
-    public void setWrapped(final SpanEvent spanEvent, ExceptionRecordingContext exceptionRecordingContext) {
+    public void setWrapped(final SpanEvent spanEvent, ExceptionContext exceptionContext) {
         this.spanEvent = spanEvent;
-        this.exceptionRecordingContext = exceptionRecordingContext;
+        this.exceptionContext = exceptionContext;
     }
 
     @Override
@@ -181,7 +181,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     void recordDetailedException(Throwable throwable) {
-        this.exceptionRecordingService.recordException(exceptionRecordingContext, spanEvent, throwable);
+        this.exceptionRecordingService.recordException(exceptionContext, spanEvent, throwable);
     }
 
     @Override

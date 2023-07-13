@@ -13,20 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
-
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionRecordingContext;
+package com.navercorp.pinpoint.profiler.context.exception.model;
 
 /**
  * @author intr3p1d
  */
-public class DisabledExceptionRecordingService implements ExceptionRecordingService {
+public class ExceptionContextValue {
 
-    public static final DisabledExceptionRecordingService INSTANCE = new DisabledExceptionRecordingService();
+    private static final Throwable INITIAL_EXCEPTION = null;
+    private Throwable previous = INITIAL_EXCEPTION;
+    private long startTime = 0;
 
-    @Override
-    public void recordException(ExceptionRecordingContext exceptionRecordingContext, SpanEvent spanEvent, Throwable throwable) {
+    public Throwable getPrevious() {
+        return previous;
+    }
 
+    public void setPrevious(Throwable previous) {
+        this.previous = previous;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 }

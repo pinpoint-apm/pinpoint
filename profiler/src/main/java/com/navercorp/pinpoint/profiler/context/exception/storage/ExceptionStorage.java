@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.exception.storage;
 
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
+
+import java.util.List;
 
 /**
  * @author intr3p1d
  */
-public interface ExceptionRecordingService {
+public interface ExceptionStorage {
+    void store(List<ExceptionWrapper> wrappers);
 
-    void recordException(ExceptionContext exceptionContext, SpanEvent spanEvent, Throwable throwable);
+    void flush();
+
+    void close();
 }
