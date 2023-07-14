@@ -429,4 +429,54 @@ public class MapController {
         }
         return this.applicationFactory.createApplication(name, serviceTypeCode);
     }
+
+    @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeCode")
+    public MapWrap getServerMapDataV3(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState) {
+        final Range range = Range.between(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        MapWrap mapWrap = selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState, true);
+        mapWrap.setV3Format(true);
+        return mapWrap;
+    }
+
+    @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeName")
+    public MapWrap getServerMapDataV3(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState
+    ) {
+        final Range range = Range.between(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        MapWrap mapWrap = selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState, true);
+        mapWrap.setV3Format(true);
+        return mapWrap;
+    }
 }

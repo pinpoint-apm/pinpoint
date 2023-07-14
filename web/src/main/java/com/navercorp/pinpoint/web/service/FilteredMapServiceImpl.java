@@ -19,11 +19,13 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterDataV3;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
@@ -40,10 +42,8 @@ import com.navercorp.pinpoint.web.service.map.FilteredMap;
 import com.navercorp.pinpoint.web.service.map.FilteredMapBuilder;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -160,6 +160,28 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return applicationMapWithScatterData;
     }
 
+    @Override
+    public ApplicationMap selectApplicationMapWithScatterDataV3(FilteredMapServiceOption option) {
+        StopWatch watch = new StopWatch();
+        watch.start();
+
+        final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter(), option.getColumnGetCount());
+        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, option.getOriginalRange(), option.getVersion());
+        filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
+        filteredMapBuilder.addTransactions(filterList);
+        FilteredMap filteredMap = filteredMapBuilder.build();
+
+        ApplicationMap map = createMap(option, filteredMap);
+
+        Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(option.getOriginalRange().getFrom(), option.getOriginalRange().getTo(), option.getxGroupUnit(), option.getyGroupUnit());
+        ApplicationMapWithScatterDataV3 applicationMapWithScatterDataV3 = new ApplicationMapWithScatterDataV3(map, applicationScatterData);
+
+        watch.stop();
+        logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
+
+        return applicationMapWithScatterDataV3;
+    }
+
     private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter<List<SpanBo>> filter, ColumnGetCount columnGetCount) {
         // filters out recursive calls by looking at each objects
         // do not filter here if we change to a tree-based collision check in the future.
@@ -176,14 +198,14 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         applicationMapBuilder.linkType(LinkType.DETAILED);
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
-        ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();;
+        ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
         if (option.isUseStatisticsAgentState()) {
             applicationMapBuilder.includeServerInfo(new StatisticsServerGroupListFactory(serverGroupListDataSource));
         } else {
             applicationMapBuilder.includeServerInfo(new DefaultServerGroupListFactory(serverGroupListDataSource));
         }
         ApplicationMap map = applicationMapBuilder.build(filteredMap.getLinkDataDuplexMap(), buildTimeoutMillis);
-        if(serverMapDataFilter != null) {
+        if (serverMapDataFilter != null) {
             map = serverMapDataFilter.dataFiltering(map);
         }
 
