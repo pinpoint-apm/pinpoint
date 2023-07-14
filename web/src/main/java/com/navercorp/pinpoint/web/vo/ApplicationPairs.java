@@ -24,6 +24,11 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 public class ApplicationPairs {
+    public static final ApplicationPairs EMPTY = new ApplicationPairs();
+
+    public static ApplicationPairs empty() {
+        return EMPTY;
+    }
 
     @JsonProperty("from")
     private List<ApplicationPair> fromApplications;

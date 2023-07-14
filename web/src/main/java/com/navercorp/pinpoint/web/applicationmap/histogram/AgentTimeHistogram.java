@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -76,6 +78,14 @@ public class AgentTimeHistogram {
             result.add(model);
         }
         result.sort(AGENT_NAME_COMPARATOR);
+        return result;
+    }
+
+    public Map<String, List<TimeHistogram>> getAgentTimeHistogramMap() {
+        Map<String, List<TimeHistogram>> result = new HashMap<>();
+        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+            result.put(agentHistogram.getAgentId().getName(), sortTimeHistogram(agentHistogram.getTimeHistogram()));
+        }
         return result;
     }
 

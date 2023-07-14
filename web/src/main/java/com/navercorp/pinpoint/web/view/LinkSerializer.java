@@ -80,9 +80,14 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
 
         jgen.writeObjectField("histogram", histogram);
-        writeTimeSeriesHistogram(link, jgen);
 
-        if (LinkType.DETAILED == link.getLinkType()) {
+        //time histogram
+        if (!link.isV3Format()){
+            writeTimeSeriesHistogram(link, jgen);
+        }
+
+        //agent histogram
+        if (!link.isV3Format() && LinkType.DETAILED == link.getLinkType()) {
             // data showing how agents call each of their respective links
             writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
             writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);

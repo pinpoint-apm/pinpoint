@@ -41,6 +41,15 @@ public class MapWrap {
         }
     }
 
+    public void setV3Format(boolean v3Format) {
+        for(Node node : applicationMap.getNodes()) {
+            node.setV3Format(v3Format);
+        }
+        for(Link link : applicationMap.getLinks()) {
+            link.setV3Format(v3Format);
+        }
+    }
+
     @JsonProperty("applicationMapData")
     public ApplicationMap getApplicationMap() {
         return applicationMap;

@@ -17,9 +17,11 @@
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.view.NodeHistogramSummarySerializer;
+import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
+import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 
 import java.util.Objects;
 
@@ -44,6 +46,10 @@ public class NodeHistogramSummary {
 
     public NodeHistogram getNodeHistogram() {
         return nodeHistogram;
+    }
+
+    public TimeSeriesView getNodeTimeHistogram(TimeHistogramType timeHistogramType) {
+        return nodeHistogram.getApplicationTimeHistogram(timeHistogramType);
     }
 
     public TimeHistogramFormat getTimeHistogramFormat() {

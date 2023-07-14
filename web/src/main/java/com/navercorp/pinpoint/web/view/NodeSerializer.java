@@ -147,15 +147,21 @@ public class NodeSerializer extends JsonSerializer<Node> {
             jgen.writeObjectField(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
             if (applicationHistogram == null) {
                 writeEmptyObject(jgen, "histogram");
-                writeEmptyObject(jgen, "apdexScore");
             } else {
                 jgen.writeObjectField("histogram", applicationHistogram);
+            }
+
+            if (applicationHistogram == null) {
+                writeEmptyObject(jgen, "apdexScore");
+            } else {
                 //jgen.writeObjectField("apdexScore", node.getApdexScore());
                 JsonSerializer<Object> beanSerializer = provider.findValueSerializer(node.getApdexScore().getClass());
                 JsonSerializer<Object> unwrapping = beanSerializer.unwrappingSerializer(NameTransformer.NOP);
                 unwrapping.serialize(node.getApdexScore(), jgen, provider);
             }
-            if (NodeType.DETAILED == node.getNodeType()) {
+
+            //agent histogram
+            if (!node.isV3Format() && NodeType.DETAILED == node.getNodeType()) {
                 Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
                 if (agentHistogramMap == null) {
                     writeEmptyObject(jgen, "agentHistogram");
@@ -168,18 +174,22 @@ public class NodeSerializer extends JsonSerializer<Node> {
         } else {
             jgen.writeBooleanField("hasAlert", false);  // for go.js
         }
-        // FIXME isn't this all ServiceTypes that can be a node?
-        if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
-            List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());
-            if (applicationTimeSeriesHistogram == null) {
-                writeEmptyArray(jgen, "timeSeriesHistogram");
-            } else {
-                jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
-            }
 
-            if (NodeType.DETAILED == node.getNodeType()) {
-                AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(node.getTimeHistogramFormat());
-                jgen.writeObject(agentTimeSeriesHistogram);
+        //time histogram
+        if (!node.isV3Format()) {
+            // FIXME isn't this all ServiceTypes that can be a node?
+            if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
+                List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());
+                if (applicationTimeSeriesHistogram == null) {
+                    writeEmptyArray(jgen, "timeSeriesHistogram");
+                } else {
+                    jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
+                }
+
+                if (NodeType.DETAILED == node.getNodeType()) {
+                    AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(node.getTimeHistogramFormat());
+                    jgen.writeObject(agentTimeSeriesHistogram);
+                }
             }
         }
     }

@@ -37,4 +37,6 @@ public interface FilteredMapService {
     ApplicationMap selectApplicationMap(FilteredMapServiceOption option);
 
     ApplicationMap selectApplicationMapWithScatterData(FilteredMapServiceOption option);
+
+    ApplicationMap selectApplicationMapWithScatterDataV3(FilteredMapServiceOption option);
 }

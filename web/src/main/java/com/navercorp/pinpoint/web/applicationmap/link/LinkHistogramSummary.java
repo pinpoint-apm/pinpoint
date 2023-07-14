@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.view.LinkHistogramSummarySerializer;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
+import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 
 import java.util.List;
 import java.util.Objects;
@@ -52,6 +54,10 @@ public class LinkHistogramSummary {
 
     public List<TimeViewModel> getTimeSeriesHistogram() {
         return link.getLinkApplicationTimeSeriesHistogram();
+    }
+
+    public TimeSeriesView getTimeHistogram(TimeHistogramType timeHistogramType) {
+        return link.getLinkApplicationTimeSeriesHistogram(timeHistogramType);
     }
 
     @Override
