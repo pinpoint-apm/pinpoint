@@ -9,7 +9,7 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 import {forkJoin, Subject} from 'rxjs';
-import {takeUntil, filter} from 'rxjs/operators';
+import {takeUntil, filter, tap} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
 
 import {
@@ -126,8 +126,13 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
     ngAfterViewInit() {
         this.storeHelperService.getInfoPerServerState(this.unsubscribe).pipe(
             filter((visibleState: boolean) => visibleState && this.isChangedTarget),
-            filter(() => this.selectedTarget.isAuthorized)
-        ).subscribe((visibleState: boolean) => {
+            filter(() => this.selectedTarget.isAuthorized),
+            filter(() => {
+                const {isNode, isWAS, isMerged} = this.selectedTarget;
+                
+                return isNode && isWAS && !isMerged;
+            }),
+        ).subscribe(() => {
             this.scatterChartDataOfAllNode.forEach((scatterData: any) => {
                 this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData[this.selectedApplication]);
             });
@@ -173,9 +178,12 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
             this.scatterChartDataOfAllNode = scatterChartData;
             this.cd.detectChanges();
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
+            tap((target: ISelectedTarget) => this.selectedTarget = target),
+            filter(({isNode, isWAS, isMerged}: ISelectedTarget) => isNode && isWAS && !isMerged),
+        ).subscribe((target: ISelectedTarget) => {
             this.isChangedTarget = true;
-            this.selectedTarget = target;
+            // this.selectedTarget = target;
             this.selectedAgent = '';
             this.selectedApplication = this.selectedTarget.node[0];
             this.reset({fromX: this.fromX, toX: this.toX});

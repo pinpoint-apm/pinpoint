@@ -162,6 +162,7 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
         });
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
             filter(({isAuthorized}: ISelectedTarget) => isAuthorized),
+            filter(({isNode, isWAS, isMerged}: ISelectedTarget) => isNode && isWAS && !isMerged),
             tap(({node}: ISelectedTarget) => {
                 this.isChangedTarget = true;
                 this.selectedAgent = '';
