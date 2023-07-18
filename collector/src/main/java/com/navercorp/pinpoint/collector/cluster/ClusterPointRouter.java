@@ -121,6 +121,8 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
     }
 
     private boolean handleRouteRequest(TCommandTransfer request, RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleRouteRequest() request:{}, remote:{}", request, pinpointSocket.getRemoteAddress());
+        
         byte[] payload = request.getPayload();
         TBase<?, ?> command = deserialize(payload);
 
