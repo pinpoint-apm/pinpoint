@@ -21,9 +21,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.model.TagUtils;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,7 +53,7 @@ public class Field {
                  @JsonProperty("postProcess") String postProcess){
         this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
         this.fieldAlias = StringUtils.defaultString(fieldAlias, fieldName);
-        this.tags = defaultTags(tags);
+        this.tags = TagUtils.defaultTags(tags);
         this.matchingRule = Objects.requireNonNull(matchingRule, "matchingRule");
         this.aggregationFunction = Objects.requireNonNull(aggregationFunction, "aggregationFunction");
         this.chartType = StringUtils.defaultString(chartType, "");
@@ -61,12 +61,6 @@ public class Field {
         this.postProcess = StringUtils.defaultString(postProcess, EmptyPostProcessor.INSTANCE.getName());
     }
 
-    private List<Tag> defaultTags(List<Tag> tags) {
-        if (tags == null) {
-            return Collections.emptyList();
-        }
-        return tags;
-    }
 
     public String getFieldAlias() {
         return fieldAlias;

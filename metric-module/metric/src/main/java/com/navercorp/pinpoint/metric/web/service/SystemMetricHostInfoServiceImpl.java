@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.service;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
@@ -123,7 +124,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     private List<MetricTag> createTag(MetricDataSearchKey metricDataSearchKey, Field field, List<Tag> tags) {
-        if (tags == null || tags.isEmpty()) {
+        if (CollectionUtils.isEmpty(tags)) {
             return Collections.emptyList();
         }
 

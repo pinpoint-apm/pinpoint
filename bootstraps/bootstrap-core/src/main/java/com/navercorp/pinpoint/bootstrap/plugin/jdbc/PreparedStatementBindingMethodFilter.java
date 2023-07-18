@@ -38,13 +38,7 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
         Map<String, List<String[]>> bindMethod = new HashMap<>();
 
         for (Method method : methods) {
-            List<String[]> parameterTypeList = bindMethod.get(method.getName());
-
-            if (parameterTypeList == null) {
-                parameterTypeList = new ArrayList<>();
-                bindMethod.put(method.getName(), parameterTypeList);
-            }
-
+            List<String[]> parameterTypeList = bindMethod.computeIfAbsent(method.getName(), k -> new ArrayList<>());
             String[] paramTypeNames = getParameterTypeNames(method);
 
             parameterTypeList.add(paramTypeNames);

@@ -22,7 +22,7 @@ import static j2html.TagCreator.title;
  */
 public class ApiLinkPage {
     private final String title;
-    private List<ATag> aTags = new ArrayList<>();
+    private final List<ATag> aTags = new ArrayList<>();
 
     public ApiLinkPage(String title) {
         this.title = Objects.requireNonNull(title, "title");

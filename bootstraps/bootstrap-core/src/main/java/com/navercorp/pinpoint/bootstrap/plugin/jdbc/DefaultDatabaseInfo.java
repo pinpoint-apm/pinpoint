@@ -55,14 +55,7 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
         if (host.isEmpty()) {
             return "";
         }
-        String single = host.get(0);
-        StringBuilder sb = new StringBuilder();
-        sb.append(single);
-        for(int i =1; i<host.size(); i++) {
-            sb.append(',');
-            sb.append(host.get(i));
-        }
-        return sb.toString();
+        return String.join(",", host);
     }
 
 

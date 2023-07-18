@@ -181,8 +181,9 @@ public class HeatMapServiceImpl implements HeatMapService {
     private List<SpanBo> pickFirst(List<List<SpanBo>> spanLists) {
         List<SpanBo> result = new ArrayList<>(spanLists.size());
         for (List<SpanBo> candidates : spanLists) {
-            if (candidates.size() > 0) {
-                result.add(candidates.get(0));
+            final SpanBo first = org.springframework.util.CollectionUtils.firstElement(candidates);
+            if (first != null) {
+                result.add(first);
 
                 if (candidates.size() > 1 && logger.isDebugEnabled()) {
                     logger.debug("heuristically avoid Legacy compatibility error, spanCandidate:{}", candidates);

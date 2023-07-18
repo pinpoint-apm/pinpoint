@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.junit.jupiter.api.Disabled;
 
 import java.util.Set;
@@ -57,7 +58,7 @@ public class DeadlockMonitorJobTest {
 
         while (true) {
             Set<Long> deadlockedThreadIdSet = registry.getDeadlockedThreadIdSet();
-            if (deadlockedThreadIdSet != null && deadlockedThreadIdSet.size() > 0) {
+            if (CollectionUtils.hasLength(deadlockedThreadIdSet)) {
                 System.out.println(deadlockedThreadIdSet);
                 break;
             }

@@ -35,6 +35,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Duration;
 import java.util.List;
@@ -85,7 +86,7 @@ public class RedisBasicConfig {
 
     @Bean
     RedisConfiguration redisConfiguration() {
-        if (clusterNodes == null || clusterNodes.isEmpty()) {
+        if (CollectionUtils.isEmpty(clusterNodes)) {
             Assert.hasText(host, "host is required for redis-standalone mode");
 
             final RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
