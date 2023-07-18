@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.realtime.dto.mapper.grpc;
 import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PThreadLightDump;
+import com.navercorp.pinpoint.grpc.trace.PThreadState;
 import com.navercorp.pinpoint.realtime.dto.MonitorInfo;
 import com.navercorp.pinpoint.realtime.dto.ThreadDump;
 import com.navercorp.pinpoint.realtime.dto.ThreadState;
@@ -59,33 +60,50 @@ class ThreadDumpMapper {
     }
 
     static PThreadDump into(ThreadDump s) {
-        assert s.getThreadState() != null;
-        return PThreadDump.newBuilder()
+        PThreadDump.Builder builder = PThreadDump.newBuilder()
                 .setThreadId(s.getThreadId())
-                .setThreadName(s.getThreadName())
-                .setThreadStateValue(s.getThreadState().getValue())
-                .setBlockedCount(s.getBlockedCount())
                 .setBlockedTime(s.getBlockedTime())
-                .setInNative(s.isInNative())
-                .addAllLockedMonitor(mapList(s.getLockedMonitors(), ThreadDumpMapper::into))
-                .addAllLockedSynchronizer(nonNullList(s.getLockedSynchronizers()))
-                .setLockName(s.getLockName())
-                .setLockOwnerId(s.getLockOwnerId())
-                .setLockOwnerName(s.getLockOwnerName())
+                .setBlockedCount(s.getBlockedCount())
                 .setWaitedTime(s.getWaitedTime())
                 .setWaitedCount(s.getWaitedCount())
-                .setSuspended(s.isSuspended())
-                .addAllStackTrace(s.getStackTrace())
-                .build();
+                .setLockOwnerId(s.getLockOwnerId())
+                .setInNative(s.isInNative())
+                .setSuspended(s.isSuspended());
+
+        if (s.getThreadName() != null) {
+            builder.setThreadName(s.getThreadName());
+        }
+        if (s.getLockName() != null) {
+            builder.setLockName(s.getLockName());
+        }
+        if (s.getLockOwnerName() != null) {
+            builder.setLockOwnerName(s.getLockOwnerName());
+        }
+        if (s.getThreadState() != null) {
+            builder.setThreadState(PThreadState.forNumber(s.getThreadState().getValue()));
+        }
+        if (s.getStackTrace() != null) {
+            builder.addAllStackTrace(nonNullList(s.getStackTrace()));
+        }
+        if (s.getLockedMonitors() != null) {
+            builder.addAllLockedMonitor(mapList(s.getLockedMonitors(), ThreadDumpMapper::into));
+        }
+        if (s.getLockedSynchronizers() != null) {
+            builder.addAllLockedSynchronizer(nonNullList(s.getLockedSynchronizers()));
+        }
+        return builder.build();
     }
 
     static PThreadLightDump intoLight(ThreadDump s) {
-        assert s.getThreadState() != null;
-        return PThreadLightDump.newBuilder()
-                .setThreadId(s.getThreadId())
-                .setThreadName(s.getThreadName())
-                .setThreadStateValue(s.getThreadState().getValue())
-                .build();
+        PThreadLightDump.Builder builder = PThreadLightDump.newBuilder()
+                .setThreadId(s.getThreadId());
+        if (s.getThreadName() != null) {
+            builder.setThreadName(s.getThreadName());
+        }
+        if (s.getThreadState() != null) {
+            builder.setThreadState(PThreadState.forNumber(s.getThreadState().getValue()));
+        }
+        return builder.build();
     }
 
     private static MonitorInfo from(PMonitorInfo s) {
@@ -96,10 +114,12 @@ class ThreadDumpMapper {
     }
 
     private static PMonitorInfo into(MonitorInfo s) {
-        return PMonitorInfo.newBuilder()
-                .setStackDepth(s.getStackDepth())
-                .setStackFrame(s.getStackFrame())
-                .build();
+        PMonitorInfo.Builder builder = PMonitorInfo.newBuilder()
+                .setStackDepth(s.getStackDepth());
+        if (s.getStackFrame() != null) {
+            builder.setStackFrame(s.getStackFrame());
+        }
+        return builder.build();
     }
 
 }
