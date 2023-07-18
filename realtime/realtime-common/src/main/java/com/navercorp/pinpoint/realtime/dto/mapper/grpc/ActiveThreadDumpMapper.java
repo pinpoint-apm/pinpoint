@@ -47,27 +47,40 @@ class ActiveThreadDumpMapper {
     }
 
     static PActiveThreadDump into(ActiveThreadDump s) {
-        assert s.getThreadDump() != null;
-        return PActiveThreadDump.newBuilder()
+        final PActiveThreadDump.Builder builder = PActiveThreadDump.newBuilder()
                 .setStartTime(s.getStartTime())
                 .setLocalTraceId(s.getLocalTraceId())
-                .setThreadDump(ThreadDumpMapper.into(s.getThreadDump()))
-                .setSampled(s.isSampled())
-                .setTransactionId(s.getTransactionId())
-                .setEntryPoint(s.getEntryPoint())
-                .build();
+                .setSampled(s.isSampled());
+
+        if (s.getThreadDump() != null) {
+            builder.setThreadDump(ThreadDumpMapper.into(s.getThreadDump()));
+        }
+        if (s.getTransactionId() != null) {
+            builder.setTransactionId(s.getTransactionId());
+        }
+        if (s.getEntryPoint() != null) {
+            builder.setEntryPoint(s.getEntryPoint());
+        }
+
+        return builder.build();
     }
 
     static PActiveThreadLightDump intoLight(ActiveThreadDump s) {
-        assert s.getThreadDump() != null;
-        return PActiveThreadLightDump.newBuilder()
+        PActiveThreadLightDump.Builder builder = PActiveThreadLightDump.newBuilder()
                 .setStartTime(s.getStartTime())
                 .setLocalTraceId(s.getLocalTraceId())
-                .setThreadDump(ThreadDumpMapper.intoLight(s.getThreadDump()))
                 .setSampled(s.isSampled())
-                .setTransactionId(s.getTransactionId())
-                .setEntryPoint(s.getEntryPoint())
-                .build();
+                .setTransactionId(s.getTransactionId());
+        if (s.getTransactionId() != null) {
+            builder.setTransactionId(s.getTransactionId());
+        }
+        if (s.getEntryPoint() != null) {
+            builder.setEntryPoint(s.getEntryPoint());
+        }
+        if (s.getThreadDump() != null) {
+            builder.setThreadDump(ThreadDumpMapper.intoLight(s.getThreadDump()));
+        }
+        return builder.build();
     }
 
 }

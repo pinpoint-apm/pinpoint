@@ -16,25 +16,8 @@
 package com.navercorp.pinpoint.realtime.dto.mapper;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.grpc.trace.PActiveThreadDump;
-import com.navercorp.pinpoint.grpc.trace.PActiveThreadLightDump;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
-import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
-import com.navercorp.pinpoint.grpc.trace.PThreadDump;
-import com.navercorp.pinpoint.grpc.trace.PThreadLightDump;
-import com.navercorp.pinpoint.grpc.trace.PThreadState;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
-import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
+import com.navercorp.pinpoint.grpc.trace.*;
+import com.navercorp.pinpoint.thrift.dto.command.*;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
@@ -64,78 +47,134 @@ public class ThriftToGrpcConverter {
     }
 
     private static PCmdActiveThreadDumpRes convert(TCmdActiveThreadDumpRes s) {
-        return PCmdActiveThreadDumpRes.newBuilder()
-                .setSubType(s.getSubType())
-                .setType(s.getType())
-                .setVersion(s.getVersion())
-                .addAllThreadDump(mapList(s.getThreadDumps(), ThriftToGrpcConverter::convert))
-                .build();
+        PCmdActiveThreadDumpRes.Builder builder = PCmdActiveThreadDumpRes.newBuilder();
+        if (s.getSubType() != null) {
+            builder.setSubType(s.getSubType());
+        }
+        if (s.getType() != null) {
+            builder.setType(s.getType());
+        }
+        if (s.getVersion() != null) {
+            builder.setVersion(s.getVersion());
+        }
+        builder.addAllThreadDump(mapList(s.getThreadDumps(), ThriftToGrpcConverter::convert));
+        return builder.build();
     }
 
-    private static PActiveThreadDump convert(TActiveThreadDump s2) {
-        final TThreadDump s3 = s2.getThreadDump();
-        return PActiveThreadDump.newBuilder()
-                .setStartTime(s2.getStartTime())
-                .setLocalTraceId(s2.getLocalTraceId())
-                .setSampled(s2.isSampled())
-                .setTransactionId(s2.getTransactionId())
-                .setEntryPoint(s2.getEntryPoint())
-                .setThreadDump(PThreadDump.newBuilder()
-                        .setThreadName(s3.getThreadName())
-                        .setThreadId(s3.getThreadId())
-                        .setBlockedTime(s3.getBlockedTime())
-                        .setBlockedCount(s3.getBlockedCount())
-                        .setWaitedTime(s3.getWaitedTime())
-                        .setWaitedCount(s3.getWaitedCount())
-                        .setLockName(s3.getLockName())
-                        .setLockOwnerId(s3.getLockOwnerId())
-                        .setLockOwnerName(s3.getLockOwnerName())
-                        .setInNative(s3.isInNative())
-                        .setSuspended(s3.isSuspended())
-                        .setThreadState(PThreadState.forNumber(s3.getThreadState().getValue()))
-                        .addAllStackTrace(nonNullList(s3.getStackTrace()))
-                        .addAllLockedSynchronizer(nonNullList(s3.getLockedSynchronizers()))
-                        .addAllLockedMonitor(mapList(s3.getLockedMonitors(), ThriftToGrpcConverter::convert))
-                        .build())
-                .build();
+    private static PActiveThreadDump convert(TActiveThreadDump s) {
+        final PActiveThreadDump.Builder builder = PActiveThreadDump.newBuilder()
+                .setStartTime(s.getStartTime())
+                .setLocalTraceId(s.getLocalTraceId())
+                .setSampled(s.isSampled());
+
+        if (s.getThreadDump() != null) {
+            builder.setThreadDump(buildPThreadDump(s.getThreadDump()));
+        }
+        if (s.getTransactionId() != null) {
+            builder.setTransactionId(s.getTransactionId());
+        }
+        if (s.getEntryPoint() != null) {
+            builder.setEntryPoint(s.getEntryPoint());
+        }
+
+        return builder.build();
+    }
+
+    private static PThreadDump buildPThreadDump(TThreadDump s) {
+        PThreadDump.Builder builder = PThreadDump.newBuilder()
+                .setThreadId(s.getThreadId())
+                .setBlockedTime(s.getBlockedTime())
+                .setBlockedCount(s.getBlockedCount())
+                .setWaitedTime(s.getWaitedTime())
+                .setWaitedCount(s.getWaitedCount())
+                .setLockOwnerId(s.getLockOwnerId())
+                .setInNative(s.isInNative())
+                .setSuspended(s.isSuspended());
+
+        if (s.getThreadName() != null) {
+            builder.setThreadName(s.getThreadName());
+        }
+        if (s.getLockName() != null) {
+            builder.setLockName(s.getLockName());
+        }
+        if (s.getLockOwnerName() != null) {
+            builder.setLockOwnerName(s.getLockOwnerName());
+        }
+        if (s.getThreadState() != null) {
+            builder.setThreadState(PThreadState.forNumber(s.getThreadState().getValue()));
+        }
+        if (s.getStackTrace() != null) {
+            builder.addAllStackTrace(nonNullList(s.getStackTrace()));
+        }
+        if (s.getLockedMonitors() != null) {
+            builder.addAllLockedMonitor(mapList(s.getLockedMonitors(), ThriftToGrpcConverter::convert));
+        }
+        if (s.getLockedSynchronizers() != null) {
+            builder.addAllLockedSynchronizer(nonNullList(s.getLockedSynchronizers()));
+        }
+        return builder.build();
     }
 
     private static PMonitorInfo convert(TMonitorInfo s) {
-        return PMonitorInfo.newBuilder()
-                .setStackDepth(s.getStackDepth())
-                .setStackFrame(s.getStackFrame())
-                .build();
+        PMonitorInfo.Builder builder = PMonitorInfo.newBuilder()
+                .setStackDepth(s.getStackDepth());
+        if (s.getStackFrame() != null) {
+            builder.setStackFrame(s.getStackFrame());
+        }
+        return builder.build();
     }
 
     private static PCmdActiveThreadLightDumpRes convert(TCmdActiveThreadLightDumpRes s) {
-        final PCmdActiveThreadLightDumpRes.Builder builder = PCmdActiveThreadLightDumpRes.newBuilder()
-                .setSubType(s.getSubType())
-                .setType(s.getType())
-                .setVersion(s.getVersion())
+        PCmdActiveThreadLightDumpRes.Builder builder = PCmdActiveThreadLightDumpRes.newBuilder()
                 .addAllThreadDump(mapList(s.getThreadDumps(), ThriftToGrpcConverter::convert));
+        if (s.getSubType() != null) {
+            builder.setSubType(s.getSubType());
+        }
+        if (s.getType() != null) {
+            builder.setType(s.getType());
+        }
+        if (s.getVersion() != null) {
+            builder.setVersion(s.getVersion());
+        }
         return builder.build();
     }
 
     private static PActiveThreadLightDump convert(TActiveThreadLightDump s) {
-        final TThreadLightDump s2 = s.getThreadDump();
-        return PActiveThreadLightDump.newBuilder()
+        PActiveThreadLightDump.Builder builder = PActiveThreadLightDump.newBuilder()
                 .setStartTime(s.getStartTime())
                 .setLocalTraceId(s.getLocalTraceId())
                 .setSampled(s.isSampled())
-                .setTransactionId(s.getTransactionId())
-                .setEntryPoint(s.getEntryPoint())
-                .setThreadDump(PThreadLightDump.newBuilder()
-                        .setThreadName(s2.getThreadName())
-                        .setThreadId(s2.getThreadId())
-                        .setThreadState(PThreadState.forNumber(s2.getThreadState().getValue()))
-                        .build())
-                .build();
+                .setTransactionId(s.getTransactionId());
+        if (s.getTransactionId() != null) {
+            builder.setTransactionId(s.getTransactionId());
+        }
+        if (s.getEntryPoint() != null) {
+            builder.setEntryPoint(s.getEntryPoint());
+        }
+        if (s.getThreadDump() != null) {
+            builder.setThreadDump(buildPThreadLightDump(s.getThreadDump()));
+        }
+        return builder.build();
+    }
+
+    private static PThreadLightDump buildPThreadLightDump(TThreadLightDump s) {
+        PThreadLightDump.Builder builder = PThreadLightDump.newBuilder()
+                .setThreadId(s.getThreadId());
+        if (s.getThreadName() != null) {
+            builder.setThreadName(s.getThreadName());
+        }
+        if (s.getThreadState() != null) {
+            builder.setThreadState(PThreadState.forNumber(s.getThreadState().getValue()));
+        }
+        return builder.build();
     }
 
     private static PCmdEchoResponse convert(TCommandEcho s) {
-        return PCmdEchoResponse.newBuilder()
-                .setMessage(s.getMessage())
-                .build();
+        PCmdEchoResponse.Builder builder = PCmdEchoResponse.newBuilder();
+        if (s.getMessage() != null) {
+            builder.setMessage(s.getMessage());
+        }
+        return builder.build();
     }
 
     private static PCmdActiveThreadCountRes convert(TCmdActiveThreadCountRes s) {

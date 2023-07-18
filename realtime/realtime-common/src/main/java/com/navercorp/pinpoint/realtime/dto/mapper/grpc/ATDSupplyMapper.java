@@ -56,21 +56,33 @@ class ATDSupplyMapper {
     }
 
     static PCmdActiveThreadDumpRes buildDetailedDumpResult(ATDSupply s) {
-        return PCmdActiveThreadDumpRes.newBuilder()
-                .setType(s.getType())
-                .setVersion(s.getVersion())
-                .setSubType(s.getSubType())
-                .addAllThreadDump(mapList(s.getThreadDumps(), ActiveThreadDumpMapper::into))
-                .build();
+        PCmdActiveThreadDumpRes.Builder builder = PCmdActiveThreadDumpRes.newBuilder()
+                .addAllThreadDump(mapList(s.getThreadDumps(), ActiveThreadDumpMapper::into));
+        if (s.getType() != null) {
+            builder.setType(s.getType());
+        }
+        if (s.getVersion() != null) {
+            builder.setVersion(s.getVersion());
+        }
+        if (s.getSubType() != null) {
+            builder.setSubType(s.getSubType());
+        }
+        return builder.build();
     }
 
     static PCmdActiveThreadLightDumpRes buildLightDumpResult(ATDSupply s) {
-        return PCmdActiveThreadLightDumpRes.newBuilder()
-                .setType(s.getType())
-                .setVersion(s.getVersion())
-                .setSubType(s.getSubType())
-                .addAllThreadDump(mapList(s.getThreadDumps(), ActiveThreadDumpMapper::intoLight))
-                .build();
+        PCmdActiveThreadLightDumpRes.Builder builder = PCmdActiveThreadLightDumpRes.newBuilder()
+                .addAllThreadDump(mapList(s.getThreadDumps(), ActiveThreadDumpMapper::intoLight));
+        if (s.getType() != null) {
+            builder.setType(s.getType());
+        }
+        if (s.getVersion() != null) {
+            builder.setVersion(s.getVersion());
+        }
+        if (s.getSubType() != null) {
+            builder.setSubType(s.getSubType());
+        }
+        return builder.build();
     }
 
 }
