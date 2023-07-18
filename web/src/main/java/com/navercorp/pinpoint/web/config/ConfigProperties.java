@@ -50,9 +50,6 @@ public class ConfigProperties {
     @Value("${config.enable.serverMapRealTime:false}")
     private boolean enableServerMapRealTime;
 
-    @Value("${config.openSource:true}")
-    private boolean openSource;
-
     @Value("${security.guide.url:#{null}}")
     private String securityGuideUrl;
 
@@ -102,9 +99,6 @@ public class ConfigProperties {
         return enableServerMapRealTime;
     }
 
-    public boolean isOpenSource() {
-        return this.openSource;
-    }
 
     public boolean isShowApplicationStat() {
         return this.showApplicationStat;
@@ -146,7 +140,6 @@ public class ConfigProperties {
         sb.append(", showActiveThreadDump=").append(showActiveThreadDump);
         sb.append(", enableActiveThreadDump=").append(enableActiveThreadDump);
         sb.append(", enableServerMapRealTime=").append(enableServerMapRealTime);
-        sb.append(", openSource=").append(openSource);
         sb.append(", securityGuideUrl='").append(securityGuideUrl).append('\'');
         sb.append(", showApplicationStat=").append(showApplicationStat);
         sb.append(", showStackTraceOnError=").append(showStackTraceOnError);

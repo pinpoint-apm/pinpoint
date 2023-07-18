@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -83,7 +84,7 @@ public class AlarmControllerTest {
     private WebApplicationContext wac;
     
     @Autowired
-    private AlarmDao alarmDao;
+    private UserGroupDao userGroupDao;
 
     private final ObjectMapper mapper = Jackson.newMapper();
 
@@ -92,8 +93,8 @@ public class AlarmControllerTest {
     @BeforeEach
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-        this.alarmDao.deleteRuleByUserGroupId(USER_GROUP_ID);
-        this.alarmDao.deleteRuleByUserGroupId(USER_GROUP_ID_UPDATED);
+        this.userGroupDao.deleteRuleByUserGroupId(USER_GROUP_ID);
+        this.userGroupDao.deleteRuleByUserGroupId(USER_GROUP_ID_UPDATED);
     }
     
     @Test

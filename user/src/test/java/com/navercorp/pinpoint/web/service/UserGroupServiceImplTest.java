@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.config.UserConfigProperties;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.vo.User;
@@ -48,14 +48,12 @@ public class UserGroupServiceImplTest {
     private UserInfoDecoder userInfoDecoder;
     @Mock
     private UserService userService;
-    @Mock
-    private AlarmService alarmService;
 
     UserGroupServiceImpl userGroupService;
 
     @BeforeEach
     public void before() throws Exception {
-        userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(userInfoDecoder), alarmService, new ConfigProperties(), userService);
+        userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(userInfoDecoder), new UserConfigProperties(), userService);
     }
 
     @Test
@@ -67,7 +65,7 @@ public class UserGroupServiceImplTest {
         );
 
 
-        userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.empty(), alarmService, new ConfigProperties(), userService);
+        userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.empty(), new UserConfigProperties(), userService);
         when(userGroupDao.selectPhoneNumberOfMember(groupId)).thenReturn(phoneNumberWithHyphenList);
         List<String> phoneNumberList = userGroupService.selectPhoneNumberOfMember(groupId);
 
@@ -121,7 +119,7 @@ public class UserGroupServiceImplTest {
     @Test
     public void selectPhoneInfoOfMemberTest() {
 
-        UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), alarmService, new ConfigProperties(), userService);
+        UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), new UserConfigProperties(), userService);
 
         String groupId = "groupId";
         List<UserPhoneInfo> userPhoneInfoList = List.of(
@@ -142,7 +140,7 @@ public class UserGroupServiceImplTest {
 
     @Test
     public void selectEmailOfMemberTest() {
-        UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), alarmService, new ConfigProperties(), userService);
+        UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), new UserConfigProperties(), userService);
 
         String groupId = "groupId";
         List<String> encodedEmailList = List.of(

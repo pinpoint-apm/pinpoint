@@ -38,13 +38,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Repository
 public class MemoryAlarmDao implements AlarmDao {
     
-    private final Map<String, Rule> alarmRule = new ConcurrentHashMap<>();
-    private final AtomicInteger ruleIdGenerator  = new AtomicInteger(); 
+    private final Map<String, Rule> alarmRule;
+    private final AtomicInteger ruleIdGenerator;
     
     private final UserGroupDao userGroupDao;
 
-    public MemoryAlarmDao(UserGroupDao userGroupDao) {
+    public MemoryAlarmDao(AlarmRule alarmRuleData, UserGroupDao userGroupDao) {
         this.userGroupDao = Objects.requireNonNull(userGroupDao, "userGroupDao");
+        Objects.requireNonNull(alarmRuleData, "alarmRule");
+        this.alarmRule = alarmRuleData.getAlarmRule();
+        this.ruleIdGenerator = alarmRuleData.getRuleIdGenerator();
     }
 
     @Override
@@ -69,14 +72,6 @@ public class MemoryAlarmDao implements AlarmDao {
         alarmRule.remove(rule.getRuleId());
     }
 
-    @Override
-    public void deleteRuleByUserGroupId(String userGroupId) {
-        for (Entry<String, Rule> entry : alarmRule.entrySet()) {
-            if (entry.getValue().getUserGroupId().equals(userGroupId)) {
-                alarmRule.remove(entry.getKey());
-            }
-        }
-    }
 
     @Override
     public List<Rule> selectRuleByUserGroupId(String userGroupId) {

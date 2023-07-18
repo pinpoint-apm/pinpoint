@@ -25,7 +25,7 @@ public class MemoryUserDaoTest {
     private UserGroupDao userGroupDao;
     
     @InjectMocks
-    private  MemoryUserDao memoryUserDao;
+    private MemoryUserDao memoryUserDao;
     
     private User createUser(String userID, String dep, String name) {
         return new User(userID, name, dep, 82, "1012345678", "pinpoint@naver.com");

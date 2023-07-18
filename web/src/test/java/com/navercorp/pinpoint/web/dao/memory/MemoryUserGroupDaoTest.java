@@ -12,7 +12,7 @@ public class MemoryUserGroupDaoTest {
 
     @Test
     public void selectUserGroupByUserId() {
-        MemoryUserGroupDao userGroupDao = new MemoryUserGroupDao(mock(UserDao.class));
+        MemoryUserGroupDao userGroupDao = new MemoryUserGroupDao(mock(AlarmRule.class), mock(UserDao.class));
         userGroupDao.createUserGroup(new UserGroup("1", "userGroup1"));
         userGroupDao.createUserGroup(new UserGroup("2", "userGroup2"));
         userGroupDao.insertMember(new UserGroupMember("userGroup1", "user1"));
@@ -23,7 +23,7 @@ public class MemoryUserGroupDaoTest {
     
     @Test
     public void selectUserGroupByUserGroupId() {
-        MemoryUserGroupDao userGroupDao = new MemoryUserGroupDao(mock(UserDao.class));
+        MemoryUserGroupDao userGroupDao = new MemoryUserGroupDao(mock(AlarmRule.class), mock(UserDao.class));
         userGroupDao.createUserGroup(new UserGroup("1", "userGroup1"));
         userGroupDao.createUserGroup(new UserGroup("2", "userGroup2"));
         userGroupDao.insertMember(new UserGroupMember("userGroup1", "user1"));

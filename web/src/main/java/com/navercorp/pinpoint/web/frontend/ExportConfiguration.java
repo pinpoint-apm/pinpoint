@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.frontend;
 
 import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.config.UserConfigProperties;
 import com.navercorp.pinpoint.web.frontend.config.ExperimentalProperties;
 import com.navercorp.pinpoint.web.frontend.export.ConfigPropertiesExporter;
 import com.navercorp.pinpoint.web.frontend.export.ExperimentalPropertiesExporter;
@@ -22,11 +23,11 @@ public class ExportConfiguration {
     }
 
     @Bean
-    public FrontendConfigExporter configPropertiesExporter(Optional<ConfigProperties> properties) {
-        if (properties.isEmpty()) {
+    public FrontendConfigExporter configPropertiesExporter(Optional<ConfigProperties> properties, Optional<UserConfigProperties> userConfigProperties) {
+        if (properties.isEmpty() || userConfigProperties.isEmpty()) {
             return null;
         }
-        return new ConfigPropertiesExporter(properties.get());
+        return new ConfigPropertiesExporter(properties.get(), userConfigProperties.get());
     }
 
     @Bean

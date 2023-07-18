@@ -44,6 +44,7 @@ import org.springframework.core.env.StandardEnvironment;
 
         InstallModule.class,
         WebhookFacadeModule.class,
+        UserModule.class,
         FrontendConfigExportConfiguration.class,
         QueryServiceConfiguration.class
 })

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.batch;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
+import com.navercorp.pinpoint.web.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.boot.SpringBootConfiguration;
@@ -50,8 +51,8 @@ import org.springframework.context.annotation.ImportResource;
         BatchAppPropertySources.class,
         WebhookModule.class,
         WebHbaseModule.class,
-
-        RestTemplateConfiguration.class
+        RestTemplateConfiguration.class,
+        UserModule.class,
 })
 public class BatchApp {
 

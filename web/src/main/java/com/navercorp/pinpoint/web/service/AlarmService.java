@@ -37,7 +37,5 @@ public interface AlarmService {
 
     void updateRule(Rule rule);
 
-    void deleteRuleByUserGroupId(String groupId);
-
     void updateUserGroupIdOfRule(UserGroup userGroup);
 }
