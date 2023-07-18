@@ -136,13 +136,13 @@ public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionLi
     private void sendAlarmMessage(CheckerResult beforeCheckerResult, AlarmChecker<?> checker) {
         if (isTurnToSendAlarm(beforeCheckerResult)) {
             if (checker.isSMSSend()) {
-                alarmMessageSender.sendSms(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
+                alarmMessageSender.sendSms(checker, beforeCheckerResult.getSequenceCount() + 1);
             }
             if (checker.isEmailSend()) {
-                alarmMessageSender.sendEmail(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
+                alarmMessageSender.sendEmail(checker, beforeCheckerResult.getSequenceCount() + 1);
             }
             if (checker.isWebhookSend()) {
-                alarmMessageSender.sendWebhook(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
+                alarmMessageSender.sendWebhook(checker, beforeCheckerResult.getSequenceCount() + 1);
             }
         }
     }

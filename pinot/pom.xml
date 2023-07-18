@@ -31,6 +31,7 @@
         <module>pinot-datasource</module>
         <module>pinot-kafka</module>
         <module>pinot-config</module>
+        <module>pinot-batch</module>
     </modules>
 
 </project>

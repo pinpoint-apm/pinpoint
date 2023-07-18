@@ -86,7 +86,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         checker.check();
         Assertions.assertTrue(checker.isDetected());
 
-        String emailMessage = checker.getEmailMessage();
+        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationId", "serviceType", "currentTime");
         Assertions.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
@@ -102,7 +102,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         checker.check();
         Assertions.assertFalse(checker.isDetected());
 
-        String emailMessage = checker.getEmailMessage();
+        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationId", "serviceType", "currentTime");
         Assertions.assertTrue(StringUtils.isEmpty(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();

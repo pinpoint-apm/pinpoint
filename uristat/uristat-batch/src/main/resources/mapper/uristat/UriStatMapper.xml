@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.batch.alarm.dao.UriStatDao">
+
+    <select id="selectTotalCount" parameterType="UriStatQueryParams" resultType="double">
+        SELECT SUM("count")
+        FROM uriStat
+        WHERE tenantId = #{tenantId}
+            AND serviceName = #{serviceName}
+            AND applicationName = #{applicationName}
+            AND uri = #{targetUri}
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+    </select>
+
+    <select id="selectFailureCount" parameterType="UriStatQueryParams" resultType="double">
+        SELECT SUM(failureCount)
+        FROM uriStat
+        WHERE tenantId = #{tenantId}
+          AND serviceName = #{serviceName}
+          AND applicationName = #{applicationName}
+          AND uri = #{targetUri}
+          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+    </select>
+
+    <select id="selectApdex" parameterType="UriStatQueryParams" resultType="double">
+        SELECT SUM(apdexRaw) / SUM("count")
+        FROM uriStat
+        WHERE tenantId = #{tenantId}
+            AND serviceName = #{serviceName}
+            AND applicationName = #{applicationName}
+            AND uri = #{targetUri}
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+    </select>
+
+    <select id="selectAvgResponse" parameterType="UriStatQueryParams" resultType="double">
+        SELECT SUM(totalTimeMs) / SUM("count")
+        FROM uriStat
+        WHERE tenantId = #{tenantId}
+          AND serviceName = #{serviceName}
+          AND applicationName = #{applicationName}
+          AND uri = #{targetUri}
+          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+    </select>
+
+    <select id="selectMaxResponse" parameterType="UriStatQueryParams" resultType="double">
+        SELECT MAX(maxLatencyMs)
+        FROM uriStat
+        WHERE tenantId = #{tenantId}
+          AND serviceName = #{serviceName}
+          AND applicationName = #{applicationName}
+          AND uri = #{targetUri}
+          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+    </select>
+
+    <select id="checkIfKeyExists" parameterType="UriStatQueryParams" resultType="double">
+        SELECT COUNT(uri)
+        FROM uriStat
+        WHERE tenantId = #{tenantId}
+          AND serviceName = #{serviceName}
+          AND applicationName = #{applicationName}
+          AND uri = #{targetUri}
+          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+    </select>
+</mapper>

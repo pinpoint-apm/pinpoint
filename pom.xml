@@ -127,6 +127,8 @@
         <module>redis</module>
         <module>inspector-module</module>
         <module>user</module>
+        <module>batch-alarmsender</module>
+
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
     </modules>
@@ -342,6 +344,11 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-pinot-batch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-hbase</artifactId>
                 <type>pom</type>
                 <version>${project.version}</version>
@@ -452,6 +459,11 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-batch-alarmsender</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-collector</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -483,6 +495,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-uristat-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-uristat-batch</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

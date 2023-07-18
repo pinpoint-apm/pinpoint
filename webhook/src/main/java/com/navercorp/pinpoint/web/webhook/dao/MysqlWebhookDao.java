@@ -60,6 +60,11 @@ public class MysqlWebhookDao implements WebhookDao {
     }
 
     @Override
+    public List<Webhook> selectWebhookByPinotAlarmRuleId(String ruleId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectWebhookByPinotAlarmRuleId", ruleId);
+    }
+
+    @Override
     public Webhook selectWebhook(String webhookId) {
         return sqlSessionTemplate.selectOne(NAMESPACE + "selectWebhook", webhookId);
     }

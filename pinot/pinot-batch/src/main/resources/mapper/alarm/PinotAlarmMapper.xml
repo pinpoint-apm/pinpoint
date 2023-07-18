@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.batch.alarm.dao.PinotAlarmDao">
+
+    <select id="selectAlarmKeys" resultType="PinotAlarmKey">
+        SELECT DISTINCT service_name, application_name, target, category_name
+        FROM pinot_alarm_rule
+    </select>
+
+    <select id="selectRulesByKeys" parameterType="PinotAlarmKey" resultType="PinotAlarmRule">
+        SELECT *
+        FROM pinot_alarm_rule
+        WHERE category_name = #{categoryName}
+          AND application_name = #{applicationName}
+          AND target = #{target}
+    </select>
+
+    <select id="insertAlarmHistory" parameterType="PinotAlarmHistory">
+        INSERT INTO pinot_alarm_history (rule_id, timestamp)
+        VALUES (#{ruleId}, #{timestamp})
+    </select>
+</mapper>

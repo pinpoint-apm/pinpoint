@@ -21,4 +21,6 @@ public interface WebhookService {
     List<Webhook> selectWebhookByServiceName(String serviceName);
 
     List<Webhook> selectWebhookByRuleId(String ruleId);
+
+    List<Webhook> selectWebhookByPinotAlarmRuleId(String ruleId);
 }

@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.web.frontend.export;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
-import com.navercorp.pinpoint.web.config.UserConfigProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -13,11 +12,9 @@ import java.util.Objects;
 public class ConfigPropertiesExporter implements FrontendConfigExporter {
 
     private final ConfigProperties webProperties;
-    private final UserConfigProperties userConfigProperties;
 
-    public ConfigPropertiesExporter(ConfigProperties webProperties, UserConfigProperties userConfigProperties) {
+    public ConfigPropertiesExporter(ConfigProperties webProperties) {
         this.webProperties = Objects.requireNonNull(webProperties, "webProperties");
-        this.userConfigProperties = Objects.requireNonNull(userConfigProperties, "userConfigProperties");
     }
 
     @Override
@@ -31,7 +28,7 @@ public class ConfigPropertiesExporter implements FrontendConfigExporter {
         export.put("showStackTraceOnError", webProperties.isShowStackTraceOnError());
         export.put("showSystemMetric", webProperties.isShowSystemMetric());
         export.put("showUrlStat", webProperties.isShowUrlStat());
-        export.put("openSource", userConfigProperties.isOpenSource());
+        export.put("openSource", webProperties.isOpenSource());
 
         export.put("version", Version.VERSION);
 

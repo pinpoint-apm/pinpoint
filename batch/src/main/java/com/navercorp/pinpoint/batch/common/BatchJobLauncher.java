@@ -22,6 +22,7 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobLocator;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 
@@ -36,14 +37,26 @@ public class BatchJobLauncher extends JobLaunchSupport {
 
     private final boolean enableCleanupInactiveAgentsJob;
 
-    public BatchJobLauncher(JobLocator locator, JobLauncher launcher, BatchProperties batchProperties) {
+    private final boolean enableUriStatAlarmJob;
+
+    public BatchJobLauncher(@Qualifier("jobRegistry") JobLocator locator,
+                            @Qualifier("jobLauncher") JobLauncher launcher, BatchProperties batchProperties) {
         super(locator, launcher);
         this.enableCleanupInactiveAgentsJob = batchProperties.isEnableCleanupInactiveAgents();
+        this.enableUriStatAlarmJob = batchProperties.getEnableUriStatAlarmJob();
     }
 
     public void alarmJob() {
         JobParameters params = createTimeParameter();
         run("alarmJob", params);
+    }
+
+    public void uriStatAlarmJob() {
+        if (enableUriStatAlarmJob) {
+            run("uriAlarmJob", createTimeParameter());
+        } else {
+            logger.debug("Skip uriAlarmJob, because 'enableUriStatAlarmJob' is disabled.");
+        }
     }
 
     private JobParameters createTimeParameter() {

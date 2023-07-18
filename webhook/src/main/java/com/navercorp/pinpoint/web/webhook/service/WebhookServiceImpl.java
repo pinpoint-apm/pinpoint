@@ -60,4 +60,9 @@ public class WebhookServiceImpl implements WebhookService {
     public List<Webhook> selectWebhookByRuleId(String ruleId) {
         return webhookDao.selectWebhookByRuleId(ruleId);
     }
+
+    @Override
+    public List<Webhook> selectWebhookByPinotAlarmRuleId(String ruleId) {
+        return webhookDao.selectWebhookByPinotAlarmRuleId(ruleId);
+    }
 }
