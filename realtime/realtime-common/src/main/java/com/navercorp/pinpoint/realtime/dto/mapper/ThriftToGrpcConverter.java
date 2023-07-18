@@ -16,8 +16,25 @@
 package com.navercorp.pinpoint.realtime.dto.mapper;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.grpc.trace.*;
-import com.navercorp.pinpoint.thrift.dto.command.*;
+import com.navercorp.pinpoint.grpc.trace.PActiveThreadDump;
+import com.navercorp.pinpoint.grpc.trace.PActiveThreadLightDump;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
+import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
+import com.navercorp.pinpoint.grpc.trace.PThreadDump;
+import com.navercorp.pinpoint.grpc.trace.PThreadLightDump;
+import com.navercorp.pinpoint.grpc.trace.PThreadState;
+import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
+import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
@@ -143,8 +160,7 @@ public class ThriftToGrpcConverter {
         PActiveThreadLightDump.Builder builder = PActiveThreadLightDump.newBuilder()
                 .setStartTime(s.getStartTime())
                 .setLocalTraceId(s.getLocalTraceId())
-                .setSampled(s.isSampled())
-                .setTransactionId(s.getTransactionId());
+                .setSampled(s.isSampled());
         if (s.getTransactionId() != null) {
             builder.setTransactionId(s.getTransactionId());
         }
