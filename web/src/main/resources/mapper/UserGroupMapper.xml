@@ -125,4 +125,9 @@
         )
     </select>
 
+    <delete id="deleteRuleByUserGroupId" parameterType="string">
+        DELETE
+        FROM alarm_rule
+        WHERE user_group_id = #{userGroupId}
+    </delete>
 </mapper>

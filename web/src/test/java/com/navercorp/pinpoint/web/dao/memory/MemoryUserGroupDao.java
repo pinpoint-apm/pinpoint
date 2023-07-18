@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.dao.memory;
 
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.vo.User;
@@ -36,17 +37,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Repository
 public class MemoryUserGroupDao implements UserGroupDao {
-    
     private final Map<String, UserGroup> userGroups = new ConcurrentHashMap<>();
     private final Map<String, UserGroupMember> userGroupMembers = new ConcurrentHashMap<>();
-    
+    private final Map<String, Rule> alarmRule;
+
     private final IdGenerator userGroupNumGenerator  = new IdGenerator();
     private final IdGenerator userGroupMemNumGenerator  = new IdGenerator();
-    
     private final UserDao userDao;
 
-    public MemoryUserGroupDao(UserDao userDao) {
+    public MemoryUserGroupDao(AlarmRule alarmRuleData, UserDao userDao) {
+        Objects.requireNonNull(alarmRuleData, "alarmRuleData");
         this.userDao = Objects.requireNonNull(userDao, "userDao");
+        this.alarmRule = alarmRuleData.getAlarmRule();
     }
 
     @Override
@@ -242,5 +244,14 @@ public class MemoryUserGroupDao implements UserGroupDao {
         }
 
         return userPhoneInfoList;
+    }
+
+    @Override
+    public void deleteRuleByUserGroupId(String userGroupId) {
+        for (Map.Entry<String, Rule> entry : alarmRule.entrySet()) {
+            if (entry.getValue().getUserGroupId().equals(userGroupId)) {
+                alarmRule.remove(entry.getKey());
+            }
+        }
     }
 }

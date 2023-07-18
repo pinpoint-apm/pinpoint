@@ -126,7 +126,7 @@
         <module>realtime</module>
         <module>redis</module>
         <module>inspector-module</module>
-
+        <module>user</module>
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
     </modules>
@@ -463,6 +463,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-webhook</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-user</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

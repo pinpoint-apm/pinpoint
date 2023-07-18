@@ -126,4 +126,9 @@ public class MysqlUserGroupDao implements UserGroupDao {
     public void updateUserGroupIdOfMember(UserGroup userGroup) {
         sqlSessionTemplate.update(NAMESPACE + "updateUserGroupIdOfMember", userGroup);
     }
+
+    @Override
+    public void deleteRuleByUserGroupId(String userGroupId) {
+        sqlSessionTemplate.insert(NAMESPACE + "deleteRuleByUserGroupId", userGroupId);
+    }
 }

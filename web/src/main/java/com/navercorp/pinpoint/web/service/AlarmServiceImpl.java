@@ -82,11 +82,6 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     @Override
-    public void deleteRuleByUserGroupId(String groupId) {
-        alarmDao.deleteRuleByUserGroupId(groupId);
-    }
-    
-    @Override
     public void updateUserGroupIdOfRule(UserGroup userGroup) {
         alarmDao.updateUserGroupIdOfRule(userGroup);
     }

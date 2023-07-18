@@ -58,4 +58,6 @@ public interface UserGroupDao {
     boolean isExistUserGroupMember(UserGroupMember userGroupMember);
 
     List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId);
+
+    void deleteRuleByUserGroupId(String userGroupId);
 }

@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.config.UserConfigProperties;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,17 +51,17 @@ public class UserGroupServiceImpl implements UserGroupService {
 
     private final UserInfoDecoder userInfoDecoder;
 
-    private final AlarmService alarmService;
-
-    private final ConfigProperties webProperties;
+    private final UserConfigProperties userConfigProperties;
 
     private final UserService userService;
 
-    public UserGroupServiceImpl(UserGroupDao userGroupDao, Optional<UserInfoDecoder> userInfoDecoder, AlarmService alarmService, ConfigProperties webProperties, UserService userService) {
+    public UserGroupServiceImpl(@Qualifier("mysqlUserGroupDao") UserGroupDao userGroupDao,
+                                Optional<UserInfoDecoder> userInfoDecoder,
+                                UserConfigProperties userConfigProperties,
+                                UserService userService) {
         this.userGroupDao = Objects.requireNonNull(userGroupDao, "userGroupDao");
         this.userInfoDecoder = Objects.requireNonNull(userInfoDecoder, "userInfoDecoder").orElse(DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER);
-        this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
-        this.webProperties = Objects.requireNonNull(webProperties, "webProperties");
+        this.userConfigProperties = Objects.requireNonNull(userConfigProperties, "userConfigProperties");
         this.userService = Objects.requireNonNull(userService, "userService");
     }
 
@@ -72,7 +73,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 
         String userGroupNumber = userGroupDao.createUserGroup(userGroup);
 
-        if (!webProperties.isOpenSource()) {
+        if (!userConfigProperties.isOpenSource()) {
             String userId = userService.getUserIdFromSecurity();
             if (StringUtils.isEmpty(userId)) {
                 throw new PinpointUserGroupException("There is not userId or fail to create userGroup.");
@@ -111,7 +112,7 @@ public class UserGroupServiceImpl implements UserGroupService {
     public void deleteUserGroup(UserGroup userGroup) throws PinpointUserGroupException {
         userGroupDao.deleteUserGroup(userGroup);
         userGroupDao.deleteMemberByUserGroupId(userGroup.getId());
-        alarmService.deleteRuleByUserGroupId(userGroup.getId());
+        userGroupDao.deleteRuleByUserGroupId(userGroup.getId());
     }
 
     @Transactional(readOnly = true)

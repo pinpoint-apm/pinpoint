@@ -34,7 +34,7 @@ public class MemoryAlarmDaoTest {
     public void insertDeleteTest() {
         final String applicationId = "applicationId";
         final String groupId = "userGroupId";
-        MemoryAlarmDao memoryAlarmDao = new MemoryAlarmDao(mock(UserGroupDao.class));
+        MemoryAlarmDao memoryAlarmDao = new MemoryAlarmDao(mock(AlarmRule.class), mock(UserGroupDao.class));
         Rule rule = new Rule(applicationId, "serviceType", "checkerName1", 0, groupId, true, true, true, "");
         Rule rule2 = new Rule(applicationId, "serviceType", "checkerName2", 10, groupId, true, true, true, "");
         memoryAlarmDao.insertRule(rule);

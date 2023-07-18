@@ -20,12 +20,6 @@
         FROM alarm_rule
         WHERE rule_id = #{ruleId} 
     </delete>
-
-    <delete id="deleteRuleByUserGroupId" parameterType="string">
-        DELETE
-        FROM alarm_rule
-        WHERE user_group_id = #{userGroupId} 
-    </delete>
     
     <select id="selectRuleByUserGroupId" resultType="Rule">
         SELECT *
