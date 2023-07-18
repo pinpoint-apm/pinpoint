@@ -69,8 +69,7 @@ class ActiveThreadDumpMapper {
         PActiveThreadLightDump.Builder builder = PActiveThreadLightDump.newBuilder()
                 .setStartTime(s.getStartTime())
                 .setLocalTraceId(s.getLocalTraceId())
-                .setSampled(s.isSampled())
-                .setTransactionId(s.getTransactionId());
+                .setSampled(s.isSampled());
         if (s.getTransactionId() != null) {
             builder.setTransactionId(s.getTransactionId());
         }
