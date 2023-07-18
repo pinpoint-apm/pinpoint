@@ -12,6 +12,7 @@
         <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="0 0 2 * * *"/>
         <task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/10 * * * *"/>
         <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchProperties['cleanupInactiveAgentsCron']}"/>
+        <task:scheduled ref="batchJobLauncher" method="uriStatAlarmJob" cron="0 2/3 * * * *"/>
     </task:scheduled-tasks>
 
     <task:scheduler id="scheduler" pool-size="4"/>
@@ -20,7 +21,6 @@
     <import resource="classpath:applicationContext-batch-datasource.xml"/>
     <import resource="classpath:applicationContext-batch-dao-config.xml"/>
     <import resource="classpath:applicationContext-batch-web-component.xml"/>
-    <import resource="classpath:applicationContext-batch-sender.xml"/>
 
     <import resource="classpath:job/applicationContext-alarmJob.xml"/>
     <import resource="classpath:job/applicationContext-agentCountJob.xml"/>

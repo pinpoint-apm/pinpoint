@@ -80,8 +80,8 @@ public class AlarmWriterIsolationTest {
         writer.write(List.of(new AppAlarmChecker(checkers)));
 
         // then
-        verify(alarmMessageSender).sendSms(checker, 1, null);
-        verify(alarmMessageSender).sendEmail(checker, 1, null);
+        verify(alarmMessageSender).sendSms(checker, 1);
+        verify(alarmMessageSender).sendEmail(checker, 1);
     }
 
     @Test
@@ -101,8 +101,8 @@ public class AlarmWriterIsolationTest {
         writer.write(List.of(new AppAlarmChecker(checkers)));
 
         // then
-        verify(alarmMessageSender, never()).sendSms(checker, 1, null);
-        verify(alarmMessageSender, never()).sendEmail(checker, 1, null);
+        verify(alarmMessageSender, never()).sendSms(checker, 1);
+        verify(alarmMessageSender, never()).sendEmail(checker, 1);
     }
 
     private void mockingAlarmService(CheckerResult beforeCheckerFixture) {
@@ -111,8 +111,8 @@ public class AlarmWriterIsolationTest {
     }
 
     private void mockingAlarmMessageSender(AlarmChecker<Long> checker) {
-        doNothing().when(alarmMessageSender).sendSms(checker, 1, null);
-        doNothing().when(alarmMessageSender).sendEmail(checker, 1, null);
+        doNothing().when(alarmMessageSender).sendSms(checker, 1);
+        doNothing().when(alarmMessageSender).sendEmail(checker, 1);
     }
 
     private Rule getRuleStub(String appliationId, String ruleId) {

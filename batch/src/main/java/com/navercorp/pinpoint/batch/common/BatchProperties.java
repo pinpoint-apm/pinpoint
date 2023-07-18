@@ -34,18 +34,6 @@ public class BatchProperties {
 
     private final Logger logger = LogManager.getLogger(BatchProperties.class);
 
-    @Value("${alarm.mail.server.url}")
-    private String emailServerUrl;
-
-    @Value("${alarm.mail.sender.address}")
-    private String senderEmailAddress;
-
-    @Value("${pinpoint.url}")
-    private String pinpointUrl;
-    
-    @Value("${webhook.enable}")
-    private boolean webhookEnable;
-    
     @Value("${batch.server.env}")
     private String batchEnv;
 
@@ -57,6 +45,9 @@ public class BatchProperties {
 
     @Value("${job.cleanup.inactive.agents:false}")
     private boolean enableCleanupInactiveAgents;
+
+    @Value("${job.alarm.uristat.enable:false}")
+    private boolean enableUriStatAlarmJob;
 
     private static final int DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 30;
     private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
@@ -101,11 +92,6 @@ public class BatchProperties {
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
-
-    public String getPinpointUrl() {
-        return pinpointUrl;
-    }
-
     public List<String> getFlinkServerList() {
         return Arrays.asList(flinkServerList);
     }
@@ -114,20 +100,16 @@ public class BatchProperties {
         return flinkRestPort;
     }
 
-    public String getEmailServerUrl() {
-        return emailServerUrl;
-    }
-
     public String getBatchEnv() {
         return batchEnv;
     }
 
-    public String getSenderEmailAddress() {
-        return senderEmailAddress;
-    }
-
     public boolean isEnableCleanupInactiveAgents() {
         return enableCleanupInactiveAgents;
+    }
+
+    public boolean getEnableUriStatAlarmJob() {
+        return enableUriStatAlarmJob;
     }
 
     public int getCleanupInactiveAgentsDurationDays() {
@@ -138,23 +120,17 @@ public class BatchProperties {
         return cleanupInactiveAgentsCron;
     }
 
-    public boolean isWebhookEnable() {
-        return webhookEnable;
-    }
 
     @Override
     public String toString() {
         return "BatchConfiguration{" +
-                "emailServerUrl='" + emailServerUrl + '\'' +
-                ", senderEmailAddress='" + senderEmailAddress + '\'' +
-                ", pinpointUrl='" + pinpointUrl + '\'' +
-                ", webhookEnable=" + webhookEnable +
-                ", batchEnv='" + batchEnv + '\'' +
+                "batchEnv='" + batchEnv + '\'' +
                 ", flinkServerList=" + Arrays.toString(flinkServerList) +
                 ", flinkRestPort=" + flinkRestPort +
                 ", enableCleanupInactiveAgents=" + enableCleanupInactiveAgents +
                 ", cleanupInactiveAgentsDurationDays=" + cleanupInactiveAgentsDurationDays +
                 ", cleanupInactiveAgentsCron='" + cleanupInactiveAgentsCron + '\'' +
+                ", enableUriStatAlarmJob=" + enableUriStatAlarmJob +
                 '}';
     }
 }

@@ -16,6 +16,7 @@
         <module>uristat-common</module>
         <module>uristat-collector</module>
         <module>uristat-web</module>
+        <module>uristat-batch</module>
     </modules>
 
 </project>

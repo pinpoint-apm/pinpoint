@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.alarm.vo;
 
 import org.apache.commons.lang3.StringUtils;
+import com.navercorp.pinpoint.web.vo.RuleInterface;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ import javax.validation.constraints.NotNull;
 /**
  * @author minwoo.jung
  */
-public class Rule {
+public class Rule implements RuleInterface {
 
     private String ruleId;
     @NotBlank private String applicationId;

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch;
 
+import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
@@ -53,6 +54,8 @@ import org.springframework.context.annotation.ImportResource;
         WebHbaseModule.class,
         RestTemplateConfiguration.class,
         UserModule.class,
+        UriStatAlarmConfiguration.class,
+        AlarmSenderConfiguration.class
 })
 public class BatchApp {
 

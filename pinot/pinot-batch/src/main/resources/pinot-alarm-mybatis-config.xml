@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- default setting-->
+    <settings>
+        <setting name="cacheEnabled" value="true" />
+
+        <!-- lazy loading-->
+        <setting name="lazyLoadingEnabled" value="true" />
+        <setting name="aggressiveLazyLoading" value="true" />
+
+        <setting name="useGeneratedKeys" value="true" />
+
+        <!-- don't need "REUSE" because preparedStatements are cached  at dbcp  -->
+        <setting name="defaultExecutorType" value="SIMPLE" />
+
+        <!--undersocre mapping of DB table  -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+    
+    <typeAliases>
+        <typeAlias type="com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmKey" alias="PinotAlarmKey"/>
+    </typeAliases>
+
+</configuration>

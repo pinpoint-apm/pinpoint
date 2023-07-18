@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <context:component-scan base-package="com.navercorp.pinpoint.batch.alarm"/>
+    <context:component-scan base-package="com.navercorp.pinpoint.batch.alarm.sender"/>
+    <context:component-scan base-package="com.navercorp.pinpoint.batch.alarm.service"/>
+    <context:component-scan base-package="com.navercorp.pinpoint.batch.alarm.condition"/>
+
+    <batch:job id="uriAlarmJob">
+        <batch:step id="uriAlarmPartitionStep">
+            <batch:partition step="uriAlarmStep" partitioner="alarmPartitioner">
+                <batch:handler task-executor="alarmPoolTaskExecutorForPartition"/>
+            </batch:partition>
+        </batch:step>
+        <batch:listeners>
+            <batch:listener ref="jobFailListener"/>
+        </batch:listeners>
+    </batch:job>
+
+    <batch:step id="uriAlarmStep">
+        <batch:tasklet task-executor="uriAlarmExecutor" throttle-limit="${alarm.worker.maxSize:2}">
+            <batch:chunk reader="uriAlarmReader" processor="uriAlarmProcessor" writer="uriAlarmWriter" commit-interval="1"/>
+        </batch:tasklet>
+    </batch:step>
+
+    <bean id="uriAlarmExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="queueCapacity" value="1024" />
+        <property name="waitForTasksToCompleteOnShutdown" value="false" />
+        <property name="maxPoolSize" value="${alarm.worker.maxSize:2}" />
+        <property name="corePoolSize" value="${alarm.worker.coreSize:2}" />
+    </bean>
+
+    <bean id="uriAlarmReader" class="com.navercorp.pinpoint.batch.alarm.UriStatAlarmReader" scope="step"/>
+    <bean id="uriAlarmProcessor" class="com.navercorp.pinpoint.batch.alarm.UriStatAlarmProcessor" scope="step"/>
+    <bean id="uriAlarmWriter" class="com.navercorp.pinpoint.batch.alarm.UriStatAlarmWriter" scope="step"/>
+
+    <task:executor id="alarmPoolTaskExecutorForPartition" pool-size="1"/>
+
+    <bean id="batchAlarmDao" class="com.navercorp.pinpoint.batch.dao.mysql.MysqlAlarmDao"/>
+    <bean id="batchAlarmService" class="com.navercorp.pinpoint.batch.service.AlarmServiceImpl">
+        <constructor-arg ref="batchAlarmDao"/>
+    </bean>
+
+</beans>

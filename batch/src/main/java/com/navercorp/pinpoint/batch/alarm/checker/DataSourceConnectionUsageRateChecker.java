@@ -78,16 +78,18 @@ public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListVal
     }
 
     @Override
-    public String getEmailMessage() {
+    public String getEmailMessage(String pinpointUrl, String applicationId, String serviceType, String currentTime) {
         StringBuilder contents = new StringBuilder();
         for (Map.Entry<String, List<DataSourceAlarmVO>> detected : detectedAgents.entrySet()) {
+            String agentId = detected.getKey();
             for (DataSourceAlarmVO eachVo : detected.getValue()) {
                 if (decideResult0(eachVo)) {
                     String message = String.format(EMAIL_MESSAGE_FORMAT, detected.getKey(), eachVo.getConnectionUsedRate(), unit, eachVo.getDatabaseName(), rule.getThreshold(), unit, eachVo.getActiveConnectionAvg(), eachVo.getMaxConnectionAvg());
                     contents.append(message);
                 }
             }
-
+            contents.append(String.format(INSPECTOR_LINK_FORMAT, pinpointUrl, applicationId, serviceType, currentTime, agentId, agentId));
+            contents.append(LINE_FEED);
         }
         return contents.toString();
     }

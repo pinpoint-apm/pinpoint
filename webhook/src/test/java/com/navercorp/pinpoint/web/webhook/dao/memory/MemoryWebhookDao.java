@@ -102,6 +102,11 @@ public class MemoryWebhookDao implements WebhookDao {
     }
 
     @Override
+    public List<Webhook> selectWebhookByPinotAlarmRuleId(String ruleId) {
+        return null;
+    }
+
+    @Override
     public Webhook selectWebhook(String webhookId) {
         for (Webhook webhook : webhooks.values()) {
             if (webhook.getWebhookId().equals(webhookId)) {

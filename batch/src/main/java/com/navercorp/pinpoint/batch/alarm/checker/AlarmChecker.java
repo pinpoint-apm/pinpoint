@@ -32,7 +32,7 @@ import java.util.Objects;
  * @author minwoo.jung
  * @author Jongjin.Bae
  */
-public abstract class AlarmChecker<T> {
+public abstract class AlarmChecker<T> implements AlarmCheckerInterface {
 
     protected final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -71,6 +71,10 @@ public abstract class AlarmChecker<T> {
     public String getUserGroupId() {
         return rule.getUserGroupId();
     }
+
+    public String getRuleId() {
+        return rule.getRuleId();
+    }
     
     public String getUnit() {
         return unit;
@@ -89,8 +93,9 @@ public abstract class AlarmChecker<T> {
         messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
         return messages;
     }
-    
-    public String getEmailMessage() {
+
+    @Override
+    public String getEmailMessage(String pinpointUrl, String applicationId, String serviceType, String currentTime) {
         return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s)<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit);
     }
     
@@ -101,5 +106,12 @@ public abstract class AlarmChecker<T> {
     }
     
     public abstract String getCheckerType();
+
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AlarmChecker {");
+        sb.append("rule=").append(rule);
+        sb.append('}');
+        return sb.toString();
+    }
     
 }

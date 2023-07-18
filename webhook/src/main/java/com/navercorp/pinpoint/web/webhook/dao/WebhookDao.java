@@ -22,5 +22,7 @@ public interface WebhookDao {
 
     List<Webhook> selectWebhookByRuleId(String ruleId);
 
+    List<Webhook> selectWebhookByPinotAlarmRuleId(String ruleId);
+
     Webhook selectWebhook(String webhookId);
 }

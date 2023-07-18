@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:component-scan base-package="com.navercorp.pinpoint.batch.alarm.dao"/>
+
+    <import resource="classpath:applicationContext-pinot-batch-datasource.xml"/>
+
+    <bean id="transactionFactory" class="org.apache.ibatis.transaction.managed.ManagedTransactionFactory"/>
+
+    <bean id="uriStatPinotSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="pinotAlarmDataSource"/>
+        <property name="configLocation" value="classpath:/pinot-alarm-mybatis-config.xml"/>
+        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.batch.alarm.vo" />
+        <property name="mapperLocations" value="classpath:mapper/alarm/*Mapper.xml"/>
+        <!-- set "true" in order to catch the errors of declaration of statement more quickly -->
+        <property name="failFast" value="true"/>
+        <property name="transactionFactory" ref="transactionFactory"/>
+    </bean>
+
+    <bean id="pinotAlarmSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="uriStatPinotSessionFactory"/>
+    </bean>
+
+
+</beans>

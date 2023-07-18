@@ -70,13 +70,19 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
         
         return messages;
     }
-    
+
+    protected static final String INSPECTOR_LINK_FORMAT = " <a href=\"%s/inspector/%s@%s/5m/%s/%s\" >inspector of %s</a>";
+    protected static final String LINE_FEED = "<br>";
+
     @Override
-    public String getEmailMessage() {
+    public String getEmailMessage(String pinpointUrl, String applicationId, String serviceType, String currentTime) {
         StringBuilder message = new StringBuilder();
         
         for (Entry<String, T> detected : detectedAgents.entrySet()) {
-            message.append(String.format(" Value of agent(%s) is %s%s during the past 5 mins.(Threshold : %s%s)", detected.getKey(), detected.getValue(), unit, rule.getThreshold(), unit));
+            String agentId = detected.getKey();
+            message.append(String.format(" Value of agent(%s) is %s%s during the past 5 mins.(Threshold : %s%s)", agentId, detected.getValue(), unit, rule.getThreshold(), unit));
+            message.append(String.format(INSPECTOR_LINK_FORMAT, pinpointUrl, applicationId, serviceType, currentTime, agentId, agentId));
+            message.append(LINE_FEED);
         }
         
         return message.toString();

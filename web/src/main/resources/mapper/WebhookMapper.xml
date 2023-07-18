@@ -51,6 +51,12 @@
         WHERE rule_id = #{ruleId};
     </select>
 
+    <select id="selectWebhookByPinotAlarmRuleId" resultType="Webhook">
+        SELECT webhook.* FROM webhook
+        JOIN pinot_webhook_send ON webhook.webhook_id = pinot_webhook_send.webhook_id
+        WHERE rule_id = #{ruleId};
+    </select>
+
     <select id="selectWebhook" resultType="Webhook">
         SELECT * FROM webhook
         WHERE webhook_id = #{webhookId};
