@@ -56,18 +56,14 @@ public class ConnectionTest {
     @BeforeAll
     public static void setUp() throws Exception {
         zookeeperPort = TestSocketUtils.findAvailableTcpPort();
-        ts = createTestingServer();
-    }
-
-    private static TestingServer createTestingServer() throws Exception {
-        return new TestingServer(zookeeperPort);
+        ts = ZKServerFactory.create(zookeeperPort);
     }
 
     @AfterAll
     public static void tearDown() throws Exception {
         if (ts != null) {
             ts.stop();
-            ts.close();
+            ZKUtils.closeQuietly(ts);
         }
     }
 
@@ -88,12 +84,12 @@ public class ConnectionTest {
             assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
 
             ts.stop();
-            ts.close();
+            ZKUtils.closeQuietly(ts);
 
             assertAwaitState(ZooKeeper.States.CONNECTING, zookeeper);
 
 
-            ts = createTestingServer();
+            ts = ZKServerFactory.create(zookeeperPort);
 
             Assertions.assertThrows(ConditionTimeoutException.class, () -> assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper));
 
@@ -142,11 +138,11 @@ public class ConnectionTest {
             assertAwaitState(true, curatorZookeeperClient);
 
             ts.stop();
-            ts.close();
+            ZKUtils.closeQuietly(ts);
 
             assertAwaitState(false, curatorZookeeperClient);
 
-            ts = createTestingServer();
+            ts = ZKServerFactory.create(zookeeperPort);
 
             assertAwaitState(true, curatorZookeeperClient);
         }

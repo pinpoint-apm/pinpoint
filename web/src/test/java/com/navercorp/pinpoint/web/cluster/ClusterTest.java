@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
@@ -84,7 +85,7 @@ public class ClusterTest {
     public static void setUp() throws Exception {
         int zookeeperPort = TestSocketUtils.findAvailableTcpPort();
         zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
-        ts = createZookeeperServer(zookeeperPort);
+        ts = ZKServerFactory.create(zookeeperPort);
 
         WebClusterProperties properties = mock(WebClusterProperties.class);
         when(properties.isClusterEnable()).thenReturn(true);
@@ -116,8 +117,8 @@ public class ClusterTest {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
-        closeZookeeperServer(ts);
+    public static void tearDown() {
+        IOUtils.closeQuietly(ts);
 
         try {
             clusterDataManager.stop();
@@ -127,23 +128,6 @@ public class ClusterTest {
         try {
             clusterConnectionManager.stop();
         } catch (Exception ignored) {
-        }
-    }
-
-    private static TestingServer createZookeeperServer(int port) throws Exception {
-        TestingServer mockZookeeperServer = new TestingServer(port);
-        mockZookeeperServer.start();
-
-        return mockZookeeperServer;
-    }
-
-    private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
-        try {
-            if (mockZookeeperServer != null) {
-                mockZookeeperServer.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -178,7 +162,7 @@ public class ClusterTest {
         });
         awaitZookeeperConnected(zookeeper);
 
-        zookeeper.close();
+        ZKServerFactory.closeZk(zookeeper);
     }
 
     @Test
@@ -206,7 +190,7 @@ public class ClusterTest {
         ts.restart();
         getNodeAndCompareContents(zookeeper);
 
-        zookeeper.close();
+        ZKServerFactory.closeZk(zookeeper);
     }
 
     @Test
@@ -230,9 +214,7 @@ public class ClusterTest {
             assertThat(clusterConnectionManager.getClusterList()).hasSize(1);
         } finally {
             testPinpointClient.closeAll();
-            if (zookeeper != null) {
-                zookeeper.close();
-            }
+            ZKServerFactory.closeZk(zookeeper);
         }
     }
 

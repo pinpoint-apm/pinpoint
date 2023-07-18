@@ -16,8 +16,9 @@
 package com.navercorp.pinpoint.batch.flink;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -88,7 +89,7 @@ public class HealthCheckTasklet implements Tasklet {
             }
         }
 
-        if (notExecuteJobList.size() > 0) {
+        if (CollectionUtils.hasLength(notExecuteJobList)) {
             String exceptionMessage = String.format("job fail : %s", notExecuteJobList);
             throw new Exception(exceptionMessage);
         }

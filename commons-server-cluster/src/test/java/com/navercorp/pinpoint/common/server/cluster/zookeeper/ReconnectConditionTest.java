@@ -56,7 +56,7 @@ public class ReconnectConditionTest {
     private void doSleep1Sec() {
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignore) {
         }
     }
 }

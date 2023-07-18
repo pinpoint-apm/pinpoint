@@ -69,7 +69,7 @@ public class CuratorZookeeperClientTest {
     @BeforeAll
     public static void setUpClass() throws Exception {
         int availablePort = TestSocketUtils.findAvailableTcpPort();
-        ts = new TestingServer(availablePort);
+        ts = ZKServerFactory.create(availablePort);
 
         eventHoldingZookeeperEventWatcher = new EventHoldingZookeeperEventWatcher();
         curatorZookeeperClient = createCuratorZookeeperClient(ts.getConnectString(), eventHoldingZookeeperEventWatcher);
@@ -95,17 +95,11 @@ public class CuratorZookeeperClientTest {
 
     @AfterAll
     public static void tearDownClass() throws Exception {
-        try {
-            if (curatorZookeeperClient != null) {
-                curatorZookeeperClient.close();
-            }
-        } catch (Exception ignore) {
-            // skip
-        }
+        ZKUtils.closeQuietly(curatorZookeeperClient);
 
         if (ts != null) {
             ts.stop();
-            ts.close();
+            ZKUtils.closeQuietly(ts);
         }
     }
 

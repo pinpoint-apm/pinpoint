@@ -12,31 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.navercorp.pinpoint.inspector.web.definition.metric.field;
+package com.navercorp.pinpoint.metric.common.model;
 
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
-
+import java.util.Collections;
 import java.util.List;
 
-/**
- * @author minwoo.jung
- */
-public class EmptyPostProcessor implements FieldPostProcessor {
+public final class TagUtils {
 
-    public static final FieldPostProcessor INSTANCE = new EmptyPostProcessor();
-
-    private EmptyPostProcessor() {
+    private TagUtils() {
     }
 
-    @Override
-    public List<SystemMetricPoint<Double>> postProcess(List<SystemMetricPoint<Double>> systemMetricPointList) {
-        return systemMetricPointList;
-    }
-
-    @Override
-    public String getName() {
-        return "empty";
+    public static List<Tag> defaultTags(List<Tag> tags) {
+        if (tags == null) {
+            return Collections.emptyList();
+        }
+        return tags;
     }
 }

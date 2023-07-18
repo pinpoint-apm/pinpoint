@@ -10,7 +10,7 @@ public class StringJoinUtils {
     private StringJoinUtils() {
     }
 
-    public static <T> String join(final Collection<String> collection, final String delimiter) {
+    public static String join(final Collection<String> collection, final String delimiter) {
         if (collection == null) {
             return null;
         }

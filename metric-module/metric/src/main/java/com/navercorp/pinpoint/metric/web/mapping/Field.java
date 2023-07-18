@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.metric.web.mapping;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.model.TagUtils;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,16 +36,10 @@ public class Field {
                  @JsonProperty("tags") List<Tag> tags,
                  @JsonProperty("matchingRule") MatchingRule matchingRule) {
         this.name = Objects.requireNonNull(name, "name");
-        this.tags = defaultTags(tags);
+        this.tags = TagUtils.defaultTags(tags);
         this.matchingRule = Objects.requireNonNull(matchingRule, "matchingRule");
     }
 
-    private List<Tag> defaultTags(List<Tag> tags) {
-        if (tags == null) {
-            return Collections.emptyList();
-        }
-        return tags;
-    }
 
     public String getName() {
         return name;

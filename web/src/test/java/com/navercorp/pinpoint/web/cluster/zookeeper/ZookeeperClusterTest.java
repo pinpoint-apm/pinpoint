@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.web.cluster.zookeeper;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.web.cluster.ClusterId;
+import com.navercorp.pinpoint.web.cluster.ZKServerFactory;
 import com.navercorp.pinpoint.web.config.WebClusterProperties;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
@@ -82,7 +84,7 @@ public class ZookeeperClusterTest {
         CLUSTER_NODE_PATH
                 = ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.WEB_LEAF_PATH, DEFAULT_IP + ":" + acceptorPort);
 
-        ts = createZookeeperServer(zookeeperPort);
+        ts = ZKServerFactory.create(zookeeperPort);
 
         webClusterProperties = getWebClusterProperties();
     }
@@ -103,7 +105,7 @@ public class ZookeeperClusterTest {
 
     @AfterAll
     public static void tearDown() {
-        closeZookeeperServer(ts);
+        IOUtils.closeQuietly(ts);
     }
 
     @AfterEach
@@ -141,7 +143,7 @@ public class ZookeeperClusterTest {
             awaitCheckAgentUnRegistered(manager, new ClusterKey("a", "b", 1L));
 
         } finally {
-            closeZk(zookeeper);
+            ZKServerFactory.closeZk(zookeeper);
             closeManager(manager);
         }
     }
@@ -149,12 +151,6 @@ public class ZookeeperClusterTest {
     private void closeManager(ZookeeperClusterDataManager manager) {
         if (manager != null) {
             manager.stop();
-        }
-    }
-
-    private void closeZk(ZooKeeper zookeeper) throws InterruptedException {
-        if (zookeeper != null) {
-            zookeeper.close();
         }
     }
 
@@ -203,7 +199,7 @@ public class ZookeeperClusterTest {
             agentList = manager.getRegisteredAgentList(new ClusterKey("c", "d", 2L));
             assertThat(agentList).isEmpty();
         } finally {
-            closeZk(zookeeper);
+            ZKServerFactory.closeZk(zookeeper);
             closeManager(manager);
         }
     }
@@ -227,22 +223,6 @@ public class ZookeeperClusterTest {
         return () -> manager.getRegisteredAgentList(clusterKey);
     }
 
-    private static TestingServer createZookeeperServer(int port) throws Exception {
-        TestingServer mockZookeeperServer = new TestingServer(port);
-        mockZookeeperServer.start();
-
-        return mockZookeeperServer;
-    }
-
-    private static void closeZookeeperServer(TestingServer mockZookeeperServer) {
-        try {
-            if (mockZookeeperServer != null) {
-                mockZookeeperServer.close();
-            }
-        } catch (Exception e) {
-            logger.warn("closeZookeeperServer error", e);
-        }
-    }
 
     @SuppressWarnings("unused")
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {

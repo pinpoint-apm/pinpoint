@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +79,7 @@ public class DefaultDataSourceMonitorRegistryService implements DataSourceMonito
         }
 
         // bulk delete for reduce copy
-        if (disabledPluginMonitorList.size() > 0) {
+        if (CollectionUtils.hasLength(disabledPluginMonitorList)) {
             logger.info("PluginMonitorWrapper was disabled(list:{})", disabledPluginMonitorList);
             repository.removeAll(disabledPluginMonitorList);
         }
