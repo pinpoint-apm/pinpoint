@@ -216,8 +216,6 @@
         <curator.framework.version>4.2.1</curator.framework.version>
         <curator.test.version>5.5.0</curator.test.version>
 
-        <embed.mongo>3.4.6</embed.mongo>
-
         <mockito.version>4.8.1</mockito.version>
         <bytebuddy.version>1.12.18</bytebuddy.version>
 
