@@ -141,7 +141,7 @@
         <javadoc.source>${jdk.version}</javadoc.source>
 
         <!-- hbase -->
-        <hbase.shaded.client.version>1.7.2</hbase.shaded.client.version>
+        <hbase.shaded.client.version>2.5.5-hadoop3</hbase.shaded.client.version>
         <!-- for shaded hbase client 1.5.0+ version -->
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
         <hbase2.client.version>2.5.5-hadoop3</hbase2.client.version>
@@ -211,10 +211,10 @@
         <jjwt.version>0.9.1</jjwt.version>
         <jaxb.version>2.3.3</jaxb.version>
 
-        <zookeeper.version>3.4.14</zookeeper.version>
+        <zookeeper.version>3.8.1</zookeeper.version>
         <curator.version>4.2.0</curator.version>
         <curator.framework.version>4.2.1</curator.framework.version>
-        <curator.test.version>2.13.0</curator.test.version>
+        <curator.test.version>5.5.0</curator.test.version>
 
         <embed.mongo>3.4.6</embed.mongo>
 
@@ -827,26 +827,11 @@
                 <artifactId>hbase-shaded-client</artifactId>
                 <version>${hbase.shaded.client.version}</version>
                 <exclusions>
-                    <!-- Do not remove the log4j  -->
-<!--                    <exclusion>-->
-<!--                        <groupId>log4j</groupId>-->
-<!--                        <artifactId>log4j</artifactId>-->
-<!--                    </exclusion>-->
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <!-- for hbase shaded client 1.5.x+ version -->
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>${codehaus.jackson.version}</version>
             </dependency>
 
             <dependency>
@@ -1339,6 +1324,11 @@
                         <artifactId>jline</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial.snappy</groupId>
+                <artifactId>snappy-java</artifactId>
+                <version>1.1.10.2</version>
             </dependency>
 
             <dependency>
