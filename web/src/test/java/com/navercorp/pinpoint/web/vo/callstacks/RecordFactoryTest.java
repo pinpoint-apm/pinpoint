@@ -19,7 +19,11 @@ package com.navercorp.pinpoint.web.vo.callstacks;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.server.bo.*;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.common.server.util.Log4j2CommonLoggerFactory;
 import com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService;
@@ -27,9 +31,18 @@ import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-import com.navercorp.pinpoint.web.calltree.span.*;
+import com.navercorp.pinpoint.web.calltree.span.Align;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
+import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.calltree.span.SpanEventAlign;
+import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.dao.TraceDao;
-import com.navercorp.pinpoint.web.service.*;
+import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
+import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
+import com.navercorp.pinpoint.web.service.RecorderFactoryProvider;
+import com.navercorp.pinpoint.web.service.TransactionInfoService;
+import com.navercorp.pinpoint.web.service.TransactionInfoServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -195,11 +208,10 @@ public class RecordFactoryTest {
                 .setDestinationId("localhost:3000")
                 .setEndPoint("localhost:3000")
                 .setApiId(17)
-                .addAnnotationBo(new AnnotationBo.Builder(-1, "/").isAuthorized(true).build())
-                .addAnnotationBo(new AnnotationBo.Builder(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 17, 42,
-                        MethodTypeEnum.DEFAULT, "express.Function.use(logger)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build())
-                        .isAuthorized(true).build())
-                .addAnnotationBo(new AnnotationBo.Builder(12, "express.Function.use(logger):42").isAuthorized(true).build())
+                .addAnnotationBo(AnnotationBo.of(-1, "/"))
+                .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 17, 42,
+                        MethodTypeEnum.DEFAULT, "express.Function.use(logger)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build()))
+                .addAnnotationBo(AnnotationBo.of(12, "express.Function.use(logger):42"))
                 .setDepth(1)
                 .setNextSpanId(-1)
                 .setNextAsyncId(0)
@@ -227,10 +239,10 @@ public class RecordFactoryTest {
                 .setApplicationServiceType((short) 1400)
                 .setAcceptorHost(null)
                 .setRemoteAddr("::1")
-                .addAnnotationBo(new AnnotationBo.Builder(46, 200).isAuthorized(true).build())
-                .addAnnotationBo(new AnnotationBo.Builder(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 1, 0,
-                        MethodTypeEnum.WEB_REQUEST, "Node Server Process").build()).isAuthorized(true).build())
-                .addAnnotationBo(new AnnotationBo.Builder(10015, "Node Server Process").isAuthorized(true).build())
+                .addAnnotationBo(AnnotationBo.of(46, 200))
+                .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 1, 0,
+                        MethodTypeEnum.WEB_REQUEST, "Node Server Process").build()))
+                .addAnnotationBo(AnnotationBo.of(10015, "Node Server Process"))
                 .setFlag((short) 0)
                 .setErrCode(0)
                 .addSpanEventBo(spanEventBo1)
@@ -242,11 +254,11 @@ public class RecordFactoryTest {
                         .setDestinationId("localhost:3000")
                         .setEndPoint("localhost:3000")
                         .setApiId(18)
-                        .addAnnotationBo(new AnnotationBo.Builder(-1, "/").isAuthorized(true).build())
-                        .addAnnotationBo(new AnnotationBo.Builder(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 18, 43,
+                        .addAnnotationBo(AnnotationBo.of(-1, "/"))
+                        .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 18, 43,
                                 MethodTypeEnum.DEFAULT, "express.Function.use(jsonParser)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build())
-                                .isAuthorized(true).build())
-                        .addAnnotationBo(new AnnotationBo.Builder(12, "express.Function.use(jsonParser):43").isAuthorized(true).build())
+                        )
+                        .addAnnotationBo(AnnotationBo.of(12, "express.Function.use(jsonParser):43"))
                         .setDepth(1)
                         .setNextSpanId(-1)
                         .build())
@@ -258,11 +270,11 @@ public class RecordFactoryTest {
                         .setDestinationId("localhost:3000")
                         .setEndPoint("localhost:3000")
                         .setApiId(19)
-                        .addAnnotationBo(new AnnotationBo.Builder(-1, "/").isAuthorized(true).build())
-                        .addAnnotationBo(new AnnotationBo.Builder(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 19, 44,
+                        .addAnnotationBo(AnnotationBo.of(-1, "/"))
+                        .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 19, 44,
                                 MethodTypeEnum.DEFAULT, "express.Function.use(urlencodedParser)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build())
-                                .isAuthorized(true).build())
-                        .addAnnotationBo(new AnnotationBo.Builder(12, "express.Function.use(urlencodedParser):44").isAuthorized(true).build())
+                        )
+                        .addAnnotationBo(AnnotationBo.of(12, "express.Function.use(urlencodedParser):44"))
                         .setDepth(1)
                         .setNextSpanId(-1)
                         .build())
@@ -274,11 +286,11 @@ public class RecordFactoryTest {
                         .setDestinationId("localhost:3000")
                         .setEndPoint("localhost:3000")
                         .setApiId(20)
-                        .addAnnotationBo(new AnnotationBo.Builder(-1, "/").isAuthorized(true).build())
-                        .addAnnotationBo(new AnnotationBo.Builder(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 20, 45,
+                        .addAnnotationBo(AnnotationBo.of(-1, "/"))
+                        .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 20, 45,
                                 MethodTypeEnum.DEFAULT, "express.Function.use(cookieParser)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build())
-                                .isAuthorized(true).build())
-                        .addAnnotationBo(new AnnotationBo.Builder(12, "express.Function.use(cookieParser):45").isAuthorized(true).build())
+                         )
+                        .addAnnotationBo(AnnotationBo.of(12, "express.Function.use(cookieParser):45"))
                         .setDepth(1)
                         .setNextSpanId(-1)
                         .build())

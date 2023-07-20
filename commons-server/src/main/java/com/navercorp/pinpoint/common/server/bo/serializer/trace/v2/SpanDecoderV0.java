@@ -377,7 +377,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         byte[] valueBytes = buffer.readPrefixedBytes();
         Object value = transcoder.decode(valueType, valueBytes);
 
-        AnnotationBo current = new AnnotationBo(key, value);
+        AnnotationBo current = AnnotationBo.of(key, value);
         return current;
     }
 
@@ -389,7 +389,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         byte[] valueBytes = buffer.readPrefixedBytes();
         Object value = transcoder.decode(valueType, valueBytes);
 
-        AnnotationBo annotation = new AnnotationBo(key, value);
+        AnnotationBo annotation = AnnotationBo.of(key, value);
         return annotation;
     }
 

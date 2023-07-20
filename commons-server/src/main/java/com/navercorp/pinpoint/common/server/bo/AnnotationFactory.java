@@ -34,7 +34,7 @@ public class AnnotationFactory<T> {
         int annotationkey = typeHandler.getKey(annotation);
         Object annotationValue = typeHandler.getValue(annotation);
         Object commonType = buildAnnotationValue(annotationValue);
-        return new AnnotationBo(annotationkey, commonType);
+        return AnnotationBo.of(annotationkey, commonType);
     }
 
     public Object buildAnnotationValue(Object value) {

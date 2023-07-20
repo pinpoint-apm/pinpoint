@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
-import com.navercorp.pinpoint.common.util.LineNumber;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,10 +53,10 @@ public class MetaSpanCallTreeFactory {
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
                 MethodTypeEnum.WEB_REQUEST, "Unknown");
 
-        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaData);
+        final AnnotationBo apiMetaDataAnnotation = AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaData);
         annotations.add(apiMetaDataAnnotation);
 
-        final AnnotationBo argumentAnnotation = new AnnotationBo(AnnotationKeyUtils.getArgs(0).getCode(), "No Agent Data");
+        final AnnotationBo argumentAnnotation = AnnotationBo.of(AnnotationKeyUtils.getArgs(0).getCode(), "No Agent Data");
         annotations.add(argumentAnnotation);
         rootSpan.setAnnotationBoList(annotations);
 
@@ -79,13 +79,13 @@ public class MetaSpanCallTreeFactory {
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
                 MethodTypeEnum.CORRUPTED, "...");
 
-        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaData);
+        final AnnotationBo apiMetaDataAnnotation = AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaData);
         annotations.add(apiMetaDataAnnotation);
 
 
         int key = AnnotationKeyUtils.getArgs(0).getCode();
         String errorMessage = getErrorMessage(title, startTimeMillis);
-        final AnnotationBo argumentAnnotation = new AnnotationBo(key, errorMessage);
+        final AnnotationBo argumentAnnotation = AnnotationBo.of(key, errorMessage);
         annotations.add(argumentAnnotation);
         rootSpan.setAnnotationBoList(annotations);
         return new MetaSpanCallTree(new SpanAlign(rootSpan, true));

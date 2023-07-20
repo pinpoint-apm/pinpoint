@@ -39,7 +39,7 @@ public class SpanMapperV2Test {
         firstSpanEventBo.setExceptionInfo(2, "first");
         firstSpanEventBo.setEndElapsed(100);
 
-        AnnotationBo annotationBo = newAnnotation(200, "annotation");
+        AnnotationBo annotationBo = AnnotationBo.of(200, "annotation");
         firstSpanEventBo.setAnnotationBoList(List.of(annotationBo));
         firstSpanEventBo.setServiceType((short) 1003);
         firstSpanEventBo.setSequence((short) 0);
@@ -90,10 +90,6 @@ public class SpanMapperV2Test {
         Assertions.assertEquals(readFirst.getSequence(), 0);
         Assertions.assertEquals(readNext.getSequence(), 1);
 
-    }
-
-    private AnnotationBo newAnnotation(int key, Object value) {
-        return new AnnotationBo(key, value);
     }
 
 }
