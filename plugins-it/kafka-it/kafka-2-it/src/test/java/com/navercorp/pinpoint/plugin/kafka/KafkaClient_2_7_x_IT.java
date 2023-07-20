@@ -22,12 +22,9 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import test.pinpoint.plugin.kafka.Kafka2UnitServer;
 import test.pinpoint.plugin.kafka.TestProducer;
 
@@ -40,7 +37,6 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 /**
  * @author Younsung Hwang
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-kafka-client.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-kafka-plugin"})
@@ -60,7 +56,7 @@ public class KafkaClient_2_7_x_IT extends KafkaClient2ITBase {
         KafkaClientITBase.verifyProducerSend(brokerUrl, messageCount);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void recordEntryPointTest() throws NoSuchMethodException {
         final TestProducer producer = new TestProducer();

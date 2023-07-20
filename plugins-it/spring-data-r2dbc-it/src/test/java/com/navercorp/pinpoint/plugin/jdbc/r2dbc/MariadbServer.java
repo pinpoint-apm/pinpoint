@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.pluginit.utils.DockerTestUtils;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -35,8 +35,8 @@ public class MariadbServer implements SharedTestLifeCycle {
 
     @Override
     public Properties beforeAll() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        Assume.assumeFalse(DockerTestUtils.isArmDockerServer());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
 
         container = new MariaDBContainer("mariadb:10.3.6");
         container.waitingFor(Wait.forListeningPort());

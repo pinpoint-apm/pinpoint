@@ -16,16 +16,15 @@
 
 package com.pinpoint.test.plugin.spring.data.r2dbc;
 
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 public class R2dbcOracleTest {
     public static final String ORACLE_18_X_IMAGE = "gvenzl/oracle-xe:18-slim";
@@ -36,10 +35,10 @@ public class R2dbcOracleTest {
 
     private static OracleContainer container;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        Assume.assumeFalse(DockerTestUtils.isArmDockerServer());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
 
         container = new OracleContainer(ORACLE_21_X_IMAGE);
         container.setWaitStrategy(Wait.forLogMessage(".*Completed.*", 1));
@@ -57,7 +56,7 @@ public class R2dbcOracleTest {
         System.out.println("##password=" + container.getPassword());
     }
 
-    @AfterClass
+    @AfterAll
     public static void select() {
         if (container != null) {
             container.stop();

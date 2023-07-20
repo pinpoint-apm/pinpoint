@@ -20,7 +20,6 @@ import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-
 import com.mongodb.client.MongoDatabase;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
@@ -31,18 +30,14 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-mongodb-driver-plugin"})
@@ -56,7 +51,7 @@ public class MongoDBIT_3_7_x_IT extends MongoDBITBase {
     private static MongoDatabase database;
     private static URI uri;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         DriverProperties driverProperties = getDriverProperties();
         uri = new URI(driverProperties.getUrl());
@@ -64,7 +59,7 @@ public class MongoDBIT_3_7_x_IT extends MongoDBITBase {
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanAfterClass() throws Exception {
         if (mongoClient != null) {
             mongoClient.close();
@@ -77,7 +72,7 @@ public class MongoDBIT_3_7_x_IT extends MongoDBITBase {
     }
 
     // No backwards compatibility of MongoCollection interfaces.
-    @Ignore
+    @Disabled
     @Test
     public void testStatements() throws Exception {
         final MongoDBITHelper helper = new MongoDBITHelper();

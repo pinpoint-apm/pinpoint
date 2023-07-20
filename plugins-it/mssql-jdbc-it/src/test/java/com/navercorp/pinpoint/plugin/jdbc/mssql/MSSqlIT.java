@@ -29,15 +29,13 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -46,7 +44,6 @@ import java.util.Properties;
  * [8.1.1.jre8] not exist
  * @author Woonduk Kang(emeroad)
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8],[6.2.0.jre8],[6.4.0.jre8],[7.0.0.jre8],[7.2.0.jre8],[7.4.0.jre8]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
@@ -86,7 +83,7 @@ public class MSSqlIT extends DataBaseTestCase {
         driverProperties = DatabaseContainers.readDriverProperties(beforeAllResult);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         driverClass = new MSSqlJDBCDriverClass();
         jdbcApi = new DefaultJDBCApi(driverClass);
@@ -99,7 +96,7 @@ public class MSSqlIT extends DataBaseTestCase {
         return driverClass;
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         logger.info("before");
         setup(MSSQL, MSSQL_EXECUTE_QUERY, driverProperties, jdbcUrlParser, jdbcApi);

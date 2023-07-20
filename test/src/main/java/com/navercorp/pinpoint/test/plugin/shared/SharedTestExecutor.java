@@ -49,7 +49,7 @@ public class SharedTestExecutor {
         this.executor = Executors.newSingleThreadExecutor(threadFactory);
     }
 
-    void startBefore(long timeout, TimeUnit unit) {
+    public void startBefore(long timeout, TimeUnit unit) {
         Future<?> future = this.executor.submit(this::beforeAll);
         awaitFuture("startBefore", future, timeout, unit);
     }
@@ -72,7 +72,7 @@ public class SharedTestExecutor {
     }
 
 
-    void startAfter(long timeout, TimeUnit unit) {
+    public void startAfter(long timeout, TimeUnit unit) {
         Future<?> future = this.executor.submit(this::afterAll);
         awaitFuture("startAfter", future, timeout, unit);
     }

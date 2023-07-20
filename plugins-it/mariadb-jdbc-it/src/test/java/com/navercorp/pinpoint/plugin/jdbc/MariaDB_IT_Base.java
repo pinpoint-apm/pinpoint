@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -37,8 +38,6 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author HyunGil Jeong
@@ -79,14 +78,14 @@ public abstract class MariaDB_IT_Base {
 
     abstract JDBCDriverClass getJDBCDriverClass();
 
-    @Before
+    @BeforeEach
     public void registerDriver() throws Exception {
         JDBCDriverClass driverClass = getJDBCDriverClass();
         Driver driver = driverClass.getDriver().newInstance();
         DriverManager.registerDriver(driver);
     }
 
-    @After
+    @AfterEach
     public void deregisterDriver() {
         DriverManagerUtils.deregisterDriver();
     }
@@ -104,11 +103,11 @@ public abstract class MariaDB_IT_Base {
             while (rs.next()) {
                 ++resultCount;
                 if (resultCount > expectedResultSize) {
-                    fail();
+                    Assertions.fail();
                 }
-                assertEquals(3, rs.getInt(1));
+                Assertions.assertEquals(3, rs.getInt(1));
             }
-            assertEquals(expectedResultSize, resultCount);
+            Assertions.assertEquals(expectedResultSize, resultCount);
         } finally {
             closeQuietly(rs);
             closeQuietly(statement);
@@ -135,11 +134,11 @@ public abstract class MariaDB_IT_Base {
             while (rs.next()) {
                 ++resultCount;
                 if (resultCount > expectedResultSize) {
-                    fail();
+                    Assertions.fail();
                 }
-                assertEquals("THREE", rs.getString(2));
+                Assertions.assertEquals("THREE", rs.getString(2));
             }
-            assertEquals(expectedResultSize, resultCount);
+            Assertions.assertEquals(expectedResultSize, resultCount);
         } finally {
             closeQuietly(rs);
             closeQuietly(ps);
@@ -169,15 +168,15 @@ public abstract class MariaDB_IT_Base {
             while (rs.next()) {
                 ++resultCount;
                 if (resultCount > expectedResultSize) {
-                    fail();
+                    Assertions.fail();
                 }
-                assertEquals(expectedMatchingId, rs.getInt(1));
-                assertEquals(CALLABLE_STATEMENT_INPUT_PARAM, rs.getString(2));
+                Assertions.assertEquals(expectedMatchingId, rs.getInt(1));
+                Assertions.assertEquals(CALLABLE_STATEMENT_INPUT_PARAM, rs.getString(2));
             }
-            assertEquals(expectedResultSize, resultCount);
+            Assertions.assertEquals(expectedResultSize, resultCount);
 
             final int totalCount = cs.getInt(outputParamCountName);
-            assertEquals(expectedTotalCount, totalCount);
+            Assertions.assertEquals(expectedTotalCount, totalCount);
 
         } finally {
             closeQuietly(rs);

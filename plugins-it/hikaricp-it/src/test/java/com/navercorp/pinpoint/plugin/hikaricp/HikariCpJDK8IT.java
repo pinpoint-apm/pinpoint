@@ -23,15 +23,12 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import com.zaxxer.hikari.pool.ProxyConnection;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -43,7 +40,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 /**
  * @author Taejin Koo
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-hikaricp-plugin")
 @JvmVersion(8)
@@ -58,7 +54,7 @@ public class HikariCpJDK8IT {
     private static Method getConnectionMethod2;
     private static Method proxyConnectionMethod;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws NoSuchMethodException {
         getConnectionMethod1 = HikariDataSource.class.getDeclaredMethod("getConnection");
         getConnectionMethod2 = HikariDataSource.class.getDeclaredMethod("getConnection", String.class, String.class);
@@ -73,7 +69,7 @@ public class HikariCpJDK8IT {
 
         try (HikariDataSource dataSource = new HikariDataSource(config)) {
             try (Connection connection = dataSource.getConnection()) {
-                Assert.assertNotNull(connection);
+                Assertions.assertNotNull(connection);
             }
 
             Thread.sleep(500);
@@ -95,7 +91,7 @@ public class HikariCpJDK8IT {
         try (HikariDataSource dataSource = newDataSource()) {
 
             try (Connection connection = dataSource.getConnection()) {
-                Assert.assertNotNull(connection);
+                Assertions.assertNotNull(connection);
             }
 
             Thread.sleep(500);

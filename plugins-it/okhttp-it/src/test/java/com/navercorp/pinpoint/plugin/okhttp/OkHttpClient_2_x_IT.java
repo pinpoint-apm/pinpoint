@@ -24,14 +24,17 @@ import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.squareup.okhttp.*;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Dispatcher;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.squareup.okhttp.internal.http.HttpEngine;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -41,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.common.trace.ServiceType.ASYNC;
 import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIENT;
@@ -50,7 +52,6 @@ import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIEN
 /**
  * @author jaehong.kim
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-okhttp-plugin")
 @Dependency({"com.squareup.okhttp:okhttp:[2.0.0,3.0.0)", WebServer.VERSION, PluginITConstants.VERSION})
@@ -59,13 +60,13 @@ public class OkHttpClient_2_x_IT {
     private static WebServer webServer;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }
@@ -152,7 +153,7 @@ public class OkHttpClient_2_x_IT {
         );
 
         Response response = responseRef.get();
-        Assert.assertNotNull("response is null", response);
+        Assertions.assertNotNull(response, "response is null");
         Method readResponseMethod = HttpEngine.class.getDeclaredMethod("readResponse");
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), readResponseMethod,
                     annotation("http.status.code", response.code()))

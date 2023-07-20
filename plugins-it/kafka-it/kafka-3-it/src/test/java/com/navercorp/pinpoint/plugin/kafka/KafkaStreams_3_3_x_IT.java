@@ -18,11 +18,14 @@ package com.navercorp.pinpoint.plugin.kafka;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
-import com.navercorp.pinpoint.test.plugin.*;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import test.pinpoint.plugin.kafka.KafkaStreamsUnitServer;
 import test.pinpoint.plugin.kafka.TestProducer;
 
@@ -31,7 +34,6 @@ import java.util.Random;
 import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_MULTI_RECORDS;
 import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-kafka-client.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-kafka-plugin"})
@@ -44,7 +46,7 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 @SharedTestLifeCycleClass(KafkaStreamsUnitServer.class)
 public class KafkaStreams_3_3_x_IT extends KafkaStreamsIT {
     @Test
-    @Ignore
+    @Disabled
     public void streamsProducerSendTest() throws NoSuchMethodException {
         int messageCount = new Random().nextInt(5) + 1;
         final TestProducer producer = new TestProducer();
@@ -54,7 +56,7 @@ public class KafkaStreams_3_3_x_IT extends KafkaStreamsIT {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void streamsConsumeTest() throws NoSuchMethodException {
         final TestProducer producer = new TestProducer();
         producer.sendMessageForStream(brokerUrl, 1, TRACE_TYPE_MULTI_RECORDS);

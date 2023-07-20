@@ -52,11 +52,10 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Date;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -202,7 +201,7 @@ public class MongoDBITHelper {
         } finally {
             cursor.close();
         }
-        Assert.assertEquals(message, expected, resultCount);
+        Assertions.assertEquals(expected, resultCount, message);
     }
 
     public void deleteData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
@@ -217,7 +216,7 @@ public class MongoDBITHelper {
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        Assert.assertEquals("unexcepted delete count", 1, deleteResult.getDeletedCount());
+        Assertions.assertEquals(1, deleteResult.getDeletedCount(), "unexcepted delete count");
     }
 
     public void filterData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {

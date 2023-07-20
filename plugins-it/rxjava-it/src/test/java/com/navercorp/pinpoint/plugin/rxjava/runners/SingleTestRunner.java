@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.test.pinpoint.plugin.rxjava.repository.EchoRepository;
 import com.navercorp.test.pinpoint.plugin.rxjava.service.EchoService;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import rx.Single;
 import rx.SingleSubscriber;
 import rx.Subscription;
@@ -59,7 +59,7 @@ public class SingleTestRunner {
                 });
         latch.await(500L, TimeUnit.MILLISECONDS);
         subscription.unsubscribe();
-        Assert.assertEquals(message, actualMessage.get());
+        Assertions.assertEquals(message, actualMessage.get());
 
         TestHelper.awaitForSpanDataFlush();
 
@@ -102,7 +102,7 @@ public class SingleTestRunner {
                 });
         latch.await(500L, TimeUnit.MILLISECONDS);
         subscription.unsubscribe();
-        Assert.assertSame(expected, actual.get());
+        Assertions.assertSame(expected, actual.get());
 
         TestHelper.awaitForSpanDataFlush();
 
@@ -130,7 +130,7 @@ public class SingleTestRunner {
                 .subscribeOn(Schedulers.computation())
                 .toBlocking()
                 .value();
-        Assert.assertEquals(message, actualMessage);
+        Assertions.assertEquals(message, actualMessage);
 
         TestHelper.awaitForSpanDataFlush();
 

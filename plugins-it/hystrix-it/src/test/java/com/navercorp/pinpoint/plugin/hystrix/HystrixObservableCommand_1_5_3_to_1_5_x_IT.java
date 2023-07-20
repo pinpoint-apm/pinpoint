@@ -21,17 +21,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.hystrix.commands.SayHelloObservableCommand;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import com.navercorp.test.pinpoint.plugin.hystrix.repository.HelloRepository;
 import com.navercorp.pinpoint.plugin.hystrix.runners.HystrixObservableCommandTestRunner;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.navercorp.test.pinpoint.plugin.hystrix.repository.HelloRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeoutException;
@@ -50,7 +48,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  * @author Jiaqi Feng
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 // rxjava, hystrix plugin enabled + custom trace method config
 @PinpointConfig("hystrix/pinpoint-hystrix.config")
@@ -62,7 +59,7 @@ public class HystrixObservableCommand_1_5_3_to_1_5_x_IT {
 
     private final HystrixObservableCommandTestRunner hystrixObservableCommandTestRunner = new HystrixObservableCommandTestRunner(COMMAND_GROUP);
 
-    @After
+    @AfterEach
     public void cleanUp() {
         HystrixTestHelper.reset();
     }

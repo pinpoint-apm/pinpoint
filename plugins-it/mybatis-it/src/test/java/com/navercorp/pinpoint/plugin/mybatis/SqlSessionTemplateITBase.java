@@ -22,10 +22,10 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-@Ignore
+@Disabled
 public class SqlSessionTemplateITBase extends SqlSessionTestBase {
 
     private static final ExecutorType EXECUTOR_TYPE = ExecutorType.SIMPLE;
@@ -53,7 +53,7 @@ public class SqlSessionTemplateITBase extends SqlSessionTestBase {
 
     private AutoCloseable openMocks;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         openMocks = MockitoAnnotations.openMocks(this);
         Configuration configuration = mock(Configuration.class);
@@ -66,7 +66,7 @@ public class SqlSessionTemplateITBase extends SqlSessionTestBase {
         this.sqlSessionTemplate = new SqlSessionTemplate(this.sqlSessionFactory, EXECUTOR_TYPE);
     }
 
-    @After
+    @AfterEach
     public void afterEach() throws Exception {
         openMocks.close();
     }

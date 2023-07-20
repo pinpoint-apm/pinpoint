@@ -14,25 +14,12 @@
  */
 package com.navercorp.pinpoint.plugin.fastjson;
 
-import com.alibaba.fastjson.JSON;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.lang.reflect.Method;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
-
+@PinpointAgent(AgentPath.PATH)
 @Dependency({"com.alibaba:fastjson:[1.2.71,)"})
 @JvmVersion(8)
 public class FastjsonJDK8IT extends FastjsonIT {

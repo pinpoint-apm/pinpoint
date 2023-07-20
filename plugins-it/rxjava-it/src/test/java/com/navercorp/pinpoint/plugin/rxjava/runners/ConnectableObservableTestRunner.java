@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.test.pinpoint.plugin.rxjava.repository.EchoRepository;
 import com.navercorp.test.pinpoint.plugin.rxjava.service.EchoesService;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import rx.Observable;
 import rx.functions.Action0;
 import rx.functions.Action1;
@@ -83,7 +83,7 @@ public class ConnectableObservableTestRunner {
         for (int i = 0; i < actualMessages.size(); i++) {
             String expectedMessage = messages.get(i / numSubscribers);
             String actualMessage = actualMessages.get(i);
-            Assert.assertEquals(expectedMessage, actualMessage);
+            Assertions.assertEquals(expectedMessage, actualMessage);
         }
 
         TestHelper.awaitForSpanDataFlush();
@@ -150,9 +150,9 @@ public class ConnectableObservableTestRunner {
 
         completeLatch.await(500L, TimeUnit.MILLISECONDS);
 
-        Assert.assertEquals(numSubscribers, actualExceptions.size());
+        Assertions.assertEquals(numSubscribers, actualExceptions.size());
         for (Exception actualException : actualExceptions) {
-            Assert.assertSame(expected, actualException);
+            Assertions.assertSame(expected, actualException);
         }
 
         TestHelper.awaitForSpanDataFlush();

@@ -16,25 +16,20 @@
 
 package com.pinpoint.test.plugin.spring.data.r2dbc;
 
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 public class R2dbcPostgresqlTest {
 
     private static PostgreSQLContainer container;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
         container = new PostgreSQLContainer();
         container.withInitScript("postgresql-init.sql");
@@ -48,7 +43,7 @@ public class R2dbcPostgresqlTest {
         System.out.println("##password=" + container.getPassword());
     }
 
-    @AfterClass
+    @AfterAll
     public static void select() {
         if (container != null) {
             container.stop();

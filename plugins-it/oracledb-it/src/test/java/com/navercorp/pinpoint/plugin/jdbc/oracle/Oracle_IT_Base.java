@@ -20,11 +20,9 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
-
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.testcontainers.containers.OracleContainer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -61,13 +59,13 @@ public abstract class Oracle_IT_Base {
     }
 
 
-    @Before
+    @BeforeEach
     public void registerDriver() throws Exception {
         Driver driver = driverClass.getDriver().newInstance();
         DriverManager.registerDriver(driver);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         DriverManagerUtils.deregisterDriver();
     }

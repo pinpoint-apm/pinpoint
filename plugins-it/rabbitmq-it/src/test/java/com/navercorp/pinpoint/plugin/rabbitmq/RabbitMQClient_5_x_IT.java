@@ -24,21 +24,18 @@ import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import com.rabbitmq.client.ConnectionFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Jiaqi Feng
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-rabbitmq-plugin", "com.navercorp.pinpoint:pinpoint-jetty-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
-@Dependency({"com.rabbitmq:amqp-client:[5.0.0,)", "org.apache.qpid:qpid-broker:6.1.1",
+@Dependency({"com.rabbitmq:amqp-client:[5.0.0,5.14.3)", "org.apache.qpid:qpid-broker:6.1.1",
         TestcontainersOption.TEST_CONTAINER, TestcontainersOption.RABBITMQ})
 @JvmVersion(8)
 @JvmArgument("-DtestLoggerEnable=false")

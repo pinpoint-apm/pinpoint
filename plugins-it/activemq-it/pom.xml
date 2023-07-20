@@ -35,17 +35,15 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-plugin-it-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-all</artifactId>
             <version>5.13.2</version>
             <scope>test</scope>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugin-it-utils</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

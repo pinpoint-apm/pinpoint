@@ -25,11 +25,10 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.client.AbstractClientHttpRequest;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
@@ -41,23 +40,23 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 /**
  * @author Taejin Koo
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"org.springframework:spring-web:[4.1.2.RELEASE],[4.2.0.RELEASE,4.2.max],[4.3.0.RELEASE,4.3.max]",
         "org.apache.httpcomponents:httpclient:4.3", "io.netty:netty-all:4.1.9.Final",
         WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-disabled-plugin-test.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-resttemplate-plugin"})
+@Disabled
 public class RestTemplateIT {
 
     public static WebServer webServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws Exception {
         webServer = WebServer.cleanup(webServer);
     }

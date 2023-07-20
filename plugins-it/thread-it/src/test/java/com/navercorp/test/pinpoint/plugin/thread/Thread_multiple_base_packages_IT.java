@@ -18,14 +18,14 @@ package com.navercorp.test.pinpoint.plugin.thread;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.test.pinpoint.plugin.thread.pkg.one.MockCallable;
 import com.navercorp.test.pinpoint.plugin.thread.pkg.one.MockRunnable;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,8 +34,8 @@ import java.util.concurrent.Future;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@Dependency({PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-thread-plugin"})
 @PinpointConfig("pinpoint-thread-test-multiple-pkg.config")
 public class Thread_multiple_base_packages_IT {

@@ -17,19 +17,21 @@ package com.navercorp.pinpoint.plugin.log4j2;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
-import com.navercorp.pinpoint.test.plugin.*;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmVersion(8)
-@Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,]", PluginITConstants.VERSION})
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,2.20)", PluginITConstants.VERSION})
 @JvmArgument("-DtestLoggerEnable=false")
 public class Log4j2IT extends Log4j2TestBase {
 
@@ -40,11 +42,11 @@ public class Log4j2IT extends Log4j2TestBase {
         final String location = getLoggerJarLocation(logger);
         System.out.println("Log4j2 jar location:" + location);
         final String testVersion = getTestVersion();
-        Assert.assertTrue("test version is not " + getTestVersion(), location.contains("/" + testVersion + "/"));
+        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
 
         logger.error("for log4j2 plugin test");
-        Assert.assertNotNull("txId", ThreadContext.get("PtxId"));
-        Assert.assertNotNull("spanId", ThreadContext.get("PspanId"));
+        Assertions.assertNotNull(ThreadContext.get("PtxId"), "txId");
+        Assertions.assertNotNull(ThreadContext.get("PspanId"), "spanId");
     }
 
 }

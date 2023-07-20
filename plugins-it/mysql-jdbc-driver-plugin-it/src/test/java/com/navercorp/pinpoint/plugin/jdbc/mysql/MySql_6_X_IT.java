@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.plugin.jdbc.mysql;
 
 import com.navercorp.pinpoint.pluginit.jdbc.DefaultJDBCApi;
-import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
@@ -26,11 +25,9 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -38,7 +35,6 @@ import org.junit.runner.RunWith;
  * @author HyunGil Jeong
  * 
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mysql-jdbc-driver-plugin")
@@ -53,7 +49,7 @@ public class MySql_6_X_IT extends MySql_IT_Base {
     private static JDBCDriverClass driverClass;
     private static JDBCApi jdbcApi;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         driverClass = new MySql6JDBCDriverClass();
         jdbcApi = new DefaultJDBCApi(driverClass);

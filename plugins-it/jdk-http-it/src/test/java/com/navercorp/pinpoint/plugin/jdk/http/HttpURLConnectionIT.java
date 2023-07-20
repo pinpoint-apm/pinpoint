@@ -15,35 +15,31 @@
  */
 package com.navercorp.pinpoint.plugin.jdk.http;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
+import com.navercorp.pinpoint.pluginit.utils.WebServer;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 
-
-import com.navercorp.pinpoint.pluginit.utils.AgentPath;
-import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
-import com.navercorp.pinpoint.pluginit.utils.WebServer;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmArgument;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @author Jongho Moon
- *
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @Dependency({ WebServer.VERSION, PluginITConstants.VERSION})
@@ -52,12 +48,12 @@ public class HttpURLConnectionIT {
 
     private static WebServer webServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
     }
 
-    @AfterClass
+    @AfterAll
     public static void AfterClass() throws Exception {
         webServer = WebServer.cleanup(webServer);
     }
@@ -67,13 +63,13 @@ public class HttpURLConnectionIT {
         URL url = new URL(webServer.getCallHttpUrl());
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.getHeaderFields();
-        
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printMethod();
-        
+
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("getInputStream");
-        
+
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
         verifier.verifyTraceCount(2);
@@ -81,18 +77,18 @@ public class HttpURLConnectionIT {
                 annotation("http.url", httpUrl),
                 annotation("http.resp.header", anyAnnotationValue())));
     }
-    
+
     @Test
     public void testConnectTwice() throws Exception {
         URL url = new URL(webServer.getCallHttpUrl());
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        
+
         connection.connect();
         connection.getInputStream();
-        
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printMethod();
-        
+
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method connect = targetClass.getMethod("connect");
         Method getInputStream = targetClass.getMethod("getInputStream");
@@ -106,7 +102,7 @@ public class HttpURLConnectionIT {
                 annotation("http.url", httpUrl),
                 annotation("http.resp.header", anyAnnotationValue())));
     }
-    
+
     @Test
     public void testConnecting() throws Exception {
 

@@ -21,18 +21,18 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
-import com.navercorp.pinpoint.test.junit4.JunitAgentConfigPath;
+import com.navercorp.pinpoint.test.junit5.BasePinpointTest;
+import com.navercorp.pinpoint.test.junit5.JunitAgentConfigPath;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
 
@@ -57,27 +57,27 @@ public class MSSSqlConnectionIT extends BasePinpointTest {
     private static JDBCDriverClass driverClass;
     public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger.getName());
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
         mssqlserver.start();
 
         driverClass = new MSSqlJDBCDriverClass();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws Exception {
         mssqlserver.stop();
     }
 
-    @Before
+    @BeforeEach
     public void registerDriver() throws Exception {
         Driver driver = driverClass.getDriver().newInstance();
         DriverManager.registerDriver(driver);
     }
 
-    @After
+    @AfterEach
     public void deregisterDriver() throws Exception {
         DriverManagerUtils.deregisterDriver();
     }
@@ -113,7 +113,7 @@ public class MSSSqlConnectionIT extends BasePinpointTest {
         logger.debug("Connection class cl:{}", connection.getClass().getClassLoader());
 
         DatabaseInfo url = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-        Assert.assertNotNull(url);
+        Assertions.assertNotNull(url);
         List<SpanEvent> currentSpanEvents = getCurrentSpanEvents();
         logger.debug("{}", currentSpanEvents);
 //        Assert.assertEquals(1, currentSpanEvents.size());
@@ -142,7 +142,7 @@ public class MSSSqlConnectionIT extends BasePinpointTest {
 
         connection.close();
         DatabaseInfo clearUrl = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-        Assert.assertNull(clearUrl);
+        Assertions.assertNull(clearUrl);
 
     }
 

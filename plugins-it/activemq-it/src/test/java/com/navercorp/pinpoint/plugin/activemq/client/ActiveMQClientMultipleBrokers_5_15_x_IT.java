@@ -25,25 +25,22 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Arrays;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
 @JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-activemq-client-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
 // 5.4.1 bug creates activemq-data directory even if persistence is set to false - skip it
 // 5.5.x activemq-all missing slf4j binder - just skip instead of supplying one
-@Dependency({"org.apache.activemq:activemq-all:[5.15.0,)"})
+@Dependency({"org.apache.activemq:activemq-all:[5.15.0,5.17.0)"})
 public class ActiveMQClientMultipleBrokers_5_15_x_IT extends ActiveMQClientITBase {
 
     private static final String PRODUCER_BROKER = "Producer_Broker";
@@ -52,7 +49,7 @@ public class ActiveMQClientMultipleBrokers_5_15_x_IT extends ActiveMQClientITBas
     private static String PRODUCER_BROKER_URL;
     private static String CONSUMER_BROKER_URL;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         final int producerBrokerPort = SocketUtils.findAvailableTcpPort(10000, 19999);
         PRODUCER_BROKER_URL = PortUtils.toUrl(producerBrokerPort);
@@ -72,7 +69,7 @@ public class ActiveMQClientMultipleBrokers_5_15_x_IT extends ActiveMQClientITBas
         ));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         ActiveMQClientITHelper.stopBrokers();
     }

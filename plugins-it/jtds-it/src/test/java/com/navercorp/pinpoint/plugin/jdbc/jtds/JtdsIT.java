@@ -28,20 +28,17 @@ import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.Repository;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Properties;
 
 /**
  * @author Jongho Moon
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Repository("http://repo.navercorp.com/maven2")
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-jtds-plugin")
@@ -67,7 +64,7 @@ public class JtdsIT extends DataBaseTestCase {
     }
 
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         String serverJdbcUrl = driverProperties.getUrl();
         String address = serverJdbcUrl.substring(JtdsITConstants.JDBC_URL_PREFIX.length());
@@ -88,7 +85,7 @@ public class JtdsIT extends DataBaseTestCase {
         return driverClass;
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         setup(MSSQL, MSSQL_EXECUTE_QUERY, jtdsDriverProperties, jdbcUrlParser, jdbcApi);
     }

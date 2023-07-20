@@ -24,18 +24,15 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.test.pinpoint.Bean1;
 import com.navercorp.test.pinpoint.Bean2;
 import com.navercorp.test.pinpoint.Model;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.function.Predicate;
 
-@RunWith(PinpointPluginTestSuite.class)
 @JvmVersion(8)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-lambda-test.config")

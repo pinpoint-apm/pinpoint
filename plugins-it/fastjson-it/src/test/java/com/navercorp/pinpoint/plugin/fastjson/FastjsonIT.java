@@ -19,13 +19,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
@@ -39,7 +37,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  * @version 1.8.1
  * @since 2017/07/17
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.alibaba:fastjson:[1.2.10],[1.2.20],[1.2.30],[1.2.40],[1.2.40,1.2.70]"})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-fastjson-plugin")
@@ -69,8 +66,8 @@ public class FastjsonIT {
 
         Method parseObject = JSON.class.getDeclaredMethod("parseObject", String.class, Class.class);
 
-        Assert.assertEquals(testBean1.getId(), testBean2.getId());
-        Assert.assertEquals(testBean1.getName(), testBean2.getName());
+        Assertions.assertEquals(testBean1.getId(), testBean2.getId());
+        Assertions.assertEquals(testBean1.getName(), testBean2.getName());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();

@@ -33,7 +33,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.impl.AMQCommand;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -96,9 +96,9 @@ class RabbitMQTestRunner {
             actualMessages.add(consumer.getMessage(10, TimeUnit.SECONDS));
         }
 
-        Assert.assertEquals(numMessages, actualMessages.size());
+        Assertions.assertEquals(numMessages, actualMessages.size());
         for (String actualMessage : actualMessages) {
-            Assert.assertEquals(message, actualMessage);
+            Assertions.assertEquals(message, actualMessage);
         }
 
         consumerChannel.close();
@@ -184,7 +184,7 @@ class RabbitMQTestRunner {
         final String remoteAddress = consumerConnection.getAddress().getHostAddress() + ":" + consumerConnection.getPort();
 
         TestMessagePuller messagePuller = new TestMessagePuller(consumerChannel);
-        Assert.assertEquals(message, messagePuller.pullMessage(MessageConverter.FOR_TEST, RabbitMQTestConstants.QUEUE_PULL, true));
+        Assertions.assertEquals(messagePuller.pullMessage(MessageConverter.FOR_TEST, RabbitMQTestConstants.QUEUE_PULL, true), message);
 
         consumerChannel.close();
         consumerConnection.close();

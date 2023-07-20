@@ -21,24 +21,19 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.api.core.session.Request;
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
-import com.datastax.oss.driver.internal.core.session.DefaultSession;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.CassandraContainer;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.Properties;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 
 /**
  * @author HyunGil Jeong
@@ -71,18 +66,14 @@ public abstract class CassandraDatastaxITBase {
     }
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         CASSANDRA_ADDRESS = HOST + ":" + getPort();
         logger.info("setup cluster {}", CASSANDRA_ADDRESS);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-    }
-
-    @Before
-    public void setUp() {
     }
 
     @Test

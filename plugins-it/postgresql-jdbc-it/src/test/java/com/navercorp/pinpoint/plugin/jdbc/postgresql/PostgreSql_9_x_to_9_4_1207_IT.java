@@ -24,18 +24,15 @@ import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @Dependency({"org.postgresql:postgresql:[9.min,9.4.1207)",
@@ -51,7 +48,7 @@ public class PostgreSql_9_x_to_9_4_1207_IT extends PostgreSqlBase {
     private static PostgreSqlJDBCApi jdbcApi;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         DriverProperties driverProperties = getDriverProperties();
         driverClass = new PostgreSql_9_x_to_9_4_1207_JDBCDriverClass();

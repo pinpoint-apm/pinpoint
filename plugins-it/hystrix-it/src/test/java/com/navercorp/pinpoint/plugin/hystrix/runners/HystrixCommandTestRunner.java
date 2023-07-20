@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.hystrix.runners;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixTestHelper;
 import com.navercorp.pinpoint.plugin.hystrix.commands.SayHelloCommand;
 import com.netflix.hystrix.HystrixCommand;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class HystrixCommandTestRunner {
         final String expectedMessage = HystrixTestHelper.sayHello(name);
         HystrixCommand<String> helloCommand = SayHelloCommand.create(commandGroup, name);
         String actualMessage = helloCommand.execute();
-        Assert.assertEquals(expectedMessage, actualMessage);
+        Assertions.assertEquals(expectedMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }
@@ -51,7 +51,7 @@ public class HystrixCommandTestRunner {
         final String expectedFallbackMessage = HystrixTestHelper.fallbackHello(name);
         HystrixCommand<String> helloCommand = SayHelloCommand.createForException(commandGroup, name, expectedException);
         String actualMessage = helloCommand.execute();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }
@@ -63,7 +63,7 @@ public class HystrixCommandTestRunner {
         final String expectedFallbackMessage = HystrixTestHelper.fallbackHello(name);
         HystrixCommand<String> helloCommand = SayHelloCommand.createForTimeout(commandGroup, name, timeoutMs);
         String actualMessage = helloCommand.execute();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush(timeoutMs);
     }
@@ -73,7 +73,7 @@ public class HystrixCommandTestRunner {
         final String expectedFallbackMessage = HystrixTestHelper.fallbackHello(name);
         HystrixCommand<String> helloCommand = SayHelloCommand.createForShortCircuit(commandGroup, name);
         String actualMessage = helloCommand.execute();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }

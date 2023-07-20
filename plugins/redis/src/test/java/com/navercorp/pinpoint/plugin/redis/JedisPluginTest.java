@@ -17,8 +17,10 @@
 package com.navercorp.pinpoint.plugin.redis;
 
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
-import org.junit.Test;
+import com.navercorp.pinpoint.test.junit5.BasePinpointTest;
+import com.navercorp.pinpoint.test.junit5.JunitAgentConfigPath;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
@@ -26,10 +28,10 @@ import redis.clients.jedis.Pipeline;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@JunitAgentConfigPath("pinpoint.config")
 public class JedisPluginTest extends BasePinpointTest {
 
     private static final String HOST = "localhost";
@@ -47,8 +49,8 @@ public class JedisPluginTest extends BasePinpointTest {
         assertThat(events).hasSize(1);
 
         final SpanEvent eventBo = events.get(0);
-        assertEquals(HOST + ":" + PORT, eventBo.getEndPoint());
-        assertEquals("REDIS", eventBo.getDestinationId());
+        Assertions.assertEquals(HOST + ":" + PORT, eventBo.getEndPoint());
+        Assertions.assertEquals("REDIS", eventBo.getDestinationId());
 
     }
 
@@ -70,8 +72,8 @@ public class JedisPluginTest extends BasePinpointTest {
         assertThat(events).hasSize(1);
 
         final SpanEvent eventBo = events.get(0);
-        assertEquals(HOST + ":" + PORT, eventBo.getEndPoint());
-        assertEquals("REDIS", eventBo.getDestinationId());
+        Assertions.assertEquals(HOST + ":" + PORT, eventBo.getEndPoint());
+        Assertions.assertEquals("REDIS", eventBo.getDestinationId());
     }
 
     

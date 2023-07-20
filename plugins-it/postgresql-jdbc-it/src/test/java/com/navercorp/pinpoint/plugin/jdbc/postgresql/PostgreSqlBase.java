@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -49,13 +49,13 @@ public abstract class PostgreSqlBase {
         return driverProperties;
     }
 
-    @Before
+    @BeforeEach
     public void registerDriver() throws Exception {
         Driver driver = getJDBCDriverClass().getDriver().newInstance();
         DriverManager.registerDriver(driver);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         DriverManagerUtils.deregisterDriver();
     }

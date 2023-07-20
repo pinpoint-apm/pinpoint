@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.util.OsType;
 import com.navercorp.pinpoint.common.util.OsUtils;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -37,9 +37,9 @@ import java.util.List;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-process-plugin"})
+@Dependency({PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-process-test.config")
 public class ProcessIT {
     private static final String UNIX_PROCESS = "java.lang.UNIXProcess";

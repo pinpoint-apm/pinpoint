@@ -27,13 +27,11 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,7 +42,6 @@ import java.sql.Statement;
 /**
  * @author emeroad
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mysql-jdbc-driver-plugin")
@@ -73,7 +70,7 @@ public class MySqlConnection_5_X_IT extends MySql_IT_Base {
         logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
 
         DatabaseInfo url = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-        Assert.assertNotNull(url);
+        Assertions.assertNotNull(url);
 
         statement(connection);
 
@@ -86,7 +83,7 @@ public class MySqlConnection_5_X_IT extends MySql_IT_Base {
         connection.close();
 
         DatabaseInfo clearUrl = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-        Assert.assertNull(clearUrl);
+        Assertions.assertNull(clearUrl);
 
     }
 

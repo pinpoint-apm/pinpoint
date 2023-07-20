@@ -18,8 +18,8 @@
 package com.navercorp.pinpoint.test.classloader;
 
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author hyungil.jeong

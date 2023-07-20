@@ -22,14 +22,10 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
-import org.junit.runner.RunWith;
 
 /**
  * @author Taejin Koo
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"io.grpc:grpc-stub:[1.42.0,1.43.max]", "io.grpc:grpc-netty:[1.23.0]", "io.grpc:grpc-protobuf:[1.23.0]",
         PluginITConstants.VERSION})

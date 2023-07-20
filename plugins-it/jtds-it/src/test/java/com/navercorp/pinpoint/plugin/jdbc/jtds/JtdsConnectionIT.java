@@ -29,15 +29,13 @@ import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
@@ -55,7 +53,6 @@ import java.util.function.Consumer;
 /**
  * @author emeroad
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-jtds-plugin")
 @Dependency({"net.sourceforge.jtds:jtds:[1.2.8]", "com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8]",
@@ -87,10 +84,10 @@ public class JtdsConnectionIT {
     }
 
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        Assume.assumeFalse(DockerTestUtils.isArmDockerServer());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
         mssqlserver.start();
 
         String address = mssqlserver.getJdbcUrl().substring(JtdsITConstants.JDBC_URL_PREFIX.length());
@@ -99,7 +96,7 @@ public class JtdsConnectionIT {
         driverProperties = new DriverProperties(jdbcUrl, JtdsITConstants.USER_NAME, JtdsITConstants.PASSWORD);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         DriverManagerUtils.deregisterDriver();
     }
@@ -136,7 +133,7 @@ public class JtdsConnectionIT {
         logger.debug("Connection class cl:{}", connection.getClass().getClassLoader());
 
         DatabaseInfo url = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-        Assert.assertNotNull(url);
+        Assertions.assertNotNull(url);
 //        List<SpanEvent> currentSpanEvents = getCurrentSpanEvents();
 //        logger.debug("{}", currentSpanEvents);
 //        Assert.assertEquals(1, currentSpanEvents.size());
@@ -165,7 +162,7 @@ public class JtdsConnectionIT {
 
         connection.close();
         DatabaseInfo clearUrl = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-        Assert.assertNull(clearUrl);
+        Assertions.assertNull(clearUrl);
 
     }
 

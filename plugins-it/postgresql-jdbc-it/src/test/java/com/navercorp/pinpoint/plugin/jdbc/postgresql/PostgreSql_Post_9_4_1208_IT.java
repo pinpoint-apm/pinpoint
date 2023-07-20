@@ -25,41 +25,37 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 //@Dependency({"org.postgresql:postgresql:[42.2.15.jre6]",
 //        JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 @PinpointConfig("pinpoint-postgresql.config")
-@Dependency({"org.postgresql:postgresql:[9.4.1208,)",
+@Dependency({"org.postgresql:postgresql:[9.4.1208,9.4.1212]",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 @SharedTestLifeCycleClass(PostgreSqlServer.class)
 public class PostgreSql_Post_9_4_1208_IT extends PostgreSqlBase {
 
     private final Logger logger = LogManager.getLogger(getClass());
-    
+
     private static PostgreSqlItHelper HELPER;
     private static PostgreSqlJDBCDriverClass driverClass;
 
     private static PostgreSqlJDBCApi jdbcApi;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         invalidJarCheck();
 
@@ -76,7 +72,7 @@ public class PostgreSql_Post_9_4_1208_IT extends PostgreSqlBase {
         ClassLoader classLoader = PostgreSql_Post_9_4_1208_IT.class.getClassLoader();
         // invalid jar : postgresql-42.2.15.jre6
         URL jar = classLoader.getResource("org.postgresql.Driver".replace('.', '/').concat(".class"));
-        Assume.assumeTrue("test skip : invalid jar ", jar != null);
+        Assumptions.assumeTrue(jar != null, "test skip : invalid jar ");
     }
 
     @Override

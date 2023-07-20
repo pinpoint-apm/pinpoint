@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.test.pinpoint.plugin.rxjava.repository.EchoRepository;
 import com.navercorp.test.pinpoint.plugin.rxjava.service.EchoesService;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import rx.Observable;
 import rx.functions.Action0;
 import rx.functions.Action1;
@@ -98,13 +98,13 @@ public class GroupedObservableTestRunner {
         });
 
         completeLatch.await(500L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(messages.size() / messageChunk.size(), helloMessages.size());
-        Assert.assertEquals(messages.size() / messageChunk.size(), worldMessages.size());
+        Assertions.assertEquals(messages.size() / messageChunk.size(), helloMessages.size());
+        Assertions.assertEquals(messages.size() / messageChunk.size(), worldMessages.size());
         for (String helloMessage : helloMessages) {
-            Assert.assertEquals("Hello", helloMessage);
+            Assertions.assertEquals("Hello", helloMessage);
         }
         for (String worldMessage : worldMessages) {
-            Assert.assertEquals("World", worldMessage);
+            Assertions.assertEquals("World", worldMessage);
         }
 
         TestHelper.awaitForSpanDataFlush();

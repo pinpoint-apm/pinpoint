@@ -29,8 +29,6 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
@@ -41,10 +39,9 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.impl.AMQCommand;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.Message;
 
 import java.lang.reflect.Constructor;
@@ -53,7 +50,6 @@ import java.lang.reflect.Method;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-rabbitmq-plugin", "com.navercorp.pinpoint:pinpoint-jetty-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
@@ -67,7 +63,7 @@ public class SpringAmqpRabbit_1_7_0_to_1_7_7_IT extends SpringAmqpRabbitITBase {
 
     private final SpringAmqpRabbitTestRunner testRunner = new SpringAmqpRabbitTestRunner(CONTEXT);
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         CONTEXT.init(
                 CommonConfig.class,
@@ -75,7 +71,7 @@ public class SpringAmqpRabbit_1_7_0_to_1_7_7_IT extends SpringAmqpRabbitITBase {
                 ReceiverConfig_Post_1_6_0.class);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() {
         CONTEXT.close();
     }

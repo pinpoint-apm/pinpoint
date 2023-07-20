@@ -24,13 +24,11 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author youngjin.kim2
@@ -42,7 +40,7 @@ public class ApdexScoreCheckerTest {
 
     private static MapResponseDao mockMapResponseDAO;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() {
         mockMapResponseDAO = (application, range) -> {
             long timeStamp = 1409814914298L;
@@ -77,7 +75,7 @@ public class ApdexScoreCheckerTest {
         ApdexScoreChecker checker = new ApdexScoreChecker(collector, rule);
 
         checker.check();
-        assertTrue(checker.isDetected());
+        Assertions.assertTrue(checker.isDetected());
     }
 
     /*
@@ -91,7 +89,7 @@ public class ApdexScoreCheckerTest {
         ApdexScoreChecker checker = new ApdexScoreChecker(collector, rule);
 
         checker.check();
-        assertFalse(checker.isDetected());
+        Assertions.assertFalse(checker.isDetected());
     }
 
 }

@@ -28,11 +28,9 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
@@ -49,7 +47,6 @@ import static org.mockito.Mockito.when;
  * 
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-ibatis-plugin")
 @Dependency({ "org.springframework:spring-ibatis:[2.0.7,)", "org.apache.ibatis:ibatis-sqlmap:[2.3.4.726]",
@@ -76,14 +73,14 @@ public class SqlMapClientTemplateIT {
 
     private AutoCloseable openMocks;
     
-    @Before
+    @BeforeEach
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
         when(this.mockSqlMapExecutorDelegate.beginSessionScope()).thenReturn(this.mockSessionScope);
         this.sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
     }
 
-    @After
+    @AfterEach
     public void afterEach() throws Exception {
         openMocks.close();
     }

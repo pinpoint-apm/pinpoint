@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -47,11 +45,10 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.net.SocketAddress;
 import java.util.concurrent.CountDownLatch;
@@ -63,7 +60,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 /**
  * @author Taejin Koo
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @JvmArgument("-XX:MaxPermSize=768m")
@@ -74,12 +70,12 @@ public class NettyIT {
 
     private static WebServer webServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
     }
 
-    @AfterClass
+    @AfterAll
     public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }
@@ -103,7 +99,7 @@ public class NettyIT {
             channel.writeAndFlush(request);
 
             boolean await = awaitLatch.await(3000, TimeUnit.MILLISECONDS);
-            Assert.assertTrue(await);
+            Assertions.assertTrue(await);
 
             PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
             verifier.printCache();
@@ -147,7 +143,7 @@ public class NettyIT {
         });
 
         boolean await = awaitLatch.await(3000, TimeUnit.MILLISECONDS);
-        Assert.assertTrue(await);
+        Assertions.assertTrue(await);
 
         final Channel channel = connect.channel();
         try {

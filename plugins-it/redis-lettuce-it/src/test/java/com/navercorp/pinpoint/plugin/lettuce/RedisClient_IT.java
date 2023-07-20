@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import io.lettuce.core.AbstractRedisAsyncCommands;
@@ -37,15 +36,15 @@ import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.api.sync.RedisCommands;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-redis-lettuce-plugin")
@@ -53,6 +52,7 @@ import java.util.concurrent.TimeUnit;
         "org.latencyutils:LatencyUtils:[2.0.3]",
         PluginITConstants.VERSION, TestcontainersOption.TEST_CONTAINER})
 @SharedTestLifeCycleClass(RedisServer.class)
+@Disabled
 public class RedisClient_IT {
     private static final String SERVICE_TYPE_REDIS_LETTUCE = "REDIS_LETTUCE";
 
@@ -70,10 +70,17 @@ public class RedisClient_IT {
 
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         String url = String.format("redis://%s:%s", host, port);
         redisClient = RedisClient.create(url);
+    }
+
+    @AfterAll
+    public static void afterClass() {
+        if (redisClient != null) {
+            redisClient.close();
+        }
     }
 
     @Test

@@ -24,18 +24,15 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Arrays;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-activemq-client-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
@@ -50,7 +47,7 @@ public class ActiveMQClientMultipleBrokersIT extends ActiveMQClientITBase {
     private static String PRODUCER_BROKER_URL;
     private static String CONSUMER_BROKER_URL;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         final int producerBrokerPort = SocketUtils.findAvailableTcpPort(10000, 19999);
         PRODUCER_BROKER_URL = PortUtils.toUrl(producerBrokerPort);
@@ -70,7 +67,7 @@ public class ActiveMQClientMultipleBrokersIT extends ActiveMQClientITBase {
         ));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         ActiveMQClientITHelper.stopBrokers();
     }
