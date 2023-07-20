@@ -60,6 +60,7 @@
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "8.2.0",
     "@angular-devkit/build-angular": "^0.803.22",
     "@angular/cli": "^8.3.22",
     "@angular/compiler-cli": "~8.2.3",
@@ -70,7 +71,9 @@
     "@types/moment-timezone": "^0.5.12",
     "@types/node": "~12.7.2",
     "@types/snapsvg": "^0.5.0",
+    "brotli-webpack-plugin": "^1.1.0",
     "codelyzer": "^5.0.1",
+    "compression-webpack-plugin": "4.0.1",
     "cpx": "^1.5.0",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
