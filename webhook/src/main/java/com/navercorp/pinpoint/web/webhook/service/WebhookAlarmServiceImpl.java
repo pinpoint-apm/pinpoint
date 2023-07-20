@@ -44,6 +44,7 @@ public class WebhookAlarmServiceImpl implements WebhookAlarmService {
     }
 
     @TransactionalEventListener
+    @Override
     public void handleDeleteRule(DeleteRuleEvent deleteRule) {
         this.logger.debug("handleDeleteRule:{}", deleteRule);
 
