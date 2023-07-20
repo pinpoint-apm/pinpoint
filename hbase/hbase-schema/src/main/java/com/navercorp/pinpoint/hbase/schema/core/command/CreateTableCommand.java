@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.hbase.schema.core.command;
 
 import com.navercorp.pinpoint.common.hbase.HbaseAdminOperation;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.io.compress.Compression;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -37,13 +37,13 @@ public class CreateTableCommand extends TableCommand {
     private final byte[][] splitKeys;
 
     CreateTableCommand(TableName tableName, Compression.Algorithm compressionAlgorithm, byte[][] splitKeys) {
-        super(new HTableDescriptor(Objects.requireNonNull(tableName, "tableName")), compressionAlgorithm);
+        super(tableName, compressionAlgorithm);
         this.splitKeys = Objects.requireNonNull(splitKeys, "splitKeys");
     }
 
     @Override
     public boolean execute(HbaseAdminOperation hbaseAdminOperation) {
-        HTableDescriptor htd = getHtd();
+        TableDescriptor htd = buildDescriptor();
         TableName tableName = htd.getTableName();
         if (hbaseAdminOperation.tableExists(tableName)) {
             return false;
@@ -61,11 +61,9 @@ public class CreateTableCommand extends TableCommand {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CreateTableCommand{");
-        sb.append("htd=").append(getHtd());
-        sb.append("compressionAlgorithm=").append(getCompressionAlgorithm().getName());
-        sb.append(", splitKeys=").append(Arrays.toString(splitKeys));
-        sb.append('}');
-        return sb.toString();
+        return "CreateTableCommand{htd=" + buildDescriptor() +
+                "compressionAlgorithm=" + getCompressionAlgorithm().getName() +
+                ", splitKeys=" + Arrays.toString(splitKeys) +
+                '}';
     }
 }

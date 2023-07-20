@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 
 import java.util.List;
 import java.util.Map;
@@ -32,15 +32,15 @@ public interface HbaseAdminOperation {
 
     boolean createNamespaceIfNotExists(String namespace, Map<String, String> configurations);
 
-    List<HTableDescriptor> getTableDescriptors(String namespace);
+    List<TableDescriptor> getTableDescriptors(String namespace);
 
-    HTableDescriptor getTableDescriptor(TableName tableName);
+    TableDescriptor getTableDescriptor(TableName tableName);
 
-    void createTable(HTableDescriptor hTableDescriptor);
+    void createTable(TableDescriptor tableDescriptor);
 
-    void createTable(HTableDescriptor hTableDescriptor, byte[][] splitKeys);
+    void createTable(TableDescriptor tableDescriptor, byte[][] splitKeys);
 
-    boolean createTableIfNotExists(HTableDescriptor hTableDescriptor);
+    boolean createTableIfNotExists(TableDescriptor tableDescriptor);
 
     boolean tableExists(TableName tableName);
 
@@ -50,9 +50,9 @@ public interface HbaseAdminOperation {
 
     void dropTable(TableName tableName);
 
-    void modifyTable(HTableDescriptor hTableDescriptor);
+    void modifyTable(TableDescriptor tableDescriptor);
 
-    void addColumn(TableName tableName, HColumnDescriptor hColumnDescriptor);
+    void addColumn(TableName tableName, ColumnFamilyDescriptor columnDescriptor);
 
     <T> T execute(AdminCallback<T> action);
 }

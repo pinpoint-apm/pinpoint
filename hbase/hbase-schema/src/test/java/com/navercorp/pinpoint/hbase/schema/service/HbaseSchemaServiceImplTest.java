@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.hbase.schema.core.HbaseSchemaVerifier;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
-import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,7 +53,7 @@ public class HbaseSchemaServiceImplTest {
     private SchemaChangeLogService schemaChangeLogService;
 
     @Mock
-    private HbaseSchemaVerifier<HTableDescriptor> hbaseSchemaVerifier;
+    private HbaseSchemaVerifier<TableDescriptor> hbaseSchemaVerifier;
 
     private HbaseSchemaService hbaseSchemaService;
 

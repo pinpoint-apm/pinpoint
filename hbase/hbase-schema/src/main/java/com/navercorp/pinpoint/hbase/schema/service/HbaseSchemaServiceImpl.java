@@ -20,14 +20,14 @@ import com.navercorp.pinpoint.common.hbase.HbaseAdminOperation;
 import com.navercorp.pinpoint.hbase.schema.core.ChangeSetManager;
 import com.navercorp.pinpoint.hbase.schema.core.HbaseSchemaStatus;
 import com.navercorp.pinpoint.hbase.schema.core.HbaseSchemaVerifier;
+import com.navercorp.pinpoint.hbase.schema.core.command.HbaseSchemaCommandManager;
 import com.navercorp.pinpoint.hbase.schema.core.command.TableCommand;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
-import com.navercorp.pinpoint.hbase.schema.core.command.HbaseSchemaCommandManager;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.logging.log4j.Logger;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -48,11 +48,11 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
 
     private final SchemaChangeLogService schemaChangeLogService;
 
-    private final HbaseSchemaVerifier<HTableDescriptor> hbaseSchemaVerifier;
+    private final HbaseSchemaVerifier<TableDescriptor> hbaseSchemaVerifier;
 
     public HbaseSchemaServiceImpl(HbaseAdminOperation hbaseAdminOperation,
                                   SchemaChangeLogService schemaChangeLogService,
-                                  HbaseSchemaVerifier<HTableDescriptor> hbaseSchemaVerifier) {
+                                  HbaseSchemaVerifier<TableDescriptor> hbaseSchemaVerifier) {
         this.hbaseAdminOperation = Objects.requireNonNull(hbaseAdminOperation, "hbaseAdminOperation");
         this.schemaChangeLogService = Objects.requireNonNull(schemaChangeLogService, "schemaChangeLogService");
         this.hbaseSchemaVerifier = Objects.requireNonNull(hbaseSchemaVerifier, "hbaseSchemaVerifier");
@@ -124,7 +124,7 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
         logger.info("[{}] Hbase schema update started.", namespace);
         assertInitialization(namespace);
 
-        List<HTableDescriptor> currentHtds = getCurrentSchema(namespace);
+        List<TableDescriptor> currentHtds = getCurrentSchema(namespace);
         List<SchemaChangeLog> schemaChangeLogs = schemaChangeLogService.getSchemaChangeLogs(namespace);
 
         if (CollectionUtils.isEmpty(currentHtds)) {
@@ -143,8 +143,8 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
         return updateExistingSchemas(namespace, compression, changeSets, currentHtds, schemaChangeLogs);
     }
 
-    private List<HTableDescriptor> getCurrentSchema(String namespace) {
-        List<HTableDescriptor> currentHtds = hbaseAdminOperation.getTableDescriptors(namespace);
+    private List<TableDescriptor> getCurrentSchema(String namespace) {
+        List<TableDescriptor> currentHtds = hbaseAdminOperation.getTableDescriptors(namespace);
         TableName schemaChangeLogTableName = TableName.valueOf(namespace, schemaChangeLogService.getTableName());
         return currentHtds.stream()
                 .filter((currentHtd) -> !schemaChangeLogTableName.equals(currentHtd.getTableName()))
@@ -158,7 +158,7 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
         return applyChangeSets(commandManager, changeSets, Collections.emptyList());
     }
 
-    private boolean initFromExistingTables(String namespace, String compression, List<ChangeSet> changeSets, List<HTableDescriptor> currentHtds) {
+    private boolean initFromExistingTables(String namespace, String compression, List<ChangeSet> changeSets, List<TableDescriptor> currentHtds) {
         logger.info("[{}] Initializing hbase schema from existing tables.", namespace);
 
         // Replay change sets one by one and compare it against the current hbase schema.
@@ -193,7 +193,7 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
         return applyChangeSets(updateCommandManager, changeSetsToApply, executedLogs);
     }
 
-    private boolean updateExistingSchemas(String namespace, String compression, List<ChangeSet> changeSets, List<HTableDescriptor> currentHtds, List<SchemaChangeLog> executedLogs) {
+    private boolean updateExistingSchemas(String namespace, String compression, List<ChangeSet> changeSets, List<TableDescriptor> currentHtds, List<SchemaChangeLog> executedLogs) {
         logger.info("[{}] Updating hbase schema.", namespace);
 
         List<String> executedChangeLogIds = executedLogs.stream()
@@ -247,7 +247,7 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
     public boolean reset(String namespace) {
         logger.info("[{}] Resetting hbase schema change logs.", namespace);
         if (schemaChangeLogService.reset(namespace)) {
-            logger.info("[{}] Deleted all hbase schema change logs.", namespace, schemaChangeLogService.getTableName());
+            logger.info("[{}] {} Deleted all hbase schema change logs.", namespace, schemaChangeLogService.getTableName());
             return true;
         }
         logger.debug("[{}] {} table not found, skipping.", namespace, schemaChangeLogService.getTableName());

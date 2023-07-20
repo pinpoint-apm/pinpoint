@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.hbase.schema.core;
 
-import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import java.util.Map;
 /**
  * @author HyunGil Jeong
  */
-public class HtdHbaseSchemaVerifier implements HbaseSchemaVerifier<HTableDescriptor> {
+public class HtdHbaseSchemaVerifier implements HbaseSchemaVerifier<TableDescriptor> {
 
     /**
      * Returns {@code true} if the schema definitions specified by {@code expectedSchemas} matches those
@@ -43,7 +44,7 @@ public class HtdHbaseSchemaVerifier implements HbaseSchemaVerifier<HTableDescrip
      * @return {@code true} if the actual schema matches the expected schema
      */
     @Override
-    public boolean verifySchemas(List<HTableDescriptor> expectedSchemas, List<HTableDescriptor> actualSchemas) {
+    public boolean verifySchemas(List<TableDescriptor> expectedSchemas, List<TableDescriptor> actualSchemas) {
         if (CollectionUtils.isEmpty(expectedSchemas)) {
             return true;
         }
@@ -51,14 +52,14 @@ public class HtdHbaseSchemaVerifier implements HbaseSchemaVerifier<HTableDescrip
             return false;
         }
 
-        Map<TableName, HTableDescriptor> actualSchemaMap = new HashMap<>();
-        for (HTableDescriptor actualSchema : actualSchemas) {
+        Map<TableName, TableDescriptor> actualSchemaMap = new HashMap<>();
+        for (TableDescriptor actualSchema : actualSchemas) {
             actualSchemaMap.put(actualSchema.getTableName(), actualSchema);
         }
 
-        for (HTableDescriptor expectedSchema : expectedSchemas) {
+        for (TableDescriptor expectedSchema : expectedSchemas) {
             TableName tableName = expectedSchema.getTableName();
-            HTableDescriptor actualSchema = actualSchemaMap.get(tableName);
+            TableDescriptor actualSchema = actualSchemaMap.get(tableName);
             if (actualSchema == null) {
                 return false;
             }
@@ -69,12 +70,12 @@ public class HtdHbaseSchemaVerifier implements HbaseSchemaVerifier<HTableDescrip
         return true;
     }
 
-    private boolean verifySchema(HTableDescriptor expected, HTableDescriptor actual) {
+    private boolean verifySchema(TableDescriptor expected, TableDescriptor actual) {
         if (!expected.getTableName().equals(actual.getTableName())) {
             return false;
         }
-        for (HColumnDescriptor expectedHcd : expected.getFamilies()) {
-            if (!actual.hasFamily(expectedHcd.getName())) {
+        for (ColumnFamilyDescriptor expectedHcd : expected.getColumnFamilies()) {
+            if (!actual.hasColumnFamily(expectedHcd.getName())) {
                 return false;
             }
         }

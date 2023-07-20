@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.hbase.schema.service.HbaseSchemaService;
 import com.navercorp.pinpoint.hbase.schema.service.HbaseSchemaServiceImpl;
 import com.navercorp.pinpoint.hbase.schema.service.SchemaChangeLogService;
 import com.navercorp.pinpoint.hbase.schema.service.SchemaChangeLogServiceImpl;
-import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -43,7 +43,7 @@ public class AppConfig {
     }
 
     @Bean
-    public HbaseSchemaVerifier<HTableDescriptor> hbaseSchemaVerifier() {
+    public HbaseSchemaVerifier<TableDescriptor> hbaseSchemaVerifier() {
         return new HtdHbaseSchemaVerifier();
     }
 
@@ -60,7 +60,7 @@ public class AppConfig {
     @Bean
     public HbaseSchemaService hbaseSchemaService(HbaseAdminOperation hbaseAdminOperation,
                                                  SchemaChangeLogService schemaChangeLogService,
-                                                 HbaseSchemaVerifier<HTableDescriptor> hBaseSchemaVerifier) {
+                                                 HbaseSchemaVerifier<TableDescriptor> hBaseSchemaVerifier) {
         return new HbaseSchemaServiceImpl(hbaseAdminOperation, schemaChangeLogService, hBaseSchemaVerifier);
     }
 }
