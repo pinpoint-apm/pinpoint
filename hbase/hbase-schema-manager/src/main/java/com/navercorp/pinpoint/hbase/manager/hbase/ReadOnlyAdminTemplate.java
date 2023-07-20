@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.hbase.manager.hbase;
 
 import com.navercorp.pinpoint.common.hbase.AdminCallback;
 import com.navercorp.pinpoint.common.hbase.HbaseAdminOperation;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.logging.log4j.Logger;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
@@ -60,33 +60,33 @@ public class ReadOnlyAdminTemplate implements HbaseAdminOperation {
     }
 
     @Override
-    public List<HTableDescriptor> getTableDescriptors(String namespace) {
+    public List<TableDescriptor> getTableDescriptors(String namespace) {
         return delegate.getTableDescriptors(namespace);
     }
 
     @Override
-    public HTableDescriptor getTableDescriptor(TableName tableName) {
+    public TableDescriptor getTableDescriptor(TableName tableName) {
         return delegate.getTableDescriptor(tableName);
     }
 
     @Override
-    public void createTable(HTableDescriptor htd) {
-        logger.info("Creating table : {}.", htd);
+    public void createTable(TableDescriptor tableDescriptor) {
+        logger.info("Creating table : {}.", tableDescriptor);
     }
 
     @Override
-    public void createTable(HTableDescriptor htd, byte[][] splitKeys) {
-        logger.info("Creating table : {} with {} splitKeys.", htd, splitKeys.length);
+    public void createTable(TableDescriptor tableDescriptor, byte[][] splitKeys) {
+        logger.info("Creating table : {} with {} splitKeys.", tableDescriptor, splitKeys.length);
     }
 
     @Override
-    public boolean createTableIfNotExists(HTableDescriptor htd) {
-        TableName tableName = htd.getTableName();
+    public boolean createTableIfNotExists(TableDescriptor tableDescriptor) {
+        TableName tableName = tableDescriptor.getTableName();
         boolean tableExists = delegate.tableExists(tableName);
         if (tableExists) {
             return false;
         }
-        this.createTable(htd);
+        this.createTable(tableDescriptor);
         return true;
     }
 
@@ -127,13 +127,13 @@ public class ReadOnlyAdminTemplate implements HbaseAdminOperation {
     }
 
     @Override
-    public void modifyTable(HTableDescriptor htd) {
-        logger.info("Modifying table : {}, desc : {}", htd.getTableName(), htd);
+    public void modifyTable(TableDescriptor tableDescriptor) {
+        logger.info("Modifying table : {}, desc : {}", tableDescriptor.getTableName(), tableDescriptor);
     }
 
     @Override
-    public void addColumn(TableName tableName, HColumnDescriptor hcd) {
-        logger.info("Adding column to table : {}, column : {}", tableName, hcd);
+    public void addColumn(TableName tableName, ColumnFamilyDescriptor columnDescriptor) {
+        logger.info("Adding column to table : {}, column : {}", tableName, columnDescriptor);
     }
 
     @Override

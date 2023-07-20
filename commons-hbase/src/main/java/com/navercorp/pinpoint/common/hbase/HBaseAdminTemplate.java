@@ -16,21 +16,19 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.NamespaceExistException;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
-import org.apache.logging.log4j.Logger;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -78,46 +76,42 @@ public class HBaseAdminTemplate implements HbaseAdminOperation {
     }
 
     @Override
-    public List<HTableDescriptor> getTableDescriptors(String namespace) {
+    public List<TableDescriptor> getTableDescriptors(String namespace) {
         return execute(admin -> {
-            HTableDescriptor[] htds = admin.listTableDescriptorsByNamespace(namespace);
-            if (ArrayUtils.isEmpty(htds)) {
-                return Collections.emptyList();
-            }
-            return Arrays.asList(htds);
+            return admin.listTableDescriptorsByNamespace(BytesUtils.toBytes(namespace));
         });
     }
 
     @Override
-    public HTableDescriptor getTableDescriptor(TableName tableName) {
-        return execute(admin -> admin.getTableDescriptor(tableName));
+    public TableDescriptor getTableDescriptor(TableName tableName) {
+        return execute(admin -> admin.getDescriptor(tableName));
     }
 
     @Override
-    public void createTable(HTableDescriptor htd) {
+    public void createTable(TableDescriptor tableDescriptor) {
         execute(admin -> {
-            admin.createTable(htd);
-            logger.info("{} table created, htd : {}", htd.getTableName(), htd);
+            admin.createTable(tableDescriptor);
+            logger.info("{} table created, tableDescriptor : {}", tableDescriptor.getTableName(), tableDescriptor);
             return null;
         });
     }
 
     @Override
-    public void createTable(HTableDescriptor htd, byte[][] splitKeys) {
+    public void createTable(TableDescriptor tableDescriptor, byte[][] splitKeys) {
         execute(admin -> {
-            admin.createTable(htd, splitKeys);
-            logger.info("{} table created with {} split keys, htd : {}", htd.getTableName(), splitKeys.length + 1, htd);
+            admin.createTable(tableDescriptor, splitKeys);
+            logger.info("{} table created with {} split keys, tableDescriptor : {}", tableDescriptor.getTableName(), splitKeys.length + 1, tableDescriptor);
             return null;
         });
     }
 
     @Override
-    public boolean createTableIfNotExists(HTableDescriptor htd) {
+    public boolean createTableIfNotExists(TableDescriptor tableDescriptor) {
         return execute(admin -> {
-            TableName tableName = htd.getTableName();
+            TableName tableName = tableDescriptor.getTableName();
             if (!admin.tableExists(tableName)) {
-                admin.createTable(htd);
-                logger.info("{} table created, htd : {}", htd.getTableName(), htd);
+                admin.createTable(tableDescriptor);
+                logger.info("{} table created, tableDescriptor : {}", tableDescriptor.getTableName(), tableDescriptor);
                 return true;
             }
             return false;
@@ -166,20 +160,19 @@ public class HBaseAdminTemplate implements HbaseAdminOperation {
     }
 
     @Override
-    public void modifyTable(HTableDescriptor htd) {
-        final TableName tableName = htd.getTableName();
+    public void modifyTable(TableDescriptor tableDescriptor) {
         execute(admin -> {
-            admin.modifyTable(tableName, htd);
-            logger.info("{} table modified, htd : {}", tableName, htd);
+            admin.modifyTable(tableDescriptor);
+            logger.info("table modified, tableDescriptor : {}", tableDescriptor);
             return null;
         });
     }
 
     @Override
-    public void addColumn(TableName tableName, HColumnDescriptor hcd) {
+    public void addColumn(TableName tableName, ColumnFamilyDescriptor columnDescriptor) {
         execute(admin -> {
-            admin.addColumn(tableName, hcd);
-            logger.info("{} table added column : {}", tableName, hcd);
+            admin.addColumnFamily(tableName, columnDescriptor);
+            logger.info("{} table added column : {}", tableName, columnDescriptor);
             return null;
         });
     }

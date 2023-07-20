@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.hbase.schema.core.command;
 
 import com.navercorp.pinpoint.common.hbase.HbaseAdminOperation;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.io.compress.Compression;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This command is solely for adding new column families to an existing table.
@@ -35,30 +34,27 @@ public class ModifyTableCommand extends TableCommand {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    ModifyTableCommand(HTableDescriptor htd, Compression.Algorithm compressionAlgorithm) {
+    ModifyTableCommand(TableDescriptor htd, Compression.Algorithm compressionAlgorithm) {
         super(htd, compressionAlgorithm);
     }
 
     @Override
     public boolean execute(HbaseAdminOperation hbaseAdminOperation) {
-        HTableDescriptor htd = getHtd();
-        HColumnDescriptor[] hcds = htd.getColumnFamilies();
-        if (ArrayUtils.isEmpty(hcds)) {
-            return false;
-        }
+        TableDescriptor htd = buildDescriptor();
+        ColumnFamilyDescriptor[] cfDescriptors = htd.getColumnFamilies();
 
         TableName tableName = htd.getTableName();
-        HTableDescriptor currentHtd = hbaseAdminOperation.getTableDescriptor(tableName);
+        TableDescriptor currentHtd = hbaseAdminOperation.getTableDescriptor(tableName);
 
         // Filter existing column families as column family modification is not supported.
         // We could use modifyTable(HTableDescriptor) to add column families, but this deletes existing column families
         // if they are not specified in HTableDescriptor and this may be dangerous.
         // Instead, use addColumn.
         boolean changesMade = false;
-        for (HColumnDescriptor hcd : hcds) {
-            if (!currentHtd.hasFamily(hcd.getName())) {
-                logger.info("Adding {} to {} table.", hcd, tableName);
-                hbaseAdminOperation.addColumn(tableName, hcd);
+        for (ColumnFamilyDescriptor cf : cfDescriptors) {
+            if (!currentHtd.hasColumnFamily(cf.getName())) {
+                logger.info("Adding {} to {} table.", cf, tableName);
+                hbaseAdminOperation.addColumn(tableName, cf);
                 changesMade = true;
             }
         }
@@ -67,10 +63,8 @@ public class ModifyTableCommand extends TableCommand {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ModifyTableCommand{");
-        sb.append("htd=").append(getHtd());
-        sb.append(", compressionAlgorithm=").append(getCompressionAlgorithm());
-        sb.append('}');
-        return sb.toString();
+        return "ModifyTableCommand{TableDesc=" + buildDescriptor() +
+                ", compressionAlgorithm=" + getCompressionAlgorithm() +
+                '}';
     }
 }

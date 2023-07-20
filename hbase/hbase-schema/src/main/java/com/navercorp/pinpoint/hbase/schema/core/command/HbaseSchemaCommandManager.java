@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.hbase.schema.reader.InvalidHbaseSchemaException;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeType;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.springframework.util.CollectionUtils;
 
@@ -51,10 +51,10 @@ public class HbaseSchemaCommandManager {
         this(namespace, compression, Collections.emptyList());
     }
 
-    public HbaseSchemaCommandManager(String namespace, String compression, List<HTableDescriptor> currentHtds) {
+    public HbaseSchemaCommandManager(String namespace, String compression, List<TableDescriptor> currentHtds) {
         this.namespace = StringUtils.defaultIfEmpty(namespace, NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR);
         this.compressionAlgorithm = getCompressionAlgorithm(compression);
-        for (HTableDescriptor htd : filterTablesByNamespace(currentHtds)) {
+        for (TableDescriptor htd : filterTablesByNamespace(currentHtds)) {
             tableCommandMap.put(htd.getTableName(), new ModifyTableCommand(htd, this.compressionAlgorithm));
         }
     }
@@ -71,12 +71,12 @@ public class HbaseSchemaCommandManager {
         throw new IllegalArgumentException("Unknown compression option : " + compression);
     }
 
-    private List<HTableDescriptor> filterTablesByNamespace(List<HTableDescriptor> htds) {
+    private List<TableDescriptor> filterTablesByNamespace(List<TableDescriptor> htds) {
         if (CollectionUtils.isEmpty(htds)) {
             return Collections.emptyList();
         }
-        List<HTableDescriptor> filteredHtds = new ArrayList<>();
-        for (HTableDescriptor htd : htds) {
+        List<TableDescriptor> filteredHtds = new ArrayList<>();
+        for (TableDescriptor htd : htds) {
             TableName tableName = htd.getTableName();
             String namespace = tableName.getNamespaceAsString();
             if (this.namespace.equalsIgnoreCase(namespace)) {
@@ -138,12 +138,11 @@ public class HbaseSchemaCommandManager {
                 .collect(Collectors.toList());
     }
 
-    public List<HTableDescriptor> getSchemaSnapshot() {
+    public List<TableDescriptor> getSchemaSnapshot() {
         return tableCommandMap.entrySet().stream()
                 .filter(e -> affectedTables.contains(e.getKey()))
                 .map(Map.Entry::getValue)
-                .map(TableCommand::getHtd)
-                .map(HTableDescriptor::new)
+                .map(TableCommand::buildDescriptor)
                 .collect(Collectors.toList());
     }
 }
