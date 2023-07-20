@@ -11,14 +11,14 @@ public class AnnotationUtilsTest {
 
     @Test
     public void findApiAnnotation() {
-        AnnotationBo annotationBo = new AnnotationBo(AnnotationKey.API.getCode(), "a");
+        AnnotationBo annotationBo = AnnotationBo.of(AnnotationKey.API.getCode(), "a");
         String value = AnnotationUtils.findApiAnnotation(List.of(annotationBo));
         Assertions.assertEquals("a", value);
     }
 
     @Test
     public void findApiAnnotation_invalidType() {
-        AnnotationBo annotationBo = new AnnotationBo(AnnotationKey.API.getCode(), 1);
+        AnnotationBo annotationBo = AnnotationBo.of(AnnotationKey.API.getCode(), 1);
         String value = AnnotationUtils.findApiAnnotation(List.of(annotationBo));
         Assertions.assertNull(null, value);
     }

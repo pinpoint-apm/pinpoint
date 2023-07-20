@@ -145,7 +145,7 @@ public class RpcURLPatternFilterTest {
         for (String rpcUrl : rpcUrls) {
             SpanEventBo testRpcSpanEvent = new SpanEventBo();
             testRpcSpanEvent.setServiceType(TEST_RPC_SERVICE_TYPE_CODE);
-            AnnotationBo testRpcAnnotationBo = new AnnotationBo(TEST_RPC_URL_ANNOTATION_KEY.getCode(), rpcUrl);
+            AnnotationBo testRpcAnnotationBo = AnnotationBo.of(TEST_RPC_URL_ANNOTATION_KEY.getCode(), rpcUrl);
             testRpcSpanEvent.setAnnotationBoList(List.of(testRpcAnnotationBo));
             SpanBo spanBo = new SpanBo();
             spanBo.addSpanEvent(testRpcSpanEvent);

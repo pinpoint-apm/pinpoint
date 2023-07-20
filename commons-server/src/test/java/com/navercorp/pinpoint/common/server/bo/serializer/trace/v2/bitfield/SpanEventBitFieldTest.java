@@ -27,13 +27,9 @@ import java.util.List;
  * @author Woonduk Kang(emeroad)
  */
 public class SpanEventBitFieldTest {
-    @Test
-    public void isSetHasException() throws Exception {
-
-    }
 
     @Test
-    public void setHasException_shortToByteCasting() throws Exception {
+    public void setHasException_shortToByteCasting() {
         SpanEventBitField field = new SpanEventBitField();
         field.setHasException(true);
 
@@ -46,7 +42,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testRpc_first() throws Exception {
+    public void testRpc_first() {
         SpanEventBo spanEventBo = new SpanEventBo();
 
         spanEventBo.setRpc("Rpc");
@@ -115,10 +111,10 @@ public class SpanEventBitFieldTest {
 
 
     @Test
-    public void testAnnotation_first() throws Exception {
+    public void testAnnotation_first() {
         SpanEventBo spanEventBo = new SpanEventBo();
 
-        spanEventBo.setAnnotationBoList(List.of(new AnnotationBo(1, "test")));
+        spanEventBo.setAnnotationBoList(List.of(AnnotationBo.of(1, "test")));
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
         Assertions.assertTrue(bitField.isSetAnnotation());
@@ -130,7 +126,7 @@ public class SpanEventBitFieldTest {
 
 
     @Test
-    public void testNextAsyncId_first() throws Exception {
+    public void testNextAsyncId_first() {
         SpanEventBo spanEventBo = new SpanEventBo();
 
         spanEventBo.setNextAsyncId(1234);
@@ -144,7 +140,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testAsyncId_first() throws Exception {
+    public void testAsyncId_first() {
         SpanEventBo spanEventBo = new SpanEventBo();
 
         spanEventBo.setAsyncId(1234);
@@ -159,7 +155,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testStartElapsed_equals_next() throws Exception {
+    public void testStartElapsed_equals_next() {
         SpanEventBo prev = new SpanEventBo();
         SpanEventBo current = new SpanEventBo();
 
@@ -172,7 +168,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testStartElapsed_delta_next() throws Exception {
+    public void testStartElapsed_delta_next() {
         SpanEventBo prev = new SpanEventBo();
         SpanEventBo current = new SpanEventBo();
 
@@ -185,7 +181,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testSequence_add1_next() throws Exception {
+    public void testSequence_add1_next() {
         SpanEventBo prev = new SpanEventBo();
         SpanEventBo current = new SpanEventBo();
 
@@ -198,7 +194,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testSequence_delta_next() throws Exception {
+    public void testSequence_delta_next() {
         SpanEventBo prev = new SpanEventBo();
         SpanEventBo current = new SpanEventBo();
 
@@ -211,7 +207,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testDepth_equals_next() throws Exception {
+    public void testDepth_equals_next() {
         SpanEventBo prev = new SpanEventBo();
         SpanEventBo current = new SpanEventBo();
 
@@ -224,7 +220,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testDepth_raw_next() throws Exception {
+    public void testDepth_raw_next() {
         SpanEventBo prev = new SpanEventBo();
         SpanEventBo current = new SpanEventBo();
 
@@ -237,7 +233,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testServiceType_equals_next() throws Exception {
+    public void testServiceType_equals_next() {
         SpanEventBo prev = new SpanEventBo();
         SpanEventBo current = new SpanEventBo();
 
@@ -250,7 +246,7 @@ public class SpanEventBitFieldTest {
     }
 
     @Test
-    public void testServiceType_raw_next() throws Exception {
+    public void testServiceType_raw_next() {
         SpanEventBo prev = new SpanEventBo();
         SpanEventBo current = new SpanEventBo();
 

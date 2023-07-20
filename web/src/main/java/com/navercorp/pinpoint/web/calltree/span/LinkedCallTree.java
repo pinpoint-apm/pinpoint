@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
-import com.navercorp.pinpoint.common.util.LineNumber;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +99,7 @@ public class LinkedCallTree implements CallTree {
         ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo("UNKNOWN", 0, -1,
                 LineNumber.NO_LINE_NUMBER, MethodTypeEnum.INVOCATION, "Multi Child");
 
-        return new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaDataBo);
+        return AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaDataBo);
     }
 
     private CallTreeNode changeNodeToVirtualNode(final CallTree originalCallTree) {
