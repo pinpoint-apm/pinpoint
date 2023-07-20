@@ -17,13 +17,16 @@
         <Select>
             <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="local">
                 <Property name="default-rollover-strategy-max">5</Property>
+                <Property name="logger-level">DEBUG</Property>
             </SystemPropertyArbiter>
             <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="release">
                 <Property name="default-rollover-strategy-max">10</Property>
+                <Property name="logger-level">INFO</Property>
             </SystemPropertyArbiter>
 
             <DefaultArbiter>
                 <Property name="default-rollover-strategy-max">5</Property>
+                <Property name="logger-level">DEBUG</Property>
             </DefaultArbiter>
         </Select>
     </Properties>
@@ -84,43 +87,29 @@
     <Loggers>
         <Logger name="com.navercorp.pinpoint.metric" level="INFO" additivity="false">
             <AppenderRef ref="statRollingFile"/>
-            <!--            <AppenderRef ref="console"/>-->
-            <!--            <AppenderRef ref="rollingFile"/>-->
+            <!--<AppenderRef ref="console"/>-->
+            <!--<AppenderRef ref="rollingFile"/>-->
         </Logger>
 
+        <Logger name="com.navercorp.pinpoint" level="${logger-level}" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
 
-        <Select>
-            <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="local">
-                <Logger name="com.navercorp.pinpoint" level="DEBUG" additivity="false">
+        <Logger name="io.grpc" level="${logger-level}" additivity="false">
+            <Select>
+                <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="local">
                     <AppenderRef ref="console"/>
-                    <AppenderRef ref="rollingFile"/>
-                </Logger>
-                <Logger name="io.grpc" level="DEBUG" additivity="false">
-                    <AppenderRef ref="console"/>
-                    <AppenderRef ref="rollingFile"/>
-                </Logger>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="release">
-                <Logger name="com.navercorp.pinpoint" level="INFO" additivity="false">
-                    <AppenderRef ref="console"/>
-                    <AppenderRef ref="rollingFile"/>
-                </Logger>
-                <Logger name="io.grpc" level="INFO" additivity="false">
-                    <AppenderRef ref="rollingFile"/>
-                </Logger>
-            </SystemPropertyArbiter>
+                </SystemPropertyArbiter>
+                <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="release">
+                </SystemPropertyArbiter>
 
-            <DefaultArbiter>
-                <Logger name="com.navercorp.pinpoint" level="DEBUG" additivity="false">
+                <DefaultArbiter>
                     <AppenderRef ref="console"/>
-                    <AppenderRef ref="rollingFile"/>
-                </Logger>
-                <Logger name="io.grpc" level="DEBUG" additivity="false">
-                    <AppenderRef ref="console"/>
-                    <AppenderRef ref="rollingFile"/>
-                </Logger>
-            </DefaultArbiter>
-        </Select>
+                </DefaultArbiter>
+            </Select>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
 
         <Logger name="io.grpc.Context" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
