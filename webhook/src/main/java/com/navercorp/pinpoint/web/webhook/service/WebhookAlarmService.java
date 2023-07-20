@@ -16,12 +16,16 @@
  */
 package com.navercorp.pinpoint.web.webhook.service;
 
+import com.navercorp.pinpoint.common.server.alram.event.DeleteRuleEvent;
+
 import java.util.List;
 
 /**
  * @author minwoo.jung
  */
 public interface WebhookAlarmService {
+
+    void handleDeleteRule(DeleteRuleEvent deleteRule);
 
     String insertRuleWithWebhooks(String ruleId, List<String> webhookIds);
 
