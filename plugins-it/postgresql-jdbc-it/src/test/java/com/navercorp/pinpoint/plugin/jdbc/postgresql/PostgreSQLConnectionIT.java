@@ -21,20 +21,19 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
-import com.navercorp.pinpoint.test.junit4.JunitAgentConfigPath;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.test.junit5.BasePinpointTest;
+import com.navercorp.pinpoint.test.junit5.JunitAgentConfigPath;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -58,25 +57,25 @@ public class PostgreSQLConnectionIT extends BasePinpointTest {
 
     private static final JDBCDriverClass driverClass = new PostgreSql_9_4_1207_JDBCDriverClass();
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
         container.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         container.stop();
     }
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         Driver driver = driverClass.getDriver().newInstance();
         DriverManager.registerDriver(driver);
     }
 
 
-    @After
+    @AfterEach
     public void deregisterDriver() throws Exception {
         DriverManagerUtils.deregisterDriver();
     }
@@ -131,27 +130,29 @@ public class PostgreSQLConnectionIT extends BasePinpointTest {
                 DatabaseInfoAccessor accessor = (DatabaseInfoAccessor) connection;
                 DatabaseInfo databaseInfo = accessor._$PINPOINT$_getDatabaseInfo();
                 String multipleHost = databaseInfo.getMultipleHost();
-                Assert.assertEquals(hosts, multipleHost);
+                Assertions.assertEquals(hosts, multipleHost);
             } else {
-                Assert.fail("Not DatabaseInfoAccessor");
+                Assertions.fail("Not DatabaseInfoAccessor");
             }
         } finally {
             close(connection);
         }
     }
 
-    @Test(expected = SQLException.class)
+    @Test()
     public void executeFail() throws SQLException {
-        Connection connection = null;
-        try {
-            connection = createConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword());
+        Assertions.assertThrows(SQLException.class, () -> {
+            Connection connection = null;
+            try {
+                connection = createConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword());
 
-            Statement statement = connection.createStatement();
+                Statement statement = connection.createStatement();
 
-            statement.execute("select * from members");
-        } finally {
-            close(connection);
-        }
+                statement.execute("select * from members");
+            } finally {
+                close(connection);
+            }
+        });
     }
 
     private void statement(Connection connection) throws SQLException {

@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.rabbitmq.client.ConnectionFactory;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Properties;
 
@@ -40,7 +40,7 @@ public abstract class RabbitMQClientITBase {
         port = Integer.parseInt(beforeAllResult.getProperty("PORT"));
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         connectionFactory.setHost(RabbitMQTestConstants.BROKER_HOST);
         connectionFactory.setPort(port);

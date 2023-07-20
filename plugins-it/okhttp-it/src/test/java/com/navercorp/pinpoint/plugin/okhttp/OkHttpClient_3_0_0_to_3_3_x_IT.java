@@ -24,16 +24,14 @@ import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -42,7 +40,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.common.trace.ServiceType.ASYNC;
 import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIENT;
@@ -51,7 +48,6 @@ import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIEN
 /**
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-okhttp-plugin")
 @Dependency({"com.squareup.okhttp3:okhttp:[3.0.0,3.3.max]", WebServer.VERSION, PluginITConstants.VERSION})
@@ -60,13 +56,13 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
     private static WebServer webServer;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }

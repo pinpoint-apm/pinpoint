@@ -43,6 +43,13 @@ public class PluginTestContext {
     public PluginTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
                              List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> repositoryUrls,
                              Class<?> testClass, String testClassLocation, List<String> jvmArguments,
+                             boolean debug, List<String> importPluginIds) {
+        this(agentJar, profile, configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, repositoryUrls, testClass, testClassLocation, jvmArguments, debug, -1, "", importPluginIds);
+    }
+
+    public PluginTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
+                             List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> repositoryUrls,
+                             Class<?> testClass, String testClassLocation, List<String> jvmArguments,
                              boolean debug, int jvmVersion,
                              String javaExecutable, List<String> importPluginIds) {
         this.agentJar = agentJar;
@@ -69,7 +76,9 @@ public class PluginTestContext {
         return mavenDependencyLibraries;
     }
 
-    public List<String> getRepositoryUrls() { return repositoryUrls; }
+    public List<String> getRepositoryUrls() {
+        return repositoryUrls;
+    }
 
     public String getTestClassLocation() {
         return testClassLocation;
@@ -134,5 +143,4 @@ public class PluginTestContext {
                 ", importPluginIds=" + importPluginIds +
                 '}';
     }
-
 }

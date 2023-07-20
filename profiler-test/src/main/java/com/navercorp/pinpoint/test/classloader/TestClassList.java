@@ -32,6 +32,7 @@ public class TestClassList {
         add("com.navercorp.pinpoint.common.");
 
         add("com.navercorp.pinpoint.profiler.context.");
+        add("com.navercorp.pinpoint.test.");
 
         add("com.navercorp.pinpoint.test.MockApplicationContext");
         add("com.navercorp.pinpoint.test.TBaseRecorder");

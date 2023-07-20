@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.hystrix.runners;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixTestHelper;
 import com.navercorp.pinpoint.plugin.hystrix.commands.SayHelloObservableCommand;
 import com.netflix.hystrix.HystrixObservableCommand;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author HyunGil Jeong
@@ -39,7 +39,7 @@ public class HystrixObservableCommandTestRunner {
         String actualMessage = helloObservableCommand.observe()
                 .toBlocking()
                 .single();
-        Assert.assertEquals(expectedMessage, actualMessage);
+        Assertions.assertEquals(expectedMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }
@@ -51,7 +51,7 @@ public class HystrixObservableCommandTestRunner {
         String actualMessage = helloObservableCommand.observe()
                 .toBlocking()
                 .single();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }
@@ -65,7 +65,7 @@ public class HystrixObservableCommandTestRunner {
         String actualMessage = helloObservableCommand.observe()
                 .toBlocking()
                 .single();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush(timeoutMs);
     }
@@ -77,7 +77,7 @@ public class HystrixObservableCommandTestRunner {
         String actualMessage = helloObservableCommand.observe()
                 .toBlocking()
                 .single();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }
@@ -89,7 +89,7 @@ public class HystrixObservableCommandTestRunner {
         String actualMessage = helloObservableCommand.toObservable()
                 .toBlocking()
                 .single();
-        Assert.assertEquals(expectedMessage, actualMessage);
+        Assertions.assertEquals(expectedMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }
@@ -101,7 +101,7 @@ public class HystrixObservableCommandTestRunner {
         String actualMessage = helloObservableCommand.toObservable()
                 .toBlocking()
                 .single();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }
@@ -115,7 +115,7 @@ public class HystrixObservableCommandTestRunner {
         String actualMessage = helloObservableCommand.toObservable()
                 .toBlocking()
                 .single();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush(timeoutMs);
     }
@@ -127,7 +127,7 @@ public class HystrixObservableCommandTestRunner {
         String actualMessage = helloObservableCommand.toObservable()
                 .toBlocking()
                 .single();
-        Assert.assertEquals(expectedFallbackMessage, actualMessage);
+        Assertions.assertEquals(expectedFallbackMessage, actualMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }

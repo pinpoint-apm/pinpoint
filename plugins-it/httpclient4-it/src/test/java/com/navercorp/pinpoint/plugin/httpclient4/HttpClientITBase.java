@@ -17,21 +17,19 @@
 package com.navercorp.pinpoint.plugin.httpclient4;
 
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
-import java.util.Properties;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class HttpClientITBase {
     public static WebServer webServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws Exception {
         webServer = WebServer.cleanup(webServer);
     }

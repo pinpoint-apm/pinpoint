@@ -28,11 +28,11 @@ import com.navercorp.pinpoint.pluginit.jdbc.template.ResultSetExtractor;
 import com.navercorp.pinpoint.pluginit.jdbc.template.SimpleJdbcTemplate;
 import com.navercorp.pinpoint.pluginit.jdbc.template.TransactionCallback;
 import com.navercorp.pinpoint.pluginit.jdbc.template.TransactionDataSource;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
@@ -94,7 +94,7 @@ public abstract class DataBaseTestCase {
     protected abstract JDBCDriverClass getJDBCDriverClass();
 
 
-    @After
+    @AfterEach
     public void deregisterDriver() {
         DriverManagerUtils.deregisterDriver();
     }
@@ -227,7 +227,7 @@ public abstract class DataBaseTestCase {
                 return cs.getString(3);
             }
         });
-        Assert.assertEquals(param1.concat(param2), result);
+        Assertions.assertEquals(param1.concat(param2), result);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
@@ -313,9 +313,9 @@ public abstract class DataBaseTestCase {
 
         });
 
-        Assert.assertEquals(param1 + param2, result.results.get(0).intValue());
-        Assert.assertEquals(param2, result.swap.a);
-        Assert.assertEquals(param1, result.swap.b);
+        Assertions.assertEquals(param1 + param2, result.results.get(0).intValue());
+        Assertions.assertEquals(param2, result.swap.a);
+        Assertions.assertEquals(param1, result.swap.b);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 

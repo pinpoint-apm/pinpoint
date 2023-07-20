@@ -29,10 +29,8 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
@@ -56,7 +54,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
  *
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8) // 1.6.2+ works with Java 6, but since the IT includes 1.6.0 and 1.6.1 just run on Java 7
 @PinpointLogLocationConfig(".")

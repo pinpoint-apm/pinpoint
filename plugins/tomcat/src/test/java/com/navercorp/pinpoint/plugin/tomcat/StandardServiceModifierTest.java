@@ -17,21 +17,23 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.test.junit5.BasePinpointTest;
+import com.navercorp.pinpoint.test.junit5.JunitAgentConfigPath;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.catalina.core.StandardService;
 import org.apache.catalina.util.ServerInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author hyungil.jeong
  */
+@JunitAgentConfigPath("pinpoint.config")
 public class StandardServiceModifierTest extends BasePinpointTest {
 
     private StandardService service;
@@ -41,14 +43,14 @@ public class StandardServiceModifierTest extends BasePinpointTest {
 
     private AutoCloseable openMocks;
 
-    @Before
+    @BeforeEach
     public void beforeEach() {
         this.openMocks = MockitoAnnotations.openMocks(this);
         this.service = new StandardService();
         this.service.setContainer(this.engine);
     }
 
-    @After
+    @AfterEach
     public void afterEach() throws Exception {
         openMocks.close();
     }
@@ -62,7 +64,7 @@ public class StandardServiceModifierTest extends BasePinpointTest {
         service.stop();
         // Then
         ServerMetaData serverMetaData = getServerMetaData();
-        assertEquals(expectedServerInfo, serverMetaData.getServerInfo());
+        Assertions.assertEquals(expectedServerInfo, serverMetaData.getServerInfo());
     }
 
 }

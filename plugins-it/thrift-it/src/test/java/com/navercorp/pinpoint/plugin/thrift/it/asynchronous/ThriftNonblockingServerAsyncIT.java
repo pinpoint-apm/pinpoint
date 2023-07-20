@@ -16,24 +16,20 @@
 
 package com.navercorp.pinpoint.plugin.thrift.it.asynchronous;
 
-import static org.junit.Assert.assertEquals;
-
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.common.client.EchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.server.AsyncEchoTestServer.AsyncEchoTestServerFactory;
 import com.navercorp.pinpoint.plugin.thrift.common.server.ThriftEchoTestServer;
+import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
 import com.navercorp.pinpoint.plugin.thrift.it.ThriftVersion;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.transport.TTransportException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
-import com.navercorp.pinpoint.plugin.thrift.common.server.AsyncEchoTestServer.AsyncEchoTestServerFactory;
-import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * <p>Integration test for TNonblockingServer with asynchronous processor.</p>
@@ -43,7 +39,6 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * 
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({ ThriftVersion.VERSION_0_10,
         "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
@@ -64,7 +59,7 @@ public class ThriftNonblockingServerAsyncIT extends EchoTestRunner<ThriftEchoTes
         final EchoTestClient client = getServer().getSynchronousClient();
         final String result = invokeAndVerify(client, expectedMessage);
         // Then
-        assertEquals(expectedMessage, result);
+        Assertions.assertEquals(expectedMessage, result);
     }
 
     @Test
@@ -75,7 +70,7 @@ public class ThriftNonblockingServerAsyncIT extends EchoTestRunner<ThriftEchoTes
         final EchoTestClient client = getServer().getAsynchronousClient();
         final String result = invokeAndVerify(client, expectedMessage);
         // Then
-        assertEquals(expectedMessage, result);
+        Assertions.assertEquals(expectedMessage, result);
     }
 
 }

@@ -23,7 +23,7 @@ import com.navercorp.test.pinpoint.plugin.rabbitmq.MessageConverter;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.TestMessageHolder;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.service.TestReceiverService;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.service.TestSenderService;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 
 import java.util.Objects;
@@ -60,7 +60,7 @@ public class SpringAmqpRabbitTestRunner {
         final String message = "hello rabbit mq";
 
         testSenderService.sendMessage(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PUSH, message);
-        Assert.assertEquals(message, testMessageHolder.getMessage(10, TimeUnit.SECONDS));
+        Assertions.assertEquals(testMessageHolder.getMessage(10, TimeUnit.SECONDS), message);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
@@ -72,7 +72,7 @@ public class SpringAmqpRabbitTestRunner {
         final String message = "hello rabbit mq!";
 
         testSenderService.sendMessage(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PULL, message);
-        Assert.assertEquals(message, testReceiverService.receiveMessage(MessageConverter.FOR_TEST));
+        Assertions.assertEquals(testReceiverService.receiveMessage(MessageConverter.FOR_TEST), message);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
@@ -84,7 +84,7 @@ public class SpringAmqpRabbitTestRunner {
         final String message = "hello rabbit mq!";
 
         testSenderService.sendMessage(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PULL, message);
-        Assert.assertEquals(message, testReceiverService.receiveMessage(MessageConverter.FOR_TEST, timeoutMs));
+        Assertions.assertEquals(testReceiverService.receiveMessage(MessageConverter.FOR_TEST, timeoutMs), message);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)

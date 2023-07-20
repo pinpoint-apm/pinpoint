@@ -24,14 +24,12 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import kotlin.coroutines.CoroutineContext;
 import kotlinx.coroutines.CoroutineDispatcher;
 import kotlinx.coroutines.Dispatchers;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Taejin Koo
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-coroutines.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-kotlin-coroutines-plugin"})
@@ -71,14 +68,14 @@ public class CoroutinesIT {
         AtomicInteger index = new AtomicInteger();
 
         //         runBlocking(context) {
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
         //         runBlocking(context) {
         assertResumeWith(executedMethod, index, activeAsync);
 
         //        val job1 = async(CoroutineName("first")) {
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
         //        val job2 = launch(CoroutineName("second")) {
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
 
         //        delay(10L) // job1
         assertResumeWithAndSchedule(executedMethod, index, activeAsync);
@@ -107,20 +104,20 @@ public class CoroutinesIT {
         verifier.awaitTraceCount(17, 10L, 1000L);
 
         List<String> executedMethod = verifier.getExecutedMethod();
-        Assume.assumeTrue(executedMethod.size() == 17);
+        Assumptions.assumeTrue(executedMethod.size() == 17);
 
         AtomicInteger index = new AtomicInteger(0);
 
         try {
             //         runBlocking(context) {
-            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+            Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
             //         runBlocking(context) {
             assertResumeWith(executedMethod, index, activeAsync);
 
             //        val job1 = async(CoroutineName("first")) {
-            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+            Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
             //        val job2 = launch(CoroutineName("second")) {
-            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+            Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
 
             //    println("Hello all of jobs") // rootjob
             assertResumeWith(executedMethod, index, activeAsync);
@@ -147,32 +144,32 @@ public class CoroutinesIT {
 
     private void assertResumeWithAndSchedule(List<String> executedMethod, AtomicInteger index, boolean activeAsync) {
         if (activeAsync) {
-            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(ASYNC_INVOCATION));
+            Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(ASYNC_INVOCATION));
         }
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(SCHEDULE_RESUME_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(SCHEDULE_RESUME_METHOD));
     }
 
     private void assertResumeWith(List<String> executedMethod, AtomicInteger index, boolean activeAsync) {
         if (activeAsync) {
-            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(ASYNC_INVOCATION));
+            Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(ASYNC_INVOCATION));
         }
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
     }
 
     private void assertRunblockingDispatch(List<String> executedMethod, AtomicInteger index) {
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).equals(ASYNC_INVOCATION));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).equals(ASYNC_INVOCATION));
         // run dispatchedContinuation
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
     }
 
 
     private void assertFirstDispatch(List<String> executedMethod, AtomicInteger index) {
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).equals(ASYNC_INVOCATION));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).equals(ASYNC_INVOCATION));
         // run dispatchedContinuation
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
+        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
     }
 
     private boolean assertExecutedCount(String[] executeActualMethod, String expectedActualMethod, int expectedCount) {

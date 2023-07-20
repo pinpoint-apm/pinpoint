@@ -22,8 +22,8 @@ import com.ibatis.sqlmap.engine.scope.SessionScope;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -52,13 +52,13 @@ public abstract class SqlMapExecutorTestBase {
 
     private AutoCloseable openMocks;
 
-    @Before
+    @BeforeEach
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
         when(this.mockSqlMapExecutorDelegate.beginSessionScope()).thenReturn(this.mockSessionScope);
     }
 
-    @After
+    @AfterEach
     public void afterEach() throws Exception {
         openMocks.close();
     }

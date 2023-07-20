@@ -28,11 +28,9 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.TraceObjectManagable;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -43,7 +41,6 @@ import static org.mockito.Mockito.when;
 /**
  * @author Jinkai.Ma
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-dubbo-plugin")
 @Dependency({"com.alibaba:dubbo:[2.5.x,]", "org.mockito:mockito-core:4.8.1"})
@@ -66,7 +63,7 @@ public class DubboProviderIT {
     @Mock
     private Invoker invoker;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         url = new URL("dubbo", "1.2.3.4", 5678);
         MockitoAnnotations.initMocks(this);

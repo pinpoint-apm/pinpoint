@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.test.plugin;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 /**
  * @author Jongho Moon
@@ -27,6 +28,7 @@ public final class PluginTestConstants {
     }
 
     public static final String JUNIT_OUTPUT_DELIMITER = "#####";
+    public static final String JUNIT_OUTPUT_DELIMITER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMITER);
     public static final String PINPOINT_TEST_ID = "pinpoint.test.id";
     public static final String CHILD_CLASS_PATH_PREFIX = "-child=";
 

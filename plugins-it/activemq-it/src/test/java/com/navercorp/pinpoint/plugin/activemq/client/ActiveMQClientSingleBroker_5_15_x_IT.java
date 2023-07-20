@@ -25,31 +25,28 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Collections;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
 @JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-activemq-client-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
 // 5.4.1 bug creates activemq-data directory even if persistence is set to false - skip it
 // 5.5.x activemq-all missing slf4j binder - just skip instead of supplying one
-@Dependency({"org.apache.activemq:activemq-all:[5.15.0,)"})
+@Dependency({"org.apache.activemq:activemq-all:[5.15.0,5.17.0)"})
 public class ActiveMQClientSingleBroker_5_15_x_IT extends ActiveMQClientITBase {
 
     private static final String BROKER_NAME = "Test_Broker";
     private static String BROKER_URL;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         final int brokerPort = SocketUtils.findAvailableTcpPort(10000, 19999);
         BROKER_URL = PortUtils.toUrl(brokerPort);
@@ -61,7 +58,7 @@ public class ActiveMQClientSingleBroker_5_15_x_IT extends ActiveMQClientITBase {
         ));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         ActiveMQClientITHelper.stopBrokers();
     }

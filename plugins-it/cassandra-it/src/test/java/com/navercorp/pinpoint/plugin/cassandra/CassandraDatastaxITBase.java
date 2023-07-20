@@ -30,10 +30,10 @@ import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.CassandraContainer;
 
 import java.lang.reflect.Method;
@@ -81,14 +81,14 @@ public abstract class CassandraDatastaxITBase {
     }
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         CASSANDRA_ADDRESS = HOST + ":" + getPort();
         cluster = CassandraServer.newCluster(HOST, getPort());
         logger.info("setup cluster {}", CASSANDRA_ADDRESS);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         if (cluster != null) {
             cluster.close();
@@ -100,7 +100,7 @@ public abstract class CassandraDatastaxITBase {
         return cluster.connect(TEST_KEYSPACE);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // scassandra uses http client 4 for stub calls
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();

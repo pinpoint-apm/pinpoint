@@ -23,15 +23,12 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"ch.qos.logback:logback-classic:[1.0.13],[1.1.0,1.1.11],[1.2.0,1.2.6]", "org.slf4j:slf4j-api:1.7.12", PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-logback-plugin"})
@@ -41,16 +38,18 @@ public class LogbackIT {
 
     @Test
     public void test() {
-        Logger logger = LogManager.getLogger(getClass());
+        //Logger logger = LogManager.getLogger(getClass());
+        Logger logger = LoggerFactory.getLogger(this.getClass());
         logger.error("maru");
 
         checkVersion(logger);
-        
-        Assert.assertNotNull("txId", MDC.get("PtxId"));
-        Assert.assertNotNull("spanId", MDC.get("PspanId"));
+
+        Assertions.assertNotNull(MDC.get("PtxId"), "txId");
+        Assertions.assertNotNull(MDC.get("PspanId"), "spanId");
     }
 
     private Logger logger;
+
     @Test
     public void patternUpdate() {
 
@@ -60,27 +59,27 @@ public class LogbackIT {
         String log = stdoutRecorder.record(new Runnable() {
             @Override
             public void run() {
-                logger = LogManager.getLogger("patternUpdateLogback");
+                logger = LoggerFactory.getLogger("patternUpdateLogback");
                 logger.error(msg);
             }
         });
 
         System.out.println(log);
-        Assert.assertNotNull("log null", log);
-        Assert.assertTrue("contains msg", log.contains(msg));
-        Assert.assertTrue("contains TxId", log.contains("TxId"));
+        Assertions.assertNotNull(log, "log null");
+        Assertions.assertTrue(log.contains(msg), "contains msg");
+        Assertions.assertTrue(log.contains("TxId"), "contains TxId");
 
-        Assert.assertNotNull("logger null", logger);
+        Assertions.assertNotNull(logger, "logger null");
         checkVersion(logger);
     }
 
     private void checkVersion(Logger logger) {
         final String location = getLoggerJarLocation(logger);
-        Assert.assertNotNull("location null", location);
+        Assertions.assertNotNull(location, "location null");
         System.out.println("Logback classic jar location:" + location);
 
         final String testVersion = getTestVersion();
-        Assert.assertTrue("test version is not " + getTestVersion(), location.contains("/" + testVersion + "/"));
+        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
     }
 
     private String getTestVersion() {

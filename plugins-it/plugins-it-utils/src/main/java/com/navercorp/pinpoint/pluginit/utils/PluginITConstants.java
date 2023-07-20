@@ -22,5 +22,5 @@ import com.navercorp.pinpoint.common.Version;
  * @author Woonduk Kang(emeroad)
  */
 public final class PluginITConstants {
-    public static final String VERSION = "com.navercorp.pinpoint:pinpoint-plugin-it-utils:"+ Version.VERSION;
+    public static final String VERSION = "com.navercorp.pinpoint:pinpoint-plugin-it-utils:" + Version.VERSION;
 }

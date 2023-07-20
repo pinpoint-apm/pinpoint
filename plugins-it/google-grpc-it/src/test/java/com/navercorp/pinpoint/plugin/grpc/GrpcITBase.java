@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTraceField;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 import java.util.logging.Level;
@@ -49,7 +49,7 @@ public abstract class GrpcITBase {
 
             client = new HelloWorldSimpleClient("127.0.0.1", server.getBindPort());
             String response = client.greet(REQUEST);
-            Assert.assertEquals(REQUEST.toUpperCase(), response);
+            Assertions.assertEquals(REQUEST.toUpperCase(), response);
 
             PluginTestVerifier verifier = getPluginTestVerifier();
 
@@ -80,7 +80,7 @@ public abstract class GrpcITBase {
 
             client = new HelloWorldStreamClient("127.0.0.1", server.getBindPort());
             client.greet(requestCount);
-            Assert.assertEquals(requestCount, server.getRequestCount());
+            Assertions.assertEquals(requestCount, server.getRequestCount());
 
             PluginTestVerifier verifier = getPluginTestVerifier();
 

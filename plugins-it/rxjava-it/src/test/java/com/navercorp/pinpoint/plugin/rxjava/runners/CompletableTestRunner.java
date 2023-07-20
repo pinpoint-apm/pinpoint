@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.test.pinpoint.plugin.rxjava.repository.EchoRepository;
 import com.navercorp.test.pinpoint.plugin.rxjava.service.ShoutService;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import rx.Completable;
 import rx.Subscription;
 import rx.functions.Action0;
@@ -65,7 +65,7 @@ public class CompletableTestRunner {
                 .subscribe();
         latch.await(500L, TimeUnit.MILLISECONDS);
         subscription.unsubscribe();
-        Assert.assertTrue(isCompleted.get());
+        Assertions.assertTrue(isCompleted.get());
 
         TestHelper.awaitForSpanDataFlush();
 
@@ -108,7 +108,7 @@ public class CompletableTestRunner {
                 .subscribe();
         latch.await(500L, TimeUnit.MILLISECONDS);
         subscription.unsubscribe();
-        Assert.assertSame(expected, actual.get());
+        Assertions.assertSame(expected, actual.get());
 
         TestHelper.awaitForSpanDataFlush();
 

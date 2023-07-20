@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -52,14 +52,14 @@ public abstract class MySql_IT_Base {
         return DriverManager.getConnection(driverProperties.getUrl(), driverProperties.getUser(), driverProperties.getPassword());
     }
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         JDBCDriverClass driverClass = getJDBCDriverClass();
         Driver driver = driverClass.getDriver().newInstance();
         DriverManager.registerDriver(driver);
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
         DriverManagerUtils.deregisterDriver();
     }

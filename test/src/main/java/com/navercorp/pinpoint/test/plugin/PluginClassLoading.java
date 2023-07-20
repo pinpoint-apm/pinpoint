@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.test.plugin;
 import com.navercorp.pinpoint.common.Version;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,12 +11,16 @@ public final class PluginClassLoading {
 
     private static final String[] CLASS_PATHS_TO_CHECK_AS_CONTAINS = new String[]{
             "junit", // JUnit
+            "opentest4",
             "hamcrest", // for JUnit
             "assertj-core",
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
-            "/test/target/classes", // pinpoint-test build output directory
-            "/testcase/target/classes",
-            "/pinpoint/plugins/", // required when executing test on IDE
+            Paths.get("test", "target", "classes").toString(),
+//            "/test/target/classes", // pinpoint-test build output directory
+            Paths.get("testcase", "target", "classes").toString(),
+//            "/testcase/target/classes",
+            Paths.get("pinpoint", "plugins").toString(),
+//            "/pinpoint/plugins/", // required when executing test on IDE
 
             // logger for bootstrap classloader
             "tinylog-api",
@@ -49,7 +54,8 @@ public final class PluginClassLoading {
             "guava",
             "plexus",
             "pinpoint-test",
-            "/test/target/classes", // pinpoint-test build output directory
+            Paths.get("test", "target", "classes").toString(),
+//            "/test/target/classes", // pinpoint-test build output directory
 
             // logger for child classloader
             "slf4j-api", // slf4j-api

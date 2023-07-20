@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
-import org.junit.Assert;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
 
 import java.lang.reflect.Method;
 import java.sql.CallableStatement;
@@ -159,7 +159,7 @@ public class MySqlItHelper {
         cs.registerOutParameter(3, Types.VARCHAR);
         cs.execute();
 
-        Assert.assertEquals(param1.concat(param2), cs.getString(3));
+        Assertions.assertEquals(param1.concat(param2), cs.getString(3));
 
         conn.close();
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
@@ -211,10 +211,10 @@ public class MySqlItHelper {
         cs.registerOutParameter(2, Types.INTEGER);
         ResultSet rs = cs.executeQuery();
 
-        Assert.assertTrue(rs.next());
-        Assert.assertEquals(param1 + param2, rs.getInt(1));
-        Assert.assertEquals(param2, cs.getInt(1));
-        Assert.assertEquals(param1, cs.getInt(2));
+        Assertions.assertTrue(rs.next());
+        Assertions.assertEquals(param1 + param2, rs.getInt(1));
+        Assertions.assertEquals(param2, cs.getInt(1));
+        Assertions.assertEquals(param1, cs.getInt(2));
 
         conn.close();
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();

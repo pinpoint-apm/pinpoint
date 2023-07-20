@@ -22,16 +22,12 @@ import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.oracle.database.jdbc:ojdbc8:[12,19)", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER_15_3})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-oracle-jdbc-driver-plugin")
@@ -39,7 +35,7 @@ import org.apache.logging.log4j.LogManager;
 public class Oracle12_18_Ojdbc8_IT extends Oracle_IT_Base{
     private final Logger logger = LogManager.getLogger(Oracle12_18_Ojdbc8_IT.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         DriverProperties driverProperties = createDriverProperties();
         helper = new OracleItHelper(driverProperties);

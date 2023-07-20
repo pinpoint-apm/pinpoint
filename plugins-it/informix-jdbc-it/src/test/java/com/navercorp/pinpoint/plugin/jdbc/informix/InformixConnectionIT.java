@@ -20,17 +20,18 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
-import com.navercorp.pinpoint.test.junit4.JunitAgentConfigPath;
+import com.navercorp.pinpoint.test.junit5.BasePinpointTest;
+import com.navercorp.pinpoint.test.junit5.JunitAgentConfigPath;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.OutputFrame;
@@ -64,9 +65,9 @@ public class InformixConnectionIT extends BasePinpointTest {
 // port 27018 : to allow remote connections from REST clients
 // port 27883 : to allow remote connections from MQTT clients
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
 
         container.withPrivilegedMode(true);
@@ -104,18 +105,18 @@ public class InformixConnectionIT extends BasePinpointTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws Exception {
         container.stop();
     }
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         Driver driver = driverClass.getDriver().newInstance();
         DriverManager.registerDriver(driver);
     }
 
-    @After
+    @AfterEach
     public void deregisterDriver() throws Exception {
         DriverManagerUtils.deregisterDriver();
     }
@@ -176,20 +177,23 @@ public class InformixConnectionIT extends BasePinpointTest {
         }
     }
 
-    @Test(expected = SQLException.class)
+    @Test()
     public void executeFail() throws SQLException {
-        Connection connection = null;
-        try {
-            connection = createConnection("localhost:" + container.getFirstMappedPort() + "/sysmaster", "informix", "in4mix");
+        Assertions.assertThrows(SQLException.class, () -> {
+            Connection connection = null;
+            try {
+                connection = createConnection("localhost:" + container.getFirstMappedPort() + "/sysmaster", "informix", "in4mix");
 
-            Statement statement = connection.createStatement();
+                Statement statement = connection.createStatement();
 
-            statement.execute("select * from members");
-        } finally {
-            if (connection != null) {
-                connection.close();
+                statement.execute("select * from members");
+            } finally {
+                if (connection != null) {
+                    connection.close();
+                }
             }
-        }
+        });
+
     }
 
     private void statement(Connection connection) throws SQLException {

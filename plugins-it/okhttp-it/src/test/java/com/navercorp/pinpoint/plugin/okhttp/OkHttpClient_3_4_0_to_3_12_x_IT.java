@@ -21,14 +21,10 @@ import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
-import org.junit.runner.RunWith;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-okhttp-plugin")
 @Dependency({"com.squareup.okhttp3:okhttp:[3.4.0,3.13.0)", WebServer.VERSION, PluginITConstants.VERSION})

@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.index.IndexRequest;
@@ -31,17 +30,15 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[6.4.0,6.9.9)",
         TestcontainersOption.ELASTICSEARCH})
@@ -51,14 +48,14 @@ public class ElasticsearchIT_6_4_x_IT extends ElasticsearchITBase  {
 
     private static RestHighLevelClient restHighLevelClient;
 
-    @Before
+    @BeforeEach
     public void setup() {
         restHighLevelClient = new RestHighLevelClient(
                 RestClient.builder(
                         new HttpHost(getEsHost(), getEsPort(), "http")));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         if (restHighLevelClient != null) {
             restHighLevelClient.close();

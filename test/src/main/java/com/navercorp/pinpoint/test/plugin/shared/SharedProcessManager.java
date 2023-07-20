@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.PluginTestContext;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
+import com.navercorp.pinpoint.test.plugin.junit5.launcher.SharedPluginForkedTestLauncher;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
 import com.navercorp.pinpoint.test.plugin.util.CommandLineOption;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
@@ -166,7 +167,7 @@ public class SharedProcessManager implements ProcessManager {
         option.addSystemProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS, mavenDependencyResolverClassPaths);
         final String repositoryUrlString = join(context.getRepositoryUrls());
         option.addSystemProperty(SharedPluginTestConstants.TEST_REPOSITORY_URLS, repositoryUrlString);
-        option.addSystemProperty(SharedPluginTestConstants.TEST_LOCATION,  context.getTestClassLocation());
+        option.addSystemProperty(SharedPluginTestConstants.TEST_LOCATION, context.getTestClassLocation());
         option.addSystemProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME, context.getTestClass().getName());
 
 //        list.add("-D" + PINPOINT_TEST_ID + "=" + testCase.getTestId());
@@ -277,7 +278,8 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     public String getMainClass() {
-        return SharedPinpointPluginTest.class.getName();
+//        return SharedPinpointPluginTest.class.getName();
+        return SharedPluginForkedTestLauncher.class.getName();
     }
 
 }

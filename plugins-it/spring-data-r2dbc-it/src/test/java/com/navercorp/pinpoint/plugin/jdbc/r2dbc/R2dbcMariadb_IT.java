@@ -25,20 +25,15 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
-import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-spring-data-r2dbc-plugin")
@@ -56,7 +51,7 @@ public class R2dbcMariadb_IT extends SqlBase {
 
     private final TestStatementHelper testStatementHelper = new TestStatementHelper();
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         DriverProperties driverProperties = getDriverProperties();
 

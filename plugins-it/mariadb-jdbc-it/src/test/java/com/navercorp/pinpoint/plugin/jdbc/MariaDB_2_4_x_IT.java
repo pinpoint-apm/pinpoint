@@ -29,11 +29,9 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
@@ -52,7 +50,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
  *
  * @author HyunGil Jeong
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8) // 2.x+ requires Java 8
 @PinpointLogLocationConfig(".")
@@ -128,7 +125,7 @@ public class MariaDB_2_4_x_IT extends MariaDB_IT_Base {
         verifier.printMethod();
         final int traceCount = verifier.getTraceCount();
         if (!(traceCount == 6 || traceCount == 5)) {
-            Assert.fail("traceCount=" + traceCount);
+            Assertions.fail("traceCount=" + traceCount);
         }
 
         // Driver#connect(String, Properties)

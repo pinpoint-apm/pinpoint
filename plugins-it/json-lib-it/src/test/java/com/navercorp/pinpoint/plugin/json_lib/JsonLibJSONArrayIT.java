@@ -15,28 +15,24 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
-
-import java.lang.reflect.Method;
-
-import com.navercorp.pinpoint.pluginit.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import net.sf.json.JSONArray;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import net.sf.json.JSONArray;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @author Sangyoon Lee
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-json-lib-plugin"})
 @Dependency({ "net.sf.json-lib:json-lib:jar:jdk15:(,)" })

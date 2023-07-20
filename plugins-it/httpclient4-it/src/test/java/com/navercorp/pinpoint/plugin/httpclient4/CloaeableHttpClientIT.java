@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
@@ -38,8 +36,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.util.EntityUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
@@ -50,7 +47,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 /**
  * @author jaehong.kim
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
 @Dependency({"org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.3.6],[4.4],[4.4.1],[4.5],[4.5.1],[4.5.2],[4.5.3],[4.5.4],[4.3.5]",
@@ -62,7 +58,7 @@ public class CloaeableHttpClientIT extends HttpClientITBase {
         HttpGet httpget = new HttpGet(getAddress());
 
         try (CloseableHttpClient httpclient = HttpClients.createDefault();
-            CloseableHttpResponse response = httpclient.execute(httpget)) {
+             CloseableHttpResponse response = httpclient.execute(httpget)) {
 
             HttpEntity entity = response.getEntity();
             EntityUtils.consume(entity);

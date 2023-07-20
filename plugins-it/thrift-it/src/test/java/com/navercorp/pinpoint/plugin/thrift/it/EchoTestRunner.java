@@ -16,20 +16,19 @@
 
 package com.navercorp.pinpoint.plugin.thrift.it;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.apache.thrift.transport.TTransportException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.common.client.EchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.server.EchoTestServer;
+import org.apache.thrift.transport.TTransportException;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author HyunGil Jeong
@@ -42,26 +41,26 @@ public abstract class EchoTestRunner<T extends EchoTestServer> {
 
     PluginTestVerifier verifier;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() {
         SERVER_EXECUTOR = Executors.newSingleThreadExecutor();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws TTransportException {
         this.echoServer = createEchoServer(new TestEnvironment());
         this.verifier = PluginTestVerifierHolder.getInstance();
         this.echoServer.start(SERVER_EXECUTOR);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (this.echoServer != null) {
             this.echoServer.stop();
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() {
         SERVER_EXECUTOR.shutdown();
     }

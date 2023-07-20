@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.plugin.lettuce;
 
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -29,10 +29,10 @@ public class RedisServer implements SharedTestLifeCycle {
 
     @Override
     public Properties beforeAll() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
         this.redisServer = new GenericContainer<>(DockerImageName.parse("redis:5.0.14-alpine"))
-                        .withExposedPorts(6379);
+                .withExposedPorts(6379);
         redisServer.start();
 
         Properties properties = new Properties();

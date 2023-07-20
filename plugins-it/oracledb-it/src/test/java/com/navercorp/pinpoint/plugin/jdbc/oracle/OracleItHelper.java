@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
-import org.junit.Assert;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -199,7 +199,7 @@ public class OracleItHelper {
         cs.registerOutParameter(3, Types.NCHAR);
         cs.execute();
 
-        Assert.assertEquals(param1.concat(param2), cs.getString(3));
+        Assertions.assertEquals(param1.concat(param2), cs.getString(3));
         conn.close();
     }
 
@@ -283,9 +283,9 @@ public class OracleItHelper {
         cs.registerOutParameter(3, Types.INTEGER);
         cs.execute();
 
-        Assert.assertEquals(param2, cs.getInt(1));
-        Assert.assertEquals(param1, cs.getInt(2));
-        Assert.assertEquals(param1 + param2, cs.getInt(3));
+        Assertions.assertEquals(param2, cs.getInt(1));
+        Assertions.assertEquals(param1, cs.getInt(2));
+        Assertions.assertEquals(param1 + param2, cs.getInt(3));
 
         conn.close();
     }

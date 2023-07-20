@@ -18,21 +18,15 @@ package com.navercorp.pinpoint.plugin.log4j;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.StdoutRecorder;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
-import java.io.IOException;
-
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"log4j:log4j:[1.2.16,)", PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-log4j-plugin"})
@@ -48,8 +42,8 @@ public class Log4jIT {
 
         checkVersion(logger);
 
-        Assert.assertNotNull("txId", MDC.get("PtxId"));
-        Assert.assertNotNull("spanId", MDC.get("PspanId"));
+        Assertions.assertNotNull(MDC.get("PtxId"), "txId");
+        Assertions.assertNotNull(MDC.get("PspanId"), "spanId");
     }
 
     @Test
@@ -67,21 +61,21 @@ public class Log4jIT {
         });
 
         System.out.println(log);
-        Assert.assertNotNull("log null", log);
-        Assert.assertTrue("contains msg", log.contains(msg));
-        Assert.assertTrue("contains TxId", log.contains("TxId"));
+        Assertions.assertNotNull(log, "log null");
+        Assertions.assertTrue(log.contains(msg), "contains msg");
+        Assertions.assertTrue(log.contains("TxId"), "contains TxId");
 
-        Assert.assertNotNull("logger null", logger);
+        Assertions.assertNotNull(logger, "logger null");
         checkVersion(logger);
     }
 
     private void checkVersion(Logger logger) {
         final String location = getLoggerJarLocation(logger);
-        Assert.assertNotNull("location null", location);
+        Assertions.assertNotNull(location, "location null");
         System.out.println("Log4j jar location:" + location);
 
         final String testVersion = getTestVersion();
-        Assert.assertTrue("test version is not " + getTestVersion(), location.contains("/" + testVersion + "/"));
+        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
     }
 
     private String getTestVersion() {

@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -34,10 +32,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.internal.CommsCallback;
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttPublish;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
@@ -53,7 +50,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.root;
  * @author Younsung Hwang
  * @author Taejin Koo
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-paho-mqtt-plugin")
 @PinpointConfig("pinpoint-paho-mqttv3-plugin-test.config")
@@ -75,7 +71,7 @@ public class PahoMqttV3ClientIT {
 
     static MqttAsyncClient mqttClient;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() throws MqttException {
         container.start();
 
@@ -96,7 +92,7 @@ public class PahoMqttV3ClientIT {
         mqttToken.waitForCompletion(WAIT_FOR_COMPLETION);
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() throws MqttException {
         mqttClient.disconnect();
 

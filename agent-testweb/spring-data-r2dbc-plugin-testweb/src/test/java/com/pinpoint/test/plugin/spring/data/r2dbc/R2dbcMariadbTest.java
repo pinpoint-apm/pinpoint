@@ -16,14 +16,12 @@
 
 package com.pinpoint.test.plugin.spring.data.r2dbc;
 
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MariaDBContainer;
-
-import java.util.concurrent.TimeUnit;
 
 public class R2dbcMariadbTest {
     public static final String DATABASE_NAME = "test";
@@ -32,10 +30,10 @@ public class R2dbcMariadbTest {
 
     private static MariaDBContainer container;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        Assume.assumeFalse(DockerTestUtils.isArmDockerServer());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
 
         container = new MariaDBContainer("mariadb:10.3.6");
         container.withDatabaseName(DATABASE_NAME);
@@ -51,7 +49,7 @@ public class R2dbcMariadbTest {
         System.out.println("##port=" + container.getFirstMappedPort());
     }
 
-    @AfterClass
+    @AfterAll
     public static void select() {
         if (container != null) {
             container.stop();

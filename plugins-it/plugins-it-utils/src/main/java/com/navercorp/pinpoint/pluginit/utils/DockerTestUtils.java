@@ -33,12 +33,16 @@ public class DockerTestUtils {
 
     private static String getDockerArchitecture() {
         final String dockerInfo = execute("docker version", 3000);
-        final String dockerServerInfo = dockerInfo.substring(dockerInfo.indexOf("Server: "));
-        final String archLine = Arrays.stream(dockerServerInfo.split("\n"))
-                .filter(line -> line.contains("OS/Arch:"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Invalid docker version result"));
-        return archLine.split(":")[1].trim();
+        int serverIndex = dockerInfo.indexOf("Server: ");
+        if (serverIndex != -1) {
+            final String dockerServerInfo = dockerInfo.substring(serverIndex);
+            final String archLine = Arrays.stream(dockerServerInfo.split("\n"))
+                    .filter(line -> line.contains("OS/Arch:"))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Invalid docker version result"));
+            return archLine.split(":")[1].trim();
+        }
+        return dockerInfo;
     }
 
     private static String execute(String command, long waitMillis) {

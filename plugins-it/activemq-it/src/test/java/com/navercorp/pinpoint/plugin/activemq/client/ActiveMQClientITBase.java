@@ -33,8 +33,8 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.MessageDispatch;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -479,7 +479,6 @@ public abstract class ActiveMQClientITBase {
     }
 
     protected final void assertNoConsumerError(Exception consumerException) {
-        Assert.assertNull("Failed with exception : " + consumerException, consumerException);
+        Assertions.assertNull(consumerException, "Failed with exception : " + consumerException);
     }
-
 }

@@ -23,22 +23,19 @@ import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author jaehong.kim
  */
-@RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient3-plugin")
 @Dependency({ "commons-httpclient:commons-httpclient:[3.0],[3.0.1],[3.1]", WebServer.VERSION, PluginITConstants.VERSION})
@@ -46,13 +43,13 @@ public class HttpClientIT {
 
     public static WebServer webServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws Exception {
         webServer = WebServer.cleanup(webServer);
     }
@@ -100,8 +97,8 @@ public class HttpClientIT {
         client.getParams().setSoTimeout(SO_TIMEOUT);
 
         HostConfiguration config = new HostConfiguration();
-        config.setHost("weather.naver.com", 80, "http");
-        GetMethod method = new GetMethod("/rgn/cityWetrMain.nhn");
+        config.setHost("google.com", 80, "http");
+        GetMethod method = new GetMethod("/");
 
         // Provide custom retry handler is necessary
         method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
