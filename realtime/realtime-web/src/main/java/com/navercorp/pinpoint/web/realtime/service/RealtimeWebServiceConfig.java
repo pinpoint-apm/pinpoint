@@ -17,9 +17,12 @@ package com.navercorp.pinpoint.web.realtime.service;
 
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
 
 /**
  * @author youngjin.kim2
@@ -27,10 +30,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RealtimeWebServiceConfig {
 
+    @Value("${pinpoint.web.realtime.agent-recentness:PT5S}")
+    Duration agentRecentness;
+
     @Bean
     @ConditionalOnBean(AgentService.class)
     AgentLookupService agentLookupService(AgentInfoService agentInfoService) {
-        return new AgentLookupServiceImpl(agentInfoService);
+        return new AgentLookupServiceImpl(agentInfoService, agentRecentness);
     }
 
 }

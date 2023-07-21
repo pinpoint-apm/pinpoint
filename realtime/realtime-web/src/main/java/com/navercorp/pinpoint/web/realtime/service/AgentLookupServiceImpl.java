@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,9 +37,11 @@ import java.util.Objects;
 class AgentLookupServiceImpl implements AgentLookupService {
 
     private final AgentInfoService agentInfoService;
+    private final Duration recentness;
 
-    AgentLookupServiceImpl(AgentInfoService agentInfoService) {
+    AgentLookupServiceImpl(AgentInfoService agentInfoService, Duration recentness) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.recentness = Objects.requireNonNullElse(recentness, Duration.ZERO);
     }
 
     @Override
@@ -47,7 +50,7 @@ class AgentLookupServiceImpl implements AgentLookupService {
         return intoClusterKeyList(this.agentInfoService.getAgentsListByApplicationName(
                 new AgentStatusFilterChain(AgentStatusFilter::filterRunning),
                 applicationName,
-                Range.between(now, now),
+                Range.between(now - recentness.toMillis(), now),
                 SortByAgentInfo.Rules.AGENT_NAME_ASC
         ));
     }

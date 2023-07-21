@@ -75,8 +75,8 @@ class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
         try {
             return supplyFuture.block();
         } catch (Exception e) {
-            logger.error("Failed to get activeThreadDump", e);
-            throw new RuntimeException("Failed to get activeThreadDump", e);
+            logger.error("Failed to getSession activeThreadDump", e);
+            throw new RuntimeException("Failed to getSession activeThreadDump", e);
         }
     }
 
