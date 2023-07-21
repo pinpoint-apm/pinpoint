@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.hbase.schema.core;
 
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
 import org.apache.hadoop.hbase.client.TableDescriptor;
@@ -34,7 +33,7 @@ public class HtdHbaseSchemaVerifier implements HbaseSchemaVerifier<TableDescript
     /**
      * Returns {@code true} if the schema definitions specified by {@code expectedSchemas} matches those
      * specified by {@code actualSchemas}.
-     * <p>This implementation compares hbase schemas using {@link HTableDescriptor}. Note that the expected schema and
+     * <p>This implementation compares hbase schemas using {@link TableDescriptor}. Note that the expected schema and
      * the actual schema do not have to match exactly - there may be additional tables and column families in the actual
      * schema, and the method returns {@code true} as long as all tables and column families from the expected schema
      * are present.

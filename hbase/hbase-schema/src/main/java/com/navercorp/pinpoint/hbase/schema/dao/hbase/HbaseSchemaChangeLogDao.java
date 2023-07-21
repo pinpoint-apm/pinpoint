@@ -20,17 +20,19 @@ import com.navercorp.pinpoint.common.hbase.HbaseAdminOperation;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.dao.hbase.codec.SchemaChangeLogCodec;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
-import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.TableDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.ArrayList;
@@ -80,10 +82,11 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
     @Override
     public boolean createTable(String namespace) {
         TableName tableName = TableName.valueOf(namespace, TABLE_QUALIFIER);
-        HTableDescriptor htd = new HTableDescriptor(tableName);
-        HColumnDescriptor hcd = new HColumnDescriptor(COLUMN_FAMILY_NAME);
-        htd.addFamily(hcd);
-        return hbaseAdminOperation.createTableIfNotExists(htd);
+        TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(tableName);
+        ColumnFamilyDescriptor cfDescriptor = ColumnFamilyDescriptorBuilder.of(COLUMN_FAMILY_NAME);
+        builder.setColumnFamily(cfDescriptor);
+        TableDescriptor tableDescriptor = builder.build();
+        return hbaseAdminOperation.createTableIfNotExists(tableDescriptor);
     }
 
     @Override
