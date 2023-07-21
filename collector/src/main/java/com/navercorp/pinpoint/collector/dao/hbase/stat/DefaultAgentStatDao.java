@@ -68,7 +68,6 @@ public class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentS
                 if (dataPoint instanceof JvmGcBo)
                 {
                     JvmGcBo jvmGcBo = (JvmGcBo) dataPoint;
-                    System.out.println("#### time : " + new Date(jvmGcBo.getTimestamp()) + " Gc count : " + jvmGcBo.getGcOldCount());
                 }
 
             }
