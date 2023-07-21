@@ -64,8 +64,8 @@ public final class NumberUtils {
         }
     }
 
-    public static Double parseDouble(String str, double defaultDouble) {
-        if(str == null) {
+    public static double parseDouble(String str, double defaultDouble) {
+        if (str == null) {
             return defaultDouble;
         }
         try {
