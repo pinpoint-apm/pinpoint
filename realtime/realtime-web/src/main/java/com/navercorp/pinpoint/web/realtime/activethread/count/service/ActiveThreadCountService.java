@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.realtime.activethread.count.dao;
+package com.navercorp.pinpoint.web.realtime.activethread.count.service;
 
 /**
  * @author youngjin.kim2
  */
-public interface FetcherFactory<K, V> {
+public interface ActiveThreadCountService {
 
-    Fetcher<V> getFetcher(K key);
+    ActiveThreadCountSession getSession(String applicationName) throws Exception;
 
 }

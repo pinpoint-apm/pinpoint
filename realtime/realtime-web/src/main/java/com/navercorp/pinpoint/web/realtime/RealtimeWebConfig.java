@@ -30,7 +30,8 @@ import org.springframework.context.annotation.Import;
 @Import({
         WebActiveThreadCountConfig.class,
         WebActiveThreadDumpConfig.class,
-        WebEchoConfig.class
+        WebEchoConfig.class,
+        RealtimeWebPropertySources.class
 })
 public class RealtimeWebConfig {
 

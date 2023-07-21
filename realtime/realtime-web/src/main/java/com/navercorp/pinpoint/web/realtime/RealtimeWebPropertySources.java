@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.realtime.activethread.count.dao;
+package com.navercorp.pinpoint.web.realtime;
+
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 /**
  * @author youngjin.kim2
  */
-class ConstantFetcher<T> implements Fetcher<T>{
+@PropertySources({
+        @PropertySource(name = "RealtimeWebPropertySourceRoot", value = {RealtimeWebPropertySources.ROOT}),
+})
+public class RealtimeWebPropertySources {
 
-    private final T value;
-
-    ConstantFetcher(T value) {
-        this.value = value;
-    }
-
-    @Override
-    public T fetch() {
-        return value;
-    }
+    public static final String ROOT = "classpath:pinpoint-web-realtime.properties";
 
 }

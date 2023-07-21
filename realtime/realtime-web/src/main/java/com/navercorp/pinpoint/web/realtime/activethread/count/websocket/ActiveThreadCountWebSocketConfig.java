@@ -15,42 +15,24 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count.websocket;
 
-import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.realtime.dto.ATCSupply;
-import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountWebDaoConfig;
-import com.navercorp.pinpoint.web.realtime.activethread.count.dao.FetcherFactory;
-import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
+import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
+import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountWebServiceConfig;
 import com.navercorp.pinpoint.web.realtime.service.RealtimeWebServiceConfig;
-import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
-
-import java.time.Duration;
 
 /**
  * @author youngjin.kim2
  */
 @Configuration
-@Import({ ActiveThreadCountWebDaoConfig.class, RealtimeWebServiceConfig.class })
+@Import({ ActiveThreadCountWebServiceConfig.class, RealtimeWebServiceConfig.class })
 public class ActiveThreadCountWebSocketConfig {
 
     @Bean
-    PinpointWebSocketHandler redisActiveThreadCountHandler(
-            FetcherFactory<ClusterKey, ATCSupply> fetcherFactory,
-            AgentLookupService agentLookupService,
-            @Autowired(required = false) TimerTaskDecoratorFactory timerTaskDecoratorFactory
-    ) {
-        return new ActiveThreadCountHandlerImpl(
-                fetcherFactory,
-                agentLookupService,
-                timerTaskDecoratorFactory,
-                Flux.interval(Duration.ofMillis(1000), Schedulers.newParallel("atcFlusher", 8))
-        );
+    PinpointWebSocketHandler redisActiveThreadCountHandler(ActiveThreadCountService atcSessionFactory) {
+        return new ActiveThreadCountHandlerImpl(atcSessionFactory);
     }
 
 }

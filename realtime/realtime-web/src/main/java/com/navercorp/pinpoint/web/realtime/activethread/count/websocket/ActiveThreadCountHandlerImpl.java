@@ -16,14 +16,9 @@
 package com.navercorp.pinpoint.web.realtime.activethread.count.websocket;
 
 import com.google.gson.Gson;
-import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.realtime.dto.ATCSupply;
-import com.navercorp.pinpoint.web.realtime.activethread.count.dao.Fetcher;
-import com.navercorp.pinpoint.web.realtime.activethread.count.dao.FetcherFactory;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
-import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
-import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
-import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
+import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountSession;
 import com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import org.apache.logging.log4j.LogManager;
@@ -32,18 +27,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import reactor.core.publisher.Flux;
+import reactor.core.Disposable;
 
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 /**
  * @author youngjin.kim2
@@ -51,173 +38,129 @@ import java.util.function.Consumer;
 class ActiveThreadCountHandlerImpl extends ActiveThreadCountHandler implements PinpointWebSocketHandler {
 
     private static final Logger logger = LogManager.getLogger(ActiveThreadCountHandlerImpl.class);
+    private static final Gson gson = new Gson();
 
-    private static final long MAX_CONNECTION_WAITING_MILLIS = TimeUnit.SECONDS.toMillis(5);
+    private final ActiveThreadCountService atcService;
 
-    private final FetcherFactory<ClusterKey, ATCSupply> fetcherFactory;
-    private final AgentLookupService agentLookupService;
-    @Nullable private final TimerTaskDecoratorFactory timerTaskDecoratorFactory;
-    private final Flux<Long> tickProvider;
-
-    private final Gson gson = new Gson();
-
-    ActiveThreadCountHandlerImpl(
-            FetcherFactory<ClusterKey, ATCSupply> fetcherFactory,
-            AgentLookupService agentLookupService,
-            @Nullable TimerTaskDecoratorFactory timerTaskDecoratorFactory,
-            Flux<Long> tickProvider
-    ) {
+    ActiveThreadCountHandlerImpl(ActiveThreadCountService atcSessionFactory) {
         super(null);
-        this.fetcherFactory = Objects.requireNonNull(fetcherFactory, "fetcherFactory");
-        this.agentLookupService = Objects.requireNonNull(agentLookupService, "agentLookupService");
-        this.timerTaskDecoratorFactory = timerTaskDecoratorFactory;
-        this.tickProvider = Objects.requireNonNull(tickProvider, "tickProvider");
+        this.atcService = Objects.requireNonNull(atcSessionFactory, "atcSessionFactory");
+    }
+
+    @Override public void start() {}
+    @Override public void stop() {}
+    @Override public int getPriority() {
+        return 2;
     }
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         logger.info("ATC Connection Established. session: {}", session);
-        SessionContext.newContext(session, this.timerTaskDecoratorFactory);
+        HandlerSession.initialize(session, this.atcService);
     }
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         logger.info("ATC Connection Closed. session: {}, status: {}", session, status);
-        SessionContext.dispose(session);
+        HandlerSession.dispose(session);
     }
 
     @Override
-    public void start() {}
-
-    @Override
-    public void stop() {}
-
-    @Override
-    public int getPriority() {
-        return 2;
-    }
-
-    @Override
-    protected void handleActiveThreadCount(WebSocketSession session, String applicationName) {
-        logger.info("ATC Requested. session: {}, applicationName: {}", session, applicationName);
-        refresh(session, applicationName);
-    }
-
-    private void refresh(WebSocketSession session, String applicationName) {
-        SessionContext.runWithLockedContext(session, ctx -> refreshWithContext(ctx, session, applicationName));
-    }
-
-    @GuardedBy("ATCSessionContext")
-    private void refreshWithContext(SessionContext ctx, WebSocketSession session, String applicationName) {
-        final Consumer<Long> handler = makeTickHandler(ctx, session, applicationName);
-        ctx.setSubscription(this.tickProvider.subscribe(handler));
-    }
-
-    private Consumer<Long> makeTickHandler(SessionContext ctx, WebSocketSession session, String applicationName) {
-        final List<ClusterKey> agentKeys = this.agentLookupService.getRecentAgents(applicationName);
-        final TickHandler handler = new TickHandler(session, applicationName, agentKeys, getFetchers(agentKeys));
-        final Runnable decoratedHandler = decorateHandler(ctx.getTaskDecorator(), handler);
-        return t -> decoratedHandler.run();
-    }
-
-    private List<Fetcher<ATCSupply>> getFetchers(List<ClusterKey> agentKeys) {
-        final List<Fetcher<ATCSupply>> fetchers = new ArrayList<>(agentKeys.size());
-        for (final ClusterKey agentKey : agentKeys) {
-            final Fetcher<ATCSupply> fetcher = getFetcher(agentKey);
-            fetchers.add(fetcher);
+    protected void handleActiveThreadCount(WebSocketSession wsSession, String applicationName) {
+        logger.info("ATC Requested. session: {}, applicationName: {}", wsSession, applicationName);
+        HandlerSession handlerSession = HandlerSession.get(wsSession);
+        if (handlerSession == null) {
+            logger.error("CustomSession is not initialized");
+            return;
         }
-        return fetchers;
+        handlerSession.start(applicationName);
     }
 
-    private Fetcher<ATCSupply> getFetcher(ClusterKey agentKey) {
-        try {
-            return this.fetcherFactory.getFetcher(agentKey);
-        } catch (Exception e) {
-            logger.error("Failed to get fetcher for {}", agentKey, e);
-            return Fetcher.constant(getErrorSupply(agentKey));
+    private static class HandlerSession implements Disposable {
+
+        private static final String ATTR_KEY = "handlerSession";
+
+        private final WebSocketSession wsSession;
+        private final ActiveThreadCountService atcService;
+        private String applicationName;
+        private ActiveThreadCountSession atcSession;
+
+        private final Object lock = new Object();
+
+        private HandlerSession(WebSocketSession wsSession, ActiveThreadCountService atcService) {
+            this.wsSession = wsSession;
+            this.atcService = atcService;
         }
-    }
 
-    private ATCSupply getErrorSupply(ClusterKey agentKey) {
-        final ATCSupply s = new ATCSupply();
-        s.setCollectorId("UNKNOWN");
-        s.setValues(List.of());
-        s.setMessage(ATCSupply.Message.WEB_ERROR);
-        s.setApplicationName(agentKey.getApplicationName());
-        s.setAgentId(agentKey.getAgentId());
-        s.setStartTimestamp(agentKey.getStartTimestamp());
-        return s;
-    }
-
-    private static Runnable decorateHandler(TimerTaskDecorator decorator, TimerTask target) {
-        if (decorator == null) {
-            return target;
+        public static HandlerSession get(WebSocketSession wsSession) {
+            Object t = wsSession.getAttributes().get(ATTR_KEY);
+            if (t instanceof HandlerSession) {
+                return (HandlerSession) t;
+            }
+            return null;
         }
-        return decorator.decorate(target);
-    }
 
-    private class TickHandler extends TimerTask {
+        public static void initialize(WebSocketSession wsSession, ActiveThreadCountService atcService) {
+            HandlerSession prev = get(wsSession);
+            if (prev != null) {
+                return;
+            }
+            HandlerSession handlerSession = new HandlerSession(wsSession, atcService);
+            wsSession.getAttributes().put(ATTR_KEY, handlerSession);
+        }
 
-        private final WebSocketSession session;
-        private final long sessionCreatedAt;
-        private final String applicationName;
-        private final List<ClusterKey> clusterKeys;
-        private final List<Fetcher<ATCSupply>> fetchers;
+        public static void dispose(WebSocketSession wsSession) {
+            HandlerSession that = get(wsSession);
+            if (that != null) {
+                that.dispose();
+            }
+        }
 
-        final AtomicLong tickHandlerSpan = new AtomicLong(10);
+        void start(String applicationName) {
+            synchronized (lock) {
+                if (this.applicationName != null) {
+                    logger.error("Already started with application {}", this.applicationName);
+                    return;
+                }
+                start0(applicationName);
+            }
+        }
 
-        public TickHandler(
-                WebSocketSession session,
-                String applicationName,
-                List<ClusterKey> clusterKeys,
-                List<Fetcher<ATCSupply>> fetchers
-        ) {
-            this.session = session;
-            this.sessionCreatedAt = SessionContext.get(session).getSessionCreatedAt();
-            this.applicationName = applicationName;
-            this.clusterKeys = clusterKeys;
-            this.fetchers = fetchers;
+        private void start0(String applicationName) {
+            try {
+                this.applicationName = applicationName;
+                this.atcSession = buildATCSession(applicationName);
+            } catch (Exception e) {
+                logger.error("Failed to start atc session");
+                throw new RuntimeException(e);
+            }
+        }
+
+        private ActiveThreadCountSession buildATCSession(String applicationName) throws Exception {
+            ActiveThreadCountSession atcSession = this.atcService.getSession(applicationName);
+            atcSession.start().subscribe(this::sendMessage);
+            return atcSession;
         }
 
         @Override
-        public void run() {
-            send(makeResponse());
-            trySelfRefresh();
-        }
-
-        private void trySelfRefresh() {
-            if (tickHandlerSpan.decrementAndGet() == 0) {
-                refresh(session, applicationName);
+        public void dispose() {
+            synchronized (lock) {
+                if (this.atcSession != null) {
+                    this.atcSession.dispose();
+                }
+                this.applicationName = null;
+                this.atcSession = null;
             }
         }
 
-        private ActiveThreadCountResponse makeResponse() {
-            final long now = System.currentTimeMillis();
-            final ActiveThreadCountResponse response = new ActiveThreadCountResponse(applicationName, now);
-            for (int i = 0; i < clusterKeys.size(); i++) {
-                final ClusterKey clusterKey = clusterKeys.get(i);
-                final Fetcher<ATCSupply> fetcher = fetchers.get(i);
-                final ATCSupply supply = fetcher.fetch();
-                putAgent(response, clusterKey, supply);
-            }
-            return response;
-        }
-
-        private void putAgent(ActiveThreadCountResponse response, ClusterKey agentKey, ATCSupply supply) {
-            if (supply != null && !supply.getValues().isEmpty()) {
-                response.putSuccessAgent(agentKey, supply.getValues());
-            } else {
-                final long connectUntil = sessionCreatedAt + MAX_CONNECTION_WAITING_MILLIS;
-                response.putFailureAgent(agentKey, supply, connectUntil);
-            }
-        }
-
-        private void send(ActiveThreadCountResponse response) {
+        private void sendMessage(ActiveThreadCountResponse response) {
             try {
-                final String message = gson.toJson(response);
-                session.sendMessage(new TextMessage(message));
+                TextMessage message = new TextMessage(gson.toJson(response));
+                synchronized (lock) {
+                    this.wsSession.sendMessage(message);
+                }
             } catch (IOException e) {
-                logger.warn("Failed to send message. session: {}", session);
+                logger.error("Failed to send message to {}", this.wsSession);
             }
         }
 

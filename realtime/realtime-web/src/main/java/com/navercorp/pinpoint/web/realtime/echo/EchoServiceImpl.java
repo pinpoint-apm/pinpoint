@@ -49,12 +49,12 @@ class EchoServiceImpl implements EchoService {
                 return result.getMessage();
             }
         } catch (Exception e) {
-            logger.error("Failed to get echo result", e);
-            throw new RuntimeException("Failed to get echo result", e);
+            logger.error("Failed to getSession echo result", e);
+            throw new RuntimeException("Failed to getSession echo result", e);
         }
 
-        logger.error("Failed to get echo result");
-        throw new RuntimeException("Failed to get echo result");
+        logger.error("Failed to getSession echo result");
+        throw new RuntimeException("Failed to getSession echo result");
     }
 
 }

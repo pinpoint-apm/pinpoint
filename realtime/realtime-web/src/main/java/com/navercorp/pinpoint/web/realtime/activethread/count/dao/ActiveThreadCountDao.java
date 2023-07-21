@@ -15,15 +15,15 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count.dao;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.realtime.dto.ATCSupply;
+import reactor.core.publisher.Flux;
+
 /**
  * @author youngjin.kim2
  */
-public interface Fetcher<T> {
+public interface ActiveThreadCountDao {
 
-    T fetch();
-
-    static <T> Fetcher<T> constant(T value) {
-        return new ConstantFetcher<>(value);
-    }
+    Flux<ATCSupply> getSupplies(ClusterKey agentKey);
 
 }
