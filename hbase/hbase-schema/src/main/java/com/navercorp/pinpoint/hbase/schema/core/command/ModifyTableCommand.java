@@ -47,8 +47,8 @@ public class ModifyTableCommand extends TableCommand {
         TableDescriptor currentHtd = hbaseAdminOperation.getTableDescriptor(tableName);
 
         // Filter existing column families as column family modification is not supported.
-        // We could use modifyTable(HTableDescriptor) to add column families, but this deletes existing column families
-        // if they are not specified in HTableDescriptor and this may be dangerous.
+        // We could use modifyTable(TableDescriptor) to add column families, but this deletes existing column families
+        // if they are not specified in TableDescriptor and this may be dangerous.
         // Instead, use addColumn.
         boolean changesMade = false;
         for (ColumnFamilyDescriptor cf : cfDescriptors) {
