@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.collector.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
@@ -66,12 +64,8 @@ public class ClusterPointController {
 
     private final ClusterPointLocator<ClusterPoint<?>> clusterPointLocator;
 
-    private final ObjectMapper mapper;
-
-
-    public ClusterPointController(ClusterPointLocator clusterPointLocator, ObjectMapper mapper) {
+    public ClusterPointController(ClusterPointLocator clusterPointLocator) {
         this.clusterPointLocator = Objects.requireNonNull(clusterPointLocator, "clusterPointLocator");
-        this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     @GetMapping(value = "/html/getClusterPoint")
@@ -85,21 +79,20 @@ public class ClusterPointController {
     }
 
     @GetMapping(value = "/getClusterPoint")
-    public String getClusterPoint(
+    public List<GrpcAgentConnectionStats> getClusterPoint(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", defaultValue = "") String agentId,
-            @RequestParam(value = "startTimestamp", defaultValue = "-1") long startTimestamp) throws JsonProcessingException {
+            @RequestParam(value = "startTimestamp", defaultValue = "-1") long startTimestamp) {
 
-        List<GrpcAgentConnectionStats> result = getClusterPoint0(applicationName, agentId, startTimestamp);
-        return mapper.writeValueAsString(result);
+        return getClusterPoint0(applicationName, agentId, startTimestamp);
     }
 
     @GetMapping(value = "/checkConnectionStatus")
-    public String checkConnectionStatus(
+    public List<GrpcAgentConnectionStats> checkConnectionStatus(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("startTimestamp") long startTimestamp,
-            @RequestParam(value = "checkCount", defaultValue = "3") int checkCount) throws JsonProcessingException {
+            @RequestParam(value = "checkCount", defaultValue = "3") int checkCount) {
         Assert.isTrue(checkCount > 0, "checkCount must be ' > 0'");
 
         List<GrpcAgentConnection> grpcAgentConnectionList = getGrpcAgentConnectionList(applicationName, agentId, startTimestamp);
@@ -115,7 +108,7 @@ public class ClusterPointController {
             result.add(new GrpcAgentConnectionStats(grpcAgentConnection, connectionStatusResult));
         }
 
-        return mapper.writeValueAsString(result);
+        return result;
     }
 
     private List<GrpcAgentConnectionStats> getClusterPoint0(final String applicationName, final String agentId, final long startTimestamp) {

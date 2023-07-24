@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.websocket.message;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -41,18 +41,13 @@ public class PinpointWebSocketMessageConverter {
 
     private static final Logger LOGGER = LogManager.getLogger(PinpointWebSocketMessageConverter.class);
 
-    private static final ObjectMapper JSON_SERIALIZER = Jackson.newMapper();
+    private final ObjectMapper mapper;
 
-    private final String pingMessage;
-    private final String pongMessage;
+    private final PingPongMessage pingPongMessage;
 
-    public PinpointWebSocketMessageConverter() {
-        this(JSON_SERIALIZER);
-    }
-
-    private PinpointWebSocketMessageConverter(ObjectMapper objectMapper) {
-        pingMessage = createPingMessage(objectMapper);
-        pongMessage = createPongMessage(objectMapper);
+    public PinpointWebSocketMessageConverter(ObjectMapper mapper) {
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
+        this.pingPongMessage = PingPongMessage.newMessage(mapper);
     }
 
     public PinpointWebSocketMessage getWebSocketMessage(String message) {
@@ -74,7 +69,7 @@ public class PinpointWebSocketMessageConverter {
         // JacksonPolymorphicDeserialization has security vulnerability
         // (CVE-2017-7525 jackson-databind: Deserialization vulnerability via readValue method of ObjectMapper)
         // will not work until the issue is completely resolved.
-        final JsonNode root = JSON_SERIALIZER.readTree(message);
+        final JsonNode root = mapper.readTree(message);
         if (!root.isObject()) {
             return new UnknownMessage();
         }
@@ -120,55 +115,34 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private Map<String, Object> readMap(JsonNode parameterNode) {
-        return JSON_SERIALIZER.convertValue(parameterNode, TypeRef.map());
+        return mapper.convertValue(parameterNode, TypeRef.map());
     }
 
     public String getRequestTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
         RequestMessage request = new RequestMessage(command, params);
 
-        return JSON_SERIALIZER.writeValueAsString(request);
+        return mapper.writeValueAsString(request);
     }
 
     public String getResponseTextMessage(String command, Map<String, Object> result) throws JsonProcessingException {
         ResponseMessage response = new ResponseMessage(command, result);
 
-        return JSON_SERIALIZER.writeValueAsString(response);
+        return mapper.writeValueAsString(response);
     }
 
     public String getSendTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
 
         SendMessage message = new SendMessage(command, params);
 
-        return JSON_SERIALIZER.writeValueAsString(message);
+        return mapper.writeValueAsString(message);
     }
 
     public String getPingTextMessage() {
-        return pingMessage;
+        return pingPongMessage.ping();
     }
 
     public String getPongTextMessage() {
-        return pongMessage;
+        return pingPongMessage.pong();
     }
-
-    private String createPingMessage(ObjectMapper objectMapper) {
-        PingMessage ping = new PingMessage();
-        try {
-            return objectMapper.writeValueAsString(ping);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("ping message create fail.", e);
-        }
-    }
-
-
-    private String createPongMessage(ObjectMapper objectMapper) {
-        PongMessage pong = new PongMessage();
-        try {
-            return objectMapper.writeValueAsString(pong);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("pong message create fail.", e);
-        }
-
-    }
-
 
 }

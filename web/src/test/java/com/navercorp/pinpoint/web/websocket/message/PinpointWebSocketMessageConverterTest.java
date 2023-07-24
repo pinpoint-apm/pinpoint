@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public class PinpointWebSocketMessageConverterTest {
 
-    private final PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
+    private final PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter(Jackson.newMapper());
 
     @Test
     public void requestMessageTest() throws Exception {

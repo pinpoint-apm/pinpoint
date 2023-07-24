@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThre
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountSession;
 import com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
@@ -42,8 +43,8 @@ class ActiveThreadCountHandlerImpl extends ActiveThreadCountHandler implements P
 
     private final ActiveThreadCountService atcService;
 
-    ActiveThreadCountHandlerImpl(ActiveThreadCountService atcSessionFactory) {
-        super(null);
+    ActiveThreadCountHandlerImpl(PinpointWebSocketMessageConverter converter, ActiveThreadCountService atcSessionFactory) {
+        super(converter, null);
         this.atcService = Objects.requireNonNull(atcSessionFactory, "atcSessionFactory");
     }
 

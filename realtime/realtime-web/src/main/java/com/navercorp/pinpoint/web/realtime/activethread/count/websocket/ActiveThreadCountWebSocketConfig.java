@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThre
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountWebServiceConfig;
 import com.navercorp.pinpoint.web.realtime.service.RealtimeWebServiceConfig;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -31,8 +32,8 @@ import org.springframework.context.annotation.Import;
 public class ActiveThreadCountWebSocketConfig {
 
     @Bean
-    PinpointWebSocketHandler redisActiveThreadCountHandler(ActiveThreadCountService atcSessionFactory) {
-        return new ActiveThreadCountHandlerImpl(atcSessionFactory);
+    public PinpointWebSocketHandler redisActiveThreadCountHandler(PinpointWebSocketMessageConverter converter, ActiveThreadCountService atcSessionFactory) {
+        return new ActiveThreadCountHandlerImpl(converter, atcSessionFactory);
     }
 
 }
