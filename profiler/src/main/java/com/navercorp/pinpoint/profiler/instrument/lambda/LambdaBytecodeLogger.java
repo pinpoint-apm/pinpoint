@@ -16,31 +16,31 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
+import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.instrument.lambda.LambdaBytecodeHandler;
 
 import java.util.Objects;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import java.util.Arrays;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class LambdaBytecodeLogger implements LambdaBytecodeHandler {
-    private final Logger logger;
+    private final BootLogger logger;
     private final LambdaBytecodeHandler delegate;
 
     public LambdaBytecodeLogger(LambdaBytecodeHandler delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate");
-        this.logger = LogManager.getLogger(delegate.getClass());
+        this.logger = BootLogger.getLogger(this.getClass());
     }
 
     @Override
     public byte[] handleLambdaBytecode(Class<?> hostClass, byte[] data, Object[] cpPatches) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("handleLambdaBytecode {} {}", hostClass, Arrays.toString(cpPatches));
+        if (logger.isTraceEnabled()) {
+            logger.trace("handleLambdaBytecode "
+                    + hostClass.getName() + " "
+                    + Arrays.toString(cpPatches)
+            );
         }
         return delegate.handleLambdaBytecode(hostClass, data, cpPatches);
     }

@@ -81,6 +81,17 @@ public final class BootLogger {
         return formatter.toString();
     }
 
+    public boolean isTraceEnabled() {
+        return LOG_LEVEL.logTrace();
+    }
+
+    public void trace(String msg) {
+        if (isTraceEnabled()) {
+            String formatMessage = format("TRACE", msg, null);
+            this.out.print(formatMessage);
+        }
+    }
+
     public boolean isDebugEnabled() {
         return LOG_LEVEL.logDebug();
     }
