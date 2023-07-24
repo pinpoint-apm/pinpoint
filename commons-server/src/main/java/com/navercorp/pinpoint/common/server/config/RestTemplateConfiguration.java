@@ -17,18 +17,15 @@
 
 package com.navercorp.pinpoint.common.server.config;
 
-import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.client.RestTemplateBuilderConfigurer;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
 @Configuration
-@Import(RestTemplateAutoConfiguration.class)
 public class RestTemplateConfiguration {
 
     @Bean
