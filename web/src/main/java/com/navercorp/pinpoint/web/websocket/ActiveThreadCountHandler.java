@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -64,7 +65,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private final AgentService agentService;
     private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<>();
     private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new ConcurrentHashMap<>();
-    private final PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
+    private final PinpointWebSocketMessageConverter messageConverter;
 
     private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
     private final String requestMapping;
@@ -90,19 +91,20 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     @Autowired(required = false)
     private TimerTaskDecoratorFactory timerTaskDecoratorFactory = new PinpointWebSocketTimerTaskDecoratorFactory();
 
-    public ActiveThreadCountHandler(AgentService agentService) {
-        this(DEFAULT_REQUEST_MAPPING, agentService);
+    public ActiveThreadCountHandler(PinpointWebSocketMessageConverter converter, AgentService agentService) {
+        this(converter, DEFAULT_REQUEST_MAPPING, agentService);
     }
 
-    public ActiveThreadCountHandler(String requestMapping, AgentService agentService) {
-        this(requestMapping, agentService, DEFAULT_FLUSH_DELAY);
+    public ActiveThreadCountHandler(PinpointWebSocketMessageConverter converter, String requestMapping, AgentService agentService) {
+        this(converter, requestMapping, agentService, DEFAULT_FLUSH_DELAY);
     }
 
-    public ActiveThreadCountHandler(String requestMapping, AgentService agentService, long flushDelay) {
-        this(requestMapping, agentService, flushDelay, DEFAULT_HEALTH_CHECk_DELAY);
+    public ActiveThreadCountHandler(PinpointWebSocketMessageConverter converter, String requestMapping, AgentService agentService, long flushDelay) {
+        this(converter, requestMapping, agentService, flushDelay, DEFAULT_HEALTH_CHECk_DELAY);
     }
 
-    public ActiveThreadCountHandler(String requestMapping, AgentService agentService, long flushDelay, long healthCheckDelay) {
+    public ActiveThreadCountHandler(PinpointWebSocketMessageConverter converter, String requestMapping, AgentService agentService, long flushDelay, long healthCheckDelay) {
+        this.messageConverter = Objects.requireNonNull(converter, "converter");
         this.requestMapping = requestMapping;
         this.agentService = agentService;
         this.flushDelay = flushDelay;
@@ -290,7 +292,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         PinpointWebSocketResponseAggregator responseAggregator = aggregatorRepository.get(applicationName);
         if (responseAggregator == null) {
             TimerTaskDecorator timerTaskDecorator = timerTaskDecoratorFactory.createTimerTaskDecorator();
-            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentService, reactiveTimer, timerTaskDecorator);
+            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentService, reactiveTimer, timerTaskDecorator, messageConverter);
             responseAggregator.start();
             aggregatorRepository.put(applicationName, responseAggregator);
         }

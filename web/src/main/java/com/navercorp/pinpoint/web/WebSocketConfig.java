@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.web.websocket.CustomHandshakeInterceptor;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketConfigurer;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +49,7 @@ import java.util.List;
 public class WebSocketConfig {
 
     @Bean
-    WebSocketConfigurer webSocketConfigurer(
+    public WebSocketConfigurer webSocketConfigurer(
             PinpointWebSocketHandlerManager handlerRepository,
             ConfigProperties configProperties,
             @Autowired(required = false) WebSocketHandlerDecoratorFactory webSocketHandlerDecoratorFactory,
@@ -62,7 +64,7 @@ public class WebSocketConfig {
     }
 
     @Bean
-    AgentService agentService(
+    public AgentService agentService(
             AgentInfoService agentInfoService,
             ClusterManager clusterManager,
             @Qualifier("commandHeaderTBaseSerializerFactory") SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory,
@@ -77,13 +79,18 @@ public class WebSocketConfig {
     }
 
     @Bean
-    PinpointWebSocketHandler activeThreadHandler(AgentService agentService) {
-        return new ActiveThreadCountHandler("/agent/activeThread", agentService);
+    public PinpointWebSocketHandler activeThreadHandler(PinpointWebSocketMessageConverter converter, AgentService agentService) {
+        return new ActiveThreadCountHandler(converter, "/agent/activeThread", agentService);
     }
 
     @Bean
-    PinpointWebSocketHandlerManager handlerRegister(List<PinpointWebSocketHandler> handlers) {
+    public PinpointWebSocketHandlerManager handlerRegister(List<PinpointWebSocketHandler> handlers) {
         return new PinpointWebSocketHandlerManager(handlers);
+    }
+
+    @Bean
+    public PinpointWebSocketMessageConverter pinpointWebSocketMessageConverter(ObjectMapper mapper) {
+        return new PinpointWebSocketMessageConverter(mapper);
     }
 
 }

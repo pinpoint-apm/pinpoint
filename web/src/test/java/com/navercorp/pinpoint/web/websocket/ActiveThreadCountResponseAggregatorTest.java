@@ -17,11 +17,13 @@ package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.apache.thrift.TBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,6 +67,8 @@ public class ActiveThreadCountResponseAggregatorTest {
 
     ActiveThreadCountResponseAggregator aggregator;
 
+    final PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter(Jackson.newMapper());
+
     @BeforeEach
     public void beforeEach() throws Exception {
         when(this.agentService.getRecentAgentInfoList(eq(applicationName), anyLong()))
@@ -75,10 +79,7 @@ public class ActiveThreadCountResponseAggregatorTest {
                 .thenReturn(true);
 
         this.aggregator = new ActiveThreadCountResponseAggregator(
-                applicationName,
-                this.agentService,
-                this.timer,
-                this.timerTaskDecorator
+                applicationName, this.agentService, this.timer, this.timerTaskDecorator, messageConverter
         );
     }
 
