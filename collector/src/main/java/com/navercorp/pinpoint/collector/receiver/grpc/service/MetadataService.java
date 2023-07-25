@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
+import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
@@ -29,11 +30,10 @@ import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -79,6 +79,16 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         }
 
         final Message<PSqlMetaData> message = newMessage(sqlMetaData, DefaultTBaseLocator.SQLMETADATA);
+        doExecutor(message, responseObserver);
+    }
+
+    @Override
+    public void requestSqlUidMetaData(PSqlUidMetaData sqlUidMetaData, StreamObserver<PResult> responseObserver) {
+        if (isDebug) {
+            logger.debug("Request PSqlUidMetaData={}", debugLog(sqlUidMetaData));
+        }
+
+        Message<PSqlUidMetaData> message = newMessage(sqlUidMetaData, DefaultTBaseLocator.SQLUIDMETADATA);
         doExecutor(message, responseObserver);
     }
 

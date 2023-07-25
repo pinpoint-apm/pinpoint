@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
+import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
+import com.navercorp.pinpoint.profiler.metadata.SqlUidMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 
 /**
@@ -41,6 +44,9 @@ public class GrpcMetadataMessageConverter implements MessageConverter<MetaDataTy
         if (message instanceof SqlMetaData) {
             final SqlMetaData sqlMetaData = (SqlMetaData) message;
             return convertSqlMetaData(sqlMetaData);
+        } else if (message instanceof SqlUidMetaData) {
+            final SqlUidMetaData sqlUidMetaData = (SqlUidMetaData) message;
+            return convertSqlUidMetaData(sqlUidMetaData);
         } else if (message instanceof ApiMetaData) {
             final ApiMetaData apiMetaData = (ApiMetaData) message;
             return convertApiMetaData(apiMetaData);
@@ -55,6 +61,13 @@ public class GrpcMetadataMessageConverter implements MessageConverter<MetaDataTy
         final PSqlMetaData.Builder builder = PSqlMetaData.newBuilder();
         builder.setSqlId(sqlMetaData.getSqlId());
         builder.setSql(sqlMetaData.getSql());
+        return builder.build();
+    }
+
+    private PSqlUidMetaData convertSqlUidMetaData(final SqlUidMetaData sqlUidMetaData) {
+        PSqlUidMetaData.Builder builder = PSqlUidMetaData.newBuilder();
+        builder.setSqlUid(ByteString.copyFrom(sqlUidMetaData.getSqlUid()));
+        builder.setSql(sqlUidMetaData.getSql());
         return builder.build();
     }
 

@@ -32,6 +32,7 @@ drop 'StringMetaData'
 drop 'ApiMetaData'
 
 drop 'SqlMetaData_Ver2'
+drop 'SqlUidMetaData'
 
 drop 'ApplicationTraceIndex'
 drop 'TraceV2'

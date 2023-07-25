@@ -16,25 +16,26 @@
 
 package com.navercorp.pinpoint.profiler.cache;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
-public class Result {
+public class Result<ID> {
 
     private final boolean newValue;
-    private final int id;
+    private final ID id;
 
-    public Result(boolean newValue, int id) {
+    public Result(boolean newValue, ID id) {
         this.newValue = newValue;
-        this.id = id;
+        this.id = Objects.requireNonNull(id, "id");
     }
 
     public boolean isNewValue() {
         return newValue;
     }
 
-    public int getId() {
+    public ID getId() {
         return id;
     }
-
 }

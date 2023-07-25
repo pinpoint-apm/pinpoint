@@ -10,6 +10,7 @@ flush 'StringMetaData'
 flush 'ApiMetaData'
 
 flush 'SqlMetaData_Ver2'
+flush 'SqlUidMetaData'
 
 flush 'ApplicationMapStatisticsCaller_Ver2'
 flush 'ApplicationMapStatisticsCallee_Ver2'

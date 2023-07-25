@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
+import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
@@ -23,6 +24,7 @@ import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PBytesStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
@@ -86,6 +88,11 @@ public class DataTypeAnnotation implements Annotation<DataType>,
             final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) dataType;
             final PIntBooleanIntBooleanValue pValue = context.newIntBooleanIntBooleanValue(v);
             builder.setIntBooleanIntBooleanValue(pValue);
+            return builder.build();
+        } else if (dataType instanceof BytesStringStringValue) {
+            final BytesStringStringValue v = (BytesStringStringValue) dataType;
+            PBytesStringStringValue pValue = context.newBytesStringStringValue(v);
+            builder.setBytesStringStringValue(pValue);
             return builder.build();
         }
         throw new UnsupportedOperationException("unsupported type:" + dataType);

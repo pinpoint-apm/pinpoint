@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.cache;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import java.util.Objects;
@@ -25,50 +24,47 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author emeroad
  */
-public class SimpleCache<T> {
-
+public class SimpleCache<T> implements Cache<T, Result<Integer>> {
     // zero means not exist.
-    private final ConcurrentMap<T, Result> cache;
+    private final ConcurrentMap<T, Result<Integer>> cache;
     private final IdAllocator idAllocator;
 
     public SimpleCache(IdAllocator idAllocator) {
         this(idAllocator, 1024);
     }
+
     public SimpleCache(IdAllocator idAllocator, int cacheSize) {
         this.cache = createCache(cacheSize);
         this.idAllocator = Objects.requireNonNull(idAllocator, "idTransformer");
 
     }
 
-    private ConcurrentMap<T, Result> createCache(int maxCacheSize) {
+    private ConcurrentMap<T, Result<Integer>> createCache(int maxCacheSize) {
         final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
-        Cache<T, Result> localCache = cacheBuilder.build();
+        com.github.benmanes.caffeine.cache.Cache<T, Result<Integer>> localCache = cacheBuilder.build();
         return localCache.asMap();
     }
 
-    public Result put(T value) {
-        final Result find = this.cache.get(value);
+    @Override
+    public Result<Integer> put(T value) {
+        final Result<Integer> find = this.cache.get(value);
         if (find != null) {
             return find;
         }
-        
+
         // Use negative values too to reduce data size
         final int newId = nextId();
-        final Result result = new Result(false, newId);
-        final Result before = this.cache.putIfAbsent(value, result);
+        final Result<Integer> result = new Result<>(false, newId);
+        final Result<Integer> before = this.cache.putIfAbsent(value, result);
         if (before != null) {
             return before;
         }
-        return new Result(true, newId);
+        return new Result<>(true, newId);
     }
 
     private int nextId() {
         return this.idAllocator.allocate();
     }
-
-
-
-
 }

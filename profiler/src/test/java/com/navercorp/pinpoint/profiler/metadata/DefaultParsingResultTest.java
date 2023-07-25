@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +24,7 @@ public class DefaultParsingResultTest {
     @Test
     public void testId() {
         DefaultParsingResult result = new DefaultParsingResult("");
-        Assertions.assertEquals(ParsingResult.ID_NOT_EXIST, result.getId());
+        Assertions.assertNull(result.getId());
 
         // update
         Assertions.assertTrue(result.setId(1));

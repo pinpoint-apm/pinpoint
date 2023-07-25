@@ -17,55 +17,27 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-
 /**
  * @author emeroad
  */
-public class DefaultParsingResult implements ParsingResultInternal {
-
-    private String originalSql;
-    private String sql ;
-    private String output;
-
-    private int id = ParsingResult.ID_NOT_EXIST;
-
+public class DefaultParsingResult extends ParsingResultInternal<Integer> {
+    private Integer id = null;
 
     public DefaultParsingResult(String originalSql) {
-        this.originalSql = originalSql;
-    }
-
-
-    public String getOriginalSql() {
-        return originalSql;
+        super(originalSql);
     }
 
     @Override
-    public String getSql() {
-        return sql;
-    }
-
-    @Override
-    public void setSql(String sql) {
-        this.sql = sql;
-    }
-
-    @Override
-    public void setOutput(String output) {
-        this.output = output;
-    }
-
-    @Override
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-
-    public boolean setId(int id) {
+    @Override
+    public boolean setId(Integer id) {
         // clear originalSql reference
-        this.originalSql = null;
+        clearOriginalSql();
 
-        if (this.id == ID_NOT_EXIST) {
+        if (this.id == null && id != null) {
             this.id = id;
             return true;
         }
@@ -73,21 +45,11 @@ public class DefaultParsingResult implements ParsingResultInternal {
     }
 
     @Override
-    public String getOutput() {
-        if (this.output == null) {
-            return "";
-        }
-        return this.output;
-    }
-
-
-    @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultParsingResult{");
-        sb.append("sql='").append(sql).append('\'');
-        sb.append(", output=").append(output);
-        sb.append(", id=").append(id);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultParsingResult{" +
+                "sql=" + getSql() +
+                ", output=" + getOutput() +
+                ", id=" + id +
+                '}';
     }
 }

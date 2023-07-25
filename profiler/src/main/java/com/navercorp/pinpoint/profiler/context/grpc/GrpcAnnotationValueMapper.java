@@ -16,13 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.StringValue;
+import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PBytesStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
@@ -49,6 +52,8 @@ public class GrpcAnnotationValueMapper {
     private final PIntStringValue.Builder intStringBuilder = PIntStringValue.newBuilder();
 
     private final PStringStringValue.Builder stringStringBuilder = PStringStringValue.newBuilder();
+
+    private final PBytesStringStringValue.Builder bytesStringStringBuilder = PBytesStringStringValue.newBuilder();
 
     public PAnnotationValue buildPAnnotationValue(Annotation<?> annotation) {
         if (annotation == null) {
@@ -113,6 +118,23 @@ public class GrpcAnnotationValueMapper {
             builder.setStringValue2(stringValue2);
         }
         PIntStringStringValue value = builder.build();
+        builder.clear();
+        return value;
+    }
+
+    public PBytesStringStringValue newBytesStringStringValue(BytesStringStringValue v) {
+        final PBytesStringStringValue.Builder builder = this.bytesStringStringBuilder;
+
+        builder.setBytesValue(ByteString.copyFrom(v.getBytesValue()));
+        if (v.getStringValue1() != null) {
+            StringValue stringValue1 = newStringValue(v.getStringValue1());
+            builder.setStringValue1(stringValue1);
+        }
+        if (v.getStringValue2() != null) {
+            StringValue stringValue2 = newStringValue(v.getStringValue2());
+            builder.setStringValue2(stringValue2);
+        }
+        PBytesStringStringValue value = builder.build();
         builder.clear();
         return value;
     }

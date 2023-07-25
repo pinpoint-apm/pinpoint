@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
  * Concurrent LRU cache
  * @author emeroad
  */
-public class LRUCache<T> {
+public class LRUCache<T> implements com.navercorp.pinpoint.profiler.cache.Cache<T, Boolean> {
 
     private static final Object V = new Object();
     public static final int DEFAULT_CACHE_SIZE = 1024;
@@ -47,10 +47,9 @@ public class LRUCache<T> {
     }
 
 
-    public boolean put(T value) {
+    public Boolean put(T value) {
         Object oldValue = cache.putIfAbsent(value, V);
         return oldValue == null;
-
     }
 
     public long getSize() {

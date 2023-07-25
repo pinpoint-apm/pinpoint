@@ -16,62 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultSqlMetaDataService implements SqlMetaDataService {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final CachingSqlNormalizer cachingSqlNormalizer;
-
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
-
+public class DefaultSqlMetaDataService extends AbstractSqlMetaDataService<Integer> {
     public DefaultSqlMetaDataService(EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender, SimpleCache<String> sqlCache) {
-        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
-
-        Objects.requireNonNull(sqlCache, "sqlCache");
-        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(sqlCache);
+        super(enhancedDataSender, new SimpleCachingSqlNormalizer(sqlCache));
     }
 
     @Override
-    public ParsingResult parseSql(final String sql) {
-        // lazy sql normalization
-        return this.cachingSqlNormalizer.wrapSql(sql);
+    protected MetaDataType prepareSqlMetaData(ParsingResultInternal<Integer> parsingResult) {
+        return new SqlMetaData(parsingResult.getId(), parsingResult.getSql());
     }
-
-
-    @Override
-    public boolean cacheSql(ParsingResult parsingResult) {
-
-        if (parsingResult == null) {
-            return false;
-        }
-        // lazy sql parsing
-        boolean isNewValue = this.cachingSqlNormalizer.normalizedSql(parsingResult);
-        if (isNewValue) {
-            if (isDebug) {
-                // TODO logging hit ratio could help debugging
-                logger.debug("NewSQLParsingResult:{}", parsingResult);
-            }
-
-            // isNewValue means that the value is newly cached.
-            // So the sql could be new one. We have to send sql metadata to collector.
-            final SqlMetaData sqlMetaData = new SqlMetaData(parsingResult.getId(), parsingResult.getSql());
-
-            this.enhancedDataSender.request(sqlMetaData);
-        }
-        return isNewValue;
-    }
-
 }

@@ -197,6 +197,7 @@ public interface AnnotationKey {
     AnnotationKey SQL_METADATA = AnnotationKeyFactory.of(22, "SQL-METADATA");
     AnnotationKey SQL_PARAM = AnnotationKeyFactory.of(23, "SQL-PARAM");
     AnnotationKey SQL_BINDVALUE = AnnotationKeyFactory.of(24, "SQL-BindValue", VIEW_IN_RECORD_SET);
+    AnnotationKey SQL_UID = AnnotationKeyFactory.of(25, "SQL-UID");
 
     AnnotationKey STRING_ID = AnnotationKeyFactory.of(30, "STRING_ID");
 

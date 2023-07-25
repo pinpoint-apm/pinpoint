@@ -17,12 +17,14 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.ByteString;
+import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PBytesStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
@@ -133,6 +135,18 @@ public class GrpcAnnotationValueMapperTest {
         Assertions.assertEquals(pAnnotation.getIntValue(), 1);
         Assertions.assertEquals(pAnnotation.getStringValue1().getValue(), "2");
         Assertions.assertEquals(pAnnotation.getStringValue2().getValue(), "3");
+    }
+
+    @Test
+    public void buildPAnnotationValue_BytesStringStringValue() {
+        BytesStringStringValue bytesStringStringValue = new BytesStringStringValue("test".getBytes(), "1", "2");
+
+        PAnnotationValue container = mapper.buildPAnnotationValue(Annotations.of(1, bytesStringStringValue));
+        PBytesStringStringValue pAnnotation = container.getBytesStringStringValue();
+
+        Assertions.assertEquals(pAnnotation.getBytesValue(), ByteString.copyFrom("test".getBytes()));
+        Assertions.assertEquals(pAnnotation.getStringValue1().getValue(), "1");
+        Assertions.assertEquals(pAnnotation.getStringValue2().getValue(), "2");
     }
 
     @Test
