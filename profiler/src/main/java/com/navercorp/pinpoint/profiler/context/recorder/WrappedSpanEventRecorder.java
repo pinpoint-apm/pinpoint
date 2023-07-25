@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -35,8 +36,10 @@ import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.metadata.DefaultParsingResult;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.UidParsingResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -119,13 +122,23 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
         String output = StringUtils.defaultIfEmpty(parsingResult.getOutput(), null);
         bindValue = StringUtils.defaultIfEmpty(bindValue, null);
-        final IntStringStringValue sqlValue = new IntStringStringValue(parsingResult.getId(), output, bindValue);
 
-        recordSqlParam(sqlValue);
+        if (parsingResult instanceof DefaultParsingResult) {
+            final IntStringStringValue sqlValue = new IntStringStringValue(((DefaultParsingResult) parsingResult).getId(), output, bindValue);
+            recordSqlParam(sqlValue);
+        } else if (parsingResult instanceof UidParsingResult) {
+            final BytesStringStringValue sqlValue = new BytesStringStringValue(((UidParsingResult) parsingResult).getId(), output, bindValue);
+            recordSqlParam(sqlValue);
+        }
     }
 
     private void recordSqlParam(IntStringStringValue intStringStringValue) {
         Annotation<DataType> annotation = Annotations.of(AnnotationKey.SQL_ID.getCode(), intStringStringValue);
+        spanEvent.addAnnotation(annotation);
+    }
+
+    private void recordSqlParam(BytesStringStringValue bytesStringStringValue) {
+        Annotation<DataType> annotation = Annotations.of(AnnotationKey.SQL_UID.getCode(), bytesStringStringValue);
         spanEvent.addAnnotation(annotation);
     }
 

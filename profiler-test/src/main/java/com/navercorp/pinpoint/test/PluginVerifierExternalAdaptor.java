@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
@@ -443,6 +444,8 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
         if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
             verifySql(index, (ExpectedSql) expect, actualAnnotation);
+        } else if (expectedAnnotationKey == AnnotationKey.SQL_UID && expect instanceof ExpectedSql) {
+            verifySqlUid(index, (ExpectedSql) expect, actualAnnotation);
         } else if (expect.getValue() instanceof DataType) {
             verifyDataType(index, ((DataType) expect.getValue()), actualAnnotation);
         } else {
@@ -507,6 +510,34 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
             AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sqlId", index),
                     id + ":" + expected.getQuery(), actualSql.getIntValue() + ": " + actualQuery);
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
+        }
+
+        if (!Objects.equals(actualSql.getStringValue1(), expected.getOutput())) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sql.output", index),
+                    expected.getOutput(), actualSql.getStringValue1());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
+        }
+
+        if (!Objects.equals(actualSql.getStringValue2(), expected.getBindValuesAsString())) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sql.bindValues", index),
+                    expected.getBindValuesAsString(), actualSql.getStringValue2());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
+        }
+    }
+
+    private void verifySqlUid(int index, ExpectedSql expected, Annotation<?> actual) {
+        byte[] uid = this.handler.getTcpDataSender().getSqlUid(expected.getQuery());
+        BytesStringStringValue actualSql = (BytesStringStringValue) actual.getValue();
+
+        if (!Arrays.equals(actualSql.getBytesValue(), uid)) {
+            String actualQuery = this.handler.getTcpDataSender().getSql(actualSql.getBytesValue());
+
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sqlUid", index),
+                    Arrays.toString(uid) + ":" + expected.getQuery(), Arrays.toString(actualSql.getBytesValue()) + ": " + actualQuery);
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }

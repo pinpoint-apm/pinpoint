@@ -135,8 +135,8 @@ public class HbaseColumnFamily {
         }
     }
 
-
     public static final SqlMetadataV2 SQL_METADATA_VER2_SQL = new SqlMetadataV2(HbaseTable.SQL_METADATA_VER2, Bytes.toBytes("Sql"));
+
     public static class SqlMetadataV2 extends HbaseColumnFamily {
         public byte[] QUALIFIER_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
 
@@ -145,7 +145,18 @@ public class HbaseColumnFamily {
         }
     }
 
+    public static final SqlUidMetaData SQL_UID_METADATA_SQL = new SqlUidMetaData(HbaseTable.SQL_UID_METADATA, Bytes.toBytes("Sql"));
+
+    public static class SqlUidMetaData extends HbaseColumnFamily {
+        public byte[] QUALIFIER_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
+
+        private SqlUidMetaData(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
     public static final StringMetadataStr STRING_METADATA_STR = new StringMetadataStr(HbaseTable.STRING_METADATA, Bytes.toBytes("Str"));
+
     public static class StringMetadataStr extends HbaseColumnFamily {
         public byte[] QUALIFIER_STRING = Bytes.toBytes("P_string");
 

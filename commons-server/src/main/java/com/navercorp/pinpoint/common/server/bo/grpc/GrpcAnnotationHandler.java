@@ -19,8 +19,20 @@ package com.navercorp.pinpoint.common.server.bo.grpc;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
-import com.navercorp.pinpoint.common.util.*;
-import com.navercorp.pinpoint.grpc.trace.*;
+import com.navercorp.pinpoint.common.util.BytesStringStringValue;
+import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
+import com.navercorp.pinpoint.common.util.IntStringStringValue;
+import com.navercorp.pinpoint.common.util.IntStringValue;
+import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringStringValue;
+import com.navercorp.pinpoint.grpc.trace.PAnnotation;
+import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PBytesStringStringValue;
+import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
+import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
+import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
+import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -60,6 +72,8 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
             return newLongIntIntByteByteStringValue(annotationValue);
         } else if (annotationValue instanceof PIntBooleanIntBooleanValue) {
             return newIntBooleanIntBooleanValue(annotationValue);
+        } else if (annotationValue instanceof PBytesStringStringValue) {
+            return newBytesStringString(annotationValue);
         }
         return null;
     }
@@ -85,6 +99,19 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
             stringValue2 = pValue.getStringValue2().getValue();
         }
         return new IntStringStringValue(pValue.getIntValue(), stringValue1, stringValue2);
+    }
+
+    private BytesStringStringValue newBytesStringString(Object annotationValue) {
+        final PBytesStringStringValue pValue = (PBytesStringStringValue) annotationValue;
+        String stringValue1 = null;
+        if (pValue.hasStringValue1()) {
+            stringValue1 = pValue.getStringValue1().getValue();
+        }
+        String stringValue2 = null;
+        if (pValue.hasStringValue2()) {
+            stringValue2 = pValue.getStringValue2().getValue();
+        }
+        return new BytesStringStringValue(pValue.getBytesValue().toByteArray(), stringValue1, stringValue2);
     }
 
     private StringStringValue newStringStringValue(Object annotationValue) {

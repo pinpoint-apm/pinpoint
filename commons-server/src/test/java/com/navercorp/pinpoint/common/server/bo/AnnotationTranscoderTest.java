@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 
+import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
@@ -165,6 +166,22 @@ public class AnnotationTranscoderTest {
         Assertions.assertEquals(value.getByteValue1(), decode.getByteValue1());
         Assertions.assertEquals(value.getByteValue2(), decode.getByteValue2());
         Assertions.assertEquals(value.getStringValue(), decode.getStringValue());
+    }
+
+    @Test
+    public void testBytesStringString() {
+        testBytesStringString(new byte[]{1, 2, 3, 4, 5}, "string1", "string2");
+    }
+
+    private void testBytesStringString(byte[] bytesValue, String stringValue1, String stringValue2) {
+        AnnotationTranscoder transcoder = new AnnotationTranscoder();
+        BytesStringStringValue value = new BytesStringStringValue(bytesValue, stringValue1, stringValue2);
+
+        byte[] encode = transcoder.encode(value, AnnotationTranscoder.CODE_BYTES_STRING_STRING);
+        BytesStringStringValue decode = (BytesStringStringValue) transcoder.decode(AnnotationTranscoder.CODE_BYTES_STRING_STRING, encode);
+        Assertions.assertArrayEquals(value.getBytesValue(), decode.getBytesValue());
+        Assertions.assertEquals(value.getStringValue1(), decode.getStringValue1());
+        Assertions.assertEquals(value.getStringValue2(), decode.getStringValue2());
     }
 
     @Test

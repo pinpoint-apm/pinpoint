@@ -22,10 +22,13 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
+import com.navercorp.pinpoint.profiler.cache.UidCache;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.SqlUidMetaDataService;
 
 import java.util.Objects;
 
@@ -33,16 +36,18 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> {
-
     private final ProfilerConfig profilerConfig;
+    private final MonitorConfig monitorConfig;
     private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
     private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
     public SqlMetadataServiceProvider(ProfilerConfig profilerConfig,
-                                         @MetadataDataSender EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender,
+                                      MonitorConfig monitorConfig,
+                                      @MetadataDataSender EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender,
                                       SimpleCacheFactory simpleCacheFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.monitorConfig = Objects.requireNonNull(monitorConfig, "monitorConfig");
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
         this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
@@ -50,7 +55,13 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
     @Override
     public SqlMetaDataService get() {
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final SimpleCache<String> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
-        return new DefaultSqlMetaDataService(enhancedDataSender, stringCache);
+
+        if (monitorConfig.isSqlStatEnable()) {
+            final UidCache stringCache = new UidCache(jdbcSqlCacheSize);
+            return new SqlUidMetaDataService(enhancedDataSender, stringCache);
+        } else {
+            final SimpleCache<String> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
+            return new DefaultSqlMetaDataService(enhancedDataSender, stringCache);
+        }
     }
 }

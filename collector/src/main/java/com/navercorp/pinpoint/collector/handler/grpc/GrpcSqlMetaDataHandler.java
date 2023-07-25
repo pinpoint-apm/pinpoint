@@ -19,12 +19,15 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.SqlMetaDataService;
+import com.navercorp.pinpoint.collector.service.SqlUidMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
+import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.Status;
@@ -44,10 +47,13 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final SqlMetaDataService[] sqlMetaDataServices;
+    private final SqlUidMetaDataService[] sqlUidMetaDataServices;
 
-    public GrpcSqlMetaDataHandler(SqlMetaDataService[] sqlMetaDataServices) {
+    public GrpcSqlMetaDataHandler(SqlMetaDataService[] sqlMetaDataServices, SqlUidMetaDataService[] sqlUidMetaDataServices) {
         this.sqlMetaDataServices = Objects.requireNonNull(sqlMetaDataServices, "sqlMetaDataServices");
+        this.sqlUidMetaDataServices = Objects.requireNonNull(sqlUidMetaDataServices, "sqlUidMetaDataServices");
         logger.info("SqlMetaDataServices {}", Arrays.toString(sqlMetaDataServices));
+        logger.info("SqlUidMetaDataServices {}", Arrays.toString(sqlUidMetaDataServices));
     }
 
 
@@ -56,6 +62,9 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
         final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PSqlMetaData) {
             PResult result = handleSqlMetaData((PSqlMetaData) data);
+            serverResponse.write(result);
+        } else if (data instanceof PSqlUidMetaData) {
+            PResult result = handleSqlUidMetaData((PSqlUidMetaData) data);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -69,10 +78,7 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
         }
 
         final Header agentInfo = ServerContext.getAgentInfo();
-        final String agentId = agentInfo.getAgentId();
-        final long agentStartTime = agentInfo.getAgentStartTime();
-
-        final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(agentId, agentStartTime, sqlMetaData.getSqlId(), sqlMetaData.getSql());
+        final SqlMetaDataBo sqlMetaDataBo = mapSqlMetaDataBo(agentInfo, sqlMetaData);
 
         boolean result = true;
         for (SqlMetaDataService sqlMetaDataService : sqlMetaDataServices) {
@@ -86,6 +92,47 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
         }
 
         return newResult(result);
+    }
+
+    private PResult handleSqlUidMetaData(PSqlUidMetaData sqlUidMetaData) {
+        if (isDebug) {
+            logger.debug("Handle PSqlUidMetaData={}", MessageFormatUtils.debugLog(sqlUidMetaData));
+        }
+
+        final Header agentInfo = ServerContext.getAgentInfo();
+        SqlUidMetaDataBo sqlUidMetaDataBo = mapSqlUidMetaDataBo(agentInfo, sqlUidMetaData);
+
+        boolean result = true;
+        for (SqlUidMetaDataService sqlUidMetaDataService : sqlUidMetaDataServices) {
+            try {
+                sqlUidMetaDataService.insert(sqlUidMetaDataBo);
+            } catch (Throwable e) {
+                // Avoid detailed error messages.
+                logger.warn("Failed to handle sqlUidMetaData={}", MessageFormatUtils.debugLog(sqlUidMetaData), e);
+                result = false;
+            }
+        }
+
+        return newResult(result);
+    }
+
+    private static SqlMetaDataBo mapSqlMetaDataBo(Header agentInfo, PSqlMetaData sqlMetaData) {
+        final String agentId = agentInfo.getAgentId();
+        final long agentStartTime = agentInfo.getAgentStartTime();
+        final int sqlId = sqlMetaData.getSqlId();
+        final String sql = sqlMetaData.getSql();
+
+        return new SqlMetaDataBo(agentId, agentStartTime, sqlId, sql);
+    }
+
+    private static SqlUidMetaDataBo mapSqlUidMetaDataBo(Header agentInfo, PSqlUidMetaData sqlUidMetaData) {
+        final String agentId = agentInfo.getAgentId();
+        final long agentStartTime = agentInfo.getAgentStartTime();
+        final String applicationName = agentInfo.getApplicationName();
+        final byte[] sqlUid = sqlUidMetaData.getSqlUid().toByteArray();
+        final String sql = sqlUidMetaData.getSql();
+
+        return new SqlUidMetaDataBo(agentId, agentStartTime, applicationName, sqlUid, sql);
     }
 
     private static PResult newResult(boolean success) {

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.jupiter.api.Assertions;
@@ -25,13 +24,13 @@ import org.junit.jupiter.api.Test;
 /**
  * @author emeroad
  */
-public class DefaultCachingSqlNormalizerTest {
+public class SimpleCachingSqlNormalizerTest {
 
     @Test
     public void testNormalizedSql() {
         SimpleCache<String> cache = newCache(1);
-        CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(cache);
-        ParsingResult parsingResult = normalizer.wrapSql("select * from dual");
+        SimpleCachingSqlNormalizer normalizer = new SimpleCachingSqlNormalizer(cache);
+        ParsingResultInternal<Integer> parsingResult = normalizer.wrapSql("select * from dual");
 
         boolean newCache = normalizer.normalizedSql(parsingResult);
         Assertions.assertTrue(newCache, "newCacheState");
@@ -39,7 +38,7 @@ public class DefaultCachingSqlNormalizerTest {
         boolean notCached = normalizer.normalizedSql(parsingResult);
         Assertions.assertFalse(notCached, "alreadyCached");
 
-        ParsingResult alreadyCached = normalizer.wrapSql("select * from dual");
+        ParsingResultInternal<Integer> alreadyCached = normalizer.wrapSql("select * from dual");
         boolean notCached2 = normalizer.normalizedSql(alreadyCached);
         Assertions.assertFalse(notCached2, "alreadyCached2");
     }
@@ -48,17 +47,17 @@ public class DefaultCachingSqlNormalizerTest {
     @Test
     public void testNormalizedSql_cache_expire() {
         SimpleCache<String> cache = newCache(1);
-        CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(cache);
-        ParsingResult parsingResult = normalizer.wrapSql("select * from table1");
+        SimpleCachingSqlNormalizer normalizer = new SimpleCachingSqlNormalizer(cache);
+        ParsingResultInternal<Integer> parsingResult = normalizer.wrapSql("select * from table1");
         boolean newCache = normalizer.normalizedSql(parsingResult);
         Assertions.assertTrue(newCache, "newCacheState");
 
         // cache expire
-        ParsingResult parsingResult2 = normalizer.wrapSql("select * from table2");
+        ParsingResultInternal<Integer> parsingResult2 = normalizer.wrapSql("select * from table2");
         boolean cached = normalizer.normalizedSql(parsingResult2);
         Assertions.assertTrue(cached);
 
-        ParsingResult parsingResult1_recached = normalizer.wrapSql("select * from table3");
+        ParsingResultInternal<Integer> parsingResult1_recached = normalizer.wrapSql("select * from table3");
         boolean newCache_parsingResult1_recached = normalizer.normalizedSql(parsingResult1_recached);
         Assertions.assertTrue(newCache_parsingResult1_recached);
     }

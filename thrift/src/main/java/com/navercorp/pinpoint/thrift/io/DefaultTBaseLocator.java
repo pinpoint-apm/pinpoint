@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
-
 import org.apache.thrift.TBase;
 
 /**
@@ -63,6 +62,8 @@ public class DefaultTBaseLocator {
     public static final short SPANEVENT = 80;
 
     public static final short SQLMETADATA = 300;
+
+    public static final short SQLUIDMETADATA = 301;
 
     public static final short APIMETADATA = 310;
 
@@ -131,6 +132,14 @@ public class DefaultTBaseLocator {
             @Override
             public TBase<?, ?> getObject() {
                 return new TSqlMetaData();
+            }
+
+        });
+
+        builder.addBodyFactory(SQLUIDMETADATA, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
+                return null;
             }
 
         });

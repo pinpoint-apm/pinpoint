@@ -68,5 +68,4 @@ public class SqlMetaDataBo implements MetaDataRowKey {
                 ", sql='" + sql + '\'' +
                 '}';
     }
-
 }

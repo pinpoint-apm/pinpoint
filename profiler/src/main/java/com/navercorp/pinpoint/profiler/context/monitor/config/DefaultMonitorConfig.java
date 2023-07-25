@@ -33,6 +33,8 @@ public class DefaultMonitorConfig implements MonitorConfig {
     @Value("${profiler.uri.stat.completed.data.limit.size}")
     private int completedUriStatDataLimitSize = 1000;
 
+    @Value("${profiler.sql.stat.enable}")
+    private boolean sqlStatEnable = false;
 
     @Value("${profiler.jvm.stat.collect.interval}")
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
@@ -72,10 +74,14 @@ public class DefaultMonitorConfig implements MonitorConfig {
     }
 
     @Override
+    public boolean isSqlStatEnable() {
+        return sqlStatEnable;
+    }
+
+    @Override
     public int getCompletedUriStatDataLimitSize() {
         return completedUriStatDataLimitSize;
     }
-
 
     @Override
     public String toString() {

@@ -21,15 +21,45 @@ import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 /**
  * @author emeroad
  */
-public interface ParsingResultInternal extends ParsingResult {
+public abstract class ParsingResultInternal<ID> implements ParsingResult {
+    private String originalSql;
+    private String sql;
+    private String output;
 
+    protected ParsingResultInternal(String originalSql) {
+        this.originalSql = originalSql;
+    }
 
-    String getOriginalSql();
+    @Override
+    public String getSql() {
+        return sql;
+    }
 
-    boolean setId(int id);
+    @Override
+    public String getOutput() {
+        if (output == null) {
+            return "";
+        }
+        return output;
+    }
 
-    void setSql(String sql);
+    public String getOriginalSql() {
+        return originalSql;
+    }
 
-    void setOutput(String output);
+    public void clearOriginalSql() {
+        this.originalSql = null;
+    }
 
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    public abstract ID getId();
+
+    public abstract boolean setId(ID id);
 }

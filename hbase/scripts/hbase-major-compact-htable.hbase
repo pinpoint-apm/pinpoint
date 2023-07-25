@@ -10,6 +10,7 @@ major_compact 'StringMetaData'
 major_compact 'ApiMetaData'
 
 major_compact 'SqlMetaData_Ver2'
+major_compact 'SqlUidMetaData'
 
 major_compact 'ApplicationTraceIndex'
 major_compact 'TraceV2'

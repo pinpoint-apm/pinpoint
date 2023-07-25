@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -55,6 +55,7 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
         final short type = header.getType();
         switch (type) {
             case DefaultTBaseLocator.SQLMETADATA:
+            case DefaultTBaseLocator.SQLUIDMETADATA:
                 return sqlMetaDataHandler;
             case DefaultTBaseLocator.APIMETADATA:
                 return apiMetaDataHandler;

@@ -41,7 +41,7 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
     @Override
     public int cacheApi(final MethodDescriptor methodDescriptor) {
         final String fullName = methodDescriptor.getFullName();
-        final Result result = this.apiCache.put(fullName);
+        final Result<Integer> result = this.apiCache.put(fullName);
 
         methodDescriptor.setApiId(result.getId());
 

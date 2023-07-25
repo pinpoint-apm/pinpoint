@@ -20,8 +20,7 @@ package com.navercorp.pinpoint.profiler.metadata;
  * @author Woonduk Kang(emeroad)
  */
 public class SqlMetaData implements MetaDataType {
-
-//    private java.lang.String agentId; // required
+    //    private java.lang.String agentId; // required
 //    private long agentStartTime; // required
     private final int sqlId; // required
     private final String sql; // required
@@ -30,7 +29,6 @@ public class SqlMetaData implements MetaDataType {
         this.sqlId = sqlId;
         this.sql = sql;
     }
-
 
     public int getSqlId() {
         return sqlId;

@@ -36,6 +36,7 @@ public enum HbaseTable {
     MAP_STATISTICS_CALLER_VER2("ApplicationMapStatisticsCaller_Ver2"),
     MAP_STATISTICS_SELF_VER2("ApplicationMapStatisticsSelf_Ver2"),
     SQL_METADATA_VER2("SqlMetaData_Ver2"),
+    SQL_UID_METADATA("SqlUidMetaData"),
     STRING_METADATA("StringMetaData"),
     TRACE_V2("TraceV2");
 

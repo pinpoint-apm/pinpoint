@@ -15,11 +15,13 @@
  */
 package com.navercorp.pinpoint.test;
 
+import com.google.common.primitives.UnsignedBytes;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
+import com.navercorp.pinpoint.profiler.metadata.SqlUidMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import com.navercorp.pinpoint.test.util.BiHashMap;
 import com.navercorp.pinpoint.test.util.Pair;
@@ -45,9 +47,12 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType, Respo
 
     private final BiHashMap<Integer, String> sqlIdMap = newBiHashMap();
 
+    private final BiHashMap<byte[], String> sqlUidMap = newBiHashMap();
+
     private final BiHashMap<Integer, String> stringIdMap = newBiHashMap();
 
     private static final Comparator<Pair<Integer, ?>> COMPARATOR = Comparator.comparingInt(Pair::getKey);
+    private static final Comparator<Pair<byte[], ?>> BYTES_COMPARATOR = Comparator.comparing(Pair::getKey, UnsignedBytes.lexicographicalComparator());
 
     private <K, V> BiHashMap<K, V> newBiHashMap() {
         return new BiHashMap<>();
@@ -68,14 +73,21 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType, Respo
 
             syncPut(this.apiIdMap, apiId, javaMethodDescriptor);
         } else if (data instanceof SqlMetaData) {
-            SqlMetaData md = (SqlMetaData)data;
+            SqlMetaData md = (SqlMetaData) data;
 
             int id = md.getSqlId();
             String sql = md.getSql();
 
             syncPut(sqlIdMap, id, sql);
+        } else if (data instanceof SqlUidMetaData) {
+            SqlUidMetaData md = (SqlUidMetaData) data;
+
+            byte[] uid = md.getSqlUid();
+            String sql = md.getSql();
+
+            syncPut(sqlUidMap, uid, sql);
         } else if (data instanceof StringMetaData) {
-            StringMetaData md = (StringMetaData)data;
+            StringMetaData md = (StringMetaData) data;
 
             int id = md.getStringId();
             String string = md.getStringValue();
@@ -169,9 +181,17 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType, Respo
         return findIdByValue(sqlIdMap, sql);
     }
 
-    private Integer findIdByValue(BiHashMap<Integer, String> map, String value) {
+    public String getSql(byte[] uid) {
+        return syncGet(sqlUidMap, uid);
+    }
+
+    public byte[] getSqlUid(String sql) {
+        return findIdByValue(sqlUidMap, sql);
+    }
+
+    private <K> K findIdByValue(BiHashMap<K, String> map, String value) {
         synchronized (map) {
-            Integer id = map.reverseGet(value);
+            K id = map.reverseGet(value);
             if (id == null) {
                 throw new NoSuchElementException(value);
             }
@@ -192,6 +212,8 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType, Respo
         printApis(out);
         out.println("SQL(" + syncSize(sqlIdMap) + "):");
         printSqls(out);
+        out.println("SQLUID(" + syncSize(sqlUidMap) + "):");
+        printSqlUids(out);
         out.println("STRING(" + syncSize(stringIdMap) + "):");
         printStrings(out);
     }
@@ -215,6 +237,13 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType, Respo
         sqls.sort(COMPARATOR);
         List<String> sqlList = toStringList(sqls);
         printEntries(out, sqlList);
+    }
+
+    public void printSqlUids(PrintStream out) {
+        List<Pair<byte[], String>> sqlUids = syncCopy(sqlUidMap);
+        sqlUids.sort(BYTES_COMPARATOR);
+        List<String> sqlUidList = toStringList(sqlUids);
+        printEntries(out, sqlUidList);
     }
 
     private <K, V> List<String> toStringList(List<Pair<K, V>> list) {

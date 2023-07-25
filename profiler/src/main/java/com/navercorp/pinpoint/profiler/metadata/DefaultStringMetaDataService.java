@@ -43,7 +43,7 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
         if (value == null) {
             return 0;
         }
-        final Result result = this.stringCache.put(value);
+        final Result<Integer> result = this.stringCache.put(value);
         if (result.isNewValue()) {
             final StringMetaData stringMetaData = new StringMetaData(result.getId(), value);
             this.enhancedDataSender.request(stringMetaData);

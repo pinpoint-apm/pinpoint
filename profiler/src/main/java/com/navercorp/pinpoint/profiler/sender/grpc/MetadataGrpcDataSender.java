@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
+import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import io.grpc.stub.StreamObserver;
@@ -137,6 +138,10 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
             final PSqlMetaData sqlMetaData = (PSqlMetaData) message;
             final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
             this.metadataStub.requestSqlMetaData(sqlMetaData, responseObserver);
+        } else if (message instanceof PSqlUidMetaData) {
+            final PSqlUidMetaData sqlUidMetaData = (PSqlUidMetaData) message;
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            this.metadataStub.requestSqlUidMetaData(sqlUidMetaData, responseObserver);
         } else if (message instanceof PApiMetaData) {
             final PApiMetaData apiMetaData = (PApiMetaData) message;
             final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
