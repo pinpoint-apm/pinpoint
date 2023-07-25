@@ -19,13 +19,13 @@ import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionMetaData;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionMetaDataFactory;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.util.queue.ArrayBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,8 +37,7 @@ public class BufferedExceptionStorage implements ExceptionStorage {
     private static final Logger logger = LogManager.getLogger(BufferedExceptionStorage.class);
     private static final boolean isDebug = logger.isDebugEnabled();
 
-    private final int bufferSize;
-    private List<ExceptionWrapper> storage;
+    private final ArrayBuffer<ExceptionWrapper> buffer;
     private final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
     private final ExceptionMetaDataFactory factory;
 
@@ -47,26 +46,23 @@ public class BufferedExceptionStorage implements ExceptionStorage {
             EnhancedDataSender<MetaDataType, ResponseMessage> dataSender,
             ExceptionMetaDataFactory exceptionMetaDataFactory
     ) {
-        this.bufferSize = bufferSize;
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
-        this.storage = allocateBuffer();
+        this.buffer = new ArrayBuffer<>(bufferSize);
         this.factory = Objects.requireNonNull(exceptionMetaDataFactory, "exceptionMetaDataFactory");
     }
 
     @Override
     public void store(List<ExceptionWrapper> wrappers) {
-        final List<ExceptionWrapper> storage = getBuffer();
-        storage.addAll(wrappers);
-
-        if (overflow(storage)) {
-            final List<ExceptionWrapper> flushData = clearBuffer();
+        this.buffer.put(wrappers);
+        if (buffer.isOverflow()) {
+            final List<ExceptionWrapper> flushData = buffer.drain();
             sendExceptionMetaData(flushData);
         }
     }
 
     @Override
     public void flush() {
-        final List<ExceptionWrapper> copy = clearBuffer();
+        final List<ExceptionWrapper> copy = buffer.drain();
         if (CollectionUtils.hasLength(copy)) {
             sendExceptionMetaData(copy);
         }
@@ -76,28 +72,6 @@ public class BufferedExceptionStorage implements ExceptionStorage {
     public void close() {
     }
 
-    private boolean overflow(List<ExceptionWrapper> storage) {
-        return storage.size() >= bufferSize;
-    }
-
-    private List<ExceptionWrapper> allocateBuffer() {
-        return new ArrayList<>(this.bufferSize);
-    }
-
-    private List<ExceptionWrapper> getBuffer() {
-        List<ExceptionWrapper> copy = this.storage;
-        if (copy == null) {
-            copy = allocateBuffer();
-            this.storage = copy;
-        }
-        return copy;
-    }
-
-    private List<ExceptionWrapper> clearBuffer() {
-        final List<ExceptionWrapper> copy = this.storage;
-        this.storage = null;
-        return copy;
-    }
 
     private void sendExceptionMetaData(List<ExceptionWrapper> exceptionWrappers) {
         final ExceptionMetaData exceptionMetaData = this.factory.newExceptionMetaData(exceptionWrappers);
@@ -115,7 +89,7 @@ public class BufferedExceptionStorage implements ExceptionStorage {
     @Override
     public String toString() {
         return "ExceptionTraceStorage{" +
-                "bufferSize=" + bufferSize +
+                "buffer=" + buffer +
                 ", dataSender=" + dataSender +
                 '}';
     }

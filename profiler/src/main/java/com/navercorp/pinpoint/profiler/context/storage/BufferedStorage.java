@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
+import com.navercorp.pinpoint.profiler.util.queue.ArrayBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,59 +40,31 @@ public class BufferedStorage implements Storage {
 
     private static final int DEFAULT_BUFFER_SIZE = 20;
 
-    private final int bufferSize;
-
     private final SpanChunkFactory spanChunkFactory;
-    private List<SpanEvent> storage;
     private final DataSender<SpanType> dataSender;
-
+    private final ArrayBuffer<SpanEvent> buffer;
 
 
     public BufferedStorage(SpanChunkFactory spanChunkFactory, DataSender<SpanType> dataSender, int bufferSize) {
         this.spanChunkFactory = Objects.requireNonNull(spanChunkFactory, "spanChunkFactory");
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
-        this.bufferSize = bufferSize;
-        this.storage = allocateBuffer();
+        this.buffer = new ArrayBuffer<>(bufferSize);
     }
 
     @Override
     public void store(SpanEvent spanEvent) {
-        final List<SpanEvent> storage = getBuffer();
-        storage.add(spanEvent);
+        this.buffer.put(spanEvent);
 
-        if (overflow(storage)) {
-            final List<SpanEvent> flushData = clearBuffer();
+        if (this.buffer.isOverflow()) {
+            final List<SpanEvent> flushData = this.buffer.drain();
             sendSpanChunk(flushData);
         }
     }
 
-    private boolean overflow(List<SpanEvent> storage) {
-        return storage.size() >= bufferSize;
-    }
-
-
-    private List<SpanEvent> allocateBuffer() {
-        return new ArrayList<>(this.bufferSize);
-    }
-
-    private List<SpanEvent> getBuffer() {
-        List<SpanEvent> copy = this.storage;
-        if (copy == null) {
-            copy = allocateBuffer();
-            this.storage = copy;
-        }
-        return copy;
-    }
-
-    private List<SpanEvent> clearBuffer() {
-        final List<SpanEvent> copy = this.storage;
-        this.storage = null;
-        return copy;
-    }
 
     @Override
     public void store(Span span) {
-        final List<SpanEvent> spanEventList = clearBuffer();
+        final List<SpanEvent> spanEventList = this.buffer.drain();
         span.setSpanEventList(spanEventList);
         span.finish();
 
@@ -109,7 +81,7 @@ public class BufferedStorage implements Storage {
 
     @Override
     public void flush() {
-        final List<SpanEvent> spanEventList = clearBuffer();
+        final List<SpanEvent> spanEventList = this.buffer.drain();
         if (CollectionUtils.hasLength(spanEventList)) {
             sendSpanChunk(spanEventList);
         }
@@ -136,6 +108,6 @@ public class BufferedStorage implements Storage {
 
     @Override
     public String toString() {
-        return "BufferedStorage{" + "bufferSize=" + bufferSize + ", dataSender=" + dataSender + '}';
+        return "BufferedStorage{" + "buffer=" + buffer + ", dataSender=" + dataSender + '}';
     }
 }
