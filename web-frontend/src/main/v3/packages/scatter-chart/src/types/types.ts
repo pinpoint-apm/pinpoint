@@ -45,7 +45,7 @@ export interface AxisOption {
 }
 
 export interface TickOption {
-  font?: string;
+  font?: CanvasTextDrawingStyles['font'];
   color?: string;
   strokeColor?: string;
   width?: number;
@@ -81,6 +81,7 @@ export interface GuideOption {
   strokeColor?: string;
   backgroundColor?: string;
   drag?: DragOption;
+  font?: CanvasTextDrawingStyles['font'];
 }
 
 export interface DragOption {

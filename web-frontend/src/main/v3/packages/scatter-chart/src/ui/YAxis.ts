@@ -29,8 +29,6 @@ export class YAxis extends Axis {
   }
 
   public render() {
-    this.clear();
-
     const { min, max, tick, innerPadding, backgroundColor, strokeColor } = this;
     const {
       format,
@@ -38,6 +36,7 @@ export class YAxis extends Axis {
       color,
       width: tickWidth,
       strokeColor: tickStrokeColor,
+      font,
     } = tick as DeepNonNullable<TickOption>;
     const padding = this.padding;
     const width = this.canvas.width / this.dpr;
@@ -48,6 +47,7 @@ export class YAxis extends Axis {
     const endY = height - padding.bottom - innerPadding;
     const hGap = (endY - startY) / (count - 1);
     const yTickGap = (max - min) / (count - 1);
+    this.context.font = font;
 
     drawRect(this.context, 0, 0, padding.left, endY + innerPadding + tickWidth, { color: backgroundColor });
     drawRect(this.context, width - padding.right, 0, width, endY + innerPadding + tickWidth, {
