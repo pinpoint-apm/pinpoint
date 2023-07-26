@@ -208,7 +208,7 @@ export class Guide extends Layer {
 
   private drawGuideText(x: number, y: number) {
     const { padding, context, canvas, ratio, xAxis, yAxis } = this;
-    const { color, backgroundColor, strokeColor } = this.option;
+    const { color, backgroundColor, strokeColor, font } = this.option;
 
     const height = canvas.height / this.dpr;
     const xText = `${xAxis.tick?.format!((x - padding.left - xAxis.innerPadding) / ratio.x + xAxis.min)}`;
@@ -221,8 +221,12 @@ export class Guide extends Layer {
     const xTextWidth = this.getTextWidth(xText) + xAxis.tick!.padding!.left! + xAxis.tick!.padding!.right!;
     const xTextHeight = this.getTextHeight(xText);
     // y
-    const yTextWidth = this.getTextWidth(yText) + yAxis.tick!.padding!.left! + yAxis.tick!.padding!.left!;
-    const yTextHeight = this.getTextHeight(yText) + yAxis.tick!.padding!.top! + yAxis.tick!.padding!.bottom!;
+    const yTextWidth = this.getTextWidth(yText);
+    const yTextHeight = this.getTextHeight(yText);
+    const yRectWidth = yTextWidth + yAxis.tick!.padding!.left! + yAxis.tick!.padding!.left!;
+    const yRectHeight = yTextHeight + yAxis.tick!.padding!.top! + yAxis.tick!.padding!.bottom!;
+
+    this.context.font = font || '';
 
     // x
     drawRect(
@@ -251,13 +255,13 @@ export class Guide extends Layer {
     });
 
     // y
-    drawRect(context, padding.left - yAxis.tick!.width! - yTextWidth, y - yTextHeight / 2, yTextWidth, yTextHeight, {
+    drawRect(context, padding.left - yAxis.tick!.width! - yRectWidth, y - yRectHeight / 2, yRectWidth, yRectHeight, {
       color: backgroundColor,
     });
     drawLine(context, x, height - padding.bottom, x, height - padding.bottom + yAxis.tick!.width!, {
       color: strokeColor,
     });
-    drawText(context, yText, padding.left - yAxis.tick!.width! - yAxis.tick!.padding!.right!, y + 3, {
+    drawText(context, yText, padding.left - yAxis.tick!.width! - yAxis.tick!.padding!.right!, y + yTextHeight / 4, {
       color,
       textAlign: 'end',
     });

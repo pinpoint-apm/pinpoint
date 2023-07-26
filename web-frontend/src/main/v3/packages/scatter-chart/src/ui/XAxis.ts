@@ -21,7 +21,6 @@ export class XAxis extends Axis {
   }
 
   public render() {
-    this.clear();
     const { min, max, tick, innerPadding, strokeColor } = this;
     const {
       format,
@@ -29,6 +28,7 @@ export class XAxis extends Axis {
       color,
       width: tickWidth,
       strokeColor: tickStrokeColor,
+      font,
     } = tick as DeepNonNullable<TickOption>;
     const padding = this.padding;
     const width = this.canvas.width / this.dpr;
@@ -38,6 +38,7 @@ export class XAxis extends Axis {
     const endY = height - padding.bottom;
     const wGap = (endX - startX) / (count - 1);
     const xTickGap = (max - min) / (count - 1);
+    this.context.font = font;
 
     [...Array(count)].forEach((_, i) => {
       const x = wGap * i + startX;

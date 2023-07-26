@@ -28,6 +28,7 @@ export class Axis extends Layer {
   }
 
   public setOption(option?: Partial<AxisOption>) {
+    this.clear();
     this.min = option?.min ?? this.min;
     this.max = option?.max ?? this.max;
     this.innerPadding = option?.padding ?? this.innerPadding;

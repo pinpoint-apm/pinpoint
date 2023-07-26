@@ -28,6 +28,7 @@ export const createCustomizeTheme = () => {
           backgroundColor: 'rgba(32, 178, 7, 0.6)',
           strokeColor: 'black',
         },
+        font: '25px serif',
       },
       grid: {
         strokeColor: 'rgb(255, 0, 255, 0.4)',
@@ -84,7 +85,7 @@ export const createCustomizeTheme = () => {
     const newData = data1.data.map((d) => ({ ...d, x: d.x + 47335 }));
     SC.render(data1.data, { append: true });
     SC.render(newData, { append: true });
-
+    SC.resize();
     btnStart.addEventListener('click', () => {
       SC.startRealtime(data1.to - data1.from);
     });
