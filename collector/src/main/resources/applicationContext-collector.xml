@@ -2,11 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:task="http://www.springframework.org/schema/task"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <bean class="com.navercorp.pinpoint.collector.config.ScatterProperties"/>
 
@@ -25,9 +22,6 @@
         <constructor-arg value="${collector.receiver.channel.properties.key:#{null}}"/>
     </bean>
 
-
-    <!-- Agent Event/Lifecycle related Beans -->
-    <task:annotation-driven/>
 
     <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean">
         <property name="corePoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>
