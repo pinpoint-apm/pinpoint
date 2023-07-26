@@ -2,12 +2,14 @@ package com.navercorp.pinpoint.common.server.event;
 
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 
-public class SpanChunkInsertionEvent {
+import java.util.Objects;
+
+public class SpanChunkInsertEvent {
     private final SpanChunkBo spanChunkBo;
     private final boolean success;
 
-    public SpanChunkInsertionEvent(SpanChunkBo spanChunkBo, boolean success) {
-        this.spanChunkBo = spanChunkBo;
+    public SpanChunkInsertEvent(SpanChunkBo spanChunkBo, boolean success) {
+        this.spanChunkBo = Objects.requireNonNull(spanChunkBo, "spanChunkBo");
         this.success = success;
     }
 

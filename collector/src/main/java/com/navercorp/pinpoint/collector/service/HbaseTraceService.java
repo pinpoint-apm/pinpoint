@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.collector.event.SpanStorePublisher;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -53,20 +54,20 @@ public class HbaseTraceService implements TraceService {
 
     private final ServiceTypeRegistryService registry;
 
-    private final SpanEventPublisherService publisher;
+    private final SpanStorePublisher publisher;
 
     public HbaseTraceService(TraceDao traceDao,
                              ApplicationTraceIndexDao applicationTraceIndexDao,
                              HostApplicationMapDao hostApplicationMapDao,
                              StatisticsService statisticsService,
                              ServiceTypeRegistryService registry,
-                             SpanEventPublisherService spanEventPublisherService) {
+                             SpanStorePublisher spanStorePublisher) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
         this.statisticsService = Objects.requireNonNull(statisticsService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
-        this.publisher = Objects.requireNonNull(spanEventPublisherService, "spanEventPublisherService");
+        this.publisher = Objects.requireNonNull(spanStorePublisher, "spanStorePublisher");
     }
 
     @Override
@@ -80,7 +81,7 @@ public class HbaseTraceService implements TraceService {
         }
 
         // TODO should be able to tell whether the span chunk is successfully inserted
-        publisher.publishSpanChunkInsertion(spanChunkBo, true);
+        publisher.publishSpanChunkInsert(spanChunkBo, true);
     }
 
     private ServiceType getApplicationServiceType(SpanChunkBo spanChunk) {
@@ -96,7 +97,7 @@ public class HbaseTraceService implements TraceService {
         insertSpanStat(spanBo);
         insertSpanEventStat(spanBo);
 
-        publisher.publishSpanInsertion(spanBo, success);
+        publisher.publishSpanInsert(spanBo, success);
     }
 
     private void insertAcceptorHost(SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
