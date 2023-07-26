@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDaoProxy;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +29,10 @@ import java.util.Objects;
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDaoProxy applicationIndexDaoProxy;
 
-    public ApplicationServiceImpl(ApplicationIndexDao applicationIndexDao) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+    public ApplicationServiceImpl(ApplicationIndexDaoProxy applicationIndexDaoProxy) {
+        this.applicationIndexDaoProxy = Objects.requireNonNull(applicationIndexDaoProxy, "applicationIndexDaoProxy");
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             return false;
         }
 
-        List<Application> applications = applicationIndexDao.selectApplicationName(applicationName);
+        List<Application> applications = applicationIndexDaoProxy.selectApplicationName(applicationName);
         for (Application application : applications) {
             if (applicationName.equals(application.getName())) {
                 return true;

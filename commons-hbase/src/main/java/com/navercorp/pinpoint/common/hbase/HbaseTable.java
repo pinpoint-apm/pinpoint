@@ -29,6 +29,7 @@ public enum HbaseTable {
     AGENT_URI_STAT("AgentUriStat"),
     API_METADATA("ApiMetaData"),
     APPLICATION_INDEX("ApplicationIndex"),
+    APPLICATION_INDEX_PER_TIME("ApplicationIndexPerTime"),
     APPLICATION_STAT_AGGRE("ApplicationStatAggre"),
     APPLICATION_TRACE_INDEX("ApplicationTraceIndex"),
     HOST_APPLICATION_MAP_VER2("HostApplicationMap_Ver2"),

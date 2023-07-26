@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
+import com.navercorp.pinpoint.collector.dao.ApplicationIndexPerTimeDao;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -30,12 +32,16 @@ public class AgentLifeCycleService {
 
     private final AgentLifeCycleDao agentLifeCycleDao;
 
-    public AgentLifeCycleService(AgentLifeCycleDao agentLifeCycleDao) {
+    private final ApplicationIndexPerTimeDao applicationIndexPerTimeDao;
+
+    public AgentLifeCycleService(AgentLifeCycleDao agentLifeCycleDao, ApplicationIndexPerTimeDao applicationIndexPerTimeDao) {
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
+        this.applicationIndexPerTimeDao = Objects.requireNonNull(applicationIndexPerTimeDao, "applicationIndexPerTimeDao");
     }
 
-    public void insert(@Valid final AgentLifeCycleBo agentLifeCycleBo) {
+    public void insert(@Valid final AgentLifeCycleBo agentLifeCycleBo, AgentProperty agentProperty) {
         this.agentLifeCycleDao.insert(agentLifeCycleBo);
+        this.applicationIndexPerTimeDao.insert(agentLifeCycleBo, agentProperty);
     }
 
 }

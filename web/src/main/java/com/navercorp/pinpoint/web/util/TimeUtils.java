@@ -16,14 +16,26 @@
 
 package com.navercorp.pinpoint.web.util;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  */
 public class TimeUtils {
+
+    private static final TimeUnit TIME_UNIT = TimeUnit.DAYS;
+    private static final long DURATION = 1;
+
     private TimeUtils() {
     }
 
     public static long getDelayLastTime() {
         return System.currentTimeMillis() - 3000;
+    }
+
+    public static Range getExtendedRange(long toTimestamp) {
+        return Range.newRange(TIME_UNIT, DURATION, toTimestamp);
     }
 }

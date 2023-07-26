@@ -407,4 +407,15 @@
         </modifyTable>
     </changeSet>
 
+    <changeSet id="pinpoint-2.5.0_1">
+        <modifyTable name="ApplicationIndexPerTime">
+            <createColumnFamily name="A">
+                <configuration>
+                    <timeToLive>31536000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+        </modifyTable>
+    </changeSet>
+
 </hbaseSchema>

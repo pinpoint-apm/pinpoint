@@ -5,6 +5,7 @@ flush 'ApplicationStatAggre'
 flush 'AgentLifeCycle'
 flush 'AgentEvent'
 flush 'ApplicationIndex'
+flush 'ApplicationIndexPerTime'
 
 flush 'StringMetaData'
 flush 'ApiMetaData'

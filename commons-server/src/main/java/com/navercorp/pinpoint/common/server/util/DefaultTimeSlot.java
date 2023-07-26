@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.common.server.util;
  */
 public class DefaultTimeSlot implements TimeSlot {
 
-    private static final long ONE_MIN_RESOLUTION =  60000; // 1min
+    private static final long ONE_MIN_RESOLUTION =  60_000; // 1min
 
     private final long resolution;
 

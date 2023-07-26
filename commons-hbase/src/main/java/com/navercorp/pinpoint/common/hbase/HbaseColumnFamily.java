@@ -88,6 +88,13 @@ public class HbaseColumnFamily {
         }
     }
 
+    public static final ApplicationIndexPerTime APPLICATION_INDEX_PER_TIME = new ApplicationIndexPerTime(HbaseTable.APPLICATION_INDEX_PER_TIME, Bytes.toBytes("A"));
+    public static class ApplicationIndexPerTime extends HbaseColumnFamily {
+        private ApplicationIndexPerTime(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
     public static final ApplicationStatStatistics APPLICATION_STAT_STATISTICS = new ApplicationStatStatistics(HbaseTable.APPLICATION_STAT_AGGRE, Bytes.toBytes("S"));
     public static class ApplicationStatStatistics extends HbaseColumnFamily {
         public int TIMESPAN_MS = 5 * 60 * 1000;
