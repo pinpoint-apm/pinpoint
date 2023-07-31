@@ -18,14 +18,15 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataDecoder;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +42,7 @@ import java.util.Objects;
 @Component
 public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
 
-    private final static String STRING_METADATA_CF_STR_QUALI_STRING = Bytes.toString(HbaseColumnFamily.STRING_METADATA_STR.QUALIFIER_STRING);
+    private final static byte[] STRING_METADATA_CQ = HbaseColumnFamily.STRING_METADATA_STR.QUALIFIER_STRING;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
@@ -59,21 +60,25 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
         final byte[] rowKey = getOriginalKey(result.getRow());
         final MetaDataRowKey key = decoder.decodeRowKey(rowKey);
 
-        List<StringMetaDataBo> stringMetaDataList = new ArrayList<>();
+        List<StringMetaDataBo> stringMetaDataList = new ArrayList<>(result.size());
 
         for (Cell cell : result.rawCells()) {
+            String stringValue = readString(cell);
 
-            String stringValue = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            
-            if (STRING_METADATA_CF_STR_QUALI_STRING.equals(stringValue)) {
-                stringValue = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-            }
-            
             StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(key.getAgentId(), key.getAgentStartTime(), key.getId(), stringValue);
 
             stringMetaDataList.add(stringMetaDataBo);
         }
         return stringMetaDataList;
+    }
+
+    private String readString(Cell cell) {
+        if (CellUtil.matchingQualifier(cell, STRING_METADATA_CQ)) {
+            return CellUtils.valueToString(cell);
+        } else {
+            // backward compatibility
+            return CellUtils.qualifierToString(cell);
+        }
     }
 
 
