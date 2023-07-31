@@ -19,10 +19,11 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -31,9 +32,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -92,7 +92,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
                 continue;
             }
 
-            long requestCount = Bytes.toLong(cell.getValueArray(), cell.getValueOffset());
+            long requestCount = CellUtils.valueToLong(cell);
             short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
 
             String callerHost = ApplicationMapStatisticsUtils.getHost(qualifier);

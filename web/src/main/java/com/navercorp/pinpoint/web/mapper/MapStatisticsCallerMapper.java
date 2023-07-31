@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -29,9 +30,8 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -97,7 +97,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
             String callerAgentId = buffer.readPrefixedString();
 
-            long requestCount = getValueToLong(cell);
+            long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched Caller.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", caller, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
             }
@@ -112,9 +112,6 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private long getValueToLong(Cell cell) {
-        return Bytes.toLong(cell.getValueArray(), cell.getValueOffset());
-    }
 
     private Application readCalleeApplication(Buffer buffer) {
         short calleeServiceType = buffer.readShort();
