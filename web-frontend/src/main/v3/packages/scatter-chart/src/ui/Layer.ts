@@ -47,13 +47,20 @@ export class Layer {
   }
 
   public setSize(width: number, height: number) {
-    this.clear();
     this.resetDpr();
     this.cvs.style.width = `${width}px`;
     this.cvs.style.height = `${height}px`;
     this.cvs.width = width * this.dpr;
     this.cvs.height = height * this.dpr;
     this.ctx.scale(this.dpr, this.dpr);
+  }
+
+  public setStyle() {
+    // override method
+  }
+
+  public render() {
+    // override method
   }
 
   public show() {

@@ -80,6 +80,7 @@ export class Viewport {
       const dpr = layer.dpr;
 
       if (layer.isDisplay) {
+        layer?.render();
         if (layer.isFixed) {
           this.view.context.drawImage(
             layerCanvas,
