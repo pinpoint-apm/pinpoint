@@ -406,6 +406,7 @@ export class ScatterChart {
       } else {
         this.data = data;
         this.datas = {};
+        // clear all data layers
         Object.values(this.dataLayers).forEach((layer) => layer.clear());
       }
     }
@@ -516,9 +517,6 @@ export class ScatterChart {
 
     this.viewport.setSize(w, h, true);
     this.setRatio();
-    this.xAxis.setSize(w, h);
-    this.yAxis.setSize(w, h);
-    this.gridAxis.setSize(w, h);
     this.guide?.setOptions({
       width: w,
       height: h,
