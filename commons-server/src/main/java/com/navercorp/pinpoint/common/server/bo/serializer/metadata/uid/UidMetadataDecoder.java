@@ -19,7 +19,7 @@ public class UidMetadataDecoder implements RowKeyDecoder<UidMetaDataRowKey> {
     }
 
     private String readAgentId(byte[] rowKey) {
-        return BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN));
+        return BytesUtils.toStringAndRightTrim(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN);
     }
 
     private long readAgentStartTime(byte[] rowKey) {
