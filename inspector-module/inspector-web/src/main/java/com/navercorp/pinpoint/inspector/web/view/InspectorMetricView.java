@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.inspector.web.view;
 
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
+import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 
 import java.util.List;
 import java.util.Objects;
@@ -49,14 +51,38 @@ public class InspectorMetricView {
     }
 
     public static class MetricValueView {
-        private final InspectorMetricValue metricValue;
+        private final String fieldName;
+        private final String chartType;
+        private final String unit;
+        private final List<Double> valueList;
+        private final List<Tag> tagList;
 
         public MetricValueView(InspectorMetricValue metricValue) {
-            this.metricValue = Objects.requireNonNull(metricValue, "metricValue");
+            Objects.requireNonNull(metricValue, "metricValue");
+            this.fieldName = StringPrecondition.requireHasLength(metricValue.getFieldName(), "fieldName");
+            this.tagList = Objects.requireNonNull(metricValue.getTagList(), "tagList");
+            this.chartType = Objects.requireNonNull(metricValue.getChartType(), "chartType");
+            this.unit = Objects.requireNonNull(metricValue.getUnit(), "unit");
+            this.valueList = Objects.requireNonNull(metricValue.getValueList(), "valueList");
         }
 
-        public InspectorMetricValue getMetricValue() {
-            return metricValue;
+        public List<Double> getValueList() {
+            return valueList;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
+
+        public List<Tag> getTagList() {
+            return tagList;
+        }
+
+        public String getChartType() {
+            return chartType;
+        }
+        public String getUnit() {
+            return unit;
         }
     }
 }

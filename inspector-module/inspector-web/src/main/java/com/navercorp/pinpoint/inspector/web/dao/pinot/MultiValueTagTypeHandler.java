@@ -83,9 +83,9 @@ public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
 
     static class CustomObjectListDeserializer extends JsonDeserializer<List<Tag>> {
 
-        private static final TypeReference<List<String>> REF = new TypeReference<>() {
-        };
+        private static final TypeReference<ArrayList<String>> REF = new TypeReference<>() {
 
+        };
         @Override
         public List<Tag> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
 
