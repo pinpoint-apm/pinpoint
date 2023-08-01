@@ -3,6 +3,10 @@ package com.navercorp.pinpoint.collector;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
@@ -14,10 +18,14 @@ import org.springframework.context.annotation.Import;
         DataSourceAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class,
         TransactionAutoConfiguration.class,
-        SqlInitializationAutoConfiguration.class
+        SqlInitializationAutoConfiguration.class,
+        SpringDataWebAutoConfiguration.class,
+        RedisAutoConfiguration.class,
+        RedisRepositoriesAutoConfiguration.class,
+        RedisReactiveAutoConfiguration.class,
 })
 @Import({
-        PinpointCollectorModule.class
+        PinpointCollectorModule.class,
 })
 public class CollectorApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(CollectorApp.class);

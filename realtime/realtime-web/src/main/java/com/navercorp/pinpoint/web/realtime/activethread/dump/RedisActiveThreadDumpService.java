@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.pubsub.endpoint.PubSubMonoClient;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 import com.navercorp.pinpoint.realtime.dto.mapper.grpc.GrpcDtoMapper;
-import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
@@ -33,24 +32,22 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-class ActiveThreadDumpServiceImpl implements ActiveThreadDumpService {
+public class RedisActiveThreadDumpService {
 
-    private static final Logger logger = LogManager.getLogger(ActiveThreadDumpServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(RedisActiveThreadDumpService.class);
 
     private final PubSubMonoClient<ATDDemand, ATDSupply> endpoint;
 
-    ActiveThreadDumpServiceImpl(PubSubMonoClient<ATDDemand, ATDSupply> endpoint) {
+    public RedisActiveThreadDumpService(PubSubMonoClient<ATDDemand, ATDSupply> endpoint) {
         this.endpoint = Objects.requireNonNull(endpoint, "endpoint");
     }
 
-    @Override
     public PCmdActiveThreadLightDumpRes getLightDump(ClusterKey clusterKey, List<String> threadNames,
                                                      List<Long> localTraceIds, int limit) {
         final ATDSupply supply = get(clusterKey, threadNames, localTraceIds, limit, true);
         return GrpcDtoMapper.buildLightDumpResult(supply);
     }
 
-    @Override
     public PCmdActiveThreadDumpRes getDetailedDump(ClusterKey clusterKey, List<String> threadNames,
                                                    List<Long> localTraceIds, int limit) {
         final ATDSupply supply = get(clusterKey, threadNames, localTraceIds, limit, false);

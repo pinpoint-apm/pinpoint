@@ -16,22 +16,13 @@
 package com.navercorp.pinpoint.web.realtime.activethread.count.service;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountWebDaoConfig;
-import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
-import com.navercorp.pinpoint.web.realtime.service.RealtimeWebServiceConfig;
-import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
-import com.navercorp.pinpoint.web.websocket.PinpointWebSocketTimerTaskDecoratorFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -39,7 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author youngjin.kim2
  */
 @Configuration(proxyBeanMethods = false)
-@Import({ActiveThreadCountWebDaoConfig.class, RealtimeWebServiceConfig.class})
+@Import({ActiveThreadCountWebDaoConfig.class})
 public class ActiveThreadCountWebServiceConfig {
 
     @Value("${pinpoint.web.realtime.atc.periods.emit:PT1S}")
@@ -58,19 +49,8 @@ public class ActiveThreadCountWebServiceConfig {
     }
 
     @Bean
-    ActiveThreadCountService activeThreadCountService(
-            ActiveThreadCountDao atcDao,
-            AgentLookupService agentLookupService,
-            @Qualifier("pubSubATCSessionScheduledExecutor") ScheduledExecutorService scheduledExecutor,
-            @Autowired(required = false) @Nullable TimerTaskDecoratorFactory timerTaskDecoratorFactory
-    ) {
-        return new ActiveThreadCountServiceImpl(
-                atcDao,
-                agentLookupService,
-                scheduledExecutor,
-                new ActiveThreadCountSessionImpl.ATCPeriods(periodEmit, periodRefresh, periodUpdate),
-                Objects.requireNonNullElseGet(timerTaskDecoratorFactory, () -> new PinpointWebSocketTimerTaskDecoratorFactory())
-        );
+    ActiveThreadCountSessionImpl.ATCPeriods atcPeriods() {
+        return new ActiveThreadCountSessionImpl.ATCPeriods(periodEmit, periodRefresh, periodUpdate);
     }
 
 }

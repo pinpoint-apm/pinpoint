@@ -11,7 +11,6 @@ import com.navercorp.pinpoint.metric.collector.CollectorType;
 import com.navercorp.pinpoint.metric.collector.CollectorTypeParser;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
 import com.navercorp.pinpoint.metric.collector.TypeSet;
-import com.navercorp.pinpoint.realtime.collector.RealtimeCollectorConfig;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
@@ -61,8 +60,7 @@ public class MultiApplication {
             logger.info(String.format("Start %s collector", CollectorType.BASIC));
             SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400,
                     BasicCollectorApp.class,
-                    UriStatCollectorConfig.class,
-                    RealtimeCollectorConfig.class
+                    UriStatCollectorConfig.class
             );
             collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
             collectorAppBuilder.listeners(new AdditionalProfileListener("uri"));
@@ -74,7 +72,6 @@ public class MultiApplication {
             SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400,
                     BasicCollectorApp.class,
                     UriStatCollectorConfig.class,
-                    RealtimeCollectorConfig.class,
                     InspectorCollectorApp.class
             );
             collectorAppBuilder.build().run(args);

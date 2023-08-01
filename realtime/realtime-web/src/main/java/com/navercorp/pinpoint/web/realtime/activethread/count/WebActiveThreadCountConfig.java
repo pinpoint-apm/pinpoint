@@ -15,15 +15,23 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count;
 
-import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.ActiveThreadCountWebSocketConfig;
+import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
+import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountWebServiceConfig;
+import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.RedisActiveThreadCountWebSocketHandler;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
  * @author youngjin.kim2
  */
-@Configuration
-@Import({ ActiveThreadCountWebSocketConfig.class })
+@Configuration(proxyBeanMethods = false)
+@Import(ActiveThreadCountWebServiceConfig.class)
 public class WebActiveThreadCountConfig {
+
+    @Bean
+    RedisActiveThreadCountWebSocketHandler redisActiveThreadCountWebSocketHandler(ActiveThreadCountService service) {
+        return new RedisActiveThreadCountWebSocketHandler(service);
+    }
 
 }

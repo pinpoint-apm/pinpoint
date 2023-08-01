@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.realtime.RedisRealtimeWebModuleAdaptorConfig;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.AgentServiceImpl;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
@@ -46,7 +48,10 @@ import java.util.List;
  */
 @Configuration
 @EnableWebSocket
+@Import({ RedisRealtimeWebModuleAdaptorConfig.class })
 public class WebSocketConfig {
+
+    public static final String ATC_ENDPOINT = "/agent/activeThread";
 
     @Bean
     public WebSocketConfigurer webSocketConfigurer(
@@ -80,7 +85,7 @@ public class WebSocketConfig {
 
     @Bean
     public PinpointWebSocketHandler activeThreadHandler(PinpointWebSocketMessageConverter converter, AgentService agentService) {
-        return new ActiveThreadCountHandler(converter, "/agent/activeThread", agentService);
+        return new ActiveThreadCountHandler(converter, ATC_ENDPOINT, agentService);
     }
 
     @Bean

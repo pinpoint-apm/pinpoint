@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.realtime.RealtimePubSubServiceDescriptors;
 import com.navercorp.pinpoint.realtime.dto.Echo;
 import com.navercorp.pinpoint.redis.pubsub.RedisPubSubConfig;
 import com.navercorp.pinpoint.web.realtime.RealtimeWebCommonConfig;
-import com.navercorp.pinpoint.web.service.EchoService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -39,8 +38,8 @@ public class WebEchoConfig {
     }
 
     @Bean
-    EchoService echoService(PubSubMonoClient<Echo, Echo> echoEndpoint) {
-        return new EchoServiceImpl(echoEndpoint);
+    RedisEchoService echoService(PubSubMonoClient<Echo, Echo> echoEndpoint) {
+        return new RedisEchoService(echoEndpoint);
     }
 
 }

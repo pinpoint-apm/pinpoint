@@ -13,24 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.realtime.collector;
+package com.navercorp.pinpoint.collector.cluster;
 
-import com.navercorp.pinpoint.realtime.collector.activethread.count.CollectorActiveThreadCountConfig;
-import com.navercorp.pinpoint.realtime.collector.activethread.dump.CollectorActiveThreadDumpConfig;
-import com.navercorp.pinpoint.realtime.collector.echo.CollectorEchoConfig;
+import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
+import com.navercorp.pinpoint.realtime.collector.RealtimeCollectorModule;
+import com.navercorp.pinpoint.realtime.collector.service.AgentConnectionRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
  * @author youngjin.kim2
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(value = "pinpoint.modules.realtime.enabled", havingValue = "true")
-@Import({
-        CollectorActiveThreadCountConfig.class,
-        CollectorActiveThreadDumpConfig.class,
-        CollectorEchoConfig.class
-})
-public class RealtimeCollectorConfig {
+@Import(RealtimeCollectorModule.class)
+public class RealtimeCollectorModuleAdaptorConfig {
+
+    @Bean
+    @ConditionalOnBean(StreamRouteHandler.class)
+    AgentConnectionRepository agentConnectionRepository(StreamRouteHandler streamRouteHandler) {
+        return new AgentConnectionRepositoryImpl(streamRouteHandler);
+    }
+
 }

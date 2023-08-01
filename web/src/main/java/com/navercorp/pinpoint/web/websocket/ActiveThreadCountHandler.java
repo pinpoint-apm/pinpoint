@@ -17,13 +17,13 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.task.TimerTaskDecorator;
+import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
-import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;

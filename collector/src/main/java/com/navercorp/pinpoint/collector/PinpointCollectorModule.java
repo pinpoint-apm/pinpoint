@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.collector;
 
 
+import com.navercorp.pinpoint.collector.cluster.RealtimeCollectorModuleAdaptorConfig;
 import com.navercorp.pinpoint.collector.config.ClusterModule;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.config.FlinkContextModule;
@@ -36,7 +37,9 @@ import org.springframework.context.annotation.ImportResource;
 
         MetricConfiguration.class,
 
-        GrpcSslModule.class
+        GrpcSslModule.class,
+
+        RealtimeCollectorModuleAdaptorConfig.class,
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.collector.handler",
