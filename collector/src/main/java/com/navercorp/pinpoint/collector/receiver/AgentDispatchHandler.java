@@ -40,14 +40,18 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
 
     private final RequestResponseHandler<REQ, RES> stringMetaDataHandler;
 
+    private final RequestResponseHandler<REQ, RES> exceptionMetaDataHandler;
+
     public AgentDispatchHandler(final SimpleAndRequestResponseHandler<REQ, RES> agentInfoHandler,
                                 final RequestResponseHandler<REQ, RES> sqlMetaDataHandler,
                                 final RequestResponseHandler<REQ, RES> apiMetaDataHandler,
-                                final RequestResponseHandler<REQ, RES> stringMetaDataHandler) {
+                                final RequestResponseHandler<REQ, RES> stringMetaDataHandler,
+                                final RequestResponseHandler<REQ, RES> exceptionMetaDataHandler) {
         this.agentInfoHandler = Objects.requireNonNull(agentInfoHandler, "agentInfoHandler");
         this.sqlMetaDataHandler = Objects.requireNonNull(sqlMetaDataHandler, "sqlMetaDataHandler");
         this.apiMetaDataHandler = Objects.requireNonNull(apiMetaDataHandler, "apiMetaDataHandler");
         this.stringMetaDataHandler = Objects.requireNonNull(stringMetaDataHandler, "stringMetaDataHandler");
+        this.exceptionMetaDataHandler = Objects.requireNonNull(exceptionMetaDataHandler, "exceptionMetaDataHandler");
     }
 
     protected RequestResponseHandler<REQ, RES> getRequestResponseHandler(ServerRequest<? extends REQ> serverRequest) {
@@ -63,6 +67,8 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
                 return stringMetaDataHandler;
             case DefaultTBaseLocator.AGENT_INFO:
                 return agentInfoHandler;
+            case DefaultTBaseLocator.EXCEPTIONMETADATA:
+                return exceptionMetaDataHandler;
         }
         throw new UnsupportedOperationException("unsupported header:" + header);
     }

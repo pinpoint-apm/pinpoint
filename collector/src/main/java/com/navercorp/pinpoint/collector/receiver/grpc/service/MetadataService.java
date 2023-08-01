@@ -20,6 +20,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
+import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
@@ -99,6 +100,16 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         }
 
         final Message<PStringMetaData> message = newMessage(stringMetaData, DefaultTBaseLocator.STRINGMETADATA);
+        doExecutor(message, responseObserver);
+    }
+
+    @Override
+    public void requestExceptionMetaData(PExceptionMetaData exceptionMetaData, StreamObserver<PResult> responseObserver) {
+        if (isDebug) {
+            logger.debug("Request PStringMetaData={}", debugLog(exceptionMetaData));
+        }
+
+        final Message<PExceptionMetaData> message = newMessage(exceptionMetaData, DefaultTBaseLocator.EXCEPTIONMETADATA);
         doExecutor(message, responseObserver);
     }
 
