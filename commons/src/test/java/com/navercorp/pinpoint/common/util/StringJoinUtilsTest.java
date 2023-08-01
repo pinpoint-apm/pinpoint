@@ -20,7 +20,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,7 +36,6 @@ public class StringJoinUtilsTest {
 
         String join = StringJoinUtils.join(stringList, ",");
         Assertions.assertEquals(join, "abc");
-
     }
 
     @Test
@@ -45,7 +46,6 @@ public class StringJoinUtilsTest {
 
         String join = StringJoinUtils.join(stringList, ",");
         Assertions.assertEquals(join, "abc,bcd");
-
     }
 
     @Test
@@ -57,6 +57,14 @@ public class StringJoinUtilsTest {
 
         String join = StringJoinUtils.join(stringList, ",");
         Assertions.assertEquals(join, "abc,bcd,f");
+    }
 
+    @Test
+    public void collection() {
+        Set<String> stringList = new LinkedHashSet<>();
+        stringList.add("abc");
+
+        String join = StringJoinUtils.join(stringList, ",");
+        Assertions.assertEquals(join, "abc");
     }
 }

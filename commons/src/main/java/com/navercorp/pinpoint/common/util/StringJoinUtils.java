@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.common.util;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
-import java.util.StringJoiner;
 
 public class StringJoinUtils {
     private StringJoinUtils() {
@@ -23,19 +23,20 @@ public class StringJoinUtils {
         if (size == 1) {
             return getFirstElement(collection);
         }
-        StringJoiner joiner = new StringJoiner(delimiter);
-        for (String str : collection) {
-            joiner.add(str);
-        }
-        return joiner.toString();
+        return String.join(delimiter, collection);
     }
 
     private static String getFirstElement(Collection<String> collection) {
-        final Iterator<String> iterator = collection.iterator();
-        if (iterator.hasNext()) {
-            return iterator.next();
+        if (collection instanceof List) {
+            List<String> list = (List<String>) collection;
+            return list.get(0);
         } else {
-            throw new ConcurrentModificationException("size:" + collection.size());
+            final Iterator<String> iterator = collection.iterator();
+            if (iterator.hasNext()) {
+                return iterator.next();
+            } else {
+                throw new ConcurrentModificationException("size:" + collection.size());
+            }
         }
     }
 
