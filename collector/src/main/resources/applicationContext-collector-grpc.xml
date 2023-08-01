@@ -24,6 +24,7 @@
         <constructor-arg index="1" ref="grpcSqlMetaDataHandler"/>
         <constructor-arg index="2" ref="grpcApiMetaDataHandler"/>
         <constructor-arg index="3" ref="grpcStringMetaDataHandler"/>
+        <constructor-arg index="4" ref="grpcExceptionMetaDataHandler"/>
     </bean>
 
     <bean id="grpcDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">

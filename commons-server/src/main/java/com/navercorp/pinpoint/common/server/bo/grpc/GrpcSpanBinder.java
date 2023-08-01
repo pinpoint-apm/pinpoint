@@ -58,6 +58,7 @@ public class GrpcSpanBinder {
 
     private static final AnnotationFactory<PAnnotation> annotationFactory = new AnnotationFactory<>(new GrpcAnnotationHandler());
 
+
     public GrpcSpanBinder() {
     }
 
@@ -101,7 +102,6 @@ public class GrpcSpanBinder {
         spanBo.setApiId(pSpan.getApiId());
 
         spanBo.setErrCode(pSpan.getErr());
-
 
         spanBo.setLoggingTransactionInfo((byte) pSpan.getLoggingTransactionInfo());
 
@@ -223,7 +223,6 @@ public class GrpcSpanBinder {
             final PIntStringValue exceptionInfo = pSpanEvent.getExceptionInfo();
             spanEvent.setExceptionInfo(exceptionInfo.getIntValue(), getExceptionMessage(exceptionInfo));
         }
-
     }
 
     public SpanChunkBo bindSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute) {
@@ -249,7 +248,7 @@ public class GrpcSpanBinder {
         spanChunkBo.setAgentStartTime(attribute.getAgentStartTime());
         spanChunkBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 
-        spanChunkBo.setApplicationServiceType((short)pSpanChunk.getApplicationServiceType());
+        spanChunkBo.setApplicationServiceType((short) pSpanChunk.getApplicationServiceType());
 
         if (pSpanChunk.hasTransactionId()) {
             PTransactionId pTransactionId = pSpanChunk.getTransactionId();

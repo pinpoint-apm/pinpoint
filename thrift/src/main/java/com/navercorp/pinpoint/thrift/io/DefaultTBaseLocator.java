@@ -71,6 +71,8 @@ public class DefaultTBaseLocator {
 
     public static final short STRINGMETADATA = 330;
 
+    public static final short EXCEPTIONMETADATA = 340;
+
     public static final short CHUNK = 400;
 
     private static final TypeLocator<TBase<?, ?>> typeLocator = build();
