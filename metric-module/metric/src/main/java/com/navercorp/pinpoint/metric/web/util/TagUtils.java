@@ -71,7 +71,14 @@ public class TagUtils {
         Objects.requireNonNull(tagString, "tagString");
 
         String[] tag = StringUtils.split(tagString, ":", 2);
-        return new Tag(tag[0], tag[1]);
+
+        if (tag.length == 1) {
+            return new Tag(tag[0], "");
+        } else if (tag.length == 2) {
+            return new Tag(tag[0], tag[1]);
+        } else {
+            throw new IllegalArgumentException("tagString:" + tagString);
+        }
     }
 
     private static String[] parseMultiValueFieldList(String string) {
