@@ -16,9 +16,6 @@
 package com.navercorp.pinpoint.realtime.collector.service;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
-import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
-import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.io.request.Message;
@@ -29,12 +26,8 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
-import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.thrift.sender.message.CommandGrpcToThriftMessageConverter;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +38,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -58,20 +50,14 @@ class ClusterAgentCommandService implements AgentCommandService {
 
     private final ScheduledExecutorService closer = ScheduleUtil.makeScheduledExecutorService("closer");
 
-    private final CommandGrpcToThriftMessageConverter grpcToThriftConverter =
-            new CommandGrpcToThriftMessageConverter();
-
-    private final StreamRouteHandler streamRouteHandler;
-    private final SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
+    private final AgentConnectionRepository agentConnectionRepository;
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
     public ClusterAgentCommandService(
-            StreamRouteHandler streamRouteHandler,
-            SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory,
+            AgentConnectionRepository agentConnectionRepository,
             DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory
     ) {
-        this.streamRouteHandler = Objects.requireNonNull(streamRouteHandler, "streamRouteHandler");
-        this.commandSerializerFactory = Objects.requireNonNull(commandSerializerFactory, "commandSerializerFactory");
+        this.agentConnectionRepository = Objects.requireNonNull(agentConnectionRepository, "agentConnectionRepository");
         this.deserializerFactory = Objects.requireNonNull(deserializerFactory, "deserializerFactory");
     }
 
@@ -92,15 +78,15 @@ class ClusterAgentCommandService implements AgentCommandService {
             ClusterKey clusterKey,
             GeneratedMessageV3 command,
             long durationMillis
-    ) throws Exception {
-        final ClusterPoint<?> clusterPoint = findClusterPoint(clusterKey);
-        if (clusterPoint == null) {
+    ) {
+        AgentConnection conn = this.agentConnectionRepository.getConnection(clusterKey);
+        if (conn == null) {
             return null;
         }
 
         final Sinks.Many<GeneratedMessageV3> sink = Sinks.many().multicast().onBackpressureBuffer(4);
         final ClientStreamChannelEventHandler handler = new ClientStreamCallbackAdapter(sink);
-        final ClientStreamChannel channel = openClientStreamChannel(clusterPoint, handler, command);
+        final ClientStreamChannel channel = conn.requestStream(handler, command);
 
         if (durationMillis > 0 && durationMillis < Long.MAX_VALUE) {
             final Closer closer = new Closer(handler, channel);
@@ -120,37 +106,14 @@ class ClusterAgentCommandService implements AgentCommandService {
     }
 
     private Mono<GeneratedMessageV3> request0(ClusterKey clusterKey, GeneratedMessageV3 command) throws TException {
-        final ClusterPoint<?> clusterPoint = findClusterPoint(clusterKey);
-        if (clusterPoint == null) {
+        AgentConnection conn = this.agentConnectionRepository.getConnection(clusterKey);
+        if (conn == null) {
             return null;
         }
 
-        final TBase<?, ?> tCommand = this.grpcToThriftConverter.toMessage(command);
-        if (!clusterPoint.isSupportCommand(tCommand)) {
-            throw new RuntimeException("Unsupported command: " + command);
-        }
-
-        final CompletableFuture<ResponseMessage> future = request(clusterPoint, tCommand);
-        return Mono.fromFuture(future)
+        return Mono.fromFuture(conn.request(command))
                 .map(ResponseMessage::getMessage)
                 .mapNotNull(this::deserialize);
-    }
-
-    private CompletableFuture<ResponseMessage> request(ClusterPoint<?> clusterPoint, TBase<?, ?> command) throws TException {
-        if (clusterPoint instanceof GrpcAgentConnection) {
-            final GrpcAgentConnection grpcPoint = (GrpcAgentConnection) clusterPoint;
-            return grpcPoint.request(command);
-        }
-
-        throw new RuntimeException("Invalid clusterPoint: " + clusterPoint);
-    }
-
-    private byte[] serialize(TBase<?, ?> command) throws TException {
-        return commandSerializerFactory.createSerializer().serialize(command);
-    }
-
-    private ClusterPoint<?> findClusterPoint(ClusterKey clusterKey) {
-        return streamRouteHandler.findClusterPoint(clusterKey);
     }
 
     private GeneratedMessageV3 deserialize(byte[] bytes) {
@@ -159,24 +122,6 @@ class ClusterAgentCommandService implements AgentCommandService {
             return null;
         }
         return ThriftToGrpcConverter.convert(des.getData());
-    }
-
-    private ClientStreamChannel openClientStreamChannel(
-            ClusterPoint<?> clusterPoint,
-            ClientStreamChannelEventHandler handler,
-            GeneratedMessageV3 command
-    ) throws TException, StreamException {
-        final TBase<?, ?> tCommand = this.grpcToThriftConverter.toMessage(command);
-
-        if (!clusterPoint.isSupportCommand(tCommand)) {
-            throw new RuntimeException("Unsupported command: " + command);
-        }
-
-        if (clusterPoint instanceof GrpcAgentConnection) {
-            return ((GrpcAgentConnection) clusterPoint).openStream(tCommand, handler);
-        }
-
-        throw new RuntimeException("Invalid clusterPoint: " + clusterPoint);
     }
 
     private class ClientStreamCallbackAdapter extends ClientStreamChannelEventHandler {

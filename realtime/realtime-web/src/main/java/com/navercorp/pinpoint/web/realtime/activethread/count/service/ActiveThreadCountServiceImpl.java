@@ -15,9 +15,9 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count.service;
 
+import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
-import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
 
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;

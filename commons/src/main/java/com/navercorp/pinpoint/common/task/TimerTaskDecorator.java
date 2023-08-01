@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.task;
+package com.navercorp.pinpoint.common.task;
 
 import java.util.TimerTask;
 

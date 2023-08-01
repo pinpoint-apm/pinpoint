@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.realtime;
+package com.navercorp.pinpoint.realtime.collector;
 
-import com.navercorp.pinpoint.web.realtime.activethread.count.WebActiveThreadCountConfig;
-import com.navercorp.pinpoint.web.realtime.activethread.dump.WebActiveThreadDumpConfig;
-import com.navercorp.pinpoint.web.realtime.echo.WebEchoConfig;
+import com.navercorp.pinpoint.realtime.collector.activethread.count.CollectorActiveThreadCountConfig;
+import com.navercorp.pinpoint.realtime.collector.activethread.dump.CollectorActiveThreadDumpConfig;
+import com.navercorp.pinpoint.realtime.collector.echo.CollectorEchoConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -26,13 +26,11 @@ import org.springframework.context.annotation.Import;
  * @author youngjin.kim2
  */
 @Configuration
-@ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "pinpoint.modules.realtime.enabled", havingValue = "true")
 @Import({
-        WebActiveThreadCountConfig.class,
-        WebActiveThreadDumpConfig.class,
-        WebEchoConfig.class,
-        RealtimeWebPropertySources.class
+        CollectorActiveThreadCountConfig.class,
+        CollectorActiveThreadDumpConfig.class,
+        CollectorEchoConfig.class
 })
-public class RealtimeWebConfig {
-
+public class RealtimeCollectorModule {
 }

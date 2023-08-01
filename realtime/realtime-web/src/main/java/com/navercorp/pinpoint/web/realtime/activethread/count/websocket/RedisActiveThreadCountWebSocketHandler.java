@@ -19,9 +19,6 @@ import com.google.gson.Gson;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountSession;
-import com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler;
-import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
-import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
@@ -36,38 +33,28 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-class ActiveThreadCountHandlerImpl extends ActiveThreadCountHandler implements PinpointWebSocketHandler {
+public class RedisActiveThreadCountWebSocketHandler {
 
-    private static final Logger logger = LogManager.getLogger(ActiveThreadCountHandlerImpl.class);
+    private static final Logger logger = LogManager.getLogger(RedisActiveThreadCountWebSocketHandler.class);
     private static final Gson gson = new Gson();
 
     private final ActiveThreadCountService atcService;
 
-    ActiveThreadCountHandlerImpl(PinpointWebSocketMessageConverter converter, ActiveThreadCountService atcSessionFactory) {
-        super(converter, null);
+    public RedisActiveThreadCountWebSocketHandler(ActiveThreadCountService atcSessionFactory) {
         this.atcService = Objects.requireNonNull(atcSessionFactory, "atcSessionFactory");
     }
 
-    @Override public void start() {}
-    @Override public void stop() {}
-    @Override public int getPriority() {
-        return 2;
-    }
-
-    @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         logger.info("ATC Connection Established. session: {}", session);
         HandlerSession.initialize(session, this.atcService);
     }
 
-    @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         logger.info("ATC Connection Closed. session: {}, status: {}", session, status);
         HandlerSession.dispose(session);
     }
 
-    @Override
-    protected void handleActiveThreadCount(WebSocketSession wsSession, String applicationName) {
+    public void handleActiveThreadCount(WebSocketSession wsSession, String applicationName) {
         logger.info("ATC Requested. session: {}, applicationName: {}", wsSession, applicationName);
         HandlerSession handlerSession = HandlerSession.get(wsSession);
         if (handlerSession == null) {

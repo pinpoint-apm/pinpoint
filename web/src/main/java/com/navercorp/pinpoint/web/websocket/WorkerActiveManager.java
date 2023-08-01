@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
 import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

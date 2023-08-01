@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.realtime.echo;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.pubsub.endpoint.PubSubMonoClient;
 import com.navercorp.pinpoint.realtime.dto.Echo;
-import com.navercorp.pinpoint.web.service.EchoService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
@@ -28,17 +27,16 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-class EchoServiceImpl implements EchoService {
+public class RedisEchoService {
 
-    private static final Logger logger = LogManager.getLogger(EchoServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(RedisEchoService.class);
 
     private final PubSubMonoClient<Echo, Echo> echoEndpoint;
 
-    EchoServiceImpl(PubSubMonoClient<Echo, Echo> echoEndpoint) {
+    public RedisEchoService(PubSubMonoClient<Echo, Echo> echoEndpoint) {
         this.echoEndpoint = Objects.requireNonNull(echoEndpoint, "echoEndpoint");
     }
 
-    @Override
     public String echo(ClusterKey clusterKey, String message) {
         final Echo echo = new Echo(clusterKey, message);
         final Mono<Echo> res = this.echoEndpoint.request(echo);

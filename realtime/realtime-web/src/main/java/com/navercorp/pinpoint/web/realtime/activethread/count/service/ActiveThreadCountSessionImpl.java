@@ -16,11 +16,11 @@
 package com.navercorp.pinpoint.web.realtime.activethread.count.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.common.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
-import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Flux;
@@ -174,7 +174,7 @@ public class ActiveThreadCountSessionImpl implements ActiveThreadCountSession {
         }
     }
 
-    static class ATCPeriods {
+    public static class ATCPeriods {
         private final Duration periodEmit;
         private final Duration periodRefresh;
         private final Duration periodUpdate;

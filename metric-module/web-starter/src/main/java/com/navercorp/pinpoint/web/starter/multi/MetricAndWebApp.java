@@ -17,15 +17,14 @@
 package com.navercorp.pinpoint.web.starter.multi;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
-import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
 import com.navercorp.pinpoint.inspector.web.InspectorWebApp;
+import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
 import com.navercorp.pinpoint.metric.web.MetricWebApp;
 import com.navercorp.pinpoint.uristat.web.UriStatWebConfig;
 import com.navercorp.pinpoint.web.AuthorizationConfig;
 import com.navercorp.pinpoint.web.PinpointWebModule;
 import com.navercorp.pinpoint.web.WebApp;
 import com.navercorp.pinpoint.web.WebStarter;
-import com.navercorp.pinpoint.web.realtime.RealtimeWebConfig;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
@@ -63,7 +62,6 @@ public class MetricAndWebApp {
                     AuthorizationConfig.class,
                     MetricWebApp.class,
                     UriStatWebConfig.class,
-                    RealtimeWebConfig.class,
                     InspectorWebApp.class
             );
             starter.addProfiles("uri", "metric");

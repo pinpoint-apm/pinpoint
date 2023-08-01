@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-collector</artifactId>
+            <artifactId>pinpoint-thrift-datasender</artifactId>
         </dependency>
     </dependencies>
 

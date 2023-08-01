@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 import com.navercorp.pinpoint.redis.pubsub.RedisPubSubConfig;
 import com.navercorp.pinpoint.web.realtime.RealtimeWebCommonConfig;
-import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -40,8 +39,8 @@ public class WebActiveThreadDumpConfig {
     }
 
     @Bean
-    ActiveThreadDumpService activeThreadDumpService(PubSubMonoClient<ATDDemand, ATDSupply> endpoint) {
-        return new ActiveThreadDumpServiceImpl(endpoint);
+    RedisActiveThreadDumpService activeThreadDumpService(PubSubMonoClient<ATDDemand, ATDSupply> endpoint) {
+        return new RedisActiveThreadDumpService(endpoint);
     }
 
 }

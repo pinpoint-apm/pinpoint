@@ -15,13 +15,9 @@
  */
 package com.navercorp.pinpoint.realtime.collector.service;
 
-import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,15 +28,12 @@ import org.springframework.context.annotation.Configuration;
 public class RealtimeCollectorServiceConfig {
 
     @Bean
-    @ConditionalOnBean(name = "commandHeaderTBaseSerializerFactory")
     AgentCommandService agentCommandService(
-            StreamRouteHandler routeHandler,
-            @Qualifier("commandHeaderTBaseSerializerFactory")
-            SerializerFactory<HeaderTBaseSerializer> serializerFactory,
+            AgentConnectionRepository agentConnectionRepository,
             @Qualifier("commandHeaderTBaseDeserializerFactory")
             DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory
     ) {
-        return new ClusterAgentCommandService(routeHandler, serializerFactory, deserializerFactory);
+        return new ClusterAgentCommandService(agentConnectionRepository, deserializerFactory);
     }
 
 }
