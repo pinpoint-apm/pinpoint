@@ -31,7 +31,7 @@ public class AgentStatRowKeyDecoder implements RowKeyDecoder<AgentStatRowKeyComp
 
     @Override
     public AgentStatRowKeyComponent decodeRowKey(byte[] rowkey) {
-        final String agentId = BytesUtils.safeTrim(BytesUtils.toString(rowkey, 0, AGENT_ID_MAX_LEN));
+        final String agentId = BytesUtils.toStringAndRightTrim(rowkey, 0, AGENT_ID_MAX_LEN);
         final AgentStatType agentStatType = AgentStatType.fromTypeCode(rowkey[AGENT_ID_MAX_LEN]);
         final long reversedBaseTimestamp = BytesUtils.bytesToLong(rowkey, AGENT_ID_MAX_LEN + TYPE_CODE_BYTE_LENGTH);
         final long baseTimestamp = TimeUtils.recoveryTimeMillis(reversedBaseTimestamp);

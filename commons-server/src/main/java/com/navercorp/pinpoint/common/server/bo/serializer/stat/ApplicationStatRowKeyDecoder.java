@@ -31,7 +31,7 @@ public class ApplicationStatRowKeyDecoder implements RowKeyDecoder<ApplicationSt
 
     @Override
     public ApplicationStatRowKeyComponent decodeRowKey(byte[] rowkey) {
-        final String applicationId = BytesUtils.safeTrim(BytesUtils.toString(rowkey, 0, APPLICATION_NAME_MAX_LEN));
+        final String applicationId = BytesUtils.toStringAndRightTrim(rowkey, 0, APPLICATION_NAME_MAX_LEN);
         final StatType statType = StatType.fromTypeCode(rowkey[APPLICATION_NAME_MAX_LEN]);
         final long reversedBaseTimestamp = BytesUtils.bytesToLong(rowkey, APPLICATION_NAME_MAX_LEN + TYPE_CODE_BYTE_LENGTH);
         final long baseTimestamp = TimeUtils.recoveryTimeMillis(reversedBaseTimestamp);
