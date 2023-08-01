@@ -110,7 +110,7 @@
                     <configuration>
                         <skip>${spring-boot-build-skip}</skip>
                         <executable>true</executable>
-                        <attach>${spring-boot-maven-plugin.attatch}</attach>
+                        <attach>${spring-boot-maven-plugin.attach}</attach>
                         <classifier>exec</classifier>
                         <jvmArguments>${pinpoint.agent.jvmargument}</jvmArguments>
                         <agents>${maven.multiModuleProjectDirectory}/agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap.jar</agents>

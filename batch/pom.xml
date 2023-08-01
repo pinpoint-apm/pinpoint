@@ -14,8 +14,6 @@
     <properties>
         <jdk.version>11</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
-
-        <pinpoint.batch.executable.name>${project.artifactId}-${project.version}</pinpoint.batch.executable.name>
     </properties>
 
     <dependencies>
@@ -233,10 +231,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.navercorp.pinpoint.batch.BatchApp</mainClass>
-                    <outputDirectory>${project.build.directory}/deploy</outputDirectory>
                     <executable>true</executable>
-                    <attach>false</attach>
-                    <finalName>${pinpoint.batch.executable.name}</finalName>
+                    <attach>${spring-boot-maven-plugin.attach}</attach>
+                    <classifier>exec</classifier>
                 </configuration>
             </plugin>
             <!--

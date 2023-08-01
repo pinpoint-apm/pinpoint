@@ -17,8 +17,6 @@
         <jdk.version>11</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-
-        <pinpoint.collector.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.collector.executable.name>
     </properties>
 
     <dependencies>
@@ -51,10 +49,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.navercorp.pinpoint.collector.starter.multi.application.MultiApplication</mainClass>
-                    <outputDirectory>target/deploy</outputDirectory>
                     <executable>true</executable>
-                    <attach>false</attach>
-                    <finalName>${pinpoint.collector.executable.name}</finalName>
+                    <attach>${spring-boot-maven-plugin.attach}</attach>
+                    <classifier>exec</classifier>
                 </configuration>
             </plugin>
         </plugins>

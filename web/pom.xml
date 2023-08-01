@@ -33,7 +33,6 @@
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
 
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-        <pinpoint.web.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.web.executable.name>
     </properties>
 
     <dependencies>
@@ -397,10 +396,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.navercorp.pinpoint.web.WebApp</mainClass>
-                    <outputDirectory>${project.build.directory}/deploy</outputDirectory>
                     <executable>true</executable>
-                    <attach>false</attach>
-                    <finalName>${pinpoint.web.executable.name}</finalName>
+                    <attach>${spring-boot-maven-plugin.attach}</attach>
+                    <classifier>exec</classifier>
                 </configuration>
             </plugin>
         </plugins>
