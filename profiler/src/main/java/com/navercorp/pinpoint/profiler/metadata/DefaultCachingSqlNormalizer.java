@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlNormalizer;
 import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
-import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
 import com.navercorp.pinpoint.profiler.cache.Cache;
 import com.navercorp.pinpoint.profiler.cache.Result;
 import org.apache.logging.log4j.LogManager;
@@ -34,11 +34,11 @@ public class DefaultCachingSqlNormalizer<ID> implements CachingSqlNormalizer<Par
     protected final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Cache<String, Result<ID>> sqlCache;
-    private final SqlParser sqlParser;
+    private final SqlNormalizer sqlNormalizer;
 
     public DefaultCachingSqlNormalizer(Cache<String, Result<ID>> sqlCache) {
         this.sqlCache = Objects.requireNonNull(sqlCache, "sqlCache");
-        this.sqlParser = new DefaultSqlParser();
+        this.sqlNormalizer = new DefaultSqlNormalizer();
     }
 
 
@@ -53,7 +53,7 @@ public class DefaultCachingSqlNormalizer<ID> implements CachingSqlNormalizer<Par
         }
 
         final String originalSql = parsingResult.getOriginalSql();
-        final NormalizedSql normalizedSql = this.sqlParser.normalizedSql(originalSql);
+        final NormalizedSql normalizedSql = this.sqlNormalizer.normalizeSql(originalSql);
 
         final Result<ID> cachingResult = this.sqlCache.put(normalizedSql.getNormalizedSql());
 

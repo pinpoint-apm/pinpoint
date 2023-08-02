@@ -26,7 +26,7 @@ import java.util.Queue;
 /**
  * @author emeroad
  */
-public class DefaultSqlParser implements SqlParser {
+public class DefaultSqlNormalizer implements SqlNormalizer {
 
     public static final char SEPARATOR = ',';
     public static final char SYMBOL_REPLACE = '$';
@@ -38,12 +38,12 @@ public class DefaultSqlParser implements SqlParser {
 
     private static final NormalizedSql NULL_OBJECT = new DefaultNormalizedSql("", "");
 
-    public DefaultSqlParser() {
+    public DefaultSqlNormalizer() {
     }
 
 
     @Override
-    public NormalizedSql normalizedSql(final String sql) {
+    public NormalizedSql normalizeSql(final String sql) {
         if (sql == null) {
             return NULL_OBJECT;
         }
@@ -313,8 +313,7 @@ public class DefaultSqlParser implements SqlParser {
     }
 
     @Override
-    public String combineOutputParams(String sql, List<String> outputParams) {
-
+    public String combineOutputParams(String sql, IndexedSupplier<String> outputParams) {
         final int length = sql.length();
         final StringBuilder normalized = new StringBuilder(length + 16);
         for (int i = 0; i < length; i++) {
@@ -468,6 +467,7 @@ public class DefaultSqlParser implements SqlParser {
         return normalized.toString();
     }
 
+    @Override
     public String combineBindValues(String sql, List<String> bindValues) {
         if (StringUtils.isEmpty(sql)) {
             return sql;

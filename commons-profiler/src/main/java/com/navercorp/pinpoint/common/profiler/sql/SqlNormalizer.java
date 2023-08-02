@@ -21,11 +21,19 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public interface SqlParser {
+public interface SqlNormalizer {
 
-    NormalizedSql normalizedSql(String sql);
+    NormalizedSql normalizeSql(String sql);
 
-    String combineOutputParams(String sql, List<String> outputParams);
+    default String combineOutputParams(String sql, List<String> outputParams) {
+        return this.combineOutputParams(sql, outputParams::get);
+    }
+
+    String combineOutputParams(String sql, IndexedSupplier<String> outputParams);
 
     String combineBindValues(String sql, List<String> bindValues);
+
+    interface IndexedSupplier<T> {
+        T get(int index) throws IndexOutOfBoundsException;
+    }
 }
