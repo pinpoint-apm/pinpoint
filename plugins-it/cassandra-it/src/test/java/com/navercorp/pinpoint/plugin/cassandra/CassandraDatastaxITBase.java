@@ -25,8 +25,8 @@ import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.StatementWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
-import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlNormalizer;
+import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,7 +60,7 @@ public abstract class CassandraDatastaxITBase {
             "INSERT INTO %s (%s, %s) VALUES (?, ?);",
             TEST_TABLE, TEST_COL_ID, TEST_COL_VALUE);
     // for normalized sql used for sql cache
-    private static final SqlParser SQL_PARSER = new DefaultSqlParser();
+    private static final SqlNormalizer SQL_NORMALIZER = new DefaultSqlNormalizer();
 
     private static String HOST = "127.0.0.1";
 
@@ -149,7 +149,7 @@ public abstract class CassandraDatastaxITBase {
             session.execute(cqlSelect);
             // SessionManager#execute(String) OR AbstractSession#execute(String)
             execute = sessionClass.getDeclaredMethod("execute", String.class);
-            String normalizedSelectSql = SQL_PARSER.normalizedSql(cqlSelect).getNormalizedSql();
+            String normalizedSelectSql = SQL_NORMALIZER.normalizeSql(cqlSelect).getNormalizedSql();
             verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(normalizedSelectSql, String.valueOf(testId))));
 
             // ====================
@@ -160,7 +160,7 @@ public abstract class CassandraDatastaxITBase {
             verifier.printCache();
             // SessionManager#execute(String, Object[]) OR AbstractSession#execute(String, Object[])
             execute = sessionClass.getDeclaredMethod("execute", String.class, Object[].class);
-            String normalizedDeleteSql = SQL_PARSER.normalizedSql(cqlDelete).getNormalizedSql();
+            String normalizedDeleteSql = SQL_NORMALIZER.normalizeSql(cqlDelete).getNormalizedSql();
             verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(normalizedDeleteSql, null)));
         }
     }

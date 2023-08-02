@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class OutputParameterParser {
 
-    public static final char SEPARATOR = DefaultSqlParser.SEPARATOR;
+    public static final char SEPARATOR = DefaultSqlNormalizer.SEPARATOR;
 
     public List<String> parseOutputParameter(String outputParams) {
         // may also need to know about the parsing result 

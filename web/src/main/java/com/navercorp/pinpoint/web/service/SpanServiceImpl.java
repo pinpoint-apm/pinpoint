@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
-import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlNormalizer;
 import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
-import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -93,7 +93,7 @@ public class SpanServiceImpl implements SpanService {
 
     private final AgentInfoService agentInfoService;
 
-    private final SqlParser sqlParser = new DefaultSqlParser();
+    private final SqlNormalizer sqlNormalizer = new DefaultSqlNormalizer();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
     public SpanServiceImpl(TraceDao traceDao,
@@ -244,7 +244,7 @@ public class SpanServiceImpl implements SpanService {
                         logger.debug("sqlMetaDataBo:{}", sqlMetaDataBo);
                         List<String> parsedOutputParams = outputParameterParser.parseOutputParameter(sqlParam);
                         logger.debug("outputParams:{}, parsedOutputParams:{}", sqlParam, parsedOutputParams);
-                        String originalSql = sqlParser.combineOutputParams(rippedSql, parsedOutputParams);
+                        String originalSql = sqlNormalizer.combineOutputParams(rippedSql, parsedOutputParams);
                         logger.debug("outputParams:{}, originalSql:{}", sqlParam, originalSql);
 
                         AnnotationBo sqlMeta = AnnotationBo.of(AnnotationKey.SQL_METADATA.getCode(), rippedSql);
@@ -311,7 +311,7 @@ public class SpanServiceImpl implements SpanService {
                         logger.debug("sqlUidMetaDataBo:{}", sqlUidMetaDataBo);
                         List<String> parsedOutputParams = outputParameterParser.parseOutputParameter(sqlParam);
                         logger.debug("outputParams:{}, parsedOutputParams:{}", sqlParam, parsedOutputParams);
-                        String originalSql = sqlParser.combineOutputParams(rippedSql, parsedOutputParams);
+                        String originalSql = sqlNormalizer.combineOutputParams(rippedSql, parsedOutputParams);
                         logger.debug("outputParams:{}, originalSql:{}", sqlParam, originalSql);
 
                         AnnotationBo sqlMeta = AnnotationBo.of(AnnotationKey.SQL_METADATA.getCode(), rippedSql);
