@@ -170,6 +170,7 @@
 
         <spring.security.version>5.8.1</spring.security.version>
         <spring.boot.version>2.7.13</spring.boot.version>
+        <spring.kafka.version>2.9.4</spring.kafka.version>
 
         <!-- spring boot3 dependency -->
         <spring6.version>6.0.8</spring6.version>
