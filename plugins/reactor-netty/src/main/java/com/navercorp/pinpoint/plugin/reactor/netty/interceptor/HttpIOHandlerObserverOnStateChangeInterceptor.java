@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.reactor.netty.HttpCallContext;
 import com.navercorp.pinpoint.plugin.reactor.netty.HttpCallContextAccessor;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
-import reactor.netty.ConnectionObserver;
 
 public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
     // The request has been prepared and ready for I/O handler to be invoked
@@ -95,10 +94,12 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
         } else if (isClosed(rawState)) {
             if (target instanceof HttpCallContextAccessor) {
                 final HttpCallContext httpCallContext = ((HttpCallContextAccessor) target)._$PINPOINT$_getHttpCallContext();
-                final IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) httpCallContext.getWriteElapsedTime(), httpCallContext.isWriteFail(), (int) httpCallContext.getReadElapsedTime(), httpCallContext.isReadFail());
-                recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
-                // Clear HttpCallContext
-                ((HttpCallContextAccessor) target)._$PINPOINT$_setHttpCallContext(null);
+                if (httpCallContext != null) {
+                    final IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) httpCallContext.getWriteElapsedTime(), httpCallContext.isWriteFail(), (int) httpCallContext.getReadElapsedTime(), httpCallContext.isReadFail());
+                    recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
+                    // Clear HttpCallContext
+                    ((HttpCallContextAccessor) target)._$PINPOINT$_setHttpCallContext(null);
+                }
             }
             final String value = "CLOSED " + rawState;
             recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, value);
