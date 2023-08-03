@@ -10,7 +10,11 @@ import { keyBy } from 'lodash';
 
 cytoscape.use(dagre);
 
-type ClickEventHandler<T> = (param: { data?: T; eventType: 'right' | 'left'; position: cytoscape.Position }) => void;
+type ClickEventHandler<T> = (param: {
+  data?: T;
+  eventType: 'right' | 'left' | 'programmatic';
+  position: Partial<cytoscape.Position>;
+}) => void;
 
 export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'className' | 'style'> {
   data: {
@@ -25,6 +29,7 @@ export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'c
   onDataMerged?: (mergeInfo: MergeInfo) => void;
   renderNodeLabel?: (node: MergedNode) => string | undefined;
   renderEdgeLabel?: (edge: MergedEdge) => string | undefined;
+  cy?: (cy: cytoscape.Core) => void;
 }
 
 export const ServerMap = ({
@@ -39,6 +44,7 @@ export const ServerMap = ({
   renderEdgeLabel,
   className,
   style,
+  cy,
 }: ServerMapProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const baseNodeIdRef = React.useRef<string>();
@@ -73,6 +79,8 @@ export const ServerMap = ({
       wheelSensitivity: 0.2,
       container: containerRef.current,
     });
+    cy?.(cyRef.current);
+
     cyRef.current.style(
       getServerMapStyle({
         cy: cyRef.current,
@@ -249,10 +257,10 @@ export const ServerMap = ({
           cy.container()!.style.cursor = 'default';
         })
         .on('tap', ({ target, originalEvent, renderedPosition }: InputEventObject) => {
-          const eventType = 'left';
+          const eventType = renderedPosition ? 'left' : 'programmatic';
           const position = {
-            x: renderedPosition.x,
-            y: renderedPosition.y,
+            x: renderedPosition?.x,
+            y: renderedPosition?.y,
           };
 
           if (target === cy) {
