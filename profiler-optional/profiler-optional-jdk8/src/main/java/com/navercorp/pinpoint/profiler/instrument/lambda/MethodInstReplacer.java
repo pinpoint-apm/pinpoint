@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.navercorp.pinpoint.profiler.instrument.ASMVersion;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -51,7 +51,7 @@ public class MethodInstReplacer extends ClassVisitor {
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
         for (MethodInsn methodInsn : methodInsnList) {
             if (methodInsn.getMethodName().equals(name)) {
-                logger.info("visitMethod {} desc:{} {}", name, descriptor);
+                logger.info("visitMethod {} desc:{}", name, descriptor);
 
                 final MethodVisitor superMethodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions);
                 return new MethodVisitor(ASMVersion.VERSION, superMethodVisitor) {

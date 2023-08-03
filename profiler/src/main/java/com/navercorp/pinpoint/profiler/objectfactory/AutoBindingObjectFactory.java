@@ -54,9 +54,7 @@ public class AutoBindingObjectFactory {
 
     private List<ArgumentProvider> newArgumentProvider(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext, ArgumentProvider[] argumentProviders) {
         final List<ArgumentProvider> commonProviders = new ArrayList<>();
-        for (ArgumentProvider argumentProvider : argumentProviders) {
-            commonProviders.add(argumentProvider);
-        }
+        commonProviders.addAll(Arrays.asList(argumentProviders));
         ProfilerPluginArgumentProvider profilerPluginArgumentProvider = new ProfilerPluginArgumentProvider(profilerConfig, traceContext, pluginContext);
         commonProviders.add(profilerPluginArgumentProvider);
         return commonProviders;

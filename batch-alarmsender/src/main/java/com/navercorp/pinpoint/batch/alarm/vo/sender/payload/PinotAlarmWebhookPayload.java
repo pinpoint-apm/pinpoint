@@ -34,7 +34,7 @@ public class PinotAlarmWebhookPayload {
         return data;
     }
 
-    private class PinotAlarmData {
+    public static class PinotAlarmData {
         private final String serviceName;
         private final String applicationName;
         private final String target;

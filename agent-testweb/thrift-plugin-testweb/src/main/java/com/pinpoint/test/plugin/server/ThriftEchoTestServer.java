@@ -84,7 +84,7 @@ public abstract class ThriftEchoTestServer<T extends TServer> implements EchoTes
 
     public abstract AsyncEchoTestClient getAsynchronousClient() throws IOException;
 
-    private class WaitToServeHandler implements TServerEventHandler {
+    private static class WaitToServeHandler implements TServerEventHandler {
 
         private final CountDownLatch waitToServeLatch;
 

@@ -381,9 +381,7 @@ public abstract class AbstractPluginForkedTestSuite {
 
                 List<PluginForkedTestInstance> cases = createTestCases(context);
 
-                for (PluginForkedTestInstance testInstance : cases) {
-                    pluginTestInstanceList.add(testInstance);
-                }
+                pluginTestInstanceList.addAll(cases);
             }
         } catch (Exception e) {
             logger.warn(e.getMessage());

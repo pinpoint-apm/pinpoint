@@ -434,9 +434,9 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
             logger.info("{} handleHandshakePacket() completed. code:{}", channel, code);
         } else if (handshaker.isFinished()) {
-            logger.warn("{} handleHandshakePacket() failed. Error:Handshake already completed.");
+            logger.warn("handleHandshakePacket() failed. Error:Handshake already completed.");
         } else {
-            logger.warn("{} handleHandshakePacket() failed. Error:Handshake not yet started.");
+            logger.warn("handleHandshakePacket() failed. Error:Handshake not yet started.");
         }
     }
 
