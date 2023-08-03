@@ -231,13 +231,10 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public ParsingResult parseSql(final String sql) {
-        return this.sqlMetaDataService.parseSql(sql);
+        return this.sqlMetaDataService.wrapSqlResult(sql);
     }
 
-    @Override
-    public boolean cacheSql(ParsingResult parsingResult) {
-        return this.sqlMetaDataService.cacheSql(parsingResult);
-    }
+
 
     @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {
