@@ -29,33 +29,22 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public abstract class AbstractCachingSqlNormalizer<ID> implements CachingSqlNormalizer<ParsingResultInternal<ID>> {
-    protected final ParsingResultInternal<ID> EMPTY_OBJECT = newParsingResult("");
+public class DefaultCachingSqlNormalizer<ID> implements CachingSqlNormalizer<ParsingResultInternal<ID>> {
 
     protected final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Cache<String, Result<ID>> sqlCache;
     private final SqlParser sqlParser;
 
-    public AbstractCachingSqlNormalizer(Cache<String, Result<ID>> sqlCache) {
+    public DefaultCachingSqlNormalizer(Cache<String, Result<ID>> sqlCache) {
         this.sqlCache = Objects.requireNonNull(sqlCache, "sqlCache");
         this.sqlParser = new DefaultSqlParser();
     }
 
-    @Override
-    public ParsingResultInternal<ID> wrapSql(String sql) {
-        if (sql == null) {
-            return EMPTY_OBJECT;
-        }
-        return newParsingResult(sql);
-    }
 
     @Override
     public boolean normalizedSql(ParsingResultInternal<ID> parsingResult) {
         if (parsingResult == null) {
-            return false;
-        }
-        if (parsingResult == EMPTY_OBJECT) {
             return false;
         }
         if (parsingResult.getId() != null) {
@@ -80,5 +69,4 @@ public abstract class AbstractCachingSqlNormalizer<ID> implements CachingSqlNorm
         return cachingResult.isNewValue();
     }
 
-    protected abstract ParsingResultInternal<ID> newParsingResult(String sql);
 }

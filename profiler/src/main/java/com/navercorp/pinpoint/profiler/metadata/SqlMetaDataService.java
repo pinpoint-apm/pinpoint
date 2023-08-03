@@ -17,13 +17,15 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.profiler.context.Annotation;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface SqlMetaDataService {
 
-    ParsingResult parseSql(final String sql);
+    ParsingResult wrapSqlResult(final String sql);
 
-    boolean cacheSql(ParsingResult parsingResult);
+
+    Annotation<?> newSqlAnnotation(ParsingResult result, String bindValue);
 }

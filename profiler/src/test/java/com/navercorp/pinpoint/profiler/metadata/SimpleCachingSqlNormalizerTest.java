@@ -29,8 +29,8 @@ public class SimpleCachingSqlNormalizerTest {
     @Test
     public void testNormalizedSql() {
         SimpleCache<String> cache = newCache(1);
-        SimpleCachingSqlNormalizer normalizer = new SimpleCachingSqlNormalizer(cache);
-        ParsingResultInternal<Integer> parsingResult = normalizer.wrapSql("select * from dual");
+        CachingSqlNormalizer<ParsingResultInternal<Integer>> normalizer = new DefaultCachingSqlNormalizer<>(cache);
+        ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult("select * from dual");
 
         boolean newCache = normalizer.normalizedSql(parsingResult);
         Assertions.assertTrue(newCache, "newCacheState");
@@ -38,7 +38,7 @@ public class SimpleCachingSqlNormalizerTest {
         boolean notCached = normalizer.normalizedSql(parsingResult);
         Assertions.assertFalse(notCached, "alreadyCached");
 
-        ParsingResultInternal<Integer> alreadyCached = normalizer.wrapSql("select * from dual");
+        ParsingResultInternal<Integer> alreadyCached = new DefaultParsingResult("select * from dual");
         boolean notCached2 = normalizer.normalizedSql(alreadyCached);
         Assertions.assertFalse(notCached2, "alreadyCached2");
     }
@@ -47,17 +47,17 @@ public class SimpleCachingSqlNormalizerTest {
     @Test
     public void testNormalizedSql_cache_expire() {
         SimpleCache<String> cache = newCache(1);
-        SimpleCachingSqlNormalizer normalizer = new SimpleCachingSqlNormalizer(cache);
-        ParsingResultInternal<Integer> parsingResult = normalizer.wrapSql("select * from table1");
+        CachingSqlNormalizer<ParsingResultInternal<Integer>> normalizer = new DefaultCachingSqlNormalizer<>(cache);
+        ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult("select * from table1");
         boolean newCache = normalizer.normalizedSql(parsingResult);
         Assertions.assertTrue(newCache, "newCacheState");
 
         // cache expire
-        ParsingResultInternal<Integer> parsingResult2 = normalizer.wrapSql("select * from table2");
+        ParsingResultInternal<Integer> parsingResult2 = new DefaultParsingResult("select * from table2");
         boolean cached = normalizer.normalizedSql(parsingResult2);
         Assertions.assertTrue(cached);
 
-        ParsingResultInternal<Integer> parsingResult1_recached = normalizer.wrapSql("select * from table3");
+        ParsingResultInternal<Integer> parsingResult1_recached = new DefaultParsingResult("select * from table3");
         boolean newCache_parsingResult1_recached = normalizer.normalizedSql(parsingResult1_recached);
         Assertions.assertTrue(newCache_parsingResult1_recached);
     }

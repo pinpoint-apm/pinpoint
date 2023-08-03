@@ -25,8 +25,12 @@ import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.cache.UidCache;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
+import com.navercorp.pinpoint.profiler.metadata.CachingSqlNormalizer;
+import com.navercorp.pinpoint.profiler.metadata.DefaultCachingSqlNormalizer;
 import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.metadata.ParsingResultInternal;
+import com.navercorp.pinpoint.profiler.metadata.SqlCacheService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlUidMetaDataService;
 
@@ -58,10 +62,14 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
 
         if (monitorConfig.isSqlStatEnable()) {
             final UidCache stringCache = new UidCache(jdbcSqlCacheSize);
-            return new SqlUidMetaDataService(enhancedDataSender, stringCache);
+            CachingSqlNormalizer<ParsingResultInternal<byte[]>> simpleCachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(stringCache);
+            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer);
+            return new SqlUidMetaDataService(sqlCacheService);
         } else {
             final SimpleCache<String> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
-            return new DefaultSqlMetaDataService(enhancedDataSender, stringCache);
+            CachingSqlNormalizer<ParsingResultInternal<Integer>> simpleCachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(stringCache);
+            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer);
+            return new DefaultSqlMetaDataService(sqlCacheService);
         }
     }
 }
