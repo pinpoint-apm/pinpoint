@@ -119,7 +119,6 @@
         <module>testcase</module>
         <module>batch</module>
 
-        <module>hbase2-module</module>
         <module>pinot</module>
         <module>metric-module</module>
         <module>uristat</module>
