@@ -79,7 +79,7 @@ public class HelloWorldClient {
             }
         }
 
-        logger.info("Greeting: {}" + lastReply.getMessage());
+        logger.info("Greeting: {}", lastReply.getMessage());
         return lastReply.getMessage();
     }
 

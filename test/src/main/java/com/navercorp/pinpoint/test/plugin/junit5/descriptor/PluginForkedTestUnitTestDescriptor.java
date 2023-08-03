@@ -125,7 +125,7 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
                     } else if ("executionFinished".equals(event)) {
                         final String reportId = rootUniqueId + "/" + tokens[2];
                         final PluginTestReport report = store.get(reportId, PluginTestReport.class);
-                        report.setOutput(pluginTestOutputList.toArray(new String[pluginTestOutputList.size()]));
+                        report.setOutput(pluginTestOutputList.toArray(new String[0]));
                         pluginTestOutputList.clear();
                         isAgentOutput = true;
 

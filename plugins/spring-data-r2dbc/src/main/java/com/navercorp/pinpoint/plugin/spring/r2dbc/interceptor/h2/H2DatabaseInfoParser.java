@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.navercorp.pinpoint.plugin.spring.r2dbc.SpringDataR2dbcConstants.UNKNOWN_DATABASE;
@@ -53,9 +54,7 @@ public class H2DatabaseInfoParser {
             }
             final String server = info.substring(0, idx);
             if (server.indexOf(',') >= 0) {
-                for (String host : server.split(",")) {
-                    hostList.add(host);
-                }
+                hostList.addAll(Arrays.asList(server.split(",")));
             } else {
                 hostList.add(server);
             }

@@ -175,7 +175,7 @@ public class DefaultPinpointServer implements PinpointServer {
                 logger.warn("{} stop(). Socket has closed state({}).", objectUniqName, currentStateCode);
             } else {
                 state.toErrorUnknown();
-                logger.warn("{} stop(). Socket has unexpected state.", objectUniqName, currentStateCode);
+                logger.warn("{} stop(). Socket has unexpected state({})", objectUniqName, currentStateCode);
             }
 
             if (this.channel.isConnected()) {

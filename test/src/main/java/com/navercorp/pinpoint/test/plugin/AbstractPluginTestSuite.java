@@ -341,9 +341,7 @@ public abstract class AbstractPluginTestSuite {
                     testClass, testClassLocation,
                     jvmArguments, debug, importPluginIds);
 
-            for (PluginTestInstance testInstance : createTestCases(context)) {
-                pluginTestInstanceList.add(testInstance);
-            }
+            pluginTestInstanceList.addAll(createTestCases(context));
         } catch (Exception e) {
             logger.warn(e.getMessage());
             throw newTestError(e);

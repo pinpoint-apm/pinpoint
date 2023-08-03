@@ -89,7 +89,7 @@ public abstract class HttpEchoTestServer implements EchoTestServer {
         };
     }
 
-    private class EchoHttpServerHandler extends AbstractHandler {
+    private static class EchoHttpServerHandler extends AbstractHandler {
 
         private final String path;
         private final TServlet servlet;

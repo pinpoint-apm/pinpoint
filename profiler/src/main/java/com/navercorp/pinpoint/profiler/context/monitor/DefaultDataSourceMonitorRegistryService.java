@@ -46,7 +46,7 @@ public class DefaultDataSourceMonitorRegistryService implements DataSourceMonito
     public boolean register(DataSourceMonitor dataSourceMonitor) {
         if (wrapperFactory.latestIssuedId() >= limitIdNumber) {
             if (logger.isInfoEnabled()) {
-                logger.info("can't register {}. The maximum value of id number has been exceeded.");
+                logger.info("can't register. The maximum value of id number has been exceeded.");
             }
             return false;
         }
