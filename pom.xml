@@ -202,7 +202,7 @@
         <grpc.version>1.49.2</grpc.version>
         <protoc.version>3.21.7</protoc.version>
 
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <guice.version>7.0.0</guice.version>
         <gson.version>2.10.1</gson.version>
 
