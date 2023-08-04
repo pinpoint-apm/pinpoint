@@ -16,7 +16,7 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
-        <jetty.version>9.4.42.v20210604</jetty.version>
+        <jetty.version>12.0.0.beta0</jetty.version>
     </properties>
 
     <dependencies>
