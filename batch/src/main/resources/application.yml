@@ -3,6 +3,26 @@ spring:
     allow-bean-definition-overriding: true
   profiles:
     active: release
+  mail:
+    host: ''
+    username: ''
+    password: ''
+    protocol: smtp
+    port: 587
+    #  https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
+    properties:
+      mail:
+        debug: false
+        smtp:
+          from: pinpoint_operator@pinpoint.com
+          port: 25
+          starttls:
+            enable: false
+            required: false
+          ssl:
+            enable: false
+          auth: false
 
 server:
   port: 8090
+

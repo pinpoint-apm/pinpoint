@@ -33,7 +33,7 @@ import java.util.Optional;
 /**
  * @author minwoo.jung
  */
-@Service
+@Service("userService")
 @Transactional(rollbackFor = {Exception.class})
 public class UserServiceImpl implements UserService {
 

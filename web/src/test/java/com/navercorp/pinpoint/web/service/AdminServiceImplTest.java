@@ -44,17 +44,17 @@ public class AdminServiceImplTest {
     ApplicationIndexDao applicationIndexDao;
 
     @Mock
-    AgentInfoService agentInfoService;
+    AgentStatusService agentStatusService;
 
     @BeforeEach
     public void setUp() {
-        adminService = new AdminServiceImpl(applicationIndexDao, agentInfoService);
+        adminService = new AdminServiceImpl(applicationIndexDao, agentStatusService);
     }
 
     @Test
     public void constructorRequireNonNullTest() {
 
-        assertThatThrownBy(() -> new AdminServiceImpl(null, agentInfoService))
+        assertThatThrownBy(() -> new AdminServiceImpl(null, agentStatusService))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("applicationIndexDao");
 
@@ -111,7 +111,7 @@ public class AdminServiceImplTest {
         //// mocking
         when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME1))).thenReturn(List.of(AGENT_ID1));
         when(applicationIndexDao.selectAllApplicationNames()).thenReturn(List.of(new Application(APPLICATION_NAME1, ServiceType.TEST)));
-        when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(true);
+        when(agentStatusService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(true);
 
         // when
         adminService.removeInactiveAgents(durationDays);
@@ -138,9 +138,9 @@ public class AdminServiceImplTest {
             return inactiveAgents;
         }).when(applicationIndexDao).deleteAgentIds(any());
 
-        when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(false);
-        when(agentInfoService.isActiveAgent(eq(AGENT_ID2), any(Range.class))).thenReturn(false);
-        when(agentInfoService.isActiveAgent(eq(AGENT_ID3), any(Range.class))).thenReturn(true);
+        when(agentStatusService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(false);
+        when(agentStatusService.isActiveAgent(eq(AGENT_ID2), any(Range.class))).thenReturn(false);
+        when(agentStatusService.isActiveAgent(eq(AGENT_ID3), any(Range.class))).thenReturn(true);
 
         // when
         adminService.removeInactiveAgents(durationDays);

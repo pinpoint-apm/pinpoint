@@ -19,14 +19,16 @@ import com.navercorp.pinpoint.batch.alarm.AlarmSenderProperties;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmCheckerInterface;
 import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
 import com.navercorp.pinpoint.web.service.UserGroupService;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.apache.logging.log4j.Logger;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,21 +42,20 @@ public class SpringSmtpMailSender implements MailSender {
     private final String batchEnv;
     private final String pinpointUrl;
     private final InternetAddress senderEmailAddress;
-    private final JavaMailSenderImpl springMailSender;
+    private final JavaMailSender springMailSender;
 
-    public SpringSmtpMailSender(AlarmSenderProperties alarmSenderProperties, UserGroupService userGroupService, JavaMailSenderImpl springMailSender) {
+    public SpringSmtpMailSender(AlarmSenderProperties alarmSenderProperties,
+                                UserGroupService userGroupService,
+                                JavaMailSender springMailSender) {
         Objects.requireNonNull(alarmSenderProperties, "alarmSenderProperties");
         this.pinpointUrl = alarmSenderProperties.getPinpointUrl();
         this.batchEnv = alarmSenderProperties.getBatchEnv();
 
         this.userGroupService = Objects.requireNonNull(userGroupService, "userGroupService");
-        this.springMailSender = Objects.requireNonNull(springMailSender, "mailSender");
+        this.springMailSender = Objects.requireNonNull(springMailSender, "springMailSender");
 
-        try {
-            this.senderEmailAddress = new InternetAddress(alarmSenderProperties.getSenderEmailAddress());
-        } catch (AddressException e) {
-            throw new RuntimeException(e);
-        }
+        this.senderEmailAddress = alarmSenderProperties.getSenderEmailAddress();
+
     }
 
     @Override
@@ -65,20 +66,27 @@ public class SpringSmtpMailSender implements MailSender {
             return;
         }
 
-        try{
+        try {
             AlarmMailTemplate mailTemplate = new AlarmMailTemplate(checker, pinpointUrl, batchEnv, sequenceCount);
-            MimeMessage message = springMailSender.createMimeMessage();
-            message.setFrom(senderEmailAddress);
-            message.setRecipients(Message.RecipientType.TO, getReceivers(receivers));
 
-            final String subject =  mailTemplate.createSubject();
-            message.setSubject(subject);
-            message.setContent(mailTemplate.createBody(), "text/html");
+            final MimeMessage message = newMimeMessage(mailTemplate, receivers);
+
             springMailSender.send(message);
-            logger.info("send email : {}", subject);
-        } catch(Exception e) {
+            logger.info("send email : {}", message.getSubject());
+        } catch (Exception e) {
             logger.error("can't send alarm email. {}", checker.toString(), e);
         }
+    }
+
+    private MimeMessage newMimeMessage(AlarmMailTemplate mailTemplate, List<String> receivers) throws MessagingException {
+        MimeMessage message = springMailSender.createMimeMessage();
+        message.setFrom(this.senderEmailAddress);
+        message.setRecipients(Message.RecipientType.TO, getReceivers(receivers));
+
+        final String subject = mailTemplate.createSubject();
+        message.setSubject(subject);
+        message.setContent(mailTemplate.createBody(), "text/html");
+        return message;
     }
 
     @Override
@@ -89,29 +97,31 @@ public class SpringSmtpMailSender implements MailSender {
             return;
         }
 
-        try{
+        try {
             PinotAlarmMailTemplate mailTemplate = new PinotAlarmMailTemplate(pinpointUrl, batchEnv, checker, index);
             MimeMessage message = springMailSender.createMimeMessage();
             message.setFrom(senderEmailAddress);
             message.setRecipients(Message.RecipientType.TO, getReceivers(receivers));
 
-            final String subject =  mailTemplate.createSubject();
+            final String subject = mailTemplate.createSubject();
             message.setSubject(subject);
             message.setContent(mailTemplate.createBody(), "text/html");
             springMailSender.send(message);
             logger.info("send email : {}", subject);
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error("can't send alarm email. {}", checker.toString(), e);
         }
     }
 
-    private InternetAddress[] getReceivers(List<String> receivers) throws AddressException {
-        InternetAddress[] receiverArray = new InternetAddress[receivers.size()];
-        int index = 0;
-        for (String receiver : receivers) {
-            receiverArray[index++] = new InternetAddress(receiver);
+    private InternetAddress[] getReceivers(List<String> receivers) {
+        List<InternetAddress> receiverArray = new ArrayList<>(receivers.size());
+        for (final String receiver : receivers) {
+            try {
+                receiverArray.add(new InternetAddress(receiver));
+            } catch (AddressException e) {
+                logger.info("address parse error receiver-address:{}", receiver, e);
+            }
         }
-
-        return receiverArray;
+        return receiverArray.toArray(new InternetAddress[0]);
     }
 }

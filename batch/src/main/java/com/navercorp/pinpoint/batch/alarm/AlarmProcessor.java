@@ -25,14 +25,18 @@ import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.AgentStatusService;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.batch.item.ItemProcessor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -50,18 +54,18 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    private final AgentInfoService agentInfoService;
+    private final AgentStatusService agentStatusService;
 
     public AlarmProcessor(
             DataCollectorFactory dataCollectorFactory,
             AlarmService alarmService,
             ApplicationIndexDao applicationIndexDao,
-            AgentInfoService agentInfoService
+            AgentStatusService agentStatusService
     ) {
         this.dataCollectorFactory = Objects.requireNonNull(dataCollectorFactory, "dataCollectorFactory");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.agentStatusService = Objects.requireNonNull(agentStatusService, "agentInfoService");
     }
 
     public AppAlarmChecker process(@Nonnull Application application) {
@@ -113,7 +117,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
     private List<String> fetchActiveAgents(String applicationId, Range activeRange) {
         return applicationIndexDao.selectAgentIds(applicationId)
                 .stream()
-                .filter(id -> agentInfoService.isActiveAgent(id, activeRange))
+                .filter(id -> agentStatusService.isActiveAgent(id, activeRange))
                 .collect(Collectors.toUnmodifiableList());
     }
 

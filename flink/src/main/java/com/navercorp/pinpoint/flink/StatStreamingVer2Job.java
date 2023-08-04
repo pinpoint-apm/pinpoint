@@ -45,7 +45,7 @@ public class StatStreamingVer2Job implements Serializable {
     }
 
     public void start(ParameterTool paramTool) throws Exception {
-        logger.info("Starting \"{}\" job with job parameter: {}", JOB_NAME, paramTool.toMap());
+        logger.info("Starting '{}' job with job parameter: {}", JOB_NAME, paramTool.toMap());
         final Bootstrap bootstrap = Bootstrap.getInstance(paramTool.toMap());
         final FlowParameters flowParams = new FlowParameters(paramTool);
         final StreamExecutionEnvironment env = bootstrap.createStreamExecutionEnvironment();
