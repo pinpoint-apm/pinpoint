@@ -98,10 +98,10 @@ HBase compatibility table:
 | 2.0.x           | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
 | 2.1.x           | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
 | 2.2.x           | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
-| 2.3.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase2-module)                                   |
-| 2.4.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase2-module)                                   |
-| 2.5.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase2-module)                                   |
-| 2.6.x           | no         | yes |                                                                                                                  |
+| 2.3.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.3.x/hbase2-module)                                    |
+| 2.4.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.4.x/hbase2-module)                                    |
+| 2.5.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.5.x/hbase2-module)                                    |
+| 2.6.x           | no         | yes                                                                                                                   |                                                                                                                  |
 
 <!-- </compatibilityHbase.md> -->
 Agent - Collector compatibility table:
