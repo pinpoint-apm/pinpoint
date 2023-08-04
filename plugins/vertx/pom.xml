@@ -40,7 +40,7 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
-            <version>4.2.2</version>
+            <version>4.3.8</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
