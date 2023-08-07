@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.pubsub.endpoint;
 import com.navercorp.pinpoint.pubsub.PubChannel;
 import com.navercorp.pinpoint.pubsub.SubChannel;
 import com.navercorp.pinpoint.pubsub.SubConsumer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
@@ -32,6 +34,8 @@ import java.util.function.Function;
  * @author youngjin.kim2
  */
 class PubSubServerImpl<D, S> implements PubSubServer {
+
+    private static final Logger logger = LogManager.getLogger(PubSubServerImpl.class);
 
     private final Function<D, Mono<S>> monoService;
     private final Function<D, Flux<S>> fluxService;
@@ -73,9 +77,12 @@ class PubSubServerImpl<D, S> implements PubSubServer {
         private boolean responseToDemand(DemandMessage<D> demand) {
             final Mono<S> mono = monoService.apply(demand.getContent());
             if (mono != null) {
+                logger.info("Responding short pubsub demand (id: {})", demand.getId());
                 final Identifier demandId = demand.getId();
                 mono.subscribe(new ShortResponseSubscriber(supplyRouter.apply(demandId), demandId));
                 return true;
+            } else {
+                logger.debug("Ignored short pubsub demand (id: {})", demand.getId());
             }
             return false;
         }
@@ -113,9 +120,12 @@ class PubSubServerImpl<D, S> implements PubSubServer {
         private boolean responseToDemand(DemandMessage<D> demand) {
             final Flux<S> flux = fluxService.apply(demand.getContent());
             if (flux != null) {
+                logger.info("Responding long pubsub demand (id: {})", demand.getId());
                 final Identifier demandId = demand.getId();
                 flux.subscribe(new LongResponseSubscriber(supplyRouter.apply(demandId), demandId));
                 return true;
+            } else {
+                logger.debug("Ignored long pubsub demand (id: {})", demand.getId());
             }
             return false;
         }
