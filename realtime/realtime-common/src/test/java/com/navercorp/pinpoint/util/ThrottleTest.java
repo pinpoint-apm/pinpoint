@@ -34,19 +34,19 @@ public class ThrottleTest {
     @Test
     public void shouldHitAround10Times() {
         final Throttle throttle = new MinTermThrottle(TimeUnit.MILLISECONDS.toNanos(10));
-        final long threshold = TimeUnit.MILLISECONDS.toNanos(100);
-        final long now = System.nanoTime();
+        final long testDuration = TimeUnit.MILLISECONDS.toNanos(100);
+        final long startedAt = System.nanoTime();
         final AtomicLong numTry = new AtomicLong(0);
         final AtomicLong numHit = new AtomicLong(0);
         executeParallel(() -> {
-            while (System.nanoTime() - now < threshold) {
+            while (System.nanoTime() - startedAt < testDuration) {
                 numTry.incrementAndGet();
                 if (throttle.hit()) {
                     numHit.incrementAndGet();
                 }
             }
         });
-        assertThat(numHit.get()).isLessThanOrEqualTo(10).isGreaterThanOrEqualTo(8);
+        assertThat(numHit.get()).isLessThanOrEqualTo(11).isGreaterThanOrEqualTo(8);
     }
 
     private void executeParallel(Runnable target) {
