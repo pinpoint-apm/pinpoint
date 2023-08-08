@@ -89,6 +89,11 @@
         <constructor-arg ref="metadataRowKeyDistributor2"/>
     </bean>
 
+    <bean id="hbaseSqlUidMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlUidMetaDataDao"/>
+    <bean id="sqlUidMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlUidMetaDataMapper">
+        <constructor-arg ref="metadataRowKeyDistributor2"/>
+    </bean>
+
     <bean id="scatterChartProperties" class="com.navercorp.pinpoint.web.config.ScatterChartProperties"/>
 
 
