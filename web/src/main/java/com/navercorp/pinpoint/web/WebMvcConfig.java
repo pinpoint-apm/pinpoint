@@ -38,12 +38,19 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private static final String[] RESOURCE_LOCATION = {"classpath:/static/"};
+    private static final String[] INDEX_RESOURCE_LOCATION = {"classpath:/static/"};
 
-    private static final String[] LONG_TIME_AVAILABLE_RESOURCE_TYPE = {"/**/**.ico", "/**/**.png", "/**/**.gif", "/**/**.jpg", "/**/**.woff", "/**/**.woff2"};
+    private static final String[] LONG_TIME_RESOURCE_LOCATION = {"classpath:/static/",
+            "classpath:/static/assets/fonts/fontawesome-free-5.0.10/css/", "classpath:/static/assets/fonts/fontawesome-free-5.0.10/webfonts/",
+            "classpath:/static/assets/fonts/opensans/", "classpath:/static/assets/img/", "classpath:/static/assets/img/servermap/", "classpath:/static/assets/img/icons/"};
 
-    private static final String[] SHORT_TIME_AVAILABLE_RESOURCE_TYPE = {"/**/**.js", "/**/**.css", "/**/**.html"};
+    private static final String[] SHORT_TIME_RESOURCE_LOCATION = {"classpath:/static/", "classpath:/static/assets/fonts/"};
 
+    private static final String[] LONG_TIME_AVAILABLE_RESOURCE_TYPE = {"assets/fonts/fontawesome-free-5.0.10/webfonts/*.woff2",
+            "assets/fonts/fontawesome-free-5.0.10/css/*.css", "assets/fonts/opensans/*.woff2",
+            "assets/img/*.png", "assets/img/icons/*.png", "assets/img/servermap/*.png", "*.png", "*.ico"};
+
+    private static final String[] SHORT_TIME_AVAILABLE_RESOURCE_TYPE = {"assets/fonts/*.css", "*.css", "*.js", "*.html"};
 
     @Value("${pinpoint.web.cache-resources:false}")
     private boolean cacheResource;
@@ -74,25 +81,25 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
         // index.html no-cache
         configure.apply(registry.addResourceHandler("/index.html")
-                .addResourceLocations(RESOURCE_LOCATION)
+                .addResourceLocations(INDEX_RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.noCache())
         );
 
         // Resources that don't change well : 1 day
         configure.apply(registry.addResourceHandler(LONG_TIME_AVAILABLE_RESOURCE_TYPE)
-                .addResourceLocations(RESOURCE_LOCATION)
+                .addResourceLocations(LONG_TIME_RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS).cachePublic())
         );
 
         // Resources that change well : 2 minutes
         configure.apply(registry.addResourceHandler(SHORT_TIME_AVAILABLE_RESOURCE_TYPE)
-                .addResourceLocations(RESOURCE_LOCATION)
+                .addResourceLocations(SHORT_TIME_RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES).cachePublic())
         );
 
         // default resource handler
         configure.apply(registry.addResourceHandler("/**")
-                .addResourceLocations(RESOURCE_LOCATION)
+                .addResourceLocations(INDEX_RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.noCache())
         );
     }
