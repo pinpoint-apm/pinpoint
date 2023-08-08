@@ -43,6 +43,7 @@ public class PinotDataSource implements DataSource, AutoCloseable {
     private PrintWriter logWriter;
 
     private volatile PinotConnection pinotConnection;
+    private String brokers;
 
     public PinotDataSource() {
         this(new PinotDriver());
@@ -68,6 +69,10 @@ public class PinotDataSource implements DataSource, AutoCloseable {
         this.tenant = tenant;
     }
 
+    public void setBrokers(String brokers) {
+        this.brokers = brokers;
+    }
+
     public void setConnectionProperties(Properties connectionProperties) {
         this.connectionProperties = connectionProperties;
     }
@@ -82,14 +87,14 @@ public class PinotDataSource implements DataSource, AutoCloseable {
         if (pinotConnection == null) {
             synchronized (this) {
                 if (pinotConnection == null) {
-                    pinotConnection = newPinotConnection(url, username, password);
+                    pinotConnection = newPinotConnection(url, username, password, brokers);
                 }
             }
         }
         return new WrappedPinotConnection(pinotConnection);
     }
 
-    private PinotConnection newPinotConnection(String url, String username, String password) throws SQLException {
+    private PinotConnection newPinotConnection(String url, String username, String password, String brokers) throws SQLException {
         Properties properties;
         if (connectionProperties == null) {
             properties = new Properties();
@@ -106,6 +111,11 @@ public class PinotDataSource implements DataSource, AutoCloseable {
         if (tenant != null) {
             properties.setProperty(TENANT, tenant);
         }
+
+        if (brokers != null) {
+            properties.setProperty("brokers", brokers);
+        }
+
 
         return (PinotConnection) driver.connect(url, properties);
     }

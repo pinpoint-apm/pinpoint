@@ -26,6 +26,8 @@ public class PinotDatasourceConfiguration {
         datasource.setUrl(properties.getUrl());
         datasource.setUsername(properties.getUsername());
         datasource.setPassword(properties.getPassword());
+        datasource.setBrokers(properties.getBrokers());
+
         return datasource;
     }
 

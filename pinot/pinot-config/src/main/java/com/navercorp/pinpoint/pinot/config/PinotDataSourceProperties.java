@@ -4,6 +4,7 @@ public class PinotDataSourceProperties {
     private String url;
     private String username;
     private String password;
+    private String brokers;
 
     public void setUrl(String url) {
         this.url = url;
@@ -17,6 +18,10 @@ public class PinotDataSourceProperties {
         this.password = password;
     }
 
+    public void setBrokers(String brokers) {
+        this.brokers = brokers;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -27,6 +32,10 @@ public class PinotDataSourceProperties {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getBrokers() {
+        return brokers;
     }
 
     @Override
