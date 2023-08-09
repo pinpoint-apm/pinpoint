@@ -17,14 +17,11 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
@@ -32,10 +29,10 @@ import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
@@ -86,21 +83,23 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentLifeCycleDao agentLifeCycleDao;
 
-    private final AgentStatDao<JvmGcBo> jvmGcDao;
+    private final AgentStatusService agentStatusService;
     private final HyperLinkFactory hyperLinkFactory;
 
+
     public AgentInfoServiceImpl(AgentEventService agentEventService,
-                                AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
+                                AgentWarningStatService agentWarningStatService,
+                                AgentStatusService agentStatusService,
+                                ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao,
-                                AgentStatDao<JvmGcBo> jvmGcDao,
                                 HyperLinkFactory hyperLinkFactory) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
+        this.agentStatusService = Objects.requireNonNull(agentStatusService, "agentStatusService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
-        this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
 
     }
@@ -148,7 +147,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, range.getTo());
         AgentStatusFilter activeAgentFilter = new AgentStatusFilterChain(
                 filter,
-                x -> isActiveAgent(x.getAgentId(), range)
+                x -> agentStatusService.isActiveAgent(x.getAgentId(), range)
         );
 
         if (agentInfoAndStatuses.isEmpty()) {
@@ -229,13 +228,13 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
-            boolean dataExists = isActiveAgent(agentId, fastRange);
+            boolean dataExists = agentStatusService.isActiveAgent(agentId, fastRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
                 continue;
             }
 
-            dataExists = isActiveAgent(agentId, queryRange);
+            dataExists = agentStatusService.isActiveAgent(agentId, queryRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
             }
@@ -407,18 +406,18 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return this.agentLifeCycleDao.getAgentStatus(query);
     }
 
-    @Override
-    public boolean isActiveAgent(String agentId, Range range) {
-        Objects.requireNonNull(agentId, "agentId");
-
-        boolean dataExists = this.jvmGcDao.agentStatExists(agentId, range);
-        if (dataExists) {
-            return true;
-        }
-
-        List<AgentEvent> agentEvents = this.agentEventService.getAgentEvents(agentId, range);
-        return agentEvents.stream().anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
-    }
+//    @Override
+//    public boolean isActiveAgent(String agentId, Range range) {
+//        Objects.requireNonNull(agentId, "agentId");
+//
+//        boolean dataExists = this.jvmGcDao.agentStatExists(agentId, range);
+//        if (dataExists) {
+//            return true;
+//        }
+//
+//        List<AgentEvent> agentEvents = this.agentEventService.getAgentEvents(agentId, range);
+//        return agentEvents.stream().anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
+//    }
 
     @Override
     public InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes) {

@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.AgentStatusService;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ public class AlarmProcessorTest {
     private ApplicationIndexDao applicationIndexDao;
 
     @Mock
-    private AgentInfoService agentInfoService;
+    private AgentStatusService agentStatusService;
 
     @Mock
     private AgentStatDataCollector agentStatDataCollector;
@@ -58,7 +58,7 @@ public class AlarmProcessorTest {
 
         when(alarmService.selectRuleByApplicationId(SERVICE_NAME)).thenReturn(List.of());
 
-        AlarmProcessor proc = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, agentInfoService);
+        AlarmProcessor proc = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, agentStatusService);
         AppAlarmChecker checker = proc.process(app);
 
         assertNull(checker, "should be skipped");
@@ -74,7 +74,7 @@ public class AlarmProcessorTest {
 
         when(alarmService.selectRuleByApplicationId(SERVICE_NAME)).thenReturn(List.of(rule1, rule2));
         when(applicationIndexDao.selectAgentIds(SERVICE_NAME)).thenReturn(agentIds);
-        when(agentInfoService.isActiveAgent(anyString(), any())).then(invocation -> {
+        when(agentStatusService.isActiveAgent(anyString(), any())).then(invocation -> {
            String agentId = invocation.getArgument(0, String.class);
            return !agentId.equals("agent0");
         });
@@ -82,13 +82,13 @@ public class AlarmProcessorTest {
         when(agentStatDataCollector.getHeapUsageRate()).thenReturn(heapUsageRate);
 
         // Executions
-        AlarmProcessor processor = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, agentInfoService);
+        AlarmProcessor processor = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, agentStatusService);
         AppAlarmChecker appChecker = processor.process(application);
 
         // Validations
         verify(alarmService).selectRuleByApplicationId(SERVICE_NAME);
         verify(applicationIndexDao).selectAgentIds(SERVICE_NAME);
-        verify(agentInfoService, times(3)).isActiveAgent(anyString(), any());
+        verify(agentStatusService, times(3)).isActiveAgent(anyString(), any());
         verify(dataCollectorFactory).createDataCollector(any(), any(), any(), anyLong());
 
         assertNotNull(appChecker, "processed object is null");

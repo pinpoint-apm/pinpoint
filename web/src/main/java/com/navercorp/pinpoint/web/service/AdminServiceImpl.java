@@ -44,11 +44,11 @@ public class AdminServiceImpl implements AdminService {
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    private final AgentInfoService agentInfoService;
+    private final AgentStatusService agentStatusService;
 
-    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, AgentInfoService agentInfoService) {
+    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, AgentStatusService agentStatusService) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.agentStatusService = Objects.requireNonNull(agentStatusService, "agentStatusService");
     }
 
     @Override
@@ -196,7 +196,7 @@ public class AdminServiceImpl implements AdminService {
         long now = System.currentTimeMillis();
         Range range = Range.between(now - TimeUnit.DAYS.toMillis(durationDays), now);
 
-        return !this.agentInfoService.isActiveAgent(agentId, range);
+        return !this.agentStatusService.isActiveAgent(agentId, range);
     }
 
 }

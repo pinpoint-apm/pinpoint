@@ -52,6 +52,8 @@ import org.springframework.context.annotation.ImportResource;
         BatchAppPropertySources.class,
         WebhookModule.class,
         WebHbaseModule.class,
+
+        BatchWebComponentConfiguration.class,
         RestTemplateConfiguration.class,
         UserModule.class,
         UriStatAlarmConfiguration.class,
