@@ -50,11 +50,8 @@ class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
     public Flux<ATCSupply> requestAsync(ATCDemand demand) {
         final PCmdActiveThreadCount command = PCmdActiveThreadCount.newBuilder().build();
 
-        final ClusterKey clusterKey = new ClusterKey(
-                demand.getApplicationName(),
-                demand.getAgentId(),
-                demand.getStartTimestamp()
-        );
+        final ClusterKey clusterKey =
+                new ClusterKey(demand.getApplicationName(), demand.getAgentId(), demand.getStartTimestamp());
 
         final Flux<GeneratedMessageV3> resFlux = commandService.requestStream(clusterKey, command, this.demandDurationMillis);
         if (resFlux == null) {

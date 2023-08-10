@@ -62,6 +62,7 @@ public class ActiveThreadCountServiceTest {
         final ActiveThreadCountServiceImpl service = new ActiveThreadCountServiceImpl(agentCommandService, 10000, 100);
 
         final ATCDemand demand = new ATCDemand();
+        demand.setId(0);
         demand.setApplicationName(APPLICATION_NAME);
         demand.setAgentId(AGENT_NAME);
         demand.setStartTimestamp(START_TIMESTAMP);

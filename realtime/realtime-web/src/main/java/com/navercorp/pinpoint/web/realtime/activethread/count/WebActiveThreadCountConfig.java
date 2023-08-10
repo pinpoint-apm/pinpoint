@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountWebServiceConfig;
 import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.RedisActiveThreadCountWebSocketHandler;
@@ -30,8 +31,11 @@ import org.springframework.context.annotation.Import;
 public class WebActiveThreadCountConfig {
 
     @Bean
-    RedisActiveThreadCountWebSocketHandler redisActiveThreadCountWebSocketHandler(ActiveThreadCountService service) {
-        return new RedisActiveThreadCountWebSocketHandler(service);
+    RedisActiveThreadCountWebSocketHandler redisActiveThreadCountWebSocketHandler(
+            ActiveThreadCountService service,
+            ObjectMapper objectMapper
+    ) {
+        return new RedisActiveThreadCountWebSocketHandler(service, objectMapper);
     }
 
 }

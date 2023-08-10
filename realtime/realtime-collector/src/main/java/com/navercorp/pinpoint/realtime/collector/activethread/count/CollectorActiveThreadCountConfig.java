@@ -15,12 +15,17 @@
  */
 package com.navercorp.pinpoint.realtime.collector.activethread.count;
 
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubServer;
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubServerFactory;
-import com.navercorp.pinpoint.realtime.RealtimePubSubServiceDescriptors;
+import com.navercorp.pinpoint.channel.ChannelProviderRepository;
+import com.navercorp.pinpoint.channel.legacy.DemandMessage;
+import com.navercorp.pinpoint.channel.legacy.LegacyFluxBackendAdaptor;
+import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
+import com.navercorp.pinpoint.channel.service.FluxChannelServiceProtocol;
+import com.navercorp.pinpoint.channel.service.server.ChannelServiceServer;
 import com.navercorp.pinpoint.realtime.collector.activethread.count.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.realtime.collector.activethread.count.service.CollectorActiveThreadCountServiceConfig;
-import com.navercorp.pinpoint.redis.pubsub.RedisPubSubConfig;
+import com.navercorp.pinpoint.realtime.config.ATCServiceProtocolConfig;
+import com.navercorp.pinpoint.realtime.dto.ATCDemand;
+import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,15 +34,33 @@ import org.springframework.context.annotation.Import;
  * @author youngjin.kim2
  */
 @Configuration
-@Import({ CollectorActiveThreadCountServiceConfig.class, RedisPubSubConfig.class })
+@Import({ CollectorActiveThreadCountServiceConfig.class, ATCServiceProtocolConfig.class })
 public class CollectorActiveThreadCountConfig {
 
     @Bean
-    PubSubServer atcEndpointServer(
-            PubSubServerFactory serverFactory,
+    ChannelServiceServer legacyATCServer(
+            ChannelProviderRepository channelProviderRepository,
+            FluxChannelServiceProtocol<DemandMessage<ATCDemand>, SupplyMessage<ATCSupply>> protocol,
             ActiveThreadCountService service
     ) {
-        return serverFactory.build(service::requestAsync, RealtimePubSubServiceDescriptors.ATC);
+        return ChannelServiceServer.buildFlux(
+                channelProviderRepository,
+                protocol,
+                new LegacyFluxBackendAdaptor<>(service::requestAsync)
+        );
+    }
+
+    @Bean
+    ChannelServiceServer ATCServer(
+            ChannelProviderRepository channelProviderRepository,
+            FluxChannelServiceProtocol<ATCDemand, ATCSupply> protocol,
+            ActiveThreadCountService service
+    ) {
+        return ChannelServiceServer.buildFlux(
+                channelProviderRepository,
+                protocol,
+                service::requestAsync
+        );
     }
 
 }

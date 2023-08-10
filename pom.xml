@@ -127,6 +127,7 @@
         <module>inspector-module</module>
         <module>user</module>
         <module>batch-alarmsender</module>
+        <module>channel</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
@@ -161,6 +162,8 @@
 
         <httpcomponents.version>4.5.13</httpcomponents.version>
         <httpcomponents-core.version>4.4.14</httpcomponents-core.version>
+
+        <reactor-core.version>3.4.27</reactor-core.version>
 
         <spring4.version>4.3.30.RELEASE</spring4.version>
         <spring5.version>5.3.28</spring5.version>
@@ -359,6 +362,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-redis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-channel</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

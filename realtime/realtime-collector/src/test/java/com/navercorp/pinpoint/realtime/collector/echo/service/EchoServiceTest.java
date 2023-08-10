@@ -56,7 +56,7 @@ public class EchoServiceTest {
     @Test
     public void shouldDeserializeSuccessfully() {
         final EchoServiceImpl service = new EchoServiceImpl(agentCommandService);
-        final Echo actualResponse = service.echo(new Echo(CLUSTER_KEY, MESSAGE)).block();
+        final Echo actualResponse = service.echo(new Echo(0, CLUSTER_KEY, MESSAGE)).block();
 
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.getMessage()).isEqualTo(MESSAGE);

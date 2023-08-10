@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.realtime.activethread.dump;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubMonoClient;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 import com.navercorp.pinpoint.realtime.dto.mapper.grpc.GrpcDtoMapper;
+import com.navercorp.pinpoint.redis.value.Incrementer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
@@ -36,10 +36,12 @@ public class RedisActiveThreadDumpService {
 
     private static final Logger logger = LogManager.getLogger(RedisActiveThreadDumpService.class);
 
-    private final PubSubMonoClient<ATDDemand, ATDSupply> endpoint;
+    private final Incrementer incrementer;
+    private final ActiveThreadDumpDao dao;
 
-    public RedisActiveThreadDumpService(PubSubMonoClient<ATDDemand, ATDSupply> endpoint) {
-        this.endpoint = Objects.requireNonNull(endpoint, "endpoint");
+    public RedisActiveThreadDumpService(Incrementer incrementer, ActiveThreadDumpDao dao) {
+        this.incrementer = Objects.requireNonNull(incrementer, "incrementer");
+        this.dao = Objects.requireNonNull(dao, "dao");
     }
 
     public PCmdActiveThreadLightDumpRes getLightDump(ClusterKey clusterKey, List<String> threadNames,
@@ -61,14 +63,17 @@ public class RedisActiveThreadDumpService {
             int limit,
             boolean isLight
     ) {
-        final ATDDemand demand = new ATDDemand();
+        long id = this.incrementer.get();
+
+        ATDDemand demand = new ATDDemand();
+        demand.setId(id);
         demand.setClusterKey(clusterKey);
         demand.setLight(isLight);
         demand.setLimit(limit);
         demand.setThreadNameList(threadNames);
         demand.setLocalTraceIdList(localTraceIds);
 
-        final Mono<ATDSupply> supplyFuture = this.endpoint.request(demand);
+        final Mono<ATDSupply> supplyFuture = this.dao.dump(demand);
         try {
             return supplyFuture.block();
         } catch (Exception e) {

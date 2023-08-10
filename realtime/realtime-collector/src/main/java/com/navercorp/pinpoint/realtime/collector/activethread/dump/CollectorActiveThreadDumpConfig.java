@@ -15,12 +15,17 @@
  */
 package com.navercorp.pinpoint.realtime.collector.activethread.dump;
 
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubServer;
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubServerFactory;
-import com.navercorp.pinpoint.realtime.RealtimePubSubServiceDescriptors;
+import com.navercorp.pinpoint.channel.ChannelProviderRepository;
+import com.navercorp.pinpoint.channel.legacy.DemandMessage;
+import com.navercorp.pinpoint.channel.legacy.LegacyMonoBackendAdaptor;
+import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
+import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
+import com.navercorp.pinpoint.channel.service.server.ChannelServiceServer;
 import com.navercorp.pinpoint.realtime.collector.activethread.dump.service.ActiveThreadDumpService;
 import com.navercorp.pinpoint.realtime.collector.activethread.dump.service.CollectorActiveThreadDumpServiceConfig;
-import com.navercorp.pinpoint.redis.pubsub.RedisPubSubConfig;
+import com.navercorp.pinpoint.realtime.config.ATDServiceProtocolConfig;
+import com.navercorp.pinpoint.realtime.dto.ATDDemand;
+import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,15 +34,33 @@ import org.springframework.context.annotation.Import;
  * @author youngjin.kim2
  */
 @Configuration
-@Import({ CollectorActiveThreadDumpServiceConfig.class, RedisPubSubConfig.class })
+@Import({ CollectorActiveThreadDumpServiceConfig.class, ATDServiceProtocolConfig.class })
 public class CollectorActiveThreadDumpConfig {
 
     @Bean
-    PubSubServer atdEndpointServer(
-            PubSubServerFactory serverFactory,
+    ChannelServiceServer legacyATDServer(
+            ChannelProviderRepository channelProviderRepository,
+            MonoChannelServiceProtocol<DemandMessage<ATDDemand>, SupplyMessage<ATDSupply>> protocol,
             ActiveThreadDumpService service
     ) {
-        return serverFactory.build(service::getDump, RealtimePubSubServiceDescriptors.ATD);
+        return ChannelServiceServer.buildMono(
+                channelProviderRepository,
+                protocol,
+                new LegacyMonoBackendAdaptor<>(service::getDump)
+        );
+    }
+
+    @Bean
+    ChannelServiceServer ATDServer(
+            ChannelProviderRepository channelProviderRepository,
+            MonoChannelServiceProtocol<ATDDemand, ATDSupply> protocol,
+            ActiveThreadDumpService service
+    ) {
+        return ChannelServiceServer.buildMono(
+                channelProviderRepository,
+                protocol,
+                service::getDump
+        );
     }
 
 }

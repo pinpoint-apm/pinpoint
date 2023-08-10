@@ -15,32 +15,59 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.dump;
 
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubClientFactory;
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubMonoClient;
-import com.navercorp.pinpoint.realtime.RealtimePubSubServiceDescriptors;
+import com.navercorp.pinpoint.channel.ChannelProviderRepository;
+import com.navercorp.pinpoint.channel.legacy.DemandMessage;
+import com.navercorp.pinpoint.channel.legacy.LegacyMonoClientAdaptor;
+import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
+import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
+import com.navercorp.pinpoint.channel.service.client.ChannelServiceClient;
+import com.navercorp.pinpoint.channel.service.client.MonoChannelServiceClient;
+import com.navercorp.pinpoint.realtime.config.ATDServiceProtocolConfig;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
-import com.navercorp.pinpoint.redis.pubsub.RedisPubSubConfig;
+import com.navercorp.pinpoint.redis.value.Incrementer;
+import com.navercorp.pinpoint.redis.value.RedisIncrementer;
 import com.navercorp.pinpoint.web.realtime.RealtimeWebCommonConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 
 /**
  * @author youngjin.kim2
  */
 @Configuration
-@Import({ RealtimeWebCommonConfig.class, RedisPubSubConfig.class })
+@Import({ RealtimeWebCommonConfig.class, ATDServiceProtocolConfig.class })
 public class WebActiveThreadDumpConfig {
 
     @Bean
-    PubSubMonoClient<ATDDemand, ATDSupply> atdEndpoint(PubSubClientFactory clientFactory) {
-        return clientFactory.build(RealtimePubSubServiceDescriptors.ATD);
+    MonoChannelServiceClient<ATDDemand, ATDSupply> atdClient(
+            ChannelProviderRepository channelProviderRepository,
+            MonoChannelServiceProtocol<DemandMessage<ATDDemand>, SupplyMessage<ATDSupply>> protocol
+    ) {
+        return new LegacyMonoClientAdaptor<>(
+                ChannelServiceClient.buildMono(channelProviderRepository, protocol),
+                d -> d.getId()
+        );
     }
 
     @Bean
-    RedisActiveThreadDumpService activeThreadDumpService(PubSubMonoClient<ATDDemand, ATDSupply> endpoint) {
-        return new RedisActiveThreadDumpService(endpoint);
+    ActiveThreadDumpDao activeThreadDumpDao(MonoChannelServiceClient<ATDDemand, ATDSupply> client) {
+        return new ChannelActiveThreadDumpDao(client);
+    }
+
+    @Bean("atdIdIncrementer")
+    Incrementer atdIdIncrementer(RedisTemplate<String, String> template) {
+        return new RedisIncrementer("next-atd-id", template);
+    }
+
+    @Bean
+    RedisActiveThreadDumpService activeThreadDumpService(
+            @Qualifier("atdIdIncrementer") Incrementer inc,
+                                 ActiveThreadDumpDao dao
+    ) {
+        return new RedisActiveThreadDumpService(inc, dao);
     }
 
 }

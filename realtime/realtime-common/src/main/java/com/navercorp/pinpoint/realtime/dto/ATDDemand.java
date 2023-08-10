@@ -25,11 +25,20 @@ import java.util.List;
  */
 public class ATDDemand {
 
+    private long id;
     private ClusterKey clusterKey;
     private boolean isLight;
     private int limit; // optional
     private @Nullable List<String> threadNameList; // optional
     private @Nullable List<Long> localTraceIdList; // optional
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public ClusterKey getClusterKey() {
         return clusterKey;
