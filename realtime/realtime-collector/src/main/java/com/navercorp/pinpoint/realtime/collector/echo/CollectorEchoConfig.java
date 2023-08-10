@@ -15,12 +15,16 @@
  */
 package com.navercorp.pinpoint.realtime.collector.echo;
 
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubServer;
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubServerFactory;
-import com.navercorp.pinpoint.realtime.RealtimePubSubServiceDescriptors;
+import com.navercorp.pinpoint.channel.ChannelProviderRepository;
+import com.navercorp.pinpoint.channel.legacy.DemandMessage;
+import com.navercorp.pinpoint.channel.legacy.LegacyMonoBackendAdaptor;
+import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
+import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
+import com.navercorp.pinpoint.channel.service.server.ChannelServiceServer;
 import com.navercorp.pinpoint.realtime.collector.echo.service.CollectorEchoServiceConfig;
 import com.navercorp.pinpoint.realtime.collector.echo.service.EchoService;
-import com.navercorp.pinpoint.redis.pubsub.RedisPubSubConfig;
+import com.navercorp.pinpoint.realtime.config.EchoServiceProtocolConfig;
+import com.navercorp.pinpoint.realtime.dto.Echo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,15 +33,33 @@ import org.springframework.context.annotation.Import;
  * @author youngjin.kim2
  */
 @Configuration
-@Import({ CollectorEchoServiceConfig.class, RedisPubSubConfig.class })
+@Import({ CollectorEchoServiceConfig.class, EchoServiceProtocolConfig.class })
 public class CollectorEchoConfig {
 
     @Bean
-    PubSubServer echoEndpointServer(
-            PubSubServerFactory serverFactory,
+    ChannelServiceServer legacyEchoServer(
+            ChannelProviderRepository channelProviderRepository,
+            MonoChannelServiceProtocol<DemandMessage<Echo>, SupplyMessage<Echo>> protocol,
             EchoService service
     ) {
-        return serverFactory.build(service::echo, RealtimePubSubServiceDescriptors.ECHO);
+        return ChannelServiceServer.buildMono(
+                channelProviderRepository,
+                protocol,
+                new LegacyMonoBackendAdaptor<>(service::echo)
+        );
+    }
+
+    @Bean
+    ChannelServiceServer echoServer(
+            ChannelProviderRepository channelProviderRepository,
+            MonoChannelServiceProtocol<Echo, Echo> protocol,
+            EchoService service
+    ) {
+        return ChannelServiceServer.buildMono(
+                channelProviderRepository,
+                protocol,
+                service::echo
+        );
     }
 
 }

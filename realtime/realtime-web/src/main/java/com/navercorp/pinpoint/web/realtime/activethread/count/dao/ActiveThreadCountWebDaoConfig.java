@@ -15,32 +15,56 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count.dao;
 
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubClientFactory;
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubFluxClient;
-import com.navercorp.pinpoint.realtime.RealtimePubSubServiceDescriptors;
+import com.navercorp.pinpoint.channel.ChannelProviderRepository;
+import com.navercorp.pinpoint.channel.legacy.DemandMessage;
+import com.navercorp.pinpoint.channel.legacy.LegacyFluxClientAdaptor;
+import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
+import com.navercorp.pinpoint.channel.service.FluxChannelServiceProtocol;
+import com.navercorp.pinpoint.channel.service.client.ChannelServiceClient;
+import com.navercorp.pinpoint.channel.service.client.FluxChannelServiceClient;
+import com.navercorp.pinpoint.realtime.config.ATCServiceProtocolConfig;
 import com.navercorp.pinpoint.realtime.dto.ATCDemand;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
-import com.navercorp.pinpoint.redis.pubsub.RedisPubSubConfig;
+import com.navercorp.pinpoint.redis.value.Incrementer;
+import com.navercorp.pinpoint.redis.value.RedisIncrementer;
 import com.navercorp.pinpoint.web.realtime.RealtimeWebCommonConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author youngjin.kim2
  */
 @Configuration
-@Import({ RealtimeWebCommonConfig.class, RedisPubSubConfig.class })
+@Import({ RealtimeWebCommonConfig.class, ATCServiceProtocolConfig.class })
 public class ActiveThreadCountWebDaoConfig {
 
     @Bean
-    PubSubFluxClient<ATCDemand, ATCSupply> atcEndpoint(PubSubClientFactory clientFactory) {
-        return clientFactory.build(RealtimePubSubServiceDescriptors.ATC);
+    FluxChannelServiceClient<ATCDemand, ATCSupply> atcClient(
+            ChannelProviderRepository channelProviderRepository,
+            FluxChannelServiceProtocol<DemandMessage<ATCDemand>, SupplyMessage<ATCSupply>> protocol
+    ) {
+        return new LegacyFluxClientAdaptor<>(ChannelServiceClient.buildFlux(
+                channelProviderRepository,
+                protocol,
+                Schedulers.newParallel("atc", Runtime.getRuntime().availableProcessors())
+        ), d -> d.getId());
+    }
+
+    @Bean("atcIdIncrementer")
+    Incrementer atcIdIncrementer(RedisTemplate<String, String> template) {
+        return new RedisIncrementer("next-atc-id", template);
     }
 
     @Bean
-    ActiveThreadCountDao activeThreadCountDao(PubSubFluxClient<ATCDemand, ATCSupply> client) {
-        return new PubSubActiveThreadCountDao(client);
+    ActiveThreadCountDao activeThreadCountDao(
+            @Qualifier("atcIdIncrementer") Incrementer inc,
+            FluxChannelServiceClient<ATCDemand, ATCSupply> client
+    ) {
+        return new ChannelActiveThreadCountDao(inc, client);
     }
 
 }

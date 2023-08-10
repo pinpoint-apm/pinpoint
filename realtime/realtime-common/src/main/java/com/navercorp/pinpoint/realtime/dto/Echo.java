@@ -24,12 +24,18 @@ import java.util.Objects;
  */
 public class Echo {
 
+    private final long id;
     private final ClusterKey agentKey;
     private final String message;
 
-    public Echo(ClusterKey agentKey, String message) {
+    public Echo(long id, ClusterKey agentKey, String message) {
+        this.id = id;
         this.agentKey = agentKey;
         this.message = message;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public ClusterKey getAgentKey() {

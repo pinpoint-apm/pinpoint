@@ -39,17 +39,18 @@ class EchoServiceImpl implements EchoService {
     @Override
     public Mono<Echo> echo(Echo echo) {
         final PCmdEcho command = PCmdEcho.newBuilder().setMessage(echo.getMessage()).build();
-        final Mono<GeneratedMessageV3> response = this.commandService.request(echo.getAgentKey(), command);
+        final Mono<GeneratedMessageV3> response =
+                this.commandService.request(echo.getAgentKey(), command);
         if (response == null) {
             return null;
         }
-        return response.map(res -> compose(res, echo.getAgentKey()));
+        return response.map(res -> compose(echo.getId(), res, echo.getAgentKey()));
     }
 
-    private static Echo compose(GeneratedMessageV3 res, ClusterKey clusterKey) {
+    private static Echo compose(long id, GeneratedMessageV3 res, ClusterKey clusterKey) {
         if (res instanceof PCmdEchoResponse) {
             final PCmdEchoResponse echo = (PCmdEchoResponse) res;
-            return new Echo(clusterKey, echo.getMessage());
+            return new Echo(id, clusterKey, echo.getMessage());
         }
         throw new RuntimeException("Failed to parse echo");
     }

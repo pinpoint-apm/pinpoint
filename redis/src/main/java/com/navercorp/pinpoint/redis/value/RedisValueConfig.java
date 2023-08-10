@@ -15,12 +15,9 @@
  */
 package com.navercorp.pinpoint.redis.value;
 
-import com.navercorp.pinpoint.pubsub.endpoint.IdentifierFactory;
 import com.navercorp.pinpoint.redis.RedisBasicConfig;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.core.RedisTemplate;
 
 /**
  * @author youngjin.kim2
@@ -28,10 +25,5 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration(proxyBeanMethods = false)
 @Import({ RedisBasicConfig.class })
 public class RedisValueConfig {
-
-    @Bean
-    IdentifierFactory redisIdentifierFactory(RedisTemplate<String, String> redisTemplate) {
-        return new RedisIdentifierFactory(redisTemplate);
-    }
 
 }

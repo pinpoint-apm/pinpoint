@@ -22,9 +22,18 @@ import java.util.Objects;
  */
 public class ATCDemand {
 
+    private long id;
     private String applicationName;
     private String agentId;
     private long startTimestamp;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getApplicationName() {
         return applicationName;
@@ -55,11 +64,12 @@ public class ATCDemand {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ATCDemand demand = (ATCDemand) o;
-        return startTimestamp == demand.startTimestamp && Objects.equals(applicationName, demand.applicationName) && Objects.equals(agentId, demand.agentId);
+        return id == demand.id && startTimestamp == demand.startTimestamp && Objects.equals(applicationName, demand.applicationName) && Objects.equals(agentId, demand.agentId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(applicationName, agentId, startTimestamp);
+        return Objects.hash(id, applicationName, agentId, startTimestamp);
     }
+
 }

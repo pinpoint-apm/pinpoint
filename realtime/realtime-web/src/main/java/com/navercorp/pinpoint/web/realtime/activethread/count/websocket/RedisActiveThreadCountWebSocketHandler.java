@@ -15,12 +15,14 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count.websocket;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.channel.serde.JacksonSerde;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.core.serializer.Serializer;
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -36,17 +38,21 @@ import java.util.Objects;
 public class RedisActiveThreadCountWebSocketHandler {
 
     private static final Logger logger = LogManager.getLogger(RedisActiveThreadCountWebSocketHandler.class);
-    private static final Gson gson = new Gson();
 
     private final ActiveThreadCountService atcService;
+    private final Serializer<ActiveThreadCountResponse> responseSerializer;
 
-    public RedisActiveThreadCountWebSocketHandler(ActiveThreadCountService atcSessionFactory) {
+    public RedisActiveThreadCountWebSocketHandler(
+            ActiveThreadCountService atcSessionFactory,
+            ObjectMapper objectMapper
+    ) {
         this.atcService = Objects.requireNonNull(atcSessionFactory, "atcSessionFactory");
+        this.responseSerializer = JacksonSerde.byClass(objectMapper, ActiveThreadCountResponse.class);
     }
 
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         logger.info("ATC Connection Established. session: {}", session);
-        HandlerSession.initialize(session, this.atcService);
+        HandlerSession.initialize(session, this.atcService, this.responseSerializer);
     }
 
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
@@ -70,14 +76,20 @@ public class RedisActiveThreadCountWebSocketHandler {
 
         private final WebSocketSession wsSession;
         private final ActiveThreadCountService atcService;
+        private final Serializer<ActiveThreadCountResponse> responseSerializer;
         private String applicationName;
         private ActiveThreadCountSession atcSession;
 
         private final Object lock = new Object();
 
-        private HandlerSession(WebSocketSession wsSession, ActiveThreadCountService atcService) {
+        private HandlerSession(
+                WebSocketSession wsSession,
+                ActiveThreadCountService atcService,
+                Serializer<ActiveThreadCountResponse> responseSerializer
+        ) {
             this.wsSession = wsSession;
             this.atcService = atcService;
+            this.responseSerializer = responseSerializer;
         }
 
         public static HandlerSession get(WebSocketSession wsSession) {
@@ -88,12 +100,16 @@ public class RedisActiveThreadCountWebSocketHandler {
             return null;
         }
 
-        public static void initialize(WebSocketSession wsSession, ActiveThreadCountService atcService) {
+        public static void initialize(
+                WebSocketSession wsSession,
+                ActiveThreadCountService atcService,
+                Serializer<ActiveThreadCountResponse> responseSerializer
+        ) {
             HandlerSession prev = get(wsSession);
             if (prev != null) {
                 return;
             }
-            HandlerSession handlerSession = new HandlerSession(wsSession, atcService);
+            HandlerSession handlerSession = new HandlerSession(wsSession, atcService, responseSerializer);
             wsSession.getAttributes().put(ATTR_KEY, handlerSession);
         }
 
@@ -143,7 +159,7 @@ public class RedisActiveThreadCountWebSocketHandler {
 
         private void sendMessage(ActiveThreadCountResponse response) {
             try {
-                TextMessage message = new TextMessage(gson.toJson(response));
+                TextMessage message = new TextMessage(this.responseSerializer.serializeToByteArray(response));
                 synchronized (lock) {
                     this.wsSession.sendMessage(message);
                 }

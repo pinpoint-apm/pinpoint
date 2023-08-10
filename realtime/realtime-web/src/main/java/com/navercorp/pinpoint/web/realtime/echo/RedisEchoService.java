@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.web.realtime.echo;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.pubsub.endpoint.PubSubMonoClient;
 import com.navercorp.pinpoint.realtime.dto.Echo;
+import com.navercorp.pinpoint.redis.value.Incrementer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
@@ -31,15 +31,18 @@ public class RedisEchoService {
 
     private static final Logger logger = LogManager.getLogger(RedisEchoService.class);
 
-    private final PubSubMonoClient<Echo, Echo> echoEndpoint;
+    private final Incrementer incrementer;
+    private final EchoDao dao;
 
-    public RedisEchoService(PubSubMonoClient<Echo, Echo> echoEndpoint) {
-        this.echoEndpoint = Objects.requireNonNull(echoEndpoint, "echoEndpoint");
+    public RedisEchoService(Incrementer incrementer, EchoDao dao) {
+        this.incrementer = Objects.requireNonNull(incrementer, "incrementer");
+        this.dao = Objects.requireNonNull(dao, "dao");
     }
 
     public String echo(ClusterKey clusterKey, String message) {
-        final Echo echo = new Echo(clusterKey, message);
-        final Mono<Echo> res = this.echoEndpoint.request(echo);
+        long id = this.incrementer.get();
+        Echo echo = new Echo(id, clusterKey, message);
+        Mono<Echo> res = this.dao.test(echo);
 
         try {
             final Echo result = res.block();
