@@ -17,13 +17,4 @@
 
     <task:scheduler id="scheduler" pool-size="4"/>
 
-    <import resource="classpath:applicationContext-batch-common.xml"/>
-    <import resource="classpath:applicationContext-batch-datasource.xml"/>
-    <import resource="classpath:applicationContext-batch-dao-config.xml"/>
-    <import resource="classpath:applicationContext-batch-web-component.xml"/>
-
-    <import resource="classpath:job/applicationContext-alarmJob.xml"/>
-    <import resource="classpath:job/applicationContext-agentCountJob.xml"/>
-    <import resource="classpath:job/applicationContext-flinkCheckJob.xml"/>
-    <import resource="classpath:job/applicationContext-cleanupInactiveAgentsJob.xml"/>
 </beans>
