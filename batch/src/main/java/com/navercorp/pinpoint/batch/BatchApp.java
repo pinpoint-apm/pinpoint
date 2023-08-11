@@ -16,13 +16,7 @@
 
 package com.navercorp.pinpoint.batch;
 
-import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
-import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
-import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
-import com.navercorp.pinpoint.web.UserModule;
-import com.navercorp.pinpoint.web.WebHbaseModule;
-import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
@@ -31,7 +25,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * @author minwoo.jung
@@ -44,18 +37,8 @@ import org.springframework.context.annotation.ImportResource;
         TransactionAutoConfiguration.class,
         BatchAutoConfiguration.class
 })
-@ImportResource({
-        "classpath:applicationContext-batch-schedule.xml"
-})
 @Import({
-        TypeLoaderConfiguration.class,
-        BatchAppPropertySources.class,
-        WebhookModule.class,
-        WebHbaseModule.class,
-        RestTemplateConfiguration.class,
-        UserModule.class,
-        UriStatAlarmConfiguration.class,
-        AlarmSenderConfiguration.class
+        BatchModule.class
 })
 public class BatchApp {
 
