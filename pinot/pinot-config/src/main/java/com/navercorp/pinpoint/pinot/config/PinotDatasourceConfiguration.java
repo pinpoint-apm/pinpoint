@@ -18,7 +18,7 @@ public class PinotDatasourceConfiguration {
     private final Logger logger = LogManager.getLogger(PinotDatasourceConfiguration.class);
 
     @Bean
-    public PinotDataSource pinotDatasource() {
+    public PinotDataSource pinotDataSource() {
         PinotDataSourceProperties properties = pinotDataSourceProperties();
         logger.info("pinot jdbc url:{}", properties.getUrl());
         logger.debug("pinot jdbc username:{}", properties.getUsername());
