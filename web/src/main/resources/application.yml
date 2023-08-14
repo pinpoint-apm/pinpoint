@@ -1,6 +1,4 @@
 spring:
-  main:
-    allow-bean-definition-overriding: false
   profiles:
     active: release
 
@@ -14,12 +12,15 @@ server:
     whitelabel:
       enabled: true
 
-pinpoint.modules.web:
-    # github or url
-    install.type: github
-    # basicLogin
-    login:
-    webhook: true
+pinpoint:
+  modules:
+    web:
+      # github or url
+      install:
+        type: github
+      # basicLogin
+      login:
+      webhook: true
 
 
 pinpoint.web.cache-resources: true
