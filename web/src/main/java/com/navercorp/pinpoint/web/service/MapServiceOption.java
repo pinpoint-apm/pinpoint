@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 
 import java.util.Objects;
@@ -28,12 +28,12 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class MapServiceOption {
-    private Application sourceApplication;
-    private Range range;
-    private SearchOption searchOption;
-    private NodeType nodeType;
-    private LinkType linkType;
-    private boolean useStatisticsAgentState;
+    private final Application sourceApplication;
+    private final Range range;
+    private final SearchOption searchOption;
+    private final NodeType nodeType;
+    private final LinkType linkType;
+    private final boolean useStatisticsAgentState;
 
     private MapServiceOption(Builder builder) {
         this.sourceApplication = builder.sourceApplication;
@@ -82,13 +82,13 @@ public class MapServiceOption {
     }
 
     public static class Builder {
-        private Application sourceApplication;
-        private Range range;
-        private SearchOption searchOption;
-        private NodeType nodeType;
-        private LinkType linkType;
+        private final Application sourceApplication;
+        private final Range range;
+        private final SearchOption searchOption;
+        private final NodeType nodeType;
+        private final LinkType linkType;
         // option
-        boolean useStatisticsAgentState;
+        private boolean useStatisticsAgentState;
 
         public Builder(Application sourceApplication, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
             this.sourceApplication = Objects.requireNonNull(sourceApplication, "sourceApplication");
