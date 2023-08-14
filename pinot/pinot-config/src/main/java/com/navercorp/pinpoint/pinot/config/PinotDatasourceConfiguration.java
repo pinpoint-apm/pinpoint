@@ -17,8 +17,9 @@ public class PinotDatasourceConfiguration {
 
     private final Logger logger = LogManager.getLogger(PinotDatasourceConfiguration.class);
 
-    @Bean(name = "pinotDataSource", destroyMethod = "close")
-    public PinotDataSource getPinotDatasource(PinotDataSourceProperties properties) {
+    @Bean
+    public PinotDataSource pinotDatasource() {
+        PinotDataSourceProperties properties = pinotDataSourceProperties();
         logger.info("pinot jdbc url:{}", properties.getUrl());
         logger.debug("pinot jdbc username:{}", properties.getUsername());
 
@@ -33,7 +34,7 @@ public class PinotDatasourceConfiguration {
 
     @Bean
     @ConfigurationProperties(prefix = "pinpoint.pinot.jdbc")
-    public PinotDataSourceProperties getPinotDataSourceProperties() {
+    public PinotDataSourceProperties pinotDataSourceProperties() {
         return new PinotDataSourceProperties();
     }
 
