@@ -20,23 +20,20 @@ package com.navercorp.pinpoint.batch;
 import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
+import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
+import com.navercorp.pinpoint.datasource.MetaDataSourceConfiguration;
 import com.navercorp.pinpoint.web.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
-@Configuration
 @ImportResource({
         "classpath:applicationContext-batch-schedule.xml",
 
         "classpath:applicationContext-batch-common.xml",
-
-        "classpath:applicationContext-batch-datasource.xml",
-        "classpath:applicationContext-batch-datasource-config.xml",
         "classpath:applicationContext-batch-dao-config.xml",
-
         "classpath:applicationContext-batch-web-component.xml",
 
         "classpath:job/applicationContext-alarmJob.xml",
@@ -45,8 +42,13 @@ import org.springframework.context.annotation.ImportResource;
         "classpath:job/applicationContext-cleanupInactiveAgentsJob.xml"
 })
 @Import({
+        TransactionAutoConfiguration.class,
         TypeLoaderConfiguration.class,
         BatchAppPropertySources.class,
+
+        MainDataSourceConfiguration.class,
+        MetaDataSourceConfiguration.class,
+
         WebhookModule.class,
         WebHbaseModule.class,
         RestTemplateConfiguration.class,

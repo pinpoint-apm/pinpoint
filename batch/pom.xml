@@ -30,6 +30,10 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-datasource</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-uristat-batch</artifactId>
         </dependency>
         <dependency>

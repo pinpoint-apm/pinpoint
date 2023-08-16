@@ -1,13 +1,13 @@
 package com.navercorp.pinpoint.pinot.config;
 
 public class PinotDataSourceProperties {
-    private String url;
+    private String jdbcUrl;
     private String username;
     private String password;
     private String brokers;
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setJdbcUrl(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
     }
 
     public void setUsername(String username) {
@@ -22,8 +22,8 @@ public class PinotDataSourceProperties {
         this.brokers = brokers;
     }
 
-    public String getUrl() {
-        return url;
+    public String getJdbcUrl() {
+        return jdbcUrl;
     }
 
     public String getUsername() {
@@ -41,7 +41,7 @@ public class PinotDataSourceProperties {
     @Override
     public String toString() {
         return "PinotDataSourceProperties{" +
-                "url='" + url + '\'' +
+                "jdbcUrl='" + jdbcUrl + '\'' +
                 ", username='" + username + '\'' +
                 '}';
     }

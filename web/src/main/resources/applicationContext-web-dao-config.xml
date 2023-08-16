@@ -7,15 +7,6 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.web.dao.mysql"/>
 
-    <!-- Transaction manager for a single JDBC DataSource -->
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <bean id="metaDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="metaDataDataSource"/>
-    </bean>
-
 
     <!-- SqlsessionFactory setup for MyBatis Database Layer -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">

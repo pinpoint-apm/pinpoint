@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.batch;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
+import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
@@ -31,14 +30,13 @@ import org.springframework.context.annotation.Import;
  */
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {
-        DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        SecurityAutoConfiguration.class,
         TransactionAutoConfiguration.class,
+        SecurityAutoConfiguration.class,
         BatchAutoConfiguration.class
 })
 @Import({
-        BatchModule.class
+        BatchModule.class,
+        MainDataSourcePropertySource.class
 })
 public class BatchApp {
 

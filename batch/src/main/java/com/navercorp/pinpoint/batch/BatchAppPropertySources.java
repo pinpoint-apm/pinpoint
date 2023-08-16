@@ -23,14 +23,10 @@ import org.springframework.context.annotation.PropertySources;
 @PropertySources({
         @PropertySource(name = "BatchAppPropertySources", value = { BatchAppPropertySources.BATCH_ROOT, BatchAppPropertySources.BATCH_PROFILE}),
         @PropertySource(name = "BatchAppPropertySources-HBase", value = { BatchAppPropertySources.HBASE_ROOT, BatchAppPropertySources.HBASE_PROFILE}),
-        @PropertySource(name = "BatchAppPropertySources-JDBC", value = { BatchAppPropertySources.JDBC_ROOT, BatchAppPropertySources.JDBC_PROFILE}),
 })
 public final class BatchAppPropertySources {
     public static final String HBASE_ROOT= "classpath:hbase-root.properties";
     public static final String HBASE_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/hbase.properties";
-
-    public static final String JDBC_ROOT = "classpath:jdbc-root.properties";
-    public static final String JDBC_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/jdbc.properties";
 
     public static final String BATCH_ROOT = "classpath:batch-root.properties";
     public static final String BATCH_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/batch.properties";

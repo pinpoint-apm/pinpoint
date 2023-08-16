@@ -95,6 +95,11 @@
             <AppenderRef ref="console"/>
         </Logger>
 
+
+        <Logger name="com.zaxxer.hikari" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
         <Logger name="com.navercorp.pinpoint.web.applicationmap" level="${logger_level}" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>

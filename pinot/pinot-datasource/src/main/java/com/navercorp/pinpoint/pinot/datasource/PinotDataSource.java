@@ -35,7 +35,7 @@ public class PinotDataSource implements DataSource, AutoCloseable {
     public static final String TENANT = "tenant";
 
     private final PinotDriver driver;
-    private String url;
+    private String jdbcUrl;
     private String username;
     private String password;
     private String tenant;
@@ -53,8 +53,8 @@ public class PinotDataSource implements DataSource, AutoCloseable {
         this.driver = Objects.requireNonNull(driver, "driver");
     }
 
-    public void setUrl(String url) {
-        this.url = Objects.requireNonNull(url, "url");
+    public void setJdbcUrl(String jdbcUrl) {
+        this.jdbcUrl = Objects.requireNonNull(jdbcUrl, "jdbcUrl");
     }
 
     public void setUsername(String username) {
@@ -87,7 +87,7 @@ public class PinotDataSource implements DataSource, AutoCloseable {
         if (pinotConnection == null) {
             synchronized (this) {
                 if (pinotConnection == null) {
-                    pinotConnection = newPinotConnection(url, username, password, brokers);
+                    pinotConnection = newPinotConnection(jdbcUrl, username, password, brokers);
                 }
             }
         }
