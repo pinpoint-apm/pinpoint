@@ -122,10 +122,11 @@ public class RedisActiveThreadCountWebSocketHandler {
 
         void start(String applicationName) {
             synchronized (lock) {
-                if (this.applicationName != null) {
+                if (this.applicationName != null && this.applicationName.equals(applicationName)) {
                     logger.error("Already started with application {}", this.applicationName);
                     return;
                 }
+                dispose();
                 start0(applicationName);
             }
         }
