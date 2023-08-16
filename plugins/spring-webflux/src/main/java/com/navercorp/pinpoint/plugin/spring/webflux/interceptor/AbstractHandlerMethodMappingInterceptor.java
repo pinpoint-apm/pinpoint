@@ -13,11 +13,12 @@ import org.springframework.web.server.ServerWebExchange;
 
 public class AbstractHandlerMethodMappingInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-
     private final TraceContext traceContext;
+    private final Boolean uriStatCollectMethod;
 
-    public AbstractHandlerMethodMappingInterceptor(final TraceContext traceContext) {
+    public AbstractHandlerMethodMappingInterceptor(final TraceContext traceContext, Boolean uriStatCollectMethod) {
         this.traceContext = traceContext;
+        this.uriStatCollectMethod = uriStatCollectMethod;
     }
 
     @Override
@@ -34,10 +35,18 @@ public class AbstractHandlerMethodMappingInterceptor implements AroundIntercepto
         try {
             final ServerWebExchange webExchange = ArrayArgumentUtils.getArgument(args, 0, ServerWebExchange.class);
             if (webExchange != null) {
+                final SpanRecorder spanRecorder = trace.getSpanRecorder();
+
                 final String uri = ServerWebExchangeAttributeUtils.extractAttribute(webExchange, SpringWebFluxConstants.SPRING_WEBFLUX_DEFAULT_URI_ATTRIBUTE_KEYS);
                 if (StringUtils.hasLength(uri)) {
-                    final SpanRecorder spanRecorder = trace.getSpanRecorder();
                     spanRecorder.recordUriTemplate(uri, false);
+                }
+
+                if (uriStatCollectMethod) {
+                    final String method = webExchange.getRequest().getMethodValue();
+                    if (StringUtils.hasLength(method)) {
+                        spanRecorder.recordUriHttpMethod(method);
+                    }
                 }
             }
         } catch (Throwable th) {

@@ -138,7 +138,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
         if (config.isUriStatEnable()) {
             logger.info("Adding Uri Stat.");
-            transformTemplate.transform("io.vertx.ext.web.impl.RouteState", RoutingStateTransform.class, new Object[]{config.isUriStatUseUserInput()}, new Class[]{Boolean.class});
+            transformTemplate.transform("io.vertx.ext.web.impl.RouteState", RoutingStateTransform.class, new Object[]{config.isUriStatUseUserInput(), config.isUriStatCollectMethod()}, new Class[]{Boolean.class, Boolean.class});
         }
     }
 
@@ -532,9 +532,11 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
     public static class RoutingStateTransform implements TransformCallback {
         private final Boolean uriStatUseUserInput;
+        private final Boolean uriStatCollectMethod;
 
-        public RoutingStateTransform(Boolean uriStatUseUserInput) {
+        public RoutingStateTransform(Boolean uriStatUseUserInput, Boolean uriStatCollectMethod) {
             this.uriStatUseUserInput = uriStatUseUserInput;
+            this.uriStatCollectMethod = uriStatCollectMethod;
         }
 
         @Override
@@ -543,7 +545,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
             final InstrumentMethod routingContextPut = target.getDeclaredMethod("handleContext", "io.vertx.ext.web.impl.RoutingContextImplBase");
             if (routingContextPut != null) {
-                routingContextPut.addInterceptor(RouteStateInterceptor.class, va(uriStatUseUserInput));
+                routingContextPut.addInterceptor(RouteStateInterceptor.class, va(uriStatUseUserInput, uriStatCollectMethod));
             }
 
             return target.toBytecode();

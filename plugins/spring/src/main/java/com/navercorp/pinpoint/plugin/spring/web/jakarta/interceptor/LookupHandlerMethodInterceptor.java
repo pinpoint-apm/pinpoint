@@ -12,12 +12,16 @@ import com.navercorp.pinpoint.plugin.spring.web.SpringWebMvcConstants;
 
 import jakarta.servlet.ServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 public class LookupHandlerMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final TraceContext traceContext;
+    private final Boolean uriStatCollectMethod;
 
-    public LookupHandlerMethodInterceptor(final TraceContext traceContext) {
+    public LookupHandlerMethodInterceptor(final TraceContext traceContext, Boolean uriStatCollectMethod) {
         this.traceContext = traceContext;
+        this.uriStatCollectMethod = uriStatCollectMethod;
     }
 
     @Override
@@ -34,10 +38,18 @@ public class LookupHandlerMethodInterceptor implements AroundInterceptor {
         try {
             final ServletRequest request = ArrayArgumentUtils.getArgument(args, 1, ServletRequest.class);
             if (request != null) {
+                final SpanRecorder spanRecorder = trace.getSpanRecorder();
+
                 final String uri = ServletRequestAttributeUtils.extractAttribute(request, SpringWebMvcConstants.SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEYS);
                 if (StringUtils.hasLength(uri)) {
-                    final SpanRecorder spanRecorder = trace.getSpanRecorder();
                     spanRecorder.recordUriTemplate(uri);
+                }
+
+                if (uriStatCollectMethod) {
+                    final String method = ((HttpServletRequest) request).getMethod();
+                    if (StringUtils.hasLength(method)) {
+                        spanRecorder.recordUriHttpMethod(method);
+                    }
                 }
             }
         } catch (Throwable th) {

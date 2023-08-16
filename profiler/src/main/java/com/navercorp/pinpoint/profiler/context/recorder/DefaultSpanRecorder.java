@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Set;
+
 /**
  * @author jaehong.kim
  */
@@ -178,9 +180,13 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
         return recordUriTemplate(uriTemplate, false);
     }
 
-
     @Override
     public boolean recordUriTemplate(String uriTemplate, boolean force) {
         return getShared().setUriTemplate(uriTemplate, force);
+    }
+
+    @Override
+    public boolean recordUriHttpMethod(String httpMethod) {
+        return getShared().setHttpMethods(httpMethod);
     }
 }

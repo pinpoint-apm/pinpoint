@@ -37,6 +37,9 @@ public class DefaultShared implements Shared {
     private static final AtomicReferenceFieldUpdater<DefaultShared, String> URL_TEMPLATE_UPDATER
             = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "uriTemplate");
 
+    private static final AtomicReferenceFieldUpdater<DefaultShared, String> HTTP_METHODS_UPDATER
+            = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "httpMethods");
+
     private volatile int errorCode;
     private volatile byte loggingInfo;
 
@@ -51,6 +54,8 @@ public class DefaultShared implements Shared {
     private volatile int statusCode;
 
     private volatile String uriTemplate = null;
+
+    private volatile String httpMethods = null;
 
     @Override
     public void maskErrorCode(int errorCode) {
@@ -152,8 +157,25 @@ public class DefaultShared implements Shared {
         }
     }
 
+
     @Override
     public String getUriTemplate() {
         return uriTemplate;
+    }
+
+    @Override
+    public boolean setHttpMethods(String httpMethod) {
+        final boolean successful = HTTP_METHODS_UPDATER.compareAndSet(this, null, httpMethod);
+        if (successful) {
+            if (isDebug) {
+                logger.debug("Record httpMethod={}", httpMethod);
+            }
+        }
+        return successful;
+    }
+
+    @Override
+    public String getHttpMethod() {
+        return httpMethods;
     }
 }

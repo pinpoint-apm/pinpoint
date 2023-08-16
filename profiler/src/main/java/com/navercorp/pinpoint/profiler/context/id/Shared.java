@@ -52,4 +52,9 @@ public interface Shared {
     boolean setUriTemplate(String uriTemplate, boolean force);
 
     String getUriTemplate();
+
+    boolean setHttpMethods(String httpMethod);
+
+    String getHttpMethod();
+
 }

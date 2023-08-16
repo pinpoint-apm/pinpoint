@@ -204,10 +204,14 @@ public class DisableSpanRecorder implements SpanRecorder {
         return recordUriTemplate(uriTemplate, false);
     }
 
-
     @Override
     public boolean recordUriTemplate(String uriTemplate, boolean force) {
         return getShared().setUriTemplate(uriTemplate, force);
+    }
+
+    @Override
+    public boolean recordUriHttpMethod(String httpMethod) {
+        return getShared().setHttpMethods(httpMethod);
     }
 
     private Shared getShared() {

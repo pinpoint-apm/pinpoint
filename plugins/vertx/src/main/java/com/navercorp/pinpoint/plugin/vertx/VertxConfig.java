@@ -32,6 +32,7 @@ public class VertxConfig {
     private final List<String> handlerBasePackageNames;
     private final boolean uriStatEnable;
     private final boolean uriStatUseUserInput;
+    private final boolean uriStatCollectMethod;
 
     public VertxConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -44,6 +45,7 @@ public class VertxConfig {
         this.handlerBasePackageNames = config.readList("profiler.vertx.handler.base-packages");
         this.uriStatEnable = config.readBoolean("profiler.uri.stat.vertx.enable", false);
         this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.vertx.useuserinput", false);
+        this.uriStatCollectMethod = config.readBoolean("profiler.uri.stat.collect.http.method", false);
     }
 
     public boolean isEnable() {
@@ -72,6 +74,10 @@ public class VertxConfig {
 
     public boolean isUriStatUseUserInput() {
         return uriStatUseUserInput;
+    }
+
+    public boolean isUriStatCollectMethod() {
+        return uriStatCollectMethod;
     }
 
     @Override

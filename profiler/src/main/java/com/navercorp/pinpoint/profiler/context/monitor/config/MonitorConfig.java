@@ -29,6 +29,8 @@ public interface MonitorConfig {
 
     boolean isUriStatEnable();
 
+    boolean getUriStatCollectHttpMethod();
+
     boolean isSqlStatEnable();
 
     int getCompletedUriStatDataLimitSize();
