@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
  */
 public interface UriStatStorage extends AutoCloseable {
 
-    void store(String uri, boolean status, long startTime, long endTime);
+    void store(String uri, String httpMethod, boolean status, long startTime, long endTime);
 
     AgentUriStatData poll();
 

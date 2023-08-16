@@ -37,10 +37,11 @@ public class DefaultCloseListener implements CloseListener {
 
         Shared shared = traceRoot.getShared();
         String uriTemplate = shared.getUriTemplate();
+        String httpMethod = shared.getHttpMethod();
         long traceStartTime = traceRoot.getTraceStartTime();
 
         boolean status = getStatus(shared.getErrorCode());
-        copy.store(uriTemplate, status, traceStartTime, afterTime);
+        copy.store(uriTemplate, httpMethod, status, traceStartTime, afterTime);
     }
 
     private boolean getStatus(int errorCode) {

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
+package com.navercorp.pinpoint.plugin.spring.web.javax.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -8,15 +8,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
-import org.springframework.web.server.ServerWebExchange;
+import javax.servlet.http.HttpServletRequest;
 
-public class AbstractUrlHandlerMappingInterceptor implements AroundInterceptor {
+public class ExposePathWithinMappingInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final TraceContext traceContext;
     private final Boolean uriStatCollectMethod;
 
-    public AbstractUrlHandlerMappingInterceptor(TraceContext traceContext, Boolean uriStatCollectMethod) {
+    public ExposePathWithinMappingInterceptor(final TraceContext traceContext, Boolean uriStatCollectMethod) {
         this.traceContext = traceContext;
         this.uriStatCollectMethod = uriStatCollectMethod;
     }
@@ -33,20 +32,17 @@ public class AbstractUrlHandlerMappingInterceptor implements AroundInterceptor {
         }
 
         try {
-            final ServerWebExchange webExchange = ArrayArgumentUtils.getArgument(args, 1, ServerWebExchange.class);
-            if (webExchange != null) {
-                final SpanRecorder spanRecorder = trace.getSpanRecorder();
+            final SpanRecorder spanRecorder = trace.getSpanRecorder();
+            final String url = ArrayArgumentUtils.getArgument(args, 0, String.class);
+            if (StringUtils.hasLength(url)) {
+                spanRecorder.recordUriTemplate(url);
+            }
 
-                final String uri = ServerWebExchangeAttributeUtils.extractAttribute(webExchange, SpringWebFluxConstants.SPRING_WEBFLUX_DEFAULT_URI_ATTRIBUTE_KEYS);
-                if (StringUtils.hasLength(uri)) {
-                    spanRecorder.recordUriTemplate(uri, false);
-                }
-
-                if (uriStatCollectMethod) {
-                    final String method = webExchange.getRequest().getMethodValue();
-                    if (StringUtils.hasLength(method)) {
-                        spanRecorder.recordUriHttpMethod(method);
-                    }
+            if (uriStatCollectMethod) {
+                final HttpServletRequest request = ArrayArgumentUtils.getArgument(args, 2, HttpServletRequest.class);
+                final String method = request.getMethod();
+                if (StringUtils.hasLength(method)) {
+                    spanRecorder.recordUriHttpMethod(method);
                 }
             }
         } catch (Throwable th) {

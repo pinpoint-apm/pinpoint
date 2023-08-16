@@ -79,8 +79,8 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
 
         // uri stat
         if (config.isUriStatEnable()) {
-            transformTemplate.transform("org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class);
-            transformTemplate.transform("org.springframework.web.reactive.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class);
+            transformTemplate.transform("org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class, new Object[]{config.isUriStatCollectMethod()}, new Class[]{Boolean.class});
+            transformTemplate.transform("org.springframework.web.reactive.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class, new Object[]{config.isUriStatCollectMethod()}, new Class[]{Boolean.class});
         }
     }
 
@@ -214,6 +214,11 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
     }
 
     public static class AbstractHandlerMethodMappingTransform implements TransformCallback {
+        private final Boolean uriStatCollectMethod;
+        public AbstractHandlerMethodMappingTransform(Boolean uriStatCollectMethod) {
+            this.uriStatCollectMethod = uriStatCollectMethod;
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -221,13 +226,19 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             // Add attribute listener.
             final InstrumentMethod lookupHandlerMethod = target.getDeclaredMethod("lookupHandlerMethod", "org.springframework.web.server.ServerWebExchange");
             if (lookupHandlerMethod != null) {
-                lookupHandlerMethod.addInterceptor(AbstractHandlerMethodMappingInterceptor.class);
+                lookupHandlerMethod.addInterceptor(AbstractHandlerMethodMappingInterceptor.class, va(uriStatCollectMethod));
             }
             return target.toBytecode();
         }
     }
 
     public static class AbstractUrlHandlerMappingTransform implements TransformCallback {
+        private final Boolean uriStatCollectMethod;
+
+        public AbstractUrlHandlerMappingTransform(Boolean uriStatCollectMethod) {
+            this.uriStatCollectMethod = uriStatCollectMethod;
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -235,7 +246,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             // Add attribute listener.
             final InstrumentMethod exposePathWithinMapping = target.getDeclaredMethod("lookupHandler", "org.springframework.http.server.PathContainer", "org.springframework.web.server.ServerWebExchange");
             if (exposePathWithinMapping != null) {
-                exposePathWithinMapping.addInterceptor(AbstractUrlHandlerMappingInterceptor.class);
+                exposePathWithinMapping.addInterceptor(AbstractUrlHandlerMappingInterceptor.class, va(uriStatCollectMethod));
             }
             return target.toBytecode();
         }

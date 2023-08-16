@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.profiler.concurrent.executor.MultiConsumer;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 import org.apache.logging.log4j.LogManager;
@@ -42,24 +43,32 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
     private static final ThrottledLogger TLogger = ThrottledLogger.getLogger(LOGGER, 100);
     private final UriStatConsumer consumer;
 
-    public AsyncQueueingUriStatStorage(int queueSize, int uriStatDataLimitSize, String executorName) {
-        this(queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize));
+    private final boolean uriStatCollectHttpMethod;
+
+    public AsyncQueueingUriStatStorage(boolean uriStatCollectHttpMethod, int queueSize, int uriStatDataLimitSize, String executorName) {
+        this(uriStatCollectHttpMethod, queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize));
     }
 
-    public AsyncQueueingUriStatStorage(int queueSize, int uriStatDataLimitSize, String executorName, int collectInterval) {
-        this(queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize, collectInterval));
+    public AsyncQueueingUriStatStorage(boolean uriStatCollectHttpMethod, int queueSize, int uriStatDataLimitSize, String executorName, int collectInterval) {
+        this(uriStatCollectHttpMethod, queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize, collectInterval));
     }
 
-    private AsyncQueueingUriStatStorage(int queueSize, String executorName, UriStatConsumer consumer) {
+    private AsyncQueueingUriStatStorage(boolean uriStatCollectHttpMethod, int queueSize, String executorName, UriStatConsumer consumer) {
         super(queueSize, executorName, consumer);
         this.consumer = consumer;
+        this.uriStatCollectHttpMethod = uriStatCollectHttpMethod;
     }
 
     @Override
-    public void store(String uri, boolean status, long startTime, long endTime) {
+    public void store(String uri, String httpMethod, boolean status, long startTime, long endTime) {
         if (uri == null) {
             uri = URITemplate.NULL_URI;
         }
+
+        if (uriStatCollectHttpMethod && (httpMethod != null) && !httpMethod.isEmpty()) {
+            uri = httpMethod + " " + uri;
+        }
+
         UriStatInfo uriStatInfo = new UriStatInfo(uri, status, startTime, endTime);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("UriStatInfo {}", uriStatInfo);

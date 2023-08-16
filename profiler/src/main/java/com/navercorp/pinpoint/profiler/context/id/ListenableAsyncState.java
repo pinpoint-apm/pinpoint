@@ -74,7 +74,7 @@ public class ListenableAsyncState implements AsyncState {
         Shared shared = this.traceRoot.getShared();
         long traceStartTime = this.traceRoot.getTraceStartTime();
         boolean status = getStatus(shared.getErrorCode());
-        this.uriStatStorage.store(shared.getUriTemplate(), status, traceStartTime, purgeTime);
+        this.uriStatStorage.store(shared.getUriTemplate(), shared.getHttpMethod(), status, traceStartTime, purgeTime);
     }
 
     private boolean getStatus(int errorCode) {

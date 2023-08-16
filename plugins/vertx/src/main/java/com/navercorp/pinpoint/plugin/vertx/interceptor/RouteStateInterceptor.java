@@ -13,16 +13,19 @@ import io.vertx.ext.web.Route;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.Objects;
+import java.util.Set;
 
 public class RouteStateInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private final TraceContext context;
     private final Boolean uriStatUseUserInput;
+    private final Boolean uriStatCollectMethod;
 
-    public RouteStateInterceptor(TraceContext context, Boolean uriStatUseUserInput) {
+    public RouteStateInterceptor(TraceContext context, Boolean uriStatUseUserInput, Boolean uriStatCollectMethod) {
         this.context = Objects.requireNonNull(context, "context");
         this.uriStatUseUserInput = uriStatUseUserInput;
+        this.uriStatCollectMethod = uriStatCollectMethod;
     }
 
     @Override
@@ -46,10 +49,17 @@ public class RouteStateInterceptor implements AroundInterceptor {
                 }
                 final Route route = routingContext.currentRoute();
                 if (route != null) {
+                    final SpanRecorder spanRecorder = trace.getSpanRecorder();
                     final String path = route.getPath();
                     if (StringUtils.hasLength(path)) {
-                        final SpanRecorder spanRecorder = trace.getSpanRecorder();
                         spanRecorder.recordUriTemplate(path, false);
+                    }
+
+                    if (uriStatCollectMethod) {
+                        final Set methods = route.methods();
+                        if (methods != null && !methods.isEmpty()) {
+                            spanRecorder.recordUriHttpMethod(methods.toString());
+                        }
                     }
                 }
             }

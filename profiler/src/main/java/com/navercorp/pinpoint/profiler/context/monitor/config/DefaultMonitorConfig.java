@@ -30,6 +30,8 @@ public class DefaultMonitorConfig implements MonitorConfig {
 
     @Value("${profiler.uri.stat.enable}")
     private boolean uriStatEnable = false;
+    @Value("${profiler.uri.stat.collect.http.method}")
+    private boolean uriStatCollectHttpMethod = false;
     @Value("${profiler.uri.stat.completed.data.limit.size}")
     private int completedUriStatDataLimitSize = 1000;
 
@@ -74,6 +76,11 @@ public class DefaultMonitorConfig implements MonitorConfig {
     }
 
     @Override
+    public boolean getUriStatCollectHttpMethod() {
+        return uriStatCollectHttpMethod;
+    }
+
+    @Override
     public boolean isSqlStatEnable() {
         return sqlStatEnable;
     }
@@ -89,6 +96,7 @@ public class DefaultMonitorConfig implements MonitorConfig {
                 "customMetricEnable=" + customMetricEnable +
                 ", customMetricLimitSize=" + customMetricLimitSize +
                 ", uriStatEnable=" + uriStatEnable +
+                ", uriStatCollectHttpMethod=" + uriStatCollectHttpMethod +
                 ", completedUriStatDataLimitSize=" + completedUriStatDataLimitSize +
                 ", profileJvmStatCollectIntervalMs=" + profileJvmStatCollectIntervalMs +
                 ", profileJvmStatBatchSendCount=" + profileJvmStatBatchSendCount +

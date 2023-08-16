@@ -42,7 +42,7 @@ public class UriStatStorageProvider implements Provider<UriStatStorage> {
     @Override
     public UriStatStorage get() {
         if (monitorConfig.isUriStatEnable()) {
-            return new AsyncQueueingUriStatStorage(5192, monitorConfig.getCompletedUriStatDataLimitSize(), URI_STAT_STORAGE_EXECUTOR_NAME);
+            return new AsyncQueueingUriStatStorage(monitorConfig.getUriStatCollectHttpMethod(), 5192, monitorConfig.getCompletedUriStatDataLimitSize(), URI_STAT_STORAGE_EXECUTOR_NAME);
         } else {
             return DisabledUriStatStorage.INSTANCE;
         }

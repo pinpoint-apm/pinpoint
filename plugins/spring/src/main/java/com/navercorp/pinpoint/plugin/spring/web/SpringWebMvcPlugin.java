@@ -27,9 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.plugin.spring.web.interceptor.ExposePathWithinMappingInterceptor;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.InvocableHandlerMethodInvokeForRequestMethodInterceptor;
-import com.navercorp.pinpoint.plugin.spring.web.javax.interceptor.LookupHandlerMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.web.javax.interceptor.ProcessRequestInterceptor;
 
 import java.security.ProtectionDomain;
@@ -59,13 +57,19 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
 
         // uri stat
         if (config.isUriStatEnable()) {
-            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class);
-            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class);
+            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class, new Object[]{config.isUriStatCollectMethod()}, new Class[]{Boolean.class});
+            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class, new Object[]{config.isUriStatCollectMethod()}, new Class[]{Boolean.class});
         }
 
     }
 
     public static class AbstractHandlerMethodMappingTransform implements TransformCallback {
+        private final Boolean isUriStatCollectMethod;
+
+        public AbstractHandlerMethodMappingTransform(Boolean isUriStatCollectMethod) {
+            this.isUriStatCollectMethod = isUriStatCollectMethod;
+
+        }
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -73,13 +77,13 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             // Add attribute listener.
             final InstrumentMethod lookupHandlerMethod = target.getDeclaredMethod("lookupHandlerMethod", "java.lang.String", "javax.servlet.http.HttpServletRequest");
             if (lookupHandlerMethod != null) {
-                lookupHandlerMethod.addInterceptor(LookupHandlerMethodInterceptor.class);
+                lookupHandlerMethod.addInterceptor(com.navercorp.pinpoint.plugin.spring.web.javax.interceptor.LookupHandlerMethodInterceptor.class, va(isUriStatCollectMethod));
             }
 
             // Spring 6
             final InstrumentMethod lookupHandlerMethodJakarta = target.getDeclaredMethod("lookupHandlerMethod", "java.lang.String", "jakarta.servlet.http.HttpServletRequest");
             if (lookupHandlerMethodJakarta != null) {
-                lookupHandlerMethodJakarta.addInterceptor(com.navercorp.pinpoint.plugin.spring.web.jakarta.interceptor.LookupHandlerMethodInterceptor.class);
+                lookupHandlerMethodJakarta.addInterceptor(com.navercorp.pinpoint.plugin.spring.web.jakarta.interceptor.LookupHandlerMethodInterceptor.class, va(isUriStatCollectMethod));
             }
 
             return target.toBytecode();
@@ -87,6 +91,10 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
     }
 
     public static class AbstractUrlHandlerMappingTransform implements TransformCallback {
+        private final Boolean isUriStatCollectMethod;
+        public AbstractUrlHandlerMappingTransform(Boolean isUriStatCollectMethod) {
+            this.isUriStatCollectMethod = isUriStatCollectMethod;
+        }
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -94,13 +102,13 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             // Add attribute listener.
             final InstrumentMethod exposePathWithinMapping = target.getDeclaredMethod("exposePathWithinMapping", "java.lang.String", "java.lang.String", "javax.servlet.http.HttpServletRequest");
             if (exposePathWithinMapping != null) {
-                exposePathWithinMapping.addInterceptor(ExposePathWithinMappingInterceptor.class);
+                exposePathWithinMapping.addInterceptor(com.navercorp.pinpoint.plugin.spring.web.javax.interceptor.ExposePathWithinMappingInterceptor.class, va(this.isUriStatCollectMethod));
             }
 
             // Spring 6
             final InstrumentMethod exposePathWithinMappingJakarta = target.getDeclaredMethod("exposePathWithinMapping", "java.lang.String", "java.lang.String", "jakarta.servlet.http.HttpServletRequest");
             if (exposePathWithinMappingJakarta != null) {
-                exposePathWithinMappingJakarta.addInterceptor(ExposePathWithinMappingInterceptor.class);
+                exposePathWithinMappingJakarta.addInterceptor(com.navercorp.pinpoint.plugin.spring.web.jakarta.interceptor.ExposePathWithinMappingInterceptor.class, va(this.isUriStatCollectMethod));
             }
 
             return target.toBytecode();

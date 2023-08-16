@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.plugin.spring.web.interceptor;
+package com.navercorp.pinpoint.plugin.spring.web.jakarta.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -8,14 +8,17 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 public class ExposePathWithinMappingInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final TraceContext traceContext;
+    private final Boolean uriStatCollectMethod;
 
-    public ExposePathWithinMappingInterceptor(final TraceContext traceContext) {
+    public ExposePathWithinMappingInterceptor(final TraceContext traceContext, Boolean uriStatCollectMethod) {
         this.traceContext = traceContext;
+        this.uriStatCollectMethod = uriStatCollectMethod;
     }
 
     @Override
@@ -30,10 +33,18 @@ public class ExposePathWithinMappingInterceptor implements AroundInterceptor {
         }
 
         try {
+            final SpanRecorder spanRecorder = trace.getSpanRecorder();
             final String url = ArrayArgumentUtils.getArgument(args, 0, String.class);
             if (StringUtils.hasLength(url)) {
-                final SpanRecorder spanRecorder = trace.getSpanRecorder();
                 spanRecorder.recordUriTemplate(url);
+            }
+
+            if (uriStatCollectMethod) {
+                final HttpServletRequest request = ArrayArgumentUtils.getArgument(args, 2, HttpServletRequest.class);
+                final String method = request.getMethod();
+                if (StringUtils.hasLength(method)) {
+                    spanRecorder.recordUriHttpMethod(method);
+                }
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {

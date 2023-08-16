@@ -38,6 +38,8 @@ public class AsyncQueueingUriStatStorageTest {
 
     private static final String[] URI_EXAMPLES = {"/index.html", "/main", "/error"};
 
+    private static final String[] HTTP_METHODS = {"GET", "POST", "PUT", "DELETE"};
+
     @Test
     public void storageTest() {
         int collectInterval = 100;
@@ -49,7 +51,7 @@ public class AsyncQueueingUriStatStorageTest {
 
     private void storageTest(int collectInterval, int storeCount) {
         try (AsyncQueueingUriStatStorage storage
-                     = new AsyncQueueingUriStatStorage(5012, 1000, "Test-Executor", collectInterval)) {
+                     = new AsyncQueueingUriStatStorage(true, 5012, 1000, "Test-Executor", collectInterval)) {
 
             long sleepTime = System.currentTimeMillis() % collectInterval;
 
@@ -81,7 +83,9 @@ public class AsyncQueueingUriStatStorageTest {
     }
 
     private void storeRandomValue(AsyncQueueingUriStatStorage storage, long timestamp) {
-        storage.store(URI_EXAMPLES[RANDOM.nextInt(URI_EXAMPLES.length)], RANDOM.nextBoolean(), timestamp - RANDOM.nextInt(10000), timestamp);
+        storage.store(URI_EXAMPLES[RANDOM.nextInt(URI_EXAMPLES.length)],
+                HTTP_METHODS[RANDOM.nextInt(HTTP_METHODS.length)],
+                RANDOM.nextBoolean(), timestamp - RANDOM.nextInt(10000), timestamp);
     }
 
 }

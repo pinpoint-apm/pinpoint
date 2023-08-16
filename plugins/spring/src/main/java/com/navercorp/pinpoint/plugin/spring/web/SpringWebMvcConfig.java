@@ -28,12 +28,14 @@ public class SpringWebMvcConfig {
     private final boolean enable;
     private final boolean uriStatEnable;
     private final boolean uriStatUseUserInput;
+    private final boolean uriStatCollectMethod;
 
     public SpringWebMvcConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
         this.enable = config.readBoolean("profiler.spring.webmvc.enable", true);
         this.uriStatEnable = config.readBoolean("profiler.uri.stat.spring.webmvc.enable", false);
         this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.spring.webmvc.useuserinput", false);
+        this.uriStatCollectMethod = config.readBoolean("profiler.uri.stat.collect.http.method", false);
     }
 
     public boolean isEnable() {
@@ -46,6 +48,10 @@ public class SpringWebMvcConfig {
 
     public boolean isUriStatUseUserInput() {
         return uriStatUseUserInput;
+    }
+
+    public boolean isUriStatCollectMethod() {
+        return uriStatCollectMethod;
     }
 
     @Override
