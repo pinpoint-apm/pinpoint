@@ -18,7 +18,7 @@
     <batch:job id="uriAlarmJob">
         <batch:step id="uriAlarmPartitionStep">
             <batch:partition step="uriAlarmStep" partitioner="alarmPartitioner">
-                <batch:handler task-executor="alarmPoolTaskExecutorForPartition"/>
+                <batch:handler task-executor="uriAlarmPoolTaskExecutorForPartition"/>
             </batch:partition>
         </batch:step>
         <batch:listeners>
@@ -43,11 +43,6 @@
     <bean id="uriAlarmProcessor" class="com.navercorp.pinpoint.batch.alarm.UriStatAlarmProcessor" scope="step"/>
     <bean id="uriAlarmWriter" class="com.navercorp.pinpoint.batch.alarm.UriStatAlarmWriter" scope="step"/>
 
-    <task:executor id="alarmPoolTaskExecutorForPartition" pool-size="1"/>
-
-    <bean id="batchAlarmDao" class="com.navercorp.pinpoint.batch.dao.mysql.MysqlAlarmDao"/>
-    <bean id="batchAlarmService" class="com.navercorp.pinpoint.batch.service.AlarmServiceImpl">
-        <constructor-arg ref="batchAlarmDao"/>
-    </bean>
+    <task:executor id="uriAlarmPoolTaskExecutorForPartition" pool-size="1"/>
 
 </beans>

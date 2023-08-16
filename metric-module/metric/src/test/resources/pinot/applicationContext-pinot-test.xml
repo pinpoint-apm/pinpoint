@@ -5,7 +5,7 @@
 
     <bean id="pinotDataSource"
           class="com.navercorp.pinpoint.pinot.datasource.PinotDataSource" destroy-method="close">
-        <property name="url" value="jdbc:pinot://localhost:9000"/>
+        <property name="jdbcUrl" value="jdbc:pinot://localhost:9000"/>
         <property name="username" value="root"/>
         <property name="password" value="password"/>
     </bean>

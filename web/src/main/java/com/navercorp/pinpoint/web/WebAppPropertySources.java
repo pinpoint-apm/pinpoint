@@ -23,7 +23,9 @@ import org.springframework.core.annotation.Order;
 
 
 @PropertySources({
-        @PropertySource(name = "WebAppPropertySources", value = { WebAppPropertySources.WEB_ROOT, WebAppPropertySources.WEB_PROFILE}),
+        @PropertySource(name = "WebAppPropertySources", value = {
+                WebAppPropertySources.WEB_ROOT, WebAppPropertySources.WEB_PROFILE
+        }),
 })
 
 @Order(Ordered.HIGHEST_PRECEDENCE)

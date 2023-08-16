@@ -12,7 +12,7 @@ import org.springframework.context.annotation.PropertySource;
  * @author Woonduk Kang(emeroad)
  */
 @Configuration
-@PropertySource("classpath:/pinot/profiles/${pinpoint.profiles.active:release}/pinot-jdbc.properties")
+@PropertySource("classpath:/pinot/profiles/local/pinot-jdbc.properties")
 public class PinotDatasourceConfiguration {
 
     private final Logger logger = LogManager.getLogger(PinotDatasourceConfiguration.class);
@@ -20,11 +20,11 @@ public class PinotDatasourceConfiguration {
     @Bean
     public PinotDataSource pinotDataSource() {
         PinotDataSourceProperties properties = pinotDataSourceProperties();
-        logger.info("pinot jdbc url:{}", properties.getUrl());
+        logger.info("pinot jdbc url:{}", properties.getJdbcUrl());
         logger.debug("pinot jdbc username:{}", properties.getUsername());
 
         PinotDataSource datasource = new PinotDataSource();
-        datasource.setUrl(properties.getUrl());
+        datasource.setJdbcUrl(properties.getJdbcUrl());
         datasource.setUsername(properties.getUsername());
         datasource.setPassword(properties.getPassword());
         datasource.setBrokers(properties.getBrokers());
@@ -33,7 +33,7 @@ public class PinotDatasourceConfiguration {
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "pinpoint.pinot.jdbc")
+    @ConfigurationProperties(prefix = "spring.datasource.pinot")
     public PinotDataSourceProperties pinotDataSourceProperties() {
         return new PinotDataSourceProperties();
     }
