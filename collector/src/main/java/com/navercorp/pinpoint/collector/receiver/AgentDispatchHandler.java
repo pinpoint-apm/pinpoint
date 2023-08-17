@@ -19,11 +19,15 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -32,45 +36,37 @@ import java.util.Objects;
  */
 public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
 
+    private final Logger logger = LogManager.getLogger(getClass());
+
     private final SimpleAndRequestResponseHandler<REQ, RES> agentInfoHandler;
 
-    private final RequestResponseHandler<REQ, RES> sqlMetaDataHandler;
+    private final IntHashMap<RequestResponseHandler<REQ, RES>> handlerMap;
 
-    private final RequestResponseHandler<REQ, RES> apiMetaDataHandler;
-
-    private final RequestResponseHandler<REQ, RES> stringMetaDataHandler;
-
-    private final RequestResponseHandler<REQ, RES> exceptionMetaDataHandler;
 
     public AgentDispatchHandler(final SimpleAndRequestResponseHandler<REQ, RES> agentInfoHandler,
-                                final RequestResponseHandler<REQ, RES> sqlMetaDataHandler,
-                                final RequestResponseHandler<REQ, RES> apiMetaDataHandler,
-                                final RequestResponseHandler<REQ, RES> stringMetaDataHandler,
-                                final RequestResponseHandler<REQ, RES> exceptionMetaDataHandler) {
+                                List<RequestResponseHandler<REQ, RES>> handlers) {
         this.agentInfoHandler = Objects.requireNonNull(agentInfoHandler, "agentInfoHandler");
-        this.sqlMetaDataHandler = Objects.requireNonNull(sqlMetaDataHandler, "sqlMetaDataHandler");
-        this.apiMetaDataHandler = Objects.requireNonNull(apiMetaDataHandler, "apiMetaDataHandler");
-        this.stringMetaDataHandler = Objects.requireNonNull(stringMetaDataHandler, "stringMetaDataHandler");
-        this.exceptionMetaDataHandler = Objects.requireNonNull(exceptionMetaDataHandler, "exceptionMetaDataHandler");
+
+        handlers.forEach(handler -> logger.info("{} {}", handler.type(), handler.getClass()));
+
+        this.handlerMap = new IntHashMap<>();
+        for (RequestResponseHandler<REQ, RES> handler : handlers) {
+            RequestResponseHandler<REQ, RES> old = handlerMap.put(handler.type(), handler);
+            if (old != null) {
+                throw new IllegalArgumentException("Unexpected type new:" + handler + " old:" + old);
+            }
+        }
+
     }
 
     protected RequestResponseHandler<REQ, RES> getRequestResponseHandler(ServerRequest<? extends REQ> serverRequest) {
         final Header header = serverRequest.getHeader();
         final short type = header.getType();
-        switch (type) {
-            case DefaultTBaseLocator.SQLMETADATA:
-            case DefaultTBaseLocator.SQLUIDMETADATA:
-                return sqlMetaDataHandler;
-            case DefaultTBaseLocator.APIMETADATA:
-                return apiMetaDataHandler;
-            case DefaultTBaseLocator.STRINGMETADATA:
-                return stringMetaDataHandler;
-            case DefaultTBaseLocator.AGENT_INFO:
-                return agentInfoHandler;
-            case DefaultTBaseLocator.EXCEPTIONMETADATA:
-                return exceptionMetaDataHandler;
+        RequestResponseHandler<REQ, RES> handler = this.handlerMap.get(type);
+        if (handler == null) {
+            throw new UnsupportedOperationException("unsupported header:" + header);
         }
-        throw new UnsupportedOperationException("unsupported header:" + header);
+        return handler;
     }
 
     private SimpleHandler<REQ> getSimpleHandler(Header header) {

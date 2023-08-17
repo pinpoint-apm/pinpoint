@@ -28,9 +28,10 @@ import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -51,6 +52,11 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
     public GrpcAgentInfoHandler(AgentInfoService agentInfoService, GrpcAgentInfoBoMapper agentInfoBoMapper) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.agentInfoBoMapper = Objects.requireNonNull(agentInfoBoMapper, "agentInfoBoMapper");
+    }
+
+    @Override
+    public int type() {
+        return DefaultTBaseLocator.APIMETADATA;
     }
 
     @Override
