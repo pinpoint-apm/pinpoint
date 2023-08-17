@@ -27,9 +27,10 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -46,6 +47,11 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<Generat
 
     public GrpcStringMetaDataHandler(StringMetaDataService stringMetaDataService) {
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
+    }
+
+    @Override
+    public int type() {
+        return DefaultTBaseLocator.STRINGMETADATA;
     }
 
     @Override

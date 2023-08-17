@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.grpc.trace.PStackTraceElement;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +57,11 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
 
     public GrpcExceptionMetaDataHandler(ExceptionMetaDataService exceptionMetaDataService) {
         this.exceptionMetaDataService = Objects.requireNonNull(exceptionMetaDataService, "exceptionMetaDataService");
+    }
+
+    @Override
+    public int type() {
+        return DefaultTBaseLocator.EXCEPTIONMETADATA;
     }
 
     @Override

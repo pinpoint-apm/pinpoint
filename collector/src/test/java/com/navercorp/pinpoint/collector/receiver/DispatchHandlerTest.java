@@ -156,6 +156,10 @@ public class DispatchHandlerTest {
             serverResponse.write(new TResult());
         }
 
+        @Override
+        public int type() {
+            return 0;
+        }
 
         public int getExecutedCount() {
             return executedCount;

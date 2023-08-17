@@ -27,5 +27,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface RequestResponseHandler<REQ, RES> {
 
+    int type();
+
     void handleRequest(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse);
 }

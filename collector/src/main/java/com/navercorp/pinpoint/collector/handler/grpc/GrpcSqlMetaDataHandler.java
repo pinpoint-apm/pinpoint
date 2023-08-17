@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +57,11 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
         logger.info("SqlUidMetaDataServices {}", Arrays.toString(sqlUidMetaDataServices));
     }
 
+
+    @Override
+    public int type() {
+        return DefaultTBaseLocator.SQLMETADATA;
+    }
 
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
