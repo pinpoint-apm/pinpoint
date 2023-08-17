@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.starter.multi;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
+import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.inspector.web.InspectorWebApp;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
 import com.navercorp.pinpoint.metric.web.MetricWebApp;
@@ -31,8 +32,6 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
@@ -41,8 +40,6 @@ import org.springframework.context.annotation.Import;
  */
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {
-        DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
         TransactionAutoConfiguration.class,
         SecurityAutoConfiguration.class,
         SpringDataWebAutoConfiguration.class,
@@ -50,7 +47,10 @@ import org.springframework.context.annotation.Import;
         RedisRepositoriesAutoConfiguration.class,
         RedisReactiveAutoConfiguration.class
 })
-@Import({PinpointWebModule.class})
+@Import({
+        PinpointWebModule.class,
+        MainDataSourcePropertySource.class,
+})
 public class MetricAndWebApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
 
