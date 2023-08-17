@@ -1,6 +1,6 @@
 spring:
   main:
-    allow-bean-definition-overriding: true
+    allow-bean-definition-overriding: false
 #    web-application-type: none
   profiles:
     active: local

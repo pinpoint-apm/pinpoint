@@ -19,13 +19,9 @@ package com.navercorp.pinpoint.inspector.collector;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorKafkaConfiguration;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorPropertySources;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
-import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  * @author minwoo.jung
