@@ -43,6 +43,7 @@ public class PinotDataSourceProperties {
         return "PinotDataSourceProperties{" +
                 "jdbcUrl='" + jdbcUrl + '\'' +
                 ", username='" + username + '\'' +
+                ", brokers='" + brokers + '\'' +
                 '}';
     }
 }

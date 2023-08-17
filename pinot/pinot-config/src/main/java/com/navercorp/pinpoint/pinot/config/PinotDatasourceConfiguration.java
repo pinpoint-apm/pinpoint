@@ -20,8 +20,7 @@ public class PinotDatasourceConfiguration {
     @Bean
     public PinotDataSource pinotDataSource() {
         PinotDataSourceProperties properties = pinotDataSourceProperties();
-        logger.info("pinot jdbc url:{}", properties.getJdbcUrl());
-        logger.debug("pinot jdbc username:{}", properties.getUsername());
+        logger.info("pinot properties {}", properties);
 
         PinotDataSource datasource = new PinotDataSource();
         datasource.setJdbcUrl(properties.getJdbcUrl());
@@ -33,7 +32,7 @@ public class PinotDatasourceConfiguration {
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.datasource.pinot")
+    @ConfigurationProperties(prefix = "spring.pinot-datasource.pinot")
     public PinotDataSourceProperties pinotDataSourceProperties() {
         return new PinotDataSourceProperties();
     }

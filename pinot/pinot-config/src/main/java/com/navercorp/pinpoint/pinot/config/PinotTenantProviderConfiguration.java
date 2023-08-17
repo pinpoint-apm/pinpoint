@@ -19,7 +19,7 @@ public class PinotTenantProviderConfiguration {
     private final Logger logger = LogManager.getLogger(PinotTenantProviderConfiguration.class);
 
     @Bean
-    public TenantProvider getTenantProvider(@Value("${pinpoint.pinot.tenantId:pinpoint}") String tenantId) {
+    public TenantProvider getTenantProvider(@Value("${spring.pinot-datasource.pinot.tenantId:pinpoint}") String tenantId) {
         logger.debug("pinot tenantId:{}", tenantId);
         return new SimpleTenantProvider(tenantId);
     }
