@@ -21,7 +21,15 @@
 
     <bean id="grpcTcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.AgentDispatchHandler">
         <constructor-arg index="0" ref="grpcAgentInfoHandler"/>
+        <constructor-arg index="1" ref="metaDataHandlers"/>
     </bean>
+
+    <util:list id="metaDataHandlers">
+        <ref bean="grpcSqlMetaDataHandler"/>
+        <ref bean="grpcApiMetaDataHandler"/>
+        <ref bean="grpcStringMetaDataHandler"/>
+        <ref bean="grpcExceptionMetaDataHandler"/>
+    </util:list>
 
     <bean id="grpcDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <property name="dispatchHandler" ref="grpcTcpDispatchHandler"/>
