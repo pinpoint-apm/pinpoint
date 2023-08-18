@@ -37,7 +37,10 @@ import java.io.InputStream;
  */
 @Configuration
 @ComponentScan(basePackages = {
-        "com.navercorp.pinpoint.inspector.web"
+        "com.navercorp.pinpoint.inspector.web.controller",
+        "com.navercorp.pinpoint.inspector.web.dao",
+        "com.navercorp.pinpoint.inspector.web.definition",
+        "com.navercorp.pinpoint.inspector.web.service",
 })
 @Import({
         InspectorWebPinotDaoConfiguration.class,
