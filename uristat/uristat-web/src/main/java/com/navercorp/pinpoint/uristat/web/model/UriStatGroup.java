@@ -76,14 +76,9 @@ public class UriStatGroup implements TimeseriesValueGroupView {
     public static class UriStatValue implements TimeSeriesValueView {
         private final String fieldName;
         private final List<Double> values;
-        private static final List<String> tags = Arrays.asList();
 
         private static Double nullToNegativeOne(Double d) {
-            if (d == null) {
-                return Double.valueOf(-1);
-            } else {
-                return d;
-            }
+            return org.apache.commons.lang3.ObjectUtils.defaultIfNull(d, -1D);
         }
 
         public static List<TimeSeriesValueView> createChartValueList(int dataSize, TimeWindow timeWindow, List<UriStatChartValue> uriStats, List<String> fieldNames) {
@@ -119,7 +114,7 @@ public class UriStatGroup implements TimeseriesValueGroupView {
 
         @Override
         public List<String> getTags() {
-            return tags;
+            return Collections.emptyList();
         }
 
         @Override

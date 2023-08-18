@@ -4,15 +4,11 @@ import com.navercorp.pinpoint.uristat.web.dao.UriStatChartDao;
 
 import java.util.List;
 
-public abstract class UriStatChartType {
-    protected String type;
-    protected UriStatChartDao chartDao;
+public interface UriStatChartType {
 
-    public abstract List<String> getFieldNames();
+    List<String> getFieldNames();
 
-    public abstract UriStatChartDao getChartDao();
+    UriStatChartDao getChartDao();
 
-    public String getType() {
-        return type;
-    }
+    String getType();
 }

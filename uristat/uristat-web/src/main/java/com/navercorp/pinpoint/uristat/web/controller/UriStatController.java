@@ -17,7 +17,11 @@
 package com.navercorp.pinpoint.uristat.web.controller;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.metric.web.util.*;
+import com.navercorp.pinpoint.metric.web.util.Range;
+import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.metric.web.util.TimeWindow;
+import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
+import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartTypeFactory;
@@ -28,10 +32,12 @@ import com.navercorp.pinpoint.uristat.web.service.UriStatSummaryService;
 import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
 import com.navercorp.pinpoint.uristat.web.view.UriStatView;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
