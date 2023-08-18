@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
 import java.security.InvalidParameterException;
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 public class UriStatSummaryQueryParameter extends QueryParameter {
@@ -41,12 +42,14 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
 
         private final String value;
 
+        private static final EnumSet<OrderBy> SET = EnumSet.allOf(OrderBy.class);
+
         OrderBy(String value) {
             this.value = value;
         }
 
         public static OrderBy fromValue(String value) {
-            for (OrderBy orderBy : OrderBy.values()) {
+            for (OrderBy orderBy : SET) {
                 if (orderBy.value.equalsIgnoreCase(value)) {
                     return orderBy;
                 }

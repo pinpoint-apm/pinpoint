@@ -2,25 +2,30 @@ package com.navercorp.pinpoint.uristat.web.chart;
 
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class UriStatChartTypeFactory {
-    private final List<UriStatChartType> uriStatCharts;
+    private final Map<String, UriStatChartType> uriStatCharts;
 
     public UriStatChartTypeFactory(UriStatChartType... uriStatCharts) {
         Objects.requireNonNull(uriStatCharts, "uriStatCharts");
-        this.uriStatCharts = List.of(uriStatCharts);
+
+        this.uriStatCharts = Arrays.stream(uriStatCharts)
+                .collect(Collectors.toMap(UriStatChartType::getType, Function.identity()));
     }
 
     public UriStatChartType valueOf(String type) {
         Objects.requireNonNull(type);
-        for (UriStatChartType chart : uriStatCharts) {
-            if (type.equals(chart.getType())) {
-                return chart;
-            }
+
+        final UriStatChartType uriStatChartType = uriStatCharts.get(type);
+        if (uriStatChartType == null) {
+            throw new RuntimeException("Invalid uri stat chart type: " + type);
         }
-        throw new RuntimeException("Invalid uri stat chart type: " + type);
+        return uriStatChartType;
     }
 }
