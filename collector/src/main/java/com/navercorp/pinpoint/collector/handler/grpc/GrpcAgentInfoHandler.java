@@ -56,7 +56,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
 
     @Override
     public int type() {
-        return DefaultTBaseLocator.APIMETADATA;
+        return DefaultTBaseLocator.AGENT_INFO;
     }
 
     @Override
