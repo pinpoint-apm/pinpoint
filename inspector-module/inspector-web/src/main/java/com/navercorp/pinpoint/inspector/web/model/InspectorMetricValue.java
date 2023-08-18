@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.model;
 
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.MetricValue;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class InspectorMetricValue extends MetricValue<Double> {
     private final String chartType;
     private final String unit;
 
-    public InspectorMetricValue(String fieldName, List tagList, String chartType, String unit, List valueList) {
+    public InspectorMetricValue(String fieldName, List<Tag> tagList, String chartType, String unit, List<Double> valueList) {
         super(fieldName, tagList, valueList);
         this.chartType = chartType;
         this.unit = unit;
