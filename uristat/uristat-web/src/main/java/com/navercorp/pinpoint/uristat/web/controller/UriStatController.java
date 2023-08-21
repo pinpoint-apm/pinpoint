@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.uristat.web.controller;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
@@ -70,19 +69,20 @@ public class UriStatController {
             @RequestParam("isDesc") boolean isDesc,
             @RequestParam("count") int count
     ) {
-        UriStatSummaryQueryParameter.Builder builder = new UriStatSummaryQueryParameter.Builder()
+        UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
+                .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
                 .setOrderby(column)
                 .setDesc(isDesc)
-                .setLimit(count);
+                .setLimit(count)
+                .build();
 
-        if (StringUtils.isEmpty(agentId)) {
-            return uriStatService.getUriStatApplicationPagedSummary(builder.build());
+        if (query.isApplicationStat()) {
+            return uriStatService.getUriStatApplicationPagedSummary(query);
         } else {
-            builder.setAgentId(agentId);
-            return uriStatService.getUriStatAgentPagedSummary(builder.build());
+            return uriStatService.getUriStatAgentPagedSummary(query);
         }
     }
 
@@ -94,16 +94,17 @@ public class UriStatController {
             @RequestParam("from") long from,
             @RequestParam("to") long to
     ) {
-        UriStatSummaryQueryParameter.Builder builder = new UriStatSummaryQueryParameter.Builder()
+        UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
-                .setRange(Range.newRange(from, to));
+                .setAgentId(agentId)
+                .setRange(Range.newRange(from, to))
+                .build();
 
-        if (StringUtils.isEmpty(agentId)) {
-            return uriStatService.getUriStatApplicationSummary(builder.build());
+        if (query.isApplicationStat()) {
+            return uriStatService.getUriStatApplicationSummary(query);
         } else {
-            builder.setAgentId(agentId);
-            return uriStatService.getUriStatAgentSummary(builder.build());
+            return uriStatService.getUriStatAgentSummary(query);
         }
     }
 
@@ -118,25 +119,26 @@ public class UriStatController {
             @RequestParam(value = "type", required = false) String type
     ) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        UriStatChartQueryParameter.Builder builder = new UriStatChartQueryParameter.Builder()
+        UriStatChartQueryParameter query = new UriStatChartQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
+                .setAgentId(agentId)
                 .setUri(uri)
                 .setRange(timeWindow.getWindowRange())
                 .setTimeSize((int) timeWindow.getWindowSlotSize())
-                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()));
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
+                .build();
 
         UriStatChartType chartType = chartTypeFactory.valueOf(type.toLowerCase());
-        List<UriStatChartValue> uriStats = getChartData(chartType, builder, agentId);
+        List<UriStatChartValue> uriStats = getChartData(chartType, query);
         return new UriStatView(uri, timeWindow, uriStats, chartType);
     }
 
-    private List<UriStatChartValue> getChartData(UriStatChartType chartType, UriStatChartQueryParameter.Builder builder, String agentId) {
-        if (StringUtils.isEmpty(agentId)) {
-            return uriStatChartService.getUriStatChartDataApplication(chartType, builder.build());
+    private List<UriStatChartValue> getChartData(UriStatChartType chartType, UriStatChartQueryParameter query) {
+        if (query.isApplicationStat()) {
+            return uriStatChartService.getUriStatChartDataApplication(chartType, query);
         } else {
-            builder.setAgentId(agentId);
-            return uriStatChartService.getUriStatChartDataAgent(chartType, builder.build());
+            return uriStatChartService.getUriStatChartDataAgent(chartType, query);
         }
     }
 }

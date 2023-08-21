@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.util;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
@@ -31,26 +32,60 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
     private final OrderBy orderBy;
     private final String isDesc;
 
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public OrderBy getOrderBy() {
+        return orderBy;
+    }
+
+    public String getIsDesc() {
+        return isDesc;
+    }
+
+    public boolean isApplicationStat() {
+        return StringUtils.isEmpty(agentId);
+    }
 
     private enum OrderBy {
         URI("uri"),
-        APDEX("apdex"),
+        APDEX("apdex", "(apdexRaw / totalCount)"),
         TOTAL("totalCount"),
         FAILURE("failureCount"),
         MAX("maxTimeMs"),
-        AVG("avgTimeMs");
+        AVG("avgTimeMs", "(totalTimeMs / totalCount)");
 
-        private final String value;
+        private final String name;
+        private final String desc;
 
         private static final EnumSet<OrderBy> SET = EnumSet.allOf(OrderBy.class);
 
-        OrderBy(String value) {
-            this.value = value;
+        OrderBy(String name) {
+            this.name = name;
+            this.desc = name;
         }
 
-        public static OrderBy fromValue(String value) {
+        OrderBy(String name, String desc) {
+            this.name = name;
+            this.desc = desc;
+        }
+
+        public static OrderBy fromValue(String name) {
             for (OrderBy orderBy : SET) {
-                if (orderBy.value.equalsIgnoreCase(value)) {
+                if (orderBy.name.equalsIgnoreCase(name)) {
                     return orderBy;
                 }
             }
@@ -59,14 +94,7 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
 
         @Override
         public String toString() {
-            switch(this) {
-                case APDEX:
-                    return "(apdexRaw / totalCount)";
-                case AVG:
-                    return "(totalTimeMs / totalCount)";
-                default:
-                    return this.value;
-            }
+            return desc;
         }
     }
 

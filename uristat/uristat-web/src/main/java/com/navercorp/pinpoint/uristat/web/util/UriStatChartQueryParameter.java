@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.util;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
@@ -27,6 +28,31 @@ public class UriStatChartQueryParameter extends QueryParameter {
     private final String applicationName;
     private final String agentId;
     private final String uri;
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public boolean isApplicationStat() {
+        return StringUtils.isEmpty(agentId);
+    }
+
 
     protected UriStatChartQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
