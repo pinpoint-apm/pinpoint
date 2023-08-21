@@ -382,9 +382,7 @@ public class DependencyResolver {
 
             for (Entry<String, List<Artifact>> subEntry : sub.entrySet()) {
                 List<Artifact> subArtifacts = subEntry.getValue();
-                List<Artifact> t = new ArrayList<>(thisArtifacts.size() + subArtifacts.size());
-                t.addAll(thisArtifacts);
-                t.addAll(subArtifacts);
+                List<Artifact> t = union(thisArtifacts, subArtifacts);
 
                 result.put(subEntry.getKey(), t);
             }
@@ -395,9 +393,7 @@ public class DependencyResolver {
 
                 for (Entry<String, List<Artifact>> subEntry : sub.entrySet()) {
                     List<Artifact> subArtifacts = subEntry.getValue();
-                    List<Artifact> t = new ArrayList<>(thisArtifacts.size() + subArtifacts.size());
-                    t.addAll(thisArtifacts);
-                    t.addAll(subArtifacts);
+                    List<Artifact> t = union(thisArtifacts, subArtifacts);
 
                     String subKey = subEntry.getKey();
                     String key = subKey.isEmpty() ? thisKey : thisKey + ", " + subKey;
@@ -408,6 +404,13 @@ public class DependencyResolver {
         }
 
         return result;
+    }
+
+    private static List<Artifact> union(List<Artifact> list1, List<Artifact> list2) {
+        List<Artifact> lists = new ArrayList<>(list1.size() + list2.size());
+        lists.addAll(list1);
+        lists.addAll(list2);
+        return lists;
     }
 
 }

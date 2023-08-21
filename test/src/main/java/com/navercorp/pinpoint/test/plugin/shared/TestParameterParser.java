@@ -39,7 +39,7 @@ public class TestParameterParser {
                 continue;
             }
 
-            String[] testArguments = arg.split("=");
+            String[] testArguments = arg.split("=", 2);
             if (testArguments.length != 2) {
                 continue;
             }

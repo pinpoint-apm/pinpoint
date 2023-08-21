@@ -53,7 +53,7 @@ public class PluginPackageClassRequirementFilter implements ClassNameFilter {
 
     private void parseRequirementList(List<String> packageRequirementList, List<String> packageList, List<String> requirementList) {
         for (String packageWithRequirement : packageRequirementList) {
-            String[] split = packageWithRequirement.split(":");
+            String[] split = packageWithRequirement.split(":", 2);
             if (split.length == 2) {
                 packageList.add(split[0]);
                 requirementList.add(split[1]);

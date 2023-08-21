@@ -55,7 +55,7 @@ public class ArtifactIdUtils {
             return null;
         }
 
-        String[] splitValue = artifactName.split(ARTIFACT_DELIMITER);
+        String[] splitValue = artifactName.split(ARTIFACT_DELIMITER, 4);
         if (ArrayUtils.isEmpty(splitValue)) {
             return null;
         }
