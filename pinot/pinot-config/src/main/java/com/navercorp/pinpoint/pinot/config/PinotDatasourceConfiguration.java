@@ -12,7 +12,7 @@ import org.springframework.context.annotation.PropertySource;
  * @author Woonduk Kang(emeroad)
  */
 @Configuration
-@PropertySource("classpath:/pinot/profiles/local/pinot-jdbc.properties")
+@PropertySource("classpath:/pinot/profiles/${pinpoint.profiles.active:release}/pinot-jdbc.properties")
 public class PinotDatasourceConfiguration {
 
     private final Logger logger = LogManager.getLogger(PinotDatasourceConfiguration.class);
