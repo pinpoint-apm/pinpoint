@@ -36,7 +36,7 @@ public class ExceptionReader {
     }
 
     private StackTraceElement parseStackTraceElement(String stackTraceElement) {
-        final String[] tokens = stackTraceElement.split(",");
+        final String[] tokens = stackTraceElement.split(",", 4);
         if (tokens.length == 4) {
             return new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.parseInt(tokens[3]));
         } else {

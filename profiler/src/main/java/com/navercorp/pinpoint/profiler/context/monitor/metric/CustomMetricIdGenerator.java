@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,10 +70,10 @@ public class CustomMetricIdGenerator {
 
     private boolean checkValidCustomMetricName(String customMetricName) {
         try {
-            String[] split = customMetricName.split("/");
+            String[] split = customMetricName.split("/", 3);
 
-            if (split == null || split.length != 3) {
-                throw new IllegalArgumentException("customMetricName must consist of {GroupName}/{MetricName}/LabelName} ");
+            if (split.length != 3) {
+                throw new IllegalArgumentException("customMetricName must consist of {GroupName}/{MetricName}/LabelName}");
             }
 
             for (String eachName : split) {

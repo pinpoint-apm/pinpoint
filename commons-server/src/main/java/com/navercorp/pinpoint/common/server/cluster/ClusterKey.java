@@ -14,7 +14,7 @@ public class ClusterKey {
     public static ClusterKey parse(String clusterKeyFormat) {
         Objects.requireNonNull(clusterKeyFormat, "clusterKeyFormat");
 
-        String[] tokens = clusterKeyFormat.split(DELIMITER);
+        String[] tokens = clusterKeyFormat.split(DELIMITER, 3);
         Assert.isTrue(tokens.length == 3, "invalid token.length == 3");
         return new ClusterKey(tokens[0], tokens[1], Long.parseLong(tokens[2]));
     }

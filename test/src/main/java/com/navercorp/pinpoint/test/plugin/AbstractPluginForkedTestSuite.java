@@ -240,7 +240,7 @@ public abstract class AbstractPluginForkedTestSuite {
         if (StringUtils.isEmpty(classPath)) {
             return Collections.emptyList();
         }
-        final List<String> paths = Arrays.asList(classPath.split(":"));
+        final String[] paths = classPath.split(":");
         return normalizePaths(paths);
     }
 
@@ -249,8 +249,8 @@ public abstract class AbstractPluginForkedTestSuite {
         return Paths.get(classPath).toAbsolutePath().normalize().toString();
     }
 
-    private static List<String> normalizePaths(List<String> classPaths) {
-        final List<String> result = new ArrayList<>(classPaths.size());
+    private static List<String> normalizePaths(String... classPaths) {
+        final List<String> result = new ArrayList<>(classPaths.length);
         for (String cp : classPaths) {
             result.add(normalizePath(cp));
         }
