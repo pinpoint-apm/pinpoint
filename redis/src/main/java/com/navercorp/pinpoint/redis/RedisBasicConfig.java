@@ -22,7 +22,6 @@ import io.lettuce.core.resource.ClientResources;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConfiguration;
@@ -44,7 +43,6 @@ import java.util.List;
  * @author youngjin.kim2
  */
 @Configuration(proxyBeanMethods = false)
-@Import({ RedisPropertySources.class })
 public class RedisBasicConfig {
 
     @Value("${spring.data.redis.username:default}")
@@ -59,7 +57,7 @@ public class RedisBasicConfig {
     @Value("${spring.data.redis.port:6379}")
     int port;
 
-    @Value("${spring.data.redis.cluster.nodes}")
+    @Value("${spring.data.redis.cluster.nodes:#{''}}")
     List<String> clusterNodes;
     @Value("${spring.data.redis.lettuce.client.io-thread-pool-size:8}")
     int lettuceIOThreadPoolSize;

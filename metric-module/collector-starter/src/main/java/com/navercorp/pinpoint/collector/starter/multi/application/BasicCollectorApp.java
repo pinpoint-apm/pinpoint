@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.collector.starter.multi.application;
 
 import com.navercorp.pinpoint.collector.PinpointCollectorModule;
+import com.navercorp.pinpoint.redis.RedisPropertySources;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
@@ -22,6 +23,9 @@ import org.springframework.context.annotation.Import;
         RedisReactiveAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class
 })
-@Import({PinpointCollectorModule.class})
+@Import({
+        PinpointCollectorModule.class,
+        RedisPropertySources.class,
+})
 public class BasicCollectorApp {
 }
