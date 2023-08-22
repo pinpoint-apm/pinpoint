@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.inspector.web.InspectorWebApp;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
 import com.navercorp.pinpoint.metric.web.MetricWebApp;
+import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.web.UriStatWebConfig;
 import com.navercorp.pinpoint.web.AuthorizationConfig;
 import com.navercorp.pinpoint.web.PinpointWebModule;
@@ -50,6 +51,7 @@ import org.springframework.context.annotation.Import;
 @Import({
         PinpointWebModule.class,
         MainDataSourcePropertySource.class,
+        RedisPropertySources.class,
 })
 public class MetricAndWebApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);

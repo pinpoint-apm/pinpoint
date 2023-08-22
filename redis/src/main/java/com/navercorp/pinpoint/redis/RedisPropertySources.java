@@ -26,7 +26,7 @@ import org.springframework.context.annotation.PropertySources;
 })
 public class RedisPropertySources {
 
-    public static final String REDIS_ROOT = "classpath:redis-root.properties";
-    public static final String REDIS_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/redis.properties";
+    public static final String REDIS_ROOT = "classpath:redis/redis-root.properties";
+    public static final String REDIS_PROFILE = "classpath:redis/profiles/${pinpoint.profiles.active:local}/redis.properties";
 
 }

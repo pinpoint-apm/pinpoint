@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
+import com.navercorp.pinpoint.redis.RedisPropertySources;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
@@ -43,6 +44,7 @@ import org.springframework.context.annotation.Import;
 @Import({
         PinpointWebModule.class,
         MainDataSourcePropertySource.class,
+        RedisPropertySources.class,
 })
 public class WebApp  {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
