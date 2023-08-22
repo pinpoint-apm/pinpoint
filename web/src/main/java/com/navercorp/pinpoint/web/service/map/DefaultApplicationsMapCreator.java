@@ -16,17 +16,15 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.util.FutureUtils;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
@@ -65,34 +63,43 @@ public class DefaultApplicationsMapCreator implements ApplicationsMapCreator {
             LinkDataDuplexMap searchResult = applicationMapCreator.createMap(application, linkSelectContext);
             resultMap.addLinkDataDuplexMap(searchResult);
         }
-        logger.debug("depth search. callerDepth : {}, calleeDepth : {}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
+        if (logger.isDebugEnabled()) {
+            logger.debug("depth search. callerDepth : {}, calleeDepth : {}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
+        }
         return resultMap;
     }
 
     private LinkDataDuplexMap createParallel(List<Application> applications, LinkSelectContext linkSelectContext) {
-        final Set<LinkDataDuplexMap> searchResults = Sets.newConcurrentHashSet();
-        CompletableFuture[] futures = getLinkDataMapFutures(searchResults, applications, linkSelectContext);
-        CompletableFuture.allOf(futures).join();
+        CompletableFuture<LinkDataDuplexMap>[] futures = getLinkDataMapFutures(applications, linkSelectContext);
+
+        LinkDataDuplexMap[] linkDataDuplexMaps = FutureUtils.allJoin(futures, LinkDataDuplexMap.class);
+
         LinkDataDuplexMap resultMap = new LinkDataDuplexMap();
-        for (LinkDataDuplexMap searchResult : searchResults) {
-            resultMap.addLinkDataDuplexMap(searchResult);
+        for (LinkDataDuplexMap linkDataDuplexMap : linkDataDuplexMaps) {
+            resultMap.addLinkDataDuplexMap(linkDataDuplexMap);
         }
-        logger.debug("depth search. callerDepth : {}, calleeDepth : {}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("depth search. callerDepth : {}, calleeDepth : {}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
+        }
         return resultMap;
     }
 
-    private CompletableFuture[] getLinkDataMapFutures(Set<LinkDataDuplexMap> searchResults, List<Application> targetApplicationList, LinkSelectContext linkSelectContext) {
-        List<CompletableFuture<Void>> linkDataDuplexMapFutures = new ArrayList<>();
-        for (Application targetApplication : targetApplicationList) {
-            CompletableFuture<LinkDataDuplexMap> linkDataDuplexMapFuture = CompletableFuture.supplyAsync(new Supplier<LinkDataDuplexMap>() {
+
+    private CompletableFuture<LinkDataDuplexMap>[] getLinkDataMapFutures(List<Application> targetApplicationList, LinkSelectContext linkSelectContext) {
+        @SuppressWarnings("unchecked")
+        CompletableFuture<LinkDataDuplexMap>[] linkDataDuplexMapFutures = new CompletableFuture[targetApplicationList.size()];
+        for (int i = 0; i < targetApplicationList.size(); i++) {
+            final Application targetApplication = targetApplicationList.get(i);
+
+            CompletableFuture<LinkDataDuplexMap> future = CompletableFuture.supplyAsync(new Supplier<>() {
                 @Override
                 public LinkDataDuplexMap get() {
                     return applicationMapCreator.createMap(targetApplication, linkSelectContext);
                 }
             }, executor);
-            CompletableFuture<Void> searchResultsFuture = linkDataDuplexMapFuture.thenAccept(searchResults::add);
-            linkDataDuplexMapFutures.add(searchResultsFuture);
+            linkDataDuplexMapFutures[i] = future;
         }
-        return linkDataDuplexMapFutures.toArray(new CompletableFuture[0]);
+        return linkDataDuplexMapFutures;
     }
 }
