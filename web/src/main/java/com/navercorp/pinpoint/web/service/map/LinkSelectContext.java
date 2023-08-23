@@ -16,17 +16,17 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.google.common.collect.Sets;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.service.SearchDepth;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author HyunGil Jeong
@@ -40,7 +40,7 @@ public class LinkSelectContext {
     private final SearchDepth calleeDepth;
     private final LinkVisitChecker linkVisitChecker;
 
-    private final Set<Application> nextApplications = Sets.newConcurrentHashSet();
+    private final Set<Application> nextApplications = ConcurrentHashMap.newKeySet();
 
     public LinkSelectContext(Range range, SearchDepth callerDepth, SearchDepth calleeDepth, LinkVisitChecker linkVisitChecker) {
         this.range = Objects.requireNonNull(range, "range");
@@ -86,8 +86,7 @@ public class LinkSelectContext {
     }
 
     public List<Application> getNextApplications() {
-        List<Application> nextApplications = new ArrayList<>(this.nextApplications);
-        return nextApplications;
+        return new ArrayList<>(this.nextApplications);
     }
 
     public void addNextApplication(Application application) {
@@ -100,7 +99,6 @@ public class LinkSelectContext {
     public LinkSelectContext advance() {
         SearchDepth nextCallerDepth = callerDepth.nextDepth();
         SearchDepth nextCalleeDepth = calleeDepth.nextDepth();
-        LinkSelectContext nextContext = new LinkSelectContext(range, nextCallerDepth, nextCalleeDepth, linkVisitChecker);
-        return nextContext;
+        return new LinkSelectContext(range, nextCallerDepth, nextCalleeDepth, linkVisitChecker);
     }
 }

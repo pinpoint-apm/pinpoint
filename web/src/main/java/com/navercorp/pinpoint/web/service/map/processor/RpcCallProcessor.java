@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
-import com.google.common.collect.Sets;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
@@ -25,17 +25,16 @@ import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.service.map.VirtualLinkMarker;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Replaces link data pointing to domains into applications if the target has an agent installed.
@@ -50,7 +49,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
 
     private final VirtualLinkMarker virtualLinkMarker;
 
-    private final Map<AcceptApplicationCacheKey, Set<AcceptApplication>> acceptApplicationCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<AcceptApplicationCacheKey, Set<AcceptApplication>> acceptApplicationCache = new ConcurrentHashMap<>();
 
     private final AcceptApplicationLocalCache rpcAcceptApplicationCache = new AcceptApplicationLocalCache();
 
@@ -141,32 +140,31 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
         this.rpcAcceptApplicationCache.put(rpcApplication, acceptApplicationSet);
 
         Set<AcceptApplication> acceptApplication = this.rpcAcceptApplicationCache.get(rpcApplication);
-        logger.debug("findAcceptApplication {}->{} result:{}", fromApplication, host, acceptApplication);
+        if (logger.isDebugEnabled()) {
+            logger.debug("findAcceptApplication {}->{} result:{}", fromApplication, host, acceptApplication);
+        }
         return acceptApplication;
     }
 
     private Set<AcceptApplication> getAcceptApplications(Application fromApplication, Range range) {
         AcceptApplicationCacheKey cacheKey = new AcceptApplicationCacheKey(fromApplication, range);
-        Set<AcceptApplication> cachedAcceptApplications = acceptApplicationCache.get(cacheKey);
-        if (cachedAcceptApplications == null) {
-            logger.debug("acceptApplicationCache miss {}", fromApplication);
-            Set<AcceptApplication> queriedAcceptApplications = hostApplicationMapDao.findAcceptApplicationName(fromApplication, range);
-
-            final Set<AcceptApplication> filteredApplicationList = filterAlias(queriedAcceptApplications);
-            logger.debug("filteredApplicationList" + filteredApplicationList);
-
-            Set<AcceptApplication> acceptApplications = Sets.newConcurrentHashSet();
-            if (CollectionUtils.hasLength(filteredApplicationList)) {
-                acceptApplications.addAll(filteredApplicationList);
-            }
-            cachedAcceptApplications = acceptApplicationCache.putIfAbsent(cacheKey, acceptApplications);
-            if (cachedAcceptApplications == null) {
-                cachedAcceptApplications = acceptApplications;
-            }
-        } else {
+        final Set<AcceptApplication> cachedAcceptApplications = acceptApplicationCache.get(cacheKey);
+        if (cachedAcceptApplications != null) {
             logger.debug("acceptApplicationCache hit {}", fromApplication);
+            return cachedAcceptApplications;
         }
-        return cachedAcceptApplications;
+
+        logger.debug("acceptApplicationCache miss {}", fromApplication);
+        Set<AcceptApplication> queriedAcceptApplications = hostApplicationMapDao.findAcceptApplicationName(fromApplication, range);
+
+        final Set<AcceptApplication> filteredApplicationList = filterAlias(queriedAcceptApplications);
+        logger.debug("filteredApplicationList: {}", filteredApplicationList);
+
+        Set<AcceptApplication> acceptApplications = ConcurrentHashMap.newKeySet();
+        if (CollectionUtils.hasLength(filteredApplicationList)) {
+            acceptApplications.addAll(filteredApplicationList);
+        }
+        return acceptApplicationCache.computeIfAbsent(cacheKey, acceptApplicationCacheKey -> acceptApplications);
     }
 
     private static class AcceptApplicationCacheKey {
@@ -199,11 +197,9 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("CacheKey{");
-            sb.append("application=").append(application);
-            sb.append(", range=").append(range);
-            sb.append('}');
-            return sb.toString();
+            return "CacheKey{" + "application=" + application +
+                    ", range=" + range +
+                    '}';
         }
     }
 }

@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
-import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -49,9 +48,8 @@ class AcceptApplicationLocalCache {
 
     public void put(RpcApplication findKey, Set<AcceptApplication> acceptApplicationSet) {
         if (CollectionUtils.isEmpty(acceptApplicationSet)) {
-
             // initialize for empty value
-            this.acceptApplicationLocalCache.putIfAbsent(findKey, Sets.newConcurrentHashSet());
+            computeIfAbsent(findKey);
             return;
         }
         logger.debug("findAcceptApplication:{}", acceptApplicationSet);
@@ -61,15 +59,12 @@ class AcceptApplicationLocalCache {
             // acceptApplicationSet data contains the url and the accept node's applicationName.
             // we need to recreate the key set based on the url and the calling application.
             RpcApplication newKey = new RpcApplication(acceptApplication.getHost(), findKey.getApplication());
-            Set<AcceptApplication> findSet = this.acceptApplicationLocalCache.get(newKey);
-            if (findSet == null) {
-                Set<AcceptApplication> set = Sets.newConcurrentHashSet();
-                findSet = this.acceptApplicationLocalCache.putIfAbsent(newKey, set);
-                if (findSet == null) {
-                    findSet = set;
-                }
-            }
+            Set<AcceptApplication> findSet = computeIfAbsent(newKey);
             findSet.add(acceptApplication);
         }
+    }
+
+    private Set<AcceptApplication> computeIfAbsent(RpcApplication key) {
+        return this.acceptApplicationLocalCache.computeIfAbsent(key, rpcApplication -> ConcurrentHashMap.newKeySet());
     }
 }

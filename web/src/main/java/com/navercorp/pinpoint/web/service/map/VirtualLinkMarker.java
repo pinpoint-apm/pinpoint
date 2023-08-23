@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author HyunGil Jeong
@@ -34,7 +34,7 @@ public class VirtualLinkMarker {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Set<LinkData> virtualLinkDataMarker = Sets.newConcurrentHashSet();
+    private final Set<LinkData> virtualLinkDataMarker = ConcurrentHashMap.newKeySet();
 
     public Set<LinkData> getVirtualLinkData() {
         return new HashSet<>(virtualLinkDataMarker);

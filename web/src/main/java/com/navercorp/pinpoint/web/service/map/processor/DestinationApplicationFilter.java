@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
-import com.google.common.collect.Sets;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -35,14 +34,12 @@ public class DestinationApplicationFilter implements LinkDataMapProcessor {
 
     public DestinationApplicationFilter(Application destinationApplication) {
         Objects.requireNonNull(destinationApplication, "destinationApplication");
-
-        this.destinationApplications = Sets.newHashSet(destinationApplication);
+        this.destinationApplications = Set.of(destinationApplication);
     }
 
     public DestinationApplicationFilter(Collection<Application> destinationApplications) {
         Objects.requireNonNull(destinationApplications, "destinationApplications");
-
-        this.destinationApplications = Sets.newHashSet(destinationApplications);
+        this.destinationApplications = Set.copyOf(destinationApplications);
     }
 
     @Override
@@ -58,9 +55,6 @@ public class DestinationApplicationFilter implements LinkDataMapProcessor {
 
     private boolean accept(LinkData linkData) {
         final Application toApplication = linkData.getToApplication();
-        if (destinationApplications.contains(toApplication)) {
-            return true;
-        }
-        return false;
+        return destinationApplications.contains(toApplication);
     }
 }
