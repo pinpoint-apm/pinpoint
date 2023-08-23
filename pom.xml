@@ -197,7 +197,7 @@
         <jakarta.validation-api.version>2.0.2</jakarta.validation-api.version>
 
 
-        <asm.version>9.4</asm.version>
+        <asm.version>9.5</asm.version>
         <thrift.version>0.16.0</thrift.version>
         <caffeine.version>2.9.2</caffeine.version>
 
