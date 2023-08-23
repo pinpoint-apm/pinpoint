@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,12 +85,12 @@ public class AgentEventTimelineTest {
                 createAgentEvent(160, AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER),
                 createAgentEvent(170, AgentEventType.USER_THREAD_DUMP),
                 createAgentEvent(180, AgentEventType.OTHER));
-        Set<AgentEventType> includedAgentEventTypes = new HashSet<>() {{
-            add(AgentEventType.AGENT_PING);
-            add(AgentEventType.AGENT_CONNECTED);
-            add(AgentEventType.AGENT_SHUTDOWN);
-            add(AgentEventType.AGENT_CLOSED_BY_SERVER);
-        }};
+        Set<AgentEventType> includedAgentEventTypes = Set.of(
+            AgentEventType.AGENT_PING,
+            AgentEventType.AGENT_CONNECTED,
+            AgentEventType.AGENT_SHUTDOWN,
+            AgentEventType.AGENT_CLOSED_BY_SERVER
+        );
         AgentEventFilter excludeUnexpectedEventsFilter = new AgentEventFilter.ExcludeFilter(
                 AgentEventType.AGENT_UNEXPECTED_SHUTDOWN, AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER);
         AgentEventFilter excludeUserThreadDumpFilter = new AgentEventFilter.ExcludeFilter(AgentEventType.USER_THREAD_DUMP);

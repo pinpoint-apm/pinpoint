@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.plugin.filter;
 
 
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +36,7 @@ public class DisabledPluginFilter implements PluginFilter {
 
     public DisabledPluginFilter(List<String> disabledPluginIds) {
         Objects.requireNonNull(disabledPluginIds, "disabledPluginIds");
-        this.disabledPluginIds = new HashSet<String>(disabledPluginIds);
+        this.disabledPluginIds = new HashSet<>(disabledPluginIds);
     }
 
     @Override
@@ -51,9 +51,6 @@ public class DisabledPluginFilter implements PluginFilter {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DisabledPluginFilter{");
-        sb.append("disabledPluginIds=").append(disabledPluginIds);
-        sb.append('}');
-        return sb.toString();
+        return "DisabledPluginFilter{" + "disabledPluginIds=" + disabledPluginIds + '}';
     }
 }

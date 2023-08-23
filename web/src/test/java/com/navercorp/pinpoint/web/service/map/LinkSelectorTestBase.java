@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
@@ -33,7 +32,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -99,7 +97,7 @@ public abstract class LinkSelectorTestBase {
         Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
         LinkDataDuplexMap select = linkSelector.select(List.of(APP_A), range, 1, 1);
@@ -122,7 +120,7 @@ public abstract class LinkSelectorTestBase {
 
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(List.of(APP_A), range, 1, 1);
@@ -154,7 +152,7 @@ public abstract class LinkSelectorTestBase {
         }
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(List.of(APP_A), range, 1, 1);
@@ -191,7 +189,7 @@ public abstract class LinkSelectorTestBase {
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(link_B_C);
 
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         // depth 1
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
@@ -227,9 +225,7 @@ public abstract class LinkSelectorTestBase {
         final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
         final String rpcUri = "www.test.com/test";
         final Application RPC_A_B = new Application(rpcUri, testRpcServiceType);
-        final Set<AcceptApplication> acceptApplications = new HashSet<AcceptApplication>() {{
-            add(new AcceptApplication(rpcUri, APP_B));
-        }};
+        final Set<AcceptApplication> acceptApplications = Set.of(new AcceptApplication(rpcUri, APP_B));
         int callCount_A_B = 10;
         LinkDataMap linkDataMap = new LinkDataMap();
         linkDataMap.addLinkData(
@@ -278,7 +274,7 @@ public abstract class LinkSelectorTestBase {
 
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(linkDataMap);
-        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(List.of(APP_B), range, 1, 1);
@@ -317,7 +313,7 @@ public abstract class LinkSelectorTestBase {
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(linkDataMap_B_C);
 
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(List.of(APP_C), range, 1, 1);
@@ -352,7 +348,7 @@ public abstract class LinkSelectorTestBase {
         final Application APP_C = new Application("APP_C", ServiceType.TEST_STAND_ALONE);
         final String rpcUri = "www.test.com/test";
         final Application RPC_A = new Application(rpcUri, testRpcServiceType);
-        final Set<AcceptApplication> acceptApplications = Sets.newHashSet(new AcceptApplication(rpcUri, APP_B), new AcceptApplication(rpcUri, APP_C));
+        final Set<AcceptApplication> acceptApplications = Set.of(new AcceptApplication(rpcUri, APP_B), new AcceptApplication(rpcUri, APP_C));
 
         int callCount_A_B = 10;
         int callCount_A_C = 20;
@@ -418,11 +414,12 @@ public abstract class LinkSelectorTestBase {
         final Application RPC_PROXY = new Application(proxyUri, testRpcServiceType);
         final Application RPC_B = new Application(bUri, testRpcServiceType);
         final Application RPC_C = new Application(cUri, testRpcServiceType);
-        final Set<AcceptApplication> acceptApplications = Sets.newHashSet(
+        final Set<AcceptApplication> acceptApplications = Set.of(
                 new AcceptApplication(proxyUri, APP_B),
                 new AcceptApplication(proxyUri, APP_C),
                 new AcceptApplication(bUri, APP_B),
-                new AcceptApplication(cUri, APP_C));
+                new AcceptApplication(cUri, APP_C)
+        );
 
         int callCount_proxy_B = 10;
         int callCount_proxy_C = 20;
@@ -488,8 +485,8 @@ public abstract class LinkSelectorTestBase {
         final String apiUri = "api.test.com/test";
         final Application RPC_GW = new Application(gwUri, testRpcServiceType);
         final Application RPC_API = new Application(apiUri, testRpcServiceType);
-        final Set<AcceptApplication> gwAcceptApplications = Sets.newHashSet(new AcceptApplication(gwUri, APP_B), new AcceptApplication(gwUri, APP_C));
-        final Set<AcceptApplication> apiAcceptApplications = Sets.newHashSet(new AcceptApplication(apiUri, APP_D));
+        final Set<AcceptApplication> gwAcceptApplications = Set.of(new AcceptApplication(gwUri, APP_B), new AcceptApplication(gwUri, APP_C));
+        final Set<AcceptApplication> apiAcceptApplications = Set.of(new AcceptApplication(apiUri, APP_D));
 
         final int callCount_A_B = 4, callCount_A_C = 6;
         final int callCount_B_D = 4, callCount_C_D = 6;

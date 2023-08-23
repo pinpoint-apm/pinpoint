@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
-import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
@@ -32,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
@@ -95,7 +93,7 @@ public class RpcCallProcessorTest {
 
         Application expectedToApplication = new Application("ACCEPT_WAS", ServiceType.TEST_STAND_ALONE);
         when(hostApplicationMapDao.findAcceptApplicationName(fromApplication, testRange))
-                .thenReturn(Sets.newHashSet(new AcceptApplication(rpcUri, expectedToApplication)));
+                .thenReturn(Set.of(new AcceptApplication(rpcUri, expectedToApplication)));
 
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
@@ -131,9 +129,10 @@ public class RpcCallProcessorTest {
         Application expectedToApplication1 = new Application("ACCEPT_WAS1", ServiceType.TEST_STAND_ALONE);
         Application expectedToApplication2 = new Application("ACCEPT_WAS2", ServiceType.TEST_STAND_ALONE);
         when(hostApplicationMapDao.findAcceptApplicationName(fromApplication, testRange))
-                .thenReturn(Sets.newHashSet(
+                .thenReturn(Set.of(
                         new AcceptApplication(rpcUri, expectedToApplication1),
-                        new AcceptApplication(rpcUri, expectedToApplication2)));
+                        new AcceptApplication(rpcUri, expectedToApplication2))
+                );
 
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
@@ -175,7 +174,7 @@ public class RpcCallProcessorTest {
         LinkDataMap linkDataMap = new LinkDataMap();
         linkDataMap.addLinkData(new LinkData(fromApplication, toApplication));
 
-        when(hostApplicationMapDao.findAcceptApplicationName(fromApplication, testRange)).thenReturn(Collections.emptySet());
+        when(hostApplicationMapDao.findAcceptApplicationName(fromApplication, testRange)).thenReturn(Set.of());
 
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
@@ -208,7 +207,7 @@ public class RpcCallProcessorTest {
         LinkDataMap linkDataMap = new LinkDataMap();
         linkDataMap.addLinkData(new LinkData(fromApplication, toApplication));
 
-        when(hostApplicationMapDao.findAcceptApplicationName(fromApplication, testRange)).thenReturn(Collections.emptySet());
+        when(hostApplicationMapDao.findAcceptApplicationName(fromApplication, testRange)).thenReturn(Set.of());
 
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
@@ -244,9 +243,10 @@ public class RpcCallProcessorTest {
         Application expectedToApplication1 = new Application("AliasClient", AliasServiceType);
         Application expectedToApplication2 = new Application("AliasServer", ServerServiceType);
         when(hostApplicationMapDao.findAcceptApplicationName(fromApplication, testRange))
-                .thenReturn(Sets.newHashSet(
+                .thenReturn(Set.of(
                         new AcceptApplication(rpcUri, expectedToApplication1),
-                        new AcceptApplication(rpcUri, expectedToApplication2)));
+                        new AcceptApplication(rpcUri, expectedToApplication2))
+                );
 
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();

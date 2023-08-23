@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author emeroad
@@ -32,8 +32,8 @@ public class LinkVisitChecker {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Set<Application> calleeFound = Sets.newConcurrentHashSet();
-    private final Set<Application> callerFound = Sets.newConcurrentHashSet();
+    private final Set<Application> calleeFound = ConcurrentHashMap.newKeySet();
+    private final Set<Application> callerFound = ConcurrentHashMap.newKeySet();
 
     public boolean visitCaller(Application caller) {
         return visit(callerFound, caller, "Caller");
@@ -51,8 +51,8 @@ public class LinkVisitChecker {
         Objects.requireNonNull(visitedSet, "application");
 
         final boolean alreadyVisited = !visitedSet.add(application);
-        if (logger.isDebugEnabled()) {
-            if (alreadyVisited) {
+        if (alreadyVisited) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("LinkData exists. Skip finding {}. {} ", type, application);
             }
         }

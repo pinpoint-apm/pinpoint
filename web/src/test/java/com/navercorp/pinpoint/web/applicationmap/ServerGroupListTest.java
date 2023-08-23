@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFactory;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,9 +44,7 @@ public class ServerGroupListTest {
         AgentAndStatus agentInfo1 = createAgentInfo("agentId1", "testHost");
         AgentAndStatus agentInfo2 = createAgentInfo("agentId2", "testHost");
 
-        Set<AgentAndStatus> agentInfoSet = new HashSet<>();
-        agentInfoSet.add(agentInfo1);
-        agentInfoSet.add(agentInfo2);
+        Set<AgentAndStatus> agentInfoSet = Set.of(agentInfo1, agentInfo2);
 
         ServerBuilder builder = new ServerBuilder();
         builder.addAgentInfo(agentInfoSet);

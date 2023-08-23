@@ -46,18 +46,14 @@ public enum StreamChannelStateCode {
             return Collections.emptySet();
         } else {
             // Don't use EnumSet, Not initialized StreamStateCode,
-            Set<StreamChannelStateCode> temp = new HashSet<StreamChannelStateCode>();
+            Set<StreamChannelStateCode> temp = new HashSet<>();
             Collections.addAll(temp, validBeforeStates);
             return temp;
         }
     }
 
     public boolean canChangeState(StreamChannelStateCode currentState) {
-        if (validBeforeStateSet.contains(currentState)) {
-            return true;
-        }
-
-        return false;
+        return validBeforeStateSet.contains(currentState);
     }
 
 }
