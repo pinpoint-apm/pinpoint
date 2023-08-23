@@ -175,7 +175,7 @@
         <jakarta.servlet.version>5.0.0</jakarta.servlet.version>
 
 
-        <asm.version>9.4</asm.version>
+        <asm.version>9.5</asm.version>
         <thrift.version>0.16.0</thrift.version>
         <caffeine.version>2.9.2</caffeine.version>
 
