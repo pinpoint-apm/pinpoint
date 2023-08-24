@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.channel.redis.kv;
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubConsumer;
 import com.navercorp.pinpoint.channel.Subscription;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
@@ -33,7 +33,7 @@ import java.util.Objects;
  */
 class RedisKVSubChannel implements SubChannel {
 
-    private final ValueOperations<String, String> ops;
+    private final RedisTemplate<String, String> template;
     private final Scheduler scheduler;
     private final Duration pollPeriod;
     private final String key;
@@ -41,8 +41,8 @@ class RedisKVSubChannel implements SubChannel {
     private final List<KVSubscription> subscriptions = new ArrayList<>(2);
     private volatile Disposable disposePolling = null;
 
-    RedisKVSubChannel(ValueOperations<String, String> ops, Scheduler scheduler, Duration pollPeriod, String key) {
-        this.ops = Objects.requireNonNull(ops, "ops");
+    RedisKVSubChannel(RedisTemplate<String, String> template, Scheduler scheduler, Duration pollPeriod, String key) {
+        this.template = Objects.requireNonNull(template, "template");
         this.scheduler = Objects.requireNonNull(scheduler, "scheduler");
         this.pollPeriod = Objects.requireNonNull(pollPeriod, "pollPeriod");
         this.key = Objects.requireNonNull(key, "key");
@@ -88,7 +88,7 @@ class RedisKVSubChannel implements SubChannel {
     }
 
     private void broadcast(long tick) {
-        String value = this.ops.get(this.key);
+        String value = this.template.opsForValue().get(this.key);
         if (value == null) {
             return;
         }

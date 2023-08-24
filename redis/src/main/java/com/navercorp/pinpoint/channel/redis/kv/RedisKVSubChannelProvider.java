@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.channel.redis.kv;
 
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubChannelProvider;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import reactor.core.scheduler.Scheduler;
 
 import java.time.Duration;
@@ -28,11 +28,11 @@ import java.util.Objects;
  */
 class RedisKVSubChannelProvider implements SubChannelProvider {
 
-    private final ValueOperations<String, String> ops;
+    private final RedisTemplate<String, String> template;
     private final Scheduler scheduler;
 
-    public RedisKVSubChannelProvider(ValueOperations<String, String> ops, Scheduler scheduler) {
-        this.ops = Objects.requireNonNull(ops, "ops");
+    RedisKVSubChannelProvider(RedisTemplate<String, String> template, Scheduler scheduler) {
+        this.template = Objects.requireNonNull(template, "template");
         this.scheduler = Objects.requireNonNull(scheduler, "scheduler");
     }
 
@@ -43,7 +43,7 @@ class RedisKVSubChannelProvider implements SubChannelProvider {
             throw new IllegalArgumentException("the key must contain period");
         }
         Duration period = Duration.parse(words[0]);
-        return new RedisKVSubChannel(this.ops, this.scheduler, period, words[1]);
+        return new RedisKVSubChannel(this.template, this.scheduler, period, words[1]);
     }
 
 }

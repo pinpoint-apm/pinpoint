@@ -34,11 +34,11 @@ import reactor.core.scheduler.Schedulers;
 @Import(RedisBasicConfig.class)
 public class RedisKVChannelConfig {
 
-    @Bean("redisPubSubChannelProvider")
-    ChannelProviderRegistry redisPubSubChannelProvider(RedisTemplate<String, String> template) {
+    @Bean
+    public ChannelProviderRegistry redisKeyValueChannelProvider(RedisTemplate<String, String> template) {
         Scheduler scheduler = Schedulers.newParallel("kv-channel-poller", Runtime.getRuntime().availableProcessors());
-        PubChannelProvider pub = new RedisKVPubChannelProvider(template.opsForValue());
-        SubChannelProvider sub = new RedisKVSubChannelProvider(template.opsForValue(), scheduler);
+        PubChannelProvider pub = new RedisKVPubChannelProvider(template);
+        SubChannelProvider sub = new RedisKVSubChannelProvider(template, scheduler);
         return ChannelProviderRegistry.of(RedisKVConstants.SCHEME, ChannelProvider.pair(pub, sub));
     }
 

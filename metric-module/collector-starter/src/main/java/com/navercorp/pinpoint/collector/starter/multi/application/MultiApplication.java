@@ -7,10 +7,12 @@ import com.navercorp.pinpoint.common.server.env.ExternalEnvironmentListener;
 import com.navercorp.pinpoint.common.server.env.ProfileResolveListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.inspector.collector.InspectorCollectorApp;
+import com.navercorp.pinpoint.log.collector.LogCollectorModule;
 import com.navercorp.pinpoint.metric.collector.CollectorType;
 import com.navercorp.pinpoint.metric.collector.CollectorTypeParser;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
 import com.navercorp.pinpoint.metric.collector.TypeSet;
+import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
@@ -78,6 +80,16 @@ public class MultiApplication {
             SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, 15200, MetricCollectorApp.class);
             metricAppBuilder.listeners(new AdditionalProfileListener("metric"));
             metricAppBuilder.build().run(args);
+        }
+
+        if (types.hasType(CollectorType.LOG)) {
+            logger.info(String.format("Start %s collector", CollectorType.LOG));
+            SpringApplicationBuilder logAppBuilder = createAppBuilder(builder, 0,
+                    LogCollectorModule.class,
+                    RedisPropertySources.class
+            )
+                    .web(WebApplicationType.NONE);
+            logAppBuilder.build().run(args);
         }
     }
 

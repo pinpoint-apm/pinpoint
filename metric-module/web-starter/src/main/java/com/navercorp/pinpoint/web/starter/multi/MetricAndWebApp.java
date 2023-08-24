@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.starter.multi;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.inspector.web.InspectorWebApp;
+import com.navercorp.pinpoint.log.web.LogWebModule;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
 import com.navercorp.pinpoint.metric.web.MetricWebApp;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
@@ -64,7 +65,8 @@ public class MetricAndWebApp {
                     AuthorizationConfig.class,
                     MetricWebApp.class,
                     UriStatWebConfig.class,
-                    InspectorWebApp.class
+                    InspectorWebApp.class,
+                    LogWebModule.class
             );
             starter.addProfiles("uri", "metric");
             starter.start(args);

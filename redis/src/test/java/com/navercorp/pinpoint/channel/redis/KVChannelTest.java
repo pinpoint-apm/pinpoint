@@ -65,7 +65,7 @@ public class KVChannelTest {
     @DisplayName("key-value pub channel writes value in a fixed key")
     @Test
     public void testRedisPubSubChannel() {
-        registry.getProvider().getPubChannel("hello").publish("world".getBytes());
+        registry.getProvider().getPubChannel("PT1H:hello").publish("world".getBytes());
 
         String world = template.opsForValue().get("hello");
         assertThat(world).isEqualTo(world, "value must be same");

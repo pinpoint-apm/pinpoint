@@ -28,7 +28,7 @@ public class RedisStreamPubChannelProvider implements PubChannelProvider {
 
     private final ReactiveStreamOperations<String, String, String> streamOps;
 
-    public RedisStreamPubChannelProvider(ReactiveStreamOperations<String, String, String> streamOps) {
+    RedisStreamPubChannelProvider(ReactiveStreamOperations<String, String, String> streamOps) {
         this.streamOps = Objects.requireNonNull(streamOps, "streamOps");
     }
 

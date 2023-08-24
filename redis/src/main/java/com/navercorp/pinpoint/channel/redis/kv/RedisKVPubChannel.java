@@ -16,26 +16,30 @@
 package com.navercorp.pinpoint.channel.redis.kv;
 
 import com.navercorp.pinpoint.channel.PubChannel;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author youngjin.kim2
  */
 class RedisKVPubChannel implements PubChannel {
 
-    private final ValueOperations<String, String> ops;
+    private final RedisTemplate<String, String> template;
+    private final long expireMs;
     private final String key;
 
-    RedisKVPubChannel(ValueOperations<String, String> ops, String key) {
-        this.ops = Objects.requireNonNull(ops, "ops");
+    RedisKVPubChannel(RedisTemplate<String, String> template, long expireMs, String key) {
+        this.template = Objects.requireNonNull(template, "template");
+        this.expireMs = expireMs;
         this.key = Objects.requireNonNull(key, "key");
     }
 
     @Override
     public void publish(byte[] content) {
-        this.ops.set(this.key, new String(content));
+        this.template.opsForValue().set(this.key, new String(content));
+        this.template.expire(this.key, expireMs, TimeUnit.MILLISECONDS);
     }
 
 }

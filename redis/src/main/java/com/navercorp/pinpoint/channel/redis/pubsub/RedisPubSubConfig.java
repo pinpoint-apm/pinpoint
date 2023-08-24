@@ -44,13 +44,13 @@ public class RedisPubSubConfig {
     long clientTimeoutMs;
 
     @Bean("redisPubSubMessageExecutor")
-    ExecutorService redisPubSubMessageExecutor() {
+    public ExecutorService redisPubSubMessageExecutor() {
         final int processors = Runtime.getRuntime().availableProcessors();
         return RedisUtils.newFixedThreadPool(processors, "RedisPubSubMessageExecutor");
     }
 
     @Bean("redisMessageListenerContainer")
-    RedisMessageListenerContainer redisMessageListenerContainer(
+    public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory redisConnectionFactory,
             @Qualifier("redisPubSubMessageExecutor") ExecutorService executor
     ) {
@@ -61,7 +61,7 @@ public class RedisPubSubConfig {
     }
 
     @Bean("redisPubSubChannelProvider")
-    ChannelProviderRegistry redisPubSubChannelProvider(
+    public ChannelProviderRegistry redisPubSubChannelProvider(
             ReactiveRedisTemplate<String, String> reactiveRedisTemplate,
             RedisMessageListenerContainer redisMessageListenerContainer
     ) {

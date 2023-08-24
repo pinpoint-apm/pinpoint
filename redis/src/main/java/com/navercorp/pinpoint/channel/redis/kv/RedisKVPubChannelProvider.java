@@ -17,8 +17,9 @@ package com.navercorp.pinpoint.channel.redis.kv;
 
 import com.navercorp.pinpoint.channel.PubChannel;
 import com.navercorp.pinpoint.channel.PubChannelProvider;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 
+import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -26,15 +27,20 @@ import java.util.Objects;
  */
 class RedisKVPubChannelProvider implements PubChannelProvider {
 
-    private final ValueOperations<String, String> ops;
+    private final RedisTemplate<String, String> template;
 
-    RedisKVPubChannelProvider(ValueOperations<String, String> ops) {
-        this.ops = Objects.requireNonNull(ops, "ops");
+    RedisKVPubChannelProvider(RedisTemplate<String, String> template) {
+        this.template = Objects.requireNonNull(template, "template");
     }
 
     @Override
     public PubChannel getPubChannel(String key) {
-        return new RedisKVPubChannel(this.ops, key);
+        String[] words = key.split(":", 2);
+        if (words.length != 2) {
+            throw new IllegalArgumentException("the key must contain expire duration");
+        }
+        Duration expire = Duration.parse(words[0]);
+        return new RedisKVPubChannel(this.template, expire.toMillis(), words[1]);
     }
 
 }
