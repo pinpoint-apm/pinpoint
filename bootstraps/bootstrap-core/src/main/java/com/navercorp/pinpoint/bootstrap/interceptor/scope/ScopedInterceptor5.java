@@ -57,8 +57,11 @@ public class ScopedInterceptor5 implements AroundInterceptor5 {
         final InterceptorScopeInvocation transaction = scope.getCurrentInvocation();
         
         if (transaction.canLeave(policy)) {
-            this.interceptor.after(target, arg0, arg1, arg2, arg3, arg4, result, throwable);
-            transaction.leave(policy);
+            try {
+                this.interceptor.after(target, arg0, arg1, arg2, arg3, arg4, result, throwable);
+            } finally {
+                transaction.leave(policy);
+            }
         } else {
             if (debugEnabled) {
                 logger.debug("tryAfter() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", transaction, policy, interceptor.getClass());
