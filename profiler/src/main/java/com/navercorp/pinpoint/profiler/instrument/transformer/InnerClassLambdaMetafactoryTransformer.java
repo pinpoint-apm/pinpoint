@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -39,12 +39,12 @@ public class InnerClassLambdaMetafactoryTransformer implements ClassFileTransfor
 
     public InnerClassLambdaMetafactoryTransformer() {
         try {
-            final ClassLoader agentClassLoader = this.getClass().getClassLoader();
+            final ClassLoader agentClassLoader = InnerClassLambdaMetafactoryTransformer.class.getClassLoader();
             final Class<?> lambdaAdaptor = agentClassLoader.loadClass("com.navercorp.pinpoint.profiler.instrument.lambda.LambdaFactoryClassAdaptor");
             final Constructor<?> constructor = lambdaAdaptor.getConstructor();
             this.lambdaFactoryClassAdaptor = constructor.newInstance();
             this.transformMethod = lambdaAdaptor.getMethod("loadTransformedBytecode", byte[].class);
-        } catch (ReflectiveOperationException e) {
+        } catch (Exception e) {
             throw new IllegalStateException("LambdaFactoryClassAdaptor initialize fail Caused by:" + e.getMessage(), e);
         }
     }

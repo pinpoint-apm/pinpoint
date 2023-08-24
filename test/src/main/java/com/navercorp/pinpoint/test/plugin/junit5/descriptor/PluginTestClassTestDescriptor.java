@@ -24,12 +24,15 @@ import org.junit.platform.engine.UniqueId;
 
 public class PluginTestClassTestDescriptor extends ClassTestDescriptor {
 
+    private final Class<?> testClass;
     final PluginTestInstance pluginTestInstance;
 
     public PluginTestClassTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, PluginTestInstance pluginTestInstance) {
         super(uniqueId, testClass, configuration);
+        this.testClass = testClass;
         this.pluginTestInstance = pluginTestInstance;
     }
+
 
     @Override
     public JupiterEngineExecutionContext before(JupiterEngineExecutionContext context) {

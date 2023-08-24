@@ -78,48 +78,8 @@ public class PluginForkedTestDependencyTestDescriptor extends PluginTestDescript
         return context;
     }
 
-//    @Override
-//    public JupiterEngineExecutionContext execute(JupiterEngineExecutionContext context, DynamicTestExecutor dynamicTestExecutor) throws Exception {
-//        ThrowableCollector throwableCollector = context.getThrowableCollector();
-//        if (testReport != null && testReport.isStarted()) {
-//            System.out.println("##PluginForkedTestDependencyTestDescriptor=" + testReport.isStarted());
-//            if (testReport.getOutput() != null) {
-//                System.out.println("##PluginForkedTestDependencyTestDescriptor=" + testReport.getOutput());
-//                for (String line : testReport.getOutput()) {
-//                    System.out.println(line);
-//                }
-//            }
-//            if (testReport.getResult().getStatus() != TestExecutionResult.Status.SUCCESSFUL) {
-//                System.out.println("##PluginForkedTestDependencyTestDescriptor=" + testReport.getResult().getStatus());
-//                throwableCollector.execute(() -> {
-//                    System.out.println("##PluginForkedTestDependencyTestDescriptor=" + testReport.getResult().getThrowable().get());
-//                    throw testReport.getResult().getThrowable().orElse(new IllegalStateException("unknown"));
-//                });
-//            }
-//        } else {
-//            throwableCollector.execute(() -> {
-//                throw new IllegalStateException("unknown");
-//            });
-//        }
-//        return context;
-//    }
-
     public Class<?> getTestClass() {
         return testClass;
     }
 
-//    @Override
-//    public SkipResult shouldBeSkipped(JupiterEngineExecutionContext context) throws Exception {
-//        if (testReport != null) {
-//            if (testReport.isSkipped()) {
-//                if (testReport.getSkipReason() != null) {
-//                    return SkipResult.skip(testReport.getSkipReason());
-//                }
-//                return SkipResult.skip("");
-//            }
-//        } else {
-//            return SkipResult.skip("");
-//        }
-//        return SkipResult.doNotSkip();
-//    }
 }
