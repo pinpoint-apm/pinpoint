@@ -59,7 +59,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
 //            jgen.writeStringField("fig", "Rectangle");
 //        }
 
-        jgen.writeStringField("serviceTypeCode", Short.toString(serviceType.getCode()));
+        jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
 //        jgen.writeStringField("terminal", Boolean.toString(serviceType.isTerminal()));
         jgen.writeBooleanField("isWas", serviceType.isWas());  // for go.js
         jgen.writeBooleanField("isQueue", serviceType.isQueue());
