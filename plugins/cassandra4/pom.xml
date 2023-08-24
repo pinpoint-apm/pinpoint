@@ -18,17 +18,10 @@
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-test</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

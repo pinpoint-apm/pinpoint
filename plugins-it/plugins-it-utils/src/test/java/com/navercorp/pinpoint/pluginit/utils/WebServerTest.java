@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.pluginit.utils;
 
 import com.navercorp.pinpoint.common.util.IOUtils;
+import com.navercorp.pinpoint.it.plugin.utils.WebServer;
 import fi.iki.elonen.NanoHTTPD;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

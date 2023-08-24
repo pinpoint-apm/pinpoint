@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.junit5.descriptor;
 
-import com.navercorp.pinpoint.test.junit5.TestContext;
+import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;

@@ -58,7 +58,7 @@ class PinpointStarter {
     public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
 
     public static final String PLUGIN_TEST_AGENT = "PLUGIN_TEST";
-    public static final String PLUGIN_TEST_BOOT_CLASS = "com.navercorp.pinpoint.test.PluginTestAgent";
+    public static final String PLUGIN_TEST_BOOT_CLASS = "com.navercorp.pinpoint.profiler.test.PluginTestAgent";
 
     private SimpleProperty systemProperty = SystemProperty.INSTANCE;
 

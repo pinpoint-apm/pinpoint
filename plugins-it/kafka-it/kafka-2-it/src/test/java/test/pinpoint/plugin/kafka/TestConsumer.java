@@ -16,7 +16,6 @@
 
 package test.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.shared.SharedPluginTestConstants;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -49,7 +48,7 @@ public class TestConsumer {
 
     public TestConsumer(OffsetStore offsetStore, String brokerUrl) {
         String testClassName = System.getProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME);
-        String testSimpleClassName = StringUtils.hasLength(testClassName) ? testClassName.substring(testClassName.lastIndexOf(".") + 1) : "UNKNOWN";
+        String testSimpleClassName = testClassName != null ? testClassName.substring(testClassName.lastIndexOf(".") + 1) : "UNKNOWN";
         String threadName = testSimpleClassName + "-test-poller";
         poller = new Poller(offsetStore, brokerUrl);
         consumerThread = new Thread(poller, threadName);

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.test.plugin.junit5.engine;
 
-import com.navercorp.pinpoint.test.junit5.TestClassWrapper;
-import com.navercorp.pinpoint.test.junit5.TestContext;
+import com.navercorp.pinpoint.profiler.test.junit5.TestClassWrapper;
+import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
 import com.navercorp.pinpoint.test.plugin.DefaultPluginForkedTestSuite;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTestInstance;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestClassTestDescriptor;

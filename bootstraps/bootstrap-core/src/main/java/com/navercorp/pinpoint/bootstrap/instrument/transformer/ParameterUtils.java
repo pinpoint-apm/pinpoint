@@ -84,9 +84,9 @@ public final class ParameterUtils {
 //            if (clazz.getClassLoader() == Object.class.getClassLoader()) {
 //                return;
 //            }
-            if (clazz.getClassLoader() != Object.class.getClassLoader()) {
-                throw new IllegalArgumentException("unsupported classloader " + clazz);
-            }
+//            if (clazz.getClassLoader() != Object.class.getClassLoader()) {
+//                throw new IllegalArgumentException("unsupported classloader " + clazz);
+//            }
 
             clazz = getRawComponentType(clazz);
             if (clazz.isPrimitive()) {
