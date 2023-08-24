@@ -7,6 +7,7 @@ public enum CollectorType {
     ALL,
     BASIC,
     METRIC,
+    LOG,
     BASIC_WITH_INSPECTOR;
 
     public boolean hasType(CollectorType type) {

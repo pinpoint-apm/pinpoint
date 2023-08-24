@@ -69,7 +69,7 @@ public class RedisBasicConfig {
     int lettuceRequestQueueSize;
 
     @Bean
-    RedisTemplate<String, String> redisStringToStringTemplate(RedisConnectionFactory connectionFactory) {
+    public RedisTemplate<String, String> redisStringToStringTemplate(RedisConnectionFactory connectionFactory) {
         final RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(RedisSerializer.string());
@@ -78,12 +78,12 @@ public class RedisBasicConfig {
     }
 
     @Bean("reactiveRedisTemplate")
-    ReactiveRedisTemplate<String, String> reactiveRedisTemplate(ReactiveRedisConnectionFactory connectionFactory) {
+    public ReactiveRedisTemplate<String, String> reactiveRedisTemplate(ReactiveRedisConnectionFactory connectionFactory) {
         return new ReactiveRedisTemplate<>(connectionFactory, RedisSerializationContext.string());
     }
 
     @Bean
-    RedisConfiguration redisConfiguration() {
+    public RedisConfiguration redisConfiguration() {
         if (CollectionUtils.isEmpty(clusterNodes)) {
             Assert.hasText(host, "host is required for redis-standalone mode");
 
@@ -100,7 +100,7 @@ public class RedisBasicConfig {
     }
 
     @Bean
-    LettuceClientConfiguration lettuceClientConfiguration() {
+    public LettuceClientConfiguration lettuceClientConfiguration() {
         final ClientResources clientResources = ClientResources.builder()
                 .ioThreadPoolSize(lettuceIOThreadPoolSize)
                 .computationThreadPoolSize(lettuceComputationThreadPoolSize)
@@ -130,7 +130,7 @@ public class RedisBasicConfig {
     }
 
     @Bean
-    LettuceConnectionFactory redisConnectionFactory(
+    public LettuceConnectionFactory redisConnectionFactory(
             RedisConfiguration redisConfig,
             LettuceClientConfiguration clientConfiguration
     ) {

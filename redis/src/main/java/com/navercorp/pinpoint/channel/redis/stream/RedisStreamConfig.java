@@ -54,12 +54,12 @@ public class RedisStreamConfig {
     String consumerName;
 
     @Bean("redisStreamMessageExecutor")
-    Executor redisPubSubMessageExecutor() {
+    public Executor redisPubSubMessageExecutor() {
         return new SimpleAsyncTaskExecutor("redis-stream-message-executor");
     }
 
     @Bean
-    StreamMessageListenerContainer<String, MapRecord<String, String, String>> streamMessageListenerContainer(
+    public StreamMessageListenerContainer<String, MapRecord<String, String, String>> streamMessageListenerContainer(
             RedisConnectionFactory redisConnectionFactory,
             @Qualifier("redisStreamMessageExecutor") Executor executor
     ) {
@@ -78,7 +78,7 @@ public class RedisStreamConfig {
     }
 
     @Bean("redisStreamPubSubChannelProvider")
-    ChannelProviderRegistry redisStreamPubSubChannelProvider(
+    public ChannelProviderRegistry redisStreamPubSubChannelProvider(
             ReactiveRedisTemplate<String, String> redisTemplate,
             StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer
     ) {

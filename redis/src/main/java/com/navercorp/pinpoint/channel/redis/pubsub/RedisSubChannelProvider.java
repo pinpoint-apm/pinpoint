@@ -27,11 +27,11 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class RedisSubChannelProvider implements SubChannelProvider {
+class RedisSubChannelProvider implements SubChannelProvider {
 
     private final RedisMessageListenerContainer listenerContainer;
 
-    public RedisSubChannelProvider(RedisMessageListenerContainer listenerContainer) {
+    RedisSubChannelProvider(RedisMessageListenerContainer listenerContainer) {
         this.listenerContainer = Objects.requireNonNull(listenerContainer, "listenerContainer");
     }
 

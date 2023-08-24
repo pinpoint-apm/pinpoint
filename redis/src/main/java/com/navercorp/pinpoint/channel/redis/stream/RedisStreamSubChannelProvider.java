@@ -28,13 +28,13 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class RedisStreamSubChannelProvider implements SubChannelProvider, InitializingBean {
+class RedisStreamSubChannelProvider implements SubChannelProvider, InitializingBean {
 
     private final StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
     private final Consumer consumer;
 
-    public RedisStreamSubChannelProvider(
+    RedisStreamSubChannelProvider(
             StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer,
             ReactiveRedisTemplate<String, String> redisTemplate,
             Consumer consumer
