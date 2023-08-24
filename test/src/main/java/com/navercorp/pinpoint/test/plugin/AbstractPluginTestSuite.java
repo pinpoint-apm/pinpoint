@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.SystemProperty;
-import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
@@ -44,8 +43,10 @@ public abstract class AbstractPluginTestSuite {
     private static final int NO_JVM_VERSION = -1;
     private static final List<String> EMPTY_REPOSITORY_URLS = new ArrayList<>();
     public static final String DEFAULT_CONFIG_PATH = "pinpoint.config";
+    private final List<String> requiredLibraries;
+    private final List<String> mavenDependencyLibraries;
     private final List<String> repositoryUrls;
-    protected final String testClassLocation;
+    private final String testClassLocation;
     private final String agentJar;
     private final String profile;
     private final String configFile;
@@ -55,15 +56,8 @@ public abstract class AbstractPluginTestSuite {
     private final boolean debug;
     private final Class<?> testClass;
     private final List<String> importPluginIds;
-    private final List<String> agentLibList;
-    private final List<String> sharedLibList;
-    private final List<String> junitLibList;
-    private final List<String> transformIncludeList;
-    private final boolean manageTraceObject;
 
     protected abstract List<PluginTestInstance> createTestCases(PluginTestContext context) throws Exception;
-
-    protected abstract PluginSharedInstance createSharedInstance(PluginTestContext context) throws Exception;
 
     public AbstractPluginTestSuite(Class<?> testClass) {
         this.testClass = testClass;
@@ -89,29 +83,31 @@ public abstract class AbstractPluginTestSuite {
         ImportPlugin importPlugin = testClass.getAnnotation(ImportPlugin.class);
         this.importPluginIds = getImportPlugin(importPlugin);
 
-        this.manageTraceObject = !testClass.isAnnotationPresent(TraceObjectManagable.class);
-
         Repository repository = testClass.getAnnotation(Repository.class);
         this.repositoryUrls = getRepository(repository);
 
-        TransformInclude transformInclude = testClass.getAnnotation(TransformInclude.class);
-        this.transformIncludeList = getTransformInclude(transformInclude);
-
         List<String> libs = collectLibs(getClass().getClassLoader());
 
-        final LibraryFilter agentLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.PLUGIN_CONTAINS_MATCHES),
-                LibraryFilter.createGlobMatcher(PluginClassLoading.PLUGIN_GLOB_MATCHES));
-        this.agentLibList = filterLibs(libs, agentLibraryFilter);
+        final LibraryFilter requiredLibraryFilter = new LibraryFilter(
+                LibraryFilter.createContainsMatcher(PluginClassLoading.getContainsCheckClassPath()),
+                LibraryFilter.createGlobMatcher(PluginClassLoading.getGlobMatchesCheckClassPath()));
 
-        final LibraryFilter sharedLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.PLUGIN_IT_UTILS_CONTAINS_MATCHES));
-        this.sharedLibList = filterLibs(libs, sharedLibraryFilter);
+        this.requiredLibraries = filterLibs(libs, requiredLibraryFilter);
+        if (logger.isDebugEnabled()) {
+            for (String requiredLibrary : requiredLibraries) {
+                logger.debug("requiredLibraries :{}", requiredLibrary);
+            }
+        }
 
-        final LibraryFilter junitLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.JUNIT_CONTAINS_MATCHES),
-                LibraryFilter.createContainsMatcher(PluginClassLoading.PLUGIN_IT_UTILS_CONTAINS_MATCHES));
-        this.junitLibList = filterLibs(libs, junitLibraryFilter);
+        final LibraryFilter mavenDependencyLibraryFilter = new LibraryFilter(
+                LibraryFilter.createContainsMatcher(PluginClassLoading.MAVEN_DEPENDENCY_CLASS_PATHS));
+
+        this.mavenDependencyLibraries = filterLibs(libs, mavenDependencyLibraryFilter);
+        if (logger.isDebugEnabled()) {
+            for (String mavenDependencyLibrary : mavenDependencyLibraries) {
+                logger.debug("mavenDependencyLibraries: {}", mavenDependencyLibrary);
+            }
+        }
 
         this.testClassLocation = resolveTestClassLocation(testClass);
 
@@ -134,13 +130,6 @@ public abstract class AbstractPluginTestSuite {
             return EMPTY_REPOSITORY_URLS;
         }
         return Arrays.asList(repository.value());
-    }
-
-    private List<String> getTransformInclude(TransformInclude transformInclude) {
-        if (transformInclude == null) {
-            return Collections.emptyList();
-        }
-        return Arrays.asList(transformInclude.value());
     }
 
     private List<String> getJvmArguments(JvmArgument jvmArgument) {
@@ -223,7 +212,7 @@ public abstract class AbstractPluginTestSuite {
         if (StringUtils.isEmpty(classPath)) {
             return Collections.emptyList();
         }
-        final String[] paths = classPath.split(";");
+        final String[] paths = classPath.split(":");
         return normalizePaths(paths);
     }
 
@@ -324,6 +313,7 @@ public abstract class AbstractPluginTestSuite {
             if (candidate.exists()) {
                 try {
                     String url = candidate.toURI().toURL().toString();
+                    System.out.println("url=" + url);
                 } catch (MalformedURLException e) {
                 }
                 return candidate.getAbsolutePath();
@@ -337,33 +327,19 @@ public abstract class AbstractPluginTestSuite {
         }
     }
 
+
     private boolean isDebugMode() {
         return ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("jdwp");
     }
-
-    public PluginSharedInstance getPluginSharedInstance() {
-        try {
-            PluginTestContext context = new PluginTestContext(agentJar, profile,
-                    configFile, logLocationConfig, repositoryUrls,
-                    testClass, testClassLocation,
-                    jvmArguments, debug, importPluginIds, manageTraceObject, transformIncludeList, agentLibList, sharedLibList, junitLibList);
-
-            return createSharedInstance(context);
-        } catch (Exception e) {
-            logger.warn(e.getMessage());
-            throw newTestError(e);
-        }
-    }
-
 
     public List<PluginTestInstance> getPluginTestInstanceList() {
         List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
 
         try {
             PluginTestContext context = new PluginTestContext(agentJar, profile,
-                    configFile, logLocationConfig, repositoryUrls,
+                    configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, repositoryUrls,
                     testClass, testClassLocation,
-                    jvmArguments, debug, importPluginIds, manageTraceObject, transformIncludeList, agentLibList, sharedLibList, junitLibList);
+                    jvmArguments, debug, importPluginIds);
 
             pluginTestInstanceList.addAll(createTestCases(context));
         } catch (Exception e) {

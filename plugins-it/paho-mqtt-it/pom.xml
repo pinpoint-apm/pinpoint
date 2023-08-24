@@ -22,10 +22,12 @@
         <dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -33,15 +35,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-paho-mqtt-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
+            <scope>compile</scope>
         </dependency>
+
         <!-- testcontainers -->
         <dependency>
             <groupId>org.testcontainers</groupId>

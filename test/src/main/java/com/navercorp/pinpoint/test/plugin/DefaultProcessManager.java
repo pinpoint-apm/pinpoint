@@ -39,10 +39,10 @@ public class DefaultProcessManager implements ProcessManager {
 
     private final TaggedLogger logger = TestLogger.getLogger();
 
-    private final PluginForkedTestContext context;
+    private final PluginTestContext context;
     private Process process = null;
 
-    public DefaultProcessManager(PluginForkedTestContext context) {
+    public DefaultProcessManager(PluginTestContext context) {
         this.context = Objects.requireNonNull(context, "context");
     }
 

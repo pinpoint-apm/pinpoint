@@ -30,13 +30,13 @@ import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS
 public class DefaultPluginForkedTestInstance implements PluginForkedTestInstance {
     private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
 
-    private final PluginForkedTestContext context;
+    private final PluginTestContext context;
     private final String testId;
     private final List<String> libs;
     private final boolean onSystemClassLoader;
     private final ProcessManager processManager;
 
-    public DefaultPluginForkedTestInstance(PluginForkedTestContext context, String testId, List<String> libs, boolean onSystemClassLoader) {
+    public DefaultPluginForkedTestInstance(PluginTestContext context, String testId, List<String> libs, boolean onSystemClassLoader) {
         this.context = context;
         this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
         this.libs = libs;
@@ -100,6 +100,13 @@ public class DefaultPluginForkedTestInstance implements PluginForkedTestInstance
         InputStream inputStream = process.getInputStream();
         return new Scanner(inputStream, DEFAULT_ENCODING);
     }
+
+//    @Override
+//    public Scanner startTest(PluginForkedTestInstance pinpointPluginTestInstance) throws Throwable {
+//        Process process = processManager.create(null);
+//        InputStream inputStream = process.getInputStream();
+//        return new Scanner(inputStream, DEFAULT_ENCODING);
+//    }
 
     @Override
     public void endTest() throws Exception {

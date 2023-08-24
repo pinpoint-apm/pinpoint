@@ -40,15 +40,12 @@
             <artifactId>netty-all</artifactId>
             <!-- Use 'netty-all' for 4.0 or above -->
             <version>${netty4.version}</version>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugin-it-utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-netty-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

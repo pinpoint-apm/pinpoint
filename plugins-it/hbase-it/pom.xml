@@ -38,15 +38,13 @@
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-shaded-client</artifactId>
             <version>1.2.12</version>
+            <scope>test</scope>
         </dependency>
+
+
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugin-it-utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-hbase-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

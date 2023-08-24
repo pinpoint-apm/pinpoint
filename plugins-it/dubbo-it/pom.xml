@@ -29,8 +29,10 @@
     <packaging>jar</packaging>
 
     <properties>
-        <!--        dubbo 2.6.1 test fail -->
-        <!--        Spring lookup failed due to https(jdk 6,7 issue)-->
+<!--        <jdk.version>1.7</jdk.version>-->
+<!--        <jdk.home>${env.JAVA_7_HOME}</jdk.home>-->
+<!--        dubbo 2.6.1 test fail -->
+<!--        Spring lookup failed due to https(jdk 6,7 issue)-->
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
     </properties>
@@ -40,15 +42,12 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbo</artifactId>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugin-it-utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-dubbo-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

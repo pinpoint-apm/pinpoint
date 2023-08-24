@@ -15,22 +15,14 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
-import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
-import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstanceFactory;
-import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
-import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @author Taejin Koo
  */
 public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
+    private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
     private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
     private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
     private final TaggedLogger logger = TestLogger.getLogger();
@@ -52,9 +45,6 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     private final boolean testOnChildClassLoader;
     private final String[] repositories;
     private final String[] dependencies;
-    private final Class<?> sharedClass;
-    private final String[] sharedDependencies;
-    private final String testClassName;
 
     private static Map<String, Object> createResolverOption() {
         Map<String, Object> resolverOption = new HashMap<>();
@@ -87,46 +77,6 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
 
         Repository repos = testClass.getAnnotation(Repository.class);
         this.repositories = repos == null ? new String[0] : repos.value();
-
-        SharedTestLifeCycleClass sharedTestLifeCycleClass = testClass.getAnnotation(SharedTestLifeCycleClass.class);
-        this.sharedClass = sharedTestLifeCycleClass == null ? null : sharedTestLifeCycleClass.value();
-
-        SharedDependency sharedDependency = testClass.getAnnotation(SharedDependency.class);
-        this.sharedDependencies = sharedDependency == null ? new String[0] : sharedDependency.value();
-        this.testClassName = testClass.getName();
-    }
-
-    @Override
-    public PluginSharedInstance createSharedInstance(PluginTestContext context) {
-        if (sharedClass == null) {
-            return null;
-        }
-
-        final List<String> libs = new ArrayList<>();
-        libs.add(context.getTestClassLocation());
-        libs.addAll(context.getSharedLibList());
-
-        if (sharedDependencies != null && sharedDependencies.length > 0) {
-            final DependencyResolver resolver = getDependencyResolver(repositories);
-            final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(sharedDependencies);
-
-            for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
-                final String testId = dependencyCase.getKey();
-                try {
-                    final List<Artifact> artifactList = dependencyCase.getValue();
-                    libs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
-                } catch (DependencyResolutionException e) {
-                    logger.info("Failed to resolve artifacts and dependencies. dependency={}", dependencyCase, e);
-                }
-            }
-        }
-
-        PluginSharedInstanceFactory factory = new PluginSharedInstanceFactory();
-        try {
-            return factory.create(testClassName, sharedClass.getName(), libs);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -141,21 +91,6 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         final PluginTestInstanceFactory pluginTestInstanceFactory = new PluginTestInstanceFactory(context);
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
         final DependencyResolver resolver = getDependencyResolver(repositories);
-
-        final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets("com.navercorp.pinpoint:pinpoint-test:" + Version.VERSION);
-        final List<String> agentLibs = new ArrayList<>();
-        agentLibs.addAll(context.getAgentLibList());
-
-        for (Map.Entry<String, List<Artifact>> dependencyCase : agentDependency.entrySet()) {
-            try {
-                final List<Artifact> artifactList = dependencyCase.getValue();
-                agentLibs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
-            } catch (DependencyResolutionException e) {
-                logger.info("Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
-                return pluginTestInstanceList;
-            }
-        }
-
         final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
             final String testId = dependencyCase.getKey();
@@ -165,26 +100,10 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
                 libs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
             } catch (DependencyResolutionException e) {
                 logger.info("Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
-                continue;
             }
 
-            final List<File> fileList = new ArrayList<>();
-            for (String classPath : agentLibs) {
-                File file = new File(classPath);
-                fileList.add(file);
-            }
-            final URL[] agentUrls = URLUtils.fileToUrls(fileList);
-            final PluginAgentTestClassLoader agentClassLoader = new PluginAgentTestClassLoader(agentUrls, Thread.currentThread().getContextClassLoader());
-            agentClassLoader.setTransformIncludeList(context.getTransformIncludeList());
-            Thread thread = Thread.currentThread();
-            ClassLoader currentClassLoader = thread.getContextClassLoader();
-            try {
-                thread.setContextClassLoader(agentClassLoader);
-                final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(currentClassLoader, testId, agentClassLoader, libs, context.getTransformIncludeList(), isOnSystemClassLoader());
-                pluginTestInstanceList.add(pluginTestInstance);
-            } finally {
-                thread.setContextClassLoader(currentClassLoader);
-            }
+            final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(testId, libs, isOnSystemClassLoader());
+            pluginTestInstanceList.add(pluginTestInstance);
         }
 
         return pluginTestInstanceList;
@@ -201,7 +120,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
 
     private List<PluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) throws ClassNotFoundException {
         final PluginTestInstanceFactory pluginTestInstanceFactory = new PluginTestInstanceFactory(context);
-        final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(Thread.currentThread().getContextClassLoader(), "", null, Collections.emptyList(), Collections.emptyList(), isOnSystemClassLoader());
+        final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create("", Collections.emptyList(), isOnSystemClassLoader());
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
         pluginTestInstanceList.add(pluginTestInstance);
         return pluginTestInstanceList;
