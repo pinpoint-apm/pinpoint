@@ -80,8 +80,36 @@ public final class PluginClassLoading {
         return Arrays.asList(loggers);
     }
 
+    public static final String[] PLUGIN_GLOB_MATCHES = new String[]{
+            "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command
+            "**" + File.separator + "naver-pinpoint-*-plugin-" + Version.VERSION + ".jar" // required when executing test via mvn command
+    };
 
+    public static final String[] PLUGIN_CONTAINS_MATCHES = new String[]{
+            Paths.get("pinpoint", "plugins").toString() + File.separator,
+            Paths.get("pinpoint-naver", "naver-plugins").toString() + File.separator
+    };
 
+    public static final String[] PLUGIN_IT_UTILS_CONTAINS_MATCHES = new String[]{
+            "pinpoint-plugin-it-utils", // maven
+            "plugins-it-utils", // ide
+            "pinpoint-plugin-it-utils-jdbc", // maven
+            "plugin-it-utils-jdbc", // ide
+            "naver-pinpoint-plugin-it-utils",
+            "naver-plugins-it-utils"
+    };
 
-
+    public static final String[] JUNIT_CONTAINS_MATCHES = new String[]{
+            "junit", // JUnit
+            "opentest4",
+            "hamcrest", // for JUnit
+            "assertj-core",
+            "pinpoint-test", // pinpoint-test-{VERSION}.jar
+            Paths.get("test", "target", "classes").toString(),
+            "pinpoint-testcase",
+            Paths.get("testcase", "target", "classes").toString(),
+            // logger for bootstrap classloader
+            "tinylog-api",
+            "tinylog-impl",
+    };
 }

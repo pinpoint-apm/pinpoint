@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 /**
- * // TODO duplicate BytecodeUtils : com.navercorp.pinpoint.test.util.BytecodeUtils
+ * // TODO duplicate BytecodeUtils : com.navercorp.pinpoint.profiler.test.util.BytecodeUtils
  */
 public final class BytecodeUtils {
 

@@ -61,6 +61,7 @@ public class KafkaStreamsUnitServer implements SharedTestLifeCycle {
 
         Properties properties = new Properties();
         properties.setProperty("PORT", String.valueOf(port));
+        System.setProperty("PORT", String.valueOf(port));
         return properties;
     }
 

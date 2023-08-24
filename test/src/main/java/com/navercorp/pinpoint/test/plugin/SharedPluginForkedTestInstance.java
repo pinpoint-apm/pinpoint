@@ -32,13 +32,13 @@ import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS
 public class SharedPluginForkedTestInstance implements PluginForkedTestInstance {
     private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
 
-    private final PluginTestContext context;
+    private final PluginForkedTestContext context;
     private final String testId;
     private final List<String> libs;
     private final boolean onSystemClassLoader;
     private final SharedProcessManager processManager;
 
-    public SharedPluginForkedTestInstance(PluginTestContext context, String testId, List<String> libs, boolean onSystemClassLoader, SharedProcessManager processManager) {
+    public SharedPluginForkedTestInstance(PluginForkedTestContext context, String testId, List<String> libs, boolean onSystemClassLoader, SharedProcessManager processManager) {
         this.context = context;
         this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
         this.libs = libs;

@@ -39,7 +39,6 @@ import java.util.concurrent.TimeUnit;
  * @author Taejin Koo
  */
 public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite {
-    private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
     private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
     private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
     private final TaggedLogger logger = TestLogger.getLogger();
@@ -110,14 +109,14 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     }
 
     @Override
-    protected List<PluginForkedTestInstance> createTestCases(PluginTestContext context) throws Exception {
+    protected List<PluginForkedTestInstance> createTestCases(PluginForkedTestContext context) throws Exception {
         if (dependencies != null) {
             return createSharedCasesWithDependencies(context);
         }
         return createCasesWithJdkOnly(context);
     }
 
-    private List<PluginForkedTestInstance> createSharedCasesWithDependencies(PluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
+    private List<PluginForkedTestInstance> createSharedCasesWithDependencies(PluginForkedTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
         DependencyResolver resolver = getDependencyResolver(this.repositories);
 
         Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(dependencies);
@@ -150,29 +149,6 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         return cases;
     }
 
-
-    private List<PluginTestInstance> createCasesWithDependencies(PluginTestContext context) throws ClassNotFoundException {
-        final PluginTestInstanceFactory pluginTestInstanceFactory = new PluginTestInstanceFactory(context);
-        final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
-        final DependencyResolver resolver = getDependencyResolver(repositories);
-        final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
-        for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
-            final String testId = dependencyCase.getKey();
-            final List<String> libs = new ArrayList<>();
-            try {
-                final List<Artifact> artifactList = dependencyCase.getValue();
-                libs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
-            } catch (DependencyResolutionException e) {
-                logger.info("Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
-            }
-
-            final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(testId, libs, isOnSystemClassLoader());
-            pluginTestInstanceList.add(pluginTestInstance);
-        }
-
-        return pluginTestInstanceList;
-    }
-
     private List<String> resolveArtifactsAndDependencies(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
         final List<File> files = resolver.resolveArtifactsAndDependencies(artifacts);
         return FileUtils.toAbsolutePath(files);
@@ -182,7 +158,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         return RESOLVER_FACTORY.get(repositories);
     }
 
-    private PluginForkedTestInstance newSharedProcessPluginTestCase(PluginTestContext context, String testId, List<String> libs, SharedProcessManager sharedProcessManager) {
+    private PluginForkedTestInstance newSharedProcessPluginTestCase(PluginForkedTestContext context, String testId, List<String> libs, SharedProcessManager sharedProcessManager) {
         if (testOnSystemClassLoader) {
             return new SharedPluginForkedTestInstance(context, testId, libs, true, sharedProcessManager);
         }
@@ -192,7 +168,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         throw new IllegalStateException("Illegal classLoader");
     }
 
-    private List<PluginForkedTestInstance> createCasesWithJdkOnly(PluginTestContext context) throws ClassNotFoundException {
+    private List<PluginForkedTestInstance> createCasesWithJdkOnly(PluginForkedTestContext context) throws ClassNotFoundException {
         List<PluginForkedTestInstance> instanceList = new ArrayList<>();
 
         if (testOnSystemClassLoader) {
