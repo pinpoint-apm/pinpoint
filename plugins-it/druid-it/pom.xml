@@ -38,12 +38,15 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugin-it-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-druid-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

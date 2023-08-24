@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates;
 
 
-import com.navercorp.pinpoint.test.junit5.JunitAgentConfigPath;
+import com.navercorp.pinpoint.profiler.test.junit5.JunitAgentConfigPath;
 import org.junit.platform.commons.util.AnnotationUtils;
 
 import java.util.function.Predicate;

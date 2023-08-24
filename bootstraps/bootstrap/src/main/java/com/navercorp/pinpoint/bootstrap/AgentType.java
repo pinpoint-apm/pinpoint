@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public enum AgentType {
     DEFAULT_AGENT( "com.navercorp.pinpoint.profiler.DefaultAgent"),
-    PLUGIN_TEST("com.navercorp.pinpoint.test.PluginTestAgent");
+    PLUGIN_TEST("com.navercorp.pinpoint.profiler.test.PluginTestAgent");
 
     private final String className;
 

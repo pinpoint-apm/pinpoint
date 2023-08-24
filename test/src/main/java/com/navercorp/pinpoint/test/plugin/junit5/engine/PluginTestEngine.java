@@ -16,14 +16,28 @@
 
 package com.navercorp.pinpoint.test.plugin.junit5.engine;
 
+import com.navercorp.pinpoint.profiler.test.junit5.TestClassWrapper;
+import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
+import com.navercorp.pinpoint.test.plugin.DefaultPluginForkedTestSuite;
 import com.navercorp.pinpoint.test.plugin.DefaultPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.PluginForkedTestInstance;
 import com.navercorp.pinpoint.test.plugin.PluginTestInstance;
+import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestClassTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestDependencyTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestMethodTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestUnitTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestClassTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestMethodTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestClassTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestDependencyTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestMethodTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestUnitTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithJunitAgent;
 import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithPinpointAgent;
+import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithPluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithPluginTest;
+import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import org.junit.jupiter.engine.config.CachingJupiterConfiguration;
 import org.junit.jupiter.engine.config.DefaultJupiterConfiguration;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
@@ -33,6 +47,7 @@ import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.jupiter.engine.discovery.DiscoverySelectorResolver;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory;
+import org.junit.platform.commons.util.ClassUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.ExecutionRequest;
@@ -42,11 +57,15 @@ import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecutionContext> {
     private static final IsTestClassWithPinpointAgent isTestClassWithPinpointAgent = new IsTestClassWithPinpointAgent();
+    private static final IsTestClassWithPluginTest isTestClassWithPluginTest = new IsTestClassWithPluginTest();
+    private static final IsTestClassWithPluginForkedTest isTestClassWithPluginForkedTest = new IsTestClassWithPluginForkedTest();
+    private static final IsTestClassWithJunitAgent isTestClassWithJunitAgent = new IsTestClassWithJunitAgent();
 
     @Override
     public String getId() {
@@ -72,50 +91,130 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
         JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(uniqueId, configuration);
         new DiscoverySelectorResolver().resolveSelectors(discoveryRequest, engineDescriptor);
 
+        // Plugin IT
+        List<TestDescriptor> removedTestDescriptorList = new ArrayList<>();
+        List<TestDescriptor> pluginTestDescriptorList = new ArrayList<>();
         for (TestDescriptor testDescriptor : engineDescriptor.getChildren()) {
             if (testDescriptor instanceof ClassTestDescriptor) {
                 final Class<?> testClass = ((ClassTestDescriptor) testDescriptor).getTestClass();
-                if (Boolean.FALSE == isTestClassWithPinpointAgent.test(testClass)) {
-                    // Skip non pinpoint plugin testcase
-                    continue;
+                TestDescriptor pluginTestDescriptor = null;
+                if (isTestClassWithPluginTest.test(testClass)) {
+                    pluginTestDescriptor = addPluginTestDescriptor(testDescriptor, configuration);
+                } else if (isTestClassWithPluginForkedTest.test(testClass)) {
+                    pluginTestDescriptor = addPluginForkedTestDescriptor(testDescriptor, configuration);
+                } else if (isTestClassWithJunitAgent.test(testClass)) {
+                    pluginTestDescriptor = addPluginJunitTestDescriptor(testDescriptor, configuration);
                 }
 
-                final DefaultPluginTestSuite testSuite = new DefaultPluginTestSuite(((ClassTestDescriptor) testDescriptor).getTestClass());
-                final List<PluginTestInstance> testInstanceList = testSuite.getPluginTestInstanceList();
+                if (pluginTestDescriptor != null) {
+                    pluginTestDescriptorList.add(pluginTestDescriptor);
+                    removedTestDescriptorList.add(testDescriptor);
+                }
+            }
+        }
 
-                // Unit
-                final PluginTestUnitTestDescriptor pluginTestUnitTestDescriptor = new PluginTestUnitTestDescriptor(testDescriptor.getUniqueId(), ((ClassTestDescriptor) testDescriptor).getTestClass(), configuration);
-                switchTestDescriptor(testDescriptor, pluginTestUnitTestDescriptor);
+        for (TestDescriptor removedTestDescriptor : removedTestDescriptorList) {
+            removedTestDescriptor.removeFromHierarchy();
+        }
 
-                for (PluginTestInstance pluginTestInstance : testInstanceList) {
-                    final String testId = pluginTestInstance.getTestId();
-                    // Dependency
-                    final PluginTestDependencyTestDescriptor pluginTestDependencyTestDescriptor = toPluginTestDependencyTestDescriptor(configuration, pluginTestUnitTestDescriptor, testId);
-                    pluginTestUnitTestDescriptor.addChild(pluginTestDependencyTestDescriptor);
-                    // Class
-                    final PluginTestClassTestDescriptor pluginTestClassTestDescriptor = toPluginTestClassTestDescriptor(configuration, pluginTestDependencyTestDescriptor, pluginTestInstance);
-                    pluginTestDependencyTestDescriptor.addChild(pluginTestClassTestDescriptor);
-                    for (TestDescriptor descriptor : testDescriptor.getChildren()) {
-                        if (descriptor instanceof TestMethodTestDescriptor) {
-                            final Method method = ((TestMethodTestDescriptor) descriptor).getTestMethod();
-                            final PluginTestMethodTestDescriptor pluginTestMethodTestDescriptor = toPluginTestMethodTestDescriptor(configuration, pluginTestClassTestDescriptor, pluginTestInstance, method);
+        for (TestDescriptor addTestDescriptor : pluginTestDescriptorList) {
+            engineDescriptor.addChild(addTestDescriptor);
+        }
+
+        return engineDescriptor;
+    }
+
+    TestDescriptor addPluginTestDescriptor(TestDescriptor testDescriptor, JupiterConfiguration configuration) {
+        final DefaultPluginTestSuite testSuite = new DefaultPluginTestSuite(((ClassTestDescriptor) testDescriptor).getTestClass());
+        final PluginSharedInstance sharedInstance = testSuite.getPluginSharedInstance();
+        final List<PluginTestInstance> testInstanceList = testSuite.getPluginTestInstanceList();
+
+        // Unit
+        final PluginTestUnitTestDescriptor pluginTestUnitTestDescriptor = new PluginTestUnitTestDescriptor(testDescriptor.getUniqueId(), ((ClassTestDescriptor) testDescriptor).getTestClass(), configuration, sharedInstance);
+        for (PluginTestInstance pluginTestInstance : testInstanceList) {
+            final String testId = pluginTestInstance.getTestId();
+            // Dependency
+            final PluginTestDependencyTestDescriptor pluginTestDependencyTestDescriptor = toPluginTestDependencyTestDescriptor(configuration, pluginTestUnitTestDescriptor, testId);
+            pluginTestUnitTestDescriptor.addChild(pluginTestDependencyTestDescriptor);
+            // Class
+            final PluginTestClassTestDescriptor pluginTestClassTestDescriptor = toPluginTestClassTestDescriptor(configuration, pluginTestDependencyTestDescriptor, pluginTestInstance);
+            if (pluginTestClassTestDescriptor != null) {
+                pluginTestDependencyTestDescriptor.addChild(pluginTestClassTestDescriptor);
+                for (TestDescriptor descriptor : testDescriptor.getChildren()) {
+                    if (descriptor instanceof TestMethodTestDescriptor) {
+                        final Method method = ((TestMethodTestDescriptor) descriptor).getTestMethod();
+                        final PluginTestMethodTestDescriptor pluginTestMethodTestDescriptor = toPluginTestMethodTestDescriptor(configuration, pluginTestClassTestDescriptor, pluginTestInstance, method);
+                        if (pluginTestMethodTestDescriptor != null) {
                             pluginTestClassTestDescriptor.addChild(pluginTestMethodTestDescriptor);
                         }
                     }
                 }
             }
         }
+        return pluginTestUnitTestDescriptor;
+    }
 
-        return engineDescriptor;
+    TestDescriptor addPluginForkedTestDescriptor(TestDescriptor testDescriptor, JupiterConfiguration configuration) {
+        final DefaultPluginForkedTestSuite testSuite = new DefaultPluginForkedTestSuite(((ClassTestDescriptor) testDescriptor).getTestClass());
+        final List<PluginForkedTestInstance> testInstanceList = testSuite.getPluginTestInstanceList();
+
+        // Unit
+        final PluginForkedTestUnitTestDescriptor pluginTestUnitTestDescriptor = new PluginForkedTestUnitTestDescriptor(testDescriptor.getUniqueId(), ((ClassTestDescriptor) testDescriptor).getTestClass(), configuration, testInstanceList);
+        for (PluginForkedTestInstance pluginTestInstance : testInstanceList) {
+            final String testId = pluginTestInstance.getTestId();
+            // Dependency
+            final PluginForkedTestDependencyTestDescriptor pluginTestDependencyTestDescriptor = toPluginForkedTestDependencyTestDescriptor(configuration, pluginTestUnitTestDescriptor, testId);
+            pluginTestUnitTestDescriptor.addChild(pluginTestDependencyTestDescriptor);
+
+            // Class
+            final PluginForkedTestClassTestDescriptor pluginTestClassTestDescriptor = toPluginForkedTestClassTestDescriptor(configuration, pluginTestDependencyTestDescriptor);
+            pluginTestDependencyTestDescriptor.addChild(pluginTestClassTestDescriptor);
+            for (TestDescriptor descriptor : testDescriptor.getChildren()) {
+                if (descriptor instanceof TestMethodTestDescriptor) {
+                    final Method method = ((TestMethodTestDescriptor) descriptor).getTestMethod();
+                    final PluginForkedTestMethodTestDescriptor pluginTestMethodTestDescriptor = toPluginForkedTestMethodTestDescriptor(configuration, pluginTestClassTestDescriptor, method);
+                    pluginTestClassTestDescriptor.addChild(pluginTestMethodTestDescriptor);
+                }
+            }
+        }
+        return pluginTestUnitTestDescriptor;
+    }
+
+    TestDescriptor addPluginJunitTestDescriptor(TestDescriptor testDescriptor, JupiterConfiguration configuration) {
+        final TestContext testContext = new TestContext(new TestClassWrapper(((ClassTestDescriptor) testDescriptor).getTestClass()));
+        final Class<?> testClass = testContext.createTestClass();
+
+        // Class
+        final PluginJunitTestClassTestDescriptor pluginTestClassTestDescriptor = new PluginJunitTestClassTestDescriptor(testDescriptor.getUniqueId(), testClass, configuration, testContext);
+        //switchTestDescriptor(testDescriptor, pluginTestClassTestDescriptor);
+        for (TestDescriptor descriptor : testDescriptor.getChildren()) {
+            if (descriptor instanceof TestMethodTestDescriptor) {
+                final Method method = ((TestMethodTestDescriptor) descriptor).getTestMethod();
+                final Method testMethod = ReflectionUtils.findMethod(testClass, method.getName(), method.getParameterTypes()).orElseThrow(() -> new IllegalStateException("not found method"));
+
+                final PluginJunitTestMethodTestDescriptor pluginTestMethodTestDescriptor = new PluginJunitTestMethodTestDescriptor(descriptor.getUniqueId(), testClass, testMethod, configuration, testContext);
+                pluginTestClassTestDescriptor.addChild(pluginTestMethodTestDescriptor);
+            }
+        }
+        return pluginTestClassTestDescriptor;
     }
 
     private static PluginTestDependencyTestDescriptor toPluginTestDependencyTestDescriptor(JupiterConfiguration configuration, PluginTestUnitTestDescriptor parentTestDescriptor, String testId) {
         return new PluginTestDependencyTestDescriptor(parentTestDescriptor.getUniqueId().append("dependency", testId), parentTestDescriptor.getTestClass(), configuration, testId);
     }
 
+    private static PluginForkedTestDependencyTestDescriptor toPluginForkedTestDependencyTestDescriptor(JupiterConfiguration configuration, PluginForkedTestUnitTestDescriptor parentTestDescriptor, String testId) {
+        return new PluginForkedTestDependencyTestDescriptor(parentTestDescriptor.getUniqueId().append("dependency", testId), parentTestDescriptor.getTestClass(), configuration, testId);
+    }
+
     private static PluginTestClassTestDescriptor toPluginTestClassTestDescriptor(JupiterConfiguration configuration, PluginTestDependencyTestDescriptor parentTestDescriptor, PluginTestInstance pluginTestInstance) {
         final Class<?> testClass = pluginTestInstance.getTestClass();
         return new PluginTestClassTestDescriptor(parentTestDescriptor.getUniqueId().append(ClassTestDescriptor.SEGMENT_TYPE, testClass.getName()), testClass, configuration, pluginTestInstance);
+    }
+
+    private static PluginForkedTestClassTestDescriptor toPluginForkedTestClassTestDescriptor(JupiterConfiguration configuration, PluginForkedTestDependencyTestDescriptor parentTestDescriptor) {
+        final Class<?> testClass = parentTestDescriptor.getTestClass();
+        return new PluginForkedTestClassTestDescriptor(parentTestDescriptor.getUniqueId().append(ClassTestDescriptor.SEGMENT_TYPE, testClass.getName()), testClass, configuration);
     }
 
     private static PluginTestMethodTestDescriptor toPluginTestMethodTestDescriptor(JupiterConfiguration configuration, PluginTestClassTestDescriptor parentTestDescriptor, PluginTestInstance pluginTestInstance, Method method) {
@@ -124,71 +223,12 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
         return new PluginTestMethodTestDescriptor(parentTestDescriptor.getUniqueId().append(TestMethodTestDescriptor.SEGMENT_TYPE, testMethod.getName()), testClass, testMethod, configuration, pluginTestInstance);
     }
 
-    private void switchTestDescriptor(TestDescriptor oldTestDescriptor, TestDescriptor newTestDescriptor) {
-        if (Boolean.FALSE == oldTestDescriptor.isRoot()) {
-            TestDescriptor rootTestDescriptor = oldTestDescriptor.getParent().orElseThrow(() -> new IllegalArgumentException("not found root"));
-            rootTestDescriptor.removeChild(oldTestDescriptor);
-            rootTestDescriptor.addChild(newTestDescriptor);
-        }
+    private static PluginForkedTestMethodTestDescriptor toPluginForkedTestMethodTestDescriptor(JupiterConfiguration configuration, PluginForkedTestClassTestDescriptor parentTestDescriptor, Method method) {
+        final Class<?> testClass = parentTestDescriptor.getTestClass();
+        final Method testMethod = ReflectionUtils.findMethod(testClass, method.getName(), method.getParameterTypes()).orElseThrow(() -> new IllegalStateException("not found method"));
+        String methodId = String.format("%s(%s)", method.getName(), ClassUtils.nullSafeToString(method.getParameterTypes()));
+        return new PluginForkedTestMethodTestDescriptor(parentTestDescriptor.getUniqueId().append(TestMethodTestDescriptor.SEGMENT_TYPE, methodId), testClass, testMethod, configuration);
     }
-
-//    @Override
-//    public void execute(ExecutionRequest request) {
-//        System.out.println("#### execute");
-//        TestDescriptor rootTestDescriptor = request.getRootTestDescriptor();
-//
-//        EngineExecutionListener listener = request.getEngineExecutionListener();
-//
-//        for (TestDescriptor classTestDescriptor : rootTestDescriptor.getChildren()) {
-//            listener.executionStarted(classTestDescriptor);
-//            for (TestDescriptor pluginTestDescriptor : classTestDescriptor.getChildren()) {
-//                listener.executionStarted(pluginTestDescriptor);
-//                for (TestDescriptor methodTestDescriptor : pluginTestDescriptor.getChildren()) {
-//                    listener.executionStarted(methodTestDescriptor);
-//                    listener.executionFinished(methodTestDescriptor, TestExecutionResult.successful());
-//                }
-//                listener.executionFinished(pluginTestDescriptor, TestExecutionResult.successful());
-//            }
-//            listener.executionFinished(classTestDescriptor, TestExecutionResult.successful());
-//        }
-//        PluginTestDescriptor container = new PluginTestDescriptor(rootTestDescriptor.getUniqueId().append("container", "1"), "container #1");
-//        rootTestDescriptor.addChild(container);
-//
-//        listener.dynamicTestRegistered(container);
-//        listener.executionStarted(container);
-//
-//        UniqueId containerUid = container.getUniqueId();
-//
-//        for (TestDescriptor testDescriptor : rootTestDescriptor.getChildren()) {
-//            System.out.println("uniqueId=" + testDescriptor.getUniqueId());
-//            if (testDescriptor instanceof ClassBasedTestDescriptor) {
-//                Class<?> clazz = ((ClassBasedTestDescriptor) testDescriptor).getTestClass();
-//                PluginTestSuite testSuite = new PluginTestSuite(clazz);
-//
-//                List<PinpointPluginTestInstance> testInstanceList = testSuite.getChildren();
-//                System.out.println("## testInstanceList " + testInstanceList);
-//                for (PinpointPluginTestInstance instance : testInstanceList) {
-//                    try {
-//                        final String testId = instance.getTestId();
-//                        PluginTestDescriptor pluginTestDescriptor = new PluginTestDescriptor(testDescriptor.getUniqueId().append("lib", testId), testId);
-//                        testDescriptor.addChild(pluginTestDescriptor);
-//                        listener.dynamicTestRegistered(pluginTestDescriptor);
-//
-//                        listener.executionStarted(pluginTestDescriptor);
-//                        startTest(instance);
-//                        listener.executionFinished(pluginTestDescriptor, TestExecutionResult.successful());
-//                    } catch (Throwable e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//                listener.executionFinished(testDescriptor, TestExecutionResult.successful());
-//    }
-//    }
-//
-//        listener.executionFinished(container, TestExecutionResult.successful());
-//
-//
-//    }
 
     @Override
     public JupiterEngineExecutionContext createExecutionContext(ExecutionRequest request) {

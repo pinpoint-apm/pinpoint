@@ -24,7 +24,8 @@ import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestClassTestD
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestMethodTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithJunitAgent;
-import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithPinpointAgent;
+import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithPluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithPluginTest;
 import org.junit.platform.engine.FilterResult;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestSource;
@@ -33,7 +34,8 @@ import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.PostDiscoveryFilter;
 
 public class PluginPostDiscoveryFilter implements PostDiscoveryFilter {
-    private static final IsTestClassWithPinpointAgent isTestClassWithPinpointAgent = new IsTestClassWithPinpointAgent();
+    private static final IsTestClassWithPluginTest isTestClassWithPluginTest = new IsTestClassWithPluginTest();
+    private static final IsTestClassWithPluginForkedTest isTestClassWithPluginForkedTest = new IsTestClassWithPluginForkedTest();
     private static final IsTestClassWithJunitAgent isTestClassWithJunitAgent = new IsTestClassWithJunitAgent();
 
     @Override
@@ -95,6 +97,6 @@ public class PluginPostDiscoveryFilter implements PostDiscoveryFilter {
     }
 
     boolean hasPinpointAgent(Class<?> javaClass) {
-        return isTestClassWithPinpointAgent.test(javaClass) || isTestClassWithJunitAgent.test(javaClass);
+        return isTestClassWithPluginTest.test(javaClass) || isTestClassWithPluginForkedTest.test(javaClass) || isTestClassWithJunitAgent.test(javaClass);
     }
 }

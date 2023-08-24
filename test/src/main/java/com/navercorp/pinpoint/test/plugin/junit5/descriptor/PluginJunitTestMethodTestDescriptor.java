@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.test.junit5.IsRootSpan;
-import com.navercorp.pinpoint.test.junit5.TestContext;
+import com.navercorp.pinpoint.profiler.test.junit5.IsRootSpan;
+import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
@@ -66,7 +66,7 @@ public class PluginJunitTestMethodTestDescriptor extends TestMethodTestDescripto
         final Class<?> baseTestClass = testContext.getBaseTestClass();
         if (baseTestClass.isInstance(test)) {
             try {
-                Method reset = baseTestClass.getDeclaredMethod("setup", com.navercorp.pinpoint.test.junit5.TestContext.class);
+                Method reset = baseTestClass.getDeclaredMethod("setup", TestContext.class);
                 reset.invoke(test, testContext);
             } catch (Exception e) {
                 throw new RuntimeException("setCurrentHolder Error. Caused by:" + e.getMessage(), e);

@@ -1,6 +1,6 @@
 package com.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.pluginit.utils.LogUtils;
+import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;

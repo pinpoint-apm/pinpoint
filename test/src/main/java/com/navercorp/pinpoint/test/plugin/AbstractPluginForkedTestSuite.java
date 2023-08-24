@@ -57,7 +57,7 @@ public abstract class AbstractPluginForkedTestSuite {
     private final Class<?> testClass;
     private final List<String> importPluginIds;
 
-    protected abstract List<PluginForkedTestInstance> createTestCases(PluginTestContext context) throws Exception;
+    protected abstract List<PluginForkedTestInstance> createTestCases(PluginForkedTestContext context) throws Exception;
 
     public AbstractPluginForkedTestSuite(Class<?> testClass) {
         this.testClass = testClass;
@@ -341,7 +341,6 @@ public abstract class AbstractPluginForkedTestSuite {
             if (candidate.exists()) {
                 try {
                     String url = candidate.toURI().toURL().toString();
-                    System.out.println("url=" + url);
                 } catch (MalformedURLException e) {
                 }
                 return candidate.getAbsolutePath();
@@ -374,10 +373,10 @@ public abstract class AbstractPluginForkedTestSuite {
                     continue;
                 }
 
-                PluginTestContext context = new PluginTestContext(agentJar, profile,
+                PluginForkedTestContext context = new PluginForkedTestContext(agentJar, profile,
                         configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, repositoryUrls,
                         testClass, testClassLocation,
-                        jvmArguments, debug, ver, javaExe, importPluginIds);
+                        jvmArguments, debug, ver, javaExe, importPluginIds, null, true, null);
 
                 List<PluginForkedTestInstance> cases = createTestCases(context);
 

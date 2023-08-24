@@ -37,21 +37,23 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugin-it-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-mybatis-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
