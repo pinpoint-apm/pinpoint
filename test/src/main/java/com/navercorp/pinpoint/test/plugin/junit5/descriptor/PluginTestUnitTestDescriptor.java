@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test.plugin.junit5.descriptor;
 
-import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.UniqueId;
@@ -27,7 +26,6 @@ import static org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory.
 
 public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
     private final Class<?> testClass;
-    private final PluginSharedInstance sharedInstance;
 
     static String generateDisplayNameForClass(Class<?> testClass) {
         String name = testClass.getName();
@@ -35,10 +33,9 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
         return name.substring(lastDot + 1);
     }
 
-    public PluginTestUnitTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, PluginSharedInstance sharedInstance) {
+    public PluginTestUnitTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration) {
         super(uniqueId, generateDisplayNameForClass(testClass), ClassSource.from(testClass), configuration);
         this.testClass = testClass;
-        this.sharedInstance = sharedInstance;
     }
 
     @Override
@@ -66,11 +63,6 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
     @Override
     public JupiterEngineExecutionContext before(JupiterEngineExecutionContext context) {
         ThrowableCollector throwableCollector = context.getThrowableCollector();
-        if (sharedInstance != null) {
-            throwableCollector.execute(() -> {
-                sharedInstance.before();
-            });
-        }
         throwableCollector.assertEmpty();
 
         return context;
@@ -80,12 +72,6 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
     public void after(JupiterEngineExecutionContext context) {
         ThrowableCollector throwableCollector = context.getThrowableCollector();
         Throwable previousThrowable = throwableCollector.getThrowable();
-
-        if (sharedInstance != null) {
-            throwableCollector.execute(() -> {
-                sharedInstance.after();
-            });
-        }
 
         // If the previous Throwable was not null when this method was called,
         // that means an exception was already thrown either before or during

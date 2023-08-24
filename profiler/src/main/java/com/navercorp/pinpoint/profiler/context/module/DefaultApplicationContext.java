@@ -146,10 +146,10 @@ public class DefaultApplicationContext implements ApplicationContext {
         logger.info("initialize Java9ClassFileTransformer");
         String moduleWrap = "com.navercorp.pinpoint.bootstrap.java9.module.ClassFileTransformerModuleWrap";
         try {
-            Class<ClassFileTransformer> cftClass = (Class<ClassFileTransformer>) forName(moduleWrap, DefaultApplicationContext.class.getClassLoader());
+            Class<ClassFileTransformer> cftClass = (Class<ClassFileTransformer>) forName(moduleWrap, Object.class.getClassLoader());
             Constructor<ClassFileTransformer> constructor = cftClass.getDeclaredConstructor(ClassFileTransformModuleAdaptor.class);
             return constructor.newInstance(classFileTransformer);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(moduleWrap + " load fail Caused by:" + e.getMessage(), e);
         }
     }
@@ -216,9 +216,6 @@ public class DefaultApplicationContext implements ApplicationContext {
         return this.serverMetaDataRegistryService;
     }
 
-    public InterceptorRegistryBinder getInterceptorRegistryBinder() {
-        return interceptorRegistryBinder;
-    }
 
     @Override
     public void start() {

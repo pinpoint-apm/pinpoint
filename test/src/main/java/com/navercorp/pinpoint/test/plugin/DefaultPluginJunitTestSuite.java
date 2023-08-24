@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.profiler.test.junit5.TestClassWrapper;
+import com.navercorp.pinpoint.test.junit5.TestClassWrapper;
 
 /**
  * We have referred OrderedThreadPoolExecutor ParentRunner of JUnit.

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.test.plugin.shared;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTestContext;
+import com.navercorp.pinpoint.test.plugin.PluginTestContext;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
 import com.navercorp.pinpoint.test.plugin.junit5.launcher.SharedPluginForkedTestLauncher;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
@@ -50,12 +50,12 @@ public class SharedProcessManager implements ProcessManager {
 
     private final TaggedLogger logger = TestLogger.getLogger();
 
-    private final PluginForkedTestContext context;
+    private final PluginTestContext context;
     private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<>();
 
     private Process process = null;
 
-    public SharedProcessManager(PluginForkedTestContext context) {
+    public SharedProcessManager(PluginTestContext context) {
         this.context = Objects.requireNonNull(context, "context");
     }
 

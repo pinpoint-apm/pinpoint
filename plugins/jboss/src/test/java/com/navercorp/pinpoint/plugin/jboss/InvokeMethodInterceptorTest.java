@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.logging.Log4j2Binder;
-import com.navercorp.pinpoint.profiler.test.MockTraceContextFactory;
+import com.navercorp.pinpoint.test.MockTraceContextFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.LoggerContext;
 import org.junit.jupiter.api.AfterEach;

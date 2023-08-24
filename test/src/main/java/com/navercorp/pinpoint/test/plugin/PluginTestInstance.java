@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+
 import java.util.concurrent.Callable;
 
 public interface PluginTestInstance {
@@ -24,6 +27,10 @@ public interface PluginTestInstance {
     ClassLoader getClassLoader();
 
     Class<?> getTestClass();
+
+    PluginTestVerifier getPluginVerifier();
+
+    InterceptorRegistryBinder getInterceptorRegistryBinder();
 
     <T> T execute(final Callable<T> callable, boolean verify);
 }

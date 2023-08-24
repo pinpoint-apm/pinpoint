@@ -30,19 +30,22 @@
     <packaging>pom</packaging>
     <modules>
         <module>plugins-it-utils</module>
-        <module>plugins-it-utils-jdbc</module>
+        <module>plugins-it-jdbc-test</module>
         <module>activemq-it</module>
         <module>cassandra-it</module>
+        <module>cassandra4-it</module>
         <module>cxf-it</module>
         <module>druid-it</module>
         <module>dubbo-it</module>
         <module>elasticsearch-it</module>
+        <module>elasticsearch-7.16-it</module>
         <module>fastjson-it</module>
         <module>google-grpc-it</module>
         <module>google-httpclient-it</module>
         <module>gson-it</module>
         <module>hbase-it</module>
-        <module>httpclient-it</module>
+        <module>httpclient3-it</module>
+        <module>httpclient4-it</module>
         <module>hikaricp-it</module>
         <module>hystrix-it</module>
         <module>ibatis-it</module>
@@ -55,6 +58,7 @@
         <module>logback-it</module>
         <module>mariadb-jdbc-it</module>
         <module>mongodb-it</module>
+        <module>mongodb4-it</module>
         <module>mssql-jdbc-it</module>
         <module>mybatis-it</module>
         <module>netty-it</module>
@@ -75,6 +79,7 @@
         <module>jtds-it</module>
         <module>mysql-jdbc-driver-plugin-it</module>
         <module>spring-data-r2dbc-it</module>
+        <module>google-grpc-it2</module>
         <module>redis-lettuce-it</module>
     </modules>
 

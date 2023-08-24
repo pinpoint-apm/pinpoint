@@ -16,6 +16,7 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+
         <kotlin.version>1.5.32</kotlin.version>
     </properties>
 
@@ -24,6 +25,7 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-kotlin-coroutines-plugin</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -34,6 +36,8 @@
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
             <version>1.5.2</version>
+<!--            <version>1.3.2</version>-->
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

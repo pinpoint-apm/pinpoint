@@ -20,16 +20,18 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.logging.Log4j2Binder;
-import com.navercorp.pinpoint.profiler.test.MockApplicationContextFactory;
-import com.navercorp.pinpoint.profiler.test.classloader.TestClassLoader;
-import com.navercorp.pinpoint.profiler.test.classloader.TestClassLoaderFactory;
-import com.navercorp.pinpoint.profiler.test.junit5.TestClassWrapper;
+import com.navercorp.pinpoint.test.MockApplicationContextFactory;
+import com.navercorp.pinpoint.test.classloader.TestClassLoader;
+import com.navercorp.pinpoint.test.classloader.TestClassLoaderFactory;
+import com.navercorp.pinpoint.test.junit5.TestClassWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 public class DefaultPluginJunitTestInstance implements PluginJunitTestInstance {
+
+    private static final String BASE_TEST_CLASS_NAME = "com.navercorp.pinpoint.test.junit4.BasePinpointTest";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -43,7 +45,7 @@ public class DefaultPluginJunitTestInstance implements PluginJunitTestInstance {
         this.testClassWrapper = testClassWrapper;
         this.mockApplicationContext = createMockApplicationContext(testClassWrapper.getConfigPath());
         this.mockApplicationContext.start();
-        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockApplicationContext, null, null);
+        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockApplicationContext);
         this.classLoader.initialize();
     }
 
