@@ -45,7 +45,6 @@ public class ApdexScoreCheckerTest {
         mockMapResponseDAO = (application, range) -> {
             long timeStamp = 1409814914298L;
             ResponseTime responseTime = new ResponseTime(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
-            List<ResponseTime> list = List.of(responseTime);
 
             for (int i=0 ; i < 5; i++) {
                 for (int j=0 ; j < 5; j++) {
@@ -60,7 +59,7 @@ public class ApdexScoreCheckerTest {
                 timeStamp += 1;
             }
 
-            return list;
+            return List.of(responseTime);
         };
     }
 

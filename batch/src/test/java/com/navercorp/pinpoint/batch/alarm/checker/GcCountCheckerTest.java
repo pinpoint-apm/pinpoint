@@ -103,9 +103,7 @@ public class GcCountCheckerTest {
             @Override
             public List<String> selectAgentIds(String applicationName) {
                 if (SERVICE_NAME.equals(applicationName)) {
-                    List<String> agentIds = new ArrayList<>();
-                    agentIds.add("local_tomcat");
-                    return agentIds;
+                    return List.of("local_tomcat");
                 }
 
                 throw new IllegalArgumentException();

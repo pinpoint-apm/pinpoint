@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
@@ -106,7 +105,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         Assertions.assertTrue(StringUtils.isEmpty(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assertions.assertTrue(CollectionUtils.isEmpty(smsMessage));
+        assertThat(smsMessage).isEmpty();
     }
 
     private DataSourceListBo createDataSourceListBo(int id, int activeConnectionSize, int maxConnectionSize, int numValues) {

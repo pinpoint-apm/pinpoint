@@ -24,7 +24,6 @@ import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,8 +43,7 @@ public class AlarmJobTest {
     }
 
     private static JobParameters getParameters() {
-        Map<String, JobParameter> parameters = new HashMap<>();
-        parameters.put("schedule.scheduledFireTime", new JobParameter(new Date()));
+        Map<String, JobParameter> parameters = Map.of("schedule.scheduledFireTime", new JobParameter(new Date()));
         return new JobParameters(parameters);
     }
 }
