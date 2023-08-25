@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.metric.collector.dao.MetricTagDao;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
-import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler;
 import com.navercorp.pinpoint.pinot.kafka.util.KafkaCallbacks;
 import org.apache.logging.log4j.LogManager;

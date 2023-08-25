@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 import java.util.Objects;
 
 /**
