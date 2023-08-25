@@ -29,7 +29,7 @@ import java.util.Optional;
 public class AgentCountPartitionerTest {
 
     @Test
-    public void partition() throws Exception {
+    public void partition() {
         AgentCountPartitioner partitioner = new AgentCountPartitioner(Optional.empty());
         Map<String, ExecutionContext> partition = partitioner.partition(0);
         Assertions.assertThat(partition).hasSize(1);

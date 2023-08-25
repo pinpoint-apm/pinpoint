@@ -25,7 +25,6 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,14 +35,16 @@ import java.util.Objects;
 @Deprecated
 public class AgentEventMessageDeserializer {
 
-    private final List<DeserializerFactory<HeaderTBaseDeserializer>> deserializerFactoryList;
+    private final DeserializerFactory<HeaderTBaseDeserializer>[] deserializerFactorys;
 
     public AgentEventMessageDeserializer(DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
-        this.deserializerFactoryList = Collections.singletonList(deserializerFactory);
+        this(List.of(deserializerFactory));
     }
 
-    public AgentEventMessageDeserializer(List<DeserializerFactory<HeaderTBaseDeserializer>> deserializerFactoryList) {
-        this.deserializerFactoryList = deserializerFactoryList;
+    @SuppressWarnings("unchecked")
+    public AgentEventMessageDeserializer(List<DeserializerFactory<HeaderTBaseDeserializer>> deserializerFactorys) {
+        Objects.requireNonNull(deserializerFactorys, "deserializerFactoryList");
+        this.deserializerFactorys = deserializerFactorys.toArray(new DeserializerFactory[0]);
     }
 
     public Object deserialize(AgentEventType agentEventType, byte[] eventBody) throws UnsupportedEncodingException {
@@ -54,7 +55,7 @@ public class AgentEventMessageDeserializer {
             return null;
         }
         if (TBase.class.isAssignableFrom(eventMessageType)) {
-            for (DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory : deserializerFactoryList) {
+            for (DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory : deserializerFactorys) {
                 try {
                     Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(eventBody, deserializerFactory);
                     return deserialize.getData();

@@ -42,6 +42,7 @@ public class FileDescriptorDataCollectorTest {
 
         List<String> agentList = List.of(agentId1, agentId2);
 
+        @SuppressWarnings("unchecked")
         AgentStatDao<FileDescriptorBo> fileDescriptorDao = (AgentStatDao<FileDescriptorBo>) mock(AgentStatDao.class);
         long timeStamp = 1558936971494L;
         Range range = Range.newUncheckedRange(timeStamp - DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN, timeStamp);
