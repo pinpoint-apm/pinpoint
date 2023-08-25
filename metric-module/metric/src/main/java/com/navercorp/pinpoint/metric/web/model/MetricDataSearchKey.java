@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.model;
 
-import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;

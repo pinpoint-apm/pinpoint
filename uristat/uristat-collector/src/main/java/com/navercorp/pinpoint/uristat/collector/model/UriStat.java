@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.uristat.collector.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.navercorp.pinpoint.uristat.collector.util.StringPrecondition;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 import java.util.Arrays;
 import java.util.Objects;

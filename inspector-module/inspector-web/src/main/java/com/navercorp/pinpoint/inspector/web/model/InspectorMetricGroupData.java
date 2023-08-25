@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.inspector.web.model;
 
-import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.web.model.MetricValue;
 
 import java.util.List;
 import java.util.Map;
