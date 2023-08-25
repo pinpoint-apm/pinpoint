@@ -529,10 +529,7 @@ public final class BytesUtils {
         if (arrays == null) {
             throw new NullPointerException("arrays");
         }
-        int totalLength = 0;
-        for (byte[] array : arrays) {
-            totalLength += array.length;
-        }
+        final int totalLength = getTotalLength(arrays);
 
         byte[] result = new byte[totalLength];
 
@@ -543,6 +540,14 @@ public final class BytesUtils {
         }
 
         return result;
+    }
+
+    private static int getTotalLength(byte[][] arrays) {
+        int totalLength = 0;
+        for (byte[] array : arrays) {
+            totalLength += array.length;
+        }
+        return totalLength;
     }
 
 

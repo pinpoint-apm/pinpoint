@@ -46,7 +46,7 @@ public final class StringUtils {
     }
 
     public static boolean hasLength(final String string) {
-        return string != null && string.length() > 0;
+        return string != null && !string.isEmpty();
     }
 
     public static boolean hasText(String string) {
@@ -63,11 +63,11 @@ public final class StringUtils {
         return false;
     }
 
-    public static <T> int getLength(final String string) {
+    public static int getLength(final String string) {
         return getLength(string, 0);
     }
 
-    public static <T> int getLength(final String string, final int nullValue) {
+    public static int getLength(final String string, final int nullValue) {
         if (string == null) {
             return nullValue;
         }
@@ -189,7 +189,7 @@ public final class StringUtils {
             if (trimTokens) {
                 token = token.trim();
             }
-            if (!ignoreEmptyTokens || token.length() > 0) {
+            if (!ignoreEmptyTokens || !token.isEmpty()) {
                 tokens.add(token);
             }
         }
