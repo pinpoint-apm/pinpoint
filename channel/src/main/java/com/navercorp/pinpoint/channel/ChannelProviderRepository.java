@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.channel;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public class ChannelProviderRepository {
         for (ChannelProviderRegistry registry: registries) {
             providerMap.put(registry.getScheme(), registry.getProvider());
         }
-        this.providerMap = Collections.unmodifiableMap(providerMap);
+        this.providerMap = providerMap;
     }
 
     public PubChannel getPubChannel(URI uri) {

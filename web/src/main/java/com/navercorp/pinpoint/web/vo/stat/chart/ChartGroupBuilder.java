@@ -42,7 +42,7 @@ public class ChartGroupBuilder<T, P extends Point> {
 
     private Map<ChartType, Chart<P>> build(TimeWindow timeWindow, List<T> cpuLoadList, List<Map.Entry<ChartType, Function<T, P>>> entries) {
         Objects.requireNonNull(entries, "entries");
-
+        @SuppressWarnings("unchecked")
         Map.Entry<ChartType, Chart<P>>[] charts = new Map.Entry[entries.size()];
         int i = 0;
         for (Map.Entry<ChartType, Function<T, P>> entry : entries) {

@@ -244,7 +244,7 @@ public class TraceViewerDataViewModel {
             this.name = (showApplicationName? ("[" + record.getApplicationName() + "] "): "") + record.getTitle();
             this.cname = cname;
 
-            this.args = new HashMap<String, String>();
+            this.args = new HashMap<>();
             args.put("id", String.valueOf(record.getId()));
             args.put("parentId", String.valueOf(record.getParentId()));
             args.put("API Type", record.getApiType());

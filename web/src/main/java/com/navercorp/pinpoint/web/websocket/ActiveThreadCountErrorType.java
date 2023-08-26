@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Taejin Koo
@@ -37,26 +38,17 @@ public enum ActiveThreadCountErrorType {
     CLUSTER_CHANNEL_CLOSED((short) -1, "CLUSTER CHANNEL CLOSED", StreamCode.STATE_CLOSED.name()),
     PINPOINT_INTERNAL_ERROR((short) -1, "PINPOINT INTERNAL ERROR");
 
-    private final static Map<String, ActiveThreadCountErrorType> CODE_MAP = Collections.unmodifiableMap(initializeCodeMapping());
+    private final static Map<String, ActiveThreadCountErrorType> CODE_MAP = initializeCodeMapping();
 
     private final short code;
     private final String message;
     private final List<String> errorMessageList;
-    private static final String LINE_DELIMITER = "-";
 
     ActiveThreadCountErrorType(short code, String message, String... candidateErrorMessages) {
         this.code = code;
         this.message = message;
 
-        this.errorMessageList = asList(candidateErrorMessages);
-    }
-
-    private List<String> asList(String[] candidateErrorMessages) {
-        if (ArrayUtils.isEmpty(candidateErrorMessages)) {
-            return Collections.emptyList();
-        }
-
-        return Arrays.asList(candidateErrorMessages);
+        this.errorMessageList = List.of(candidateErrorMessages);
     }
 
     public short getCode() {

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.batch.dao.AlarmDao;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,15 +43,15 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     @Transactional(readOnly = true)
     public Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId) {
-        Map<String, CheckerResult> checkerResults = new HashMap<>();
         List<CheckerResult> checkerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);
-        
-        if (!checkerResultList.isEmpty()) {
-            for (CheckerResult checkerResult : checkerResultList) {
-                checkerResults.put(checkerResult.getRuleId(), checkerResult);
-            }
+        if (checkerResultList.isEmpty()) {
+            return Collections.emptyMap();
         }
-        
+
+        Map<String, CheckerResult> checkerResults = new HashMap<>();
+        for (CheckerResult checkerResult : checkerResultList) {
+            checkerResults.put(checkerResult.getRuleId(), checkerResult);
+        }
         return checkerResults;
     }
 

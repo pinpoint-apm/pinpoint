@@ -154,7 +154,7 @@ public class AdminServiceImpl implements AdminService {
         for (Map.Entry<String, List<Application>> entry : agentIdMap.entrySet()) {
             String agentId = entry.getKey();
             List<Application> applications = entry.getValue();
-            if (applications.size() > 1) {
+            if (CollectionUtils.hasLength(applications)) {
                 duplicateAgentIdMap.put(agentId, applications);
             }
         }

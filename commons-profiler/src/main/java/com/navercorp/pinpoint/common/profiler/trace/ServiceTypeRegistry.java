@@ -91,11 +91,7 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
 
         for (ServiceType serviceType : serviceTypes) {
             if (serviceType.isRecordStatistics() || serviceType.isAlias()) {
-                List<ServiceType> serviceTypeList = table.get(serviceType.getDesc());
-                if (serviceTypeList == null) {
-                    serviceTypeList = new ArrayList<>();
-                    table.put(serviceType.getDesc(), serviceTypeList);
-                }
+                List<ServiceType> serviceTypeList = table.computeIfAbsent(serviceType.getDesc(), k -> new ArrayList<>());
                 serviceTypeList.add(serviceType);
             }
         }
