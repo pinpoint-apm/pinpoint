@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.inspector.web.definition.metric.field;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -29,7 +28,7 @@ import java.util.Map;
  */
 @Component
 public class FieldProcessorManager {
-    private Map<String, FieldPostProcessor> postProcessorMap = new HashMap<>();
+    private final Map<String, FieldPostProcessor> postProcessorMap = new HashMap<>();
 
     public FieldProcessorManager(List<FieldPostProcessor> postProcessorList) {
         for (FieldPostProcessor postProcessor : postProcessorList) {

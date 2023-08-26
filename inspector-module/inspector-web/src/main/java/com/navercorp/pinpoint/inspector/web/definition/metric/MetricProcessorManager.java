@@ -27,8 +27,8 @@ import java.util.Map;
  */
 @Component
 public class MetricProcessorManager {
-    private Map<String, MetricPreProcessor> preProcessorMap = new HashMap<>();
-    private Map<String, MetricPostProcessor> postProcessorMap = new HashMap<>();
+    private final Map<String, MetricPreProcessor> preProcessorMap = new HashMap<>();
+    private final Map<String, MetricPostProcessor> postProcessorMap = new HashMap<>();
 
     public MetricProcessorManager(List<MetricPostProcessor> postProcessorList, List<MetricPreProcessor> preProcessorList) {
         for (MetricPostProcessor postProcessor : postProcessorList) {

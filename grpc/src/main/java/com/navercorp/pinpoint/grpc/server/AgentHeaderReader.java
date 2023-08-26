@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
-
 import io.grpc.Metadata;
 import io.grpc.Status;
 
@@ -31,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,8 +41,15 @@ public class AgentHeaderReader implements HeaderReader<Header> {
     // for debug
     protected final String name;
 
+    private final Function<Metadata, Map<String, Object>> metadataConverter;
+
     public AgentHeaderReader(String name) {
+        this(name, AgentHeaderReader::emptyProperties);
+    }
+
+    public AgentHeaderReader(String name, Function<Metadata, Map<String, Object>> metadataConverter) {
         this.name = Objects.requireNonNull(name, "name");
+        this.metadataConverter = Objects.requireNonNull(metadataConverter, "metadataConverter");
     }
 
     @Override
@@ -54,11 +61,11 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
-        final Map<String, Object> properties = newProperties(headers);
+        final Map<String, Object> properties = metadataConverter.apply(headers);
         return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, properties);
     }
 
-    protected Map<String, Object> newProperties(Metadata headers) {
+    public static Map<String, Object> emptyProperties(Metadata headers) {
         return Collections.emptyMap();
     }
 

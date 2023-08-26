@@ -30,7 +30,8 @@ import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -125,12 +126,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("callStackIndex")
     public Map<String, Integer> getCallStackIndex() {
-        final Map<String, Integer> index = new HashMap<>();
-        for (int i = 0; i < CallStack.INDEX.length; i++) {
-            index.put(CallStack.INDEX[i], i);
-        }
-
-        return index;
+        return Field.getFieldMap();
     }
 
     @JsonProperty("callStack")
@@ -158,8 +154,8 @@ public class TransactionInfoViewModel {
     }
 
     @JsonProperty("applicationMapData")
-    public Map<String, List<Object>> getApplicationMapData() {
-        Map<String, List<Object>> result = new HashMap<>();
+    public Map<String, Collection<?>> getApplicationMapData() {
+
         if (timeHistogramFormat == TimeHistogramFormat.V2) {
             for (Node node : nodes) {
                 node.setTimeHistogramFormat(timeHistogramFormat);
@@ -169,45 +165,59 @@ public class TransactionInfoViewModel {
             }
         }
 
-        List<Object> nodeDataArray = new ArrayList<>(nodes);
-        result.put("nodeDataArray", nodeDataArray);
-        List<Object> linkDataArray = new ArrayList<>(links);
-        result.put("linkDataArray", linkDataArray);
+        return Map.of(
+                "nodeDataArray", nodes,
+                "linkDataArray", links
+        );
+    }
 
-        return result;
+    enum Field {
+        depth,
+        begin,
+        end,
+        excludeFromTimeline,
+        applicationName,
+        tab,
+        id,
+        parentId,
+        isMethod,
+        hasChild,
+        title,
+        arguments,
+        executeTime,
+        gap,
+        elapsedTime,
+        barWidth,
+        executionMilliseconds,
+        simpleClassName,
+        methodType,
+        apiType,
+        agent,
+        isFocused,
+        hasException,
+        isAuthorized,
+        agentName,
+        lineNumber,
+        location;
+
+        private static final Map<String, Integer> MAP = Collections.unmodifiableMap(toNameOrdinalMap());
+
+
+        private static Map<String, Integer> toNameOrdinalMap() {
+            final Map<String, Integer> index = new LinkedHashMap<>();
+            for (Field field : Field.values()) {
+                index.put(field.name(), field.ordinal());
+            }
+            return index;
+        }
+
+        public static Map<String, Integer> getFieldMap() {
+            return MAP;
+        }
     }
 
     @JsonSerialize(using = TransactionInfoCallStackSerializer.class)
     public static class CallStack {
-        static final String[] INDEX = {"depth",
-                "begin",
-                "end",
-                "excludeFromTimeline",
-                "applicationName",
-                "tab",
-                "id",
-                "parentId",
-                "isMethod",
-                "hasChild",
-                "title",
-                "arguments",
-                "executeTime",
-                "gap",
-                "elapsedTime",
-                "barWidth",
-                "executionMilliseconds",
-                "simpleClassName",
-                "methodType",
-                "apiType",
-                "agent",
-                "isFocused",
-                "hasException",
-                "isAuthorized",
-                "agentName",
-                "lineNumber",
-                "location"
-        };
-
         private String depth = "";
         private long begin;
         private long end;

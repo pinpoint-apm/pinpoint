@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.batch.common;
 
 import org.springframework.batch.item.ExecutionContext;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,9 +25,9 @@ import java.util.Map;
 public class DefaultDivider implements Divider {
     @Override
     public Map<String, ExecutionContext> divide(String partitionNamePrefix, String batchName) {
-        Map<String, ExecutionContext> mapContext = new HashMap<>();
+
         ExecutionContext emptyExecutionContext = new ExecutionContext();
-        mapContext.put(partitionNamePrefix + 1, emptyExecutionContext);
-        return mapContext;
+
+        return Map.of(partitionNamePrefix + 1, emptyExecutionContext);
     }
 }
