@@ -53,7 +53,7 @@ public class RewriteForV2FilterTest {
         RewriteForV2Filter rewriteForV2Filter = new RewriteForV2Filter(true);
 
         HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(servletRequest.getRequestURI()).thenReturn(ADMIN_REWRITE_TARGET + "/removeApplicationName.pinpoint");
+        Mockito.when(servletRequest.getRequestURI()).thenReturn("/api" + ADMIN_REWRITE_TARGET + "/removeApplicationName");
 
         ServletResponse servletResponse = Mockito.mock(ServletResponse.class);
         FilterChain filterChain = Mockito.mock(FilterChain.class);

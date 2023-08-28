@@ -35,14 +35,8 @@ import java.io.IOException;
 public class RewriteForV2Filter implements Filter {
 
     public static final String DEFAULT_INDEX = "/index.html";
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
     private static final char PATH_DELIMITER = '/';
-    private static final String PINPOINT_REST_API_SUFFIX = ".pinpoint";
-
-    private final String[] rewriteTargetArray = {
+    private static final String[] URI_PREFIXES_FOR_FRONT = {
             "/auth",
             "/browserNotSupported",
             "/config",
@@ -60,58 +54,68 @@ public class RewriteForV2Filter implements Filter {
             "/metric",
     };
 
-    private final boolean enable;
+    private final Logger logger = LogManager.getLogger(this.getClass());
+    private final boolean isDebugEnabled = logger.isDebugEnabled();
 
-    public RewriteForV2Filter(boolean enable) {
-        this.enable = enable;
+    private final boolean enabled;
+
+    public RewriteForV2Filter(boolean enabled) {
+        this.enabled = enabled;
     }
 
-    public void init(FilterConfig filterConfig) {
-        logger.info("init");
+    @Override
+    public void init(FilterConfig config) {
+        logger.info("Initialized rewriter v2, name: {}", config.getFilterName());
     }
 
+    @Override
     public void destroy() {
-
+        logger.info("Destroyed rewriter v2");
     }
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (enable) {
-            HttpServletRequest req = (HttpServletRequest) request;
-            String requestURI = req.getRequestURI();
-
-            if (isRedirectTarget(requestURI)) {
-                if (isDebug) {
-                    logger.debug("requestUri:{} --(forward)--> {}", requestURI, DEFAULT_INDEX );
-                }
-                RequestDispatcher dispatcher = req.getRequestDispatcher(DEFAULT_INDEX);
-                dispatcher.forward(request, response);
-            } else {
-                chain.doFilter(request, response);
-            }
+    @Override
+    public void doFilter(
+            ServletRequest request,
+            ServletResponse response,
+            FilterChain chain
+    ) throws IOException, ServletException {
+        if (this.shouldServeFrontApplication(request)) {
+            this.serveFrontApplication(request, response);
         } else {
             chain.doFilter(request, response);
         }
-
     }
 
-    private boolean isRedirectTarget(String uri) {
+    private void serveFrontApplication(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        if (isDebugEnabled) {
+            logger.debug("requestUri: {} --(forward)--> {}", ((HttpServletRequest) req).getRequestURI(), DEFAULT_INDEX);
+        }
+        RequestDispatcher dispatcher = req.getRequestDispatcher(DEFAULT_INDEX);
+        dispatcher.forward(req, res);
+    }
+
+    private boolean shouldServeFrontApplication(ServletRequest req) {
+        return this.enabled && isURIForFront(getRequestURI(req));
+    }
+
+    private static boolean isURIForFront(String uri) {
         if (uri == null) {
             return false;
         }
 
-        if (uri.endsWith(PINPOINT_REST_API_SUFFIX)) {
-            return false;
-        }
-
-        for (String rewriteTarget : rewriteTargetArray) {
-            if (uri.equals(rewriteTarget)) {
-                return true;
-            }
-            if (uri.startsWith(rewriteTarget + PATH_DELIMITER)) {
+        for (String prefix : URI_PREFIXES_FOR_FRONT) {
+            if (uri.equals(prefix) || uri.startsWith(prefix + PATH_DELIMITER)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static String getRequestURI(ServletRequest req) {
+        if (req instanceof HttpServletRequest) {
+            return ((HttpServletRequest) req).getRequestURI();
+        }
+        return null;
     }
 
 }
