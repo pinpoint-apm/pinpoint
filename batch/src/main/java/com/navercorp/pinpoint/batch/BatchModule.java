@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.batch;
 
 import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
+import com.navercorp.pinpoint.batch.configuration.AlarmJobModule;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
@@ -36,7 +37,6 @@ import org.springframework.context.annotation.ImportResource;
         "classpath:applicationContext-batch-dao-config.xml",
         "classpath:applicationContext-batch-web-component.xml",
 
-        "classpath:job/applicationContext-alarmJob.xml",
         "classpath:job/applicationContext-agentCountJob.xml",
         "classpath:job/applicationContext-flinkCheckJob.xml",
         "classpath:job/applicationContext-cleanupInactiveAgentsJob.xml"
@@ -48,6 +48,8 @@ import org.springframework.context.annotation.ImportResource;
 
         MainDataSourceConfiguration.class,
         MetaDataSourceConfiguration.class,
+
+        AlarmJobModule.class,
 
         WebhookModule.class,
         WebHbaseModule.class,
