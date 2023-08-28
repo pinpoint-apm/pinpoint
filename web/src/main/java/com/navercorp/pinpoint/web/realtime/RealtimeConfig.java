@@ -15,10 +15,6 @@
  */
 package com.navercorp.pinpoint.web.realtime;
 
-import com.navercorp.pinpoint.web.realtime.activethread.count.WebActiveThreadCountConfig;
-import com.navercorp.pinpoint.web.realtime.activethread.dump.WebActiveThreadDumpConfig;
-import com.navercorp.pinpoint.web.realtime.echo.WebEchoConfig;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -26,13 +22,6 @@ import org.springframework.context.annotation.Import;
  * @author youngjin.kim2
  */
 @Configuration
-@ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "true")
-@Import({
-        WebActiveThreadCountConfig.class,
-        WebActiveThreadDumpConfig.class,
-        WebEchoConfig.class,
-        RealtimeWebPropertySources.class
-})
-public class RealtimeWebModule {
-
+@Import({LegacyRealtimeConfig.class, RedisRealtimeConfig.class})
+public class RealtimeConfig {
 }

@@ -57,6 +57,7 @@ public class LogController {
                 .take(duration)
                 .flatMap(pile -> Flux.fromIterable(pile.getLogs()))
                 .map(Log::getLog)
+                .take(duration)
                 .collectList()
                 .block();
     }

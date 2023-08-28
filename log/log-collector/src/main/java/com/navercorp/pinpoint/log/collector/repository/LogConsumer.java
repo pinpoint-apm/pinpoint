@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.log.collector.repository;
 
+import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.vo.LogPile;
 
 /**
@@ -23,5 +24,7 @@ import com.navercorp.pinpoint.log.vo.LogPile;
 public interface LogConsumer {
 
     void consume(LogPile pile);
+
+    FileKey getFileKey();
 
 }

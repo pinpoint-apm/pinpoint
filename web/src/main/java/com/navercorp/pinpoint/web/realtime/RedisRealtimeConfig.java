@@ -49,9 +49,9 @@ import static com.navercorp.pinpoint.web.WebSocketConfig.ATC_ENDPOINT;
  * @author youngjin.kim2
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "true")
-@Import(RealtimeWebModule.class)
-public class RedisRealtimeWebModuleAdaptorConfig {
+@ConditionalOnProperty(name = "pinpoint.modules.realtime", havingValue = "redis")
+@Import(RedisRealtimeWebModule.class)
+public class RedisRealtimeConfig {
 
     @Value("${pinpoint.web.realtime.agent-recentness:PT5S}")
     Duration agentRecentness;

@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.log.collector.repository;
+package com.navercorp.pinpoint.web.realtime;
 
-import com.navercorp.pinpoint.log.dto.LogDemand;
-import com.navercorp.pinpoint.log.vo.FileKey;
+import com.navercorp.pinpoint.web.realtime.activethread.count.WebActiveThreadCountConfig;
+import com.navercorp.pinpoint.web.realtime.activethread.dump.WebActiveThreadDumpConfig;
+import com.navercorp.pinpoint.web.realtime.echo.WebEchoConfig;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * @author youngjin.kim2
  */
-public interface LogDemandAcceptor {
-
-    void accept(LogDemand demand);
-
-    FileKey getFileKey();
-
-    boolean isAvailable();
+@Configuration
+@Import({
+        WebActiveThreadCountConfig.class,
+        WebActiveThreadDumpConfig.class,
+        WebEchoConfig.class,
+        RealtimeWebPropertySources.class
+})
+public class RedisRealtimeWebModule {
 
 }

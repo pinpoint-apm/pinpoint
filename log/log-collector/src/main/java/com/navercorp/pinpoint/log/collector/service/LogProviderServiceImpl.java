@@ -51,17 +51,44 @@ class LogProviderServiceImpl implements LogProviderService {
     @Override
     public Flux<LogDemand> getDemands(FileKey fileKey) {
         Sinks.Many<LogDemand> sink = Sinks.many().replay().all();
-        LogDemandAcceptor acceptor = demand -> sink.emitNext(demand, Sinks.EmitFailureHandler.FAIL_FAST);
-        registerDemandAcceptor(fileKey, acceptor);
-        return sink.asFlux().doFinally(t -> unregisterDemandAcceptor(fileKey, acceptor));
+        LogDemandAcceptor acceptor = new LogDemanderAcceptorImpl(fileKey, sink);
+        registerDemandAcceptor(acceptor);
+        return sink.asFlux().doFinally(t -> unregisterDemandAcceptor(acceptor));
     }
 
-    private void registerDemandAcceptor(FileKey fileKey, LogDemandAcceptor acceptor) {
-        this.acceptorRepository.addAcceptor(fileKey, acceptor);
+    private void registerDemandAcceptor(LogDemandAcceptor acceptor) {
+        this.acceptorRepository.addAcceptor(acceptor);
     }
 
-    private void unregisterDemandAcceptor(FileKey fileKey, LogDemandAcceptor acceptor) {
-        this.acceptorRepository.removeAcceptor(fileKey, acceptor);
+    private void unregisterDemandAcceptor(LogDemandAcceptor acceptor) {
+        this.acceptorRepository.removeAcceptor(acceptor);
+    }
+
+    private static class LogDemanderAcceptorImpl implements LogDemandAcceptor {
+
+        private final FileKey fileKey;
+        private final Sinks.Many<LogDemand> sink;
+
+        public LogDemanderAcceptorImpl(FileKey fileKey, Sinks.Many<LogDemand> sink) {
+            this.fileKey = fileKey;
+            this.sink = sink;
+        }
+
+        @Override
+        public void accept(LogDemand demand) {
+            this.sink.emitNext(demand, Sinks.EmitFailureHandler.FAIL_FAST);
+        }
+
+        @Override
+        public FileKey getFileKey() {
+            return this.fileKey;
+        }
+
+        @Override
+        public boolean isAvailable() {
+            return this.sink.currentSubscriberCount() > 0;
+        }
+
     }
 
 }

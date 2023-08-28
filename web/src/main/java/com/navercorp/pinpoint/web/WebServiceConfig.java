@@ -15,13 +15,6 @@
  */
 package com.navercorp.pinpoint.web;
 
-import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
-import com.navercorp.pinpoint.web.service.ActiveThreadDumpServiceImpl;
-import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.service.EchoService;
-import com.navercorp.pinpoint.web.service.EchoServiceImpl;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,17 +24,4 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan(basePackages = { "com.navercorp.pinpoint.web.service" })
 public class WebServiceConfig {
-
-    @Bean
-    @ConditionalOnMissingBean(ActiveThreadDumpService.class)
-    ActiveThreadDumpService activeThreadDumpService(AgentService agentService) {
-        return new ActiveThreadDumpServiceImpl(agentService);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(EchoService.class)
-    EchoService echoService(AgentService agentService) {
-        return new EchoServiceImpl(agentService);
-    }
-
 }
