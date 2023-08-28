@@ -32,7 +32,11 @@ import org.springframework.batch.item.ItemProcessor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,16 +56,20 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
 
     private final AgentInfoService agentInfoService;
 
+    private final CheckerRegistry checkerRegistry;
+
     public AlarmProcessor(
             DataCollectorFactory dataCollectorFactory,
             AlarmService alarmService,
             ApplicationIndexDao applicationIndexDao,
-            AgentInfoService agentInfoService
+            AgentInfoService agentInfoService,
+            CheckerRegistry checkerRegistry
     ) {
         this.dataCollectorFactory = Objects.requireNonNull(dataCollectorFactory, "dataCollectorFactory");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.checkerRegistry = Objects.requireNonNull(checkerRegistry, "checkerRegistry");
     }
 
     public AppAlarmChecker process(@Nonnull Application application) {
@@ -83,7 +91,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
         long now = System.currentTimeMillis();
         List<String> agentIds = prepareActiveAgentIds(application, rules, now);
 
-        RuleTransformer transformer = new RuleTransformer(application, agentIds, now, dataCollectorFactory);
+        RuleTransformer transformer = new RuleTransformer(application, agentIds, now, dataCollectorFactory, checkerRegistry);
         for (Rule rule: rules) {
             checkers.add(transformer.apply(rule));
         }
@@ -119,25 +127,25 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
 
     private static class RuleTransformer implements Function<Rule, AlarmChecker<?>> {
 
-        private static final CheckerRegistry checkerRegistry = CheckerRegistry.newCheckerRegistry();
-
         private final long timeSlotEndTime;
         private final Map<DataCollectorCategory, DataCollector> collectorMap = new HashMap<>();
 
         private final Application application;
         private final List<String> agentIds;
         private final DataCollectorFactory dataCollectorFactory;
+        private final CheckerRegistry checkerRegistry;
 
         public RuleTransformer(
                 Application application,
                 List<String> agentIds,
                 long timeSlotEndTime,
-                DataCollectorFactory dataCollectorFactory
-        ) {
+                DataCollectorFactory dataCollectorFactory,
+                CheckerRegistry checkerRegistry) {
             this.application = application;
             this.agentIds = agentIds;
             this.timeSlotEndTime = timeSlotEndTime;
             this.dataCollectorFactory = dataCollectorFactory;
+            this.checkerRegistry = Objects.requireNonNull(checkerRegistry, "checkerRegistry");
         }
 
         @Override

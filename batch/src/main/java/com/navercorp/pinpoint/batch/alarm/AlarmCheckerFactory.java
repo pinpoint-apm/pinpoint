@@ -7,4 +7,5 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 public interface AlarmCheckerFactory {
     AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule);
 
+    String getCategory();
 }
