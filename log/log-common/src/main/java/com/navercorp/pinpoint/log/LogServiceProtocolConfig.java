@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.log;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.ChannelSpringConfig;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConfig;
+import com.navercorp.pinpoint.channel.redis.stream.RedisStreamConfig;
 import com.navercorp.pinpoint.channel.serde.JacksonSerde;
 import com.navercorp.pinpoint.channel.service.ChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.FluxChannelServiceProtocol;
@@ -36,7 +37,7 @@ import java.time.Duration;
  * @author youngjin.kim2
  */
 @Configuration(proxyBeanMethods = false)
-@Import({ RedisPubSubConfig.class, ChannelSpringConfig.class })
+@Import({ RedisPubSubConfig.class, RedisStreamConfig.class, ChannelSpringConfig.class })
 public class LogServiceProtocolConfig {
 
     @Bean
@@ -46,7 +47,7 @@ public class LogServiceProtocolConfig {
                 .setDemandPubChannelURIProvider(demand -> URI.create("pubsub:log:demand:" + demand))
                 .setDemandSubChannelURI(URI.create("pubsub:log:demand:*"))
                 .setSupplySerde(JacksonSerde.byClass(objectMapper, LogPile.class))
-                .setSupplyChannelURIProvider(demand -> URI.create("pubsub:log:supply:" + demand))
+                .setSupplyChannelURIProvider(demand -> URI.create("stream:log:supply:" + demand))
                 .setDemandInterval(Duration.ofSeconds(5))
                 .setBufferSize(4)
                 .setFailureHandlerEmitError(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))

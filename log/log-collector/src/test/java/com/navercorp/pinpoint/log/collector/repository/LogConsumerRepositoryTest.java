@@ -16,7 +16,10 @@
 package com.navercorp.pinpoint.log.collector.repository;
 
 import com.navercorp.pinpoint.log.vo.FileKey;
+import com.navercorp.pinpoint.log.vo.LogPile;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,30 +30,40 @@ public class LogConsumerRepositoryTest {
 
     @Test
     public void testBasicScenario() throws Exception {
-        LogConsumer consumer1 = System.out::println;
-        LogConsumer consumer2 = System.out::print;
+        FileKey fileKey1 = FileKey.parse("hostGroup-1:host1.1:file-1.1.1");
+        FileKey fileKey2 = FileKey.parse("hostGroup-1:host1.1:file-1.1.2");
+
+        LogConsumer consumer1 = mockLogConsumer(System.out::println, fileKey1);
+        LogConsumer consumer2 = mockLogConsumer(System.out::print, fileKey1);
+        LogConsumer consumer3 = mockLogConsumer(System.out::print, fileKey2);
 
         LogConsumerRepository repo = new LogConsumerRepository();
-        repo.addConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.1"), consumer1);
-        repo.addConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.1"), consumer2);
-        repo.addConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.2"), consumer1);
+        repo.addConsumer(consumer1);
+        repo.addConsumer(consumer2);
+        repo.addConsumer(consumer3);
 
-        assertThat(repo.getConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.1")))
-                .withFailMessage("should return last item")
-                .isEqualTo(consumer2);
-        assertThat(repo.getConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.2")))
-                .withFailMessage("should return last item")
-                .isEqualTo(consumer1);
+        assertThat(repo.getConsumer(fileKey1)).withFailMessage("should return last item").isEqualTo(consumer2);
+        assertThat(repo.getConsumer(fileKey2)).withFailMessage("should return last item").isEqualTo(consumer3);
 
-        repo.removeConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.1"), consumer2);
-        repo.removeConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.2"), consumer1);
+        repo.removeConsumer(consumer2);
+        repo.removeConsumer(consumer3);
 
-        assertThat(repo.getConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.1")))
-                .withFailMessage("should return last item")
-                .isEqualTo(consumer1);
-        assertThat(repo.getConsumer(FileKey.parse("hostGroup-1:host1.1:file-1.1.2")))
-                .withFailMessage("should return last item")
-                .isNull();
+        assertThat(repo.getConsumer(fileKey1)).withFailMessage("should return last item").isEqualTo(consumer1);
+        assertThat(repo.getConsumer(fileKey2)).withFailMessage("should return null").isNull();
+    }
+
+    private static LogConsumer mockLogConsumer(Consumer<LogPile> delegate, FileKey fileKey) {
+        return new LogConsumer() {
+            @Override
+            public void consume(LogPile pile) {
+                delegate.accept(pile);
+            }
+
+            @Override
+            public FileKey getFileKey() {
+                return fileKey;
+            }
+        };
     }
 
 }

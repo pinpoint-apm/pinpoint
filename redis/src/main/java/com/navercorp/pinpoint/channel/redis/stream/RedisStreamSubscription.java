@@ -23,17 +23,24 @@ import com.navercorp.pinpoint.channel.AbstractSubscription;
 class RedisStreamSubscription extends AbstractSubscription {
 
     private final org.springframework.data.redis.stream.Subscription redisSubscription;
+    private final String groupName;
 
     RedisStreamSubscription(
             RedisStreamSubChannel subChannel,
-            org.springframework.data.redis.stream.Subscription redisSubscription
+            org.springframework.data.redis.stream.Subscription redisSubscription,
+            String groupName
     ) {
         super(subChannel);
         this.redisSubscription = redisSubscription;
+        this.groupName = groupName;
     }
 
     org.springframework.data.redis.stream.Subscription getRedisSubscription() {
         return redisSubscription;
+    }
+
+    public String getGroupName() {
+        return groupName;
     }
 
 }

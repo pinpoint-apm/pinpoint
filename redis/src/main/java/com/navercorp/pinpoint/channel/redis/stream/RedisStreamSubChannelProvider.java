@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.channel.redis.stream;
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubChannelProvider;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author youngjin.kim2
@@ -32,16 +32,18 @@ class RedisStreamSubChannelProvider implements SubChannelProvider, InitializingB
 
     private final StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
-    private final Consumer consumer;
+    private final String name;
+
+    private final AtomicLong idCounter = new AtomicLong(0);
 
     RedisStreamSubChannelProvider(
             StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer,
             ReactiveRedisTemplate<String, String> redisTemplate,
-            Consumer consumer
+            String name
     ) {
         this.listenerContainer = Objects.requireNonNull(listenerContainer, "listenerContainer");
         this.redisTemplate = Objects.requireNonNull(redisTemplate, "redisTemplate");
-        this.consumer = Objects.requireNonNull(consumer, "consumer");
+        this.name = Objects.requireNonNull(name, "name");
     }
 
     @Override
@@ -49,7 +51,8 @@ class RedisStreamSubChannelProvider implements SubChannelProvider, InitializingB
         return new RedisStreamSubChannel(
                 this.listenerContainer,
                 this.redisTemplate,
-                this.consumer,
+                this.name,
+                this.idCounter,
                 key
         );
     }

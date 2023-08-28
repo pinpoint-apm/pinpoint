@@ -28,12 +28,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
+import java.net.InetAddress;
 import java.time.Duration;
 import java.util.concurrent.Executor;
 
@@ -46,12 +46,6 @@ public class RedisStreamConfig {
 
     @Value("${pinpoint.redis.stream.client.timeout.ms:5000}")
     long clientTimeoutMs;
-
-    @Value("${pinpoint.redis.stream.consumer.group:default}")
-    String consumerGroup;
-
-    @Value("${pinpoint.redis.stream.consumer.name:default}")
-    String consumerName;
 
     @Bean("redisStreamMessageExecutor")
     public Executor redisPubSubMessageExecutor() {
@@ -81,10 +75,11 @@ public class RedisStreamConfig {
     public ChannelProviderRegistry redisStreamPubSubChannelProvider(
             ReactiveRedisTemplate<String, String> redisTemplate,
             StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer
-    ) {
+    ) throws Exception {
+        String hostName = InetAddress.getLocalHost().getHostName();
+
         PubChannelProvider pub = new RedisStreamPubChannelProvider(redisTemplate.opsForStream());
-        Consumer consumer = Consumer.from(consumerGroup, consumerName);
-        SubChannelProvider sub = new RedisStreamSubChannelProvider(listenerContainer, redisTemplate, consumer);
+        SubChannelProvider sub = new RedisStreamSubChannelProvider(listenerContainer, redisTemplate, hostName);
         return ChannelProviderRegistry.of(RedisStreamConstants.SCHEME, ChannelProvider.pair(pub, sub));
     }
 

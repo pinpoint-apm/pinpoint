@@ -24,11 +24,11 @@ import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveStreamOperations;
-import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author youngjin.kim2
@@ -38,42 +38,49 @@ class RedisStreamSubChannel implements SubChannel {
     private final StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
     private final ReactiveStreamOperations<String, String, String> streamOps;
-    private final Consumer consumer;
+    private final String name;
+    private final AtomicLong idCounter;
     private final String key;
 
     RedisStreamSubChannel(
             StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer,
             ReactiveRedisTemplate<String, String> redisTemplate,
-            Consumer consumer,
+            String name,
+            AtomicLong idCounter,
             String key
     ) {
         this.listenerContainer = Objects.requireNonNull(listenerContainer, "listenerContainer");
         this.redisTemplate = Objects.requireNonNull(redisTemplate, "redisTemplate");
         this.streamOps = this.redisTemplate.opsForStream();
-        this.consumer = Objects.requireNonNull(consumer, "consumer");
+        this.name = Objects.requireNonNull(name, "name");
+        this.idCounter = Objects.requireNonNull(idCounter, "idCounter");
         this.key = Objects.requireNonNull(key, "key");
     }
 
     @Override
     public Subscription subscribe(SubConsumer subConsumer) {
-        try {
-            this.streamOps.createGroup(this.key, this.consumer.getGroup()).block();
-        } catch (Exception ignored) {}
+        String groupName = this.newGroupName();
 
-        this.redisTemplate.expire(this.key, Duration.ofMinutes(30)).subscribe();
+        this.streamOps.createGroup(this.key, groupName)
+                .flatMap(g -> this.redisTemplate.expire(this.key, Duration.ofMinutes(30)))
+                .block();
 
-        final StreamOffset<String> offset = StreamOffset.create(this.key, ReadOffset.lastConsumed());
-
-        final StreamListener<String, MapRecord<String, String, String>> listener = new StreamListenerWrapper(
-                subConsumer,
-                this.streamOps,
-                this.consumer.getGroup()
+        return new RedisStreamSubscription(this,
+                this.listenerContainer.receive(
+                        Consumer.from(groupName, groupName),
+                        StreamOffset.create(this.key, ReadOffset.lastConsumed()),
+                        message -> {
+                            if (subConsumer.consume(message.getValue().get("content").getBytes())) {
+                                this.streamOps.acknowledge(groupName, message).block();
+                            }
+                        }
+                ),
+                groupName
         );
+    }
 
-        final org.springframework.data.redis.stream.Subscription redisStreamSubscription =
-                this.listenerContainer.receive(this.consumer, offset, listener);
-
-        return new RedisStreamSubscription(this, redisStreamSubscription);
+    private String newGroupName() {
+        return this.name + '-' + this.idCounter.incrementAndGet();
     }
 
     @Override
@@ -85,34 +92,7 @@ class RedisStreamSubChannel implements SubChannel {
 
     private void unsubscribe(RedisStreamSubscription subscription) {
         this.listenerContainer.remove(subscription.getRedisSubscription());
-    }
-
-    private static class StreamListenerWrapper implements StreamListener<String, MapRecord<String, String, String>> {
-
-        private static final String KEY_CONTENT = "content";
-
-        private final SubConsumer consumer;
-        private final ReactiveStreamOperations<String, String, String> streamOps;
-        private final String group;
-
-        public StreamListenerWrapper(
-                SubConsumer consumer,
-                ReactiveStreamOperations<String, String, String> streamOps,
-                String group
-        ) {
-            this.consumer = consumer;
-            this.streamOps = streamOps;
-            this.group = group;
-        }
-
-        @Override
-        public void onMessage(MapRecord<String, String, String> message) {
-            String content = message.getValue().get(KEY_CONTENT);
-            if (this.consumer.consume(content.getBytes())) {
-                this.streamOps.acknowledge(group, message).subscribe();
-            }
-        }
-
+        this.streamOps.destroyGroup(this.key, subscription.getGroupName()).subscribe();
     }
 
 }

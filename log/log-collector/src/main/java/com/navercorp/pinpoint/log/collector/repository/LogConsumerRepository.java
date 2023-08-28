@@ -36,12 +36,12 @@ public class LogConsumerRepository {
         return getLast(this.consumers.get(key).iterator());
     }
 
-    public void addConsumer(FileKey key, LogConsumer consumer) {
-        this.consumers.put(key, consumer);
+    public void addConsumer(LogConsumer consumer) {
+        this.consumers.put(consumer.getFileKey(), consumer);
     }
 
-    public void removeConsumer(FileKey key, LogConsumer consumer) {
-        this.consumers.remove(key, consumer);
+    public void removeConsumer(LogConsumer consumer) {
+        this.consumers.remove(consumer.getFileKey(), consumer);
     }
 
     private static <T> T getLast(Iterator<T> iterator) {

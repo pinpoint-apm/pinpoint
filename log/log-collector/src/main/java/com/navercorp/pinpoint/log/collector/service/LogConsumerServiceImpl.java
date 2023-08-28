@@ -66,10 +66,10 @@ class LogConsumerServiceImpl implements LogConsumerService {
 
     private Flux<LogPile> listen(FileKey key, Duration duration) {
         Sinks.Many<LogPile> sink = Sinks.many().replay().all();
-        LogConsumer logConsumer = pile -> sink.emitNext(pile, Sinks.EmitFailureHandler.FAIL_FAST);
-        this.consumerRepository.addConsumer(key, logConsumer);
-        schedule(() -> this.consumerRepository.removeConsumer(key, logConsumer), duration);
-        return sink.asFlux();
+        LogConsumer logConsumer = new LogConsumerImpl(key, sink);
+        this.consumerRepository.addConsumer(logConsumer);
+        schedule(() -> this.consumerRepository.removeConsumer(logConsumer), duration);
+        return sink.asFlux().doFinally(t -> this.consumerRepository.removeConsumer(logConsumer));
     }
 
     private void schedule(Runnable r, Duration delay) {
@@ -80,6 +80,27 @@ class LogConsumerServiceImpl implements LogConsumerService {
         LogDemand demand = new LogDemand(key, duration.toMillis());
         for (LogDemandAcceptor acceptor: this.acceptorRepository.getAcceptors(key)) {
             acceptor.accept(demand);
+        }
+    }
+
+    private static class LogConsumerImpl implements LogConsumer {
+
+        private final FileKey fileKey;
+        private final Sinks.Many<LogPile> sink;
+
+        public LogConsumerImpl(FileKey fileKey, Sinks.Many<LogPile> sink) {
+            this.fileKey = fileKey;
+            this.sink = sink;
+        }
+
+        @Override
+        public void consume(LogPile pile) {
+            this.sink.emitNext(pile, Sinks.EmitFailureHandler.FAIL_FAST);
+        }
+
+        @Override
+        public FileKey getFileKey() {
+            return this.fileKey;
         }
     }
 
