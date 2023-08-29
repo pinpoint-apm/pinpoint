@@ -53,7 +53,7 @@ import static com.navercorp.pinpoint.web.WebSocketConfig.ATC_ENDPOINT;
 @Import(RedisRealtimeWebModule.class)
 public class RedisRealtimeConfig {
 
-    @Value("${pinpoint.web.realtime.agent-recentness:PT5S}")
+    @Value("${pinpoint.web.realtime.agent-recentness:PT5M}")
     Duration agentRecentness;
 
     @Bean
