@@ -2,36 +2,22 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Objects;
+
 public class AlarmSenderProperties {
-    @Value("${webhook.enable}")
-    private boolean webhookEnable;
 
-    @Value("${alarm.mail.server.url}")
-    private String emailServerUrl;
+    private final String pinpointUrl;
 
-    @Value("${alarm.mail.sender.address}")
-    private String senderEmailAddress;
+    private final String batchEnv;
 
-    @Value("${pinpoint.url}")
-    private String pinpointUrl;
-
-    @Value("${batch.server.env}")
-    private String batchEnv;
-
-    public boolean isWebhookEnable() {
-        return webhookEnable;
+    public AlarmSenderProperties(@Value("${spring.mail.pinpoint-url}") String pinpointUrl,
+                                 @Value("${batch.server.env}") String batchEnv) {
+        this.pinpointUrl = Objects.requireNonNull(pinpointUrl, "pinpointUrl");
+        this.batchEnv = Objects.requireNonNull(batchEnv, "batchEnv");
     }
 
     public String getPinpointUrl() {
         return pinpointUrl;
-    }
-
-    public String getEmailServerUrl() {
-        return emailServerUrl;
-    }
-
-    public String getSenderEmailAddress() {
-        return senderEmailAddress;
     }
 
     public String getBatchEnv() {
@@ -41,11 +27,8 @@ public class AlarmSenderProperties {
     @Override
     public String toString() {
         return "AlarmSenderProperties{" +
-                "emailServerUrl='" + emailServerUrl + '\'' +
                 ", batchEnv='" + batchEnv + '\'' +
-                ", senderEmailAddress='" + senderEmailAddress + '\'' +
                 ", pinpointUrl='" + pinpointUrl + '\'' +
-                ", webhookEnable=" + webhookEnable +
                 '}';
     }
 }
