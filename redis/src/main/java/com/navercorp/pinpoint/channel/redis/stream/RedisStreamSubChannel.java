@@ -25,6 +25,8 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveStreamOperations;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -61,9 +63,9 @@ class RedisStreamSubChannel implements SubChannel {
     public Subscription subscribe(SubConsumer subConsumer) {
         String groupName = this.newGroupName();
 
-        this.streamOps.createGroup(this.key, groupName)
-                .flatMap(g -> this.redisTemplate.expire(this.key, Duration.ofMinutes(30)))
-                .block();
+        Mono<String> group = this.streamOps.createGroup(this.key, groupName);
+        Mono<Boolean> expire = this.redisTemplate.expire(this.key, Duration.ofMinutes(30));
+        Flux.merge(group, expire).blockLast();
 
         return new RedisStreamSubscription(this,
                 this.listenerContainer.receive(
@@ -91,8 +93,11 @@ class RedisStreamSubChannel implements SubChannel {
     }
 
     private void unsubscribe(RedisStreamSubscription subscription) {
-        this.listenerContainer.remove(subscription.getRedisSubscription());
-        this.streamOps.destroyGroup(this.key, subscription.getGroupName()).subscribe();
+        try {
+            this.listenerContainer.remove(subscription.getRedisSubscription());
+            this.streamOps.destroyGroup(this.key, subscription.getGroupName()).subscribe();
+        } catch (Exception ignored) {
+        }
     }
 
 }

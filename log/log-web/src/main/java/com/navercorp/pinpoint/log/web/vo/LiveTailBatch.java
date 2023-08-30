@@ -13,24 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.log.web.service;
+package com.navercorp.pinpoint.log.web.vo;
 
-import com.navercorp.pinpoint.log.vo.FileKey;
-import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
-import reactor.core.publisher.Flux;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.log.vo.Log;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author youngjin.kim2
  */
-public interface LiveTailService {
+public class LiveTailBatch {
 
-    Flux<List<LiveTailBatch>> tail(FileKey fileKey);
+    private final String fileKey;
+    private final List<Log> logs;
 
-    Set<String> getHostGroupNames();
+    public LiveTailBatch(String fileKey, List<Log> logs) {
+        this.fileKey = fileKey;
+        this.logs = logs;
+    }
 
-    List<FileKey> getFileKeys(String hostGroupName);
+    @JsonProperty("fileKey")
+    public String getFileKey() {
+        return fileKey;
+    }
+
+    @JsonProperty("logs")
+    public List<Log> getLogs() {
+        return logs;
+    }
 
 }

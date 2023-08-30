@@ -65,7 +65,7 @@ class LogConnectionHandler implements StreamObserver<PLogPile>, Consumer<LogDema
             }
         }
         final List<Log> logs = pLogPile.getRecordsList().stream()
-                .map(el -> new Log(el.getSeq(), el.getMessage()))
+                .map(el -> new Log(el.getSeq(), el.getTimestamp(), el.getMessage()))
                 .collect(Collectors.toUnmodifiableList());
         this.pileConsumer.accept(new LogPile(pLogPile.getSeq(), logs));
     }

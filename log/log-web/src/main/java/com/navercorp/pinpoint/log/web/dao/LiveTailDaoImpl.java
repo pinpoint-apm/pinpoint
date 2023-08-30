@@ -63,7 +63,7 @@ public class LiveTailDaoImpl implements LiveTailDao {
 
     @Override
     public List<FileKey> getFileKeys(String hostGroupName) {
-        return this.fileKeyMapSupplier.get().get(hostGroupName);
+        return Objects.requireNonNullElse(this.fileKeyMapSupplier.get().get(hostGroupName), List.of());
     }
 
     private Map<String, List<FileKey>> getFileKeyMap() {
