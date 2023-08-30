@@ -47,8 +47,8 @@ public class LogServiceTest {
                 new LogProviderServiceImpl(acceptorRepository, consumerRepository);
 
         FileKey fileKey = FileKey.parse("hostGroup-1:host-1:file-1");
-        Log log1 = new Log(0, "log1");
-        Log log2 = new Log(1, "log2");
+        Log log1 = new Log(0, 0, "log1");
+        Log log2 = new Log(1, 0, "log2");
         LogPile pile1 = new LogPile(0, List.of(log1, log2));
 
         Disposable providerDisposable = providerService.getDemands(fileKey).subscribe(demand -> {

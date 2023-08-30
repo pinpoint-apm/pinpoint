@@ -18,15 +18,17 @@ package com.navercorp.pinpoint.log.web.controller;
 import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.vo.Log;
 import com.navercorp.pinpoint.log.web.service.LiveTailService;
+import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
 import com.navercorp.pinpoint.log.web.vo.LogHost;
+import com.navercorp.pinpoint.web.util.ListListUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -51,15 +53,13 @@ public class LogController {
             @PathVariable("file") String fileName,
             @RequestParam("durationMillis") long durationMillis
     ) {
-        final FileKey fileKey = FileKey.of(hostGroupName, hostName, fileName);
-        final Duration duration = Duration.ofMillis(durationMillis);
-        return this.service.tail(fileKey)
-                .take(duration)
-                .flatMap(pile -> Flux.fromIterable(pile.getLogs()))
-                .map(Log::getLog)
-                .take(duration)
-                .collectList()
-                .block();
+        return ListListUtils.toList(
+                this.service.tail(FileKey.of(hostGroupName, hostName, fileName))
+                        .take(Duration.ofMillis(durationMillis))
+                        .map(LogController::extractLogs)
+                        .collectList()
+                        .block()
+        );
     }
 
     @GetMapping("hostGroups")
@@ -70,6 +70,16 @@ public class LogController {
     @GetMapping("hostGroups/{hostGroup}/hosts")
     public List<LogHost> getHosts(@PathVariable("hostGroup") String hostGroupName) {
         return LogHost.from(this.service.getFileKeys(hostGroupName));
+    }
+
+    private static List<String> extractLogs(List<LiveTailBatch> batches) {
+        List<String> result = new ArrayList<>(32);
+        for (LiveTailBatch batch: batches) {
+            for (Log log: batch.getLogs()) {
+                result.add(log.getLog());
+            }
+        }
+        return result;
     }
 
 }

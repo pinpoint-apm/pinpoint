@@ -17,13 +17,15 @@ package com.navercorp.pinpoint.log.web.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.serde.JacksonSerde;
-import com.navercorp.pinpoint.log.vo.LogPile;
 import com.navercorp.pinpoint.log.web.service.LiveTailService;
 import com.navercorp.pinpoint.log.web.service.LogServiceConfig;
+import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import java.util.List;
 
 /**
  * @author youngjin.kim2
@@ -37,7 +39,10 @@ public class LogWebSocketConfig {
             LiveTailService liveTailService,
             ObjectMapper objectMapper
     ) {
-        return new LogWebSocketHandler(liveTailService, JacksonSerde.byClass(objectMapper, LogPile.class));
+        return new LogWebSocketHandler(
+                liveTailService,
+                JacksonSerde.byParameterized(objectMapper, List.class, LiveTailBatch.class)
+        );
     }
 
 }

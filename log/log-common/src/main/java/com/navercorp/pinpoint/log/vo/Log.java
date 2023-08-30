@@ -15,23 +15,34 @@
  */
 package com.navercorp.pinpoint.log.vo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * @author youngjin.kim2
  */
 public class Log {
 
     private final long seq;
+    private final long timestamp;
     private final String log;
 
-    public Log(long seq, String log) {
+    public Log(long seq, long timestamp, String log) {
         this.seq = seq;
+        this.timestamp = timestamp;
         this.log = log;
     }
 
+    @JsonProperty("seq")
     public long getSeq() {
         return seq;
     }
 
+    @JsonProperty("timestamp")
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    @JsonProperty("log")
     public String getLog() {
         return log;
     }

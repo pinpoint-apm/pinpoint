@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.log.web.websocket;
 
 import com.navercorp.pinpoint.log.vo.FileKey;
-import com.navercorp.pinpoint.log.vo.LogPile;
 import com.navercorp.pinpoint.log.web.service.LiveTailService;
+import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,13 +43,13 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
     private static final String LIVE_TAIL_DISPOSABLE_ATTR = "pinpoint.live-tail.subscription";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final Serializer<LogPile> logPileSerializer;
+    private final Serializer<List<LiveTailBatch>> logPileSerializer;
 
     private final LiveTailService liveTailService;
 
     LogWebSocketHandler(
             LiveTailService liveTailService,
-            Serializer<LogPile> logPileSerializer
+            Serializer<List<LiveTailBatch>> logPileSerializer
     ) {
         this.liveTailService = Objects.requireNonNull(liveTailService, "liveTailService");
         this.logPileSerializer = Objects.requireNonNull(logPileSerializer, "logPileSerializer");
@@ -78,27 +78,22 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
     private void startLiveTail(StandardWebSocketSession session) {
         logger.info("Starting live-tail, session: {}", session);
 
-        final Map<String, List<String>> params = session
+        Map<String, List<String>> params = session
                 .getNativeSession()
                 .getRequestParameterMap();
 
-        final String hostGroupName = getUniParam(params, "hostGroupName");
-        final String hostName = getUniParam(params, "hostName");
-        final String fileName = getUniParam(params, "fileName");
-        final FileKey fileKey = FileKey.of(hostGroupName, hostName, fileName);
+        String hostGroupName = getUniParam(params, "hostGroupName");
+        String hostName = getUniParam(params, "hostName");
+        String fileName = getUniParam(params, "fileName");
+        FileKey fileKey = FileKey.of(hostGroupName, hostName, fileName);
 
-        final Disposable disposable = this.liveTailService.tail(fileKey)
+        Disposable disposable = this.liveTailService.tail(fileKey)
                 .subscribe(supply -> sendSupply(session, supply));
         session.getAttributes().put(LIVE_TAIL_DISPOSABLE_ATTR, disposable);
     }
 
     private static String getUniParam(Map<String, List<String>> params, String key) {
-        final List<String> values = params.get(key);
-        String firstElement = CollectionUtils.firstElement(values);
-        if (firstElement == null) {
-            throw new RuntimeException("No parameter: " + key);
-        }
-        return firstElement;
+        return CollectionUtils.firstElement(params.get(key));
     }
 
     private void stopLiveTail(@Nonnull WebSocketSession session) {
@@ -116,7 +111,7 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
     }
 
 
-    private void sendSupply(WebSocketSession session, LogPile pile) {
+    private void sendSupply(WebSocketSession session, List<LiveTailBatch> pile) {
         try {
             byte[] payload = this.logPileSerializer.serializeToByteArray(pile);
             session.sendMessage(new TextMessage(payload));
