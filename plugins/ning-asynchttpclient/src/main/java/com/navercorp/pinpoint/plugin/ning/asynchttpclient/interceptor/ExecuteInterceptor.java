@@ -88,25 +88,25 @@ public class ExecuteInterceptor implements AroundInterceptor {
             return;
         }
 
-        final Request httpRequest = getHttpRequest(args);
-        if (httpRequest == null) {
-            return;
+        try {
+            final Request httpRequest = getHttpRequest(args);
+            if (httpRequest == null) {
+                return;
+            }
+
+            final SpanEventRecorder recorder = trace.traceBlockBegin();
+            if (trace.canSampled()) {
+                final TraceId nextId = trace.getTraceId().getNextTraceId();
+                recorder.recordNextSpanId(nextId.getSpanId());
+                recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
+                String host = getHost(httpRequest);
+                this.requestTraceWriter.write(httpRequest, nextId, host);
+            } else {
+                this.requestTraceWriter.write(httpRequest);
+            }
+        } catch (Throwable t) {
+            logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }
-
-        final boolean sampling = trace.canSampled();
-        if (!sampling) {
-            this.requestTraceWriter.write(httpRequest);
-            return;
-        }
-
-        trace.traceBlockBegin();
-        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-        final TraceId nextId = trace.getTraceId().getNextTraceId();
-        recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
-
-        String host = getHost(httpRequest);
-        this.requestTraceWriter.write(httpRequest, nextId, host);
     }
 
     private String getHost(Request httpRequest) {
@@ -121,26 +121,27 @@ public class ExecuteInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
-        final Request httpRequest = getHttpRequest(args);
-        if (httpRequest == null) {
-            return;
-        }
-
         try {
+            final Request httpRequest = getHttpRequest(args);
+            if (httpRequest == null) {
+                return;
+            }
+
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            if (trace.canSampled()) {
+                // Accessing httpRequest here not BEFORE() because it can cause side effect.
+                this.clientRequestRecorder.record(recorder, httpRequest, throwable);
+                this.cookieRecorder.record(recorder, httpRequest, throwable);
+                this.entityRecorder.record(recorder, httpRequest, throwable);
 
-            // Accessing httpRequest here not BEFORE() because it can cause side effect.
-            this.clientRequestRecorder.record(recorder, httpRequest, throwable);
-            this.cookieRecorder.record(recorder, httpRequest, throwable);
-            this.entityRecorder.record(recorder, httpRequest, throwable);
-
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+                recorder.recordApi(descriptor);
+                recorder.recordException(throwable);
+            }
         } finally {
             trace.traceBlockEnd();
         }

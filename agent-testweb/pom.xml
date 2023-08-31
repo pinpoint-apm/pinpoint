@@ -80,6 +80,9 @@
         <module>kafka-streams-testweb</module>
         <module>cassandra3-plugin-testweb</module>
         <module>cassandra4-plugin-testweb</module>
+        <module>ning-asynchttpclient-plugin-testweb</module>
+        <module>okhttp-plugin-testweb</module>
+        <module>grpc-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>

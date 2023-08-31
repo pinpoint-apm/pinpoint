@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
@@ -34,14 +35,21 @@ public class DefaultWebClientExchangeMethodInterceptor extends SpanEventSimpleAr
     }
 
     @Override
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
+    @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
+    public void afterTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordException(throwable);
+            recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
+        }
 
         if (isAsync(result)) {
             // make asynchronous trace-id
@@ -51,6 +59,10 @@ public class DefaultWebClientExchangeMethodInterceptor extends SpanEventSimpleAr
                 logger.debug("Set closeable-AsyncContext {}", asyncContext);
             }
         }
+    }
+
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
     }
 
     private boolean isAsync(Object result) {

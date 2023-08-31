@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -98,11 +100,29 @@ public class SpringWebfluxPluginController {
     @GetMapping("/client/get")
     public Mono<String> clientGet(ServerWebExchange exchange) {
         exchange.getAttributes().put("pinpoint.metric.uri-template", "/test");
-        WebClient client = WebClient.create("http://www.google.com");
+        WebClient client = WebClient.create("http://naver.com");
         WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                 .uri("").retrieve();
         return response.bodyToMono(String.class);
     }
+
+    @GetMapping(value = "/client/thread")
+    @ResponseBody
+    public Mono<String> clientThread() {
+        System.out.println("## Thread=" + Thread.currentThread().getName());
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            WebClient client = WebClient.create("http://www.google.com");
+            WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                    .uri("").retrieve();
+            Mono<String> responseString = response.bodyToMono(String.class);
+            responseString.subscribe();
+            System.out.println("## Thread=" + Thread.currentThread().getName());
+        });
+
+        return Mono.just("OK");
+    }
+
 
     @GetMapping("/client/local")
     public Mono<String> clientLocal() {

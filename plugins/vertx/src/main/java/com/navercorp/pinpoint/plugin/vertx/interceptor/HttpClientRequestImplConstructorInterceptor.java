@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 public class HttpClientRequestImplConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -41,13 +39,9 @@ public class HttpClientRequestImplConstructorInterceptor implements AroundInterc
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (ArrayUtils.getLength(args) < 1) {
-            return;
-        }
-        final Object arg = args[0];
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(arg);
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
         if (asyncContext != null) {
-            ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
+            AsyncContextAccessorUtils.setAsyncContext(asyncContext, target);
             if (isDebug) {
                 logger.debug("Set asyncContext to target. asyncContext={}", asyncContext);
             }

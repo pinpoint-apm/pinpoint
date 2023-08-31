@@ -32,7 +32,6 @@ public class HttpClientResponseImplInterceptor extends AsyncContextSpanEventSimp
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-
     }
 
     @Override

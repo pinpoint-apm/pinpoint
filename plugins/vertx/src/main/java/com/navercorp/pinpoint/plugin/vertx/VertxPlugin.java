@@ -37,7 +37,6 @@ import com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockin
 import com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplRunOnContextInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HandlerInterceptor;
-import com.navercorp.pinpoint.plugin.vertx.interceptor.Http1xClientConnectionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.Http1xClientConnectionCreateRequest38Interceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.Http1xClientConnectionCreateRequest4xInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor;
@@ -140,9 +139,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         if (config.isUriStatEnable()) {
             logger.info("Adding Uri Stat.");
             transformTemplate.transform("io.vertx.ext.web.impl.RouteState", RoutingStateTransform.class, new Object[]{config.isUriStatUseUserInput()}, new Class[]{Boolean.class});
-
         }
-
     }
 
     List<String> filterBasePackageNames(List<String> basePackageNames) {
@@ -474,12 +471,6 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             target.addField(SamplingRateFlagAccessor.class);
-
-            // 4.x
-            InstrumentMethod constructorMethod = target.getConstructor("io.vertx.core.http.HttpVersion", "io.vertx.core.http.impl.HttpClientImpl", "io.netty.channel.ChannelHandlerContext", "boolean", "io.vertx.core.net.SocketAddress", "io.vertx.core.impl.ContextInternal", "io.vertx.core.spi.metrics.ClientMetrics");
-            if(constructorMethod != null) {
-                constructorMethod.addInterceptor(Http1xClientConnectionConstructorInterceptor.class);
-            }
 
             // add pinpoint headers.
             // 3.3, 3.4, 3.5

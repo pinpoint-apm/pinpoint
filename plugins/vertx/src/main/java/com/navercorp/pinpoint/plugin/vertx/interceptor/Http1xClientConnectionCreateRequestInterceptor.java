@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
 import com.navercorp.pinpoint.plugin.vertx.HttpRequestClientHeaderAdaptor;
-import com.navercorp.pinpoint.plugin.vertx.SamplingRateFlagAccessor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxCookieExtractor;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
@@ -43,6 +42,7 @@ import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestWrapper;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 
+// vertx 3.8, 4.x+
 public abstract class Http1xClientConnectionCreateRequestInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -76,26 +76,12 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
             logger.beforeInterceptor(target, args);
         }
 
-        if (Boolean.FALSE == isSamplingRate(target)) {
-            return;
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
-        if (!trace.canSampled()) {
-            return;
-        }
-
-        try {
-            trace.traceBlockBegin();
-        } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
-            }
-        }
+        trace.traceBlockBegin();
     }
 
     @Override
@@ -104,28 +90,12 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (Boolean.FALSE == isSamplingRate(target)) {
-            writeSamplingRateFalse(result);
-            return;
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
-        if (!trace.canSampled()) {
-            // Defense
-            writeSamplingRateFalse(result);
-            return;
-        }
-
         try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-            recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
-
             if (!validate(args, result)) {
                 return;
             }
@@ -133,41 +103,34 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
             final HttpRequest request = (HttpRequest) result;
             final HttpHeaders headers = request.headers();
             if (headers == null) {
+                // defense code
                 return;
             }
 
-            final String host = getHost(args);
-            // generate next trace id.
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-            requestTraceWriter.write(request, nextId, host);
-            final ClientRequestWrapper clientRequest = new VertxHttpClientRequestWrapper(request, host);
-            this.clientRequestRecorder.record(recorder, clientRequest, throwable);
-            this.cookieRecorder.record(recorder, request, throwable);
+            if (trace.canSampled()) {
+                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                recorder.recordApi(descriptor);
+                recorder.recordException(throwable);
+                recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
+
+                final String host = getHost(args);
+                // generate next trace id.
+                final TraceId nextId = trace.getTraceId().getNextTraceId();
+                recorder.recordNextSpanId(nextId.getSpanId());
+                requestTraceWriter.write(request, nextId, host);
+                final ClientRequestWrapper clientRequest = new VertxHttpClientRequestWrapper(request, host);
+                this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+                this.cookieRecorder.record(recorder, request, throwable);
+            } else {
+                // write samplingRateFalse
+                requestTraceWriter.write(request);
+            }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", t.getMessage(), t);
             }
         } finally {
             trace.traceBlockEnd();
-        }
-    }
-
-    private boolean isSamplingRate(Object target) {
-        if (target instanceof SamplingRateFlagAccessor) {
-            final SamplingRateFlagAccessor samplingRateFlagAccessor = (SamplingRateFlagAccessor) target;
-            final Boolean samplingRateFlag = samplingRateFlagAccessor._$PINPOINT$_getSamplingRateFlag();
-            if (samplingRateFlag != null) {
-                return samplingRateFlag;
-            }
-        }
-        return true;
-    }
-
-    private void writeSamplingRateFalse(Object result) {
-        if (result instanceof HttpRequest) {
-            final HttpRequest request = (HttpRequest) result;
-            requestTraceWriter.write(request);
         }
     }
 

@@ -143,7 +143,7 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
         vertx.executeBlocking(new Handler<Promise<Object>>() {
             @Override
             public void handle(Promise<Object> objectFuture) {
-                request(28080, "localhost", "/client/get");
+                request(80, "naver.com", "/");
                 request.response().end("Execute blocking request.");
             }
         }, false, null);

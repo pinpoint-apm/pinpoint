@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -34,6 +35,11 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
     }
 
     @Override
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
+    @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         if (!validate(args)) {
             return;
@@ -43,7 +49,6 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
         if (handlers.blockingCodeHandler != null || handlers.resultHandler != null) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-
             if (handlers.blockingCodeHandler != null) {
                 // blockingCodeHandler
                 handlers.blockingCodeHandler._$PINPOINT$_setAsyncContext(asyncContext);
@@ -98,15 +103,20 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
     }
 
     @Override
+    public void afterTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
+            recorder.recordException(throwable);
+        }
+    }
+
+    @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
-        recorder.recordException(throwable);
     }
 
     private static class AsyncContextAccessorHandlers {
         private AsyncContextAccessor blockingCodeHandler;
         private AsyncContextAccessor resultHandler;
     }
-
 }

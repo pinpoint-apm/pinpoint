@@ -92,7 +92,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
     }
 
-
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
@@ -124,10 +123,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
             entryScope(trace);
             this.httpHeaderFilter.filter(request);
-            // for URI-metric
-//            if (!trace.canSampled()) {
-//                return;
-//            }
 
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
@@ -139,7 +134,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             if (isDebug) {
                 logger.debug("Set asyncContext to request/response. asyncContext={}", asyncContext);
             }
-
         } catch (Throwable t) {
             logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
         }
@@ -204,19 +198,15 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), response.getStatusCode());
         }
 
-        // for URI-metric
-//        if (!trace.canSampled()) {
-//            deleteTrace(trace);
-//            return;
-//        }
-
         try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-            if (validate) {
-                final HttpServerRequest request = (HttpServerRequest) args[0];
-                parameterRecorder.record(recorder, request, throwable);
+            if (trace.canSampled()) {
+                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                recorder.recordApi(descriptor);
+                recorder.recordException(throwable);
+                if (validate) {
+                    final HttpServerRequest request = (HttpServerRequest) args[0];
+                    parameterRecorder.record(recorder, request, throwable);
+                }
             }
         } catch (Throwable t) {
             logger.warn("AFTER. Caused:{}", t.getMessage(), t);
@@ -225,7 +215,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             deleteTrace(trace);
         }
     }
-
 
     private Trace createTrace(final HttpServerRequest request) {
         final String requestURI = request.path();

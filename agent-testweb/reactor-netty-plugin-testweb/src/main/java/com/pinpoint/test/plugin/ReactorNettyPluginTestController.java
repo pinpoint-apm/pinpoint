@@ -16,7 +16,6 @@
 
 package com.pinpoint.test.plugin;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +30,8 @@ import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.client.HttpClientResponse;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author jaehong.kim
@@ -53,6 +54,18 @@ public class ReactorNettyPluginTestController {
         if (response != null) {
             return response;
         }
+        return "OK";
+    }
+
+    @RequestMapping(value = "/client/thread", method = RequestMethod.GET)
+    @ResponseBody
+    public String clientThread() {
+        System.out.println("## Thread=" + Thread.currentThread().getName());
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            HttpClient client = HttpClient.create().port(80);
+            String response = client.get().uri("https://www.google.com?foo=bar").responseContent().aggregate().asString().block();
+        });
         return "OK";
     }
 

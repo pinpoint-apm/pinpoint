@@ -18,6 +18,8 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 public class HttpClient4PluginController {
@@ -126,5 +128,23 @@ public class HttpClient4PluginController {
         } finally {
             httpclient.close();
         }
+    }
+
+    @RequestMapping(value = "/thread")
+    public String thread() throws Exception {
+        System.out.println("## Thread=" + Thread.currentThread().getName());
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            CloseableHttpClient httpclient = HttpClients.createDefault();
+            try {
+                HttpGet httpget = new HttpGet("http://localhost:9999/unknown");
+                httpget.addHeader("Cookie", "foo-bar");
+                CloseableHttpResponse response = httpclient.execute(httpget);
+                return response.toString();
+            } finally {
+                httpclient.close();
+            }
+        });
+        return "OK";
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,6 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
     private final ServletResponseListener<HttpServerResponse> servletResponseListener;
     private final ConnectionObserverAdaptor connectionObserver;
 
-
     public HttpServerHandleInterceptor(TraceContext traceContext,
                                        MethodDescriptor descriptor,
                                        RequestRecorderFactory<HttpServerRequest> requestRecorderFactory,
@@ -83,11 +82,8 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
         reqBuilder.setRecordStatusCode(false);
 
         this.servletRequestListener = reqBuilder.build();
-
         this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpResponseAdaptor()).build();
-
         this.enableAsyncEndPoint = config.isEnableAsyncEndPoint();
-
         this.connectionObserver = ConnectionObserverAdaptor.Factory.newAdaptor(version);
     }
 
@@ -99,7 +95,7 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
 
         try {
             if (connectionObserver.isReceived(args)) {
-                received(args);
+                beforeReceived(args);
             } else if (connectionObserver.isClosed(args)) {
                 closed(args);
             }
@@ -108,7 +104,7 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
         }
     }
 
-    private void received(final Object[] args) {
+    private void beforeReceived(final Object[] args) {
         final HttpServerRequest request = ArrayArgumentUtils.getArgument(args, 0, HttpServerRequest.class);
         if (request == null) {
             return;
@@ -155,14 +151,14 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
 
         try {
             if (connectionObserver.isReceived(args)) {
-                received(args, throwable);
+                afterReceived(args, throwable);
             }
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
         }
     }
 
-    private void received(Object[] args, Throwable throwable) {
+    private void afterReceived(Object[] args, Throwable throwable) {
         final HttpServerRequest request = (HttpServerRequest) args[0];
         final HttpServerResponse response = (HttpServerResponse) args[0];
         final int statusCode = getStatusCode(response);
