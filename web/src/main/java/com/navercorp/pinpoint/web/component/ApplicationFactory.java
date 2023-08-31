@@ -15,22 +15,19 @@
  *
  */
 
-package com.navercorp.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.component;
 
-import org.springframework.stereotype.Component;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.vo.Application;
 
-import javax.sql.DataSource;
+/**
+ * @author emeroad
+ */
+public interface ApplicationFactory {
 
-@Component
-public class DataSourceController {
-    public DataSourceController(DataSource dataSource) {
-        System.out.println(dataSource);
-//        Connection connection = dataSource.getConnection();
-//        connection.close();
-//        dataSource.close();
-    }
+    Application createApplication(String applicationName, short serviceTypeCode);
 
-    public void testDatasource() {
+    Application createApplication(String applicationName, ServiceType serviceType);
 
-    }
+    Application createApplicationByTypeName(String applicationName, String serviceTypeName);
 }
