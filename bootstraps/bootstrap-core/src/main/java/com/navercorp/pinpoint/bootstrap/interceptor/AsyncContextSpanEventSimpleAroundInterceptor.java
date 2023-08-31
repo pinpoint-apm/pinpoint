@@ -65,12 +65,16 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
         try {
             // trace event for default & async.
             final SpanEventRecorder recorder = trace.traceBlockBegin();
+            beforeTrace(asyncContext, trace, recorder, target, args);
             doInBeforeTrace(recorder, asyncContext, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
+    }
+
+    protected void beforeTrace(final AsyncContext asyncContext, final Trace trace, final SpanEventRecorder recorder, final Object target, final Object[] args) {
     }
 
     protected abstract void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args);
@@ -106,6 +110,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            afterTrace(asyncContext, trace, recorder, target, args, result, throwable);
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -117,6 +122,9 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
                 deleteAsyncContext(trace, asyncContext);
             }
         }
+    }
+
+    protected void afterTrace(final AsyncContext asyncContext, final Trace trace, final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, final Throwable throwable) {
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);

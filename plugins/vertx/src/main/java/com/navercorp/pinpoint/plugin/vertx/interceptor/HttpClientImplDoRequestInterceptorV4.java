@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.plugin.vertx.SamplingRateFlagAccessor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
 public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
@@ -54,14 +53,6 @@ public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
             return;
         }
 
-        if (!trace.canSampled()) {
-            if (target instanceof SamplingRateFlagAccessor) {
-                // 4.x
-                ((SamplingRateFlagAccessor) target)._$PINPOINT$_setSamplingRateFlag(Boolean.FALSE);
-            }
-            return;
-        }
-
         trace.traceBlockBegin();
     }
 
@@ -71,26 +62,24 @@ public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
-            return;
-        }
-
-        if (!trace.canSampled()) {
             return;
         }
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
-            recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
+            if (trace.canSampled()) {
+                recorder.recordApi(methodDescriptor);
+                recorder.recordException(throwable);
+                recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
 
-            final String hostAndPort = toHostAndPort(args);
-            if (hostAndPort != null) {
-                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
-                if (isDebug) {
-                    logger.debug("Set hostAndPort {}", hostAndPort);
+                final String hostAndPort = toHostAndPort(args);
+                if (hostAndPort != null) {
+                    recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
+                    if (isDebug) {
+                        logger.debug("Set hostAndPort {}", hostAndPort);
+                    }
                 }
             }
 
@@ -112,7 +101,7 @@ public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
                 final int port = (Integer) args[4];
                 return HostAndPort.toHostAndPortString(host, port);
             }
-        } else if(length == 13) {
+        } else if (length == 13) {
             if (args[3] instanceof String && args[4] instanceof Integer) {
                 final String host = (String) args[3];
                 final int port = (Integer) args[4];

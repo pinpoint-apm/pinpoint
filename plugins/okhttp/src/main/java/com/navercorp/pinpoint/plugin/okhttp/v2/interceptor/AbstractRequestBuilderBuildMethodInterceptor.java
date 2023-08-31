@@ -69,25 +69,24 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
             if (!(target instanceof Request.Builder)) {
                 return;
             }
-
             final Request.Builder builder = ((Request.Builder) target);
-            if (!trace.canSampled()) {
-                this.requestTraceWriter.write(builder);
-                return;
-            }
 
-            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            final Object attachment = getAttachment(invocation);
-            if (!(attachment instanceof TraceId)) {
-                if (isDebug) {
-                    logger.debug("Invalid interceptor scope invocation. {}", invocation);
+            if (trace.canSampled()) {
+                final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+                final Object attachment = getAttachment(invocation);
+                if (!(attachment instanceof TraceId)) {
+                    if (isDebug) {
+                        logger.debug("Invalid interceptor scope invocation. {}", invocation);
+                    }
+                    return;
                 }
-                return;
-            }
 
-            final TraceId nextId = (TraceId) attachment;
-            final String host = toHost(target);
-            this.requestTraceWriter.write(builder, nextId, host);
+                final TraceId nextId = (TraceId) attachment;
+                final String host = toHost(target);
+                this.requestTraceWriter.write(builder, nextId, host);
+            } else {
+                this.requestTraceWriter.write(builder);
+            }
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }
@@ -102,8 +101,5 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
     }
 }

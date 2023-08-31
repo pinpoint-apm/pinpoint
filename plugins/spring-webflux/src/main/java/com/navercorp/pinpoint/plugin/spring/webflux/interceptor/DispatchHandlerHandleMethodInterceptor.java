@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -36,7 +37,12 @@ public class DispatchHandlerHandleMethodInterceptor extends SpanEventSimpleAroun
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    protected Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         if (isAsync(args)) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -58,7 +64,7 @@ public class DispatchHandlerHandleMethodInterceptor extends SpanEventSimpleAroun
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordApi(this.methodDescriptor);
         recorder.recordException(throwable);

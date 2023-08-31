@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,13 @@ public class ChannelOperationsInterceptor extends AsyncContextSpanEventEndPointI
     }
 
     @Override
-    public void prepareAfter(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
+            recorder.recordException(throwable);
+        }
+
         if (target instanceof HttpServerResponse) {
             final HttpServerResponse httpServerResponse = (HttpServerResponse) target;
             final int statusCode = getStatusCode(httpServerResponse);
@@ -58,9 +64,6 @@ public class ChannelOperationsInterceptor extends AsyncContextSpanEventEndPointI
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
-        recorder.recordException(throwable);
     }
 
     private int getStatusCode(final HttpServerResponse response) {
