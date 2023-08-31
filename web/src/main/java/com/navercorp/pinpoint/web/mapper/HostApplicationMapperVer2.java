@@ -19,14 +19,13 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.web.service.ApplicationFactory;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.vo.Application;
-
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

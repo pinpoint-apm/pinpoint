@@ -18,13 +18,12 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.web.service.ApplicationFactory;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
-
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

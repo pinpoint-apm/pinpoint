@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
