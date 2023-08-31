@@ -46,6 +46,7 @@ import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootload
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
+import com.navercorp.pinpoint.profiler.monitor.NetworkStatMonitor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -66,6 +67,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final DeadlockMonitor deadlockMonitor;
     private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
+    private final NetworkStatMonitor hwStatMonitor;
 
     private final TraceContext traceContext;
 
@@ -131,6 +133,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+        this.hwStatMonitor = injector.getInstance(NetworkStatMonitor.class);
     }
 
     private void lambdaFactorySetup(Instrumentation instrumentation, ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
@@ -227,6 +230,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor.start();
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
+        this.hwStatMonitor.start();
     }
 
     @Override
@@ -234,6 +238,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.agentInfoSender.stop();
         this.agentStatMonitor.stop();
         this.deadlockMonitor.stop();
+        this.hwStatMonitor.stop();
 
         // Need to process stop
         if (rpcModuleLifeCycle != null) {

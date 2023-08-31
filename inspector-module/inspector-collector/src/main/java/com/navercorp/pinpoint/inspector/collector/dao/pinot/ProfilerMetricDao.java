@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.navercorp.pinpoint.inspector.collector.dao.pinot;
 
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
+import com.navercorp.pinpoint.common.server.bo.stat.ProfilerMetricBo;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,44 +25,30 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-/**
- * @author minwoo.jung
- */
-public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements AgentStatDao<T> {
-
+public class ProfilerMetricDao {
     private final Logger logger = LogManager.getLogger(DefaultAgentStatDao.class.getName());
-
-    private final Function<AgentStatBo, List<T>> agentStatBoDataPointFunction;
-    private final Function<List<T>, List<AgentStat>> convertToKafkaModelFunction;
+    private final Function<ProfilerMetricBo, List<AgentStat>> convertToKafkaModelFunction;
     private final KafkaTemplate kafkaAgentStatTemplate;
     private final String topic;
 
-    public DefaultAgentStatDao(Function<AgentStatBo, List<T>> agentStatBoDataPointFunction, KafkaTemplate kafkaAgentStatTemplate, Function<List<T>, List<AgentStat>> convertToKafkaModelFunction, String topic) {
-        this.agentStatBoDataPointFunction = Objects.requireNonNull(agentStatBoDataPointFunction, "dataPointFunction");
+    public ProfilerMetricDao(KafkaTemplate kafkaAgentStatTemplate, Function<ProfilerMetricBo, List<AgentStat>> convertToKafkaModelFunction, String topic) {
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
         this.convertToKafkaModelFunction = convertToKafkaModelFunction;
         this.topic = topic;
     }
 
-    @Override
-    public void insert(String agentId, List<T> agentStatData) {
-        List<AgentStat> agentStatList = convertDataToKafkaModel(agentStatData);
+    public void dispatch(ProfilerMetricBo profilerMetricBo) {
+        Objects.requireNonNull(profilerMetricBo, "profilerMetricBo");
+        insert(profilerMetricBo.getAgentId(), profilerMetricBo);
+    }
+
+    private void insert(String agentId, ProfilerMetricBo profilerMetricBo) {
+        List<AgentStat> agentStatList = convertToKafkaModelFunction.apply(profilerMetricBo);
+
         for (AgentStat agentStat : agentStatList) {
             String kafkaKey = generateKafkaKey(agentStat);
             kafkaAgentStatTemplate.send(topic, kafkaKey, agentStat);
         }
-    }
-
-    private List<AgentStat> convertDataToKafkaModel(List<T> AgentStatDataPointList) {
-        List<AgentStat> agentStatList = convertToKafkaModelFunction.apply(AgentStatDataPointList);
-        return agentStatList;
-    }
-
-    @Override
-    public void dispatch(AgentStatBo agentStatBo) {
-        Objects.requireNonNull(agentStatBo, "agentStatBo");
-        List<T> dataPointList = this.agentStatBoDataPointFunction.apply(agentStatBo);
-        insert(agentStatBo.getAgentId(), dataPointList);
     }
 
     private String generateKafkaKey(AgentStat agentStat) {

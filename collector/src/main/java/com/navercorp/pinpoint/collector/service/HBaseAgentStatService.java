@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ProfilerMetricBo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,11 @@ public class HBaseAgentStatService implements AgentStatService {
                 logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage(), e);
             }
         }
+    }
+
+    @Override
+    public void save(ProfilerMetricBo profilerMetricBo) {
+        // Does nothing
     }
 
 }

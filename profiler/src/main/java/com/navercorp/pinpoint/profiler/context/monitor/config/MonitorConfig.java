@@ -27,6 +27,14 @@ public interface MonitorConfig {
 
     int getCustomMetricLimitSize();
 
+    boolean isNetworkMetricEnable();
+
+    int getNetworkMetricCollectIntervalMs();
+
+    boolean isUdpStatsEnable();
+
+    boolean isTcpStatsEnable();
+
     boolean isUriStatEnable();
 
     boolean getUriStatCollectHttpMethod();

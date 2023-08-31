@@ -229,3 +229,133 @@ mappings:
         matchingRule: ALL
         aggregationFunction: MAX
         unit : "count"
+  - definitionId: "networkInterfaceInfo"
+    metricName: "network_interface"
+    title: "Network Interface Information"
+    grouping: "TAG"
+    fields:
+      - fieldName: "rx_packets"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "rx_errors"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "rx_drops"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "tx_packets"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "tx_errors"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "tx_collisions"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+  - definitionId: "networkInterfaceBytes"
+    metricName: "network_interface"
+    title: "Network Bytes"
+    grouping: "TAG"
+    fields:
+      - fieldName: "rx_bytes"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "byte"
+      - fieldName: "tx_bytes"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "byte"
+  - definitionId: "tcpStats"
+    metricName: "tcp_stats"
+    title: "TCP"
+    grouping: "TAG"
+    fields:
+      - fieldName: "conn_established"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "conn_active"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "conn_passive"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "conn_failure"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "conn_reset"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "seg_sent"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "seg_received"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "seg_retransmitted"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "in_errors"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "out_resets"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+  - definitionId: "udpStats"
+    metricName: "udp_stats"
+    title: "UDP"
+    grouping: "TAG"
+    fields:
+      - fieldName: "tx"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "rx"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "noport"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"
+      - fieldName: "rx_error"
+        matchingRule: ALL
+        aggregationFunction: SUM
+        chartType : "spline"
+        unit: "count"

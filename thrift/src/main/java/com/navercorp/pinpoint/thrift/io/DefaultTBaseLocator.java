@@ -57,6 +57,9 @@ public class DefaultTBaseLocator {
     // Only supports Grpc
     public static final short AGENT_URI_STAT = 57;
 
+    // Only supports Grpc
+    public static final short AGENT_PROFILER_STAT = 58;
+
     public static final short SPANCHUNK = 70;
 
     public static final short SPANEVENT = 80;

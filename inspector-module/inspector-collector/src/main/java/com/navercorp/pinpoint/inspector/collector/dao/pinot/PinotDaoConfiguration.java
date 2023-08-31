@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ProfilerMetricBo;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStatModelConverter;
@@ -130,5 +131,11 @@ public class PinotDaoConfiguration {
     public AgentStatDao getPinotDataSourceListDao() {
         Function<List<DataSourceListBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertDataSourceToAgentStat;
         return newAgentStatDao(AgentStatBo::getDataSourceListBos, convertToAgentStat);
+    }
+
+    @Bean
+    public ProfilerMetricDao getPinotProfilerMetricDao() {
+        Function<ProfilerMetricBo, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertProfilerMetricToAgentStat;
+        return new ProfilerMetricDao(kafkaAgentStatTemplate, convertToAgentStat, topic);
     }
 }
