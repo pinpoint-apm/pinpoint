@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.applicationmap.link;
  * @author HyunGil Jeong
  */
 public enum LinkType {
+    SIMPLIFIED,
     BASIC,
     DETAILED
 }

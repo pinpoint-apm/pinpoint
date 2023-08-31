@@ -27,4 +27,6 @@ import java.util.List;
  */
 public interface LinkSelector {
     LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth);
+
+    LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated);
 }

@@ -55,6 +55,11 @@ public class UnidirectionalLinkSelector implements LinkSelector {
 
     @Override
     public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
+        return select(sourceApplications, range, callerSearchDepth, calleeSearchDepth, false);
+    }
+
+    @Override
+    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
         logger.debug("Creating link data map for {}", sourceApplications);
         final SearchDepth callerDepth = new SearchDepth(callerSearchDepth);
         final SearchDepth calleeDepth = new SearchDepth(calleeSearchDepth);
@@ -63,9 +68,9 @@ public class UnidirectionalLinkSelector implements LinkSelector {
         List<Application> applications = filterApplications(sourceApplications);
 
         List<Application> outboundApplications = Collections.unmodifiableList(applications);
-        LinkSelectContext outboundLinkSelectContext = new LinkSelectContext(range, callerDepth, new SearchDepth(0), linkVisitChecker);
+        LinkSelectContext outboundLinkSelectContext = new LinkSelectContext(range, callerDepth, new SearchDepth(0), linkVisitChecker, timeAggregated);
         List<Application> inboundApplications = Collections.unmodifiableList(applications);
-        LinkSelectContext inboundLinkSelectContext = new LinkSelectContext(range, new SearchDepth(0), calleeDepth, linkVisitChecker);
+        LinkSelectContext inboundLinkSelectContext = new LinkSelectContext(range, new SearchDepth(0), calleeDepth, linkVisitChecker, timeAggregated);
 
         while (!outboundApplications.isEmpty() || !inboundApplications.isEmpty()) {
 

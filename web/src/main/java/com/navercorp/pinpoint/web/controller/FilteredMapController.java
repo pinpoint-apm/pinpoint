@@ -231,8 +231,7 @@ public class FilteredMapController {
         }
 
         FilterMapWrap mapWrap;
-        mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V2);
-        mapWrap.setV3Format(true);
+        mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V1);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
     }

@@ -56,7 +56,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             return;
         }
 
-        LinkDataMap callerDataMap = mapStatisticsCallerDao.selectCaller(application, Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime));
+        LinkDataMap callerDataMap = mapStatisticsCallerDao.selectCaller(application, Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime), false);
 
         for (LinkData linkData : callerDataMap.getLinkDataList()) {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();

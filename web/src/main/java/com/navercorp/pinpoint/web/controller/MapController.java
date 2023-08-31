@@ -445,14 +445,12 @@ public class MapController {
         final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
+        final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
         SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
-
-        MapWrap mapWrap = selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState, true);
-        mapWrap.setV3Format(true);
-        return mapWrap;
+        return selectApplicationMap(application, range, searchOption, NodeType.SIMPLIFIED, LinkType.SIMPLIFIED,
+                useStatisticsAgentState, false);
     }
 
     @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeName")
@@ -466,17 +464,15 @@ public class MapController {
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState
-    ) {
+            boolean useStatisticsAgentState) {
         final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
+        final Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
         SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-        MapWrap mapWrap = selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState, true);
-        mapWrap.setV3Format(true);
-        return mapWrap;
+        return selectApplicationMap(application, range, searchOption, NodeType.SIMPLIFIED, LinkType.SIMPLIFIED,
+                useStatisticsAgentState, false);
     }
 }

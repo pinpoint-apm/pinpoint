@@ -26,6 +26,6 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
  * 
  */
 public interface MapStatisticsCallerDao {
-    LinkDataMap selectCaller(Application callerApplication, Range range);
+   LinkDataMap selectCaller(Application callerApplication, Range range, boolean timeAggregated);
 
 }

@@ -161,7 +161,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
             }
 
             //agent histogram
-            if (!node.isV3Format() && NodeType.DETAILED == node.getNodeType()) {
+            if (NodeType.DETAILED == node.getNodeType()) {
                 Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
                 if (agentHistogramMap == null) {
                     writeEmptyObject(jgen, "agentHistogram");
@@ -176,7 +176,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
         }
 
         //time histogram
-        if (!node.isV3Format()) {
+        if (NodeType.SIMPLIFIED != node.getNodeType()) {
             // FIXME isn't this all ServiceTypes that can be a node?
             if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
                 List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());

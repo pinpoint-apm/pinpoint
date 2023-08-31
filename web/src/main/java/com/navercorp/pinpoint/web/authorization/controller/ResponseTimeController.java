@@ -97,7 +97,7 @@ public class ResponseTimeController {
         }
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
-        ResponseTimeHistogramServiceOption option = buildOption(application, range, ApplicationPairs.empty(), false);
+        ResponseTimeHistogramServiceOption option = buildOption(application, range, ApplicationPairs.empty(), true);
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
         return nodeHistogramSummary.getNodeTimeHistogram(timeHistogramType);

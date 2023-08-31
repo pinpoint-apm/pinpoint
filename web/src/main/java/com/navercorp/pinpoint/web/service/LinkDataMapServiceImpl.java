@@ -41,12 +41,12 @@ public class LinkDataMapServiceImpl implements LinkDataMapService {
     }
 
     @Override
-    public LinkDataMap selectCallerLinkDataMap(Application application, Range range) {
-        return mapStatisticsCallerDao.selectCaller(application, range);
+    public LinkDataMap selectCallerLinkDataMap(Application application, Range range, boolean timeAggregated) {
+        return mapStatisticsCallerDao.selectCaller(application, range, timeAggregated);
     }
 
     @Override
-    public LinkDataMap selectCalleeLinkDataMap(Application application, Range range) {
-        return mapStatisticsCalleeDao.selectCallee(application, range);
+    public LinkDataMap selectCalleeLinkDataMap(Application application, Range range, boolean timeAggregated) {
+        return mapStatisticsCalleeDao.selectCallee(application, range, timeAggregated);
     }
 }

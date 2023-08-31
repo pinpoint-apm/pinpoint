@@ -56,7 +56,7 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
         final boolean searchCallerNode = linkSelectContext.checkNextCaller(application);
         if (searchCallerNode) {
             logger.debug("Finding Caller link data for {}", application);
-            final LinkDataMap callerLinkDataMap = linkDataMapService.selectCallerLinkDataMap(application, range);
+            final LinkDataMap callerLinkDataMap = linkDataMapService.selectCallerLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
             logger.debug("Found Caller. count={}, caller={}, depth={}", callerLinkDataMap.size(), application, linkSelectContext.getCallerDepth());
 
             final LinkDataMap processedCallerLinkDataMap = callerLinkDataMapProcessor.processLinkDataMap(callerLinkDataMap, range);
@@ -74,7 +74,7 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
         final boolean searchCalleeNode = linkSelectContext.checkNextCallee(application);
         if (searchCalleeNode) {
             logger.debug("Finding Callee link data for {}", application);
-            final LinkDataMap calleeLinkDataMap = linkDataMapService.selectCalleeLinkDataMap(application, range);
+            final LinkDataMap calleeLinkDataMap = linkDataMapService.selectCalleeLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
             logger.debug("Found Callee. count={}, callee={}, depth={}", calleeLinkDataMap.size(), application, linkSelectContext.getCalleeDepth());
 
             final LinkDataMap processedCalleeLinkDataMap = calleeLinkDataMapProcessor.processLinkDataMap(calleeLinkDataMap, range);

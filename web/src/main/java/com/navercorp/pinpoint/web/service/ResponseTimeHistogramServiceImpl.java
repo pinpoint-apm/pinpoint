@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogra
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
