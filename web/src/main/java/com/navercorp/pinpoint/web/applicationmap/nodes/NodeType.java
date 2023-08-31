@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
  * @author HyunGil Jeong
  */
 public enum NodeType {
+    SIMPLIFIED,
     BASIC,
     DETAILED
 }

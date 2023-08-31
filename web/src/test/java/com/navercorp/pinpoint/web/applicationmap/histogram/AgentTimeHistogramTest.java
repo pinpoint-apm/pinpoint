@@ -21,7 +21,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
@@ -31,12 +34,13 @@ import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +81,7 @@ public class AgentTimeHistogramTest {
     @Test
     public void getSampledAgentApdexScoreListTest() {
         Application app = new Application("test", ServiceType.STAND_ALONE);
-        Range range = Range.between(0, 1000 * 60);
+        Range range = Range.between(0L, 1000L * 60);
         TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, range, timeWindow);
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test3", "test4");
@@ -96,7 +100,7 @@ public class AgentTimeHistogramTest {
     @Test
     public void getApplicationApdexScoreListTest() {
         Application app = new Application("test", ServiceType.STAND_ALONE);
-        Range range = Range.between(0, 1000 * 60);
+        Range range = Range.between(0L, 1000L * 60);
         TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, range, timeWindow);
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test5", "test6");
@@ -104,10 +108,12 @@ public class AgentTimeHistogramTest {
 
         List<DoubleApplicationStatPoint> applicationStatPointList = histogram.getApplicationApdexScoreList(timeWindow);
         assertThat(applicationStatPointList).hasSize(2);
-        Assertions.assertEquals(applicationStatPointList.get(0).getXVal(), 0);
-        Assertions.assertEquals(applicationStatPointList.get(0).getYValForAvg(), 1.0, 0.001);
-        Assertions.assertEquals(applicationStatPointList.get(1).getXVal(), 1000 * 60);
-        Assertions.assertEquals(applicationStatPointList.get(1).getYValForAvg(), 0.5, 0.001);
+        assertThat(applicationStatPointList.get(0))
+                .extracting(DoubleApplicationStatPoint::getXVal, DoubleApplicationStatPoint::getYValForAvg)
+                .containsExactly(0L, 1.0);
+        assertThat(applicationStatPointList.get(1))
+                .extracting(DoubleApplicationStatPoint::getXVal, DoubleApplicationStatPoint::getYValForAvg)
+                .containsExactly(1000L * 60, 0.5);
     }
 
     private List<ResponseTime> createResponseTime(Application app, String agentName1, String agentName2) {
@@ -125,6 +131,63 @@ public class AgentTimeHistogramTest {
         four.addResponseTime(agentName2, (short) 3000, 1);
 
         return List.of(one, two, three, four);
+    }
+
+    @Test
+    public void aggregatedLinkDataHandleTest() {
+        final long timestamp = System.currentTimeMillis();
+        final long minute = 60000;
+        final long aggregateTimeStamp = 0;
+        Application app = new Application("test", ServiceType.STAND_ALONE);
+        List<String> sourceAgentIdList = List.of("sourceAgentId1", "sourceAgentId2");
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, Range.between(timestamp, timestamp + minute));
+
+        LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
+        LinkCallDataMap aggregatedLinkCallDataMap = new LinkCallDataMap();
+        for (String sourceAgentId : sourceAgentIdList) {
+            linkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, timestamp));
+            linkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, timestamp + minute));
+            aggregatedLinkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, aggregateTimeStamp));
+            aggregatedLinkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, aggregateTimeStamp));
+        }
+        AgentTimeHistogram agentTimeHistogram = builder.buildSource(linkCallDataMap);
+        AgentTimeHistogram aggregatedAgentTimeHistogram = builder.buildSource(aggregatedLinkCallDataMap);
+
+        Map<String, Histogram> defaultResult = new HashMap<>();
+        Map<String, Histogram> aggregatedResult = new HashMap<>();
+        for (String sourceAgentId : sourceAgentIdList) {
+            for (TimeHistogram timeHistogram : agentTimeHistogram.getAgentTimeHistogramMap().get(sourceAgentId)) {
+                Histogram histogram = defaultResult.computeIfAbsent(sourceAgentId, k -> new Histogram(ServiceType.STAND_ALONE));
+                histogram.add(timeHistogram);
+            }
+
+            for (TimeHistogram timeHistogram : aggregatedAgentTimeHistogram.getAgentTimeHistogramMap().get(sourceAgentId)) {
+                Histogram histogram = aggregatedResult.computeIfAbsent(sourceAgentId, k -> new Histogram(ServiceType.STAND_ALONE));
+                histogram.add(timeHistogram);
+            }
+        }
+
+        for (String sourceAgentId : sourceAgentIdList) {
+            assertThat(aggregatedResult.get(sourceAgentId).getFastCount()).isEqualTo(defaultResult.get(sourceAgentId).getFastCount());
+            assertThat(aggregatedResult.get(sourceAgentId).getNormalCount()).isEqualTo(defaultResult.get(sourceAgentId).getNormalCount());
+            assertThat(aggregatedResult.get(sourceAgentId).getSlowCount()).isEqualTo(defaultResult.get(sourceAgentId).getSlowCount());
+            assertThat(aggregatedResult.get(sourceAgentId).getErrorCount()).isEqualTo(defaultResult.get(sourceAgentId).getErrorCount());
+            assertThat(aggregatedResult.get(sourceAgentId).getSumElapsed()).isEqualTo(defaultResult.get(sourceAgentId).getSumElapsed());
+            assertThat(aggregatedResult.get(sourceAgentId).getMaxElapsed()).isEqualTo(defaultResult.get(sourceAgentId).getMaxElapsed());
+        }
+    }
+
+    private LinkCallDataMap createSourceLinkCallDataMap(String sourceAgentId, long timeStamp) {
+        LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
+
+        final HistogramSchema schema = BaseHistogramSchema.NORMAL_SCHEMA;
+        linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getFastSlot().getSlotTime(), 1L);
+        linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getNormalSlot().getSlotTime(), 2L);
+        linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getSlowErrorSlot().getSlotTime(), 3L);
+        linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getErrorSlot().getSlotTime(), 4L);
+        linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getSumStatSlot().getSlotTime(), 1000L);
+        linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getMaxStatSlot().getSlotTime(), 2000L);
+        return linkCallDataMap;
     }
 
 }

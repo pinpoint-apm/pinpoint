@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -95,8 +96,8 @@ public abstract class LinkSelectorTestBase {
     @Test
     public void testEmpty() {
         Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
-        when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
@@ -118,8 +119,8 @@ public abstract class LinkSelectorTestBase {
                 APP_B, "agentB",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
 
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
-        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(linkDataMap);
+        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
@@ -150,8 +151,8 @@ public abstract class LinkSelectorTestBase {
                     targetApp, targetAppAgentId,
                     1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_APP);
         }
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
-        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(linkDataMap);
+        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
@@ -178,7 +179,7 @@ public abstract class LinkSelectorTestBase {
                 APP_A, "agentA",
                 APP_B, "agentB",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(link_A_B);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(link_A_B);
 
         LinkDataMap link_B_C = new LinkDataMap();
         int callCount_B_C = 20;
@@ -186,9 +187,9 @@ public abstract class LinkSelectorTestBase {
                 APP_B, "agentB",
                 APP_C, "agentC",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_B_C);
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(link_B_C);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(link_B_C);
 
-        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         // depth 1
@@ -233,8 +234,8 @@ public abstract class LinkSelectorTestBase {
                 RPC_A_B, rpcUri,
                 1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
 
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
-        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(linkDataMap);
+        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
@@ -272,8 +273,8 @@ public abstract class LinkSelectorTestBase {
                 APP_B, "agentB",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
 
-        when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(linkDataMap);
+        when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(linkDataMap);
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
@@ -294,7 +295,7 @@ public abstract class LinkSelectorTestBase {
         final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
         final Application APP_C = new Application("APP_C", ServiceType.TEST_STAND_ALONE);
-        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
 
         int callCount_A_B = 30;
         LinkDataMap linkDataMap_A_B = new LinkDataMap();
@@ -302,7 +303,7 @@ public abstract class LinkSelectorTestBase {
                 APP_A, "agentA",
                 APP_B, "agentB",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(linkDataMap_A_B);
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(linkDataMap_A_B);
 
         int callCount_B_C = 40;
         LinkDataMap linkDataMap_B_C = new LinkDataMap();
@@ -310,9 +311,9 @@ public abstract class LinkSelectorTestBase {
                 APP_B, "agentB",
                 APP_C, "agentC",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_B_C);
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(linkDataMap_B_C);
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class), anyBoolean())).thenReturn(linkDataMap_B_C);
 
-        when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
@@ -369,12 +370,12 @@ public abstract class LinkSelectorTestBase {
                 APP_C, "agentC",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_C);
 
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(rpc_A_B_calleeLinkDataMap);
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(rpc_A_C_calleeLinkDataMap);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(linkDataMap);
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(rpc_A_B_calleeLinkDataMap);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_C), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class), anyBoolean())).thenReturn(rpc_A_C_calleeLinkDataMap);
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
@@ -450,12 +451,12 @@ public abstract class LinkSelectorTestBase {
                 APP_C, "agentC",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_proxy_C + callCount_C);
 
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(calleeLinkDataMap_B);
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(calleeLinkDataMap_C);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(linkDataMap);
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(calleeLinkDataMap_B);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_C), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class), anyBoolean())).thenReturn(calleeLinkDataMap_C);
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
@@ -526,14 +527,14 @@ public abstract class LinkSelectorTestBase {
                 APP_D, "agentD",
                 1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_C_D);
 
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(callerlinkDataMap_A);
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(callerLinkDataMap_B);
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(calleeLinkDataMap_B);
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(callerLinkDataMap_C);
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(calleeLinkDataMap_C);
-        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_D), any(Range.class))).thenReturn(newEmptyLinkDataMap());
-        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_D), any(Range.class))).thenReturn(calleeLinkDataMap_D);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(callerlinkDataMap_A);
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(callerLinkDataMap_B);
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class), anyBoolean())).thenReturn(calleeLinkDataMap_B);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_C), any(Range.class), anyBoolean())).thenReturn(callerLinkDataMap_C);
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class), anyBoolean())).thenReturn(calleeLinkDataMap_C);
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_D), any(Range.class), anyBoolean())).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_D), any(Range.class), anyBoolean())).thenReturn(calleeLinkDataMap_D);
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(gwAcceptApplications);
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_B), any(Range.class))).thenReturn(apiAcceptApplications);
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_C), any(Range.class))).thenReturn(apiAcceptApplications);

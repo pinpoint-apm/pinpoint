@@ -47,7 +47,6 @@ public class Node {
 
     private boolean authorized = true;
     private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
-    private boolean v3Format = false;
 
     public Node(Application application) {
         this(NodeType.DETAILED, application);
@@ -124,14 +123,6 @@ public class Node {
 
     public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
         this.timeHistogramFormat = timeHistogramFormat;
-    }
-
-    public boolean isV3Format() {
-        return v3Format;
-    }
-
-    public void setV3Format(boolean v3Format) {
-        this.v3Format = v3Format;
     }
 
     @Override

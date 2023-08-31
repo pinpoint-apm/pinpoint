@@ -59,13 +59,18 @@ public class BidirectionalLinkSelector implements LinkSelector {
 
     @Override
     public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
+        return select(sourceApplications, range, callerSearchDepth, calleeSearchDepth, false);
+    }
+
+    @Override
+    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
         logger.debug("Creating link data map for {}", sourceApplications);
         final SearchDepth callerDepth = new SearchDepth(callerSearchDepth);
         final SearchDepth calleeDepth = new SearchDepth(calleeSearchDepth);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
         List<Application> applications = filterApplications(sourceApplications);
-        LinkSelectContext linkSelectContext = new LinkSelectContext(range, callerDepth, calleeDepth, linkVisitChecker);
+        LinkSelectContext linkSelectContext = new LinkSelectContext(range, callerDepth, calleeDepth, linkVisitChecker, timeAggregated);
 
         while (!applications.isEmpty()) {
 

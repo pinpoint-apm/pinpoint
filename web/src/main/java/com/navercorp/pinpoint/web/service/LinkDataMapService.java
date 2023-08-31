@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
  */
 public interface LinkDataMapService {
 
-    LinkDataMap selectCallerLinkDataMap(Application application, Range range);
+    LinkDataMap selectCallerLinkDataMap(Application application, Range range, boolean timeAggregated);
 
-    LinkDataMap selectCalleeLinkDataMap(Application application, Range range);
+    LinkDataMap selectCalleeLinkDataMap(Application application, Range range, boolean timeAggregated);
 }

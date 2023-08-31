@@ -99,8 +99,18 @@ public class NodeHistogram {
         this.applicationHistogram = Objects.requireNonNull(applicationHistogram, "applicationHistogram");
     }
 
+    public void setApplicationHistogram(List<ResponseTime> responseTimeList) {
+        Objects.requireNonNull(responseTimeList, "responseTimeList");
+        this.applicationHistogram = createApplicationLevelResponseTime(responseTimeList);
+    }
+
     public void setAgentHistogramMap(Map<String, Histogram> agentHistogramMap) {
         this.agentHistogramMap = agentHistogramMap;
+    }
+
+    public void setAgentHistogramMap(List<ResponseTime> responseTimeList) {
+        Objects.requireNonNull(responseTimeList, "responseTimeList");
+        this.agentHistogramMap = createAgentLevelResponseTime(responseTimeList);
     }
 
     public Map<String, Histogram> getAgentHistogramMap() {

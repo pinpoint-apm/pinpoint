@@ -39,14 +39,16 @@ public class LinkSelectContext {
     private final SearchDepth callerDepth;
     private final SearchDepth calleeDepth;
     private final LinkVisitChecker linkVisitChecker;
+    private final boolean timeAggregated;
 
     private final Set<Application> nextApplications = ConcurrentHashMap.newKeySet();
 
-    public LinkSelectContext(Range range, SearchDepth callerDepth, SearchDepth calleeDepth, LinkVisitChecker linkVisitChecker) {
+    public LinkSelectContext(Range range, SearchDepth callerDepth, SearchDepth calleeDepth, LinkVisitChecker linkVisitChecker, boolean timeAggregated) {
         this.range = Objects.requireNonNull(range, "range");
         this.callerDepth = Objects.requireNonNull(callerDepth, "callerDepth");
         this.calleeDepth = Objects.requireNonNull(calleeDepth, "calleeDepth");
         this.linkVisitChecker = Objects.requireNonNull(linkVisitChecker, "linkVisitChecker");
+        this.timeAggregated = timeAggregated;
     }
 
     public Range getRange() {
@@ -59,6 +61,10 @@ public class LinkSelectContext {
 
     public int getCalleeDepth() {
         return calleeDepth.getDepth();
+    }
+
+    public boolean isTimeAggregated() {
+        return timeAggregated;
     }
 
     public boolean checkNextCaller(Application application) {
@@ -99,6 +105,6 @@ public class LinkSelectContext {
     public LinkSelectContext advance() {
         SearchDepth nextCallerDepth = callerDepth.nextDepth();
         SearchDepth nextCalleeDepth = calleeDepth.nextDepth();
-        return new LinkSelectContext(range, nextCallerDepth, nextCalleeDepth, linkVisitChecker);
+        return new LinkSelectContext(range, nextCallerDepth, nextCalleeDepth, linkVisitChecker, timeAggregated);
     }
 }

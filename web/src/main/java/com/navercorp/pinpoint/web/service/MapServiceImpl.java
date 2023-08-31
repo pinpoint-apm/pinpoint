@@ -20,23 +20,25 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
-import com.navercorp.pinpoint.web.service.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.service.map.LinkSelector;
 import com.navercorp.pinpoint.web.service.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.service.map.LinkSelectorType;
+import com.navercorp.pinpoint.web.service.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.service.map.processor.WasOnlyProcessor;
 import com.navercorp.pinpoint.web.vo.SearchOption;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -98,6 +100,10 @@ public class MapServiceImpl implements MapService {
         LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
         int callerSearchDepth = searchOption.getCallerSearchDepth();
         int calleeSearchDepth = searchOption.getCalleeSearchDepth();
+        boolean timeAggregate = false;
+        if (NodeType.SIMPLIFIED == option.getNodeType() && LinkType.SIMPLIFIED == option.getLinkType()) {
+            timeAggregate = true;
+        }
 
         LinkDataMapProcessor callerLinkDataMapProcessor = LinkDataMapProcessor.NO_OP;
         if (searchOption.isWasOnly()) {
@@ -105,7 +111,7 @@ public class MapServiceImpl implements MapService {
         }
         LinkDataMapProcessor calleeLinkDataMapProcessor = LinkDataMapProcessor.NO_OP;
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, callerLinkDataMapProcessor, calleeLinkDataMapProcessor);
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), option.getRange(), callerSearchDepth, calleeSearchDepth);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), option.getRange(), callerSearchDepth, calleeSearchDepth, timeAggregate);
         watch.stop();
 
         if (linkDataLimiter.excess(linkDataDuplexMap.getTotalCount())) {
@@ -134,9 +140,11 @@ public class MapServiceImpl implements MapService {
         builder.nodeType(option.getNodeType());
         builder.linkType(option.getLinkType());
 
-        WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
-        NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
-        builder.includeNodeHistogram(nodeHistogramFactory);
+        if (NodeType.SIMPLIFIED == option.getNodeType()) {
+            builder.includeNodeHistogram(new SimplifiedNodeHistogramFactory(new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao)));
+        } else {
+            builder.includeNodeHistogram(new DefaultNodeHistogramFactory(new MapResponseNodeHistogramDataSource(mapResponseDao)));
+        }
 
         ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
         if (option.isUseStatisticsAgentState()) {

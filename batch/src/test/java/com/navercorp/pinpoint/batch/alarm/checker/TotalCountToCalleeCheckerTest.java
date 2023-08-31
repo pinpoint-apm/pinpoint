@@ -49,7 +49,7 @@ public class TotalCountToCalleeCheckerTest {
         dao = new MapStatisticsCallerDao() {
 
             @Override
-            public LinkDataMap selectCaller(Application callerApplication, Range range) {
+            public LinkDataMap selectCaller(Application callerApplication, Range range, boolean timeAggregated) {
                 long timeStamp = 1409814914298L;
                 LinkDataMap linkDataMap = new LinkDataMap();
                 Application fromApplication = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);

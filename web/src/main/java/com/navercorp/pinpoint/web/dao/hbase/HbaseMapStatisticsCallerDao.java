@@ -61,6 +61,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<LinkDataMap> mapStatisticsCallerMapper;
+    private final RowMapper<LinkDataMap> mapStatisticsCallerTimeAggregatedMapper;
 
     private final RangeFactory rangeFactory;
 
@@ -70,24 +71,32 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             HbaseOperations2 hbaseTemplate,
             TableNameProvider tableNameProvider,
             @Qualifier("mapStatisticsCallerMapper") RowMapper<LinkDataMap> mapStatisticsCallerMapper,
+            @Qualifier("mapStatisticsCallerTimeAggregatedMapper") RowMapper<LinkDataMap> mapStatisticsCallerTimeAggregatedMapper,
             RangeFactory rangeFactory,
             @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.mapStatisticsCallerMapper = Objects.requireNonNull(mapStatisticsCallerMapper, "mapStatisticsCallerMapper");
+        this.mapStatisticsCallerTimeAggregatedMapper = Objects.requireNonNull(mapStatisticsCallerTimeAggregatedMapper, "mapStatisticsTimeAggregatedCallerMapper");
         this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
-    public LinkDataMap selectCaller(Application callerApplication, Range range) {
+    public LinkDataMap selectCaller(Application callerApplication, Range range, boolean timeAggregated) {
         Objects.requireNonNull(callerApplication, "callerApplication");
         Objects.requireNonNull(range, "range");
 
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         // find distributed key.
         final Scan scan = createScan(callerApplication, range, DESCRIPTOR.getName());
-        ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+
+        ResultsExtractor<LinkDataMap> resultExtractor;
+        if (timeAggregated) {
+            resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCallerTimeAggregatedMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+        } else {
+            resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+        }
 
         TableName mapStatisticsCalleeTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         LinkDataMap linkDataMap = this.hbaseTemplate.findParallel(mapStatisticsCalleeTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
