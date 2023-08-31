@@ -30,7 +30,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -41,21 +41,18 @@ class RedisStreamSubChannel implements SubChannel {
     private final ReactiveRedisTemplate<String, String> redisTemplate;
     private final ReactiveStreamOperations<String, String, String> streamOps;
     private final String name;
-    private final AtomicLong idCounter;
     private final String key;
 
     RedisStreamSubChannel(
             StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer,
             ReactiveRedisTemplate<String, String> redisTemplate,
             String name,
-            AtomicLong idCounter,
             String key
     ) {
         this.listenerContainer = Objects.requireNonNull(listenerContainer, "listenerContainer");
         this.redisTemplate = Objects.requireNonNull(redisTemplate, "redisTemplate");
         this.streamOps = this.redisTemplate.opsForStream();
         this.name = Objects.requireNonNull(name, "name");
-        this.idCounter = Objects.requireNonNull(idCounter, "idCounter");
         this.key = Objects.requireNonNull(key, "key");
     }
 
@@ -82,7 +79,7 @@ class RedisStreamSubChannel implements SubChannel {
     }
 
     private String newGroupName() {
-        return this.name + '-' + this.idCounter.incrementAndGet();
+        return this.name + '-' + UUID.randomUUID();
     }
 
     @Override
@@ -95,7 +92,6 @@ class RedisStreamSubChannel implements SubChannel {
     private void unsubscribe(RedisStreamSubscription subscription) {
         try {
             this.listenerContainer.remove(subscription.getRedisSubscription());
-            this.streamOps.destroyGroup(this.key, subscription.getGroupName()).subscribe();
         } catch (Exception ignored) {
         }
     }
