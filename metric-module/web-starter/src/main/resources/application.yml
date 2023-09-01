@@ -13,3 +13,9 @@ server:
     include-stacktrace: always
     whitelabel:
       enabled: true
+
+pinpoint:
+  modules:
+    web:
+      exceptiontrace:
+        enabled: true

@@ -52,6 +52,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-log-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-exceptiontrace-web</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

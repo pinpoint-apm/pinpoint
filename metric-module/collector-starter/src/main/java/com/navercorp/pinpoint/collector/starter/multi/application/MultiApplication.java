@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.common.server.env.ProfileResolveListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.inspector.collector.InspectorCollectorApp;
 import com.navercorp.pinpoint.log.collector.LogCollectorModule;
+import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorConfig;
 import com.navercorp.pinpoint.metric.collector.CollectorType;
 import com.navercorp.pinpoint.metric.collector.CollectorTypeParser;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
@@ -58,7 +59,8 @@ public class MultiApplication {
             logger.info(String.format("Start %s collector", CollectorType.BASIC));
             SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400,
                     BasicCollectorApp.class,
-                    UriStatCollectorConfig.class
+                    UriStatCollectorConfig.class,
+                    ExceptionTraceCollectorConfig.class
             );
             collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
             collectorAppBuilder.listeners(new AdditionalProfileListener("uri"));
@@ -70,6 +72,7 @@ public class MultiApplication {
             SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400,
                     BasicCollectorApp.class,
                     UriStatCollectorConfig.class,
+                    ExceptionTraceCollectorConfig.class,
                     InspectorCollectorApp.class
             );
             collectorAppBuilder.build().run(args);

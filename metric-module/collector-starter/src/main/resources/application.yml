@@ -4,3 +4,9 @@ spring:
 #    web-application-type: none
   profiles:
     active: local
+
+pinpoint:
+  modules:
+    collector:
+      exceptiontrace:
+        enabled: true
