@@ -62,73 +62,73 @@ public class PinotDaoConfiguration {
 
     @Bean
     public AgentStatDao getPinotCpuLoadDao() {
-        Function<List<CpuLoadBo>, List<AgentStat>> convertToAgentStat = (cpuLoadBoList) -> AgentStatModelConverter.convertCpuLoadToAgentStat(cpuLoadBoList);
+        Function<List<CpuLoadBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertCpuLoadToAgentStat;
         return newAgentStatDao(AgentStatBo::getCpuLoadBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotActiveTraceDao() {
-        Function<List<ActiveTraceBo>, List<AgentStat>> convertToAgentStat = (activeTraceBoList) -> AgentStatModelConverter.convertActiveTraceToAgentStat(activeTraceBoList);
+        Function<List<ActiveTraceBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertActiveTraceToAgentStat;
         return newAgentStatDao(AgentStatBo::getActiveTraceBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotJvmGcDao() {
-        Function<List<JvmGcBo>, List<AgentStat>> convertToAgentStat = (jvmGcBoList) -> AgentStatModelConverter.convertJvmGcToAgentStat(jvmGcBoList);
+        Function<List<JvmGcBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertJvmGcToAgentStat;
         return newAgentStatDao(AgentStatBo::getJvmGcBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotJvmGcDetailedDao() {
-        Function<List<JvmGcDetailedBo>, List<AgentStat>> convertToAgentStat = (jvmGcDetailedBoList) -> AgentStatModelConverter.convertJvmGCDetailedToAgentStat(jvmGcDetailedBoList);
+        Function<List<JvmGcDetailedBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertJvmGCDetailedToAgentStat;
         return newAgentStatDao(AgentStatBo::getJvmGcDetailedBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotTransactionDao() {
-        Function<List<TransactionBo>, List<AgentStat>> convertToAgentStat = (transactionBoList) -> AgentStatModelConverter.convertTransactionToAgentStat(transactionBoList);
+        Function<List<TransactionBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertTransactionToAgentStat;
         return newAgentStatDao(AgentStatBo::getTransactionBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotResponseTimeDao() {
-        Function<List<ResponseTimeBo>, List<AgentStat>> convertToAgentStat = (reponseTimeBoList) -> AgentStatModelConverter.convertResponseTimeToAgentStat(reponseTimeBoList);
+        Function<List<ResponseTimeBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertResponseTimeToAgentStat;
         return newAgentStatDao(AgentStatBo::getResponseTimeBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotDeadlockThreadCountDao() {
-        Function<List<DeadlockThreadCountBo>, List<AgentStat>> convertToAgentStat = (deadlockThreadCountBoList) -> AgentStatModelConverter.convertDeadlockThreadCountToAgentStat(deadlockThreadCountBoList);
+        Function<List<DeadlockThreadCountBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertDeadlockThreadCountToAgentStat;
         return newAgentStatDao(AgentStatBo::getDeadlockThreadCountBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotFileDescriptorDao() {
-        Function<List<FileDescriptorBo>, List<AgentStat>> convertToAgentStat = (fileDescriptorBoList) -> AgentStatModelConverter.convertFileDescriptorToAgentStat(fileDescriptorBoList);
+        Function<List<FileDescriptorBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertFileDescriptorToAgentStat;
         return newAgentStatDao(AgentStatBo::getFileDescriptorBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotDirectBufferDao() {
-        Function<List<DirectBufferBo>, List<AgentStat>> convertToAgentStat = (directBufferBoList) -> AgentStatModelConverter.convertDirectBufferToAgentStat(directBufferBoList);
+        Function<List<DirectBufferBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertDirectBufferToAgentStat;
         return newAgentStatDao(AgentStatBo::getDirectBufferBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotTotalThreadCountDao() {
-        Function<List<TotalThreadCountBo>, List<AgentStat>> convertToAgentStat = (totalThreadCountBoList) -> AgentStatModelConverter.convertTotalThreadCountToAgentStat(totalThreadCountBoList);
+        Function<List<TotalThreadCountBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertTotalThreadCountToAgentStat;
         return newAgentStatDao(AgentStatBo::getTotalThreadCountBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotLoadedClassDao() {
-        Function<List<LoadedClassBo>, List<AgentStat>> convertToAgentStat = (loadedClassBoList) -> AgentStatModelConverter.convertLoadedClassToAgentStat(loadedClassBoList);
+        Function<List<LoadedClassBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertLoadedClassToAgentStat;
         return newAgentStatDao(AgentStatBo::getLoadedClassBos, convertToAgentStat);
     }
 
     @Bean
     public AgentStatDao getPinotDataSourceListDao() {
-        Function<List<DataSourceListBo>, List<AgentStat>> convertToAgentStat = (dataSourceListBoList) -> AgentStatModelConverter.convertDataSourceToAgentStat(dataSourceListBoList);
+        Function<List<DataSourceListBo>, List<AgentStat>> convertToAgentStat = AgentStatModelConverter::convertDataSourceToAgentStat;
         return newAgentStatDao(AgentStatBo::getDataSourceListBos, convertToAgentStat);
     }
 }
