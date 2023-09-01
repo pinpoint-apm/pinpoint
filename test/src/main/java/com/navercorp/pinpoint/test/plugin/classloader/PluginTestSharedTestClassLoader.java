@@ -26,6 +26,8 @@ public class PluginTestSharedTestClassLoader extends PluginTestClassLoader {
     public PluginTestSharedTestClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
         setClassLoaderName(getClass().getSimpleName());
+        System.out.println("##" + getClassLoaderName() + " libs");
+        printLib(urls);
     }
 
     @Override

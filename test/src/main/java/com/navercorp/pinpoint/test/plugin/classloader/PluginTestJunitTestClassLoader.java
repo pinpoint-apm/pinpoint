@@ -45,6 +45,8 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
         super(urls, parent);
         this.translator = translator;
         setClassLoaderName(getClass().getSimpleName());
+        System.out.println("##" + getClassLoaderName() + " libs");
+        printLib(urls);
     }
 
     public void setAgentClassLoader(PluginAgentTestClassLoader agentClassLoader) {
