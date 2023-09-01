@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.util.OsType;
+import com.navercorp.pinpoint.common.util.OsUtils;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
@@ -227,7 +229,12 @@ public abstract class AbstractPluginTestSuite {
         if (StringUtils.isEmpty(classPath)) {
             return Collections.emptyList();
         }
-        final String[] paths = classPath.split(";");
+        if (OsUtils.getType() == OsType.WINDOW) {
+            final String[] paths = classPath.split(";");
+            return normalizePaths(paths);
+        }
+
+        final String[] paths = classPath.split(":");
         return normalizePaths(paths);
     }
 
