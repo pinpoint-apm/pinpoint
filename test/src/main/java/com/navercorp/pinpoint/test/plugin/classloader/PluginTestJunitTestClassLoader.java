@@ -28,6 +28,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.CodeSigner;
 import java.security.CodeSource;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -123,5 +124,41 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
             }
         }
         return false;
+    }
+
+    @Override
+    public URL getResource(String name) {
+        final String className = JavaAssistUtils.jvmNameToJavaName(name);
+        if (isDelegated(className)) {
+            return super.getResource(name);
+        }
+
+        if (isPinpointPackage.test(className)) {
+            if (agentClassLoader != null) {
+                return agentClassLoader.getResource(name);
+            }
+        }
+
+        URL url = findResource(name);
+        if (url != null) {
+            return url;
+        }
+        return null;
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        final String className = JavaAssistUtils.jvmNameToJavaName(name);
+        if (isDelegated(className)) {
+            return super.getResources(name);
+        }
+
+        if (isPinpointPackage.test(className)) {
+            if (agentClassLoader != null) {
+                return agentClassLoader.getResources(name);
+            }
+        }
+
+        return findResources(name);
     }
 }
