@@ -130,6 +130,7 @@
         <module>user</module>
         <module>batch-alarmsender</module>
         <module>channel</module>
+        <module>exceptiontrace</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
@@ -161,6 +162,7 @@
 
         <fastxml.jackson.version>2.15.2</fastxml.jackson.version>
         <snakeyaml.version>1.33</snakeyaml.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
 
         <httpcomponents.version>4.5.13</httpcomponents.version>
         <httpcomponents-core.version>4.4.14</httpcomponents-core.version>
@@ -532,6 +534,21 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-exceptiontrace-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-metric</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -871,6 +888,12 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>org.apache.hbase</groupId>

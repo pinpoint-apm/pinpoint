@@ -48,6 +48,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-log-collector</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-exceptiontrace-collector</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

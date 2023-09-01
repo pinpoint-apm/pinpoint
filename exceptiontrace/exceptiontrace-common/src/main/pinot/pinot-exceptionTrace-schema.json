@@ -1,0 +1,77 @@
+{
+  "schemaName": "exceptionTrace",
+  "dimensionFieldSpecs": [
+    {
+      "name": "transactionId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "spanId",
+      "dataType": "LONG"
+    },
+    {
+      "name": "exceptionId",
+      "dataType": "LONG"
+    },
+    {
+      "name": "applicationServiceType",
+      "dataType": "STRING"
+    },
+    {
+      "name": "applicationName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "agentId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "uriTemplate",
+      "dataType": "STRING"
+    },
+    {
+      "name": "errorClassName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "errorMessage",
+      "dataType": "STRING"
+    },
+    {
+      "name": "exceptionDepth",
+      "dataType": "INT"
+    },
+    {
+      "name": "stackTraceClassName",
+      "dataType": "STRING",
+      "singleValueField": false
+    },
+    {
+      "name": "stackTraceFileName",
+      "dataType": "STRING",
+      "singleValueField": false
+    },
+    {
+      "name": "stackTraceLineNumber",
+      "dataType": "INT",
+      "singleValueField": false
+    },
+    {
+      "name": "stackTraceMethodName",
+      "dataType": "STRING",
+      "singleValueField": false
+    },
+    {
+      "name": "stackTraceHash",
+      "dataType": "BYTES"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "timestamp",
+      "dataType": "TIMESTAMP",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

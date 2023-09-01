@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.inspector.web.InspectorWebApp;
 import com.navercorp.pinpoint.log.web.LogWebModule;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
+import com.navercorp.pinpoint.exceptiontrace.web.ExceptionTraceWebConfig;
 import com.navercorp.pinpoint.metric.web.MetricWebApp;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.web.UriStatWebConfig;
@@ -66,7 +67,8 @@ public class MetricAndWebApp {
                     MetricWebApp.class,
                     UriStatWebConfig.class,
                     InspectorWebApp.class,
-                    LogWebModule.class
+                    LogWebModule.class,
+                    ExceptionTraceWebConfig.class
             );
             starter.addProfiles("uri", "metric");
             starter.start(args);
