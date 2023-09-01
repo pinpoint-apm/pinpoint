@@ -118,4 +118,10 @@ public class PluginTestClassLoader extends URLClassLoader {
         return findResources(name);
 
     }
+
+    void printLib(URL[] urls) {
+        for (URL url : urls) {
+            System.out.println("lib=" + url);
+        }
+    }
 }
