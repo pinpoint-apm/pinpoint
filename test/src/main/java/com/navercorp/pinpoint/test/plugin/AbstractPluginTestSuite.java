@@ -98,6 +98,10 @@ public abstract class AbstractPluginTestSuite {
         this.transformIncludeList = getTransformInclude(transformInclude);
 
         List<String> libs = collectLibs(getClass().getClassLoader());
+        System.out.println("##collectLibs");
+        for(String lib : libs) {
+            System.out.println("lib=" + lib);
+        }
 
         final LibraryFilter agentLibraryFilter = new LibraryFilter(
                 LibraryFilter.createContainsMatcher(PluginClassLoading.PLUGIN_CONTAINS_MATCHES),
