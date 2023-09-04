@@ -31,7 +31,7 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <spring.version>${spring6.version}</spring.version>
+        <spring.version>${spring4.version}</spring.version>
     </properties>
 
     <dependencies>
