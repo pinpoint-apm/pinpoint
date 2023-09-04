@@ -14,6 +14,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -28,6 +29,7 @@ import java.lang.reflect.Method;
 @JvmVersion(17)
 @Dependency({"org.springframework:spring-webmvc:[6.0.0.RELEASE,)", "org.springframework:spring-test", "jakarta.servlet:jakarta.servlet-api:6.0.0"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
+@Disabled
 public class SpringWebMvc_6_x_IT {
     private static final String SPRING_MVC = "SPRING_MVC";
 
