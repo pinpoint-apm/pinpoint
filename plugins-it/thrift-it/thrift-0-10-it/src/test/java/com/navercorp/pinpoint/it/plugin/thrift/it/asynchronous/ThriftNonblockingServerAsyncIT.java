@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author HyunGil Jeong
  */
-@PluginTest
+@PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({ ThriftVersion.VERSION_0_10,
         "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
