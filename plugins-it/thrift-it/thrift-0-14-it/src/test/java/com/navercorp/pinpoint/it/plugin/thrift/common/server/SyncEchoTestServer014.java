@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.it.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.it.plugin.thrift.common.client.AsyncEchoTestClient;
 import com.navercorp.pinpoint.it.plugin.thrift.common.client.EchoTestClient;
+import com.navercorp.pinpoint.it.plugin.thrift.common.client.SyncEchoTestClient014;
 import com.navercorp.pinpoint.it.plugin.thrift.dto.EchoService;
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
