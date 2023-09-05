@@ -117,7 +117,7 @@ public final class PluginClassLoading {
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
             Paths.get("test", "target", "classes").toString(),
             "pinpoint-testcase",
-            "testcase",
+            Paths.get("testcase", "target").toString(),
             Paths.get("testcase", "target", "classes").toString()
     };
 }
