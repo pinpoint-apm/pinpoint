@@ -101,7 +101,7 @@ public abstract class AbstractPluginTestSuite {
 
         List<String> libs = collectLibs(getClass().getClassLoader());
         System.out.println("##collectLibs");
-        for(String lib : libs) {
+        for (String lib : libs) {
             System.out.println("lib=" + lib);
         }
 
@@ -111,6 +111,7 @@ public abstract class AbstractPluginTestSuite {
         this.agentLibList = filterLibs(libs, agentLibraryFilter);
 
         final LibraryFilter sharedLibraryFilter = new LibraryFilter(
+                LibraryFilter.createContainsMatcher(PluginClassLoading.TEST_MATCHES),
                 LibraryFilter.createContainsMatcher(PluginClassLoading.PLUGIN_IT_UTILS_CONTAINS_MATCHES));
         this.sharedLibList = filterLibs(libs, sharedLibraryFilter);
 

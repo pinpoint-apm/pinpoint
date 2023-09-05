@@ -58,6 +58,7 @@ public abstract class HttpEchoTestServer implements EchoTestServer {
         TProtocolFactory protocolFactory = this.environment.getProtocolFactory();
         this.server = new Server(port);
         this.server.setHandler(new EchoHttpServerHandler(path, processor, protocolFactory));
+        System.out.println("##HttpEchoTestServer port=" + environment.getPort());
     }
 
     public abstract HttpEchoTestClient getHttpClient() throws TTransportException;

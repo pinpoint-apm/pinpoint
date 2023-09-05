@@ -86,6 +86,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
             TSimpleServer server = new TSimpleServer(new TSimpleServer.Args(new TServerSocket(environment.getPort()))
                     .processor(getProcessor()).inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
+            System.out.println("##TSimpleServer port=" + environment.getPort());
             return new SyncEchoTestServer<TSimpleServer>(server, environment) {
                 @Override
                 public SyncEchoTestClient getSynchronousClient() throws TTransportException {
@@ -105,6 +106,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                     environment.getPort())).processor(getProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
+            System.out.println("##TThreadPoolServer port=" + environment.getPort());
             return new SyncEchoTestServer<TThreadPoolServer>(server, environment) {
                 @Override
                 public SyncEchoTestClient getSynchronousClient() throws TTransportException {
@@ -124,6 +126,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                     new TNonblockingServerSocket(environment.getPort())).processor(getProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
+            System.out.println("##TThreadedSelectorServer port=" + environment.getPort());
             return new SyncEchoTestServer<TThreadedSelectorServer>(server, environment) {
                 @Override
                 public SyncEchoTestClient getSynchronousClient() throws Exception {
@@ -143,6 +146,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                     new TNonblockingServerSocket(environment.getPort())).processor(getProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
+            System.out.println("##TNonblockingServer port=" + environment.getPort());
             return new SyncEchoTestServer<TNonblockingServer>(server, environment) {
                 @Override
                 public SyncEchoTestClient getSynchronousClient() throws Exception {
@@ -162,6 +166,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                     environment.getPort())).processor(getProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
+            System.out.println("##THsHaServer port=" + environment.getPort());
             return new SyncEchoTestServer<THsHaServer>(server, environment) {
                 @Override
                 public SyncEchoTestClient getSynchronousClient() throws Exception {

@@ -46,6 +46,7 @@ public class HttpEchoTestClient implements EchoTestClient {
     private HttpEchoTestClient(TestEnvironment environment, THttpClient httpClient) throws TTransportException {
         this.environment = environment;
         this.httpClient = httpClient;
+        System.out.println("##HttpEchoTestClient ip=" + environment.getServerIp() + ", port=" + environment.getPort());
     }
 
     @Override
