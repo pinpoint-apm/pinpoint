@@ -105,7 +105,7 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
 
     public static class ClientForNonblockingServer extends SyncEchoTestClient {
         public ClientForNonblockingServer(TestEnvironment environment) throws Exception {
-            super(environment, TTransportInstanceCreator.create(SyncEchoTestClient014.class.getClassLoader(), "org.apache.thrift.transport.TFramedTransport", new TSocket(environment.getServerIp(), environment.getPort())));
+            super(environment, TTransportInstanceCreator.create(SyncEchoTestClient.class.getClassLoader(), "org.apache.thrift.transport.TFramedTransport", new TSocket(environment.getServerIp(), environment.getPort())));
         }
     }
 }

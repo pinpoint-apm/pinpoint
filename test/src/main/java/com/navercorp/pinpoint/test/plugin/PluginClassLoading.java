@@ -112,4 +112,11 @@ public final class PluginClassLoading {
             "tinylog-api",
             "tinylog-impl",
     };
+
+    public static final String[] TEST_MATCHES = new String[]{
+            "pinpoint-test", // pinpoint-test-{VERSION}.jar
+            Paths.get("test", "target", "classes").toString(),
+            "pinpoint-testcase",
+            Paths.get("testcase", "target", "classes").toString()
+    };
 }

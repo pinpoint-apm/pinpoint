@@ -85,6 +85,7 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
                     new TNonblockingServerSocket(environment.getPort())).processor(getAsyncProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
+            System.out.println("##TThreadedSelectorServer port=" + environment.getPort());
             return new AsyncEchoTestServer<TThreadedSelectorServer>(server, environment) {
                 @Override
                 public SyncEchoTestClient getSynchronousClient() throws Exception {
@@ -104,6 +105,7 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
                     new TNonblockingServerSocket(environment.getPort())).processor(getAsyncProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
+            System.out.println("##TNonblockingServer port=" + environment.getPort());
             return new AsyncEchoTestServer<TNonblockingServer>(server, environment) {
                 @Override
                 public SyncEchoTestClient getSynchronousClient() throws Exception {
@@ -123,6 +125,7 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
                     environment.getPort())).processor(getAsyncProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
+            System.out.println("##THsHaServer port=" + environment.getPort());
             return new AsyncEchoTestServer<THsHaServer>(server, environment) {
                 @Override
                 public SyncEchoTestClient getSynchronousClient() throws Exception {

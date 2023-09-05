@@ -55,6 +55,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
         this.environment = environment;
         this.transport = new TNonblockingSocket(this.environment.getServerIp(), this.environment.getPort());
         this.asyncClient = new EchoService.AsyncClient(this.environment.getProtocolFactory(), this.asyncClientManager, this.transport);
+        System.out.println("##AsyncEchoTestClient ip=" + environment.getServerIp() + ", port=" + environment.getPort());
     }
 
     @Override
