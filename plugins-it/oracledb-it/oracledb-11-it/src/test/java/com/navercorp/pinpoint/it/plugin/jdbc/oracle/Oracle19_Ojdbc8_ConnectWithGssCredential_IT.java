@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.oracle.database.jdbc:ojdbc8:[19,19.9)", PluginITConstants.VERSION, JDBCTestConstants.VERSION})
-@SharedDependency({"com.oracle.database.jdbc:ojdbc8:19.8.0.0", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
+@SharedDependency({"com.oracle.database.jdbc:ojdbc8:19.9.0.0", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
 @SharedTestLifeCycleClass(OracleServer19x.class)
 public class Oracle19_Ojdbc8_ConnectWithGssCredential_IT extends Oracle_IT_Base {
     private final Logger logger = LogManager.getLogger(Oracle19_Ojdbc8_ConnectWithGssCredential_IT.class);
