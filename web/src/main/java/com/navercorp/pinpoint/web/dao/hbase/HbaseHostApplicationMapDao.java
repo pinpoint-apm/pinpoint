@@ -24,18 +24,17 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
-import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.web.service.map.AcceptApplication;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-
+import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
+import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -63,16 +62,19 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final TableNameProvider tableNameProvider;
 
-    private final RowMapper<List<AcceptApplication>> hostApplicationMapperVer2;
+    private final RowMapper<List<AcceptApplication>> hostApplicationMapper;
 
     private final TimeSlot timeSlot;
 
     private final AbstractRowKeyDistributor acceptApplicationRowKeyDistributor;
 
-    public HbaseHostApplicationMapDao(HbaseOperations2 hbaseOperations2, TableNameProvider tableNameProvider, @Qualifier("hostApplicationMapperVer2") RowMapper<List<AcceptApplication>> hostApplicationMapperVer2, TimeSlot timeSlot, @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor acceptApplicationRowKeyDistributor) {
+    public HbaseHostApplicationMapDao(HbaseOperations2 hbaseOperations2,
+                                      TableNameProvider tableNameProvider,
+                                      @Qualifier("hostApplicationMapper") RowMapper<List<AcceptApplication>> hostApplicationMapper,
+                                      TimeSlot timeSlot, @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor acceptApplicationRowKeyDistributor) {
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.hostApplicationMapperVer2 = Objects.requireNonNull(hostApplicationMapperVer2, "hostApplicationMapperVer2");
+        this.hostApplicationMapper = Objects.requireNonNull(hostApplicationMapper, "hostApplicationMapper");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.acceptApplicationRowKeyDistributor = Objects.requireNonNull(acceptApplicationRowKeyDistributor, "acceptApplicationRowKeyDistributor");
     }
@@ -84,7 +86,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         final Scan scan = createScan(fromApplication, range);
 
         TableName hostApplicationMapTableName = tableNameProvider.getTableName(HbaseTable.HOST_APPLICATION_MAP_VER2);
-        final List<List<AcceptApplication>> result = hbaseOperations2.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
+        final List<List<AcceptApplication>> result = hbaseOperations2.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationMapper, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
         if (CollectionUtils.isNotEmpty(result)) {
             final Set<AcceptApplication> resultSet = new HashSet<>();
             for (List<AcceptApplication> resultList : result) {

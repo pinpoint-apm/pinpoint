@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConf
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.profile.StandardEnvironmentLogger;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
+import com.navercorp.pinpoint.web.applicationmap.config.ApplicationMapModule;
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.config.LogProperties;
@@ -43,6 +44,7 @@ import org.springframework.core.env.StandardEnvironment;
         ClusterConfigurationFactory.class,
         CacheConfiguration.class,
 
+        ApplicationMapModule.class,
         WebHbaseModule.class,
 
         InstallModule.class,
@@ -55,7 +57,7 @@ import org.springframework.core.env.StandardEnvironment;
         "com.navercorp.pinpoint.web.mapper",
         "com.navercorp.pinpoint.web.filter",
         "com.navercorp.pinpoint.web.view",
-        "com.navercorp.pinpoint.web.applicationmap",
+
 
         "com.navercorp.pinpoint.web.controller",
         "com.navercorp.pinpoint.web.util"

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.web.service.map.LinkSelectorType;
+import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
 import org.springframework.util.Assert;
 
 /**
