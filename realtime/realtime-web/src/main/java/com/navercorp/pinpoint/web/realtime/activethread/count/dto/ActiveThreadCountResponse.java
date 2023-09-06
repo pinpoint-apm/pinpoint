@@ -60,6 +60,10 @@ public class ActiveThreadCountResponse {
         putAgent(agentKey.getAgentId(), -1, message, List.of());
     }
 
+    public void putFailureAgent(ClusterKey agentKey, String message) {
+        putAgent(agentKey.getAgentId(), -1, message, List.of());
+    }
+
     private String decideMessage(ATCSupply supply, long connectUntil) {
         if (supply != null) {
             return supply.getMessage().getMessage();

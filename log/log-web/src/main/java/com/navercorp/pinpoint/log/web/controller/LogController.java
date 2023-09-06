@@ -16,19 +16,22 @@
 package com.navercorp.pinpoint.log.web.controller;
 
 import com.navercorp.pinpoint.log.vo.FileKey;
-import com.navercorp.pinpoint.log.vo.Log;
 import com.navercorp.pinpoint.log.web.service.LiveTailService;
 import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
 import com.navercorp.pinpoint.log.web.vo.LogHost;
-import com.navercorp.pinpoint.web.util.ListListUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
+import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -40,26 +43,36 @@ import java.util.Set;
 @RequestMapping("/log")
 public class LogController {
 
+    private final Logger logger = LogManager.getLogger(LogController.class);
+
     private final LiveTailService service;
 
     public LogController(LiveTailService service) {
         this.service = Objects.requireNonNull(service, "service");
     }
 
-    @GetMapping("hostGroups/{hostGroup}/hosts/{host}/files/{file}/recent")
-    public List<String> test(
-            @PathVariable("hostGroup") String hostGroupName,
-            @PathVariable("host") String hostName,
-            @PathVariable("file") String fileName,
-            @RequestParam("durationMillis") long durationMillis
+    @GetMapping("hostGroups/{hostGroup}/tail")
+    public ResponseEntity<SseEmitter> tailHostGroup(
+            @PathVariable("hostGroup") String hostGroupName
     ) {
-        return ListListUtils.toList(
-                this.service.tail(FileKey.of(hostGroupName, hostName, fileName))
-                        .take(Duration.ofMillis(durationMillis))
-                        .map(LogController::extractLogs)
-                        .collectList()
-                        .block()
-        );
+        return tailSse(FileKey.of(hostGroupName, null, null));
+    }
+
+    @GetMapping("hostGroups/{hostGroup}/hosts/{hostName}/tail")
+    public ResponseEntity<SseEmitter> tailHostGroup(
+            @PathVariable("hostGroup") String hostGroupName,
+            @PathVariable("hostName") String hostName
+    ) {
+        return tailSse(FileKey.of(hostGroupName, hostName, null));
+    }
+
+    @GetMapping("hostGroups/{hostGroup}/hosts/{hostName}/files/{fileName}/tail")
+    public ResponseEntity<SseEmitter> tailHostGroup(
+            @PathVariable("hostGroup") String hostGroupName,
+            @PathVariable("hostName") String hostName,
+            @PathVariable("fileName") String fileName
+    ) {
+        return tailSse(FileKey.of(hostGroupName, hostName, fileName));
     }
 
     @GetMapping("hostGroups")
@@ -72,14 +85,36 @@ public class LogController {
         return LogHost.from(this.service.getFileKeys(hostGroupName));
     }
 
-    private static List<String> extractLogs(List<LiveTailBatch> batches) {
-        List<String> result = new ArrayList<>(32);
-        for (LiveTailBatch batch: batches) {
-            for (Log log: batch.getLogs()) {
-                result.add(log.getLog());
-            }
+    private ResponseEntity<SseEmitter> tailSse(FileKey fileKey) {
+        Flux<List<LiveTailBatch>> tail = this.service.tail(fileKey);
+        if (tail == null) {
+            return ResponseEntity.notFound().build();
         }
-        return result;
+
+        Duration duration = Duration.ofSeconds(30);
+        SseEmitter emitter = new SseEmitter(duration.toMillis());
+
+        try {
+            emitter.send(SseEmitter.event().comment("key found"));
+        } catch (IOException e) {
+            logger.error("Failed to send first comment", e);
+            return ResponseEntity.internalServerError().build();
+        }
+
+        tail
+                .take(duration)
+                .subscribe(batch -> {
+                    try {
+                        emitter.send(SseEmitter.event()
+                                .reconnectTime(duration.toMillis())
+                                .name("tail-batch")
+                                .data(batch, MediaType.APPLICATION_JSON));
+                    } catch (IOException e) {
+                        logger.error("Failed to send tail batch", e);
+                        throw new RuntimeException(e);
+                    }
+                });
+        return ResponseEntity.ok(emitter);
     }
 
 }

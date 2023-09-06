@@ -32,11 +32,10 @@ public interface AgentCommandService {
      * If the agent is not found, return null.
      * @param clusterKey the cluster key of agent
      * @param command command
-     * @param durationMillis the request is closed internally after the duration
      * @return Flux of response from agent
      */
     @Nullable
-    Flux<GeneratedMessageV3> requestStream(ClusterKey clusterKey, GeneratedMessageV3 command, long durationMillis);
+    Flux<GeneratedMessageV3> requestStream(ClusterKey clusterKey, GeneratedMessageV3 command);
 
     /**
      * Find an active agent which has the cluster key and send the command to the agent.

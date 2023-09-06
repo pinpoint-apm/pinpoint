@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.serde.JacksonSerde;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
-import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.serializer.Serializer;
@@ -78,7 +77,7 @@ public class RedisActiveThreadCountWebSocketHandler {
         private final ActiveThreadCountService atcService;
         private final Serializer<ActiveThreadCountResponse> responseSerializer;
         private String applicationName;
-        private ActiveThreadCountSession atcSession;
+        private Disposable disposable;
 
         private final Object lock = new Object();
 
@@ -134,27 +133,21 @@ public class RedisActiveThreadCountWebSocketHandler {
         private void start0(String applicationName) {
             try {
                 this.applicationName = applicationName;
-                this.atcSession = buildATCSession(applicationName);
+                this.disposable = this.atcService.getResponses(applicationName).subscribe(this::sendMessage);
             } catch (Exception e) {
                 logger.error("Failed to start atc session");
                 throw new RuntimeException(e);
             }
         }
 
-        private ActiveThreadCountSession buildATCSession(String applicationName) throws Exception {
-            ActiveThreadCountSession atcSession = this.atcService.getSession(applicationName);
-            atcSession.start().subscribe(this::sendMessage);
-            return atcSession;
-        }
-
         @Override
         public void dispose() {
             synchronized (lock) {
-                if (this.atcSession != null) {
-                    this.atcSession.dispose();
+                if (this.disposable != null) {
+                    this.disposable.dispose();
                 }
                 this.applicationName = null;
-                this.atcSession = null;
+                this.disposable = null;
             }
         }
 

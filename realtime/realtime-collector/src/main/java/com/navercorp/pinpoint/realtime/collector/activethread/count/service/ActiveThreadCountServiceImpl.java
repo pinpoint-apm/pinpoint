@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.realtime.dto.ATCDemand;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,12 +54,13 @@ class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         final ClusterKey clusterKey =
                 new ClusterKey(demand.getApplicationName(), demand.getAgentId(), demand.getStartTimestamp());
 
-        final Flux<GeneratedMessageV3> resFlux = commandService.requestStream(clusterKey, command, this.demandDurationMillis);
+        final Flux<GeneratedMessageV3> resFlux = commandService.requestStream(clusterKey, command);
         if (resFlux == null) {
             return null;
         }
 
         final Flux<ATCSupply> supplyFlux = resFlux
+                .take(Duration.ofMillis(this.demandDurationMillis))
                 .mapNotNull(ActiveThreadCountServiceImpl::deserialize)
                 .mapNotNull(values -> this.supplyFactory.build(clusterKey, values));
 

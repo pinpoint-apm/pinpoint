@@ -30,7 +30,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 /**
@@ -54,7 +53,7 @@ public class ActiveThreadCountServiceTest {
                 .addAllActiveThreadCount(List.of(0, 0, 0, 1))
                 .setTimeStamp(4567)
                 .build();
-        when(agentCommandService.requestStream(any(), any(), anyLong())).thenReturn(Flux.just(res, res, res, res));
+        when(agentCommandService.requestStream(any(), any())).thenReturn(Flux.just(res, res, res, res));
     }
 
     @Test
