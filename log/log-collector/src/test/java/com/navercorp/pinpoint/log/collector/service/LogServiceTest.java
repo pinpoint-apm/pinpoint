@@ -22,11 +22,10 @@ import com.navercorp.pinpoint.log.vo.Log;
 import com.navercorp.pinpoint.log.vo.LogPile;
 import org.junit.jupiter.api.Test;
 import reactor.core.Disposable;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,10 +38,9 @@ public class LogServiceTest {
     public void test() throws Exception {
         LogAcceptorRepository acceptorRepository = new LogAcceptorRepository();
         LogConsumerRepository consumerRepository = new LogConsumerRepository();
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         LogConsumerService consumerService =
-                new LogConsumerServiceImpl(scheduler, acceptorRepository, consumerRepository);
+                new LogConsumerServiceImpl(Schedulers.boundedElastic(), acceptorRepository, consumerRepository);
         LogProviderService providerService =
                 new LogProviderServiceImpl(acceptorRepository, consumerRepository);
 
@@ -56,8 +54,7 @@ public class LogServiceTest {
         });
 
         assertThat(consumerService.getFileKeys()).hasSameElementsAs(List.of(fileKey));
-        assertThat(consumerService.tail(fileKey, Duration.ofSeconds(99999))
-                .take(Duration.ofMillis(100))
+        assertThat(consumerService.tail(fileKey, Duration.ofMillis(10))
                 .collectList()
                 .block()
         ).hasSize(1).hasSameElementsAs(List.of(pile1));
@@ -65,8 +62,7 @@ public class LogServiceTest {
         providerDisposable.dispose();
 
         assertThat(consumerService.getFileKeys()).isNotNull().isEmpty();
-        assertThat(consumerService.tail(fileKey, Duration.ofMillis(1))
-                .take(Duration.ofMillis(100))
+        assertThat(consumerService.tail(fileKey, Duration.ofMillis(10))
                 .collectList()
                 .block()
         ).isNotNull().isEmpty();

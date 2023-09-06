@@ -35,8 +35,6 @@ public class ActiveThreadCountWebServiceConfig {
 
     @Value("${pinpoint.web.realtime.atc.periods.emit:PT1S}")
     Duration periodEmit;
-    @Value("${pinpoint.web.realtime.atc.periods.refresh:PT10S}")
-    Duration periodRefresh;
     @Value("${pinpoint.web.realtime.atc.periods.update:PT30S}")
     Duration periodUpdate;
 
@@ -49,8 +47,8 @@ public class ActiveThreadCountWebServiceConfig {
     }
 
     @Bean
-    ActiveThreadCountSessionImpl.ATCPeriods atcPeriods() {
-        return new ActiveThreadCountSessionImpl.ATCPeriods(periodEmit, periodRefresh, periodUpdate);
+    ActiveThreadCountService.ATCPeriods atcPeriods() {
+        return new ActiveThreadCountService.ATCPeriods(periodEmit, periodUpdate);
     }
 
 }

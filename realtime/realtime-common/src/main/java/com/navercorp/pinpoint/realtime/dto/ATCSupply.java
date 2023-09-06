@@ -108,6 +108,7 @@ public class ATCSupply {
     public enum Message {
         OK("OK"),
         CONNECTED("CONNECTED"),
+        NO_RESPONSE("NO RESPONSE"),
         WEB_ERROR("WEB ERROR");
 
         private final String message;

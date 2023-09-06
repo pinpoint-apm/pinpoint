@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.log.dto.LogDemand;
 import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.vo.LogPile;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author youngjin.kim2
@@ -50,33 +50,26 @@ class LogProviderServiceImpl implements LogProviderService {
 
     @Override
     public Flux<LogDemand> getDemands(FileKey fileKey) {
-        Sinks.Many<LogDemand> sink = Sinks.many().replay().all();
-        LogDemandAcceptor acceptor = new LogDemanderAcceptorImpl(fileKey, sink);
-        registerDemandAcceptor(acceptor);
-        return sink.asFlux().doFinally(t -> unregisterDemandAcceptor(acceptor));
-    }
-
-    private void registerDemandAcceptor(LogDemandAcceptor acceptor) {
-        this.acceptorRepository.addAcceptor(acceptor);
-    }
-
-    private void unregisterDemandAcceptor(LogDemandAcceptor acceptor) {
-        this.acceptorRepository.removeAcceptor(acceptor);
+        return Flux.create(sink -> {
+            LogDemandAcceptor acceptor = new LogDemanderAcceptorImpl(fileKey, sink::next);
+            this.acceptorRepository.addAcceptor(acceptor);
+            sink.onDispose(() -> this.acceptorRepository.removeAcceptor(acceptor));
+        });
     }
 
     private static class LogDemanderAcceptorImpl implements LogDemandAcceptor {
 
         private final FileKey fileKey;
-        private final Sinks.Many<LogDemand> sink;
+        private final Consumer<LogDemand> sink;
 
-        public LogDemanderAcceptorImpl(FileKey fileKey, Sinks.Many<LogDemand> sink) {
+        public LogDemanderAcceptorImpl(FileKey fileKey, Consumer<LogDemand> sink) {
             this.fileKey = fileKey;
             this.sink = sink;
         }
 
         @Override
         public void accept(LogDemand demand) {
-            this.sink.emitNext(demand, Sinks.EmitFailureHandler.FAIL_FAST);
+            this.sink.accept(demand);
         }
 
         @Override
@@ -86,7 +79,7 @@ class LogProviderServiceImpl implements LogProviderService {
 
         @Override
         public boolean isAvailable() {
-            return this.sink.currentSubscriberCount() > 0;
+            return true;
         }
 
     }

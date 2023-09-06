@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.log.web.service;
 
 import com.navercorp.pinpoint.log.vo.FileKey;
+import com.navercorp.pinpoint.log.vo.HostKey;
 import com.navercorp.pinpoint.log.vo.LogPile;
 import com.navercorp.pinpoint.log.web.dao.LiveTailDao;
 import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
@@ -45,7 +46,12 @@ public class LiveTailServiceImpl implements LiveTailService {
 
     @Override
     public Flux<List<LiveTailBatch>> tail(FileKey fileKey) {
-        return this.tail0(this.getAugmentedFileKeys(fileKey))
+        List<FileKey> fileKeys = this.getAugmentedFileKeys(fileKey);
+        if (fileKeys.isEmpty()) {
+            return null;
+        }
+
+        return this.tail0(fileKeys)
                 .window(Duration.ofMillis(200))
                 .flatMap(window -> window
                         .groupBy(el -> el.getSource().toString())
@@ -91,15 +97,11 @@ public class LiveTailServiceImpl implements LiveTailService {
     }
 
     private List<FileKey> getAugmentedFileKeys(FileKey fileKey) {
-        Objects.requireNonNull(fileKey.getHostKey(), "HostKey is required");
+        HostKey hostKey = Objects.requireNonNull(fileKey.getHostKey(), "HostKey");
 
-        String hostGroupName = Objects.requireNonNull(fileKey.getHostKey().getHostGroupName(), "HostKey is required");
-        String hostName = fileKey.getHostKey().getHostName();
+        String hostGroupName = Objects.requireNonNull(hostKey.getHostGroupName(), "HostGroupName");
+        String hostName = hostKey.getHostName();
         String fileName = fileKey.getFileName();
-
-        if (hostName != null && fileName != null) {
-            return List.of(fileKey);
-        }
 
         List<FileKey> children = getFileKeys(hostGroupName);
         List<FileKey> result = new ArrayList<>(children.size());

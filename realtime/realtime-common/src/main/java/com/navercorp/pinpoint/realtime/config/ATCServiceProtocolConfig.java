@@ -54,11 +54,11 @@ public class ATCServiceProtocolConfig {
                 .setSupplySerde(JacksonSerde.byParameterized(objectMapper, SupplyMessage.class, ATCSupply.class))
                 .setSupplyChannelURIProvider(
                         demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atc:" + demand.getId().getValue()))
-                .setDemandInterval(Duration.ZERO)
+                .setDemandInterval(Duration.ofSeconds(10))
                 .setBufferSize(4)
                 .setFailureHandlerEmitError(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
                 .setFailureHandlerEmitComplete(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
-                .setChannelStateFn(supply -> supply.isTerminated() ? ChannelState.TERMINATED : ChannelState.ALIVE)
+                .setChannelStateFn(supply -> ChannelState.ALIVE)
                 .buildFlux();
     }
 
@@ -69,14 +69,17 @@ public class ATCServiceProtocolConfig {
                 .setDemandPubChannelURIProvider(demand -> URI.create(RedisPubSubConstants.SCHEME + ":demand:atc-2"))
                 .setDemandSubChannelURI(URI.create(RedisPubSubConstants.SCHEME + ":demand:atc-2"))
                 .setSupplySerde(JacksonSerde.byClass(objectMapper, ATCSupply.class))
-                .setSupplyChannelURIProvider(
-                        demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atc-2:" + demand.getId()))
+                .setSupplyChannelURIProvider(ATCServiceProtocolConfig::getATCSupplyChannelURI)
                 .setDemandInterval(Duration.ofSeconds(5))
                 .setBufferSize(4)
                 .setFailureHandlerEmitError(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
                 .setFailureHandlerEmitComplete(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
                 .setChannelStateFn(supply -> ChannelState.ALIVE)
                 .buildFlux();
+    }
+
+    private static URI getATCSupplyChannelURI(ATCDemand demand) {
+        return URI.create(RedisPubSubConstants.SCHEME + ":supply:atc-2:" + demand.getApplicationName() + ':' + demand.getAgentId() + ':' + demand.getStartTimestamp());
     }
 
 }

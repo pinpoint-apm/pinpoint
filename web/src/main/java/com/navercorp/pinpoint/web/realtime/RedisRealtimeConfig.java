@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountServiceImpl;
-import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountSessionImpl;
 import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.RedisActiveThreadCountWebSocketHandler;
 import com.navercorp.pinpoint.web.realtime.activethread.dump.RedisActiveThreadDumpService;
 import com.navercorp.pinpoint.web.realtime.echo.RedisEchoService;
@@ -74,16 +73,17 @@ public class RedisRealtimeConfig {
             ActiveThreadCountDao atcDao,
             AgentLookupService agentLookupService,
             @Qualifier("pubSubATCSessionScheduledExecutor") ScheduledExecutorService scheduledExecutor,
-            ActiveThreadCountSessionImpl.ATCPeriods atcPeriods,
+            ActiveThreadCountService.ATCPeriods atcPeriods,
             @Autowired(required = false) @Nullable TimerTaskDecoratorFactory timerTaskDecoratorFactory
     ) {
         return new ActiveThreadCountServiceImpl(
                 atcDao,
                 agentLookupService,
-                scheduledExecutor,
-                atcPeriods,
                 Objects.requireNonNullElseGet(timerTaskDecoratorFactory,
-                        () -> new PinpointWebSocketTimerTaskDecoratorFactory())
+                        () -> new PinpointWebSocketTimerTaskDecoratorFactory()),
+                scheduledExecutor,
+                atcPeriods.getPeriodEmit(),
+                atcPeriods.getPeriodUpdate()
         );
     }
 

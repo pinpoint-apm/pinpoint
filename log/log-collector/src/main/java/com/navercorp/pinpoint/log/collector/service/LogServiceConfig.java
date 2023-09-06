@@ -15,29 +15,17 @@
  */
 package com.navercorp.pinpoint.log.collector.service;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.navercorp.pinpoint.log.collector.repository.LogAcceptorRepository;
 import com.navercorp.pinpoint.log.collector.repository.LogConsumerRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author youngjin.kim2
  */
 @Configuration
 public class LogServiceConfig {
-
-    @Bean("logConsumerExpiringScheduler")
-    ScheduledExecutorService logConsumerExpiringScheduler() {
-        return Executors.newScheduledThreadPool(
-                Runtime.getRuntime().availableProcessors(),
-                new ThreadFactoryBuilder().setNameFormat("log-dao-scheduler-%d").build()
-        );
-    }
 
     @Bean
     LogAcceptorRepository logAcceptorRepository() {
@@ -51,11 +39,10 @@ public class LogServiceConfig {
 
     @Bean
     LogConsumerService logConsumerService(
-            @Qualifier("logConsumerExpiringScheduler") ScheduledExecutorService scheduler,
             LogAcceptorRepository acceptorRepository,
             LogConsumerRepository consumerRepository
     ) {
-        return new LogConsumerServiceImpl(scheduler, acceptorRepository, consumerRepository);
+        return new LogConsumerServiceImpl(Schedulers.parallel(), acceptorRepository, consumerRepository);
     }
 
     @Bean

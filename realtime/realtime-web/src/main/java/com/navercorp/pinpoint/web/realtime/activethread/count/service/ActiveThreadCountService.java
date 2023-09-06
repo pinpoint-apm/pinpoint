@@ -15,11 +15,34 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count.service;
 
+import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
+import reactor.core.publisher.Flux;
+
+import java.time.Duration;
+
 /**
  * @author youngjin.kim2
  */
 public interface ActiveThreadCountService {
 
-    ActiveThreadCountSession getSession(String applicationName) throws Exception;
+    Flux<ActiveThreadCountResponse> getResponses(String applicationName) throws Exception;
+
+    class ATCPeriods {
+        private final Duration periodEmit;
+        private final Duration periodUpdate;
+
+        public ATCPeriods(Duration periodEmit, Duration periodUpdate) {
+            this.periodEmit = periodEmit;
+            this.periodUpdate = periodUpdate;
+        }
+
+        public Duration getPeriodEmit() {
+            return periodEmit;
+        }
+        public Duration getPeriodUpdate() {
+            return periodUpdate;
+        }
+
+    }
 
 }

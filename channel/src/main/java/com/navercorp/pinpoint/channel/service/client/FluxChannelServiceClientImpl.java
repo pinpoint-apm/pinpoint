@@ -22,9 +22,11 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.concurrent.Queues;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Queue;
 
 /**
  * @author youngjin.kim2
@@ -52,7 +54,7 @@ class FluxChannelServiceClientImpl<D, S>
         try {
             byte[] rawDemand = getProtocol().serializeDemand(demand);
 
-            Sinks.Many<S> sink = Sinks.many().multicast().onBackpressureBuffer(this.protocol.getBufferSize());
+            Sinks.Many<S> sink = getSink(this.protocol.getBufferSize());
             Subscription supplySubscription = subscribe(
                     demand,
                     e -> sink.emitNext(e, this.protocol.getFailureHandlerEmitNext()),
@@ -71,6 +73,11 @@ class FluxChannelServiceClientImpl<D, S>
         } catch (Exception e) {
             throw new RuntimeException("Failed to request", e);
         }
+    }
+
+    private static <S> Sinks.Many<S> getSink(int bufferSize) {
+        Queue<S> queue = Queues.<S>get(bufferSize).get();
+        return Sinks.many().unicast().onBackpressureBuffer(queue);
     }
 
     private Disposable scheduleDemandPeriodically(byte[] rawDemand, PubChannel demandPubChannel) {

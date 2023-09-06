@@ -23,27 +23,26 @@ import com.navercorp.pinpoint.log.dto.LogDemand;
 import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.vo.LogPile;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
+import reactor.core.scheduler.Scheduler;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * @author youngjin.kim2
  */
 class LogConsumerServiceImpl implements LogConsumerService {
 
-    private final ScheduledExecutorService scheduler;
+    private final Scheduler scheduler;
 
     private final LogAcceptorRepository acceptorRepository;
     private final LogConsumerRepository consumerRepository;
 
     LogConsumerServiceImpl(
-            ScheduledExecutorService scheduler,
+            Scheduler scheduler,
             LogAcceptorRepository acceptorRepository,
             LogConsumerRepository consumerRepository
     ) {
@@ -54,26 +53,17 @@ class LogConsumerServiceImpl implements LogConsumerService {
 
     @Override
     public Flux<LogPile> tail(FileKey key, Duration duration) {
-        Flux<LogPile> piles = listen(key, duration);
-        request(key, duration);
-        return piles;
+        return Flux.<LogPile>create(sink -> {
+            LogConsumerImpl consumer = new LogConsumerImpl(key, sink::next);
+            this.consumerRepository.addConsumer(consumer);
+            request(key, duration);
+            sink.onDispose(() -> this.consumerRepository.removeConsumer(consumer));
+        }).take(duration, this.scheduler);
     }
 
     @Override
     public List<FileKey> getFileKeys() {
         return new ArrayList<>(this.acceptorRepository.getAcceptableKeys());
-    }
-
-    private Flux<LogPile> listen(FileKey key, Duration duration) {
-        Sinks.Many<LogPile> sink = Sinks.many().replay().all();
-        LogConsumer logConsumer = new LogConsumerImpl(key, sink);
-        this.consumerRepository.addConsumer(logConsumer);
-        schedule(() -> this.consumerRepository.removeConsumer(logConsumer), duration);
-        return sink.asFlux().doFinally(t -> this.consumerRepository.removeConsumer(logConsumer));
-    }
-
-    private void schedule(Runnable r, Duration delay) {
-        this.scheduler.schedule(r, delay.toNanos(), TimeUnit.NANOSECONDS);
     }
 
     private void request(FileKey key, Duration duration) {
@@ -86,22 +76,23 @@ class LogConsumerServiceImpl implements LogConsumerService {
     private static class LogConsumerImpl implements LogConsumer {
 
         private final FileKey fileKey;
-        private final Sinks.Many<LogPile> sink;
+        private final Consumer<LogPile> sink;
 
-        public LogConsumerImpl(FileKey fileKey, Sinks.Many<LogPile> sink) {
+        public LogConsumerImpl(FileKey fileKey, Consumer<LogPile> sink) {
             this.fileKey = fileKey;
             this.sink = sink;
         }
 
         @Override
         public void consume(LogPile pile) {
-            this.sink.emitNext(pile, Sinks.EmitFailureHandler.FAIL_FAST);
+            this.sink.accept(pile);
         }
 
         @Override
         public FileKey getFileKey() {
             return this.fileKey;
         }
+
     }
 
 }
