@@ -3,10 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>
     <bean class="com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory"/>
-
-    <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
 
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
     </bean>
@@ -34,10 +31,6 @@
                 <ref bean="agentEventHeaderTBaseDeserializerFactory"/>
             </list>
         </constructor-arg>
-    </bean>
-
-    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
-        <constructor-arg ref="typeLoaderService"/>
     </bean>
 
     <bean id="apiParserProvider" class="com.navercorp.pinpoint.common.server.trace.ApiParserProvider">
