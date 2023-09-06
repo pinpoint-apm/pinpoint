@@ -1,9 +1,11 @@
 package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Result;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -24,11 +26,11 @@ public class DataSizeUtils {
     }
 
     public static int sizeOfMutation(Mutation mutation) {
-        return mutation.getRow().length + sumOfFamilyCellMap(mutation.getFamilyCellMap());
+        return ArrayUtils.getLength(mutation.getRow()) + sumOfFamilyCellMap(mutation.getFamilyCellMap());
     }
 
     public static int sizeOfResult(Result result) {
-        return result.getRow().length + sumOfResultFamilyMap(result.getNoVersionMap());
+        return ArrayUtils.getLength(result.getRow()) + sumOfResultFamilyMap(result.getNoVersionMap());
     }
 
     public static int sumOfFamilyCellMap(NavigableMap<byte[], List<Cell>> map) {
@@ -37,7 +39,7 @@ public class DataSizeUtils {
         }
         int sizeInByte = 0;
         for (Map.Entry<byte[], List<Cell>> e : map.entrySet()) {
-            sizeInByte += e.getKey().length;
+            sizeInByte += ArrayUtils.getLength(e.getKey());
             for (Cell cell : e.getValue()) {
                 sizeInByte += lengthOfCell(cell);
             }
@@ -48,10 +50,10 @@ public class DataSizeUtils {
     public static int sumOfResultFamilyMap(NavigableMap<byte[], NavigableMap<byte[], byte[]>> map) {
         int sizeInByte = 0;
         for (Map.Entry<byte[], NavigableMap<byte[], byte[]>> familyToRest : map.entrySet()) {
-            sizeInByte += familyToRest.getKey().length;
+            sizeInByte += ArrayUtils.getLength(familyToRest.getKey());
             for (Map.Entry<byte[], byte[]> qualifierToValue : familyToRest.getValue().entrySet()) {
-                sizeInByte += qualifierToValue.getKey().length;
-                sizeInByte += qualifierToValue.getValue().length;
+                sizeInByte += ArrayUtils.getLength(qualifierToValue.getKey());
+                sizeInByte += ArrayUtils.getLength(qualifierToValue.getValue());
             }
         }
         return sizeInByte;
