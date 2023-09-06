@@ -17,9 +17,15 @@
 
 package com.navercorp.pinpoint.web.component.config;
 
+import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
+import com.navercorp.pinpoint.web.vo.RangeFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,5 +36,21 @@ public class ComponentConfiguration {
     public ApplicationFactory applicationFactory(ServiceTypeRegistryService registry) {
         return new DefaultApplicationFactory(registry);
     }
+
+    @Bean
+    public AnnotationKeyRegistryService annotationKeyRegistryService(TraceMetadataLoaderService typeLoaderService) {
+        return new DefaultAnnotationKeyRegistryService(typeLoaderService);
+    }
+
+    @Bean
+    public RangeFactory rangeFactory(TimeSlot timeSlot) {
+        return new RangeFactory(timeSlot);
+    }
+
+    @Bean
+    public TimeSlot timeSlot() {
+        return new DefaultTimeSlot();
+    }
+
 
 }

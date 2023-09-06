@@ -14,15 +14,6 @@
     </context:component-scan>
 
 
-    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
-        <constructor-arg ref="typeLoaderService"/>
-    </bean>
-
-    <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
-
-    <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>
-
-
     <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory" factory-method="getDefaultInstance">
     </bean>
     <bean id="agentEventHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory">
