@@ -37,7 +37,7 @@ public abstract class AbstractLoggerAdapter {
         BEFORE, AFTER
     }
 
-    private static Object EXIST = new Object();
+    private static final Object EXIST = new Object();
 
     private static final Map<Class<?>, Object> SIMPLE_TYPE = prepare();
 
@@ -70,16 +70,12 @@ public abstract class AbstractLoggerAdapter {
         put(map, URL.class);
         put(map, Object.class);
 
-        if (SqlModule.isSqlModuleEnable()) {
-            addSqlModuleSupport(map);
-        }
+        addSqlModuleSupport(map);
         return map;
     }
 
     private static void addSqlModuleSupport(Map<Class<?>, Object> map) {
-        put(map, SqlModule.getSqlDate());
-        put(map, SqlModule.getSqlTime());
-        put(map, SqlModule.getSqlTimestamp());
+        SqlModule.register(clazz -> put(map, clazz));
     }
 
     private static void put(Map<Class<?>, Object> map, Class<?> key) {
@@ -165,10 +161,7 @@ public abstract class AbstractLoggerAdapter {
 
     static boolean isSimpleType(Object arg) {
         final Object find = SIMPLE_TYPE.get(arg.getClass());
-        if (find == null) {
-            return false;
-        }
-        return true;
+        return find != null;
     }
 
     static String getSimpleName(final Class<?> clazz) {
@@ -177,10 +170,6 @@ public abstract class AbstractLoggerAdapter {
         }
 
         final String simpleName = clazz.getName();
-        if (simpleName == null) {
-            // Defense
-            return "";
-        }
 
         final int lastPackagePosition = simpleName.lastIndexOf('.');
         if (lastPackagePosition != -1) {

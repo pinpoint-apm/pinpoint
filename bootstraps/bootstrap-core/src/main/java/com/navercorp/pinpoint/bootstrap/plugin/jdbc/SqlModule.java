@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.util.PlatformClassLoaderUtils;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 
+import java.util.function.Consumer;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -112,4 +114,11 @@ public final class SqlModule {
         return clazz;
     }
 
+    public static void register(Consumer<Class<?>> consumer) {
+        if (SQL_MODULE) {
+            consumer.accept(SqlModule.getSqlDate());
+            consumer.accept(SqlModule.getSqlTime());
+            consumer.accept(SqlModule.getSqlTimestamp());
+        }
+    }
 }
