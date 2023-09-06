@@ -61,8 +61,8 @@
         <constructor-arg ref="metadataRowKeyDistributor2"/>
     </bean>
 
-    <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
-        <constructor-arg index="0" value="true"/>
+    <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.HttpIntentRoutingFilter">
+        <constructor-arg index="0" value="/index.html" />
     </bean>
     <bean id="additionalServletRegistrationBeanFactory" class="com.navercorp.pinpoint.web.servlet.AdditionalServletRegistrationBeanFactory" />
     <bean id="apiServletRegistrationBean" factory-bean="additionalServletRegistrationBeanFactory" factory-method="addRegistration">

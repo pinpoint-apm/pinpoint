@@ -29,14 +29,14 @@ import java.io.IOException;
 /**
  * @author Taejin Koo
  */
-public class RewriteForV2FilterTest {
+public class HttpIntentRoutingFilterTest {
 
     public static final String ADMIN_REWRITE_TARGET = "/auth";
 
     @Test
     public void rewriteTest() {
         Assertions.assertThrows(NullPointerException.class, () -> {
-            RewriteForV2Filter rewriteForV2Filter = new RewriteForV2Filter(true);
+            HttpIntentRoutingFilter httpIntentRoutingFilter = new HttpIntentRoutingFilter("/index.html");
 
             HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
             Mockito.when(servletRequest.getRequestURI()).thenReturn(ADMIN_REWRITE_TARGET);
@@ -44,13 +44,13 @@ public class RewriteForV2FilterTest {
             ServletResponse servletResponse = Mockito.mock(ServletResponse.class);
             FilterChain filterChain = Mockito.mock(FilterChain.class);
 
-            rewriteForV2Filter.doFilter(servletRequest, servletResponse, filterChain);
+            httpIntentRoutingFilter.doFilter(servletRequest, servletResponse, filterChain);
         });
     }
 
     @Test
     public void restApiWithRewritePathTest() throws IOException, ServletException {
-        RewriteForV2Filter rewriteForV2Filter = new RewriteForV2Filter(true);
+        HttpIntentRoutingFilter httpIntentRoutingFilter = new HttpIntentRoutingFilter("/index.html");
 
         HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
         Mockito.when(servletRequest.getRequestURI()).thenReturn("/api" + ADMIN_REWRITE_TARGET + "/removeApplicationName");
@@ -58,7 +58,7 @@ public class RewriteForV2FilterTest {
         ServletResponse servletResponse = Mockito.mock(ServletResponse.class);
         FilterChain filterChain = Mockito.mock(FilterChain.class);
 
-        rewriteForV2Filter.doFilter(servletRequest, servletResponse, filterChain);
+        httpIntentRoutingFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         Mockito.verify(filterChain).doFilter(Mockito.any(), Mockito.any());
     }
