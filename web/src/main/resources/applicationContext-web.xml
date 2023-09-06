@@ -61,44 +61,6 @@
         <constructor-arg ref="metadataRowKeyDistributor2"/>
     </bean>
 
-    <bean id="requestContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator"/>
-    <bean id="securityContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator"/>
-    <bean id="contextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.ChainedTaskDecorator">
-        <constructor-arg>
-            <list>
-                <ref bean="requestContextPropagatingTaskDecorator"/>
-                <ref bean="securityContextPropagatingTaskDecorator"/>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean id="baseTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" abstract="true">
-        <property name="taskDecorator" ref="contextPropagatingTaskDecorator"/>
-        <property name="daemon" value="true"/>
-        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
-        <property name="awaitTerminationSeconds" value="10"/>
-    </bean>
-
-    <bean id="applicationsMapCreateExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="corePoolSize" value="${web.servermap.creator.worker.threadSize:16}"/>
-        <property name="maxPoolSize" value="${web.servermap.creator.worker.threadSize:16}"/>
-        <property name="queueCapacity" value="${web.servermap.creator.worker.queueSize:1024}"/>
-        <property name="threadNamePrefix" value="Pinpoint-Link-Selector-"/>
-    </bean>
-
-    <bean id="nodeHistogramAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="corePoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
-        <property name="maxPoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
-        <property name="queueCapacity" value="${web.servermap.appender.worker.queueSize:1024}"/>
-        <property name="threadNamePrefix" value="Pinpoint-Node-Histogram-Appender-"/>
-    </bean>
-
-    <bean id="serverInfoAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="corePoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
-        <property name="maxPoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
-        <property name="queueCapacity" value="${web.servermap.appender.worker.queueSize:1024}"/>
-        <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
-    </bean>
     <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
         <constructor-arg index="0" value="true"/>
     </bean>

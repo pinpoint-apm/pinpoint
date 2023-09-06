@@ -16,21 +16,17 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
  * @author HyunGil Jeong
  */
-@Component
 public class ServerInfoAppenderFactory {
 
     private final Executor executor;
 
-    public ServerInfoAppenderFactory(@Qualifier("serverInfoAppendExecutor") Executor executor) {
+    public ServerInfoAppenderFactory(Executor executor) {
         this.executor = Objects.requireNonNull(executor, "executor");
     }
 

@@ -16,16 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.springframework.stereotype.Component;
 
 
 /**
  * @author HyunGil Jeong
  */
-@Component
 public class ApplicationMapBuilderFactory {
 
     private final NodeHistogramAppenderFactory nodeHistogramAppenderFactory;
