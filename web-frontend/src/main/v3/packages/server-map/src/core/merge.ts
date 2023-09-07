@@ -219,6 +219,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
             {
               id,
               imgPath,
+              type,
               label: `total: ${targetIds.length}`,
               nodes: toMergeNodes,
             },
@@ -264,6 +265,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
             {
               id,
               imgPath,
+              type,
               label: `total: ${targetIds.length}`,
               nodes: toMergeNodes,
             },
