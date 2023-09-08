@@ -51,12 +51,22 @@ public class PostfixServerMatcher implements ServerMatcher {
         }
         
         String hostName = value.substring(0, index);
-        return url + hostName;
+        return String.format(url, hostName);
     }
 
 
     @Override
     public HyperLink getLinkInfo(String value) {
         return new HyperLink(linkName, getLink(value), linkType);
+    }
+
+    @Override
+    public String toString() {
+        return "PostfixServerMatcher{" +
+                "postfix='" + postfix + '\'' +
+                ", url='" + url + '\'' +
+                ", linkName='" + linkName + '\'' +
+                ", linkType=" + linkType +
+                '}';
     }
 }

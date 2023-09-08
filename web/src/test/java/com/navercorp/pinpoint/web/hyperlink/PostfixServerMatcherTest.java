@@ -30,15 +30,15 @@ public class PostfixServerMatcherTest {
 
     @Test
     public void test() {
-        String url = "http://naver.com/";
+        String url = "http://naver.com/%s";
         String postfix = ".seoul.idc";
         PostfixServerMatcher matcher = new PostfixServerMatcher(postfix, url, "NAVER", LinkType.ATAG);
         
         String serverName = "naverServer01";
         assertTrue(matcher.isMatched(serverName + postfix));
         assertFalse(matcher.isMatched("naverserver" + "busan.idc"));
-        
-        assertEquals(url + serverName, matcher.getLinkInfo(serverName + postfix).getLinkUrl());
+
+        assertEquals(String.format(url, serverName), matcher.getLinkInfo(serverName + postfix).getLinkUrl());
     }
 
 }

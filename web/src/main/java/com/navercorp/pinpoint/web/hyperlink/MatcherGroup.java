@@ -24,12 +24,16 @@ import java.util.Objects;
  * @author emeroad
  * @author minwoo.jung
  */
-public abstract class MatcherGroup {
+public class MatcherGroup {
 
-    final List<ServerMatcher> serverMatcherList = new ArrayList<>();
-    ServerMatcher defaultMatcher = new EmptyLinkMatcher();
+    private final List<ServerMatcher> serverMatcherList = new ArrayList<>();
+    private ServerMatcher defaultMatcher = new EmptyLinkMatcher();
 
-    public MatcherGroup() {
+    private final LinkSourceMatcher linkSourceMatcher;
+
+
+    public MatcherGroup(LinkSourceMatcher linkSourceMatcher) {
+        this.linkSourceMatcher = Objects.requireNonNull(linkSourceMatcher, "linkSourceMatcher");
     }
 
     public void setDefaultMatcher(ServerMatcher defaultMatcher) {
@@ -45,19 +49,15 @@ public abstract class MatcherGroup {
 
         serverMatcherList.add(serverMatcher);
     }
-    
-    public void addMatcherGroup(MatcherGroup MatcherGroup) {
-        serverMatcherList.addAll(MatcherGroup.getServerMatcherList());
-        defaultMatcher = MatcherGroup.getDefaultMatcher();
-    }
-    
+
+
     public List<ServerMatcher> getServerMatcherList() {
         return serverMatcherList;
     }
     
     public HyperLink makeLinkInfo(LinkSource linkSource) {
         ServerMatcher serverMatcher = defaultMatcher;
-        String value = getMatchingSource(linkSource);
+        String value = linkSourceMatcher.getMatchingSource(linkSource);
 
         Objects.requireNonNull(value, "value");
 
@@ -71,7 +71,17 @@ public abstract class MatcherGroup {
         return serverMatcher.getLinkInfo(value);
     }
 
-    abstract protected String getMatchingSource(LinkSource linkSource);
+    @Override
+    public String toString() {
+        return "MatcherGroup{" +
+                "serverMatcherList=" + serverMatcherList +
+                ", defaultMatcher=" + defaultMatcher +
+                ", linkSourceMatcher=" + linkSourceMatcher +
+                '}';
+    }
 
-    abstract public boolean isMatchingType(LinkSource linkSource);
+    public boolean isMatchingType(LinkSource linkSource) {
+        return linkSourceMatcher.isMatchingType(linkSource);
+    }
+
 }
