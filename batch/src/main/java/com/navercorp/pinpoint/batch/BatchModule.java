@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.datasource.MetaDataSourceConfiguration;
 import com.navercorp.pinpoint.web.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
@@ -48,6 +49,7 @@ import org.springframework.context.annotation.ImportResource;
         BatchAppPropertySources.class,
 
         ComponentConfiguration.class,
+        HyperLinkConfiguration.class,
 
         MainDataSourceConfiguration.class,
         MetaDataSourceConfiguration.class,

@@ -26,8 +26,6 @@
 
     <bean id="alarmMessageSender" class="com.navercorp.pinpoint.batch.alarm.DefaultAlarmMessageSender"/>
 
-    <bean id="hyperLinkFactory" class="com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory"/>
-
 
     <bean id="configProperties" class="com.navercorp.pinpoint.web.config.ConfigProperties"/>
 
