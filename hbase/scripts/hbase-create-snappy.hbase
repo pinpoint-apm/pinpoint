@@ -4,6 +4,7 @@ create 'ApplicationStatAggre', { NAME => 'S', TTL => 5184000, COMPRESSION => 'SN
 
 
 create 'ApplicationIndex', { NAME => 'Agents', TTL => 31536000, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'PREFIX' }
+create 'ApplicationIndexPerTime', { NAME => 'A', TTL => 31536000, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'PREFIX' }
 create 'AgentLifeCycle', { NAME => 'S', TTL => 5184000, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'PREFIX' }
 create 'AgentEvent', { NAME => 'E', TTL => 5184000, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'PREFIX' }
 

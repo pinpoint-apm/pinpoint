@@ -38,6 +38,10 @@ import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.RouteResponseParser;
+import com.navercorp.pinpoint.web.util.TimeUtils;
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCount;
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountFactory;
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.apache.thrift.TBase;
@@ -87,7 +91,7 @@ public class AgentServiceImpl implements AgentService {
     public ClusterKey getClusterKey(String applicationName, String agentId) {
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, TimeUtils.getExtendedRange(currentTime));
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo == null) {
                 continue;
@@ -115,7 +119,7 @@ public class AgentServiceImpl implements AgentService {
         if (checkDB) {
             long currentTime = System.currentTimeMillis();
 
-            Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+            Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, TimeUtils.getExtendedRange(currentTime));
             for (AgentInfo agentInfo : agentInfos) {
                 if (agentInfo == null) {
                     continue;

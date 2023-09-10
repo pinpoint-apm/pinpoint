@@ -5,6 +5,7 @@ major_compact 'ApplicationStatAggre'
 major_compact 'AgentLifeCycle'
 major_compact 'AgentEvent'
 major_compact 'ApplicationIndex'
+major_compact 'ApplicationIndexPerTime'
 
 major_compact 'StringMetaData'
 major_compact 'ApiMetaData'

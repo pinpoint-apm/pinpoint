@@ -50,9 +50,9 @@ public interface AgentInfoService {
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays);
 
-    Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp);
+    Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, Range range);
 
-    Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp);
+    Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, Range range);
 
     Set<AgentAndStatus> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff);
 

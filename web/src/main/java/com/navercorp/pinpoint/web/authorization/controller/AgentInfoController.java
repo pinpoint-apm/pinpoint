@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.view.tree.SimpleTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeNode;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
+import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
@@ -91,8 +92,8 @@ public class AgentInfoController {
     @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
     public TreeView<TreeNode<AgentAndStatus>> getAgentList(
             @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        final AgentsMapByApplication<AgentAndStatus> allAgentsList =
-                this.agentInfoService.getAllAgentsList(AgentStatusFilter::accept, Range.between(timestamp, timestamp));
+        final AgentsMapByApplication allAgentsList = 
+                this.agentInfoService.getAllAgentsList(AgentStatusFilter::accept, TimeUtils.getExtendedRange(timestamp));
         return treeView(allAgentsList);
     }
 

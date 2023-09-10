@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.web.service;
 import java.util.List;
 import java.util.Objects;
 
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDaoProxy;
 import org.springframework.stereotype.Service;
 
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 
 /**
@@ -31,15 +31,15 @@ import com.navercorp.pinpoint.web.vo.Application;
 @Service
 public class CommonServiceImpl implements CommonService {
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDaoProxy applicationIndexDaoProxy;
 
-    public CommonServiceImpl(ApplicationIndexDao applicationIndexDao) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+    public CommonServiceImpl(ApplicationIndexDaoProxy applicationIndexDaoProxy) {
+        this.applicationIndexDaoProxy = Objects.requireNonNull(applicationIndexDaoProxy, "applicationIndexDaoProxy");
     }
 
     @Override
     public List<Application> selectAllApplicationNames() {
-        return applicationIndexDao.selectAllApplicationNames();
+        return applicationIndexDaoProxy.selectAllApplicationNames();
     }
 
 }
