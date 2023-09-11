@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.batch.alarm.checker;
 import com.navercorp.pinpoint.batch.alarm.collector.PinotDataCollector;
 import com.navercorp.pinpoint.batch.alarm.condition.AlarmCondition;
 import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmRule;
-import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.WebhookPayload;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class PinotAlarmChecker<T extends Number> implements PinotAlarmCheckerInterface {
+public abstract class PinotAlarmChecker<T extends Number> implements PinotAlarmCheckerInterface<T> {
     private final static String MENU_URL = "urlStatistic";
     private final static long SLOT_INTERVAL_FIVE_MIN = 300000;
 
@@ -116,7 +115,7 @@ public abstract class PinotAlarmChecker<T extends Number> implements PinotAlarmC
         return rules.get(index).getNotes();
     }
 
-    public AlarmCondition getAlarmCondition() {
+    public AlarmCondition<T> getAlarmCondition() {
         return alarmCondition;
     }
 

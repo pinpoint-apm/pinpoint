@@ -11,10 +11,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.item.ItemWriter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.springframework.batch.item.ItemWriter;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,7 +51,7 @@ public class UriStatAlarmWriter implements ItemWriter<PinotAlarmCheckers>, StepE
             return;
         }
         for (PinotAlarmCheckers alarmCheckers : checkersList) {
-            List<PinotAlarmChecker> children = alarmCheckers.getChildren();
+            List<PinotAlarmChecker<? extends Number>> children = alarmCheckers.getChildren();
             if (CollectionUtils.isEmpty(children)) {
                 return;
             }
@@ -60,8 +60,8 @@ public class UriStatAlarmWriter implements ItemWriter<PinotAlarmCheckers>, StepE
         interceptor.after(checkersList);
     }
 
-    private void execute(List<PinotAlarmChecker> alarmCheckers) {
-        for (PinotAlarmChecker alarmChecker : alarmCheckers) {
+    private void execute(List<PinotAlarmChecker<? extends Number>> alarmCheckers) {
+        for (PinotAlarmChecker<? extends Number> alarmChecker : alarmCheckers) {
             boolean[] detected = alarmChecker.getAlarmDetected();
             for (int i = 0; i < detected.length; i++) {
               if (detected[i]) {
@@ -71,7 +71,7 @@ public class UriStatAlarmWriter implements ItemWriter<PinotAlarmCheckers>, StepE
         }
     }
 
-    private void sendAlarmMessage(PinotAlarmChecker alarmChecker, int index) {
+    private void sendAlarmMessage(PinotAlarmChecker<? extends Number> alarmChecker, int index) {
         long now = System.currentTimeMillis();
 
         if (alarmChecker.isSMSSend(index)) {
@@ -83,7 +83,7 @@ public class UriStatAlarmWriter implements ItemWriter<PinotAlarmCheckers>, StepE
         if (alarmChecker.isWebhookSend(index)) {
             alarmMessageSender.sendWebhook(alarmChecker, index);
         }
-        PinotAlarmRule rule = (PinotAlarmRule) alarmChecker.getRules().get(index);
+        PinotAlarmRule rule = alarmChecker.getRules().get(index);
         PinotAlarmHistory history = new PinotAlarmHistory(rule.getId(), now);
         alarmService.insertAlarmHistory(history);
         logger.info("Alarm triggered for {} {} {}. Collected value: {}",

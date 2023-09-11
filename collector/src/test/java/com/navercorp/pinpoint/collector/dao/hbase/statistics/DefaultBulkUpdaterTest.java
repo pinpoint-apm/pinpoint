@@ -184,10 +184,6 @@ public class DefaultBulkUpdaterTest {
         final int maxCallCount = 200;
 
         List<TestDataSet> testDataSets = BulkIncrementerTestClazz.createRandomTestDataSetList(numTables, numRowIds, numColumnIds, maxCallCount);
-        List<TableName> tableNames = new ArrayList<>(numTables);
-        for (int i = 0; i < numTables; i++) {
-            tableNames.add(TableName.valueOf(i + ""));
-        }
 
         final int maxNumTestDatas = numTables * numRowIds * numColumnIds * maxCallCount;
         List<TestData> testDatas = new ArrayList<>(maxNumTestDatas);

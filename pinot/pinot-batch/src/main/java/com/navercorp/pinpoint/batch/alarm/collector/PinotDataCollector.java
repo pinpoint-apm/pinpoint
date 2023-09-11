@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.batch.alarm.collector;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 
 public interface PinotDataCollector<T> {
-    public abstract T collect(String serviceName, String applicationName, String targetUri, Range range);
+    T collect(String serviceName, String applicationName, String targetUri, Range range);
 }

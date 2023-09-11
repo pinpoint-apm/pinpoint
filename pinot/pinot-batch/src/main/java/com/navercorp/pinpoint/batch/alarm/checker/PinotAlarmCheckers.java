@@ -3,19 +3,19 @@ package com.navercorp.pinpoint.batch.alarm.checker;
 import java.util.List;
 
 public class PinotAlarmCheckers {
-    private final List<PinotAlarmChecker> children;
+    private final List<PinotAlarmChecker<? extends Number>> children;
 
-    public PinotAlarmCheckers(List<PinotAlarmChecker> children) {
+    public PinotAlarmCheckers(List<PinotAlarmChecker<? extends Number>> children) {
         this.children = children;
     }
 
     public void check(long now) {
-        for (PinotAlarmChecker<?> child : this.children) {
+        for (PinotAlarmChecker<? extends Number> child : this.children) {
             child.check(now);
         }
     }
 
-    public List<PinotAlarmChecker> getChildren() {
+    public List<PinotAlarmChecker<? extends Number>> getChildren() {
         return children;
     }
 

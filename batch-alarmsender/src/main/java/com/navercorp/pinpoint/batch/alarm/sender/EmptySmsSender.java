@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.batch.alarm.sender;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmCheckerInterface;
 import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author minwoo.jung
@@ -33,7 +33,7 @@ public class EmptySmsSender implements SmsSender {
     }
 
     @Override
-    public void sendSms(PinotAlarmCheckerInterface checker, int index) {
+    public void sendSms(PinotAlarmCheckerInterface<? extends Number> checker, int index) {
         logger.info("can not send sms message.");
     }
 }

@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UriStatDataCollectorFactory {
     private final UriStatDao uriStatDao;
     private final String tenantId;
-    private final Map<UriStatAlarmChecker, PinotDataCollector> collectorMap = new ConcurrentHashMap<>();
+    private final Map<UriStatAlarmChecker, PinotDataCollector<? extends Number>> collectorMap = new ConcurrentHashMap<>();
 
     public UriStatDataCollectorFactory(TenantProvider tenantProvider, UriStatDao uriStatDao) {
         Objects.requireNonNull(tenantProvider, "tenantProvider");
@@ -37,12 +37,11 @@ public class UriStatDataCollectorFactory {
         this.tenantId = tenantProvider.getTenantId();
     }
 
-    public PinotDataCollector getDataCollector(UriStatAlarmChecker checker) {
-        System.out.println("???? " + checker.name());
+    public PinotDataCollector<? extends Number> getDataCollector(UriStatAlarmChecker checker) {
         return collectorMap.computeIfAbsent(checker, k -> createDataCollector(checker));
     }
 
-    private PinotDataCollector createDataCollector(UriStatAlarmChecker checker) {
+    private PinotDataCollector<? extends Number> createDataCollector(UriStatAlarmChecker checker) {
         if (! (checker instanceof UriStatAlarmChecker)) {
             throw new IllegalArgumentException("checker not an instance of UriStatAlarmCheckers");
         }

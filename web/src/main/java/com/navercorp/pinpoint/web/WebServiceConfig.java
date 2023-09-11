@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.web;
 
-import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +28,6 @@ import org.springframework.context.annotation.Import;
         "com.navercorp.pinpoint.web.service",
 })
 @Import({
-        ComponentConfiguration.class,
         HyperLinkConfiguration.class
 })
 public class WebServiceConfig {

@@ -192,13 +192,13 @@ public class ChangeSetManagerTest {
 
     private List<SchemaChangeLog> newSchemaChangeLogs(ChangeSet... changeSets) {
         List<SchemaChangeLog> schemaChangeLogs = new ArrayList<>();
-        int execOrder = 1;
-        for (ChangeSet changeSet : changeSets) {
+        for (int i = 0; i < changeSets.length; i++) {
+            final ChangeSet changeSet = changeSets[i];
             schemaChangeLogs.add(new SchemaChangeLog.Builder()
                     .id(changeSet.getId())
                     .value(changeSet.getValue())
                     .checkSum(CheckSum.compute(CheckSum.getCurrentVersion(), changeSet.getValue()))
-                    .execOrder(execOrder++)
+                    .execOrder(i + 1)
                     .build());
         }
         return schemaChangeLogs;
