@@ -68,4 +68,13 @@ public class PluginSharedInstance {
             thread.setContextClassLoader(currentClassLoader);
         }
     }
+
+    @Override
+    public String toString() {
+        return "PluginSharedInstance{" +
+                "className='" + className + '\'' +
+                ", sharedClassName='" + sharedClassName + '\'' +
+                ", classLoader=" + classLoader +
+                '}';
+    }
 }

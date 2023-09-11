@@ -71,6 +71,11 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
                 sharedInstance.before();
             });
         }
+
+        if (throwableCollector.isNotEmpty()) {
+            System.out.println("##Shard instance=" + sharedInstance);
+        }
+
         throwableCollector.assertEmpty();
 
         return context;
