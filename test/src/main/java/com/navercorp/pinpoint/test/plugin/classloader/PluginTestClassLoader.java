@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsLogPackage;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 public class PluginTestClassLoader extends URLClassLoader {
@@ -37,9 +38,11 @@ public class PluginTestClassLoader extends URLClassLoader {
     }
 
     private String classLoaderName;
+    private URL[] urls;
 
     public PluginTestClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+        this.urls = urls;
         setClassLoaderName(getClass().getSimpleName());
     }
 
@@ -116,6 +119,13 @@ public class PluginTestClassLoader extends URLClassLoader {
         }
 
         return findResources(name);
+    }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "classLoaderName='" + classLoaderName + '\'' +
+                ", urls=" + Arrays.toString(urls) +
+                '}';
     }
 }
