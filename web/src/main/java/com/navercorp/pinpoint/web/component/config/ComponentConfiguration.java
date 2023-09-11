@@ -17,19 +17,24 @@
 
 package com.navercorp.pinpoint.web.component.config;
 
+import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.component.DefaultAnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(TypeLoaderConfiguration.class)
 public class ComponentConfiguration {
 
     @Bean
@@ -52,5 +57,9 @@ public class ComponentConfiguration {
         return new DefaultTimeSlot();
     }
 
+    @Bean
+    public AnnotationKeyMatcherService annotationKeyMatcherService(TraceMetadataLoaderService typeLoaderService) {
+        return new DefaultAnnotationKeyMatcherService(typeLoaderService);
+    }
 
 }

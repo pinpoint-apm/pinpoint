@@ -26,7 +26,7 @@ public interface AlarmMessageSender {
     void sendSms(AlarmCheckerInterface checker, int sequenceCount);
     void sendEmail(AlarmCheckerInterface checker, int sequenceCount);
     void sendWebhook(AlarmCheckerInterface checker, int sequenceCount);
-    void sendSms(PinotAlarmCheckerInterface checker, int sequenceCount);
-    void sendEmail(PinotAlarmCheckerInterface checker, int sequenceCount);
-    void sendWebhook(PinotAlarmCheckerInterface checker, int sequenceCount);
+    void sendSms(PinotAlarmCheckerInterface<? extends Number> checker, int sequenceCount);
+    void sendEmail(PinotAlarmCheckerInterface<? extends Number> checker, int sequenceCount);
+    void sendWebhook(PinotAlarmCheckerInterface<? extends Number> checker, int sequenceCount);
 }

@@ -49,7 +49,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -156,8 +155,7 @@ public class ResponseTimeHistogramServiceImplTest {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         final Application nodeApplication = new Application("user", ServiceType.USER);
-        List<Application> toApplications = new ArrayList<>();
-        toApplications.add(new Application("callee", ServiceType.STAND_ALONE));
+        List<Application> toApplications = List.of(new Application("callee", ServiceType.STAND_ALONE));
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
@@ -186,9 +184,10 @@ public class ResponseTimeHistogramServiceImplTest {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         final Application nodeApplication = new Application("unknown", ServiceType.UNKNOWN);
-        List<Application> fromApplications = new ArrayList<>();
-        fromApplications.add(new Application("caller1", ServiceType.STAND_ALONE));
-        fromApplications.add(new Application("caller2", ServiceType.STAND_ALONE));
+        List<Application> fromApplications = List.of(
+                new Application("caller1", ServiceType.STAND_ALONE),
+                new Application("caller2", ServiceType.STAND_ALONE)
+        );
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
@@ -219,9 +218,10 @@ public class ResponseTimeHistogramServiceImplTest {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         final Application nodeApplication = new Application("unknown", ServiceType.UNKNOWN);
-        List<Application> fromApplications = new ArrayList<>();
-        fromApplications.add(new Application("caller1", ServiceType.STAND_ALONE));
-        fromApplications.add(new Application("caller2", ServiceType.STAND_ALONE));
+        List<Application> fromApplications = List.of(
+                new Application("caller1", ServiceType.STAND_ALONE),
+                new Application("caller2", ServiceType.STAND_ALONE)
+        );
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
@@ -254,8 +254,7 @@ public class ResponseTimeHistogramServiceImplTest {
         //CACHE_LIBRARY serviceTypeCode 8000 ~ 8299
         ServiceType cacheServiceType = ServiceTypeFactory.of(8299, "CACHE", "CACHE", ServiceTypeProperty.TERMINAL, ServiceTypeProperty.RECORD_STATISTICS);
         final Application nodeApplication = new Application("cache", cacheServiceType);
-        List<Application> fromApplications = new ArrayList<>();
-        fromApplications.add(new Application("caller1", ServiceType.STAND_ALONE));
+        List<Application> fromApplications = List.of(new Application("caller1", ServiceType.STAND_ALONE));
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
@@ -288,10 +287,11 @@ public class ResponseTimeHistogramServiceImplTest {
         //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
         final ServiceType queueServiceType = ServiceTypeFactory.of(7999, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
         final Application nodeApplication = new Application("cache", queueServiceType);
-        List<Application> fromApplications = new ArrayList<>();
-        fromApplications.add(new Application("caller1", ServiceType.STAND_ALONE));
-        fromApplications.add(new Application("caller2", ServiceType.STAND_ALONE));
-        fromApplications.add(new Application("caller3", ServiceType.STAND_ALONE));
+        List<Application> fromApplications = List.of(
+                new Application("caller1", ServiceType.STAND_ALONE),
+                new Application("caller2", ServiceType.STAND_ALONE),
+                new Application("caller3", ServiceType.STAND_ALONE)
+        );
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
@@ -325,10 +325,8 @@ public class ResponseTimeHistogramServiceImplTest {
         //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
         final ServiceType queueServiceType = ServiceTypeFactory.of(7999, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
         final Application nodeApplication = new Application("cache", queueServiceType);
-        List<Application> hiddenFromApplications = new ArrayList<>();
-        hiddenFromApplications.add(new Application("hiddenCaller1", ServiceType.STAND_ALONE));
-        List<Application> queueCalleeApplications = new ArrayList<>();
-        queueCalleeApplications.add(new Application("Callee1", ServiceType.STAND_ALONE));
+        List<Application> hiddenFromApplications = List.of(new Application("hiddenCaller1", ServiceType.STAND_ALONE));
+        List<Application> queueCalleeApplications = List.of(new Application("Callee1", ServiceType.STAND_ALONE));
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);

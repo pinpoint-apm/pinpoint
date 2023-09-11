@@ -535,7 +535,7 @@ public class CallTreeIteratorTest {
     }
 
 
-    class CallStackDummy {
+    static class CallStackDummy {
         final List<StackEvent> stackEvents = new ArrayList<>();
 
         public void add(String event, int depth, int gap, int exec) {

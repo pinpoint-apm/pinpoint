@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmCheckerRegistry;
 import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckers;
 import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmChecker;
+import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmCheckerRegistry;
 import com.navercorp.pinpoint.batch.alarm.collector.PinotDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.UriStatDataCollectorFactory;
 import com.navercorp.pinpoint.batch.alarm.condition.AlarmCondition;
@@ -15,11 +15,11 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.springframework.batch.item.ItemProcessor;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Objects;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class UriStatAlarmProcessor implements ItemProcessor<PinotAlarmKey, PinotAlarmCheckers> {
@@ -35,7 +35,7 @@ public class UriStatAlarmProcessor implements ItemProcessor<PinotAlarmKey, Pinot
 
     @Override
     public PinotAlarmCheckers process(@Nonnull PinotAlarmKey alarmKeys) {
-        List<PinotAlarmChecker> checkers = getAlarmCheckers(alarmKeys);
+        List<PinotAlarmChecker<? extends Number>> checkers = getAlarmCheckers(alarmKeys);
         if (CollectionUtils.isEmpty(checkers)) {
             return null;
         }
@@ -46,7 +46,7 @@ public class UriStatAlarmProcessor implements ItemProcessor<PinotAlarmKey, Pinot
         return appChecker;
     }
 
-    private List<PinotAlarmChecker> getAlarmCheckers(PinotAlarmKey alarmKeys) {
+    private List<PinotAlarmChecker<? extends Number>> getAlarmCheckers(PinotAlarmKey alarmKeys) {
         List<PinotAlarmRule> rules = alarmService.selectRulesByKeys(alarmKeys);
 
         RuleTransformer transformer = new RuleTransformer(uriStatDataCollectorFactory, alarmConditionFactory);
@@ -63,7 +63,7 @@ public class UriStatAlarmProcessor implements ItemProcessor<PinotAlarmKey, Pinot
         private final Map<UriStatAlarmChecker, Map<AlarmCondition, List<PinotAlarmRule>>> ruleMap = new HashMap<>();
         private final UriStatDataCollectorFactory uriStatDataCollectorFactory;
         private final AlarmConditionFactory alarmConditionFactory;
-        private final List<PinotAlarmChecker> alarmCheckers;
+        private final List<PinotAlarmChecker<? extends Number>> alarmCheckers;
 
         public RuleTransformer(
                 UriStatDataCollectorFactory uriStatDataCollectorFactory,
@@ -85,13 +85,13 @@ public class UriStatAlarmProcessor implements ItemProcessor<PinotAlarmKey, Pinot
             rules.add(rule);
         }
 
-        public List<PinotAlarmChecker> buildAlarmCheckers() {
+        public List<PinotAlarmChecker<? extends Number>> buildAlarmCheckers() {
             for (UriStatAlarmChecker alarmChecker : ruleMap.keySet()) {
-                PinotDataCollector dataCollector = uriStatDataCollectorFactory.getDataCollector(alarmChecker);
+                PinotDataCollector<? extends Number> dataCollector = uriStatDataCollectorFactory.getDataCollector(alarmChecker);
                 Map<AlarmCondition, List<PinotAlarmRule>> value = ruleMap.get(alarmChecker);
                 for (AlarmCondition alarmCondition : value.keySet()) {
                     List<PinotAlarmRule> categorizedRules = value.get(alarmCondition);
-                    PinotAlarmChecker checker = checkerRegistry.getCheckerFactory(alarmChecker).createChecker(categorizedRules, dataCollector, alarmCondition);
+                    PinotAlarmChecker<? extends Number> checker = checkerRegistry.getCheckerFactory(alarmChecker).createChecker(categorizedRules, dataCollector, alarmCondition);
                     alarmCheckers.add(checker);
                 }
             }

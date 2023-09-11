@@ -23,5 +23,5 @@ import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
  */
 public interface SmsSender {
     void sendSms(AlarmCheckerInterface checker, int sequenceCount);
-    void sendSms(PinotAlarmCheckerInterface checker, int index);
+    void sendSms(PinotAlarmCheckerInterface<? extends Number> checker, int index);
 }

@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.batch;
 import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.batch.configuration.AlarmJobModule;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
-import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.datasource.MetaDataSourceConfiguration;
 import com.navercorp.pinpoint.web.UserModule;
@@ -45,7 +44,6 @@ import org.springframework.context.annotation.ImportResource;
 })
 @Import({
         TransactionAutoConfiguration.class,
-        TypeLoaderConfiguration.class,
         BatchAppPropertySources.class,
 
         ComponentConfiguration.class,

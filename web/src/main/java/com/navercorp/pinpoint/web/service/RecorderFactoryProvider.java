@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
 import org.springframework.stereotype.Component;
 

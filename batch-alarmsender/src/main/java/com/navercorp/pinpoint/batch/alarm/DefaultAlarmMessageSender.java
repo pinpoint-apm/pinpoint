@@ -60,17 +60,17 @@ public class DefaultAlarmMessageSender implements AlarmMessageSender {
     }
 
     @Override
-    public void sendSms(PinotAlarmCheckerInterface checker, int index) {
+    public void sendSms(PinotAlarmCheckerInterface<? extends Number> checker, int index) {
         this.smsSender.sendSms(checker, index);
     }
 
     @Override
-    public void sendEmail(PinotAlarmCheckerInterface checker, int index) {
+    public void sendEmail(PinotAlarmCheckerInterface<? extends Number> checker, int index) {
         this.mailSender.sendEmail(checker, index);
     }
 
     @Override
-    public void sendWebhook(PinotAlarmCheckerInterface checker, int index) {
+    public void sendWebhook(PinotAlarmCheckerInterface<? extends Number> checker, int index) {
         webhookSender.sendWebhook(checker, index);
     }
 }
