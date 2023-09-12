@@ -35,8 +35,8 @@ public class ReactorNettyPluginConfig {
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
     private final boolean enableAsyncEndPoint;
-    private final boolean traceSubscribeError;
-    private final List<String> traceSubscribeErrorExcludeMessageList;
+    private final boolean traceTransportError;
+    private final boolean traceHttpError;
     private final boolean clientEnable;
     private boolean param = true;
 
@@ -59,8 +59,8 @@ public class ReactorNettyPluginConfig {
         this.param = config.readBoolean("profiler.reactor-netty.client.param", true);
 
         // Reactor
-        this.traceSubscribeError = config.readBoolean("profiler.reactor-netty.trace.subscribe.error", true);
-        this.traceSubscribeErrorExcludeMessageList = config.readList("profiler.reactor-netty.trace.subscribe.error.exclude.message");
+        this.traceTransportError = config.readBoolean("profiler.reactor-netty.client.trace.transport.error", false);
+        this.traceHttpError = config.readBoolean("profiler.reactor-netty.client.trace.http.error", false);
     }
 
     public boolean isEnable() {
@@ -95,20 +95,20 @@ public class ReactorNettyPluginConfig {
         return enableAsyncEndPoint;
     }
 
-    public boolean isTraceSubscribeError() {
-        return traceSubscribeError;
-    }
-
-    public List<String> getTraceSubscribeErrorExcludeMessageList() {
-        return traceSubscribeErrorExcludeMessageList;
-    }
-
     public boolean isClientEnable() {
         return clientEnable;
     }
 
     public boolean isParam() {
         return param;
+    }
+
+    public boolean isTraceTransportError() {
+        return traceTransportError;
+    }
+
+    public boolean isTraceHttpError() {
+        return traceHttpError;
     }
 
     @Override
@@ -122,8 +122,8 @@ public class ReactorNettyPluginConfig {
                 ", realIpEmptyValue='" + realIpEmptyValue + '\'' +
                 ", excludeProfileMethodFilter=" + excludeProfileMethodFilter +
                 ", enableAsyncEndPoint=" + enableAsyncEndPoint +
-                ", traceSubscribeError=" + traceSubscribeError +
-                ", traceSubscribeErrorExcludeMessageList=" + traceSubscribeErrorExcludeMessageList +
+                ", traceTransportError=" + traceTransportError +
+                ", traceHttpError=" + traceHttpError +
                 ", clientEnable=" + clientEnable +
                 ", param=" + param +
                 '}';

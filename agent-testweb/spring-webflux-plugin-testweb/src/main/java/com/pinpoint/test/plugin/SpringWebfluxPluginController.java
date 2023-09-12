@@ -18,6 +18,9 @@ package com.pinpoint.test.plugin;
 
 import com.pinpoint.test.common.view.ApiLinkPage;
 import com.pinpoint.test.common.view.HrefTag;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -34,7 +37,10 @@ import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientRequest;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -140,5 +146,111 @@ public class SpringWebfluxPluginController {
     @ResponseBody
     public String clientPostParam(@RequestBody String body) {
         return "OK";
+    }
+
+    @GetMapping("/client/error")
+    public Mono<String> clientError(ServerWebExchange exchange) {
+        WebClient client = WebClient.create("http://fjaljglkajg.gjalfjlajfl");
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+
+        Mono<String> result = response.bodyToMono(String.class).onErrorMap(throwable -> {
+            String message = throwable.getMessage();
+            System.out.println("Error " + message);
+            return new RuntimeException("ERROR");
+        });
+        result.subscribe();
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/client/responseTimeout")
+    public Mono<String> clientResponseTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofMillis(100));
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).onErrorComplete(throwable -> {
+            System.out.println("ERROR=" + throwable.getMessage());
+            return throwable != null;
+        }).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/client/connectionTimeout")
+    public Mono<String> clientConnectionTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 100);
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).onErrorComplete(throwable -> {
+            System.out.println("ERROR=" + throwable.getMessage());
+            return throwable != null;
+        }).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/client/readTimeout")
+    public Mono<String> clientReadTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create().doOnConnected(connection -> {
+            connection.addHandlerFirst(new ReadTimeoutHandler(10, TimeUnit.MILLISECONDS));
+        });
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).onErrorComplete(throwable -> {
+            System.out.println("ERROR=" + throwable.getMessage());
+            return throwable != null;
+        }).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/client/writeTimeout")
+    public Mono<String> clientWriteTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create().doOnConnected(connection -> {
+            connection.addHandlerFirst(new WriteTimeoutHandler(1, TimeUnit.MILLISECONDS));
+        });
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).onErrorComplete(throwable -> {
+            System.out.println("ERROR=" + throwable.getMessage());
+            return throwable != null;
+        }).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/client/nativeResponseTimeout")
+    public Mono<String> clientNativeResponseTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").httpRequest(clientHttpRequest -> {
+                    HttpClientRequest reactorRequest = clientHttpRequest.getNativeRequest();
+                    reactorRequest.responseTimeout(Duration.ofMillis(10));
+                }).retrieve();
+        response.bodyToMono(String.class).onErrorComplete(throwable -> {
+            System.out.println("ERROR=" + throwable.getMessage());
+            return throwable != null;
+        }).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/client/reactorTimeout")
+    public Mono<String> clientReactorTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).timeout(Duration.ofMillis(10)).onErrorComplete(throwable -> {
+            System.out.println("ERROR=" + throwable.getMessage());
+            return throwable != null;
+        }).subscribe();
+
+        return Mono.just("OK");
     }
 }
