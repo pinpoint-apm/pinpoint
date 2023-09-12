@@ -51,6 +51,7 @@ import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoDelaySubscriptionSu
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoOperatorConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoOperatorSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoSubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.OnErrorSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ProcessorSubscribeInterceptor;
@@ -83,6 +84,13 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             "reactor.core.publisher.NextProcessor"
     };
 
+    private static final String[] ERROR = {
+            "reactor.core.publisher.MonoOnErrorResume",
+            "reactor.core.publisher.FluxOnErrorResume",
+            "reactor.core.publisher.MonoOnErrorReturn",
+            "reactor.core.publisher.FluxOnErrorReturn"
+    };
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final ReactorPluginConfig config = new ReactorPluginConfig(context.getConfig());
@@ -99,6 +107,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addProcessor();
         addFunction();
         addSink();
+        addOnError();
     }
 
     @Override
@@ -209,7 +218,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addFluxOperatorTransform("reactor.core.publisher.FluxOnBackpressureBufferTimeout");
         addFluxOperatorTransform("reactor.core.publisher.FluxOnBackpressureDrop");
         addFluxOperatorTransform("reactor.core.publisher.FluxOnBackpressureLatest");
-        addFluxOperatorTransform("reactor.core.publisher.FluxOnErrorResume");
+
         addFluxOperatorTransform("reactor.core.publisher.FluxPeek");
         addFluxOperatorTransform("reactor.core.publisher.FluxPeekFuseable");
         addConnectableFluxTransform("reactor.core.publisher.FluxPublish");
@@ -363,7 +372,6 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addMonoTransform("reactor.core.publisher.MonoNever");
         addMonoOperatorTransform("reactor.core.publisher.MonoNext");
         addMonoOperatorTransform("reactor.core.publisher.MonoOnAssembly");
-        addMonoOperatorTransform("reactor.core.publisher.MonoOnErrorResume");
         addMonoOperatorTransform("reactor.core.publisher.MonoPeek");
         addMonoOperatorTransform("reactor.core.publisher.MonoPeekFuseable");
         addMonoOperatorTransform("reactor.core.publisher.MonoPeekTerminal");
@@ -428,6 +436,14 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addParallelFluxTransform("reactor.core.publisher.ParallelPeek");
         addParallelFluxTransform("reactor.core.publisher.ParallelReduceSeed");
         addParallelFluxTransform("reactor.core.publisher.ParallelSource");
+    }
+
+    private void addOnError() {
+        for (String className : ERROR) {
+            transformTemplate.transform(className, FluxOperatorTransform.class);
+        }
+        transformTemplate.transform("reactor.core.publisher.FluxOnErrorResume$ResumeSubscriber", OnErrorSubscriberTransform.class);
+        transformTemplate.transform("reactor.core.publisher.FluxOnErrorReturn$ReturnSubscriber", OnErrorSubscriberTransform.class);
     }
 
     private void addCoreSubscriber() {
@@ -687,7 +703,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     void addMonoDelaySubscriptionTransform(String className) {
         transformTemplate.transform(className, MonoDelaySubscriptionTransform.class);
     }
-    
+
     public static class MonoDelaySubscriptionTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -858,6 +874,23 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
                 if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(SinkConstructorInterceptor.class);
                 }
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class OnErrorSubscriberTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+            target.addField(ReactorContextAccessor.class);
+
+            final InstrumentMethod onErrorMethod = target.getDeclaredMethod("onError", "java.lang.Throwable");
+            if (onErrorMethod != null) {
+                onErrorMethod.addInterceptor(OnErrorSubscriberInterceptor.class);
             }
 
             return target.toBytecode();
