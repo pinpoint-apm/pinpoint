@@ -28,31 +28,32 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.StringTokenizer;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author youngjin.kim2
  */
 public class HttpIntentRoutingFilter implements Filter {
 
+    private static final FrontApplicationRegistration DEFAULT_FRONT_REGISTRATION = FrontApplicationRegistration.of("/");
+
+    private static final List<String> RESOURCE_BASE_PATHS = List.of(
+            "assets",
+            "fonts",
+            "img"
+    );
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final String legacyEntryHtmlResource;
-    private final String v2EntryHtmlResource;
-    private final String v3EntryHtmlResource;
+    private final List<FrontApplicationRegistration> registrations;
 
-    public HttpIntentRoutingFilter(
-            String legacyEntryHtmlResource,
-            String v2EntryHtmlResource,
-            String v3EntryHtmlResource
-    ) {
-        this.legacyEntryHtmlResource = legacyEntryHtmlResource;
-        this.v2EntryHtmlResource = v2EntryHtmlResource;
-        this.v3EntryHtmlResource = v3EntryHtmlResource;
+    public HttpIntentRoutingFilter(List<FrontApplicationRegistration> registrations) {
+        this.registrations = Objects.requireNonNullElse(registrations, List.of(DEFAULT_FRONT_REGISTRATION));
     }
 
-    public HttpIntentRoutingFilter(String htmlResource) {
-        this(htmlResource, htmlResource, htmlResource);
+    public HttpIntentRoutingFilter() {
+        this(List.of(DEFAULT_FRONT_REGISTRATION));
     }
 
     @Override
@@ -71,97 +72,93 @@ public class HttpIntentRoutingFilter implements Filter {
             ServletResponse response,
             FilterChain chain
     ) throws IOException, ServletException {
-        RequestType type = getRequestType(request);
-        switch (type) {
-            case LEGACY_FRONT_ENTRY:
-                forwardToFrontAppEntry(request, response, chain, this.legacyEntryHtmlResource);
-                break;
-            case V2_FRONT_ENTRY:
-                forwardToFrontAppEntry(request, response, chain, this.v2EntryHtmlResource);
-                break;
-            case V3_FRONT_ENTRY:
-                forwardToFrontAppEntry(request, response, chain, this.v3EntryHtmlResource);
-                break;
-            case LEGACY_STATIC_RESOURCE:
-            case V2_STATIC_RESOURCE:
-            case V3_STATIC_RESOURCE:
-            case REST_API:
-            case UNKNOWN:
-                chain.doFilter(request, response);
+        if (request instanceof HttpServletRequest) {
+            route((HttpServletRequest) request, response, chain);
+        } else {
+            chain.doFilter(request, response);
         }
     }
 
-    private void forwardToFrontAppEntry(
-            ServletRequest request,
+    private void route(
+            HttpServletRequest request,
             ServletResponse response,
-            FilterChain chain,
-            String htmlResource
+            FilterChain chain
     ) throws ServletException, IOException {
-        if (htmlResource == null) {
+        String uri = request.getRequestURI();
+
+        if (uri.startsWith("/api/")) {
             chain.doFilter(request, response);
             return;
         }
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        logger.debug("requestUri: {} --(forward)--> {}", httpRequest.getRequestURI(), htmlResource);
+        for (FrontApplicationRegistration registration: this.registrations) {
+            if (uri.startsWith(registration.getBasePath())) {
+                routeToFrontApplication(request, response, chain, registration);
+                return;
+            }
+        }
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher(htmlResource);
+        chain.doFilter(request, response);
+    }
+
+    private void routeToFrontApplication(
+            HttpServletRequest request,
+            ServletResponse response,
+            FilterChain chain,
+            FrontApplicationRegistration frontRegistration
+    ) throws ServletException, IOException {
+        String basePath = frontRegistration.getBasePath();
+        String path = trimFirstSlash(request.getRequestURI().substring(basePath.length()));
+        String firstToken = path.split("/", 2)[0];
+        if (isStaticResource(firstToken)) {
+            chain.doFilter(request, response);
+        } else {
+            String entryHtml = basePath + "/index.html";
+            forwardTo(request, response, entryHtml);
+            logger.debug("requestUri: {} --(forward)--> {}", request.getRequestURI(), entryHtml);
+        }
+    }
+
+    private static void forwardTo(
+            HttpServletRequest request,
+            ServletResponse response,
+            String entryHtml
+    ) throws ServletException, IOException {
+        RequestDispatcher dispatcher = request.getRequestDispatcher(entryHtml);
         dispatcher.forward(request, response);
     }
 
-    private static RequestType getRequestType(ServletRequest request) {
-        if (!(request instanceof HttpServletRequest)) {
-            return RequestType.UNKNOWN;
+    private static boolean isStaticResource(String firstToken) {
+        for (String resourceBasePath : RESOURCE_BASE_PATHS) {
+            if (firstToken.equals(resourceBasePath)) {
+                return true;
+            }
         }
-
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        StringTokenizer tokenizer = new StringTokenizer(httpRequest.getRequestURI(), "/");
-        if (!tokenizer.hasMoreTokens()) {
-            return RequestType.LEGACY_FRONT_ENTRY;
-        }
-
-        String t0 = tokenizer.nextToken();
-        switch (t0) {
-            case "api":
-                return RequestType.REST_API;
-            case "v2":
-                return getRequestType(tokenizer, RequestType.V2_STATIC_RESOURCE, RequestType.V2_FRONT_ENTRY);
-            case "v3":
-                return getRequestType(tokenizer, RequestType.V3_STATIC_RESOURCE, RequestType.V3_FRONT_ENTRY);
-            default:
-                return getRequestType(t0, RequestType.LEGACY_STATIC_RESOURCE, RequestType.LEGACY_FRONT_ENTRY);
-        }
+        return firstToken.indexOf('.') != -1;
     }
 
-    private static RequestType getRequestType(
-            StringTokenizer tokenizer,
-            RequestType resourceType,
-            RequestType entryType
-    ) {
-        if (tokenizer.hasMoreElements()) {
-            return getRequestType(tokenizer.nextToken(), resourceType, entryType);
-        } else {
-            return entryType;
+    private static String trimFirstSlash(String s) {
+        if (s.length() > 0 && s.charAt(0) == '/') {
+            return s.substring(1);
         }
+        return s;
     }
 
-    private static RequestType getRequestType(String token, RequestType resourceType, RequestType entryType) {
-        if (token.equals("assets") || token.indexOf('.') >= 0) {
-            return resourceType;
-        } else {
-            return entryType;
-        }
-    }
+    public static class FrontApplicationRegistration {
 
-    private enum RequestType {
-        LEGACY_FRONT_ENTRY,
-        LEGACY_STATIC_RESOURCE,
-        V2_FRONT_ENTRY,
-        V2_STATIC_RESOURCE,
-        V3_FRONT_ENTRY,
-        V3_STATIC_RESOURCE,
-        REST_API,
-        UNKNOWN,
+        private final String basePath;
+
+        public FrontApplicationRegistration(String basePath) {
+            this.basePath = Objects.requireNonNull(basePath, "basePath");
+        }
+
+        public static FrontApplicationRegistration of(String basePath) {
+            return new FrontApplicationRegistration(basePath);
+        }
+
+        public String getBasePath() {
+            return basePath;
+        }
     }
 
 }

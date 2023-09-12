@@ -36,7 +36,7 @@ public class HttpIntentRoutingFilterTest {
     @Test
     public void rewriteTest() {
         Assertions.assertThrows(NullPointerException.class, () -> {
-            HttpIntentRoutingFilter httpIntentRoutingFilter = new HttpIntentRoutingFilter("/index.html");
+            HttpIntentRoutingFilter httpIntentRoutingFilter = new HttpIntentRoutingFilter();
 
             HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
             Mockito.when(servletRequest.getRequestURI()).thenReturn(ADMIN_REWRITE_TARGET);
@@ -50,7 +50,7 @@ public class HttpIntentRoutingFilterTest {
 
     @Test
     public void restApiWithRewritePathTest() throws IOException, ServletException {
-        HttpIntentRoutingFilter httpIntentRoutingFilter = new HttpIntentRoutingFilter("/index.html");
+        HttpIntentRoutingFilter httpIntentRoutingFilter = new HttpIntentRoutingFilter();
 
         HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
         Mockito.when(servletRequest.getRequestURI()).thenReturn("/api" + ADMIN_REWRITE_TARGET + "/removeApplicationName");
