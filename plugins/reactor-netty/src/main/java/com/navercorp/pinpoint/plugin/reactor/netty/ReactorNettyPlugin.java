@@ -44,6 +44,7 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsChannelMethodInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsOnInboundCompleteMethodInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ClientTransportSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientHandlerConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientHandlerRequestWithBodyInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsOnInboundNextInterceptor;
@@ -52,6 +53,7 @@ import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperati
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsSendInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpIOHandlerObserverConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpIOHandlerObserverOnStateChangeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpObserverOnUncaughtExceptionInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpTcpClientConnectInterceptor;
 
@@ -104,6 +106,10 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             transformTemplate.transform("reactor.netty.http.client.HttpClientOperations", HttpClientOperationsTransform.class);
             transformTemplate.transform("reactor.netty.http.client.HttpClientConnect$MonoHttpConnect", FluxAndMonoTransform.class);
             transformTemplate.transform("reactor.netty.http.client.HttpClientConnect$HttpIOHandlerObserver", HttpIOHandlerObserverTransform.class);
+            // connection error
+            transformTemplate.transform("reactor.netty.http.client.HttpClientConnect$MonoHttpConnect$ClientTransportSubscriber", ClientTransportSubscriberTransform.class);
+            // HTTP read/write error
+            transformTemplate.transform("reactor.netty.http.client.HttpClientConnect$HttpObserver", HttpObserverTransform.class);
         }
 
         transformTemplate.transform("reactor.netty.ByteBufFlux", FluxAndMonoOperatorTransform.class);
@@ -349,6 +355,51 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
                 if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
                 }
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class ClientTransportSubscriberTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+            target.addField(ReactorContextAccessor.class);
+
+            // Reactor
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                final String[] parameterTypes = constructorMethod.getParameterTypes();
+                if (ArrayUtils.hasLength(parameterTypes)) {
+                    constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
+                }
+            }
+
+            final InstrumentMethod onErrorMethod = target.getDeclaredMethod("onError", "java.lang.Throwable");
+            if (onErrorMethod != null) {
+                onErrorMethod.addInterceptor(ClientTransportSubscriberInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class HttpObserverTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+            target.addField(HttpCallContextAccessor.class);
+
+            final InstrumentMethod constructorMethod = target.getConstructor("reactor.core.publisher.MonoSink", "reactor.netty.http.client.HttpClientConnect$HttpClientHandler");
+            if (constructorMethod != null) {
+                constructorMethod.addInterceptor(HttpIOHandlerObserverConstructorInterceptor.class);
+            }
+            final InstrumentMethod onUncaughtExceptionMethod = target.getDeclaredMethod("onUncaughtException", "reactor.netty.Connection", "java.lang.Throwable");
+            if (onUncaughtExceptionMethod != null) {
+                onUncaughtExceptionMethod.addInterceptor(HttpObserverOnUncaughtExceptionInterceptor.class);
             }
 
             return target.toBytecode();
