@@ -322,7 +322,7 @@ public class FilteredMapBuilder {
             logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
         }
         // endPoint may be null
-        final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint());
+        final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint(), destApplication.getName());
         sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
     }
 
