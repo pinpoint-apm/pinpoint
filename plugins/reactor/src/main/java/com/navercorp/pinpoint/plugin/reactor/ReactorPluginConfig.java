@@ -27,6 +27,8 @@ public class ReactorPluginConfig {
     private final boolean enable;
 
     private final boolean traceOnError;
+    private final boolean tracePublishOn;
+    private final boolean traceSubscribeOn;
 
     public ReactorPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -34,6 +36,8 @@ public class ReactorPluginConfig {
         // plugin
         this.enable = config.readBoolean("profiler.reactor.enable", true);
         this.traceOnError = config.readBoolean("profiler.reactor.trace.onError", false);
+        this.tracePublishOn = config.readBoolean("profiler.reactor.trace.publishOn", true);
+        this.traceSubscribeOn = config.readBoolean("profiler.reactor.trace.subscribeOn", true);
     }
 
     public boolean isEnable() {
@@ -44,11 +48,21 @@ public class ReactorPluginConfig {
         return traceOnError;
     }
 
+    public boolean isTracePublishOn() {
+        return tracePublishOn;
+    }
+
+    public boolean isTraceSubscribeOn() {
+        return traceSubscribeOn;
+    }
+
     @Override
     public String toString() {
         return "ReactorPluginConfig{" +
                 "enable=" + enable +
                 ", traceOnError=" + traceOnError +
+                ", tracePublishOn=" + tracePublishOn +
+                ", traceSubscribeOn=" + traceSubscribeOn +
                 '}';
     }
 }
