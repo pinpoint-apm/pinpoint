@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoPublishOnInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoSubscribeOnInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxDelaySubscriptionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxDelaySubscriptionSubscribeInterceptor;
@@ -100,6 +101,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         }
         logger.info("{} version range=[3.1.0.RELEASE, 3.3.0.RELEASE], config:{}", this.getClass().getSimpleName(), config);
 
+        addThreadingAndSchedulers();
         addFlux();
         addMono();
         addParallelFlux();
@@ -115,7 +117,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         this.transformTemplate = transformTemplate;
     }
 
-    private void addFlux() {
+    private void addThreadingAndSchedulers() {
         transformTemplate.transform("reactor.core.publisher.Flux", FluxMethodTransform.class);
         // publishOn
         addFluxOperatorTransform("reactor.core.publisher.FluxPublishOn");
@@ -130,6 +132,18 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addFluxOperatorTransform("reactor.core.publisher.FluxSubscribeOn");
         addRunnableCoreSubscriberTransform("reactor.core.publisher.FluxSubscribeOn$SubscribeOnSubscriber");
 
+        transformTemplate.transform("reactor.core.publisher.Mono", MonoMethodTransform.class);
+        // publishOn
+        addMonoOperatorTransform("reactor.core.publisher.MonoPublishOn");
+        addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoPublishOn$PublishOnSubscriber");
+        // subscribeOn
+        addMonoTransform("reactor.core.publisher.MonoSubscribeOnValue");
+        addMonoTransform("reactor.core.publisher.MonoSubscribeOnCallable");
+        addMonoOperatorTransform("reactor.core.publisher.MonoSubscribeOn");
+        addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoSubscribeOn$SubscribeOnSubscriber");
+    }
+
+    private void addFlux() {
         // Flux
         addConnectableFluxTransform("reactor.core.publisher.ConnectableFluxHide");
         addConnectableFluxTransform("reactor.core.publisher.ConnectableFluxOnAssembly");
@@ -292,16 +306,6 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     }
 
     private void addMono() {
-        transformTemplate.transform("reactor.core.publisher.Mono", MonoMethodTransform.class);
-        // publishOn
-        addMonoOperatorTransform("reactor.core.publisher.MonoPublishOn");
-        addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoPublishOn$PublishOnSubscriber");
-        // subscribeOn
-        addMonoTransform("reactor.core.publisher.MonoSubscribeOnValue");
-        addMonoTransform("reactor.core.publisher.MonoSubscribeOnCallable");
-        addMonoOperatorTransform("reactor.core.publisher.MonoSubscribeOn");
-        addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoSubscribeOn$SubscribeOnSubscriber");
-
         // mono
         addMonoOperatorTransform("reactor.core.publisher.MonoAll");
         addMonoOperatorTransform("reactor.core.publisher.MonoAny");
@@ -480,7 +484,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             }
             final InstrumentMethod subscribeOnMethod = target.getDeclaredMethod("subscribeOn", "reactor.core.scheduler.Scheduler", "boolean");
             if (subscribeOnMethod != null) {
-                subscribeOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
+                subscribeOnMethod.addInterceptor(FluxAndMonoSubscribeOnInterceptor.class);
             }
 
             return target.toBytecode();
