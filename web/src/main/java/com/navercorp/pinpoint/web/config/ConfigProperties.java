@@ -68,6 +68,9 @@ public class ConfigProperties {
     @Value("${config.show.urlStat:false}")
     private boolean showUrlStat;
 
+    @Value("${config.show.exceptionTrace:false}")
+    private boolean showExceptionTrace;
+
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
     
@@ -120,6 +123,10 @@ public class ConfigProperties {
 
     public boolean isShowUrlStat() {
         return showUrlStat;
+    }
+
+    public boolean isShowExceptionTrace() {
+        return showExceptionTrace;
     }
 
     public String getWebSocketAllowedOrigins() {

@@ -13,26 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.exceptiontrace.web.model;
+package com.navercorp.pinpoint.exceptiontrace.web.util;
 
+import com.navercorp.pinpoint.common.server.util.EnumGetter;
 import com.navercorp.pinpoint.exceptiontrace.common.pinot.PinotColumns;
 
 /**
  * @author intr3p1d
  */
 public enum GroupByAttributes {
-    URI_TEMPLATE(PinotColumns.URI_TEMPLATE),
-    ERROR_CLASS_NAME(PinotColumns.ERROR_CLASS_NAME),
-    ERROR_MESSAGE(PinotColumns.ERROR_MESSAGE),
-    STACK_TRACE(PinotColumns.STACK_TRACE_HASH);
+    ERROR_MESSAGE("errorMessage", PinotColumns.ERROR_MESSAGE),
+    TIMESTMAP("timestamp", PinotColumns.TIMESTAMP),
+    STACK_TRACE("stackTrace", PinotColumns.STACK_TRACE_HASH),
+    URI_TEMPLATE("uriTemplate", PinotColumns.URI_TEMPLATE);
 
+    private static final EnumGetter<GroupByAttributes> GETTER = new EnumGetter<>(GroupByAttributes.class);
+    private final String name;
     private final PinotColumns column;
 
-    GroupByAttributes(PinotColumns column) {
+    GroupByAttributes(String name, PinotColumns column) {
+        this.name = name;
         this.column = column;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getAttributeName() {
         return column.getName();
+    }
+
+    public static GroupByAttributes fromValue(String name) {
+        return GETTER.fromValue(GroupByAttributes::getName, name);
     }
 }

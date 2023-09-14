@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.util;
 
+import com.navercorp.pinpoint.common.server.util.EnumGetter;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
@@ -71,7 +72,7 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
         private final String name;
         private final String desc;
 
-        private static final EnumSet<OrderBy> SET = EnumSet.allOf(OrderBy.class);
+        private static final EnumGetter<OrderBy> GETTER = new EnumGetter<>(OrderBy.class);
 
         OrderBy(String name) {
             this.name = name;
@@ -83,13 +84,12 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
             this.desc = desc;
         }
 
+        public String getName() {
+            return name;
+        }
+
         public static OrderBy fromValue(String name) {
-            for (OrderBy orderBy : SET) {
-                if (orderBy.name.equalsIgnoreCase(name)) {
-                    return orderBy;
-                }
-            }
-            return null;
+            return GETTER.fromValue(OrderBy::getName, name);
         }
 
         @Override

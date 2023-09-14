@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.exceptiontrace.common.pinot;
  * @author intr3p1d
  */
 public enum PinotColumns {
+
+    TIMESTAMP("\"timestamp\""),
     TRANSACTION_ID("transactionId"),
     SPAN_ID("spanId"),
     EXCEPTION_ID("exceptionId"),
