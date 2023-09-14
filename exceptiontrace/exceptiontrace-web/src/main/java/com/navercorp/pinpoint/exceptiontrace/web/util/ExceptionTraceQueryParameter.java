@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
-import com.navercorp.pinpoint.exceptiontrace.web.model.GroupByAttributes;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final long exceptionId;
     private final int exceptionDepth;
 
+    private final OrderByAttributes orderBy;
+    private final String isDesc;
     private final List<GroupByAttributes> groupByAttributes;
 
     private final long timeWindowRangeCount;
@@ -54,12 +57,17 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.spanId = builder.spanId;
         this.exceptionId = builder.exceptionId;
         this.exceptionDepth = builder.exceptionDepth;
+        this.orderBy = builder.orderBy;
+        this.isDesc = builder.isDesc;
         this.groupByAttributes = builder.groupByAttributes;
         this.timeWindowRangeCount = builder.timeWindowRangeCount;
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
-        private static final int LIMIT = 65536;
+
+        private static final int MAX_LIMIT = 65536;
+        private Integer hardLimit = null;
+
         private String applicationName;
         private String agentId = null;
 
@@ -69,6 +77,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private long exceptionId = Long.MIN_VALUE;
         private int exceptionDepth = Integer.MIN_VALUE;
 
+        private OrderByAttributes orderBy;
+        private String isDesc;
         private final List<GroupByAttributes> groupByAttributes = new ArrayList<>();
 
         private long timeWindowRangeCount = 0;
@@ -113,20 +123,57 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder addAllGroupBies(Collection<GroupByAttributes> summaryGroupBIES) {
-            List<String> attributes = summaryGroupBIES.stream().map(GroupByAttributes::getAttributeName).collect(Collectors.toList());
-
-            this.groupByAttributes.addAll(
-                    summaryGroupBIES
-            );
+        public Builder setHardLimit(int limit) {
+            if (limit > 200) {
+                this.hardLimit = 200;
+            } else this.hardLimit = Math.max(limit, 50);
             return self();
         }
 
+        public Builder setOrderBy(String orderBy) {
+            OrderByAttributes order = OrderByAttributes.fromValue(orderBy);
+            if (order == null) {
+                throw new InvalidParameterException("Invalid order by type : " + orderBy + " not supported.");
+            }
+            this.orderBy = order;
+            return self();
+        }
+
+        public Builder setIsDesc(boolean desc) {
+            if (desc) {
+                this.isDesc = "desc";
+            } else {
+                this.isDesc = "asc";
+            }
+            return self();
+        }
+
+        public Builder addAllGroupByList(Collection<String> strings) {
+            if (strings == null) {
+                return self();
+            }
+            List<GroupByAttributes> groupByAttributesList = strings.stream().map(
+                            GroupByAttributes::fromValue
+                    )
+                    .filter(Objects::nonNull)
+                    .distinct().sorted().collect(Collectors.toList());
+            this.groupByAttributes.addAll(groupByAttributesList);
+            return self();
+        }
+
+        public long useLimitIfSet() {
+            if (hardLimit != null) {
+                return hardLimit;
+            }
+            return estimateLimit();
+        }
+
+        @Override
         public long estimateLimit() {
             if (this.range != null) {
                 return (range.getRange() / Math.max(timePrecision.getInterval(), 30000) + 1);
             } else {
-                return LIMIT;
+                return MAX_LIMIT;
             }
         }
 
@@ -135,7 +182,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             if (timePrecision == null) {
                 this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 30000);
             }
-            this.limit = this.estimateLimit();
+            this.limit = this.useLimitIfSet();
             return new ExceptionTraceQueryParameter(this);
         }
     }
@@ -149,6 +196,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
                 ", spanId=" + spanId +
                 ", exceptionId=" + exceptionId +
                 ", exceptionDepth=" + exceptionDepth +
+                ", orderBy=" + orderBy +
+                ", isDesc='" + isDesc + '\'' +
                 ", groupByAttributes=" + groupByAttributes +
                 ", timeWindowRangeCount=" + timeWindowRangeCount +
                 '}';

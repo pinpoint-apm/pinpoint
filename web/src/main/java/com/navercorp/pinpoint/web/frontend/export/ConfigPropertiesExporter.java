@@ -28,6 +28,7 @@ public class ConfigPropertiesExporter implements FrontendConfigExporter {
         export.put("showStackTraceOnError", webProperties.isShowStackTraceOnError());
         export.put("showSystemMetric", webProperties.isShowSystemMetric());
         export.put("showUrlStat", webProperties.isShowUrlStat());
+        export.put("showExceptionTrace", webProperties.isShowExceptionTrace());
         export.put("openSource", webProperties.isOpenSource());
 
         export.put("version", Version.VERSION);

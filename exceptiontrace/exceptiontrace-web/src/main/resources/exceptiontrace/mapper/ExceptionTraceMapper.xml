@@ -91,7 +91,8 @@
         stackTraceHash
     </sql>
 
-    <select id="selectExceptions" resultMap="exceptionMetaDataEntity" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectExceptions" resultMap="exceptionMetaDataEntity"
+            parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="fullExceptionColumns"></include>
         FROM
@@ -132,11 +133,12 @@
             AND spanId = #{spanId}
             AND exceptionId = #{exceptionId}
         </if>
-        ORDER BY "timestamp" asc, exceptionDepth asc
+        ORDER BY ${orderBy.getAttributeName} ${isDesc}
         LIMIT ${limit}
     </select>
 
-    <select id="selectExactException" resultMap="exceptionMetaDataEntity" parameterType="ExceptionTraceQueryParameter">
+    <select id="selectExactException" resultMap="exceptionMetaDataEntity"
+            parameterType="ExceptionTraceQueryParameter">
         SELECT
         <include refid="summarizedExceptionColumns"></include>
         FROM
@@ -161,7 +163,9 @@
         SELECT
         <include refid="getGroupedFieldNameEntity"></include>
         LASTWITHTIME(errorClassName, "timestamp", 'STRING') as "mostRecentErrorClass",
-        LASTWITHTIME(errorMessage, "timestamp", 'STRING') as "mostRecentErrorMessage",
+        LASTWITHTIME(
+            substr("errorMessage", 0, -1),
+            "timestamp", 'STRING') as "mostRecentErrorMessage",
         count(*) as "count",
         FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
         LASTWITHTIME("timestamp", "timestamp", 'LONG') as "lastOccurred"

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
-import com.navercorp.pinpoint.exceptiontrace.web.model.GroupByAttributes;
+import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.Range;
@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -53,12 +54,13 @@ import java.util.stream.Collectors;
 public class ExceptionTraceController {
 
     private static final TimePrecision DETAILED_TIME_PRECISION = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 1);
+    private static final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
 
     private final ExceptionTraceService exceptionTraceService;
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
     private final TenantProvider tenantProvider;
+
 
     public ExceptionTraceController(ExceptionTraceService exceptionTraceService, TenantProvider tenantProvider) {
         this.exceptionTraceService = Objects.requireNonNull(exceptionTraceService, "exceptionTraceService");
@@ -91,13 +93,20 @@ public class ExceptionTraceController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
+            @RequestParam("to") @PositiveOrZero long to,
+
+            @RequestParam("orderBy") String orderBy,
+            @RequestParam("isDesc") boolean isDesc,
+            @RequestParam("count") int count
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
                 .setTimePrecision(DETAILED_TIME_PRECISION)
+                .setHardLimit(count)
+                .setOrderBy(orderBy)
+                .setIsDesc(isDesc)
                 .build();
         return exceptionTraceService.getSummarizedExceptionsInRange(
                 queryParameter
@@ -113,20 +122,13 @@ public class ExceptionTraceController {
 
             @RequestParam("groupBy") List<String> groupByList
     ) {
-        List<GroupByAttributes> groupByAttributes = groupByList.stream().map(
-                GroupByAttributes::valueOf
-        ).distinct().sorted().collect(Collectors.toList());
-
-        logger.info(groupByAttributes);
-
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
                 .setTimePrecision(DETAILED_TIME_PRECISION)
-                .addAllGroupBies(groupByAttributes)
+                .addAllGroupByList(groupByList)
                 .build();
-
         return exceptionTraceService.getSummaries(
                 queryParameter
         );
@@ -137,35 +139,12 @@ public class ExceptionTraceController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
-    ) {
-
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setRange(timeWindow.getWindowRange())
-                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
-                .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
-                .build();
-        List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViews(
-                queryParameter
-        );
-        return ExceptionTraceView.newViewFromValueViews("total error occurs", timeWindow, exceptionTraceValueViews);
-    }
-
-    @GetMapping("/chart/groupBy")
-    public ExceptionTraceView getCollectedExceptionMetaDataByGivenRange(
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
 
-            @RequestParam("groupBy") List<String> groupByList
+            @RequestParam(value = "groupBy", required = false) List<String> groupByList
     ) {
-        List<GroupByAttributes> groupByAttributes = groupByList.stream().map(
-                GroupByAttributes::valueOf
-        ).distinct().sorted().collect(Collectors.toList());
+        String groupName = (groupByList == null) ? "total error occurs" : "top5 error occurs";
+
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setApplicationName(applicationName)
@@ -173,12 +152,19 @@ public class ExceptionTraceController {
                 .setRange(timeWindow.getWindowRange())
                 .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
                 .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
-                .addAllGroupBies(groupByAttributes)
+                .addAllGroupByList(groupByList)
                 .build();
         List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViews(
                 queryParameter
         );
-        return ExceptionTraceView.newViewFromValueViews("top5 error occurs", timeWindow, exceptionTraceValueViews);
+
+        return ExceptionTraceView.newViewFromValueViews(groupName, timeWindow, exceptionTraceValueViews);
     }
 
+    @GetMapping("/groups")
+    public List<String> getGroups() {
+        return Arrays.stream(GroupByAttributes.values())
+                .map(GroupByAttributes::getName)
+                .collect(Collectors.toList());
+    }
 }
