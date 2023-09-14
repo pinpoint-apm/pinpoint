@@ -25,15 +25,15 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
-public class FluxAndMonoPublishOnInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class FluxAndMonoSubscribeOnInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private final boolean tracePublishOn;
+    private final boolean traceSubscribeOn;
 
-    // public final Mono<T> publishOn(Scheduler scheduler)
-    public FluxAndMonoPublishOnInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    // public final Mono<T> subscribeOn(Scheduler scheduler)
+    public FluxAndMonoSubscribeOnInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
-        this.tracePublishOn = config.isTracePublishOn();
+        this.traceSubscribeOn = config.isTraceSubscribeOn();
     }
 
     @Override
@@ -46,7 +46,7 @@ public class FluxAndMonoPublishOnInterceptor extends SpanEventSimpleAroundInterc
         recorder.recordServiceType(ReactorConstants.REACTOR_NETTY);
         recorder.recordException(throwable);
 
-        if (tracePublishOn && isAsync(result, throwable)) {
+        if (traceSubscribeOn && isAsync(result, throwable)) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
