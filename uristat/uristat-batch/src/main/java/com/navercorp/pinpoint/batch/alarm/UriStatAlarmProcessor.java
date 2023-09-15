@@ -1,16 +1,16 @@
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmChecker;
-import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckers;
-import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmCheckerRegistry;
-import com.navercorp.pinpoint.batch.alarm.collector.PinotDataCollector;
+import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmChecker;
+import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers;
+import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmChecker;
+import com.navercorp.pinpoint.pinot.alarm.collector.PinotDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.UriStatDataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.condition.AlarmCondition;
-import com.navercorp.pinpoint.batch.alarm.condition.AlarmConditionFactory;
-import com.navercorp.pinpoint.batch.alarm.service.PinotAlarmService;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmKey;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmRule;
+import com.navercorp.pinpoint.pinot.alarm.condition.AlarmCondition;
+import com.navercorp.pinpoint.pinot.alarm.condition.AlarmConditionFactory;
+import com.navercorp.pinpoint.pinot.alarm.service.PinotAlarmService;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.springframework.batch.item.ItemProcessor;
 

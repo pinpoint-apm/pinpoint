@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.dao.PinotAlarmDao;
+import com.navercorp.pinpoint.pinot.alarm.dao.PinotAlarmDao;
 import com.navercorp.pinpoint.batch.alarm.dao.UriStatDao;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmKey;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.batch.alarm.vo.UriStatQueryParams;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;

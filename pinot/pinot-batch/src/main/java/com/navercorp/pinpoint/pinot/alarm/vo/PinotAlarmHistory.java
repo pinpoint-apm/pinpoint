@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.batch.alarm.vo;
+package com.navercorp.pinpoint.pinot.alarm.vo;
 
 import java.sql.Timestamp;
 import java.util.Objects;

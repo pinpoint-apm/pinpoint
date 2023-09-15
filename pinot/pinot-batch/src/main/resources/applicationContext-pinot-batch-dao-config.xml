@@ -10,7 +10,7 @@
     <bean id="uriStatPinotSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="configLocation" value="classpath:/pinot-alarm-mybatis-config.xml"/>
-        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.batch.alarm.vo" />
+        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.pinot.alarm.vo" />
         <property name="mapperLocations" value="classpath:mapper/alarm/*Mapper.xml"/>
         <!-- set "true" in order to catch the errors of declaration of statement more quickly -->
         <property name="failFast" value="true"/>

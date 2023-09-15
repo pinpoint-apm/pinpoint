@@ -1,9 +1,9 @@
-package com.navercorp.pinpoint.batch.alarm.service;
+package com.navercorp.pinpoint.pinot.alarm.service;
 
-import com.navercorp.pinpoint.batch.alarm.dao.PinotAlarmDao;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmHistory;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmKey;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmRule;
+import com.navercorp.pinpoint.pinot.alarm.dao.PinotAlarmDao;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmHistory;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 

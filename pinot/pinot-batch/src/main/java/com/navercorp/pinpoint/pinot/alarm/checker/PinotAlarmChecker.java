@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.alarm.checker;
+package com.navercorp.pinpoint.pinot.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.collector.PinotDataCollector;
-import com.navercorp.pinpoint.batch.alarm.condition.AlarmCondition;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmRule;
+import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
+import com.navercorp.pinpoint.pinot.alarm.collector.PinotDataCollector;
+import com.navercorp.pinpoint.pinot.alarm.condition.AlarmCondition;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

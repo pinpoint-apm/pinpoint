@@ -1,10 +1,12 @@
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmChecker;
-import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckers;
-import com.navercorp.pinpoint.batch.alarm.service.PinotAlarmService;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmHistory;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmRule;
+import com.navercorp.pinpoint.pinot.alarm.DefaultPinotAlarmWriterInterceptor;
+import com.navercorp.pinpoint.pinot.alarm.PinotAlarmWriterInterceptor;
+import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmChecker;
+import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers;
+import com.navercorp.pinpoint.pinot.alarm.service.PinotAlarmService;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmHistory;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
