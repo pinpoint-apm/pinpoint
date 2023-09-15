@@ -23,7 +23,7 @@
     </bean>
 
 
-    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean">
+    <bean id="agentEventWorker" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
         <property name="corePoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>
         <property name="maxPoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>
         <property name="queueCapacity" value="#{collectorProperties.agentEventWorkerQueueSize}"/>
@@ -31,7 +31,7 @@
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
-        <property name="preStartAllCoreThreads" value="true"/>
+        <property name="prestartAllCoreThreads" value="true"/>
     </bean>
 
     <bean id="agentLifeCycleChangeEventHandler"

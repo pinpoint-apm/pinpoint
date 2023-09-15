@@ -43,7 +43,7 @@
         </property>
     </bean>
 
-    <bean id="abstractHbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean" abstract="true">
+    <bean id="abstractHbaseThreadPool" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean" abstract="true">
         <property name="corePoolSize" value="${hbase.client.thread.max}"/>
         <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
         <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
@@ -51,7 +51,7 @@
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
-        <property name="preStartAllCoreThreads" value="true"/>
+        <property name="prestartAllCoreThreads" value="true"/>
     </bean>
 
     <bean id="hbaseThreadPool" parent="abstractHbaseThreadPool">
