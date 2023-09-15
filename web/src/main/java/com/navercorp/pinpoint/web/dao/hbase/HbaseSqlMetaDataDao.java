@@ -26,11 +26,11 @@ import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDa
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
-
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +39,7 @@ import java.util.Objects;
  * @author emeroad
  * @author minwoo.jung
  */
-//@Repository
+@Repository
 public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final HbaseColumnFamily.SqlMetadataV2 DESCRIPTOR = HbaseColumnFamily.SQL_METADATA_VER2_SQL;
@@ -55,7 +55,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     public HbaseSqlMetaDataDao(HbaseOperations2 hbaseOperations2,
                                TableNameProvider tableNameProvider,
-                               @Qualifier("sqlMetaDataMapper2") RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper,
+                               @Qualifier("sqlMetaDataMapper") RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper,
                                @Qualifier("metadataRowKeyDistributor2") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");

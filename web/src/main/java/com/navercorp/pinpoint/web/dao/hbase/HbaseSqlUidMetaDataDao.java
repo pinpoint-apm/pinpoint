@@ -14,10 +14,12 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
 
+@Repository
 public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
     private final HbaseColumnFamily.SqlUidMetaData DESCRIPTOR = HbaseColumnFamily.SQL_UID_METADATA_SQL;
 

@@ -15,10 +15,22 @@
  */
 package com.navercorp.pinpoint.web;
 
+import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
+import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
+import com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import java.util.List;
 
 /**
  * @author youngjin.kim2
@@ -28,7 +40,35 @@ import org.springframework.context.annotation.Import;
         "com.navercorp.pinpoint.web.service",
 })
 @Import({
-        HyperLinkConfiguration.class
+        HyperLinkConfiguration.class,
+        WebServiceConfig.CommonConfig.class,
 })
 public class WebServiceConfig {
+
+
+    @Configuration
+    public static class CommonConfig {
+
+        @Bean
+        public ApiParserProvider apiParserProvider() {
+            return new ApiParserProvider();
+        }
+
+        @Bean
+        public SerializerFactory<HeaderTBaseSerializer> commandHeaderTBaseSerializerFactory() {
+            return CommandHeaderTBaseSerializerFactory.getDefaultInstance();
+        }
+
+        @Bean
+        public DeserializerFactory<HeaderTBaseDeserializer> commandHeaderTBaseDeserializerFactory() {
+            return CommandHeaderTBaseDeserializerFactory.getDefaultInstance();
+        }
+
+        @Bean
+        public AgentEventMessageDeserializer agentEventMessageDeserializer() {
+            DeserializerFactory<HeaderTBaseDeserializer> factory1 = commandHeaderTBaseDeserializerFactory();
+            DeserializerFactory<HeaderTBaseDeserializer> factory2 = new AgentEventHeaderTBaseDeserializerFactory();
+            return new AgentEventMessageDeserializer(List.of(factory1, factory2));
+        }
+    }
 }
