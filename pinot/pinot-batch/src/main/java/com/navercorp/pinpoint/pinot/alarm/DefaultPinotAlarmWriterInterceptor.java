@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.alarm;
+package com.navercorp.pinpoint.pinot.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckers;
+import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers;
 
 import java.util.List;
 
-public interface PinotAlarmWriterInterceptor {
+public class DefaultPinotAlarmWriterInterceptor implements PinotAlarmWriterInterceptor {
 
-    void before(List<? extends PinotAlarmCheckers> checkers);
 
-    void after(List<? extends PinotAlarmCheckers> checkers);
+    @Override
+    public void before(List<? extends PinotAlarmCheckers> checkers) {
+
+    }
+
+    @Override
+    public void after(List<? extends PinotAlarmCheckers> checkers) {
+
+    }
 }

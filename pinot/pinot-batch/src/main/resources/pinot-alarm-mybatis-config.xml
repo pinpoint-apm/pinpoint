@@ -22,7 +22,7 @@
     </settings>
     
     <typeAliases>
-        <typeAlias type="com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmKey" alias="PinotAlarmKey"/>
+        <typeAlias type="com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey" alias="PinotAlarmKey"/>
     </typeAliases>
 
 </configuration>

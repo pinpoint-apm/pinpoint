@@ -1,6 +1,6 @@
-package com.navercorp.pinpoint.batch.alarm.condition;
+package com.navercorp.pinpoint.pinot.alarm.condition;
 
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmRule;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

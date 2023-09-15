@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.batch.alarm.checker;
+package com.navercorp.pinpoint.pinot.alarm.checker;
 
 import java.util.List;
 

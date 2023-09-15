@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.alarm.vo;
+package com.navercorp.pinpoint.pinot.alarm.vo;
 
 import java.math.BigDecimal;
 

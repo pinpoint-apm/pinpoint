@@ -1,9 +1,6 @@
 package com.navercorp.pinpoint.batch.alarm.dao;
 
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.batch.alarm.vo.UriStatQueryParams;
-
-import java.util.List;
 
 
 public interface UriStatDao {

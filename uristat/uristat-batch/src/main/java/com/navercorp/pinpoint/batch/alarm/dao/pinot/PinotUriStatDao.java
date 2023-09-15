@@ -1,13 +1,11 @@
 package com.navercorp.pinpoint.batch.alarm.dao.pinot;
 
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.batch.alarm.vo.UriStatQueryParams;
 import com.navercorp.pinpoint.batch.alarm.dao.UriStatDao;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Objects;
 
 @Repository

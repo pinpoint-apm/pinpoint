@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.batch.alarm.collector;
 
 import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.dao.UriStatDao;
+import com.navercorp.pinpoint.pinot.alarm.collector.PinotDataCollector;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.springframework.stereotype.Component;
 

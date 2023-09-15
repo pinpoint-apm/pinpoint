@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.alarm.checker;
+package com.navercorp.pinpoint.pinot.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.collector.PinotDataCollector;
-import com.navercorp.pinpoint.batch.alarm.condition.AlarmCondition;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmRule;
+import com.navercorp.pinpoint.pinot.alarm.collector.PinotDataCollector;
+import com.navercorp.pinpoint.pinot.alarm.condition.AlarmCondition;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public class PinotLongValueAlarmChecker extends PinotAlarmChecker<Long> {
+public class PinotDoubleValueAlarmChecker extends PinotAlarmChecker<Double> {
 
-    public PinotLongValueAlarmChecker(List<PinotAlarmRule> rules, String unit, PinotDataCollector dataCollector, AlarmCondition<Long> alarmCondition) {
+    public PinotDoubleValueAlarmChecker(List<PinotAlarmRule> rules, String unit, PinotDataCollector dataCollector, AlarmCondition<Double> alarmCondition) {
         super(rules, unit, dataCollector, alarmCondition);
     }
 
     @Override
-    protected boolean decideResult(BigDecimal threshold, Long value) {
+    protected boolean decideResult(BigDecimal threshold, Double value) {
         return alarmCondition.isConditionMet(threshold, value);
     }
     

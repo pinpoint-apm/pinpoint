@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.condition.AlarmCondition;
-import com.navercorp.pinpoint.batch.alarm.condition.AlarmConditionFactory;
-import com.navercorp.pinpoint.batch.alarm.vo.PinotAlarmRule;
+import com.navercorp.pinpoint.pinot.alarm.condition.AlarmCondition;
+import com.navercorp.pinpoint.pinot.alarm.condition.AlarmConditionFactory;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
 
 import java.util.EnumSet;
 import java.util.Set;

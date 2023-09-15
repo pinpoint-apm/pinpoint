@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.batch.alarm.condition;
+package com.navercorp.pinpoint.pinot.alarm.condition;
 
 public enum AlarmConditionCategory {
     BIGGER_THAN(">"),

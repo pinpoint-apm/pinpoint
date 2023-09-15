@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.batch.alarm.condition;
+package com.navercorp.pinpoint.pinot.alarm.condition;
 
 import java.math.BigDecimal;
 import java.util.function.BiFunction;
