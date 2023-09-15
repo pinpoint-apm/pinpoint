@@ -20,14 +20,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author youngjin.kim2
@@ -36,40 +35,14 @@ public class HttpIntentRoutingFilter extends HttpFilter {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final VersionPrefixRewriter rewriter = new VersionPrefixRewriter();
+    private final VersionPrefixRewriter rewriter;
 
-
-    public HttpIntentRoutingFilter() {
+    public HttpIntentRoutingFilter(VersionPrefixRewriter rewriter) {
+        this.rewriter = Objects.requireNonNull(rewriter, "rewriter");
     }
 
     @Override
-    public void init(FilterConfig config) {
-        logger.info("Initialized rewriter v2, name: {}", config.getFilterName());
-    }
-
-    @Override
-    public void destroy() {
-        logger.info("Destroyed rewriter v2");
-    }
-
-    @Override
-    public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
-            FilterChain chain
-    ) throws IOException, ServletException {
-        if (request instanceof HttpServletRequest) {
-            route((HttpServletRequest) request, response, chain);
-        } else {
-            chain.doFilter(request, response);
-        }
-    }
-
-    private void route(
-            HttpServletRequest request,
-            ServletResponse response,
-            FilterChain chain
-    ) throws ServletException, IOException {
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String uri = request.getRequestURI();
 
         final String rewriteUrl = rewriter.rewrite(uri);

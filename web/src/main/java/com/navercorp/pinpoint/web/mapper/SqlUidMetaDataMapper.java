@@ -10,20 +10,23 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+@Component
 public class SqlUidMetaDataMapper implements RowMapper<List<SqlUidMetaDataBo>> {
     private final static String SQL_UID_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toString(HbaseColumnFamily.SQL_UID_METADATA_SQL.QUALIFIER_SQLSTATEMENT);
 
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final RowKeyDecoder<UidMetaDataRowKey> decoder = new UidMetadataDecoder();
 
-    public SqlUidMetaDataMapper(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    public SqlUidMetaDataMapper(@Qualifier("metadataRowKeyDistributor2") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
@@ -55,7 +58,4 @@ public class SqlUidMetaDataMapper implements RowMapper<List<SqlUidMetaDataBo>> {
         return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
     }
 
-    public void setRowKeyDistributorByHashPrefix(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
-        this.rowKeyDistributorByHashPrefix = rowKeyDistributorByHashPrefix;
-    }
 }

@@ -22,8 +22,8 @@ import org.mockito.Mockito;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -36,26 +36,31 @@ public class HttpIntentRoutingFilterTest {
     @Test
     public void rewriteTest() {
         Assertions.assertThrows(NullPointerException.class, () -> {
-            HttpIntentRoutingFilter httpIntentRoutingFilter = new HttpIntentRoutingFilter();
+            HttpIntentRoutingFilter httpIntentRoutingFilter = newHttpFilter();
 
             HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
             Mockito.when(servletRequest.getRequestURI()).thenReturn(ADMIN_REWRITE_TARGET);
 
-            ServletResponse servletResponse = Mockito.mock(ServletResponse.class);
+            HttpServletResponse servletResponse = Mockito.mock(HttpServletResponse.class);
             FilterChain filterChain = Mockito.mock(FilterChain.class);
 
             httpIntentRoutingFilter.doFilter(servletRequest, servletResponse, filterChain);
         });
     }
 
+    private HttpIntentRoutingFilter newHttpFilter() {
+        VersionPrefixRewriter rewriter = new VersionPrefixRewriter();
+        return new HttpIntentRoutingFilter(rewriter);
+    }
+
     @Test
     public void restApiWithRewritePathTest() throws IOException, ServletException {
-        HttpIntentRoutingFilter httpIntentRoutingFilter = new HttpIntentRoutingFilter();
+        HttpIntentRoutingFilter httpIntentRoutingFilter = newHttpFilter();
 
         HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
         Mockito.when(servletRequest.getRequestURI()).thenReturn("/api" + ADMIN_REWRITE_TARGET + "/removeApplicationName");
 
-        ServletResponse servletResponse = Mockito.mock(ServletResponse.class);
+        HttpServletResponse servletResponse = Mockito.mock(HttpServletResponse.class);
         FilterChain filterChain = Mockito.mock(FilterChain.class);
 
         httpIntentRoutingFilter.doFilter(servletRequest, servletResponse, filterChain);

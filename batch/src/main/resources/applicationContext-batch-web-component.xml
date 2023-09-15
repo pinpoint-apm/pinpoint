@@ -13,43 +13,8 @@
         <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.AgentServiceImpl"/>
     </context:component-scan>
 
-
-    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory" factory-method="getDefaultInstance">
-    </bean>
-    <bean id="agentEventHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory">
-    </bean>
-
-    <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
-        <constructor-arg>
-            <list value-type="com.navercorp.pinpoint.thrift.io.DeserializerFactory">
-                <ref bean="commandHeaderTBaseDeserializerFactory"/>
-                <ref bean="agentEventHeaderTBaseDeserializerFactory"/>
-            </list>
-        </constructor-arg>
-    </bean>
-
     <bean id="agentEventMessageDeserializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1"/>
 
-    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
-    </bean>
-
-
-    <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao"/>
-
-    <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
-        <constructor-arg ref="metadataRowKeyDistributor"/>
-    </bean>
-
-    <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
-        <constructor-arg ref="metadataRowKeyDistributor2"/>
-    </bean>
-
-    <bean id="hbaseSqlUidMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlUidMetaDataDao"/>
-    <bean id="sqlUidMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlUidMetaDataMapper">
-        <constructor-arg ref="metadataRowKeyDistributor2"/>
-    </bean>
-
     <bean id="scatterChartProperties" class="com.navercorp.pinpoint.web.config.ScatterChartProperties"/>
-
 
 </beans>

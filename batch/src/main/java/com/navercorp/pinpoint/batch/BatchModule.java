@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.datasource.MetaDataSourceConfiguration;
 import com.navercorp.pinpoint.web.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
+import com.navercorp.pinpoint.web.WebServiceConfig;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
@@ -54,6 +55,7 @@ import org.springframework.context.annotation.ImportResource;
 
         AlarmJobModule.class,
 
+        WebServiceConfig.CommonConfig.class,
         WebhookModule.class,
         WebHbaseModule.class,
         RestTemplateConfiguration.class,
