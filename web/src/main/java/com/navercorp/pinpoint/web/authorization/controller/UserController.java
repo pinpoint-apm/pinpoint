@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.util.ValueValidator;
 import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.web.vo.exception.PinpointUserException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -57,7 +58,7 @@ public class UserController {
     }
 
     @PostMapping
-    public Response insertUser(@RequestBody User user) {
+    public Response insertUser(@RequestBody User user) throws PinpointUserException {
         if (!ValueValidator.validateUser(user)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,

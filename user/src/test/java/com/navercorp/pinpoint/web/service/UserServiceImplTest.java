@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.web.dao.memory.MemoryUserDao;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.util.UserInfoEncoder;
 import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.web.vo.exception.PinpointUserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +46,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void insertUserTest() {
+    public void insertUserTest() throws PinpointUserException {
         UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
         UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
@@ -64,6 +63,19 @@ public class UserServiceImplTest {
         assertEquals(decodedUser.getPhoneCountryCode(), user.getPhoneCountryCode());
         assertEquals(decodedUser.getPhoneNumber(), ENCODED_PHONE_NUMBER);
         assertEquals(decodedUser.getEmail(), ENCODED_EMAIL);
+    }
+
+    @Test
+    public void insertUserDuplicateUserIdErrorTest() throws PinpointUserException {
+        UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
+        UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
+
+        String userId = "userId01";
+        User user1 = new User(userId, "name01", "departmentName", 82, "01012341234", "name01@pinpoint.com");
+        userService.insertUser(user1);
+        User user2 = new User(userId, "name02", "departmentName", 82, "01012341235", "name02@pinpoint.com");
+
+        assertThrows(PinpointUserException.class, () -> userService.insertUser(user2));
     }
 
     @Test
@@ -94,7 +106,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void updateUserTest() {
+    public void updateUserTest() throws PinpointUserException {
         UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
         UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
