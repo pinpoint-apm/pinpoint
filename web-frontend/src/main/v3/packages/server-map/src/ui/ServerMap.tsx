@@ -47,11 +47,10 @@ export const ServerMap = ({
   cy,
 }: ServerMapProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const baseNodeIdRef = React.useRef<string>();
   const cyRef = React.useRef<cytoscape.Core>();
   const layoutRef = React.useRef<cytoscape.Layouts>();
   const serverMapTheme = getTheme(customTheme);
-  const [selectedElementId, setSelectedElementId] = React.useState(baseNodeId);
+  const [selectedElementId, setSelectedElementId] = React.useState('');
 
   React.useEffect(() => {
     return () => {
@@ -60,7 +59,7 @@ export const ServerMap = ({
   }, []);
 
   React.useEffect(() => {
-    baseNodeIdRef.current = baseNodeId;
+    setSelectedElementId(baseNodeId);
 
     if (cyRef.current) {
       layoutRef.current?.removeAllListeners();
@@ -219,9 +218,14 @@ export const ServerMap = ({
                 y: newY,
               });
             });
+
             const selectedElement = cy.getElementById(selectedElementId);
 
-            selectedElement.isNode() ? highlightNode(selectedElement) : hightlightEdge(selectedElement);
+            if (selectedElement.inside()) {
+              selectedElement.isNode() ? highlightNode(selectedElement) : highlightEdge(selectedElement);
+            } else {
+              highlightNode(cy.getElementById(baseNodeId));
+            }
           }
         }
       }
@@ -245,10 +249,10 @@ export const ServerMap = ({
 
     if (cy) {
       cy.on('layoutready', () => {
-        highlightNode(cy.getElementById(baseNodeId));
-        const mainNode = cy.getElementById(baseNodeId);
+        const baseNode = cy.getElementById(baseNodeId);
+        highlightNode(baseNode);
         cy.resize();
-        cy.center(mainNode);
+        cy.center(baseNode);
       })
         .on('mouseover', ({ target }) => {
           cy.container()!.style.cursor = target === cy ? 'default' : 'pointer';
@@ -276,14 +280,18 @@ export const ServerMap = ({
               position,
               data: target.data(),
             });
+
+            setSelectedElementId(target.id());
           } else if (target.isEdge()) {
-            hightlightEdge(target);
+            highlightEdge(target);
 
             handleClickLink({
               eventType,
               position,
               data: target.data(),
             });
+
+            setSelectedElementId(target.id());
           }
         })
         .on('cxttap', ({ target, renderedPosition }: InputEventObject) => {
@@ -324,7 +332,7 @@ export const ServerMap = ({
     target.connectedEdges().style(serverMapTheme.edge?.highlight!);
   };
 
-  const hightlightEdge = (target: cytoscape.CollectionReturnValue) => {
+  const highlightEdge = (target: cytoscape.CollectionReturnValue) => {
     const cy = cyRef.current!;
 
     cy.nodes().style(serverMapTheme.node?.default!);
