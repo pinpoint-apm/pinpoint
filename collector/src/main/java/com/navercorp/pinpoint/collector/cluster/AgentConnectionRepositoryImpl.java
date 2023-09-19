@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.realtime.collector.service.AgentConnectionReposito
 import com.navercorp.pinpoint.thrift.sender.message.CommandGrpcToThriftMessageConverter;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author youngjin.kim2
@@ -29,11 +30,16 @@ import java.util.Objects;
 public class AgentConnectionRepositoryImpl implements AgentConnectionRepository {
 
     private final StreamRouteHandler streamRouteHandler;
+    private final ClusterPointRepository<?> clusterPointRepository;
 
     private final CommandGrpcToThriftMessageConverter messageConverter = new CommandGrpcToThriftMessageConverter();
 
-    public AgentConnectionRepositoryImpl(StreamRouteHandler streamRouteHandler) {
+    public AgentConnectionRepositoryImpl(
+            StreamRouteHandler streamRouteHandler,
+            ClusterPointRepository<?> clusterPointRepository
+    ) {
         this.streamRouteHandler = Objects.requireNonNull(streamRouteHandler, "streamRouteHandler");
+        this.clusterPointRepository = Objects.requireNonNull(clusterPointRepository, "clusterPointRepository");
     }
 
     @Override
@@ -44,6 +50,11 @@ public class AgentConnectionRepositoryImpl implements AgentConnectionRepository 
         }
 
         return new AgentConnectionImpl(clusterPoint, this.messageConverter);
+    }
+
+    @Override
+    public Set<ClusterKey> getClusterKeys() {
+        return this.clusterPointRepository.getAvailableAgentKeySet();
     }
 
 }

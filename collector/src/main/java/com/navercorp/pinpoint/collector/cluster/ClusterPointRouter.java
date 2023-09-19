@@ -39,10 +39,9 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
-
-import org.apache.thrift.TBase;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 
 import javax.annotation.PreDestroy;
 import java.util.Objects;
@@ -107,7 +106,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
         if (request == null) {
             return StreamCode.TYPE_UNKNOWN;
         } else if (request instanceof TCommandTransfer) {
-            return handleStreamRouteCreate((TCommandTransfer) request, packet, streamChannel);
+            return handleStreamRouteCreate((TCommandTransfer) request, streamChannel);
         } else {
             return StreamCode.TYPE_UNSUPPORT;
         }
@@ -120,7 +119,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
         streamRouteHandler.close(streamChannel);
     }
 
-    private boolean handleRouteRequest(TCommandTransfer request, RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+    private void handleRouteRequest(TCommandTransfer request, RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         logger.info("handleRouteRequest() request:{}, remote:{}", request, pinpointSocket.getRemoteAddress());
         
         byte[] payload = request.getPayload();
@@ -130,7 +129,9 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
         TCommandTransferResponse response = routeHandler.onRoute(event);
         pinpointSocket.response(requestPacket.getRequestId(), serialize(response));
 
-        return response.getRouteResult() == TRouteResult.OK;
+        if (response.getRouteResult() != TRouteResult.OK) {
+            throw new RuntimeException("RouteResult is not OK");
+        }
     }
 
     private void handleRouteRequestFail(String message, RequestPacket requestPacket, PinpointSocket pinpointSocket) {
@@ -140,7 +141,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
         pinpointSocket.response(requestPacket.getRequestId(), serialize(tResult));
     }
 
-    private StreamCode handleStreamRouteCreate(TCommandTransfer request, StreamCreatePacket packet, ServerStreamChannel serverStreamChannel) {
+    private StreamCode handleStreamRouteCreate(TCommandTransfer request, ServerStreamChannel serverStreamChannel) {
         byte[] payload = request.getPayload();
         TBase<?, ?> command = deserialize(payload);
         if (command == null) {

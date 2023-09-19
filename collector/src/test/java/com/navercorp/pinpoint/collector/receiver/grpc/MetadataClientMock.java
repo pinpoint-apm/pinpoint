@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -39,8 +39,8 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +65,7 @@ public class MetadataClientMock {
     private final Timer retryTimer;
     private final RetryScheduler<GeneratedMessageV3, PResult> retryScheduler;
 
-    private volatile MetadataGrpc.MetadataStub metadataStub;
+    private final MetadataGrpc.MetadataStub metadataStub;
     private final AtomicInteger requestCounter = new AtomicInteger(0);
     private final AtomicInteger responseCounter = new AtomicInteger(0);
     private final List<String> responseList = new ArrayList<>();

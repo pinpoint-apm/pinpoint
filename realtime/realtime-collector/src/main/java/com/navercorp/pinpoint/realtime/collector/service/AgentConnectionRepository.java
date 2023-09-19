@@ -17,11 +17,15 @@ package com.navercorp.pinpoint.realtime.collector.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
+import java.util.Set;
+
 /**
  * @author youngjin.kim2
  */
 public interface AgentConnectionRepository {
 
     AgentConnection getConnection(ClusterKey key);
+
+    Set<ClusterKey> getClusterKeys();
 
 }

@@ -100,7 +100,7 @@ public class PinpointGrpcServer {
         toState(SocketStateCode.CONNECTED);
     }
 
-    public boolean handleHandshake(List<Integer> supportCommandServiceList) {
+    public void handleHandshake(List<Integer> supportCommandServiceList) {
         if (isInfo) {
             logger.info("{} handleHandshake() started. data:{}", clusterKey, supportCommandServiceList);
         }
@@ -108,10 +108,10 @@ public class PinpointGrpcServer {
         boolean isFirst = this.supportCommandServiceList.compareAndSet(null, supportCommandServiceList);
         if (isFirst) {
             toState(SocketStateCode.RUN_WITHOUT_HANDSHAKE);
-            SocketStateChangeResult socketStateChangeResult = toState(SocketStateCode.RUN_DUPLEX);
-            return socketStateChangeResult.isChange();
+            if (!toState(SocketStateCode.RUN_DUPLEX).isChange()) {
+                throw new RuntimeException("Failed to transfer state into RUN_DUPLEX");
+            }
         }
-        return false;
     }
 
     private SocketStateChangeResult toState(SocketStateCode socketStateCode) {
@@ -223,13 +223,8 @@ public class PinpointGrpcServer {
         }
     }
 
-    public void handleFail(PCmdResponse failMessage) {
-        String message = failMessage.getMessage().getValue();
-        if (message != null) {
-            setFailMessageToFuture(failMessage.getResponseId(), message);
-        } else {
-            setFailMessageToFuture(failMessage.getResponseId(), "failed to route message");
-        }
+    public void handleFailure(PCmdResponse failMessage) {
+        setFailMessageToFuture(failMessage.getResponseId(), failMessage.getMessage().getValue());
     }
 
     // 2nd message : server(agent) -> client(collector)
@@ -272,8 +267,6 @@ public class PinpointGrpcServer {
             streamChannel.handleStreamResponsePacket(new StreamResponsePacket(streamId, serialize));
         } catch (TException t) {
             throw new StreamException(StreamCode.TYPE_UNKNOWN, "Failed to serialize message.(tBase:" + tBase + ")");
-        } catch (StreamException e) {
-            throw e;
         }
     }
 

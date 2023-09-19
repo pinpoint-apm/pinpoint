@@ -15,13 +15,130 @@
  */
 package com.navercorp.pinpoint.web.realtime;
 
+import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
+import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
+import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
+import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountServiceImpl;
+import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.RedisActiveThreadCountWebSocketHandler;
+import com.navercorp.pinpoint.web.realtime.activethread.dump.RedisActiveThreadDumpService;
+import com.navercorp.pinpoint.web.realtime.echo.RedisEchoService;
+import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
+import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.service.EchoService;
+import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
+import com.navercorp.pinpoint.web.websocket.PinpointWebSocketTimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import javax.annotation.Nullable;
+import java.time.Duration;
+import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author youngjin.kim2
  */
-@Configuration
-@Import({LegacyRealtimeConfig.class, RedisRealtimeConfig.class})
+@Configuration(proxyBeanMethods = false)
 public class RealtimeConfig {
+
+    @Value("${pinpoint.modules.realtime.enabled:false}")
+    boolean activatedRealtime;
+
+    @Bean
+    FrontendConfigExporter realtimeFrontendConfigExporter() {
+        return new RealtimeFrontendConfigExporter(activatedRealtime, activatedRealtime);
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "true")
+    @Import(RedisRealtimeWebModule.class)
+    public static class ActiveThreadCountConfig {
+
+        @Value("${pinpoint.web.realtime.agent-recentness:PT5M}")
+        Duration agentRecentness;
+
+        @Bean
+        AgentLookupService agentLookupService(AgentInfoService agentInfoService) {
+            return new AgentLookupServiceImpl(agentInfoService, agentRecentness);
+        }
+
+        @Bean
+        PinpointWebSocketHandler redisActiveThreadCountHandler(
+                RedisActiveThreadCountWebSocketHandler delegate,
+                PinpointWebSocketMessageConverter converter,
+                @Autowired(required = false) ServerMapDataFilter serverMapDataFilter
+        ) {
+            return new RedisActiveThreadCountHandlerAdaptor(delegate, converter, serverMapDataFilter, null);
+        }
+
+        @Bean
+        ActiveThreadCountService activeThreadCountService(
+                ActiveThreadCountDao atcDao,
+                AgentLookupService agentLookupService,
+                @Qualifier("pubSubATCSessionScheduledExecutor") ScheduledExecutorService scheduledExecutor,
+                ActiveThreadCountService.ATCPeriods atcPeriods,
+                @Autowired(required = false) @Nullable TimerTaskDecoratorFactory timerTaskDecoratorFactory
+        ) {
+            return new ActiveThreadCountServiceImpl(
+                    atcDao,
+                    agentLookupService,
+                    Objects.requireNonNullElseGet(timerTaskDecoratorFactory,
+                            () -> new PinpointWebSocketTimerTaskDecoratorFactory()),
+                    scheduledExecutor,
+                    atcPeriods.getPeriodEmit(),
+                    atcPeriods.getPeriodUpdate()
+            );
+        }
+
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "true")
+    @Import(RedisRealtimeWebModule.class)
+    public static class ActiveThreadDumpConfig {
+
+        @Bean
+        ActiveThreadDumpService redisActiveThreadDumpService(RedisActiveThreadDumpService delegate) {
+            return new RedisActiveThreadDumpServiceAdaptor(delegate);
+        }
+
+        @Bean
+        ActiveThreadDumpController activeThreadDumpController(
+                ConfigProperties webProperties,
+                AgentService agentService,
+                ActiveThreadDumpService activeThreadDumpService
+        ) {
+            return new ActiveThreadDumpController(webProperties, agentService, activeThreadDumpService);
+        }
+
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "true")
+    @Import(RedisRealtimeWebModule.class)
+    public static class EchoConfig {
+
+        @Bean
+        EchoService redisEchoService(RedisEchoService delegate) {
+            return new RedisEchoServiceAdaptor(delegate);
+        }
+
+        @Bean
+        EchoController echoController(AgentService agentService, EchoService echoService) {
+            return new EchoController(agentService, echoService);
+        }
+
+    }
+
 }

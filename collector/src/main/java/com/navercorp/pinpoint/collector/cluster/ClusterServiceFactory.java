@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.config.CollectorClusterProperties;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -28,20 +24,12 @@ import java.util.Objects;
 
 public class ClusterServiceFactory implements FactoryBean<ClusterService>, InitializingBean, DisposableBean {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
-    private CollectorClusterProperties collectorClusterProperties;
     private ClusterPointRouter clusterPointRouter;
-
     private ClusterService clusterService;
 
     @Override
-    public ClusterService getObject() throws Exception {
+    public ClusterService getObject() {
         return this.clusterService;
-    }
-
-    public void setClusterProperties(CollectorClusterProperties collectorClusterProperties) {
-        this.collectorClusterProperties = Objects.requireNonNull(collectorClusterProperties, "collectorClusterProperties");
     }
 
     public void setClusterPointRouter(ClusterPointRouter clusterPointRouter) {
@@ -57,26 +45,16 @@ public class ClusterServiceFactory implements FactoryBean<ClusterService>, Initi
     @Override
     public void afterPropertiesSet() throws Exception {
         this.clusterService = newClusterService();
-        this.clusterService.setUp();
+        this.clusterService.setup();
     }
 
     private ClusterService newClusterService() {
-        if (collectorClusterProperties.isClusterEnable()) {
-            return new ZookeeperClusterService(collectorClusterProperties, clusterPointRouter);
-        }
-        logger.info("pinpoint-collector cluster disable");
-        return new DisableClusterService();
+        return new ClusterServiceImpl(clusterPointRouter);
     }
 
     @Override
     public Class<?> getObjectType() {
         return ClusterService.class;
     }
-
-    @Override
-    public boolean isSingleton() {
-        return FactoryBean.super.isSingleton();
-    }
-
 
 }

@@ -52,9 +52,7 @@ public class ClusterAddressProviderTest {
 
     @Test
     public void failedToCreateTest() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
-            ClusterAddressProvider multiAddressProvider = new ClusterAddressProvider(null);
-        });
+        Assertions.assertThrows(NullPointerException.class, () -> new ClusterAddressProvider(null));
     }
 
 }

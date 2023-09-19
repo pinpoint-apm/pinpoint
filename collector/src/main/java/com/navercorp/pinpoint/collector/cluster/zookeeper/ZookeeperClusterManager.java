@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.AddressParser;
 import com.navercorp.pinpoint.collector.util.MultipleAddress;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
@@ -30,8 +29,8 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonState;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.curator.utils.ZKPaths;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,11 +96,6 @@ public class ZookeeperClusterManager {
 
                     workerState.changeStateStarted();
                     logger.info("{} initialization completed.", this.getClass().getSimpleName());
-
-                    if (clusterConnectionManager != null) {
-                        clusterConnectionManager.start();
-                    }
-
                     break;
                 }
             case INITIALIZING:
@@ -215,7 +209,6 @@ public class ZookeeperClusterManager {
 
     class GetAndRegisterTask implements Task {
 
-        @SuppressWarnings("SuspiciousMethodCalls")
         private boolean handleAndRegisterWatcher0() {
             boolean needNotRetry = false;
             try {
@@ -233,14 +226,13 @@ public class ZookeeperClusterManager {
                 }
 
                 for (Address connectedAddress : connectedAddressList) {
-                    //noinspection SuspiciousMethodCalls,SuspiciousMethodCalls
                     if (!targetAddressList.contains(connectedAddress)) {
                         clusterConnectionManager.disconnectPoint(connectedAddress);
                     }
                 }
 
                 needNotRetry = true;
-                return needNotRetry;
+                return true;
             } catch (Exception e) {
                 if (!(e instanceof ConnectionException)) {
                     needNotRetry = true;

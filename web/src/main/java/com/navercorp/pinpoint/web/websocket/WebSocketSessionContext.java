@@ -42,8 +42,8 @@ public class WebSocketSessionContext {
         this.healthCheckSuccess = new AtomicBoolean(true);
     }
 
-    public boolean changeHealthCheckSuccess() {
-        return healthCheckSuccess.compareAndSet(false, true);
+    public void changeHealthCheckSuccess() {
+        healthCheckSuccess.compareAndSet(false, true);
     }
 
     public boolean changeHealthCheckFail() {

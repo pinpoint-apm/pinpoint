@@ -71,6 +71,13 @@ public class GrpcAgentConnection implements ClusterPoint<TBase<?, ?>> {
         return pinpointGrpcServer.openStream(message, streamChannelEventHandler);
     }
 
+    public ClientStreamChannel openStream(
+            GeneratedMessageV3 request,
+            ClientStreamChannelEventHandler eventHandler
+    ) throws StreamException {
+        return pinpointGrpcServer.openStream(Objects.requireNonNull(request, "request"), eventHandler);
+    }
+
     @Override
     public ClusterKey getDestClusterKey() {
         return pinpointGrpcServer.getClusterKey();
@@ -105,11 +112,7 @@ public class GrpcAgentConnection implements ClusterPoint<TBase<?, ?>> {
             return false;
         }
 
-        if (this.pinpointGrpcServer == ((GrpcAgentConnection) obj).pinpointGrpcServer) {
-            return true;
-        }
-
-        return false;
+        return this.pinpointGrpcServer == ((GrpcAgentConnection) obj).pinpointGrpcServer;
     }
 
     @Override

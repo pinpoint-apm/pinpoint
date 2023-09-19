@@ -23,7 +23,6 @@ import java.util.List;
  * @author minwoo.jung
  */
 public interface ClusterConnectionManager {
-    void start();
 
     void stop();
 

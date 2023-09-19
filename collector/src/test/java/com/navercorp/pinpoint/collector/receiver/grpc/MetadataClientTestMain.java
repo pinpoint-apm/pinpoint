@@ -29,7 +29,7 @@ public class MetadataClientTestMain {
         MetadataClientMock clientMock = new MetadataClientMock("localhost", 9997, true);
         clientMock.apiMetaData(100);
 
-        Uninterruptibles.sleepUninterruptibly(60, SECONDS.SECONDS);
+        Uninterruptibles.sleepUninterruptibly(60, SECONDS);
         List<String> list = clientMock.getResponseList();
         list.sort(Comparator.comparingInt(Integer::valueOf));
 
@@ -38,7 +38,7 @@ public class MetadataClientTestMain {
             System.out.println(response);
         }
 
-        Uninterruptibles.sleepUninterruptibly(60, SECONDS.SECONDS);
+        Uninterruptibles.sleepUninterruptibly(60, SECONDS);
     }
 
 }

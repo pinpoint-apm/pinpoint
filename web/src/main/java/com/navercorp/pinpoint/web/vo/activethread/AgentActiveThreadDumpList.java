@@ -34,10 +34,6 @@ public class AgentActiveThreadDumpList {
 
     private final List<AgentActiveThreadDump> agentActiveThreadDumpRepository;
 
-    public AgentActiveThreadDumpList() {
-        this(4);
-    }
-
     public AgentActiveThreadDumpList(int initialCapacity) {
         agentActiveThreadDumpRepository = new ArrayList<>(initialCapacity);
     }

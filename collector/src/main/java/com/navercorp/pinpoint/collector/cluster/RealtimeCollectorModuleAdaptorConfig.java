@@ -34,8 +34,11 @@ public class RealtimeCollectorModuleAdaptorConfig {
 
     @Bean
     @ConditionalOnBean(StreamRouteHandler.class)
-    AgentConnectionRepository agentConnectionRepository(StreamRouteHandler streamRouteHandler) {
-        return new AgentConnectionRepositoryImpl(streamRouteHandler);
+    AgentConnectionRepository agentConnectionRepository(
+            StreamRouteHandler streamRouteHandler,
+            ClusterPointRepository<?> clusterPointRepository
+    ) {
+        return new AgentConnectionRepositoryImpl(streamRouteHandler, clusterPointRepository);
     }
 
 }

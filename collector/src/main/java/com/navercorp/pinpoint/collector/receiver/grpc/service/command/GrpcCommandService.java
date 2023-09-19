@@ -48,7 +48,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Objects;
@@ -84,6 +83,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public StreamObserver<PCmdMessage> handleCommand(StreamObserver<PCmdRequest> requestObserver) {
         final Long transportId = getTransportId();
         final ClusterKey clusterKey = getClusterKey();
@@ -120,7 +120,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
             }
         });
 
-        final StreamObserver<PCmdMessage> responseObserver = new StreamObserver<PCmdMessage>() {
+        return new StreamObserver<>() {
             @Override
             public void onNext(PCmdMessage value) {
                 // old operation for handshake
@@ -129,7 +129,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                     registerAgentCommandList(pinpointGrpcServer, supportCommandServiceKeyList);
                 } else if (value.hasFailMessage()) {
                     PCmdResponse failMessage = value.getFailMessage();
-                    pinpointGrpcServer.handleFail(failMessage);
+                    pinpointGrpcServer.handleFailure(failMessage);
                 }
             }
 
@@ -143,7 +143,6 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                 handleOnCompleted(pinpointGrpcServer, clusterKey);
             }
         };
-        return responseObserver;
     }
 
     @Override
@@ -182,12 +181,12 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
             }
         });
 
-        final StreamObserver<PCmdMessage> responseObserver = new StreamObserver<>() {
+        return new StreamObserver<>() {
             @Override
             public void onNext(PCmdMessage value) {
                 if (value.hasFailMessage()) {
                     PCmdResponse failMessage = value.getFailMessage();
-                    pinpointGrpcServer.handleFail(failMessage);
+                    pinpointGrpcServer.handleFailure(failMessage);
                 }
             }
 
@@ -202,7 +201,6 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
             }
 
         };
-        return responseObserver;
     }
 
     private PinpointGrpcServer registerNewPinpointGrpcServer(StreamObserver<PCmdRequest> requestObserver, ClusterKey clusterKey, Long transportId) {
@@ -230,10 +228,9 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         return DisabledStreamObserver.instance();
     }
 
-    private boolean registerAgentCommandList(PinpointGrpcServer pinpointGrpcServer, List<Integer> supportCommandServiceCodeList) {
+    private void registerAgentCommandList(PinpointGrpcServer pinpointGrpcServer, List<Integer> supportCommandServiceCodeList) {
         logger.info("{} => local. execute supportCommandServiceCodeList:{}", getClusterKey(), supportCommandServiceCodeList);
-        boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceCodeList);
-        return handshakeSucceed;
+        pinpointGrpcServer.handleHandshake(supportCommandServiceCodeList);
     }
 
     private void handleOnError(Throwable t, PinpointGrpcServer pinpointGrpcServer, ClusterKey clusterKey) {
@@ -340,7 +337,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         logger.info("close() started");
         if (timer != null) {
             timer.stop();
@@ -349,10 +346,11 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     private static class DisabledStreamObserver<V> implements StreamObserver<V> {
 
-        private static final DisabledStreamObserver<?> DISABLED_INSTANCE = new DisabledStreamObserver();
+        private static final DisabledStreamObserver<?> DISABLED_INSTANCE = new DisabledStreamObserver<>();
 
         private final Logger logger = LogManager.getLogger(this.getClass());
 
+        @SuppressWarnings("unchecked")
         public static <V> V instance() {
             return (V) DISABLED_INSTANCE;
         }

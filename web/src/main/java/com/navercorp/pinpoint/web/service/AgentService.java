@@ -17,16 +17,6 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
-import com.navercorp.pinpoint.rpc.stream.StreamException;
-import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
-import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-
-import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -36,20 +26,5 @@ public interface AgentService {
     ClusterKey getClusterKey(String applicationName, String agentId);
     ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp);
     ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
-
-    List<ClusterKeyAndStatus> getRecentAgentInfoList(String applicationName, long timeDiff);
-
-    boolean isConnected(ClusterKey clusterKey);
-
-    PinpointRouteResponse invoke(ClusterKey clusterKey, TBase<?, ?> tBase) throws TException;
-    PinpointRouteResponse invoke(ClusterKey clusterKey, byte[] payload) throws TException;
-    PinpointRouteResponse invoke(ClusterKey clusterKey, byte[] payload, long timeout) throws TException;
-
-    ClientStreamChannel openStream(ClusterKey clusterKey, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException;
-    ClientStreamChannel openStream(ClusterKey clusterKey, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException;
-
-    byte[] serializeRequest(TBase<?, ?> tBase) throws TException;
-
-    TBase<?, ?> deserializeResponse(byte[] objectData, Message<TBase<?, ?>> defaultValue);
 
 }

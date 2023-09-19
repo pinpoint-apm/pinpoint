@@ -33,10 +33,6 @@ public class DisabledProfilerClusterManager implements ProfilerClusterManager {
     }
 
     @Override
-    public void refresh() {
-    }
-
-    @Override
     public List<String> getClusterData() {
         return Collections.emptyList();
     }
