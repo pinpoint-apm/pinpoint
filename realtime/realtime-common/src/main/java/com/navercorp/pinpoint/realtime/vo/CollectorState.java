@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.realtime.vo;
 
-package com.navercorp.pinpoint.collector.cluster;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
+import java.util.List;
+import java.util.Objects;
 
 /**
- * @author koo.taejin
+ * @author youngjin.kim2
  */
-public interface ClusterService {
+public class CollectorState {
 
-    void setup();
+    List<ClusterKey> agents;
 
-    void tearDown();
+    public CollectorState(List<ClusterKey> agents) {
+        this.agents = Objects.requireNonNullElse(agents, List.of());
+    }
 
-    ProfilerClusterManager getProfilerClusterManager();
+    public List<ClusterKey> getAgents() {
+        return agents;
+    }
+
 }

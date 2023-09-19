@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.collector.receiver.grpc.command;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
+import com.navercorp.pinpoint.collector.cluster.ClusterServiceImpl;
+import com.navercorp.pinpoint.collector.cluster.MemoryProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.InMemoryZookeeperClient;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.RecordedStreamObserver;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
@@ -68,9 +68,9 @@ public class GrpcCommandServiceTest {
 
     @Test
     public void oldVersionHandshakeTest() throws IOException, PinpointZookeeperException {
-        ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
+        MemoryProfilerClusterManager manager = creteMemoryClusterManager();
 
-        ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
+        ClusterServiceImpl mockClusterService = Mockito.mock(ClusterServiceImpl.class);
         Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
 
         try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
@@ -92,9 +92,9 @@ public class GrpcCommandServiceTest {
 
     @Test
     public void oldVersionHandshakeFailTest() throws IOException, PinpointZookeeperException {
-        ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
+        MemoryProfilerClusterManager manager = creteMemoryClusterManager();
 
-        ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
+        ClusterServiceImpl mockClusterService = Mockito.mock(ClusterServiceImpl.class);
         Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
 
         try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
@@ -118,9 +118,9 @@ public class GrpcCommandServiceTest {
 
     @Test
     public void newVersionHandshakeTest() throws IOException, PinpointZookeeperException {
-        ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
+        MemoryProfilerClusterManager manager = creteMemoryClusterManager();
 
-        ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
+        ClusterServiceImpl mockClusterService = Mockito.mock(ClusterServiceImpl.class);
         Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
 
         try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
@@ -136,14 +136,14 @@ public class GrpcCommandServiceTest {
         }
     }
 
-    private ZookeeperProfilerClusterManager creteMemoryClusterManager() throws PinpointZookeeperException {
+    private MemoryProfilerClusterManager creteMemoryClusterManager() throws PinpointZookeeperException {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient();
         zookeeperClient.connect();
 
         String path
                 = ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH, this.getClass().getSimpleName());
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, path, new ClusterPointRepository<>());
+        MemoryProfilerClusterManager manager = new MemoryProfilerClusterManager(new ClusterPointRepository<>());
         manager.start();
         return manager;
     }

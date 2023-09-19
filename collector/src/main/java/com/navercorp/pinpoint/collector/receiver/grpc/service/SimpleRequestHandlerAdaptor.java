@@ -21,13 +21,12 @@ import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -51,7 +50,7 @@ public class SimpleRequestHandlerAdaptor<REQ, RES> {
         try {
             final ServerRequest<? extends REQ> request = serverRequestFactory.newServerRequest(message);
             final ServerResponse<? extends RES> response = new GrpcServerResponse<>(responseObserver);
-             this.dispatchHandler.dispatchRequestMessage((ServerRequest<REQ>)request, (ServerResponse<RES>)response);
+            this.dispatchHandler.dispatchRequestMessage((ServerRequest<REQ>) request, (ServerResponse<RES>) response);
         } catch (Exception e) {
             logger.warn("Failed to request. message={}", message, e);
             if (e instanceof StatusException || e instanceof StatusRuntimeException) {

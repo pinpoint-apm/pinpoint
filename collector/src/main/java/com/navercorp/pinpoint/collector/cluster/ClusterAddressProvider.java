@@ -33,26 +33,16 @@ public class ClusterAddressProvider implements SocketAddressProvider {
         this.address = Objects.requireNonNull(address, "address");
     }
 
-    private void assertAddressNotNull(InetSocketAddress inetSocketAddress) {
-        if (inetSocketAddress == null) {
-            throw new IllegalArgumentException("address may not be null");
-        }
-    }
-
     @Override
     public InetSocketAddress resolve() {
         String host = address.getHost();
         int port = address.getPort();
 
-        InetSocketAddress address = new InetSocketAddress(host, port);
-        return address;
+        return new InetSocketAddress(host, port);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ClusterAddressProvider{");
-        sb.append("address=").append(address);
-        sb.append('}');
-        return sb.toString();
+        return "ClusterAddressProvider{" + "address=" + address + '}';
     }
 }

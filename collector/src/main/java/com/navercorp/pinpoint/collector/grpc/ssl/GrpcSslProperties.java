@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.grpc.ssl;
 
 import org.springframework.core.io.Resource;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -87,7 +86,7 @@ public class GrpcSslProperties {
             this.keyCertFilePath = keyCertFilePath;
         }
 
-        public GrpcSslProperties build() throws IOException {
+        public GrpcSslProperties build() {
             Objects.requireNonNull(providerType, "providerType");
             Objects.requireNonNull(keyFilePath, "keyFilePath does not exists");
             Objects.requireNonNull(keyCertFilePath, "keyCertFilePath does not exists");

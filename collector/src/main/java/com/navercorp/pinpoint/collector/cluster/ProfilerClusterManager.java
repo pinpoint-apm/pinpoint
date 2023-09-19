@@ -29,8 +29,6 @@ public interface ProfilerClusterManager extends Lifecycle {
 
     void unregister(ClusterPoint<?> targetClusterPoint);
 
-    void refresh();
-
     List<String> getClusterData();
 
 }

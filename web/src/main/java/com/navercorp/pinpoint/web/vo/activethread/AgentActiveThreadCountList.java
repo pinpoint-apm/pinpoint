@@ -32,10 +32,6 @@ public class AgentActiveThreadCountList {
 
     private final List<AgentActiveThreadCount> agentActiveThreadRepository;
 
-    public AgentActiveThreadCountList() {
-        agentActiveThreadRepository = new ArrayList<>();
-    }
-
     public AgentActiveThreadCountList(int initialCapacity) {
         agentActiveThreadRepository = new ArrayList<>(initialCapacity);
     }
@@ -53,10 +49,7 @@ public class AgentActiveThreadCountList {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentActiveThreadCountList{");
-        sb.append("agentActiveThreadRepository=").append(agentActiveThreadRepository);
-        sb.append('}');
-        return sb.toString();
+        return "AgentActiveThreadCountList{" + "agentActiveThreadRepository=" + agentActiveThreadRepository + '}';
     }
 
 }

@@ -86,7 +86,7 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
         }
     }
 
-    public Set<ClusterKey> getAvailableAgentKeyList() {
+    public Set<ClusterKey> getAvailableAgentKeySet() {
         synchronized (this) {
             Set<ClusterKey> availableAgentKeySet = new HashSet<>(clusterPointRepository.size());
 
@@ -103,12 +103,6 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
                 }
             }
             return availableAgentKeySet;
-        }
-    }
-
-    public void clear() {
-        synchronized (this) {
-            clusterPointRepository.clear();
         }
     }
 

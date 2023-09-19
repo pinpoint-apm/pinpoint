@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
@@ -32,10 +31,10 @@ import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
@@ -319,26 +318,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return agentInfos.stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Set<AgentAndStatus> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
-        if (timeDiff > timestamp) {
-            throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
-        }
-
-        Set<AgentAndStatus> unfilteredAgentInfos = this.getAgentsByApplicationName(applicationName, timestamp);
-
-        final long eventTimestampFloor = timestamp - timeDiff;
-
-        Set<AgentAndStatus> filteredAgentInfos = new HashSet<>();
-        for (AgentAndStatus agentInfoAndStatus : unfilteredAgentInfos) {
-            AgentStatus agentStatus = agentInfoAndStatus.getStatus();
-            if (AgentLifeCycleState.UNKNOWN == agentStatus.getState() || eventTimestampFloor <= agentStatus.getEventTimestamp()) {
-                filteredAgentInfos.add(agentInfoAndStatus);
-            }
-        }
-        return filteredAgentInfos;
     }
 
     @Override

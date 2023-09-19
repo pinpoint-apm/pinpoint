@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.flink.cluster.zookeeper;
 
-package com.navercorp.pinpoint.collector.cluster;
-
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
+import org.jboss.netty.util.TimerTask;
 
 /**
- * @author koo.taejin
+ * @author minwoo.jung
  */
-public interface ClusterService {
+public interface PushZNodeJob extends TimerTask {
 
-    void setup();
+    CreateNodeMessage getCreateNodeMessage();
 
-    void tearDown();
+    int getRetryInterval();
 
-    ProfilerClusterManager getProfilerClusterManager();
 }

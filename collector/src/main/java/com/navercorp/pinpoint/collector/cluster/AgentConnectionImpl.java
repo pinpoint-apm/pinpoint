@@ -47,16 +47,16 @@ public class AgentConnectionImpl implements AgentConnection {
             throw new RuntimeException("Unsupported command: " + command);
         }
         if (clusterPoint instanceof GrpcAgentConnection) {
-            return openStream(handler, tCommand);
+            return openStream(handler, command);
         }
         throw new RuntimeException("Invalid clusterPoint: " + clusterPoint);
     }
 
-    private ClientStreamChannel openStream(ClientStreamChannelEventHandler handler, TBase<?, ?> tCommand) {
+    private ClientStreamChannel openStream(ClientStreamChannelEventHandler handler, GeneratedMessageV3 command) {
         try {
-            return ((GrpcAgentConnection) clusterPoint).openStream(tCommand, handler);
+            return ((GrpcAgentConnection) clusterPoint).openStream(command, handler);
         } catch (StreamException e) {
-            throw new RuntimeException("Failed to openStream " + tCommand);
+            throw new RuntimeException("Failed to openStream " + command);
         }
     }
 

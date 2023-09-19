@@ -34,12 +34,11 @@ import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-
 import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -92,9 +91,9 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
     @Override
     public StreamObserver<PPing> pingSession(final StreamObserver<PPing> responseObserver) {
-        final StreamObserver<PPing> request = new StreamObserver<>() {
+        return new StreamObserver<>() {
             private final AtomicBoolean first = new AtomicBoolean(false);
-            private final ThrottledLogger logger = ThrottledLogger.getLogger(AgentService.this.logger, 100);
+            private final ThrottledLogger thLogger = ThrottledLogger.getLogger(AgentService.this.logger, 100);
 
             private final long id = nextSessionId();
             @Override
@@ -102,20 +101,20 @@ public class AgentService extends AgentGrpc.AgentImplBase {
                 if (first.compareAndSet(false, true)) {
                     // Only first
                     if (isDebug) {
-                        logger.debug("PingSession:{} start:{}", id, MessageFormatUtils.debugLog(ping));
+                        thLogger.debug("PingSession:{} start:{}", id, MessageFormatUtils.debugLog(ping));
                     }
                     AgentService.this.pingEventHandler.connect();
                 } else {
                     AgentService.this.pingEventHandler.ping();
                 }
                 if (isDebug) {
-                    logger.debug("PingSession:{} onNext:{}", id, MessageFormatUtils.debugLog(ping));
+                    thLogger.debug("PingSession:{} onNext:{}", id, MessageFormatUtils.debugLog(ping));
                 }
                 PPing replay = newPing();
                 if (isReady(responseObserver)) {
                     responseObserver.onNext(replay);
                 } else {
-                    logger.warn("ping message is ignored: stream is not ready: {}", ServerContext.getAgentInfo());
+                    thLogger.warn("ping message is ignored: stream is not ready: {}", ServerContext.getAgentInfo());
                 }
             }
 
@@ -128,9 +127,9 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             public void onError(Throwable t) {
                 final StatusError statusError = StatusErrors.throwable(t);
                 if (statusError.isSimpleError()) {
-                    logger.info("Failed to ping stream, id={}, cause={}", id, statusError.getMessage());
+                    thLogger.info("Failed to ping stream, id={}, cause={}", id, statusError.getMessage());
                 } else {
-                    logger.warn("Failed to ping stream, id={}, cause={}", id, statusError.getMessage(), statusError.getThrowable());
+                    thLogger.warn("Failed to ping stream, id={}, cause={}", id, statusError.getMessage(), statusError.getThrowable());
                 }
                 disconnect();
             }
@@ -138,7 +137,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             @Override
             public void onCompleted() {
                 if (isDebug) {
-                    logger.debug("PingSession:{} onCompleted()", id);
+                    thLogger.debug("PingSession:{} onCompleted()", id);
                 }
                 responseObserver.onCompleted();
                 disconnect();
@@ -149,7 +148,6 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             }
 
         };
-        return request;
     }
 
     private static boolean isReady(StreamObserver<PPing> responseObserver) {

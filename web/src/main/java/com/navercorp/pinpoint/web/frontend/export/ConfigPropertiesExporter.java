@@ -21,8 +21,6 @@ public class ConfigPropertiesExporter implements FrontendConfigExporter {
     public void export(Map<String, Object> export) {
         export.put("sendUsage", webProperties.getSendUsage());
         export.put("editUserInfo", webProperties.getEditUserInfo());
-        export.put("showActiveThread", webProperties.isShowActiveThread());
-        export.put("showActiveThreadDump", webProperties.isShowActiveThreadDump());
         export.put("enableServerMapRealTime", webProperties.isEnableServerMapRealTime());
         export.put("showApplicationStat", webProperties.isShowApplicationStat());
         export.put("showStackTraceOnError", webProperties.isShowStackTraceOnError());

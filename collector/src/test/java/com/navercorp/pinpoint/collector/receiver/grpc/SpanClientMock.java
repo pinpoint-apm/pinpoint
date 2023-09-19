@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardClientInterceptor;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardEventListener;
 import com.navercorp.pinpoint.grpc.client.interceptor.LoggingDiscardEventListener;
@@ -46,8 +46,8 @@ import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -70,7 +70,7 @@ public class SpanClientMock {
     private volatile StreamObserver<PSpanMessage> spanStream;
     private final Reconnector spanStreamReconnector;
 
-    public SpanClientMock(final String host, final int port) throws Exception {
+    public SpanClientMock(final String host, final int port) {
         channelFactory = newChannelFactory();
         this.channel = channelFactory.build("SpanClientMock", host, port);
 

@@ -78,16 +78,11 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         this.responseFilterChain.addLast(filter);
     }
 
-    public void addCloseFilter(RouteFilter<StreamRouteCloseEvent> filter) {
-        this.streamCloseFilterChain.addLast(filter);
-    }
-
     @Override
     public TCommandTransferResponse onRoute(StreamEvent event) {
         streamCreateFilterChain.doEvent(event);
 
-        TCommandTransferResponse routeResult = onRoute0(event);
-        return routeResult;
+        return onRoute0(event);
     }
 
     private TCommandTransferResponse onRoute0(StreamEvent event) {

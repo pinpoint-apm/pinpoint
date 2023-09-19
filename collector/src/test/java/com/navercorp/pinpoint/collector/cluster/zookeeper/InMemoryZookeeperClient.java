@@ -20,11 +20,8 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.BadOperationException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
-
 import org.apache.curator.utils.ZKPaths;
-import org.apache.zookeeper.KeeperException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,12 +49,12 @@ public class InMemoryZookeeperClient implements ZookeeperClient {
     }
 
     @Override
-    public void connect() throws PinpointZookeeperException {
+    public void connect() {
         connected = true;
     }
 
     @Override
-    public synchronized void createPath(String value) throws PinpointZookeeperException {
+    public synchronized void createPath(String value) {
         ZKPaths.PathAndNode pathAndNode = ZKPaths.getPathAndNode(value);
         contents.put(pathAndNode.getPath(), EMPTY_BYTE);
     }
@@ -80,18 +77,17 @@ public class InMemoryZookeeperClient implements ZookeeperClient {
     }
 
     @Override
-    public synchronized byte[] getData(String path) throws PinpointZookeeperException {
-        byte[] bytes = contents.get(path);
-        return bytes;
-    }
-
-    @Override
-    public byte[] getData(String path, boolean watch) throws PinpointZookeeperException {
+    public synchronized byte[] getData(String path) {
         return contents.get(path);
     }
 
     @Override
-    public synchronized void delete(String path) throws PinpointZookeeperException {
+    public byte[] getData(String path, boolean watch) {
+        return contents.get(path);
+    }
+
+    @Override
+    public synchronized void delete(String path) {
         contents.remove(path);
     }
 

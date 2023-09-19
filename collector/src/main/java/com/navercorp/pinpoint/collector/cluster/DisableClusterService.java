@@ -21,18 +21,13 @@ public class DisableClusterService implements ClusterService {
     private final ProfilerClusterManager profilerClusterManager = new DisabledProfilerClusterManager();
 
     @Override
-    public void setUp() throws Exception {
+    public void setup() {
 
     }
 
     @Override
-    public void tearDown() throws Exception {
+    public void tearDown() {
 
-    }
-
-    @Override
-    public boolean isEnable() {
-        return false;
     }
 
     @Override

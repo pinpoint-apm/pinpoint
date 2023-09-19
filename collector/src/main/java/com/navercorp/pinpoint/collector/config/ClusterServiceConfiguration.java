@@ -24,12 +24,10 @@ public class ClusterServiceConfiguration {
 
     @Bean
     public FactoryBean<ClusterService> clusterService(
-            @Qualifier("collectorClusterProperties") CollectorClusterProperties collectorClusterProperties,
-            @Qualifier("clusterPointRouter") ClusterPointRouter clusterPointRouter) {
+            @Qualifier("clusterPointRouter") ClusterPointRouter clusterPointRouter
+    ) {
         ClusterServiceFactory factoryBean = new ClusterServiceFactory();
-        factoryBean.setClusterProperties(collectorClusterProperties);
         factoryBean.setClusterPointRouter(clusterPointRouter);
-
         return factoryBean;
     }
 }

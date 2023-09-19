@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.controller;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
@@ -64,7 +65,7 @@ public class ClusterPointController {
 
     private final ClusterPointLocator<ClusterPoint<?>> clusterPointLocator;
 
-    public ClusterPointController(ClusterPointLocator clusterPointLocator) {
+    public ClusterPointController(ClusterPointLocator<ClusterPoint<?>> clusterPointLocator) {
         this.clusterPointLocator = Objects.requireNonNull(clusterPointLocator, "clusterPointLocator");
     }
 
@@ -193,7 +194,7 @@ public class ClusterPointController {
         pinpointGrpcServer.close(SocketStateCode.ERROR_UNKNOWN);
     }
 
-    // If the occur excption in connection, do not retry
+    // If the occur exception in connection, do not retry
     // Multiple attempts only at timeout
     private CompletableFuture<ResponseMessage> request0(GrpcAgentConnection grpcAgentConnection, int maxCount) {
         for (int i = 0; i < maxCount; i++) {
@@ -208,6 +209,7 @@ public class ClusterPointController {
                 throw new PinpointSocketException(e.getCause());
             } catch (TimeoutException e) {
                 throw new PinpointSocketException(e);
+            } catch (Exception ignored) {
             }
         }
 
@@ -246,22 +248,27 @@ public class ClusterPointController {
             this.checkConnectionStatusResult = checkConnectionStatusResult.name();
         }
 
+        @JsonProperty("remoteAddress")
         public InetSocketAddress getRemoteAddress() {
             return remoteAddress;
         }
 
+        @JsonProperty("clusterKey")
         public ClusterKey getClusterKey() {
             return clusterKey;
         }
 
+        @JsonProperty("socketStateCode")
         public String getSocketStateCode() {
             return socketStateCode;
         }
 
+        @JsonProperty("availableCheckConnectionState")
         public boolean isAvailableCheckConnectionState() {
             return availableCheckConnectionState;
         }
 
+        @JsonProperty("checkConnectionStatusResult")
         public String getCheckConnectionStatusResult() {
             return checkConnectionStatusResult;
         }
@@ -273,7 +280,7 @@ public class ClusterPointController {
         STATUS_CHECK_NOT_SUPPORTED,
         SUCCESS,
         FAIL,
-        FAIL_AND_CLEAR_CONNECTION;
+        FAIL_AND_CLEAR_CONNECTION,
 
     }
 

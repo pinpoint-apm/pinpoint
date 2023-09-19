@@ -16,23 +16,16 @@
 package com.navercorp.pinpoint.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.AgentServiceImpl;
-import com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler;
 import com.navercorp.pinpoint.web.websocket.CustomHandshakeInterceptor;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketConfigurer;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -47,8 +40,6 @@ import java.util.List;
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig {
-
-    public static final String ATC_ENDPOINT = "/agent/activeThread";
 
     @Bean
     public WebSocketConfigurer webSocketConfigurer(
@@ -66,23 +57,8 @@ public class WebSocketConfig {
     }
 
     @Bean
-    public AgentService agentService(
-            AgentInfoService agentInfoService,
-            ClusterManager clusterManager,
-            @Qualifier("commandHeaderTBaseSerializerFactory") SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory,
-            @Qualifier("commandHeaderTBaseDeserializerFactory") DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory
-    ) {
-        return new AgentServiceImpl(
-                agentInfoService,
-                clusterManager,
-                commandSerializerFactory,
-                commandDeserializerFactory
-        );
-    }
-
-    @Bean
-    public PinpointWebSocketHandler activeThreadHandler(PinpointWebSocketMessageConverter converter, AgentService agentService) {
-        return new ActiveThreadCountHandler(converter, ATC_ENDPOINT, agentService);
+    public AgentService agentService(AgentInfoService agentInfoService) {
+        return new AgentServiceImpl(agentInfoService);
     }
 
     @Bean

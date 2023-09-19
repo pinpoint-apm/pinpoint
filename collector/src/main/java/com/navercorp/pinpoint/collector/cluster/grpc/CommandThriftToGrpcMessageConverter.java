@@ -37,7 +37,7 @@ public class CommandThriftToGrpcMessageConverter implements MessageConverter<Obj
         if (message instanceof TCommandEcho) {
             return buildPCommandEcho((TCommandEcho) message);
         } else if (message instanceof TCmdActiveThreadCount) {
-            return buildPCmdActiveThreadCount((TCmdActiveThreadCount) message);
+            return buildPCmdActiveThreadCount();
         } else if (message instanceof TCmdActiveThreadDump) {
             return buildPCmdActiveThreadDump((TCmdActiveThreadDump) message);
         } else if (message instanceof TCmdActiveThreadLightDump) {
@@ -52,7 +52,7 @@ public class CommandThriftToGrpcMessageConverter implements MessageConverter<Obj
         return builder.build();
     }
 
-    private PCmdActiveThreadCount buildPCmdActiveThreadCount(TCmdActiveThreadCount tCmdActiveThreadCount) {
+    private PCmdActiveThreadCount buildPCmdActiveThreadCount() {
         PCmdActiveThreadCount.Builder builder = PCmdActiveThreadCount.newBuilder();
         return builder.build();
     }

@@ -15,25 +15,40 @@
  */
 package com.navercorp.pinpoint.realtime.collector.service;
 
+import com.navercorp.pinpoint.realtime.collector.dao.CollectorStateDao;
+import com.navercorp.pinpoint.realtime.collector.dao.RealtimeCollectorDaoConfig;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author youngjin.kim2
  */
 @Configuration
+@Import({ RealtimeCollectorDaoConfig.class })
 public class RealtimeCollectorServiceConfig {
 
     @Bean
-    AgentCommandService agentCommandService(
+    public AgentCommandService agentCommandService(
             AgentConnectionRepository agentConnectionRepository,
             @Qualifier("commandHeaderTBaseDeserializerFactory")
             DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory
     ) {
         return new ClusterAgentCommandService(agentConnectionRepository, deserializerFactory);
+    }
+
+    @Bean
+    public IntervalRunner periodicConnectionRedisPubChannelEmitter(
+            RealtimeCollectorDaoConfig daoConfig,
+            CollectorStateDao dao,
+            AgentConnectionRepository connectionRepository
+    ) {
+        Runnable r = new CollectorStateUpdateRunnable(connectionRepository, dao);
+        return new IntervalRunner(r, daoConfig.getConnectionListEmitPeriod(), Schedulers.boundedElastic());
     }
 
 }

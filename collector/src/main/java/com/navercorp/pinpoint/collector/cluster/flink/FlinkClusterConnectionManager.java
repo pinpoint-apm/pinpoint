@@ -58,11 +58,6 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     }
 
     @Override
-    public void start() {
-
-    }
-
-    @Override
     public void stop() {
         for (SenderContext senderContext : tcpDataSenderRepository.getClusterSocketList()) {
             senderContext.close();

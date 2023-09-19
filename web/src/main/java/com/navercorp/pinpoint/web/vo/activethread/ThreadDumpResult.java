@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.vo.activethread;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * @author youngjin.kim2
  */
@@ -31,18 +33,22 @@ public class ThreadDumpResult {
         this.version = version;
     }
 
+    @JsonProperty("threadDumpData")
     public AgentActiveThreadDumpList getThreadDumpData() {
         return threadDumpData;
     }
 
+    @JsonProperty("type")
     public String getType() {
         return type;
     }
 
+    @JsonProperty("subType")
     public String getSubType() {
         return subType;
     }
 
+    @JsonProperty("version")
     public String getVersion() {
         return version;
     }

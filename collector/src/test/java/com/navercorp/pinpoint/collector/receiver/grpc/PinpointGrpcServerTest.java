@@ -56,24 +56,31 @@ public class PinpointGrpcServerTest {
     private final PCmdEcho request = PCmdEcho.newBuilder().setMessage("hello").build();
 
     @BeforeAll
-    public static void setUp() throws Exception {
+    public static void setUp() {
         ThreadFactory threadFactory = new PinpointThreadFactory(PinpointGrpcServerTest.class + "-Timer", true);
         testTimer = new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512);
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    public static void tearDown() {
         if (testTimer != null) {
             testTimer.stop();
         }
     }
 
     @Test
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void stateTest() {
         RecordedStreamObserver recordedStreamObserver = new RecordedStreamObserver();
 
         RequestManager<ResponseMessage> requestManager = new RequestManager<>(testTimer, 3000);
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), clusterKey, requestManager, Mockito.mock(ProfilerClusterManager.class), recordedStreamObserver);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(
+                Mockito.mock(InetSocketAddress.class),
+                clusterKey,
+                requestManager,
+                Mockito.mock(ProfilerClusterManager.class),
+                recordedStreamObserver
+        );
         assertCurrentState(SocketStateCode.NONE, pinpointGrpcServer);
         CompletableFuture<ResponseMessage> future = pinpointGrpcServer.request(request);
         requestOnInvalidState(future, recordedStreamObserver);
@@ -93,16 +100,26 @@ public class PinpointGrpcServerTest {
         requestOnInvalidState(future, recordedStreamObserver);
     }
 
-    private void requestOnInvalidState(CompletableFuture<ResponseMessage> future, RecordedStreamObserver recordedStreamObserver) {
+    @SuppressWarnings("rawtypes")
+    private void requestOnInvalidState(
+            CompletableFuture<ResponseMessage> future,
+            RecordedStreamObserver recordedStreamObserver
+    ) {
         Assertions.assertThrows(ExecutionException.class, () -> future.get(3000, TimeUnit.MILLISECONDS));
         Assertions.assertEquals(0, recordedStreamObserver.getRequestCount());
     }
 
     @Test
     public void requestTest() {
-        RecordedStreamObserver<PCmdRequest> recordedStreamObserver = new RecordedStreamObserver<PCmdRequest>();
+        RecordedStreamObserver<PCmdRequest> recordedStreamObserver = new RecordedStreamObserver<>();
 
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), clusterKey, new RequestManager(testTimer, 3000), Mockito.mock(ProfilerClusterManager.class), recordedStreamObserver);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(
+                Mockito.mock(InetSocketAddress.class),
+                clusterKey,
+                new RequestManager<>(testTimer, 3000),
+                Mockito.mock(ProfilerClusterManager.class),
+                recordedStreamObserver
+        );
         pinpointGrpcServer.connected();
 
         List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
@@ -117,7 +134,10 @@ public class PinpointGrpcServerTest {
         Assertions.assertEquals(2, recordedStreamObserver.getRequestCount());
 
         PCmdRequest latestRequest = recordedStreamObserver.getLatestRequest();
-        pinpointGrpcServer.handleMessage(latestRequest.getRequestId(), PCmdEchoResponse.newBuilder().setMessage(latestRequest.getCommandEcho().getMessage()).build());
+        pinpointGrpcServer.handleMessage(
+                latestRequest.getRequestId(),
+                PCmdEchoResponse.newBuilder().setMessage(latestRequest.getCommandEcho().getMessage()).build()
+        );
         // success
         awaitAndAssert(future, true);
 
@@ -126,8 +146,9 @@ public class PinpointGrpcServerTest {
         latestRequest = recordedStreamObserver.getLatestRequest();
 
         PCmdResponse.Builder builder = PCmdResponse.newBuilder();
-        PCmdResponse response = builder.setMessage(StringValue.of("fail")).setResponseId(latestRequest.getRequestId()).build();
-        pinpointGrpcServer.handleFail(response);
+        PCmdResponse response =
+                builder.setMessage(StringValue.of("fail")).setResponseId(latestRequest.getRequestId()).build();
+        pinpointGrpcServer.handleFailure(response);
         // fail
         awaitAndAssert(future, false);
 

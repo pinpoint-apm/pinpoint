@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.RedisActiveThreadCountWebSocketHandler;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.springframework.web.socket.CloseStatus;
@@ -34,9 +35,10 @@ public class RedisActiveThreadCountHandlerAdaptor extends ActiveThreadCountHandl
     public RedisActiveThreadCountHandlerAdaptor(
             RedisActiveThreadCountWebSocketHandler delegate,
             PinpointWebSocketMessageConverter converter,
+            ServerMapDataFilter serverMapDataFilter,
             String requestMapping
     ) {
-        super(converter, requestMapping, null);
+        super(converter, serverMapDataFilter, requestMapping);
         this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
@@ -60,7 +62,7 @@ public class RedisActiveThreadCountHandlerAdaptor extends ActiveThreadCountHandl
 
     @Override
     public int getPriority() {
-        return super.getPriority() + 1;
+        return 1;
     }
 
 }

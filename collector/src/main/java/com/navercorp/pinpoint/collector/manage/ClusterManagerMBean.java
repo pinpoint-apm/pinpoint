@@ -22,9 +22,8 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
+@SuppressWarnings("unused")
 public interface ClusterManagerMBean {
-
-    boolean isEnable();
 
     List<String> getConnectedAgentList();
 
