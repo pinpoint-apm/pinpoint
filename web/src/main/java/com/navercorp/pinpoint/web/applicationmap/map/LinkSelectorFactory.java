@@ -23,8 +23,10 @@ import com.navercorp.pinpoint.web.applicationmap.map.processor.RpcCallProcessor;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author HyunGil Jeong
@@ -40,24 +42,15 @@ public class LinkSelectorFactory {
 
     private final ServerMapDataFilter serverMapDataFilter;
 
-    @Autowired(required = false)
     public LinkSelectorFactory(
             LinkDataMapService linkDataMapService,
-            ApplicationsMapCreatorFactory appliationsMapCreatorFactory,
-            HostApplicationMapDao hostApplicationMapDao) {
-        this(linkDataMapService, appliationsMapCreatorFactory, hostApplicationMapDao, null);
-    }
-
-    @Autowired(required = false)
-    public LinkSelectorFactory(
-            LinkDataMapService linkDataMapService,
-            ApplicationsMapCreatorFactory appliationsMapCreatorFactory,
+            ApplicationsMapCreatorFactory applicationsMapCreatorFactory,
             HostApplicationMapDao hostApplicationMapDao,
-            ServerMapDataFilter serverMapDataFilter) {
-        this.linkDataMapService = linkDataMapService;
-        this.applicationsMapCreatorFactory = appliationsMapCreatorFactory;
-        this.hostApplicationMapDao = hostApplicationMapDao;
-        this.serverMapDataFilter = serverMapDataFilter;
+            Optional<ServerMapDataFilter> serverMapDataFilter) {
+        this.linkDataMapService = Objects.requireNonNull(linkDataMapService, "linkDataMapService");
+        this.applicationsMapCreatorFactory = Objects.requireNonNull(applicationsMapCreatorFactory, "applicationsMapCreatorFactory");
+        this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
+        this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
     }
 
     public LinkSelector createLinkSelector(LinkSelectorType linkSelectorType) {

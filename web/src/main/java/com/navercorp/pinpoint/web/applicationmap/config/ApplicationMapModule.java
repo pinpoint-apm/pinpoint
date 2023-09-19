@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.map.ApplicationsMapCreatorFacto
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.task.ChainedTaskDecorator;
 import com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator;
 import com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator;
@@ -38,6 +39,7 @@ import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 @Configuration
@@ -76,9 +78,10 @@ public class ApplicationMapModule {
 
     @Bean
     public LinkSelectorFactory linkSelectorFactory(LinkDataMapService linkDataMapService,
-                                                   ApplicationsMapCreatorFactory appliationsMapCreatorFactory,
-                                                   HostApplicationMapDao hostApplicationMapDao) {
-        return new LinkSelectorFactory(linkDataMapService, appliationsMapCreatorFactory, hostApplicationMapDao);
+                                                   ApplicationsMapCreatorFactory applicationsMapCreatorFactory,
+                                                   HostApplicationMapDao hostApplicationMapDao,
+                                                   Optional<ServerMapDataFilter> serverMapDataFilter) {
+        return new LinkSelectorFactory(linkDataMapService, applicationsMapCreatorFactory, hostApplicationMapDao, serverMapDataFilter);
     }
 
     @Bean
