@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.realtime;
+package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
