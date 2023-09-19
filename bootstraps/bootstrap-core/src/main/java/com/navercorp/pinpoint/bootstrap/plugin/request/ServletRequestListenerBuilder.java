@@ -54,7 +54,6 @@ public class ServletRequestListenerBuilder<REQ> {
 
     private List<String> recordRequestHeaders;
     private List<String> recordRequestCookies;
-    private boolean recordStatusCode = true;
 
     public ServletRequestListenerBuilder(final ServiceType serviceType,
                                          final TraceContext traceContext,
@@ -97,10 +96,6 @@ public class ServletRequestListenerBuilder<REQ> {
         this.recordRequestCookies = recordRequestCookies;
     }
 
-    public void setRecordStatusCode(boolean recordStatusCode) {
-        this.recordStatusCode = recordStatusCode;
-    }
-
     private <T> Filter<T> newExcludeUrlFilter(Filter<T> excludeUrlFilter) {
         if (excludeUrlFilter == null) {
             return new SkipFilter<>();
@@ -141,7 +136,7 @@ public class ServletRequestListenerBuilder<REQ> {
 
 
         return new ServletRequestListener<>(serviceType, traceContext, requestAdaptor, requestTraceReader,
-                excludeUrlFilter, parameterRecorder, proxyRequestRecorder, serverRequestRecorder, httpStatusCodeRecorder, recordStatusCode);
+                excludeUrlFilter, parameterRecorder, proxyRequestRecorder, serverRequestRecorder, httpStatusCodeRecorder);
     }
 
 

@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
@@ -37,14 +36,11 @@ public class ServletResponseListener<RESP> {
 
     private final TraceContext traceContext;
     private final ServerResponseHeaderRecorder<RESP> serverResponseHeaderRecorder;
-    private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     public ServletResponseListener(final TraceContext traceContext,
-                                   final ServerResponseHeaderRecorder<RESP> serverResponseHeaderRecorder,
-                                   final HttpStatusCodeRecorder httpStatusCodeRecorder) {
+                                   final ServerResponseHeaderRecorder<RESP> serverResponseHeaderRecorder) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.serverResponseHeaderRecorder = Objects.requireNonNull(serverResponseHeaderRecorder, "serverResponseHeaderRecorder");
-        this.httpStatusCodeRecorder = Objects.requireNonNull(httpStatusCodeRecorder, "statusCodeRecorder");
     }
 
 
@@ -72,9 +68,8 @@ public class ServletResponseListener<RESP> {
             return;
         }
 
-        final SpanRecorder spanRecorder = trace.getSpanRecorder();
-        this.httpStatusCodeRecorder.record(spanRecorder, statusCode);
         if (trace.canSampled()) {
+            final SpanRecorder spanRecorder = trace.getSpanRecorder();
             this.serverResponseHeaderRecorder.recordHeader(spanRecorder, response);
         }
     }

@@ -55,8 +55,6 @@ public class ServletRequestListener<REQ> {
 
     private final ProxyRequestRecorder<REQ> proxyRequestRecorder;
 
-    private final boolean recordStatusCode;
-
     public ServletRequestListener(final ServiceType serviceType,
                                   final TraceContext traceContext,
                                   final RequestAdaptor<REQ> requestAdaptor,
@@ -65,8 +63,7 @@ public class ServletRequestListener<REQ> {
                                   final ParameterRecorder<REQ> parameterRecorder,
                                   final ProxyRequestRecorder<REQ> proxyRequestRecorder,
                                   final ServerRequestRecorder<REQ> serverRequestRecorder,
-                                  final HttpStatusCodeRecorder httpStatusCodeRecorder,
-                                  final boolean recordStatusCode) {
+                                  final HttpStatusCodeRecorder httpStatusCodeRecorder) {
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
@@ -76,7 +73,6 @@ public class ServletRequestListener<REQ> {
         this.parameterRecorder = Objects.requireNonNull(parameterRecorder, "parameterRecorder");
         this.serverRequestRecorder = Objects.requireNonNull(serverRequestRecorder, "serverRequestRecorder");
         this.httpStatusCodeRecorder = Objects.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
-        this.recordStatusCode = recordStatusCode;
         this.traceContext.cacheApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
     }
 
@@ -141,11 +137,8 @@ public class ServletRequestListener<REQ> {
             return;
         }
 
-        if (this.recordStatusCode) {
-            this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), statusCode);
-        }
-
         try {
+            this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), statusCode);
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (trace.canSampled()) {
                 recorder.recordException(throwable);
