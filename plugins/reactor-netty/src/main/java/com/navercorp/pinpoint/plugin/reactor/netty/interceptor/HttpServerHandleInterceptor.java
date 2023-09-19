@@ -79,7 +79,6 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
         reqBuilder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
         reqBuilder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
         reqBuilder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
-        reqBuilder.setRecordStatusCode(false);
 
         this.servletRequestListener = reqBuilder.build();
         this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpResponseAdaptor()).build();

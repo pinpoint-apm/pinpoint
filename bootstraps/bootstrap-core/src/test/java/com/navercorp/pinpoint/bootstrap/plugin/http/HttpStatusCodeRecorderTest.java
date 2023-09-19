@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.http;
 
 import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -45,5 +46,12 @@ public class HttpStatusCodeRecorderTest {
         recorder.record(spanRecorder, 0);
         recorder.record(spanRecorder, -1);
         recorder.record(spanRecorder, 999);
+    }
+
+    @Test
+    public void errorsIsNull() throws Exception {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            HttpStatusCodeRecorder recorder = new HttpStatusCodeRecorder(null);
+        });
     }
 }

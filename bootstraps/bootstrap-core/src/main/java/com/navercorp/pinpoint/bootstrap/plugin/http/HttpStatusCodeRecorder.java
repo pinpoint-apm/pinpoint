@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -31,7 +33,7 @@ public class HttpStatusCodeRecorder {
     private final HttpStatusCodeErrors errors;
 
     public HttpStatusCodeRecorder(final HttpStatusCodeErrors errors) {
-        this.errors = errors;
+        this.errors = Objects.requireNonNull(errors, "errors");
     }
 
     public void record(final SpanRecorder spanRecorder, final int statusCode) {
@@ -40,7 +42,7 @@ public class HttpStatusCodeRecorder {
             return;
         }
 
-        if (!this.errors.isHttpStatusCode(statusCode)) {
+        if (Boolean.FALSE == this.errors.isHttpStatusCode(statusCode)) {
             if (isDebug) {
                 logger.debug("Out of range HTTP status code. statusCode={}", statusCode);
             }
