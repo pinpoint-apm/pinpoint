@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
-import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
@@ -113,15 +112,12 @@ public class RealtimeConfig {
             return new RedisActiveThreadDumpServiceAdaptor(delegate);
         }
 
-        @Bean
-        ActiveThreadDumpController activeThreadDumpController(
-                ConfigProperties webProperties,
-                AgentService agentService,
-                ActiveThreadDumpService activeThreadDumpService
-        ) {
-            return new ActiveThreadDumpController(webProperties, agentService, activeThreadDumpService);
-        }
+    }
 
+    @Bean
+    @ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "false")
+    ActiveThreadDumpService emptyActiveThreadDumpService() {
+        return new EmptyActiveThreadDumpService();
     }
 
     @Configuration(proxyBeanMethods = false)
