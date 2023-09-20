@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
@@ -80,8 +79,4 @@ public abstract class AbstractServerServiceFactory<REQ, RES> implements FactoryB
         return ServerServiceDefinition.class;
     }
 
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
 }
