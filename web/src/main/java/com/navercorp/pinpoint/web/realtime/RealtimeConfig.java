@@ -115,7 +115,7 @@ public class RealtimeConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "false")
+    @ConditionalOnProperty(name = "pinpoint.modules.realtime.enabled", havingValue = "false", matchIfMissing = true)
     ActiveThreadDumpService emptyActiveThreadDumpService() {
         return new EmptyActiveThreadDumpService();
     }
