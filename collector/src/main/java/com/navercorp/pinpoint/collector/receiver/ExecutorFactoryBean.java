@@ -44,8 +44,6 @@ public class ExecutorFactoryBean extends org.springframework.scheduling.concurre
 
     private MetricRegistry registry;
 
-    private boolean preStartAllCoreThreads;
-
     public ExecutorFactoryBean() {
     }
 
@@ -56,21 +54,9 @@ public class ExecutorFactoryBean extends org.springframework.scheduling.concurre
         this.beanName = name;
     }
 
-
-
     @Override
-    protected ThreadPoolExecutor createExecutor(
-            int corePoolSize, int maxPoolSize, int keepAliveSeconds, BlockingQueue<Runnable> queue,
-            ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
-
-        final ThreadPoolExecutor threadPoolExecutor = newThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveSeconds, queue, threadFactory, rejectedExecutionHandler);
-        if (preStartAllCoreThreads) {
-            threadPoolExecutor.prestartAllCoreThreads();
-        }
-        return threadPoolExecutor;
-    }
-
-    private ThreadPoolExecutor newThreadPoolExecutor(int corePoolSize, int maxPoolSize, int keepAliveSeconds, BlockingQueue<Runnable> queue, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+    protected ThreadPoolExecutor createExecutor(int corePoolSize, int maxPoolSize, int keepAliveSeconds, BlockingQueue<Runnable> queue,
+                                              ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
         if (enableMonitoring) {
             return newMonitoredExecutorService(corePoolSize, maxPoolSize, keepAliveSeconds, queue, threadFactory, rejectedExecutionHandler);
         }
@@ -125,10 +111,6 @@ public class ExecutorFactoryBean extends org.springframework.scheduling.concurre
         setMaxPoolSize(executorProperties.getThreadSize());
         setQueueCapacity(executorProperties.getQueueSize());
         this.enableMonitoring = executorProperties.isMonitorEnable();
-    }
-
-    public void setPreStartAllCoreThreads(boolean preStartAllCoreThreads) {
-        this.preStartAllCoreThreads = preStartAllCoreThreads;
     }
 
     public void setRegistry(MetricRegistry registry) {

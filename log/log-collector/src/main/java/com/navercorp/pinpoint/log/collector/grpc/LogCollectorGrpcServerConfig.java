@@ -63,7 +63,7 @@ public class LogCollectorGrpcServerConfig {
         factory.setDaemon(true);
         factory.setWaitForTasksToCompleteOnShutdown(true);
         factory.setAwaitTerminationSeconds(10);
-        factory.setPreStartAllCoreThreads(true);
+        factory.setPrestartAllCoreThreads(true);
         factory.setLogRate(100);
         factory.setExecutorProperties(config);
         factory.setThreadNamePrefix("Pinpoint-GrpcLog-Server-");
@@ -82,7 +82,7 @@ public class LogCollectorGrpcServerConfig {
         factory.setDaemon(true);
         factory.setWaitForTasksToCompleteOnShutdown(true);
         factory.setAwaitTerminationSeconds(10);
-        factory.setPreStartAllCoreThreads(true);
+        factory.setPrestartAllCoreThreads(true);
         factory.setExecutorProperties(config);
         factory.setThreadNamePrefix("Pinpoint-GrpcLog-Server-");
         factory.setLogRate(1);
