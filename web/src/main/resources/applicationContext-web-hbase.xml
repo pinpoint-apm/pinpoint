@@ -3,50 +3,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="hbaseConfiguration" class="com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean">
-        <property name="properties">
-            <props>
-                <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
-                <prop key="hbase.zookeeper.property.clientPort">${hbase.client.port}</prop>
-
-                <!--Root ZNode for HBase in ZooKeeper.-->
-                <prop key="zookeeper.znode.parent">${hbase.zookeeper.znode.parent:/hbase}</prop>
-
-                <!-- hbase default:true -->
-                <prop key="hbase.ipc.client.tcpnodelay">${hbase.ipc.client.tcpnodelay}</prop>
-                <!-- hbase default:60000 -->
-                <prop key="hbase.rpc.timeout">${hbase.rpc.timeout}</prop>
-                <!-- hbase default:Integer.MAX_VALUE -->
-                <prop key="hbase.client.operation.timeout">${hbase.client.operation.timeout}</prop>
-                <!-- # hbase default: 20m -->
-                <prop key="hbase.client.meta.operation.timeout">${hbase.client.meta.operation.timeout}</prop>
-
-                <!-- hbase socket read timeout. default: 200000-->
-                <prop key="hbase.ipc.client.socket.timeout.read">${hbase.ipc.client.socket.timeout.read}</prop>
-                <!-- socket write timeout. hbase default: 600000-->
-                <prop key="hbase.ipc.client.socket.timeout.write">${hbase.ipc.client.socket.timeout.write}</prop>
-            </props>
-        </property>
-    </bean>
-
-    <bean id="hbaseThreadPool" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-        <property name="corePoolSize" value="${hbase.client.thread.max}"/>
-        <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
-        <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
-        <property name="threadNamePrefix" value="Pinpoint-HConnectionExecutor-"/>
-        <property name="daemon" value="true"/>
-        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
-        <property name="awaitTerminationSeconds" value="10"/>
-        <property name="prestartAllCoreThreads" value="true"/>
-    </bean>
-
-    <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean">
-        <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
-        <constructor-arg type="java.util.concurrent.ExecutorService" ref="hbaseThreadPool"/>
-    </bean>
-
     <bean id="hbaseTableFactory" class="com.navercorp.pinpoint.common.hbase.HbaseTableFactory">
-        <constructor-arg ref="connectionFactory"/>
+        <constructor-arg ref="hbaseConnection"/>
     </bean>
 
     <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" primary="true">
@@ -58,7 +16,7 @@
     </bean>
 
     <bean id="hbaseAdminFactory" class="com.navercorp.pinpoint.common.hbase.HbaseAdminFactory">
-        <constructor-arg ref="connectionFactory"/>
+        <constructor-arg ref="hbaseConnection"/>
     </bean>
 
     <bean id="hbaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate">
@@ -66,7 +24,5 @@
     </bean>
 
     <bean class="com.navercorp.pinpoint.common.hbase.HbaseVersionCheckBean"/>
-
-    <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
 
 </beans>
