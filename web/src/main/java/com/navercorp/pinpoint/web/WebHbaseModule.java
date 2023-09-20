@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
+import com.navercorp.pinpoint.common.hbase.config.HbaseClientConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
 import com.navercorp.pinpoint.common.server.CommonsHbaseConfiguration;
 import com.navercorp.pinpoint.web.dao.hbase.config.AgentStatDaoConfiguration;
@@ -27,6 +28,8 @@ import org.springframework.context.annotation.PropertySource;
 
         HbaseNamespaceConfiguration.class,
         DistributorConfiguration.class,
+
+        HbaseClientConfiguration.class,
 })
 @ImportResource({
         "classpath:applicationContext-web-hbase.xml"

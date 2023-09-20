@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.hbase.config.HbaseMultiplexerProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HTableMultiplexer;
@@ -24,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -34,13 +36,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class HBaseAsyncOperationFactory implements DisposableBean, FactoryBean<HBaseAsyncOperation> {
 
-    private static final Logger logger = LogManager.getLogger(HBaseAsyncOperationFactory.class);
-
-    public static final String ENABLE_ASYNC_METHOD = "hbase.client.async.enable";
-    public static final boolean DEFAULT_ENABLE_ASYNC_METHOD = false;
-
-    public static final String ASYNC_IN_QUEUE_SIZE = "hbase.client.async.in.queuesize";
-    public static final int DEFAULT_ASYNC_IN_QUEUE_SIZE = 10000;
+    private final Logger logger = LogManager.getLogger(HBaseAsyncOperationFactory.class);
 
     public static final String ASYNC_PERIODIC_FLUSH_TIME = HTableMultiplexer.TABLE_MULTIPLEXER_FLUSH_PERIOD_MS;
     public static final int DEFAULT_ASYNC_PERIODIC_FLUSH_TIME = 100;
@@ -48,49 +44,47 @@ public class HBaseAsyncOperationFactory implements DisposableBean, FactoryBean<H
     public static final String ASYNC_MAX_RETRIES_IN_QUEUE = HTableMultiplexer.TABLE_MULTIPLEXER_MAX_RETRIES_IN_QUEUE;
     public static final int DEFAULT_ASYNC_RETRY_COUNT = 10000;
 
+    private HbaseMultiplexerProperties hbaseMultiplexerProperties;
     private final Connection connection;
-    private final Configuration configuration;
-    private volatile HTableMultiplexer hTableMultiplexer;
+    private HTableMultiplexer hTableMultiplexer;
 
 
-    public HBaseAsyncOperationFactory(Connection connection, Configuration configuration) {
+    public HBaseAsyncOperationFactory(Connection connection) {
         this.connection = Objects.requireNonNull(connection, "connection");
-        this.configuration = Objects.requireNonNull(configuration, "configuration");
+    }
+
+
+    @Autowired
+    public void setHbaseMultiplexerProperties(HbaseMultiplexerProperties hbaseMultiplexerProperties) {
+        this.hbaseMultiplexerProperties = hbaseMultiplexerProperties;
     }
 
     @Override
     public HBaseAsyncOperation getObject() throws Exception {
-        boolean enableAsyncMethod = configuration.getBoolean(ENABLE_ASYNC_METHOD, DEFAULT_ENABLE_ASYNC_METHOD);
-        if (!enableAsyncMethod) {
-            logger.info("hBase async operation is disabled");
+        if (hbaseMultiplexerProperties == null || !hbaseMultiplexerProperties.isEnable()) {
+            logger.info("hbaseMultiplexerProperties is disabled");
             return DisabledHBaseAsyncOperation.INSTANCE;
         }
 
-        return new TableMultiplexerAsyncOperation(this.getHTableMultiplexer());
+        this.hTableMultiplexer = this.getHTableMultiplexer();
+        return new TableMultiplexerAsyncOperation(hTableMultiplexer);
     }
 
     private HTableMultiplexer getHTableMultiplexer() {
-        synchronized (HBaseAsyncOperationFactory.class) {
-            if (this.hTableMultiplexer != null) {
-                logger.info("Returning cached HTableMultiplexer: {}", this.hTableMultiplexer);
-                return this.hTableMultiplexer;
-            }
-
-            if (configuration.get(ASYNC_PERIODIC_FLUSH_TIME, null) == null) {
-                configuration.setInt(ASYNC_PERIODIC_FLUSH_TIME, DEFAULT_ASYNC_PERIODIC_FLUSH_TIME);
-            }
-
-            if (configuration.get(ASYNC_MAX_RETRIES_IN_QUEUE, null) == null) {
-                configuration.setInt(ASYNC_MAX_RETRIES_IN_QUEUE, DEFAULT_ASYNC_RETRY_COUNT);
-            }
-
-            int queueSize = configuration.getInt(ASYNC_IN_QUEUE_SIZE, DEFAULT_ASYNC_IN_QUEUE_SIZE);
-
-            this.hTableMultiplexer = new HTableMultiplexer(connection, configuration, queueSize);
-            logger.info("Initialized new HTableMultiplexer: {} (queueSize: {})", this.hTableMultiplexer, queueSize);
+        Configuration configuration = connection.getConfiguration();
+        if (configuration.get(ASYNC_PERIODIC_FLUSH_TIME, null) == null) {
+            configuration.setInt(ASYNC_PERIODIC_FLUSH_TIME, DEFAULT_ASYNC_PERIODIC_FLUSH_TIME);
         }
 
-        return this.hTableMultiplexer;
+        if (configuration.get(ASYNC_MAX_RETRIES_IN_QUEUE, null) == null) {
+            configuration.setInt(ASYNC_MAX_RETRIES_IN_QUEUE, DEFAULT_ASYNC_RETRY_COUNT);
+        }
+
+        final int inQueueSize = this.hbaseMultiplexerProperties.getInQueueSize();
+
+        HTableMultiplexer multiplexer = new HTableMultiplexer(connection, configuration, inQueueSize);
+        logger.info("Initialized new HTableMultiplexer: {} (queueSize: {})", multiplexer, inQueueSize);
+        return multiplexer;
     }
 
     @Override
@@ -141,8 +135,4 @@ public class HBaseAsyncOperationFactory implements DisposableBean, FactoryBean<H
         return HBaseAsyncOperation.class;
     }
 
-    @Override
-    public boolean isSingleton() {
-        return FactoryBean.super.isSingleton();
-    }
 }

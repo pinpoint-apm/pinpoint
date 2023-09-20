@@ -15,14 +15,13 @@
  */
 package com.navercorp.pinpoint.common.hbase;
 
-import java.util.Enumeration;
-import java.util.Objects;
-import java.util.Properties;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * Factory for creating HBase specific configuration. By default cleans up any connection associated with the current configuration.
@@ -32,7 +31,6 @@ import org.springframework.beans.factory.InitializingBean;
 public class HbaseConfigurationFactoryBean implements InitializingBean, FactoryBean<Configuration> {
 
     private Configuration configuration;
-    private Configuration hadoopConfig;
     private Properties properties;
 
     /**
@@ -41,7 +39,7 @@ public class HbaseConfigurationFactoryBean implements InitializingBean, FactoryB
      * @param configuration The configuration to set.
      */
     public void setConfiguration(Configuration configuration) {
-        this.hadoopConfig = configuration;
+        this.configuration = configuration;
     }
 
     /**
@@ -54,7 +52,7 @@ public class HbaseConfigurationFactoryBean implements InitializingBean, FactoryB
     }
 
     public void afterPropertiesSet() {
-        configuration = (hadoopConfig != null ? HBaseConfiguration.create(hadoopConfig) : HBaseConfiguration.create());
+        configuration = (configuration != null ? HBaseConfiguration.create(configuration) : HBaseConfiguration.create());
         addProperties(configuration, properties);
     }
     
@@ -66,12 +64,11 @@ public class HbaseConfigurationFactoryBean implements InitializingBean, FactoryB
      */
     private void addProperties(Configuration configuration, Properties properties) {
         Objects.requireNonNull(configuration, "A non-null configuration is required");
-        if (properties != null) {
-            Enumeration<?> props = properties.propertyNames();
-            while (props.hasMoreElements()) {
-                String key = props.nextElement().toString();
-                configuration.set(key, properties.getProperty(key));
-            }
+        if (properties == null) {
+            return;
+        }
+        for (String string : properties.stringPropertyNames()) {
+            configuration.set(string, properties.getProperty(string));
         }
     }
 
@@ -80,10 +77,7 @@ public class HbaseConfigurationFactoryBean implements InitializingBean, FactoryB
     }
 
     public Class<? extends Configuration> getObjectType() {
-        return (configuration != null ? configuration.getClass() : Configuration.class);
+        return Configuration.class;
     }
 
-    public boolean isSingleton() {
-        return true;
-    }
 }
