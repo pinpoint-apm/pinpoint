@@ -35,8 +35,4 @@ public class SimpleBatchWriterFactoryBean implements FactoryBean<SimpleBatchWrit
         return SimpleBatchWriter.class;
     }
 
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
 }

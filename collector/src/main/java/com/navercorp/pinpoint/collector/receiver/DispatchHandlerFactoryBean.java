@@ -62,11 +62,6 @@ public class DispatchHandlerFactoryBean<REQ, RES> implements FactoryBean<Dispatc
         return DispatchHandler.class;
     }
 
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
-
     @PostConstruct
     public void afterPropertiesSet() {
         Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
