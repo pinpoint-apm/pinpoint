@@ -94,7 +94,7 @@
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
-        <property name="preStartAllCoreThreads" value="true"/>
+        <property name="prestartAllCoreThreads" value="true"/>
         <property name="registry" value="#{tcpReceiverProperties.workerMonitorEnable ? metricRegistry : null}"/>
         <property name="logRate" value="1"/>
     </bean>
