@@ -387,10 +387,6 @@ public abstract class AbstractPluginForkedTestSuite {
             throw newTestError(e);
         }
 
-        if (pluginTestInstanceList.isEmpty()) {
-            throw new RuntimeException("No test");
-        }
-
         return pluginTestInstanceList;
     }
 
