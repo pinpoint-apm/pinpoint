@@ -209,7 +209,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
         if (targetIds.length > 1) {
           mergedTypes.add(type);
 
-          const id = `${source}_${type}_MergeSingleNodesByServerMap`;
+          const id = `${source}_MergeSingleNodesByServerMap^${type}`;
           const imgPath = mergedNodes.find((node) => node.id === targetIds[0])?.imgPath;
 
           const [notToMergeNodes, toMergeNodes] = _.partition(mergedNodes, (node) => !targetIds.includes(node.id));
@@ -231,7 +231,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
             {
               source,
               target: id,
-              id: `${source}_${type}_MergeSingleEdgesByServerMap`,
+              id: `${source}~${id}`,
               edges: toMergeEdge,
             },
           ];
@@ -257,7 +257,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
         if (targetIds.length > 1) {
           mergedTypes.add(type);
 
-          const id = `${source}_${type}_MergeMultiNodesByServerMap`;
+          const id = `${source}_MergeMultiNodesByServerMap^${type}`;
           const imgPath = mergedNodes.find((node) => node.id === targetIds[0])?.imgPath;
           const [notToMergeNodes, toMergeNodes] = _.partition(mergedNodes, (node) => !targetIds.includes(node.id));
           mergedNodes = [
@@ -288,7 +288,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
               prev[curr.source] = {
                 target: id,
                 source: curr.source,
-                id: `${curr.source}_${type}_MergeMultiEdgesByServerMap`,
+                id: `${curr.source}~${id}`,
                 edges: [curr],
               };
             }
