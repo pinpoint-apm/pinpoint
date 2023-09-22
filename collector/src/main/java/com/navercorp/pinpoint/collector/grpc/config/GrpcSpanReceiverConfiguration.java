@@ -97,14 +97,14 @@ public class GrpcSpanReceiverConfiguration {
 
     @Bean
     public FactoryBean<ExecutorService> grpcSpanWorkerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         MonitoringExecutorProperties properties = grpcSpanWorkerExecutorProperties();
         return executors.newExecutorFactoryBean(properties, beanName);
     }
 
     @Bean
     public FactoryBean<ExecutorService> grpcSpanServerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         MonitoringExecutorProperties properties = grpcSpanServerExecutorProperties();
         return executors.newExecutorFactoryBean(properties, beanName);
     }

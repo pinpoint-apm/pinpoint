@@ -92,14 +92,14 @@ public class GrpcStatReceiverConfiguration {
 
     @Bean
     public FactoryBean<ExecutorService> grpcStatWorkerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         MonitoringExecutorProperties properties = grpcStatWorkerExecutorProperties();
         return executors.newExecutorFactoryBean(properties, beanName);
     }
 
     @Bean
     public FactoryBean<ExecutorService> grpcStatServerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         MonitoringExecutorProperties properties = grpcStatServerExecutorProperties();
         return executors.newExecutorFactoryBean(properties, beanName);
     }

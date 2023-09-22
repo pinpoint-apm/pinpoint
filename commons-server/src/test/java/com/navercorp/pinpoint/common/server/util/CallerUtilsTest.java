@@ -29,7 +29,7 @@ class CallerUtilsTest {
 
     @Test
     void getCallerMethodName() {
-        String methodName = CallerUtils.getMethodName();
+        String methodName = CallerUtils.getCallerMethodName();
         Assertions.assertEquals("getCallerMethodName", methodName);
     }
 
@@ -38,7 +38,7 @@ class CallerUtilsTest {
         Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return CallerUtils.getMethodName();
+                return CallerUtils.getCallerMethodName();
             }
         };
         logger.debug("getCallerMethodName_inner: {}", callable);
@@ -47,14 +47,14 @@ class CallerUtilsTest {
 
     @Test
     void getCallerMethodName_lambda() {
-        Callable<String> callable = () -> CallerUtils.getMethodName();
+        Callable<String> callable = () -> CallerUtils.getCallerMethodName();
         logger.debug("getCallerMethodName_lambda: {}", callable);
 //        System.out.println(callable);
     }
 
     @Test
     void getCallerMethodName_methodRef() {
-        Callable<String> callable = CallerUtils::getMethodName;;
+        Callable<String> callable = CallerUtils::getCallerMethodName;;
         logger.debug("getCallerMethodName_methodRef: {}", callable);
 //        System.out.println(callable);
     }

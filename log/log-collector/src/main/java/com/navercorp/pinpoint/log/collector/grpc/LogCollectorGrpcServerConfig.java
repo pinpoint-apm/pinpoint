@@ -52,7 +52,7 @@ public class LogCollectorGrpcServerConfig {
     public FactoryBean<ExecutorService> grpcLogServerExecutor(MonitoringExecutors executors,
                                                               @Qualifier("grpcLogServerExecutorProperties")
                                                               MonitoringExecutorProperties properties) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         return executors.newExecutorFactoryBean(properties, beanName);
     }
 
@@ -60,7 +60,7 @@ public class LogCollectorGrpcServerConfig {
     public FactoryBean<ExecutorService> grpcLogServerCallExecutor(MonitoringExecutors executors,
                                                                   @Qualifier("grpcLogServerCallExecutorProperties")
                                                                   MonitoringExecutorProperties properties) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         properties.setLogRate(1);
         return executors.newExecutorFactoryBean(properties, beanName);
     }

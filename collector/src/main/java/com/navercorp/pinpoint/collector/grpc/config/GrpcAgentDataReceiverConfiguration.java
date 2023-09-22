@@ -87,7 +87,7 @@ public class GrpcAgentDataReceiverConfiguration {
 
     @Bean
     public FactoryBean<ExecutorService> grpcAgentWorkerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         MonitoringExecutorProperties properties = grpcAgentWorkerExecutorProperties();
         return executors.newExecutorFactoryBean(properties, beanName);
     }
@@ -95,14 +95,14 @@ public class GrpcAgentDataReceiverConfiguration {
 
     @Bean
     public FactoryBean<ExecutorService> grpcAgentServerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         MonitoringExecutorProperties properties = grpcAgentServerExecutorProperties();
         return executors.newExecutorFactoryBean(properties, beanName);
     }
 
     @Bean
     public FactoryBean<ExecutorService> grpcAgentServerCallExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         MonitoringExecutorProperties properties = grpcAgentServerCallExecutorProperties();
         properties.setLogRate(1);
         return executors.newExecutorFactoryBean(properties, beanName);

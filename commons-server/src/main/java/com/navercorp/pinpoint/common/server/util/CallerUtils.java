@@ -29,14 +29,14 @@ public final class CallerUtils {
     public static final Function<Stream<StackWalker.StackFrame>, StackWalker.StackFrame> DEFAULT_CALLER_METHOD_NAME = new StackFrameFunction(DEFAULT_SKIP_FRAME);
 
     private static final StackWalker WALKER = StackWalker.getInstance();
-    public static String getMethodName() {
+    public static String getCallerMethodName() {
         // log4j
         // StackLocatorUtil.getStackTraceElement(1).getMethodName();
         StackWalker.StackFrame stackFrame = WALKER.walk(DEFAULT_CALLER_METHOD_NAME);
         return defaultMethodName(stackFrame);
     }
 
-    public static String getMethodName(long skip) {
+    public static String getCallerMethodName(long skip) {
         skip += DEFAULT_SKIP_FRAME;
         Function<Stream<StackWalker.StackFrame>, StackWalker.StackFrame> fun = new StackFrameFunction(skip);
         StackWalker.StackFrame stackFrame = WALKER.walk(fun);

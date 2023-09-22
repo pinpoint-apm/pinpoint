@@ -58,7 +58,7 @@ public class FlinkExecutorConfiguration {
 
     @Bean
     public FactoryBean<ExecutorService> flinkWorker(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getMethodName();
+        String beanName = CallerUtils.getCallerMethodName();
         MonitoringExecutorProperties properties = flinkWorkerExecutorProperties();
         properties.setLogRate(1);
         ThreadPoolExecutorFactoryBean factoryBean = executors.newExecutorFactoryBean(properties, beanName);
