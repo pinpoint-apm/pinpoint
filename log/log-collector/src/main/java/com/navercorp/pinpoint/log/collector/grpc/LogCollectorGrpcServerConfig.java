@@ -15,12 +15,12 @@
  */
 package com.navercorp.pinpoint.log.collector.grpc;
 
-import com.codahale.metrics.MetricRegistry;
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
-import com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean;
+import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSupplier;
+import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import com.navercorp.pinpoint.grpc.log.LogGrpc;
 import com.navercorp.pinpoint.log.collector.grpc.context.LogAgentHeader;
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.log.collector.grpc.context.LogHeaderPropagationInt
 import com.navercorp.pinpoint.log.collector.service.LogProviderService;
 import com.navercorp.pinpoint.log.collector.service.LogServiceConfig;
 import io.grpc.ServerInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -38,64 +38,35 @@ import org.springframework.context.annotation.Import;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author youngjin.kim2
  */
 @Configuration
-@Import({ GrpcLogReceiverPropertiesConfig.class, LogServiceConfig.class })
+@Import({GrpcLogReceiverPropertiesConfig.class, LogServiceConfig.class})
 public class LogCollectorGrpcServerConfig {
 
-    @Bean("abortPolicy")
-    ThreadPoolExecutor.AbortPolicy abortPolicy() {
-        return new ThreadPoolExecutor.AbortPolicy();
-    }
 
     @Bean("grpcLogServerExecutor")
-    ExecutorFactoryBean grpcLogServerExecutor(
-            ThreadPoolExecutor.AbortPolicy abortPolicy,
-            @Qualifier("grpcLogReceiverConfig") GrpcLogReceiverProperties receiverConfig
-    ) {
-        final ExecutorProperties config = receiverConfig.getServerExecutor();
-        final ExecutorFactoryBean factory = new ExecutorFactoryBean();
-        factory.setRejectedExecutionHandler(abortPolicy);
-        factory.setDaemon(true);
-        factory.setWaitForTasksToCompleteOnShutdown(true);
-        factory.setAwaitTerminationSeconds(10);
-        factory.setPrestartAllCoreThreads(true);
-        factory.setLogRate(100);
-        factory.setExecutorProperties(config);
-        factory.setThreadNamePrefix("Pinpoint-GrpcLog-Server-");
-        return factory;
+    public FactoryBean<ExecutorService> grpcLogServerExecutor(MonitoringExecutors executors,
+                                                              @Qualifier("grpcLogServerExecutorProperties")
+                                                              MonitoringExecutorProperties properties) {
+        String beanName = CallerUtils.getMethodName();
+        return executors.newExecutorFactoryBean(properties, beanName);
     }
 
     @Bean("grpcLogServerCallExecutor")
-    ExecutorFactoryBean grpcLogServerCallExecutor(
-            ThreadPoolExecutor.AbortPolicy abortPolicy,
-            @Qualifier("grpcLogReceiverConfig") GrpcLogReceiverProperties receiverConfig,
-            @Autowired(required = false) MetricRegistry metricRegistry
-    ) {
-        final ExecutorProperties config = receiverConfig.getServerCallExecutor();
-        final ExecutorFactoryBean factory = new ExecutorFactoryBean();
-        factory.setRejectedExecutionHandler(abortPolicy);
-        factory.setDaemon(true);
-        factory.setWaitForTasksToCompleteOnShutdown(true);
-        factory.setAwaitTerminationSeconds(10);
-        factory.setPrestartAllCoreThreads(true);
-        factory.setExecutorProperties(config);
-        factory.setThreadNamePrefix("Pinpoint-GrpcLog-Server-");
-        factory.setLogRate(1);
-
-        if (metricRegistry != null) {
-            factory.setRegistry(metricRegistry);
-        }
-
-        return factory;
+    public FactoryBean<ExecutorService> grpcLogServerCallExecutor(MonitoringExecutors executors,
+                                                                  @Qualifier("grpcLogServerCallExecutorProperties")
+                                                                  MonitoringExecutorProperties properties) {
+        String beanName = CallerUtils.getMethodName();
+        properties.setLogRate(1);
+        return executors.newExecutorFactoryBean(properties, beanName);
     }
 
     @Bean("logInterceptorList")
-    List<ServerInterceptor> logInterceptorList() {
+    public List<ServerInterceptor> logInterceptorList() {
         final HeaderReader<LogAgentHeader> headerReader = new LogAgentHeaderReader();
         final ServerInterceptor interceptor = new LogHeaderPropagationInterceptor(headerReader);
         return List.of(interceptor);
@@ -103,17 +74,17 @@ public class LogCollectorGrpcServerConfig {
 
     @Bean("addressFilter")
     @ConditionalOnMissingBean(name = "addressFilter")
-    AddressFilter allAddressFilter() {
+    public AddressFilter allAddressFilter() {
         return AddressFilter.ALL;
     }
 
     @Bean
-    LogGrpc.LogImplBase logService(LogProviderService service) {
+    public LogGrpc.LogImplBase logService(LogProviderService service) {
         return new LogGrpcService(service);
     }
 
     @Bean
-    GrpcReceiver grpcLogReceiver(
+    public GrpcReceiver grpcLogReceiver(
             @Qualifier("grpcLogReceiverConfig") GrpcLogReceiverProperties receiverConfig,
             @Qualifier("grpcLogServerExecutor") Executor serverExecutor,
             @Qualifier("grpcLogServerCallExecutor") Executor serverCallExecutor,

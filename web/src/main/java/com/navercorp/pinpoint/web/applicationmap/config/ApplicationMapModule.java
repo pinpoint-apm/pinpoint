@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.web.applicationmap.config;
 
+import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.config.executor.ExecutorProperties;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
@@ -37,6 +39,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
@@ -85,6 +88,7 @@ public class ApplicationMapModule {
     }
 
     @Bean
+    @Validated
     @ConfigurationProperties("web.servermap.creator.worker")
     public ExecutorProperties creatorExecutorProperties() {
         return new ExecutorProperties();
@@ -92,7 +96,7 @@ public class ApplicationMapModule {
 
     @Bean
     public Executor applicationsMapCreateExecutor(@Qualifier("creatorExecutorProperties") ExecutorProperties executorProperties) {
-        ExecutorCustomizer customizer = executorCustomizer();
+        ExecutorCustomizer<ThreadPoolTaskExecutor> customizer = executorCustomizer();
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         customizer.customize(executor, executorProperties);
@@ -101,6 +105,7 @@ public class ApplicationMapModule {
     }
 
     @Bean
+    @Validated
     @ConfigurationProperties("web.servermap.appender.worker")
     public ExecutorProperties appenderExecutorProperties() {
         return new ExecutorProperties();
@@ -108,7 +113,7 @@ public class ApplicationMapModule {
 
     @Bean
     public Executor nodeHistogramAppendExecutor(@Qualifier("appenderExecutorProperties") ExecutorProperties executorProperties) {
-        ExecutorCustomizer customizer = executorCustomizer();
+        ExecutorCustomizer<ThreadPoolTaskExecutor> customizer = executorCustomizer();
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         customizer.customize(executor, executorProperties);
@@ -118,7 +123,7 @@ public class ApplicationMapModule {
 
     @Bean
     public Executor serverInfoAppendExecutor(@Qualifier("appenderExecutorProperties") ExecutorProperties executorProperties) {
-        ExecutorCustomizer customizer = executorCustomizer();
+        ExecutorCustomizer<ThreadPoolTaskExecutor> customizer = executorCustomizer();
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         customizer.customize(executor, executorProperties);
@@ -134,9 +139,9 @@ public class ApplicationMapModule {
     }
 
     @Bean
-    public ExecutorCustomizer executorCustomizer() {
+    public ExecutorCustomizer<ThreadPoolTaskExecutor> executorCustomizer() {
         TaskDecorator taskDecorator = contextPropagatingTaskDecorator();
-        return new BasicExecutorCustomizer(taskDecorator);
+        return new TaskExecutorCustomizer(taskDecorator);
     }
 
 }

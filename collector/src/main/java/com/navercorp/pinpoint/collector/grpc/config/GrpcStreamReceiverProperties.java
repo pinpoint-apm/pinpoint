@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
@@ -34,12 +33,9 @@ public class GrpcStreamReceiverProperties extends GrpcReceiverProperties {
 
     public GrpcStreamReceiverProperties(boolean enable,
                                         BindAddress bindAddress,
-                                        ExecutorProperties serverExecutor,
-                                        ExecutorProperties serverCallExecutor,
-                                        ExecutorProperties workerExecutor,
                                         ServerOption serverOption,
                                         GrpcStreamProperties streamProperties) {
-        super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption);
+        super(enable, bindAddress, serverOption);
         this.streamProperties = streamProperties;
     }
 
@@ -48,16 +44,7 @@ public class GrpcStreamReceiverProperties extends GrpcReceiverProperties {
     public void log() {
         super.log();
         logger.info("streamProperties:{}", streamProperties);
-
-        Assert.isTrue(getServerExecutor().getThreadSize() > 0, "grpcServerExecutorThreadSize must be greater than 0");
-        Assert.isTrue(getServerExecutor().getQueueSize() > 0, "grpcServerExecutorQueueSize must be greater than 0");
-
-        // Work executor
-        Assert.isTrue(getWorkerExecutor().getThreadSize() > 0, "grpcWorkerExecutorThreadSize must be greater than 0");
-        Assert.isTrue(getWorkerExecutor().getQueueSize() > 0, "grpcWorkerExecutorQueueSize must be greater than 0");
-
         Assert.isTrue(streamProperties.getSchedulerThreadSize() > 0, "grpcStreamSchedulerThreadSize must be greater than 0");
-
     }
 
     public GrpcStreamProperties getStreamProperties() {

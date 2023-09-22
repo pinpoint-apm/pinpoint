@@ -23,16 +23,16 @@
     </bean>
 
 
-    <bean id="agentEventWorker" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-        <property name="corePoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>
-        <property name="maxPoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>
-        <property name="queueCapacity" value="#{collectorProperties.agentEventWorkerQueueSize}"/>
-        <property name="threadNamePrefix" value="Pinpoint-AgentEvent-Worker-"/>
-        <property name="daemon" value="true"/>
-        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
-        <property name="awaitTerminationSeconds" value="10"/>
-        <property name="prestartAllCoreThreads" value="true"/>
-    </bean>
+<!--    <bean id="agentEventWorker" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">-->
+<!--        <property name="corePoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>-->
+<!--        <property name="maxPoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>-->
+<!--        <property name="queueCapacity" value="#{collectorProperties.agentEventWorkerQueueSize}"/>-->
+<!--        <property name="threadNamePrefix" value="Pinpoint-AgentEvent-Worker-"/>-->
+<!--        <property name="daemon" value="true"/>-->
+<!--        <property name="waitForTasksToCompleteOnShutdown" value="true"/>-->
+<!--        <property name="awaitTerminationSeconds" value="10"/>-->
+<!--        <property name="prestartAllCoreThreads" value="true"/>-->
+<!--    </bean>-->
 
     <bean id="agentLifeCycleChangeEventHandler"
           class="com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandler"/>
@@ -50,18 +50,6 @@
     <bean id="agentEventAsyncTask" class="com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService"/>
     <bean id="agentLifeCycleAsyncTask"
           class="com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService"/>
-
-    <bean id="abortPolicy" class="java.util.concurrent.ThreadPoolExecutor.AbortPolicy"/>
-    <!--    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>-->
-    <bean id="abstractReceiverExecutorFactoryBean"
-          class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" abstract="true">
-        <property name="rejectedExecutionHandler" ref="abortPolicy"/>
-        <property name="daemon" value="true"/>
-        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
-        <property name="awaitTerminationSeconds" value="10"/>
-        <property name="prestartAllCoreThreads" value="true"/>
-        <property name="logRate" value="100"/>
-    </bean>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot">
     </bean>

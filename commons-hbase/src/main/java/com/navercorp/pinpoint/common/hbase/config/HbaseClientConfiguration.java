@@ -34,6 +34,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -80,13 +81,14 @@ public class HbaseClientConfiguration {
     }
 
     @Bean
+    @Validated
     @ConfigurationProperties(prefix = "hbase.client.executor")
     public ExecutorProperties hbaseClientExecutorProperties() {
         return new ExecutorProperties();
     }
 
     @Bean
-    public FactoryBean<ExecutorService> hbaseThreadPool(ExecutorCustomizer<ThreadPoolExecutorFactoryBean> executorCustomizer,
+    public FactoryBean<ExecutorService> hbaseThreadPool(@Qualifier("hbaseExecutorCustomizer") ExecutorCustomizer<ThreadPoolExecutorFactoryBean> executorCustomizer,
                                                         @Qualifier("hbaseClientExecutorProperties") ExecutorProperties properties) {
         ThreadPoolExecutorFactoryBean factory = new ThreadPoolExecutorFactoryBean();
         executorCustomizer.customize(factory, properties);

@@ -83,21 +83,19 @@
     </bean>
 
 
-    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
-
-    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean">
-        <property name="corePoolSize" value="#{tcpReceiverProperties.workerThreadSize}"/>
-        <property name="maxPoolSize" value="#{tcpReceiverProperties.workerThreadSize}"/>
-        <property name="queueCapacity" value="#{tcpReceiverProperties.workerQueueSize}"/>
-        <property name="rejectedExecutionHandler" ref="discardPolicy"/>
-        <property name="threadNamePrefix" value="Pinpoint-Flink-Worker-"/>
-        <property name="daemon" value="true"/>
-        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
-        <property name="awaitTerminationSeconds" value="10"/>
-        <property name="prestartAllCoreThreads" value="true"/>
-        <property name="registry" value="#{tcpReceiverProperties.workerMonitorEnable ? metricRegistry : null}"/>
-        <property name="logRate" value="1"/>
-    </bean>
+<!--    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean">-->
+<!--        <property name="corePoolSize" value="#{tcpReceiverProperties.workerThreadSize}"/>-->
+<!--        <property name="maxPoolSize" value="#{tcpReceiverProperties.workerThreadSize}"/>-->
+<!--        <property name="queueCapacity" value="#{tcpReceiverProperties.workerQueueSize}"/>-->
+<!--        <property name="rejectedExecutionHandler" ref="discardPolicy"/>-->
+<!--        <property name="threadNamePrefix" value="Pinpoint-Flink-Worker-"/>-->
+<!--        <property name="daemon" value="true"/>-->
+<!--        <property name="waitForTasksToCompleteOnShutdown" value="true"/>-->
+<!--        <property name="awaitTerminationSeconds" value="10"/>-->
+<!--        <property name="prestartAllCoreThreads" value="true"/>-->
+<!--        <property name="registry" value="#{tcpReceiverProperties.workerMonitorEnable ? metricRegistry : null}"/>-->
+<!--        <property name="logRate" value="1"/>-->
+<!--    </bean>-->
 
 
     <bean id="channelFilter" class="com.navercorp.pinpoint.collector.receiver.thrift.AddressFilterAdaptor">

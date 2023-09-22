@@ -18,32 +18,41 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
-import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.Connection;
+import com.navercorp.pinpoint.common.config.executor.ExecutorProperties;
+import com.navercorp.pinpoint.common.config.executor.ThreadPoolExecutorCustomizer;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.concurrent.ExecutorService;
 
-@org.springframework.context.annotation.Configuration
-public class BatchHbaseClientConfiguration {
+@Configuration
+public class CollectorConfiguration {
+
     @Bean
-    public FactoryBean<Connection> batchConnectionFactory(Configuration configuration,
-                                                     @Qualifier("batchHbaseThreadPool") ExecutorService executorService) {
-        return new ConnectionFactoryBean(configuration, executorService);
+    public ExecutorCustomizer<ThreadPoolExecutorFactoryBean> collectorExecutorCustomizer() {
+        return new ThreadPoolExecutorCustomizer();
     }
 
     @Bean
-    public FactoryBean<ExecutorService> batchHbaseThreadPool(@Qualifier("hbaseExecutorCustomizer") ExecutorCustomizer<ThreadPoolExecutorFactoryBean> executorCustomizer,
-                                                             @Qualifier("hbaseClientExecutorProperties")
-                                                             com.navercorp.pinpoint.common.config.executor.ExecutorProperties properties) {
+    @Validated
+    @ConfigurationProperties(prefix="collector.agent-event-worker")
+    public ExecutorProperties agentEventWorkerExecutorProperties() {
+        return new ExecutorProperties();
+    }
+
+    @Bean
+    public FactoryBean<ExecutorService> agentEventWorker(@Qualifier("collectorExecutorCustomizer") ExecutorCustomizer<ThreadPoolExecutorFactoryBean> executorCustomizer,
+                                                        @Qualifier("agentEventWorkerExecutorProperties") ExecutorProperties properties) {
         ThreadPoolExecutorFactoryBean factory = new ThreadPoolExecutorFactoryBean();
         executorCustomizer.customize(factory, properties);
+        factory.setThreadNamePrefix("Pinpoint-AgentEvent-Worker-");
         return factory;
     }
+
+
 }
-
-

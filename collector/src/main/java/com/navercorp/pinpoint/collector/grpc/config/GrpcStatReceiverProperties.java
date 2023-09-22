@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 
@@ -28,12 +27,9 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 public class GrpcStatReceiverProperties extends GrpcStreamReceiverProperties {
 
     public GrpcStatReceiverProperties(boolean enable, BindAddress bindAddress,
-                                      ExecutorProperties serverExecutor,
-                                      ExecutorProperties serverCallExecutor,
-                                      ExecutorProperties workerExecutor,
                                       ServerOption serverOption,
                                       GrpcStreamProperties streamConfiguration) {
-        super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption, streamConfiguration);
+        super(enable, bindAddress, serverOption, streamConfiguration);
     }
 
 }

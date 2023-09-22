@@ -16,27 +16,42 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
+import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = GrpcAgentDataReceiverConfiguration.class)
+@ContextConfiguration(classes = {
+        GrpcAgentDataReceiverConfiguration.class,
+        TestReceiverConfig.class,
+})
 @ExtendWith(SpringExtension.class)
 public class GrpcAgentDataReceiverConfigurationTest {
 
     @Autowired
     private GrpcAgentDataReceiverProperties configuration;
+
+    @Autowired
+    @Qualifier("grpcAgentServerExecutorProperties")
+    MonitoringExecutorProperties serverExecutor;
+    @Autowired
+    @Qualifier("grpcAgentServerCallExecutorProperties")
+    MonitoringExecutorProperties serverCallExecutor;
+    @Autowired
+    @Qualifier("grpcAgentWorkerExecutorProperties")
+    MonitoringExecutorProperties workerExecutor;
 
     @Test
     public void properties() {
@@ -46,14 +61,13 @@ public class GrpcAgentDataReceiverConfigurationTest {
         assertEquals("1.1.1.1", bindAddress.getIp());
         assertEquals(1, bindAddress.getPort());
 
-        ExecutorProperties serverExecutor = configuration.getServerExecutor();
-        assertEquals(10, serverExecutor.getThreadSize());
-        assertEquals(11, serverExecutor.getQueueSize());
+        assertEquals(10, serverExecutor.getCorePoolSize());
+        assertEquals(11, serverExecutor.getQueueCapacity());
 
-        ExecutorProperties workerExecutor = configuration.getWorkerExecutor();
-        assertEquals(20, workerExecutor.getThreadSize());
-        assertEquals(21, workerExecutor.getQueueSize());
-        assertEquals(Boolean.FALSE, workerExecutor.isMonitorEnable());
+        assertEquals(20, workerExecutor.getCorePoolSize());
+        assertEquals(21, workerExecutor.getQueueCapacity());
+
+        assertTrue(workerExecutor.isMonitorEnable());
 
     }
 

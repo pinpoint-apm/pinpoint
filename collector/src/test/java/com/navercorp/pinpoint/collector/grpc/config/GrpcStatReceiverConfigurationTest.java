@@ -16,25 +16,35 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = GrpcStatReceiverConfiguration.class)
+@ContextConfiguration(classes = {
+        GrpcStatReceiverConfiguration.class,
+        TestReceiverConfig.class
+})
 @ExtendWith(SpringExtension.class)
 public class GrpcStatReceiverConfigurationTest {
 
     @Autowired
     private GrpcStatReceiverProperties configuration;
+
+    @Autowired
+    @Qualifier("grpcStatWorkerExecutorProperties")
+    MonitoringExecutorProperties workerExecutor;
 
     @Test
     public void properties() {
@@ -42,13 +52,15 @@ public class GrpcStatReceiverConfigurationTest {
         assertEquals(Boolean.FALSE, configuration.isEnable());
         assertEquals("2.2.2.2", configuration.getBindAddress().getIp());
         assertEquals(2, configuration.getBindAddress().getPort());
-        assertEquals(2, configuration.getWorkerExecutor().getThreadSize());
-        assertEquals(2, configuration.getWorkerExecutor().getQueueSize());
-        assertEquals(Boolean.FALSE, configuration.getWorkerExecutor().isMonitorEnable());
-        assertEquals(2, configuration.getStreamProperties().getSchedulerThreadSize());
-        assertEquals(2, configuration.getStreamProperties().getSchedulerPeriodMillis());
-        assertEquals(2, configuration.getStreamProperties().getCallInitRequestCount());
-        assertEquals(2, configuration.getStreamProperties().getThrottledLoggerRatio());
+        assertEquals(2, workerExecutor.getCorePoolSize());
+        assertEquals(2, workerExecutor.getQueueCapacity());
+        assertFalse(workerExecutor.isMonitorEnable());
+
+        GrpcStreamProperties streamProperties = configuration.getStreamProperties();
+        assertEquals(2, streamProperties.getSchedulerThreadSize());
+        assertEquals(2, streamProperties.getSchedulerPeriodMillis());
+        assertEquals(2, streamProperties.getCallInitRequestCount());
+        assertEquals(2, streamProperties.getThrottledLoggerRatio());
 
     }
 

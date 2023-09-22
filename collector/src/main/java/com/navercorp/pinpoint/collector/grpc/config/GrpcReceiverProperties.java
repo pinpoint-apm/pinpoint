@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.apache.logging.log4j.LogManager;
@@ -37,27 +36,15 @@ public class GrpcReceiverProperties {
 
     private final BindAddress bindAddress;
 
-    private final ExecutorProperties serverExecutor;
-
-    private final ExecutorProperties serverCallExecutor;
-
-    private final ExecutorProperties workerExecutor;
 
     private final ServerOption serverOption;
 
     protected GrpcReceiverProperties(boolean enable,
-                           BindAddress bindAddress,
-                           ExecutorProperties serverExecutor,
-                           ExecutorProperties serverCallExecutor,
-                           ExecutorProperties workerExecutor,
-                           ServerOption serverOption) {
+                                     BindAddress bindAddress,
+                                     ServerOption serverOption) {
         this.enable = enable;
         this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
-
         this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
-        this.serverExecutor = Objects.requireNonNull(serverExecutor, "serverExecutor");
-        this.serverCallExecutor = Objects.requireNonNull(serverCallExecutor, "serverCallExecutor");
-        this.workerExecutor = Objects.requireNonNull(workerExecutor, "workerExecutor");
     }
 
 
@@ -65,9 +52,6 @@ public class GrpcReceiverProperties {
     public void log() {
         this.logger.info("enable:{}", this.enable);
         this.logger.info("bindAddress:{}", bindAddress);
-        this.logger.info("serverExecutor:{}", serverExecutor);
-        this.logger.info("serverCallExecutor:{}", serverCallExecutor);
-        this.logger.info("workerExecutor:{}", workerExecutor);
         this.logger.info("serverOption:{}", serverOption);
     }
 
@@ -79,17 +63,6 @@ public class GrpcReceiverProperties {
         return bindAddress;
     }
 
-    public ExecutorProperties getServerExecutor() {
-        return serverExecutor;
-    }
-
-    public ExecutorProperties getServerCallExecutor() {
-        return serverCallExecutor;
-    }
-
-    public ExecutorProperties getWorkerExecutor() {
-        return workerExecutor;
-    }
 
     public ServerOption getServerOption() {
         return serverOption;
@@ -99,9 +72,6 @@ public class GrpcReceiverProperties {
     public String toString() {
         return "GrpcAgentDataReceiverProperties{" + "enable=" + enable +
                 ", bindAddress='" + bindAddress + '\'' +
-                ", serverExecutor=" + serverExecutor +
-                ", serverCallExecutor=" + serverCallExecutor +
-                ", workerExecutor=" + workerExecutor +
                 ", serverOption=" + serverOption +
                 '}';
     }

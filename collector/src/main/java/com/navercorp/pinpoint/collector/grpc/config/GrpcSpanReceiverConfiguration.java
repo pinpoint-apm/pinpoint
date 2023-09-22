@@ -16,13 +16,19 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
+import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
+import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
+import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.validation.annotation.Validated;
+
+import java.util.concurrent.ExecutorService;
 
 
 /**
@@ -31,56 +37,47 @@ import org.springframework.core.env.Environment;
 @Configuration
 public class GrpcSpanReceiverConfiguration {
 
-    public static final String BIND_ADDRESS = "collector.receiver.grpc.span.bindaddress";
-
-    public static final String SERVER_EXECUTOR = "collector.receiver.grpc.span.server.executor";
-
-    public static final String SERVER_CALL_EXECUTOR = "collector.receiver.grpc.span.server-call.executor";
-
-    public static final String WORKER_EXECUTOR = "collector.receiver.grpc.span.worker.executor";
-
-    public static final String STREAM = "collector.receiver.grpc.span.stream";
-
-    public static final String SERVER_OPTION = "collector.receiver.grpc.span";
-
     public GrpcSpanReceiverConfiguration() {
     }
 
-    @Bean(BIND_ADDRESS)
-    @ConfigurationProperties(BIND_ADDRESS)
-    public BindAddress.Builder newBindAddressBuilder() {
+    @Bean
+    @ConfigurationProperties("collector.receiver.grpc.span.bindaddress")
+    public BindAddress.Builder grpcSpanBindAddressBuilder() {
         BindAddress.Builder builder = BindAddress.newBuilder();
         builder.setPort(9993);
         return builder;
     }
 
-    @Bean(SERVER_EXECUTOR)
-    @ConfigurationProperties(SERVER_EXECUTOR)
-    public ExecutorProperties.Builder newServerExecutorBuilder() {
-        return ExecutorProperties.newBuilder();
+    @Bean
+    @Validated
+    @ConfigurationProperties("collector.receiver.grpc.span.server.executor")
+    public MonitoringExecutorProperties grpcSpanServerExecutorProperties() {
+        return new MonitoringExecutorProperties();
     }
 
-    @Bean(SERVER_CALL_EXECUTOR)
-    @ConfigurationProperties(SERVER_CALL_EXECUTOR)
-    public ExecutorProperties.Builder newServerCallExecutorBuilder() {
-        return ExecutorProperties.newBuilder();
+    @Bean
+    @Validated
+    @ConfigurationProperties("collector.receiver.grpc.span.server-call.executor")
+    public MonitoringExecutorProperties grpcSpanServerCallExecutorProperties() {
+        return new MonitoringExecutorProperties();
     }
 
-    @Bean(WORKER_EXECUTOR)
-    @ConfigurationProperties(WORKER_EXECUTOR)
-    public ExecutorProperties.Builder newWorkerExecutorBuilder() {
-        return ExecutorProperties.newBuilder();
+    @Bean
+    @Validated
+    @ConfigurationProperties("collector.receiver.grpc.span.worker.executor")
+    public MonitoringExecutorProperties grpcSpanWorkerExecutorProperties() {
+        return new MonitoringExecutorProperties();
     }
 
-    @Bean(STREAM)
-    @ConfigurationProperties(STREAM)
-    public GrpcStreamProperties.Builder newStreamConfigurationBuilder() {
+    @Bean
+    @ConfigurationProperties("collector.receiver.grpc.span.stream")
+    public GrpcStreamProperties.Builder grpcSpanStreamConfigurationBuilder() {
         return GrpcStreamProperties.newBuilder();
     }
 
-    @Bean(SERVER_OPTION)
-    @ConfigurationProperties(SERVER_OPTION)
-    public GrpcPropertiesServerOptionBuilder newServerOption() {
+    @Bean
+    @ConfigurationProperties("collector.receiver.grpc.span")
+    public GrpcPropertiesServerOptionBuilder grpcSpanServerOption() {
         // Server option
         return new GrpcPropertiesServerOptionBuilder();
     }
@@ -90,15 +87,26 @@ public class GrpcSpanReceiverConfiguration {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.span.enable", boolean.class, false);
 
-        ServerOption serverOption = newServerOption().build();
+        ServerOption serverOption = grpcSpanServerOption().build();
 
-        BindAddress bindAddress = newBindAddressBuilder().build();
-        ExecutorProperties serverExecutor = newServerExecutorBuilder().build();
-        ExecutorProperties serverCallExecutor = newServerCallExecutorBuilder().build();
-        ExecutorProperties workerExecutor = newWorkerExecutorBuilder().build();
+        BindAddress bindAddress = grpcSpanBindAddressBuilder().build();
 
-        GrpcStreamProperties streamConfiguration = newStreamConfigurationBuilder().build();
-        return new GrpcSpanReceiverProperties(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption, streamConfiguration);
+        GrpcStreamProperties streamConfiguration = grpcSpanStreamConfigurationBuilder().build();
+        return new GrpcSpanReceiverProperties(enable, bindAddress, serverOption, streamConfiguration);
+    }
+
+    @Bean
+    public FactoryBean<ExecutorService> grpcSpanWorkerExecutor(MonitoringExecutors executors) {
+        String beanName = CallerUtils.getMethodName();
+        MonitoringExecutorProperties properties = grpcSpanWorkerExecutorProperties();
+        return executors.newExecutorFactoryBean(properties, beanName);
+    }
+
+    @Bean
+    public FactoryBean<ExecutorService> grpcSpanServerExecutor(MonitoringExecutors executors) {
+        String beanName = CallerUtils.getMethodName();
+        MonitoringExecutorProperties properties = grpcSpanServerExecutorProperties();
+        return executors.newExecutorFactoryBean(properties, beanName);
     }
 
 }

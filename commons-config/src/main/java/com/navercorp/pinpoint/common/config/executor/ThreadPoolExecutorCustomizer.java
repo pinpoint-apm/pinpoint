@@ -27,7 +27,9 @@ public class ThreadPoolExecutorCustomizer implements ExecutorCustomizer<ThreadPo
         factoryBean.setQueueCapacity(properties.getQueueCapacity());
 
         factoryBean.setPrestartAllCoreThreads(properties.isPrestartAllCoreThreads());
-        factoryBean.setThreadNamePrefix(properties.getThreadNamePrefix());
+        if (properties.getThreadNamePrefix() != null) {
+            factoryBean.setThreadNamePrefix(properties.getThreadNamePrefix());
+        }
         factoryBean.setPrestartAllCoreThreads(properties.isPrestartAllCoreThreads());
         factoryBean.setDaemon(properties.isDaemon());
 
