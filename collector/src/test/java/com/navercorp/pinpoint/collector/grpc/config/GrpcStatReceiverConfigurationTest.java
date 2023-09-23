@@ -71,7 +71,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class GrpcStatReceiverConfigurationTest {
 
     @Autowired
-    private GrpcStreamReceiverProperties properties;
+    GrpcReceiverProperties properties;
+    @Autowired
+    GrpcStreamProperties streamProperties;
 
     @Autowired
     @Qualifier("grpcStatWorkerExecutorProperties")
@@ -90,7 +92,6 @@ public class GrpcStatReceiverConfigurationTest {
         assertEquals(2, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
 
-        GrpcStreamProperties streamProperties = properties.getStreamProperties();
         assertEquals(2, streamProperties.getSchedulerThreadSize());
         assertEquals(2, streamProperties.getSchedulerPeriodMillis());
         assertEquals(2, streamProperties.getCallInitRequestCount());

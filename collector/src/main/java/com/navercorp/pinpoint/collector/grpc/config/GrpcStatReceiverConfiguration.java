@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
+import jakarta.inject.Provider;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -43,7 +44,7 @@ public class GrpcStatReceiverConfiguration {
     @Bean
     @Validated
     @ConfigurationProperties("collector.receiver.grpc.stat.bindaddress")
-    public BindAddress.Builder grpcStatBindAddressBuilder() {
+    public Provider<BindAddress> grpcStatBindAddressBuilder() {
         BindAddress.Builder builder = BindAddress.newBuilder();
         builder.setPort(9992);
         return builder;
@@ -64,9 +65,10 @@ public class GrpcStatReceiverConfiguration {
     }
 
     @Bean
+    @Validated
     @ConfigurationProperties("collector.receiver.grpc.stat.stream")
-    public GrpcStreamProperties.Builder grpcStatStreamConfigurationBuilder() {
-        return GrpcStreamProperties.newBuilder();
+    public GrpcStreamProperties grpcStatStreamConfiguration() {
+        return new GrpcStreamProperties();
     }
 
     @Bean
@@ -78,17 +80,16 @@ public class GrpcStatReceiverConfiguration {
 
 
     @Bean
-    public GrpcStreamReceiverProperties grpcStatReceiverProperties(
+    public GrpcReceiverProperties grpcStatReceiverProperties(
             Environment environment) {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.stat.enable", boolean.class, false);
 
         ServerOption serverOption = grpcStatServerOption().build();
 
-        BindAddress bindAddress = grpcStatBindAddressBuilder().build();
+        BindAddress bindAddress = grpcStatBindAddressBuilder().get();
 
-        GrpcStreamProperties streamConfiguration = grpcStatStreamConfigurationBuilder().build();
-        return new GrpcStreamReceiverProperties(enable, bindAddress, serverOption, streamConfiguration);
+        return new GrpcReceiverProperties(enable, bindAddress, serverOption);
     }
 
     @Bean

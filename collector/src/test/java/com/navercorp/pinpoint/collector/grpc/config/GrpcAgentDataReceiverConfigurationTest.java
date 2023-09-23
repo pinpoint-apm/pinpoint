@@ -69,7 +69,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class GrpcAgentDataReceiverConfigurationTest {
 
     @Autowired
-    private GrpcReceiverProperties properties;
+    GrpcReceiverProperties properties;
 
     @Autowired
     @Qualifier("grpcAgentServerExecutorProperties")

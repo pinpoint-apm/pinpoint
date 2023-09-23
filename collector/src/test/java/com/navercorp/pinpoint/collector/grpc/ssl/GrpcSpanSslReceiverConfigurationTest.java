@@ -55,7 +55,7 @@ public class GrpcSpanSslReceiverConfigurationTest {
 
     @Autowired
     @Qualifier("grpcSpanSslReceiverProperties")
-    private GrpcSslReceiverProperties properties;
+    GrpcSslReceiverProperties properties;
 
     @Test
     public void properties() {
