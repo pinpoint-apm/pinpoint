@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.apache.logging.log4j.LogManager;
@@ -36,7 +37,36 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Woonduk Kang(emeroad)
  */
 @EnableConfigurationProperties
-@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
+@TestPropertySource(properties = {
+        // # Stat
+        "collector.receiver.grpc.span.enable=false",
+        "collector.receiver.grpc.span.bindaddress.ip=2.2.2.2",
+        "collector.receiver.grpc.span.bindaddress.port=2",
+
+        // # Executor of Worker
+        "collector.receiver.grpc.span.worker.executor.corePoolSize=1",
+        "collector.receiver.grpc.span.worker.executor.maxPoolSize=1",
+        "collector.receiver.grpc.span.worker.executor.queueCapacity=4",
+        "collector.receiver.grpc.span.worker.executor.monitor-enable=false",
+
+        // # Stream scheduler for rejected execution
+        "collector.receiver.grpc.span.stream.scheduler_thread_size=2",
+        "collector.receiver.grpc.span.stream.scheduler_period_millis=3",
+        "collector.receiver.grpc.span.stream.call_init_request_count=4",
+        "collector.receiver.grpc.span.stream.throttled_logger_ratio=5",
+
+        // # Server Option
+        "collector.receiver.grpc.span.keepalive_time_millis=2",
+        "collector.receiver.grpc.span.keepalive_timeout_millis=3",
+        "collector.receiver.grpc.span.permit_keepalive_time_millis=4",
+        "collector.receiver.grpc.span.connection_idle_timeout_millis=5",
+        "collector.receiver.grpc.span.concurrent-calls_per-connection_max=6",
+        "collector.receiver.grpc.span.handshake_timeout_millis=2",
+        "collector.receiver.grpc.span.flow-control_window_size_init=2MB",
+        "collector.receiver.grpc.span.header_list_size_max=2KB",
+        "collector.receiver.grpc.span.inbound_message_size_max=2MB",
+        "collector.receiver.grpc.span.receive_buffer_size=2MB",
+})
 @ContextConfiguration(classes = {
         GrpcSpanReceiverConfiguration.class,
         TestReceiverConfig.class,
@@ -55,18 +85,22 @@ public class GrpcSpanReceiverConfigurationTest {
     @Test
     public void properties() {
 
-        assertEquals(Boolean.FALSE, configuration.isEnable());
-        assertEquals("3.3.3.3", configuration.getBindAddress().getIp());
-        assertEquals(3, configuration.getBindAddress().getPort());
-        assertEquals(3, workerExecutor.getCorePoolSize());
-        assertEquals(3, workerExecutor.getQueueCapacity());
+        assertFalse(configuration.isEnable());
+
+        BindAddress bindAddress = configuration.getBindAddress();
+        assertEquals("2.2.2.2", bindAddress.getIp());
+        assertEquals(2, bindAddress.getPort());
+
+        assertEquals(1, workerExecutor.getCorePoolSize());
+        assertEquals(1, workerExecutor.getMaxPoolSize());
+        assertEquals(4, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
 
         GrpcStreamProperties streamProperties = configuration.getStreamProperties();
-        assertEquals(3, streamProperties.getSchedulerThreadSize());
+        assertEquals(2, streamProperties.getSchedulerThreadSize());
         assertEquals(3, streamProperties.getSchedulerPeriodMillis());
-        assertEquals(3, streamProperties.getCallInitRequestCount());
-        assertEquals(3, streamProperties.getThrottledLoggerRatio());
+        assertEquals(4, streamProperties.getCallInitRequestCount());
+        assertEquals(5, streamProperties.getThrottledLoggerRatio());
     }
 
     @Test

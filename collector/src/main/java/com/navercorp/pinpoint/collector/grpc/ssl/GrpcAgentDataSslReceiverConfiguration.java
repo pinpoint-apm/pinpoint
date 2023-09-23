@@ -51,7 +51,7 @@ public class GrpcAgentDataSslReceiverConfiguration {
 
     @Bean
     public GrpcSslReceiverProperties grpcAgentSslReceiverProperties(
-            @Qualifier(GrpcAgentDataSslReceiverConfiguration.SSL) GrpcSslProperties.Builder sslPropertiesBuilder) throws Exception {
+            @Qualifier(GrpcAgentDataSslReceiverConfiguration.SSL) GrpcSslProperties.Builder sslPropertiesBuilder) {
 
         BindAddress bindAddress = newBindAddressBuilder().build();
 

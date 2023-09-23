@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.Objects;
 
 /**
@@ -43,7 +45,9 @@ public class BindAddress {
     }
 
     public static class Builder {
+        @NotNull
         private String ip = "0.0.0.0";
+        @Positive
         private int port;
 
         Builder() {

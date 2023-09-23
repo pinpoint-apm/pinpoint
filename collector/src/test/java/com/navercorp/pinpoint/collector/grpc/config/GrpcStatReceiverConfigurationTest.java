@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,36 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @EnableConfigurationProperties
-@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
+@TestPropertySource(properties = {
+        // # Stat
+        "collector.receiver.grpc.stat.enable=false",
+        "collector.receiver.grpc.stat.bindaddress.ip=2.2.2.2",
+        "collector.receiver.grpc.stat.bindaddress.port=2",
+
+        // # Executor of Worker
+        "collector.receiver.grpc.stat.worker.executor.corePoolSize=2",
+        "collector.receiver.grpc.stat.worker.executor.maxPoolSize=2",
+        "collector.receiver.grpc.stat.worker.executor.queueCapacity=2",
+        "collector.receiver.grpc.stat.worker.executor.monitor-enable=false",
+
+        // # Stream scheduler for rejected execution
+        "collector.receiver.grpc.stat.stream.scheduler_thread_size=2",
+        "collector.receiver.grpc.stat.stream.scheduler_period_millis=2",
+        "collector.receiver.grpc.stat.stream.call_init_request_count=2",
+        "collector.receiver.grpc.stat.stream.throttled_logger_ratio=2",
+
+        // # Server Option
+        "collector.receiver.grpc.stat.keepalive_time_millis=2",
+        "collector.receiver.grpc.stat.keepalive_timeout_millis=3",
+        "collector.receiver.grpc.stat.permit_keepalive_time_millis=4",
+        "collector.receiver.grpc.stat.connection_idle_timeout_millis=5",
+        "collector.receiver.grpc.stat.concurrent-calls_per-connection_max=6",
+        "collector.receiver.grpc.stat.handshake_timeout_millis=2",
+        "collector.receiver.grpc.stat.flow-control_window_size_init=2MB",
+        "collector.receiver.grpc.stat.header_list_size_max=2KB",
+        "collector.receiver.grpc.stat.inbound_message_size_max=2MB",
+        "collector.receiver.grpc.stat.receive_buffer_size=2MB",
+})
 @ContextConfiguration(classes = {
         GrpcStatReceiverConfiguration.class,
         TestReceiverConfig.class
@@ -50,8 +80,11 @@ public class GrpcStatReceiverConfigurationTest {
     public void properties() {
 
         assertFalse(configuration.isEnable());
-        assertEquals("2.2.2.2", configuration.getBindAddress().getIp());
-        assertEquals(2, configuration.getBindAddress().getPort());
+
+        BindAddress bindAddress = configuration.getBindAddress();
+        assertEquals("2.2.2.2", bindAddress.getIp());
+        assertEquals(2, bindAddress.getPort());
+
         assertEquals(2, workerExecutor.getCorePoolSize());
         assertEquals(2, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
@@ -71,10 +104,10 @@ public class GrpcStatReceiverConfigurationTest {
         ServerOption serverOption = configuration.getServerOption();
 
         assertEquals(2, serverOption.getKeepAliveTime());
-        assertEquals(2, serverOption.getKeepAliveTimeout());
-        assertEquals(2, serverOption.getPermitKeepAliveTime());
-        assertEquals(2, serverOption.getMaxConnectionIdle());
-        assertEquals(2, serverOption.getMaxConcurrentCallsPerConnection());
+        assertEquals(3, serverOption.getKeepAliveTimeout());
+        assertEquals(4, serverOption.getPermitKeepAliveTime());
+        assertEquals(5, serverOption.getMaxConnectionIdle());
+        assertEquals(6, serverOption.getMaxConcurrentCallsPerConnection());
         // 2M
         assertEquals(2 * 1024 * 1024, serverOption.getMaxInboundMessageSize());
         // 2K

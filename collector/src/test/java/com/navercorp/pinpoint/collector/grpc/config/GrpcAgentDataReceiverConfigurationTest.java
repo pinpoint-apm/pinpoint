@@ -29,10 +29,38 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnableConfigurationProperties
-@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
+@TestPropertySource(properties = {
+        // # Agent
+        "collector.receiver.grpc.agent.enable=false",
+        "collector.receiver.grpc.agent.bindaddress.ip=1.1.1.1",
+        "collector.receiver.grpc.agent.bindaddress.port=1",
+        // # Executor of Server
+        "collector.receiver.grpc.agent.server.executor.corePoolSize=1",
+        "collector.receiver.grpc.agent.server.executor.maxPoolSize=1",
+        "collector.receiver.grpc.agent.server.executor.queueCapacity=11",
+        "collector.receiver.grpc.agent.server.executor.monitor-enable=true",
+        // # Executor of Worker
+        "collector.receiver.grpc.agent.worker.executor.corePoolSize=1",
+        "collector.receiver.grpc.agent.worker.executor.maxPoolSize=1",
+        "collector.receiver.grpc.agent.worker.executor.queueCapacity=21",
+        "collector.receiver.grpc.agent.worker.executor.monitor-enable=true",
+        // # Server Option
+        "collector.receiver.grpc.agent.keepalive_time_millis=1",
+        "collector.receiver.grpc.agent.keepalive_timeout_millis=2",
+        "collector.receiver.grpc.agent.permit_keepalive_time_millis=3",
+        "collector.receiver.grpc.agent.connection_idle_timeout_millis=4",
+        "collector.receiver.grpc.agent.concurrent-calls_per-connection_max=1",
+        "collector.receiver.grpc.agent.handshake_timeout_millis=1",
+        "collector.receiver.grpc.agent.flow-control_window_size_init=1MB",
+        "collector.receiver.grpc.agent.header_list_size_max=1KB",
+        "collector.receiver.grpc.agent.inbound_message_size_max=1MB",
+        "collector.receiver.grpc.agent.receive_buffer_size=1MB",
+
+})
 @ContextConfiguration(classes = {
         GrpcAgentDataReceiverConfiguration.class,
         TestReceiverConfig.class,
@@ -56,15 +84,18 @@ public class GrpcAgentDataReceiverConfigurationTest {
     @Test
     public void properties() {
 
-        assertEquals(Boolean.FALSE, configuration.isEnable());
+        assertFalse(configuration.isEnable());
+
         BindAddress bindAddress = configuration.getBindAddress();
         assertEquals("1.1.1.1", bindAddress.getIp());
         assertEquals(1, bindAddress.getPort());
 
-        assertEquals(10, serverExecutor.getCorePoolSize());
+        assertEquals(1, serverExecutor.getCorePoolSize());
+        assertEquals(1, serverExecutor.getMaxPoolSize());
         assertEquals(11, serverExecutor.getQueueCapacity());
 
-        assertEquals(20, workerExecutor.getCorePoolSize());
+        assertEquals(1, workerExecutor.getCorePoolSize());
+        assertEquals(1, workerExecutor.getMaxPoolSize());
         assertEquals(21, workerExecutor.getQueueCapacity());
 
         assertTrue(workerExecutor.isMonitorEnable());
@@ -77,9 +108,9 @@ public class GrpcAgentDataReceiverConfigurationTest {
         ServerOption serverOption = configuration.getServerOption();
 
         assertEquals(1, serverOption.getKeepAliveTime());
-        assertEquals(1, serverOption.getKeepAliveTimeout());
-        assertEquals(1, serverOption.getPermitKeepAliveTime());
-        assertEquals(1, serverOption.getMaxConnectionIdle());
+        assertEquals(2, serverOption.getKeepAliveTimeout());
+        assertEquals(3, serverOption.getPermitKeepAliveTime());
+        assertEquals(4, serverOption.getMaxConnectionIdle());
         assertEquals(1, serverOption.getMaxConcurrentCallsPerConnection());
         // 1M
         assertEquals(1024 * 1024, serverOption.getMaxInboundMessageSize());
