@@ -29,14 +29,9 @@ import java.util.concurrent.TimeUnit;
 
 public class MonitoredThreadPoolExecutorFactory {
 
-    private int logRate = 100;
-
     private final String name;
     private final MetricRegistry registry;
-
-    public MonitoredThreadPoolExecutorFactory(String name, MetricRegistry registry) {
-        this(name, registry, 100);
-    }
+    private final int logRate;
 
     public MonitoredThreadPoolExecutorFactory(String name, MetricRegistry registry, int logRate) {
         this.name = Objects.requireNonNull(name, "name");

@@ -49,7 +49,7 @@ public class GrpcStatReceiverConfigurationTest {
     @Test
     public void properties() {
 
-        assertEquals(Boolean.FALSE, configuration.isEnable());
+        assertFalse(configuration.isEnable());
         assertEquals("2.2.2.2", configuration.getBindAddress().getIp());
         assertEquals(2, configuration.getBindAddress().getPort());
         assertEquals(2, workerExecutor.getCorePoolSize());

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -26,7 +27,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ExecutorFactoryBean extends org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean {
+public class ExecutorFactoryBean extends ThreadPoolExecutorFactoryBean {
 
     private MonitoredThreadPoolExecutorFactory executorFactory;
 
