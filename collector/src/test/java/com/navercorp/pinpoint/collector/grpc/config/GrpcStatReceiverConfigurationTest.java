@@ -27,6 +27,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.unit.DataSize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -109,15 +110,15 @@ public class GrpcStatReceiverConfigurationTest {
         assertEquals(5, serverOption.getMaxConnectionIdle());
         assertEquals(6, serverOption.getMaxConcurrentCallsPerConnection());
         // 2M
-        assertEquals(2 * 1024 * 1024, serverOption.getMaxInboundMessageSize());
+        assertEquals(DataSize.ofMegabytes(2).toBytes(), serverOption.getMaxInboundMessageSize());
         // 2K
-        assertEquals(2 * 1024, serverOption.getMaxHeaderListSize());
+        assertEquals(DataSize.ofKilobytes(2).toBytes(), serverOption.getMaxHeaderListSize());
         // 2M
-        assertEquals(2 * 1024 * 1024, serverOption.getFlowControlWindow());
+        assertEquals(DataSize.ofMegabytes(2).toBytes(), serverOption.getFlowControlWindow());
 
         assertEquals(2, serverOption.getHandshakeTimeout());
         // 2M
-        assertEquals(2 * 1024 * 1024, serverOption.getReceiveBufferSize());
+        assertEquals(DataSize.ofMegabytes(2).toBytes(), serverOption.getReceiveBufferSize());
     }
 
 }

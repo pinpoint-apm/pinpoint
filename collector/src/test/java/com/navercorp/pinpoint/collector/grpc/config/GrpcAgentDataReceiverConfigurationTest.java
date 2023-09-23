@@ -24,9 +24,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.unit.DataSize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -61,10 +62,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         "collector.receiver.grpc.agent.receive_buffer_size=1MB",
 
 })
-@ContextConfiguration(classes = {
+//@ContextConfiguration(classes = {
+//        GrpcAgentDataReceiverConfiguration.class,
+//        TestReceiverConfig.class,
+//})
+@SpringBootTest(classes = {
         GrpcAgentDataReceiverConfiguration.class,
         TestReceiverConfig.class,
-})
+}, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ExtendWith(SpringExtension.class)
 public class GrpcAgentDataReceiverConfigurationTest {
 
@@ -113,14 +118,14 @@ public class GrpcAgentDataReceiverConfigurationTest {
         assertEquals(4, serverOption.getMaxConnectionIdle());
         assertEquals(1, serverOption.getMaxConcurrentCallsPerConnection());
         // 1M
-        assertEquals(1024 * 1024, serverOption.getMaxInboundMessageSize());
+        assertEquals(DataSize.ofMegabytes(1).toBytes(), serverOption.getMaxInboundMessageSize());
         // 1K
-        assertEquals(1024, serverOption.getMaxHeaderListSize());
+        assertEquals(DataSize.ofKilobytes(1).toBytes(), serverOption.getMaxHeaderListSize());
         // 1M
-        assertEquals(1024 * 1024, serverOption.getFlowControlWindow());
+        assertEquals(DataSize.ofMegabytes(1).toBytes(), serverOption.getFlowControlWindow());
 
         assertEquals(1, serverOption.getHandshakeTimeout());
         // 1M
-        assertEquals(1024 * 1024, serverOption.getReceiveBufferSize());
+        assertEquals(DataSize.ofMegabytes(1).toBytes(), serverOption.getReceiveBufferSize());
     }
 }

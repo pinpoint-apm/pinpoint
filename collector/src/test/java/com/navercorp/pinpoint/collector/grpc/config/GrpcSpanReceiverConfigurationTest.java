@@ -29,6 +29,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.unit.DataSize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -62,10 +63,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
         "collector.receiver.grpc.span.connection_idle_timeout_millis=5",
         "collector.receiver.grpc.span.concurrent-calls_per-connection_max=6",
         "collector.receiver.grpc.span.handshake_timeout_millis=2",
-        "collector.receiver.grpc.span.flow-control_window_size_init=2MB",
-        "collector.receiver.grpc.span.header_list_size_max=2KB",
-        "collector.receiver.grpc.span.inbound_message_size_max=2MB",
-        "collector.receiver.grpc.span.receive_buffer_size=2MB",
+        "collector.receiver.grpc.span.flow-control_window_size_init=3MB",
+        "collector.receiver.grpc.span.header_list_size_max=3KB",
+        "collector.receiver.grpc.span.inbound_message_size_max=3MB",
+        "collector.receiver.grpc.span.receive_buffer_size=3MB",
 })
 @ContextConfiguration(classes = {
         GrpcSpanReceiverConfiguration.class,
@@ -108,21 +109,21 @@ public class GrpcSpanReceiverConfigurationTest {
 
         ServerOption serverOption = configuration.getServerOption();
 
-        assertEquals(3, serverOption.getKeepAliveTime());
+        assertEquals(2, serverOption.getKeepAliveTime());
         assertEquals(3, serverOption.getKeepAliveTimeout());
-        assertEquals(3, serverOption.getPermitKeepAliveTime());
-        assertEquals(3, serverOption.getMaxConnectionIdle());
-        assertEquals(3, serverOption.getMaxConcurrentCallsPerConnection());
+        assertEquals(4, serverOption.getPermitKeepAliveTime());
+        assertEquals(5, serverOption.getMaxConnectionIdle());
+        assertEquals(6, serverOption.getMaxConcurrentCallsPerConnection());
         // 3M
-        assertEquals(3 * 1024 * 1024, serverOption.getMaxInboundMessageSize());
+        assertEquals(DataSize.ofMegabytes(3).toBytes(), serverOption.getMaxInboundMessageSize());
         // 3K
-        assertEquals(3 * 1024, serverOption.getMaxHeaderListSize());
+        assertEquals(DataSize.ofKilobytes(3).toBytes(), serverOption.getMaxHeaderListSize());
         // 3M
-        assertEquals(3 * 1024 * 1024, serverOption.getFlowControlWindow());
+        assertEquals(DataSize.ofMegabytes(3).toBytes(), serverOption.getFlowControlWindow());
 
-        assertEquals(3, serverOption.getHandshakeTimeout());
+        assertEquals(2, serverOption.getHandshakeTimeout());
         // 3M
-        assertEquals(3 * 1024 * 1024, serverOption.getReceiveBufferSize());
+        assertEquals(DataSize.ofMegabytes(3).toBytes(), serverOption.getReceiveBufferSize());
     }
 
 }

@@ -40,6 +40,7 @@ public class GrpcAgentDataReceiverConfiguration {
     }
 
     @Bean
+    @Validated
     @ConfigurationProperties("collector.receiver.grpc.agent.bindaddress")
     public BindAddress.Builder grpcAgentBindAddressBuilder() {
         BindAddress.Builder builder = BindAddress.newBuilder();

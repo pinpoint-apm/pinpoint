@@ -41,6 +41,7 @@ public class GrpcStatReceiverConfiguration {
     }
 
     @Bean
+    @Validated
     @ConfigurationProperties("collector.receiver.grpc.stat.bindaddress")
     public BindAddress.Builder grpcStatBindAddressBuilder() {
         BindAddress.Builder builder = BindAddress.newBuilder();

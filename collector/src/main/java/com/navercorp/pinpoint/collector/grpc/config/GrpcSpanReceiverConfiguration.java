@@ -41,6 +41,7 @@ public class GrpcSpanReceiverConfiguration {
     }
 
     @Bean
+    @Validated
     @ConfigurationProperties("collector.receiver.grpc.span.bindaddress")
     public BindAddress.Builder grpcSpanBindAddressBuilder() {
         BindAddress.Builder builder = BindAddress.newBuilder();

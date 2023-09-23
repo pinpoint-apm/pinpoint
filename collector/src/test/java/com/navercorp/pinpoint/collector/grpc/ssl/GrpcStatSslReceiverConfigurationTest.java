@@ -33,8 +33,23 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
-@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfiguration.class, GrpcStatSslReceiverConfiguration.class})
+@TestPropertySource(properties = {
+        // # Agent
+        "collector.receiver.grpc.stat.ssl.bindaddress.ip=2.2.2.2",
+        "collector.receiver.grpc.stat.ssl.bindaddress.port=29442",
+
+        // ### For ssl config
+        // # please choose openssl/jdk
+        "collector.receiver.grpc.ssl.provider_type=jdk",
+        // # please insert .pem file path
+        "collector.receiver.grpc.ssl.key_file_path=certs/server0.pem",
+        // # please insert .crt file path
+        "collector.receiver.grpc.ssl.key_cert_file_path=certs/server0.key"
+})
+@ContextConfiguration(classes = {
+        GrpcAgentDataSslReceiverConfiguration.class,
+        GrpcStatSslReceiverConfiguration.class
+})
 @ExtendWith(SpringExtension.class)
 public class GrpcStatSslReceiverConfigurationTest {
 
