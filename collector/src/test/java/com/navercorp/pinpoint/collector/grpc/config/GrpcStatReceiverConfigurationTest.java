@@ -71,7 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class GrpcStatReceiverConfigurationTest {
 
     @Autowired
-    private GrpcStatReceiverProperties configuration;
+    private GrpcStreamReceiverProperties properties;
 
     @Autowired
     @Qualifier("grpcStatWorkerExecutorProperties")
@@ -80,9 +80,9 @@ public class GrpcStatReceiverConfigurationTest {
     @Test
     public void properties() {
 
-        assertFalse(configuration.isEnable());
+        assertFalse(properties.isEnable());
 
-        BindAddress bindAddress = configuration.getBindAddress();
+        BindAddress bindAddress = properties.getBindAddress();
         assertEquals("2.2.2.2", bindAddress.getIp());
         assertEquals(2, bindAddress.getPort());
 
@@ -90,7 +90,7 @@ public class GrpcStatReceiverConfigurationTest {
         assertEquals(2, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
 
-        GrpcStreamProperties streamProperties = configuration.getStreamProperties();
+        GrpcStreamProperties streamProperties = properties.getStreamProperties();
         assertEquals(2, streamProperties.getSchedulerThreadSize());
         assertEquals(2, streamProperties.getSchedulerPeriodMillis());
         assertEquals(2, streamProperties.getCallInitRequestCount());
@@ -102,7 +102,7 @@ public class GrpcStatReceiverConfigurationTest {
     @Test
     public void serverOption() {
 
-        ServerOption serverOption = configuration.getServerOption();
+        ServerOption serverOption = properties.getServerOption();
 
         assertEquals(2, serverOption.getKeepAliveTime());
         assertEquals(3, serverOption.getKeepAliveTimeout());

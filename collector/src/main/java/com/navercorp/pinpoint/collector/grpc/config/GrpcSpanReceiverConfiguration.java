@@ -84,7 +84,7 @@ public class GrpcSpanReceiverConfiguration {
     }
 
     @Bean
-    public GrpcSpanReceiverProperties grpcSpanReceiverProperties(Environment environment) {
+    public GrpcStreamReceiverProperties grpcSpanReceiverProperties(Environment environment) {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.span.enable", boolean.class, false);
 
@@ -93,7 +93,7 @@ public class GrpcSpanReceiverConfiguration {
         BindAddress bindAddress = grpcSpanBindAddressBuilder().build();
 
         GrpcStreamProperties streamConfiguration = grpcSpanStreamConfigurationBuilder().build();
-        return new GrpcSpanReceiverProperties(enable, bindAddress, serverOption, streamConfiguration);
+        return new GrpcStreamReceiverProperties(enable, bindAddress, serverOption, streamConfiguration);
     }
 
     @Bean

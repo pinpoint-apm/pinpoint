@@ -36,7 +36,6 @@ public class GrpcReceiverProperties {
 
     private final BindAddress bindAddress;
 
-
     private final ServerOption serverOption;
 
     protected GrpcReceiverProperties(boolean enable,

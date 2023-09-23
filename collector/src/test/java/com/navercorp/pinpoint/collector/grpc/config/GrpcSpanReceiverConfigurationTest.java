@@ -77,7 +77,7 @@ public class GrpcSpanReceiverConfigurationTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Autowired
-    private GrpcStreamReceiverProperties configuration;
+    private GrpcStreamReceiverProperties properties;
 
     @Autowired
     @Qualifier("grpcSpanWorkerExecutorProperties")
@@ -86,9 +86,9 @@ public class GrpcSpanReceiverConfigurationTest {
     @Test
     public void properties() {
 
-        assertFalse(configuration.isEnable());
+        assertFalse(properties.isEnable());
 
-        BindAddress bindAddress = configuration.getBindAddress();
+        BindAddress bindAddress = properties.getBindAddress();
         assertEquals("2.2.2.2", bindAddress.getIp());
         assertEquals(2, bindAddress.getPort());
 
@@ -97,7 +97,7 @@ public class GrpcSpanReceiverConfigurationTest {
         assertEquals(4, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
 
-        GrpcStreamProperties streamProperties = configuration.getStreamProperties();
+        GrpcStreamProperties streamProperties = properties.getStreamProperties();
         assertEquals(2, streamProperties.getSchedulerThreadSize());
         assertEquals(3, streamProperties.getSchedulerPeriodMillis());
         assertEquals(4, streamProperties.getCallInitRequestCount());
@@ -107,7 +107,7 @@ public class GrpcSpanReceiverConfigurationTest {
     @Test
     public void serverOption() {
 
-        ServerOption serverOption = configuration.getServerOption();
+        ServerOption serverOption = properties.getServerOption();
 
         assertEquals(2, serverOption.getKeepAliveTime());
         assertEquals(3, serverOption.getKeepAliveTimeout());

@@ -77,13 +77,13 @@ public class GrpcAgentDataReceiverConfiguration {
     }
 
     @Bean
-    public GrpcAgentDataReceiverProperties grpcAgentReceiverProperties(Environment environment) {
+    public GrpcReceiverProperties grpcAgentReceiverProperties(Environment environment) {
         boolean enable = environment.getProperty("collector.receiver.grpc.agent.enable", boolean.class, false);
 
         ServerOption serverOption = grpcAgentServerOption().build();
         BindAddress bindAddress = grpcAgentBindAddressBuilder().build();
 
-        return new GrpcAgentDataReceiverProperties(enable, bindAddress, serverOption);
+        return new GrpcReceiverProperties(enable, bindAddress, serverOption);
     }
 
     @Bean

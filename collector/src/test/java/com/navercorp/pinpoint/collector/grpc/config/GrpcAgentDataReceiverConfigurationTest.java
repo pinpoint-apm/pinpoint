@@ -24,7 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.unit.DataSize;
@@ -60,21 +60,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         "collector.receiver.grpc.agent.header_list_size_max=1KB",
         "collector.receiver.grpc.agent.inbound_message_size_max=1MB",
         "collector.receiver.grpc.agent.receive_buffer_size=1MB",
-
 })
-//@ContextConfiguration(classes = {
-//        GrpcAgentDataReceiverConfiguration.class,
-//        TestReceiverConfig.class,
-//})
-@SpringBootTest(classes = {
+@ContextConfiguration(classes = {
         GrpcAgentDataReceiverConfiguration.class,
         TestReceiverConfig.class,
-}, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+})
 @ExtendWith(SpringExtension.class)
 public class GrpcAgentDataReceiverConfigurationTest {
 
     @Autowired
-    private GrpcAgentDataReceiverProperties configuration;
+    private GrpcReceiverProperties properties;
 
     @Autowired
     @Qualifier("grpcAgentServerExecutorProperties")
@@ -89,9 +84,9 @@ public class GrpcAgentDataReceiverConfigurationTest {
     @Test
     public void properties() {
 
-        assertFalse(configuration.isEnable());
+        assertFalse(properties.isEnable());
 
-        BindAddress bindAddress = configuration.getBindAddress();
+        BindAddress bindAddress = properties.getBindAddress();
         assertEquals("1.1.1.1", bindAddress.getIp());
         assertEquals(1, bindAddress.getPort());
 
@@ -110,7 +105,7 @@ public class GrpcAgentDataReceiverConfigurationTest {
     @Test
     public void serverOption() {
 
-        ServerOption serverOption = configuration.getServerOption();
+        ServerOption serverOption = properties.getServerOption();
 
         assertEquals(1, serverOption.getKeepAliveTime());
         assertEquals(2, serverOption.getKeepAliveTimeout());

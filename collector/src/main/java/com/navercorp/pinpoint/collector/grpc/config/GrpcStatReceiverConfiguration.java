@@ -78,7 +78,7 @@ public class GrpcStatReceiverConfiguration {
 
 
     @Bean
-    public GrpcStatReceiverProperties grpcStatReceiverProperties(
+    public GrpcStreamReceiverProperties grpcStatReceiverProperties(
             Environment environment) {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.stat.enable", boolean.class, false);
@@ -88,7 +88,7 @@ public class GrpcStatReceiverConfiguration {
         BindAddress bindAddress = grpcStatBindAddressBuilder().build();
 
         GrpcStreamProperties streamConfiguration = grpcStatStreamConfigurationBuilder().build();
-        return new GrpcStatReceiverProperties(enable, bindAddress, serverOption, streamConfiguration);
+        return new GrpcStreamReceiverProperties(enable, bindAddress, serverOption, streamConfiguration);
     }
 
     @Bean
