@@ -79,11 +79,11 @@ public class StatServerTestMain {
     }
 
     private GrpcStreamProperties newStreamProperties() {
-        GrpcStreamProperties.Builder builder = GrpcStreamProperties.newBuilder();
-        builder.setCallInitRequestCount(100);
-        builder.setSchedulerPeriodMillis(1000);
-        builder.setSchedulerRecoveryMessageCount(100);
-        return builder.build();
+        GrpcStreamProperties properties = new GrpcStreamProperties();
+        properties.setCallInitRequestCount(100);
+        properties.setSchedulerPeriodMillis(1000);
+        properties.setSchedulerRecoveryMessageCount(100);
+        return properties;
     }
 
     public static void main(String[] args) throws Exception {

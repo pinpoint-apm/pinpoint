@@ -93,7 +93,7 @@ public class RealtimeConfig {
                     atcDao,
                     agentLookupService,
                     Objects.requireNonNullElseGet(timerTaskDecoratorFactory,
-                            () -> new PinpointWebSocketTimerTaskDecoratorFactory()),
+                            PinpointWebSocketTimerTaskDecoratorFactory::new),
                     scheduledExecutor,
                     atcPeriods.getPeriodEmit(),
                     atcPeriods.getPeriodUpdate()

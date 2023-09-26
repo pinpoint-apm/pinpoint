@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.flink.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 
 import javax.annotation.PostConstruct;
 
@@ -38,15 +36,6 @@ public class DataReceiverProperties {
 
     @Value("${flink.receiver.base.port:9994}")
     private int bindPort;
-
-    @Value("${flink.receiver.base.worker.threadSize:128}")
-    private int workerThreadSize;
-
-    @Value("${flink.receiver.base.worker.queueSize:5120}")
-    private int workerQueueSize;
-
-    @Value("${flink.receiver.base.worker.monitor:false}")
-    private boolean workerMonitorEnable;
 
 
     public DataReceiverProperties() {
@@ -65,8 +54,6 @@ public class DataReceiverProperties {
 
     private void validate() {
         Assert.isTrue(bindPort > 0, "bindPort must be greater than 0");
-        Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
-        Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
     }
 
     public String getBindIp() {
@@ -78,31 +65,12 @@ public class DataReceiverProperties {
         return bindPort;
     }
 
-    public int getWorkerThreadSize() {
-        return workerThreadSize;
-    }
-
-    public int getWorkerQueueSize() {
-        return workerQueueSize;
-    }
-
-    public boolean isWorkerMonitorEnable() {
-        return workerMonitorEnable;
-    }
-
-    @Bean
-    public ExecutorProperties baseExecutorProperties() {
-        return new ExecutorProperties(workerThreadSize, workerQueueSize, workerMonitorEnable);
-    }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentBaseDataReceiverProperties{");
         sb.append("bindIp='").append(bindIp).append('\'');
         sb.append(", bindPort=").append(bindPort);
-        sb.append(", workerThreadSize=").append(workerThreadSize);
-        sb.append(", workerQueueSize=").append(workerQueueSize);
-        sb.append(", workerMonitorEnable=").append(workerMonitorEnable);
         sb.append('}');
         return sb.toString();
     }

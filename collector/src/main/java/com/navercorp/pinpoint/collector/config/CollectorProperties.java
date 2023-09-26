@@ -34,10 +34,6 @@ import java.util.Objects;
 public class CollectorProperties {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    @Value("${collector.agentEventWorker.threadSize:32}")
-    private int agentEventWorkerThreadSize;
-    @Value("${collector.agentEventWorker.queueSize:5120}")
-    private int agentEventWorkerQueueSize;
     @Value("${collector.l4.ip:}")
     private String[] l4IpList = new String[0];
     @Value("${collector.metric.jmx:false}")
@@ -50,21 +46,6 @@ public class CollectorProperties {
     @Value("${collector.statistics.agent-state.enable:false}")
     private boolean statisticsAgentStateEnable;
 
-    public int getAgentEventWorkerThreadSize() {
-        return this.agentEventWorkerThreadSize;
-    }
-
-    public void setAgentEventWorkerThreadSize(int agentEventWorkerThreadSize) {
-        this.agentEventWorkerThreadSize = agentEventWorkerThreadSize;
-    }
-
-    public int getAgentEventWorkerQueueSize() {
-        return agentEventWorkerQueueSize;
-    }
-
-    public void setAgentEventWorkerQueueSize(int agentEventWorkerQueueSize) {
-        this.agentEventWorkerQueueSize = agentEventWorkerQueueSize;
-    }
 
     public List<String> getL4IpList() {
         return List.of(l4IpList);
@@ -117,8 +98,6 @@ public class CollectorProperties {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CollectorConfiguration{");
-        sb.append("agentEventWorkerThreadSize=").append(agentEventWorkerThreadSize);
-        sb.append(", agentEventWorkerQueueSize=").append(agentEventWorkerQueueSize);
         sb.append(", l4IpList=").append(Arrays.toString(l4IpList));
         sb.append(", metricJmxEnable=").append(metricJmxEnable);
         sb.append(", metricJmxDomainName='").append(metricJmxDomainName).append('\'');

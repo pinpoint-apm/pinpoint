@@ -17,13 +17,21 @@
 
 package com.navercorp.pinpoint.flink;
 
+import com.navercorp.pinpoint.common.hbase.HadoopResourceCleanerRegistry;
+import com.navercorp.pinpoint.common.hbase.config.HbaseClientConfiguration;
+import com.navercorp.pinpoint.common.hbase.config.HbaseMultiplexerProperties;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory;
 import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
+import com.navercorp.pinpoint.flink.config.FlinkExecutorConfiguration;
 import com.navercorp.pinpoint.flink.dao.hbase.ApplicationDaoConfiguration;
+import com.navercorp.pinpoint.flink.hbase.Hbase2HadoopResourceCleanerRegistry;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -32,17 +40,31 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource({
         "classpath:applicationContext-flink.xml",
 
-        "classpath:applicationContext-flink-profile.xml",
         "classpath:applicationContext-flink-extend.xml",
-        "classpath:applicationContext-flink-clean.xml",
         "classpath:applicationContext-hbase.xml",
 })
 @Import({
         FlinkCacheConfiguration.class,
         ApplicationDaoConfiguration.class,
+        FlinkExecutorConfiguration.class,
+        HbaseClientConfiguration.class,
 
         ClusterConfigurationFactory.class
 })
+@PropertySource(name = "FlinkModule", value = {
+        "classpath:profiles/${pinpoint.profiles.active:local}/hbase.properties",
+        "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-flink.properties"
+})
 public class FlinkModule {
 
+    @Bean
+    public HadoopResourceCleanerRegistry hbase2HadoopResourceCleanerRegistry() {
+        return new Hbase2HadoopResourceCleanerRegistry();
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "hbase.client.async")
+    public HbaseMultiplexerProperties hbaseMultiplexerProperties() {
+        return new HbaseMultiplexerProperties();
+    }
 }

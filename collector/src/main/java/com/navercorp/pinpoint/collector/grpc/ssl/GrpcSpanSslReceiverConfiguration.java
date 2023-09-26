@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * @author Taejin Koo
@@ -34,6 +35,7 @@ public class GrpcSpanSslReceiverConfiguration {
     }
 
     @Bean(BIND_ADDRESS)
+    @Validated
     @ConfigurationProperties(BIND_ADDRESS)
     public BindAddress.Builder newBindAddressBuilder() {
         BindAddress.Builder builder = BindAddress.newBuilder();
@@ -43,7 +45,7 @@ public class GrpcSpanSslReceiverConfiguration {
 
     @Bean
     public GrpcSslReceiverProperties grpcSpanSslReceiverProperties(
-            @Qualifier(GrpcAgentDataSslReceiverConfiguration.SSL) GrpcSslProperties.Builder sslPropertiesBuilder) throws Exception {
+            @Qualifier(GrpcAgentDataSslReceiverConfiguration.SSL) GrpcSslProperties.Builder sslPropertiesBuilder) {
 
         BindAddress bindAddress = newBindAddressBuilder().build();
 

@@ -46,11 +46,6 @@
         <property name="handlerManager" ref="handlerManager"/>
     </bean>
 
-    <bean id="grpcAgentWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorProperties" value="#{grpcAgentReceiverProperties.workerExecutor}"/>
-        <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Worker-"/>
-        <property name="registry" ref="metricRegistry"/>
-    </bean>
 
     <bean id="grpcLifecycleScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
         <property name="poolSize" value="1"/>
@@ -110,19 +105,6 @@
         </bean>
     </util:list>
 
-    <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorProperties" value="#{grpcAgentReceiverProperties.serverExecutor}"/>
-        <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Server-"/>
-        <property name="registry" ref="metricRegistry"/>
-        <property name="logRate" value="100"/>
-    </bean>
-
-    <bean id="grpcAgentServerCallExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorProperties" value="#{grpcAgentReceiverProperties.serverCallExecutor}"/>
-        <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Call-"/>
-        <property name="registry" ref="metricRegistry"/>
-        <property name="logRate" value="1"/>
-    </bean>
 
     <bean id="grpcAgentServerCallExecutorSupplier" class="com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSupplier">
         <constructor-arg ref="grpcAgentServerCallExecutor"/>
@@ -140,24 +122,18 @@
     </bean>
 
     <bean id="grpcSpanStreamScheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
-        <property name="poolSize" value="#{grpcSpanReceiverProperties.streamProperties.schedulerThreadSize}"/>
+        <property name="poolSize" value="#{grpcSpanStreamProperties.schedulerThreadSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-StreamExecutor-Scheduler-"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
     </bean>
 
-    <bean id="grpcSpanWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="rejectedExecutionHandler" ref="abortPolicy"/>
-        <property name="executorProperties" value="#{grpcSpanReceiverProperties.workerExecutor}"/>
-        <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-Worker-"/>
-        <property name="registry" ref="metricRegistry"/>
-    </bean>
 
     <bean id="spanStreamExecutorInterceptor" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory">
         <constructor-arg index="0" ref="grpcSpanWorkerExecutor"/>
         <constructor-arg index="1" ref="grpcSpanStreamScheduler"/>
-        <constructor-arg index="2" value="#{grpcSpanReceiverProperties.streamProperties}"/>
+        <constructor-arg index="2" value="#{grpcSpanStreamProperties}"/>
     </bean>
 
     <bean id="spanServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanServiceFactory">
@@ -169,11 +145,6 @@
         <ref bean="spanServiceFactory"/>
     </util:list>
 
-    <bean id="grpcSpanServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorProperties" value="#{grpcSpanReceiverProperties.serverExecutor}"/>
-        <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-Server-"/>
-        <property name="registry" ref="metricRegistry"/>
-    </bean>
 
     <bean name="grpcSpanReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindAddress" value="#{grpcSpanReceiverProperties.bindAddress}"/>
@@ -188,26 +159,19 @@
     </bean>
 
 
-
     <bean id="grpcStatStreamScheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
-        <property name="poolSize" value="#{grpcStatReceiverProperties.streamProperties.schedulerThreadSize}"/>
+        <property name="poolSize" value="#{grpcStatStreamProperties.schedulerThreadSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcStat-StreamExecutor-Scheduler-"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
     </bean>
 
-    <bean id="grpcStatWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="rejectedExecutionHandler" ref="abortPolicy"/>
-        <property name="executorProperties" value="#{grpcStatReceiverProperties.workerExecutor}"/>
-        <property name="threadNamePrefix" value="Pinpoint-GrpcStat-Worker-"/>
-        <property name="registry" ref="metricRegistry"/>
-    </bean>
 
     <bean id="statStreamExecutorInterceptor" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory">
         <constructor-arg index="0" ref="grpcStatWorkerExecutor"/>
         <constructor-arg index="1" ref="grpcStatStreamScheduler"/>
-        <constructor-arg index="2" value="#{grpcStatReceiverProperties.streamProperties}"/>
+        <constructor-arg index="2" value="#{grpcStatStreamProperties}"/>
     </bean>
     <bean id="statServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatServiceFactory">
         <property name="dispatchHandler" ref="grpcStatDispatchHandlerFactoryBean"/>
@@ -219,11 +183,6 @@
         <ref bean="statServiceFactory"/>
     </util:list>
 
-    <bean id="grpcStatServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorProperties" value="#{grpcStatReceiverProperties.serverExecutor}"/>
-        <property name="threadNamePrefix" value="Pinpoint-GrpcStat-Server-"/>
-        <property name="registry" ref="metricRegistry"/>
-    </bean>
 
     <bean id="grpcStatReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindAddress" value="#{grpcStatReceiverProperties.bindAddress}"/>

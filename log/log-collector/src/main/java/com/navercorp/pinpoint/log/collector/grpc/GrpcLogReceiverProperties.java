@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.log.collector.grpc;
 
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcReceiverProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
@@ -28,12 +27,9 @@ final class GrpcLogReceiverProperties extends GrpcReceiverProperties {
     GrpcLogReceiverProperties(
             boolean enable,
             BindAddress bindAddress,
-            ExecutorProperties serverExecutor,
-            ExecutorProperties serverCallExecutor,
-            ExecutorProperties workerExecutor,
             ServerOption serverOption
     ) {
-        super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption);
+        super(enable, bindAddress, serverOption);
     }
 
 }

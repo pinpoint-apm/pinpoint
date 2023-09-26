@@ -3,10 +3,12 @@ package com.navercorp.pinpoint.collector;
 
 import com.navercorp.pinpoint.collector.cluster.RealtimeCollectorModuleAdaptorConfig;
 import com.navercorp.pinpoint.collector.config.ClusterModule;
+import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.config.FlinkContextModule;
 import com.navercorp.pinpoint.collector.config.MetricConfiguration;
 import com.navercorp.pinpoint.collector.event.config.CollectorEventConfiguration;
+import com.navercorp.pinpoint.collector.grpc.config.CollectorGrpcConfiguration;
 import com.navercorp.pinpoint.collector.grpc.ssl.GrpcSslModule;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
@@ -21,7 +23,7 @@ import org.springframework.context.annotation.ImportResource;
         "classpath:applicationContext-collector.xml",
         "classpath:servlet-context-collector.xml",
 
-        "classpath:applicationContext-collector-grpc.xml",
+
 })
 @Import({
         CollectorAppPropertySources.class,
@@ -29,7 +31,10 @@ import org.springframework.context.annotation.ImportResource;
         TypeLoaderConfiguration.class,
 
         FlinkContextModule.class,
+        CollectorConfiguration.class,
         CollectorHbaseModule.class,
+
+        CollectorGrpcConfiguration.class,
 
         CollectorEventConfiguration.class,
 
