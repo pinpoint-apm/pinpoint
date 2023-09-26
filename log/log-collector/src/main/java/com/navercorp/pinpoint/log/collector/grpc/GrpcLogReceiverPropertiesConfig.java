@@ -15,9 +15,9 @@
  */
 package com.navercorp.pinpoint.log.collector.grpc;
 
-import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcPropertiesServerOptionBuilder;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
+import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -51,22 +51,22 @@ public class GrpcLogReceiverPropertiesConfig {
         return BindAddress.newBuilder();
     }
 
-    @Bean(SERVER_EXECUTOR)
+    @Bean
     @ConfigurationProperties(SERVER_EXECUTOR)
-    public ExecutorProperties.Builder newServerExecutorBuilder() {
-        return ExecutorProperties.newBuilder();
+    public MonitoringExecutorProperties grpcLogServerExecutorProperties() {
+        return new MonitoringExecutorProperties();
     }
 
-    @Bean(SERVER_CALL_EXECUTOR)
+    @Bean
     @ConfigurationProperties(SERVER_CALL_EXECUTOR)
-    public ExecutorProperties.Builder newServerCallExecutorBuilder() {
-        return ExecutorProperties.newBuilder();
+    public MonitoringExecutorProperties grpcLogServerCallExecutorProperties() {
+        return new MonitoringExecutorProperties();
     }
 
-    @Bean(WORKER_EXECUTOR)
+    @Bean
     @ConfigurationProperties(WORKER_EXECUTOR)
-    public ExecutorProperties.Builder newWorkerExecutorBuilder() {
-        return ExecutorProperties.newBuilder();
+    public MonitoringExecutorProperties grpcLogWorkerExecutorProperties() {
+        return new MonitoringExecutorProperties();
     }
 
     @Bean(SERVER_OPTION)
@@ -76,22 +76,16 @@ public class GrpcLogReceiverPropertiesConfig {
         return new GrpcPropertiesServerOptionBuilder();
     }
 
-    @Bean("grpcLogReceiverConfig")
-    public GrpcLogReceiverProperties newLogReceiverConfig(Environment environment) {
+    @Bean
+    public GrpcLogReceiverProperties grpcLogReceiverConfig(Environment environment) {
         boolean enable = environment.getProperty("collector.receiver.grpc.log.enable", boolean.class, false);
 
         final ServerOption serverOption = newServerOption().build();
         final BindAddress bindAddress = newBindAddressBuilder().build();
-        final ExecutorProperties serverExecutor = newServerExecutorBuilder().build();
-        final ExecutorProperties serverCallExecutor = newServerCallExecutorBuilder().build();
-        final ExecutorProperties workerExecutor = newWorkerExecutorBuilder().build();
 
         return new GrpcLogReceiverProperties(
                 enable,
                 bindAddress,
-                serverExecutor,
-                serverCallExecutor,
-                workerExecutor,
                 serverOption
         );
     }

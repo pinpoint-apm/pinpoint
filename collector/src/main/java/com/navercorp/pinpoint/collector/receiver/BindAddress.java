@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import jakarta.inject.Provider;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.Objects;
 
 /**
@@ -42,8 +46,10 @@ public class BindAddress {
         return new Builder();
     }
 
-    public static class Builder {
+    public static class Builder implements Provider<BindAddress> {
+        @NotNull
         private String ip = "0.0.0.0";
+        @Positive
         private int port;
 
         Builder() {
@@ -61,6 +67,12 @@ public class BindAddress {
 
         public BindAddress build() {
             return new BindAddress(this.ip, this.port);
+        }
+
+
+        @Override
+        public BindAddress get() {
+            return build();
         }
     }
 

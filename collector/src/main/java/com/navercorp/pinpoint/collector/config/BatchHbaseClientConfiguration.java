@@ -37,7 +37,7 @@ public class BatchHbaseClientConfiguration {
     }
 
     @Bean
-    public FactoryBean<ExecutorService> batchHbaseThreadPool(ExecutorCustomizer<ThreadPoolExecutorFactoryBean> executorCustomizer,
+    public FactoryBean<ExecutorService> batchHbaseThreadPool(@Qualifier("hbaseExecutorCustomizer") ExecutorCustomizer<ThreadPoolExecutorFactoryBean> executorCustomizer,
                                                              @Qualifier("hbaseClientExecutorProperties")
                                                              com.navercorp.pinpoint.common.config.executor.ExecutorProperties properties) {
         ThreadPoolExecutorFactoryBean factory = new ThreadPoolExecutorFactoryBean();

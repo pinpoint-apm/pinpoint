@@ -8,8 +8,7 @@
     </bean>
 
     <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory">
-        <constructor-arg ref="hbaseConnectiony"/>
-        <constructor-arg ref="hbaseConfiguration"/>
+        <constructor-arg ref="hbaseConnection"/>
     </bean>
 
     <bean id="asyncOperationMetrics" class="com.navercorp.pinpoint.collector.monitor.HBaseAsyncOperationMetrics">
