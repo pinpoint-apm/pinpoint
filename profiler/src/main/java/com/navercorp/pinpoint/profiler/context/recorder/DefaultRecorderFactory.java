@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -98,6 +97,15 @@ public class DefaultRecorderFactory implements RecorderFactory {
     }
 
     @Override
+    public WrappedSpanEventRecorder newChildTraceSpanEventRecorder(TraceRoot traceRoot) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+
+        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        return new ChildTraceSpanEventRecorder(traceRoot, asyncContextFactory,
+                stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
+    }
+
+    @Override
     public DisableSpanEventRecorder newDisableSpanEventRecorder(LocalTraceRoot traceRoot, AsyncState asyncState) {
         Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncState, "asyncState");
@@ -115,5 +123,14 @@ public class DefaultRecorderFactory implements RecorderFactory {
     private DisableSpanEventRecorder newDisableSpanEventRecorder0(LocalTraceRoot traceRoot, AsyncState asyncState) {
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         return new DisableSpanEventRecorder(traceRoot, asyncContextFactory, asyncState);
+    }
+
+    @Override
+    public DisableSpanEventRecorder newDisableChildTraceSpanEventRecorder(LocalTraceRoot traceRoot, AsyncState asyncState) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+        Objects.requireNonNull(asyncState, "asyncState");
+
+        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        return new DisableChildTraceSpanEventRecorder(traceRoot, asyncContextFactory, asyncState);
     }
 }

@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
-public class DisableAsyncChildTrace implements Trace {
+public class DisableChildTrace implements Trace {
     // private static final int ASYNC_BEGIN_STACK_ID = 1001;
     public static final String UNSUPPORTED_OPERATION = "disable async child trace";
 
@@ -45,7 +45,7 @@ public class DisableAsyncChildTrace implements Trace {
     private final SpanRecorder spanRecorder;
     private final SpanEventRecorder spanEventRecorder;
 
-    public DisableAsyncChildTrace(final LocalTraceRoot traceRoot, SpanRecorder spanRecorder, SpanEventRecorder spanEventRecorder) {
+    public DisableChildTrace(final LocalTraceRoot traceRoot, SpanRecorder spanRecorder, SpanEventRecorder spanEventRecorder) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
         this.spanEventRecorder = Objects.requireNonNull(spanEventRecorder, "spanEventRecorder");
@@ -172,7 +172,7 @@ public class DisableAsyncChildTrace implements Trace {
 
     @Override
     public String toString() {
-        return "DisableAsyncChildTrace{" +
+        return "DisableChildTrace{" +
                 "traceRoot=" + traceRoot +
                 '}';
     }

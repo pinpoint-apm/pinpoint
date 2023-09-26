@@ -135,10 +135,10 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
         final SpanRecorder spanRecorder = recorderFactory.newTraceRootSpanRecorder(traceRoot);
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
+        final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newChildTraceSpanEventRecorder(traceRoot);
         final ExceptionContext exceptionContext = exceptionContextFactory.newExceptionContext(traceRoot);
 
-        return new AsyncChildTrace(traceRoot, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionContext, localAsyncId);
+        return new ChildTrace(traceRoot, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionContext, localAsyncId);
     }
 
     @Override
@@ -146,8 +146,8 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final AsyncState asyncState = newAsyncState(traceRoot, ActiveTraceHandle.EMPTY_HANDLE, ListenableAsyncState.AsyncStateListener.EMPTY);
 
         SpanRecorder spanRecorder = recorderFactory.newDisableSpanRecorder(traceRoot);
-        SpanEventRecorder spanEventRecorder = recorderFactory.newDisableSpanEventRecorder(traceRoot, asyncState);
-        return new DisableAsyncChildTrace(traceRoot, spanRecorder, spanEventRecorder);
+        SpanEventRecorder spanEventRecorder = recorderFactory.newDisableChildTraceSpanEventRecorder(traceRoot, asyncState);
+        return new DisableChildTrace(traceRoot, spanRecorder, spanEventRecorder);
     }
 
     // entry point async trace.

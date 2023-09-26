@@ -30,7 +30,7 @@ public class DefaultAsyncTraceContextTest {
                 .thenAnswer(new Answer<Trace>() {
                     @Override
                     public Trace answer(InvocationOnMock invocationOnMock) {
-                        Trace trace = mock(AsyncChildTrace.class);
+                        Trace trace = mock(ChildTrace.class);
                         when(trace.canSampled()).thenReturn(true);
                         return trace;
                     }
@@ -39,7 +39,7 @@ public class DefaultAsyncTraceContextTest {
                 .thenAnswer(new Answer<Trace>() {
                     @Override
                     public Trace answer(InvocationOnMock invocationOnMock) {
-                        return mock(DisableAsyncChildTrace.class);
+                        return mock(DisableChildTrace.class);
                     }
                 });
         when(baseTraceFactoryProvider.get()).thenReturn(baseTraceFactory);
