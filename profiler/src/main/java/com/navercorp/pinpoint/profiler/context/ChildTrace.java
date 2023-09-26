@@ -33,7 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
-public class AsyncChildTrace implements Trace {
+public class ChildTrace implements Trace {
 
     private static final int ASYNC_BEGIN_STACK_ID = 1001;
 
@@ -56,10 +56,10 @@ public class AsyncChildTrace implements Trace {
     private final TraceRoot traceRoot;
     private final LocalAsyncId localAsyncId;
 
-    public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage,
-                           SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
-                           ExceptionContext exceptionContext,
-                           final LocalAsyncId localAsyncId) {
+    public ChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage,
+                      SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
+                      ExceptionContext exceptionContext,
+                      final LocalAsyncId localAsyncId) {
 
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.callStack = Objects.requireNonNull(callStack, "callStack");
@@ -307,7 +307,7 @@ public class AsyncChildTrace implements Trace {
 
     @Override
     public String toString() {
-        return "AsyncChildTrace{" +
+        return "ChildTrace{" +
                 "traceRoot=" + getTraceRoot() +
                 ", localAsyncId=" + localAsyncId +
                 '}';

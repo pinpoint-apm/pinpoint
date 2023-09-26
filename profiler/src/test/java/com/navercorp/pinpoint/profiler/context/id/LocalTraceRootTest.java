@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.CloseListener;
-import com.navercorp.pinpoint.profiler.context.DisableAsyncChildTrace;
+import com.navercorp.pinpoint.profiler.context.DisableChildTrace;
 import com.navercorp.pinpoint.profiler.context.DisableTrace;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -77,6 +77,6 @@ public class LocalTraceRootTest {
     private Trace newChildTrace(LocalTraceRoot traceRoot) {
         SpanRecorder spanRecorder = mock(SpanRecorder.class);
         SpanEventRecorder spanEventRecorder = mock(SpanEventRecorder.class);
-        return new DisableAsyncChildTrace(traceRoot, spanRecorder, spanEventRecorder);
+        return new DisableChildTrace(traceRoot, spanRecorder, spanEventRecorder);
     }
 }
