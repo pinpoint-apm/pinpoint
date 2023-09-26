@@ -39,7 +39,7 @@ public abstract class AsyncContextTest {
                 .thenAnswer(new Answer<Trace>() {
                     @Override
                     public Trace answer(InvocationOnMock invocationOnMock) {
-                        Trace trace = mock(AsyncChildTrace.class);
+                        Trace trace = mock(ChildTrace.class);
                         when(trace.canSampled()).thenReturn(true);
                         return trace;
                     }
@@ -48,7 +48,7 @@ public abstract class AsyncContextTest {
                 .thenAnswer(new Answer<Trace>() {
                     @Override
                     public Trace answer(InvocationOnMock invocationOnMock) {
-                        return mock(DisableAsyncChildTrace.class);
+                        return mock(DisableChildTrace.class);
                     }
                 });
         when(baseTraceFactoryProvider.get()).thenReturn(baseTraceFactory);
@@ -76,10 +76,10 @@ public abstract class AsyncContextTest {
         Trace enabledTrace = enabledAsyncContext.continueAsyncTraceObject();
         Trace disabledTrace = disabledAsyncContext.continueAsyncTraceObject();
         assertThat(enabledTrace)
-                .isInstanceOf(AsyncChildTrace.class)
+                .isInstanceOf(ChildTrace.class)
                 .isEqualTo(enabledAsyncContext.currentAsyncTraceObject());
         assertThat(disabledTrace)
-                .isInstanceOf(DisableAsyncChildTrace.class)
+                .isInstanceOf(DisableChildTrace.class)
                 .isEqualTo(disabledAsyncContext.currentAsyncTraceObject());
 
 
