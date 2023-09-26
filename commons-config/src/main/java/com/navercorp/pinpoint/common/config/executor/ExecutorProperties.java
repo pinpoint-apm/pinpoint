@@ -17,25 +17,37 @@
 
 package com.navercorp.pinpoint.common.config.executor;
 
+import com.navercorp.pinpoint.common.util.CpuUtils;
+
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
 public class ExecutorProperties {
 
-    private int corePoolSize = 1;
+    @PositiveOrZero
+    protected int corePoolSize = CpuUtils.cpuCount();
 
-    private int maxPoolSize = Integer.MAX_VALUE;
+    @Positive
+    protected int maxPoolSize = CpuUtils.workerCount();
 
-    private int keepAliveSeconds = 60;
+    @PositiveOrZero
+    protected int keepAliveSeconds = 60;
 
-    private boolean prestartAllCoreThreads = true;
+    protected boolean prestartAllCoreThreads = true;
 
-    private int queueCapacity = Integer.MAX_VALUE;
+    @PositiveOrZero
+    protected int queueCapacity = 1024 * 10;
 
-    private String threadNamePrefix;
+    @Null
+    protected String threadNamePrefix;
 
-    private boolean daemon = true;
+    protected boolean daemon = true;
 
-    private boolean waitForTasksToCompleteOnShutdown = false;
+    protected boolean waitForTasksToCompleteOnShutdown = false;
 
-    private int awaitTerminationSeconds = 0;
+    @PositiveOrZero
+    protected int awaitTerminationSeconds = 0;
 
     public ExecutorProperties() {
     }
@@ -113,6 +125,7 @@ public class ExecutorProperties {
         this.awaitTerminationSeconds = awaitTerminationSeconds;
     }
 
+
     @Override
     public String toString() {
         return "ExecutorProperties{" +
@@ -124,7 +137,7 @@ public class ExecutorProperties {
                 ", threadNamePrefix='" + threadNamePrefix + '\'' +
                 ", daemon=" + daemon +
                 ", waitForTasksToCompleteOnShutdown=" + waitForTasksToCompleteOnShutdown +
-                ", setAwaitTerminationSeconds=" + awaitTerminationSeconds +
+                ", awaitTerminationSeconds=" + awaitTerminationSeconds +
                 '}';
     }
 }

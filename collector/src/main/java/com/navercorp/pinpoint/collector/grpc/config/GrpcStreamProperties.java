@@ -16,115 +16,72 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
 public class GrpcStreamProperties {
-    private final int schedulerThreadSize;
-    private final int callInitRequestCount;
-    private final int schedulerPeriodMillis;
-    private final int schedulerRecoveryMessageCount;
+    @PositiveOrZero
+    private int schedulerThreadSize = 1;
+    @PositiveOrZero
+    private int callInitRequestCount = 1000;
+    @Positive
+    private int schedulerPeriodMillis = 64;
+    private int schedulerRecoveryMessageCount = 10;
 
-    private final long idleTimeout;
-    private final long throttledLoggerRatio;
+    private long idleTimeout = -1;
+    @PositiveOrZero
+    private long throttledLoggerRatio = 1;
 
-    GrpcStreamProperties(int schedulerThreadSize, int callInitRequestCount,
-                         int schedulerPeriodMillis, int schedulerRecoveryMessageCount,
-                         long idleTimeout, long throttledLoggerRatio) {
-        this.schedulerThreadSize = schedulerThreadSize;
-        this.callInitRequestCount = callInitRequestCount;
-        this.schedulerPeriodMillis = schedulerPeriodMillis;
-        this.schedulerRecoveryMessageCount = schedulerRecoveryMessageCount;
-        this.idleTimeout = idleTimeout;
-        this.throttledLoggerRatio = throttledLoggerRatio;
+    public GrpcStreamProperties() {
     }
 
     public int getSchedulerThreadSize() {
         return schedulerThreadSize;
     }
 
+    public void setSchedulerThreadSize(int schedulerThreadSize) {
+        this.schedulerThreadSize = schedulerThreadSize;
+    }
+
     public int getCallInitRequestCount() {
         return callInitRequestCount;
+    }
+
+    public void setCallInitRequestCount(int callInitRequestCount) {
+        this.callInitRequestCount = callInitRequestCount;
     }
 
     public int getSchedulerPeriodMillis() {
         return schedulerPeriodMillis;
     }
 
+    public void setSchedulerPeriodMillis(int schedulerPeriodMillis) {
+        this.schedulerPeriodMillis = schedulerPeriodMillis;
+    }
+
     public int getSchedulerRecoveryMessageCount() {
         return schedulerRecoveryMessageCount;
+    }
+
+    public void setSchedulerRecoveryMessageCount(int schedulerRecoveryMessageCount) {
+        this.schedulerRecoveryMessageCount = schedulerRecoveryMessageCount;
     }
 
     public long getIdleTimeout() {
         return idleTimeout;
     }
 
+    public void setIdleTimeout(long idleTimeout) {
+        this.idleTimeout = idleTimeout;
+    }
+
     public long getThrottledLoggerRatio() {
         return throttledLoggerRatio;
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private int schedulerThreadSize = 1;
-        private int callInitRequestCount = 1000;
-        private int schedulerPeriodMillis =  64;
-        private int schedulerRecoveryMessageCount = 10;
-        private long idleTimeout = -1;
-        private long throttledLoggerRatio = 1;
-
-
-        public int getSchedulerThreadSize() {
-            return schedulerThreadSize;
-        }
-
-        public void setSchedulerThreadSize(int schedulerThreadSize) {
-            this.schedulerThreadSize = schedulerThreadSize;
-        }
-
-        public int getCallInitRequestCount() {
-            return callInitRequestCount;
-        }
-
-        public void setCallInitRequestCount(int callInitRequestCount) {
-            this.callInitRequestCount = callInitRequestCount;
-        }
-
-        public int getSchedulerPeriodMillis() {
-            return schedulerPeriodMillis;
-        }
-
-        public void setSchedulerPeriodMillis(int schedulerPeriodMillis) {
-            this.schedulerPeriodMillis = schedulerPeriodMillis;
-        }
-
-        public int getSchedulerRecoveryMessageCount() {
-            return schedulerRecoveryMessageCount;
-        }
-
-        public void setSchedulerRecoveryMessageCount(int schedulerRecoveryMessageCount) {
-            this.schedulerRecoveryMessageCount = schedulerRecoveryMessageCount;
-        }
-
-        public long getIdleTimeout() {
-            return idleTimeout;
-        }
-
-        public void setIdleTimeout(long idleTimeout) {
-            this.idleTimeout = idleTimeout;
-        }
-
-        public long getThrottledLoggerRatio() {
-            return throttledLoggerRatio;
-        }
-
-        public void setThrottledLoggerRatio(long throttledLoggerRatio) {
-            this.throttledLoggerRatio = throttledLoggerRatio;
-        }
-
-        public GrpcStreamProperties build() {
-            return new GrpcStreamProperties(this.schedulerThreadSize, this.callInitRequestCount,
-                    this.schedulerPeriodMillis, this.schedulerRecoveryMessageCount, this.idleTimeout, this.throttledLoggerRatio);
-        }
+    public void setThrottledLoggerRatio(long throttledLoggerRatio) {
+        this.throttledLoggerRatio = throttledLoggerRatio;
     }
 
     @Override

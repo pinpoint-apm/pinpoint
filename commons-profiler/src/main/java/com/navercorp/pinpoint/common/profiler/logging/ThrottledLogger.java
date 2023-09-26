@@ -36,10 +36,7 @@ public class ThrottledLogger {
 
     private ThrottledLogger(Logger logger, long ratio) {
         this.logger = Objects.requireNonNull(logger, "logger");
-        if (ratio < 1) {
-            ratio = 1;
-        }
-        this.ratio = ratio;
+        this.ratio = Math.max(ratio, 1);
     }
 
     private boolean checkLogCounter() {
