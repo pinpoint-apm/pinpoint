@@ -17,13 +17,11 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeAgentHistogramList;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
-import com.navercorp.pinpoint.web.view.histogram.ApplicationHistogramView;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
+import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.ArrayList;
@@ -57,35 +55,28 @@ public class ApplicationMapWithScatterDataV3 implements ApplicationMap {
     }
 
     @JsonIgnore
-    public List<ApplicationHistogramView> getNodeHistogramData() {
-        final List<ApplicationHistogramView> result = new ArrayList<>();
+    public List<ServerHistogramView> getNodeServerHistogramData() {
+        final List<ServerHistogramView> result = new ArrayList<>();
         for (Node node : applicationMap.getNodes()) {
-            NodeHistogram nodeHistogram = node.getNodeHistogram();
-            HistogramView histogramView = new HistogramView(null, nodeHistogram.getApplicationTimeHistogramList());
-
-            result.add(new ApplicationHistogramView(node.getNodeName().getName(), histogramView));
+            result.add(new ServerHistogramView(node.getNodeName(), node.getNodeHistogram(), node.getServerGroupList()));
         }
         return result;
     }
 
     @JsonIgnore
-    public List<ApplicationHistogramView> getLinkHistogramData() {
-        final List<ApplicationHistogramView> result = new ArrayList<>();
+    public List<HistogramView> getNodeHistogramData() {
+        final List<HistogramView> result = new ArrayList<>();
+        for (Node node : applicationMap.getNodes()) {
+            result.add(new HistogramView(node.getNodeName(), node.getNodeHistogram()));
+        }
+        return result;
+    }
+
+    @JsonIgnore
+    public List<HistogramView> getLinkHistogramData() {
+        final List<HistogramView> result = new ArrayList<>();
         for (Link link : applicationMap.getLinks()) {
-            HistogramView histogramView = new HistogramView(null, link.getLinkApplicationTimeHistogramList());
-
-            result.add(new ApplicationHistogramView(link.getLinkName().getName(), histogramView));
-        }
-        return result;
-    }
-
-    @JsonIgnore
-    public List<NodeAgentHistogramList> getAgentHistogramData() {
-        final List<NodeAgentHistogramList> result = new ArrayList<>();
-        for (Node node : applicationMap.getNodes()) {
-            if (node.getServerGroupList().getInstanceCount() > 0) {
-                result.add(new NodeAgentHistogramList(node.getNodeName().getName(), node.getNodeHistogram(), node.getServerGroupList()));
-            }
+            result.add(new HistogramView(link.getLinkName(), link.getHistogram(), link.getLinkApplicationTimeHistogram()));
         }
         return result;
     }

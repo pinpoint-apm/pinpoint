@@ -19,17 +19,14 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
-import com.navercorp.pinpoint.web.view.histogram.AgentHistogramView;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
-import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
-import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +88,10 @@ public class NodeHistogram {
         return applicationHistogram;
     }
 
+    public ApplicationTimeHistogram getApplicationTimeHistogram() {
+        return applicationTimeHistogram;
+    }
+
     public void setApplicationTimeHistogram(ApplicationTimeHistogram applicationTimeHistogram) {
         this.applicationTimeHistogram = applicationTimeHistogram;
     }
@@ -132,32 +133,25 @@ public class NodeHistogram {
         return applicationTimeHistogram.createViewModel(timeHistogramFormat);
     }
 
-    public TimeSeriesView getApplicationTimeHistogram(TimeHistogramType timeHistogramType) {
-        TimeHistogramChartBuilder builder = new TimeHistogramChartBuilder(applicationTimeHistogram.getHistogramList());
-        return builder.build(timeHistogramType);
-    }
-
-    public List<TimeHistogram> getApplicationTimeHistogramList() {
-        return applicationTimeHistogram.getHistogramList();
-    }
-
     public AgentResponseTimeViewModelList getAgentTimeHistogram(TimeHistogramFormat timeHistogramFormat) {
         return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel(timeHistogramFormat));
     }
 
-    public List<AgentHistogramView> getAgentHistogramViewList() {
-        Map<String, List<TimeHistogram>> agentTimeHistogramMap = agentTimeHistogram.getAgentTimeHistogramMap();
-
-        List<AgentHistogramView> agentHistogramViewList = new ArrayList<>();
-        for (String agentId : agentHistogramMap.keySet()) {
-            HistogramView histogramView = new HistogramView(agentHistogramMap.get(agentId), agentTimeHistogramMap.get(agentId));
-            agentHistogramViewList.add(new AgentHistogramView(agentId, histogramView));
-        }
-        return agentHistogramViewList;
-    }
-
     public void setAgentTimeHistogram(AgentTimeHistogram agentTimeHistogram) {
         this.agentTimeHistogram = agentTimeHistogram;
+    }
+
+    public List<HistogramView> createAgentHistogramViewList() {
+        Map<String, List<TimeHistogram>> agentTimeHistogramMap = agentTimeHistogram.getTimeHistogramMap();
+        List<HistogramView> result = new ArrayList<>();
+        for (String agentId : agentHistogramMap.keySet()) {
+            Histogram agentHistogram = agentHistogramMap.get(agentId);
+            List<TimeHistogram> sortedTimeHistogram = agentTimeHistogramMap.computeIfAbsent(agentId, id -> Collections.emptyList());
+
+            HistogramView histogramView = new HistogramView(agentId, agentHistogram, sortedTimeHistogram);
+            result.add(histogramView);
+        }
+        return result;
     }
 
     private ApplicationTimeHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {

@@ -38,7 +38,6 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
-import com.navercorp.pinpoint.web.applicationmap.map.processor.ApplicationFilter;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.DestinationApplicationFilter;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.SourceApplicationFilter;
@@ -49,9 +48,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
@@ -111,7 +108,8 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     @Override
     public NodeHistogramSummary selectNodeHistogramData(ResponseTimeHistogramServiceOption option) {
         Node node = new Node(option.getApplication());
-        ServiceType applicationServiceType = option.getApplication().getServiceType();
+        Application application = option.getApplication();
+        ServiceType applicationServiceType = application.getServiceType();
 
         List<Application> sourceApplications = option.getFromApplications();
         List<Application> destinationApplications = option.getToApplications();
@@ -123,7 +121,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(option.getApplication(), option.getRange());
             node.setNodeHistogram(nodeHistogram);
             ServerGroupList serverGroupList = serverGroupListFactory.createWasNodeInstanceList(node, option.getRange().getToInstant());
-            return new NodeHistogramSummary(serverGroupList, nodeHistogram);
+            return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else if (applicationServiceType.isTerminal() || applicationServiceType.isUnknown() || applicationServiceType.isAlias()) {
             if (sourceApplications.isEmpty()) {
                 return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
@@ -140,24 +138,13 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             NodeList nodeList = NodeListFactory.createNodeList(NodeType.DETAILED, linkDataDuplexMap);
             LinkList linkList = LinkListFactory.createLinkList(LinkType.DETAILED, nodeList, linkDataDuplexMap, option.getRange());
             NodeHistogram nodeHistogram = nodeHistogramFactory.createTerminalNodeHistogram(option.getApplication(), option.getRange(), linkList);
-            return new NodeHistogramSummary(serverGroupList, nodeHistogram);
+            return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else if (applicationServiceType.isQueue()) {
-            LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(option.getApplication());
             if (sourceApplications.isEmpty()) {
-                if (destinationApplications.isEmpty()) {
-                    return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
-                }
-                // Retrieve callers
-                LinkDataMapProcessor applicationFilter = new ApplicationFilter(option.getApplication());
-                LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, applicationFilter);
-                LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, option.getRange(), 0, 2);
-
-                LinkDataMap linkDataMap = destinationApplicationFilter.processLinkDataMap(linkDataDuplexMap.getTargetLinkDataMap(), option.getRange());
-                for (LinkData linkData : linkDataMap.getLinkDataList()) {
-                    sourceApplications.add(linkData.getFromApplication());
-                }
+                //scan callee from queue node to find sourceApplication out of serverMap search bound is possible
+                return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
             }
-            // Check using from applications first for caller's link data
+            LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(option.getApplication());
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
             LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, option.getRange(), 1, 0);
 
@@ -166,7 +153,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             NodeList nodeList = NodeListFactory.createNodeList(NodeType.DETAILED, linkDataDuplexMap);
             LinkList linkList = LinkListFactory.createLinkList(LinkType.DETAILED, nodeList, linkDataDuplexMap, option.getRange());
             NodeHistogram nodeHistogram = nodeHistogramFactory.createQueueNodeHistogram(option.getApplication(), option.getRange(), linkList);
-            return new NodeHistogramSummary(serverGroupList, nodeHistogram);
+            return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else if (applicationServiceType.isUser()) {
             if (destinationApplications.isEmpty()) {
                 return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
@@ -180,7 +167,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             NodeList nodeList = NodeListFactory.createNodeList(NodeType.DETAILED, linkDataDuplexMap);
             LinkList linkList = LinkListFactory.createLinkList(LinkType.DETAILED, nodeList, linkDataDuplexMap, option.getRange());
             NodeHistogram nodeHistogram = nodeHistogramFactory.createUserNodeHistogram(option.getApplication(), option.getRange(), linkList);
-            return new NodeHistogramSummary(serverGroupList, nodeHistogram);
+            return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else {
             return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
         }
@@ -189,7 +176,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private NodeHistogramSummary createEmptyNodeHistogramSummary(ServerGroupListFactory serverGroupListFactory, Application application, Range range) {
         ServerGroupList serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
         NodeHistogram emptyNodeHistogram = new NodeHistogram(application, range);
-        return new NodeHistogramSummary(serverGroupList, emptyNodeHistogram);
+        return new NodeHistogramSummary(application, serverGroupList, emptyNodeHistogram);
     }
 
     @Override
@@ -202,8 +189,8 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         LinkDataDuplexMap linkDataDuplexMap;
         ServiceType fromApplicationServiceType = fromApplication.getServiceType();
         CreateType createType = CreateType.Target;
-        // For user or queue originating links, we must scan using to applications
-        if (fromApplicationServiceType.isUser() || fromApplicationServiceType.isQueue()) {
+        if (fromApplicationServiceType.isUser()) {
+            //scan using toApplication to distinguish same applicationName with different serviceType
             createType = CreateType.Source;
             LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(fromApplication);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);

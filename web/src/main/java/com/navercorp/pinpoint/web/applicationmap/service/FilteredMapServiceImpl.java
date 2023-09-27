@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.Serv
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMap;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMapBuilder;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
@@ -138,7 +139,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        ApplicationMap map = createMap(option, filteredMap);
+        ApplicationMap map = createMap(option, filteredMap, false);
         return map;
     }
 
@@ -152,7 +153,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        ApplicationMap map = createMap(option, filteredMap);
+        ApplicationMap map = createMap(option, filteredMap, false);
 
         Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(option.getOriginalRange().getFrom(), option.getOriginalRange().getTo(), option.getxGroupUnit(), option.getyGroupUnit());
         ApplicationMapWithScatterData applicationMapWithScatterData = new ApplicationMapWithScatterData(map, applicationScatterData);
@@ -174,7 +175,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        ApplicationMap map = createMap(option, filteredMap);
+        ApplicationMap map = createMap(option, filteredMap, true);
 
         Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(option.getOriginalRange().getFrom(), option.getOriginalRange().getTo(), option.getxGroupUnit(), option.getyGroupUnit());
         ApplicationMapWithScatterDataV3 applicationMapWithScatterDataV3 = new ApplicationMapWithScatterDataV3(map, applicationScatterData);
@@ -196,9 +197,14 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return filterList2(originalList, filter);
     }
 
-    private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap) {
+    private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap, boolean v3Format) {
         final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getOriginalRange());
-        applicationMapBuilder.linkType(LinkType.DETAILED);
+        if (v3Format) {
+            applicationMapBuilder.linkType(LinkType.SIMPLIFIED);
+            applicationMapBuilder.nodeType(NodeType.SIMPLIFIED);
+        } else {
+            applicationMapBuilder.linkType(LinkType.DETAILED);
+        }
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
         ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
