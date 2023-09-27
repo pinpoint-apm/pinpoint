@@ -67,9 +67,9 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
             Map<Application, ScatterData> applicationScatterDataMap = applicationMap.getApplicationScatterDataMap();
 
             writeScatterData(jgen, applicationScatterDataMap);
-            jgen.writeObjectField("nodeHistogramDataArray", applicationMap.getNodeHistogramData());
-            jgen.writeObjectField("linkHistogramDataArray", applicationMap.getLinkHistogramData());
-            jgen.writeObjectField("agentHistogramDataArray", applicationMap.getAgentHistogramData());
+            jgen.writeObjectField("nodeServerHistogramData", applicationMap.getNodeServerHistogramData());
+            jgen.writeObjectField("nodeHistogramData", applicationMap.getNodeHistogramData());
+            jgen.writeObjectField("linkHistogramData", applicationMap.getLinkHistogramData());
         }
 
         jgen.writeEndObject();

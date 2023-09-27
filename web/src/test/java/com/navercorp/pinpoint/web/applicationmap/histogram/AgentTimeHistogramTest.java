@@ -156,12 +156,12 @@ public class AgentTimeHistogramTest {
         Map<String, Histogram> defaultResult = new HashMap<>();
         Map<String, Histogram> aggregatedResult = new HashMap<>();
         for (String sourceAgentId : sourceAgentIdList) {
-            for (TimeHistogram timeHistogram : agentTimeHistogram.getAgentTimeHistogramMap().get(sourceAgentId)) {
+            for (TimeHistogram timeHistogram : agentTimeHistogram.getTimeHistogramMap().get(sourceAgentId)) {
                 Histogram histogram = defaultResult.computeIfAbsent(sourceAgentId, k -> new Histogram(ServiceType.STAND_ALONE));
                 histogram.add(timeHistogram);
             }
 
-            for (TimeHistogram timeHistogram : aggregatedAgentTimeHistogram.getAgentTimeHistogramMap().get(sourceAgentId)) {
+            for (TimeHistogram timeHistogram : aggregatedAgentTimeHistogram.getTimeHistogramMap().get(sourceAgentId)) {
                 Histogram histogram = aggregatedResult.computeIfAbsent(sourceAgentId, k -> new Histogram(ServiceType.STAND_ALONE));
                 histogram.add(timeHistogram);
             }

@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.Serv
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkName;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
@@ -151,20 +152,20 @@ public class ResponseTimeHistogramServiceImplTest {
      * USER(target) -> WAS
      */
     @Test
-    public void selectNodeHistogramDataTes1() {
+    public void selectNodeHistogramDataTest1() {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         final Application nodeApplication = new Application("user", ServiceType.USER);
-        List<Application> toApplications = List.of(new Application("callee", ServiceType.STAND_ALONE));
+        final Application toApplication = new Application("was1", ServiceType.STAND_ALONE);
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
+        //User node use toApplications(was1) to build histogramData
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), eq(LinkDataMapProcessor.NO_OP), any(LinkDataMapProcessor.class)))
-                .thenReturn(createTargetLinkSelector(nodeApplication, toApplications, timestamp));
+                .thenReturn(createCalleeLinkSelector(List.of(new LinkKey(nodeApplication, toApplication)), timestamp));
 
-        //User node use toApplications to build nodeHistogramData
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, Collections.emptyList(), toApplications)
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, Collections.emptyList(), List.of(toApplication))
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -184,19 +185,16 @@ public class ResponseTimeHistogramServiceImplTest {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         final Application nodeApplication = new Application("unknown", ServiceType.UNKNOWN);
-        List<Application> fromApplications = List.of(
-                new Application("caller1", ServiceType.STAND_ALONE),
-                new Application("caller2", ServiceType.STAND_ALONE)
-        );
+        final Application was = new Application("was", ServiceType.STAND_ALONE);
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createSourceLinkSelector(fromApplications, nodeApplication, timestamp));
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(was, nodeApplication)), timestamp));
 
-        //UNKNOWN(TERMINAL, ALIAS) node use toApplications to build nodeHistogramData
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, fromApplications, Collections.emptyList())
+        //UNKNOWN(TERMINAL, ALIAS) node use fromApplications to build nodeHistogramData
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was), Collections.emptyList())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -205,32 +203,33 @@ public class ResponseTimeHistogramServiceImplTest {
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
         Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
-        //two WAS node -> UNKNOWN node
-        assertHistogramValues(histogram, 2);
+        assertHistogramValues(histogram, 1);
     }
 
     /**
-     * WAS ->
-     * WAS -> UNKNOWN(target)
+     * WAS1 ->
+     * WAS2 -> UNKNOWN(target)
      */
     @Test
     public void selectNodeHistogramDataTest3() {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         final Application nodeApplication = new Application("unknown", ServiceType.UNKNOWN);
-        List<Application> fromApplications = List.of(
-                new Application("caller1", ServiceType.STAND_ALONE),
-                new Application("caller2", ServiceType.STAND_ALONE)
-        );
+        final Application was1 = new Application("was1", ServiceType.STAND_ALONE);
+        final Application was2 = new Application("was2", ServiceType.STAND_ALONE);
+
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createSourceLinkSelector(fromApplications, nodeApplication, timestamp));
+                .thenReturn(createCallerLinkSelector(List.of(
+                        new LinkKey(was1, nodeApplication),
+                        new LinkKey(was2, nodeApplication)
+                ), timestamp));
 
         //UNKNOWN(TERMINAL, ALIAS) node use toApplications to build nodeHistogramData
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, fromApplications, Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was1, was2), Collections.emptyList())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -254,15 +253,15 @@ public class ResponseTimeHistogramServiceImplTest {
         //CACHE_LIBRARY serviceTypeCode 8000 ~ 8299
         ServiceType cacheServiceType = ServiceTypeFactory.of(8299, "CACHE", "CACHE", ServiceTypeProperty.TERMINAL, ServiceTypeProperty.RECORD_STATISTICS);
         final Application nodeApplication = new Application("cache", cacheServiceType);
-        List<Application> fromApplications = List.of(new Application("caller1", ServiceType.STAND_ALONE));
+        final Application was = new Application("was", ServiceType.STAND_ALONE);
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createSourceLinkSelector(fromApplications, nodeApplication, timestamp));
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(was, nodeApplication)), timestamp));
 
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, fromApplications, Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was), Collections.emptyList())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -276,30 +275,25 @@ public class ResponseTimeHistogramServiceImplTest {
     }
 
     /**
-     * WAS ->
      * WAS -> QUEUE(target)
-     * WAS ->
      */
     @Test
     public void selectNodeHistogramDataQueueTest1() {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
-        final ServiceType queueServiceType = ServiceTypeFactory.of(7999, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
-        final Application nodeApplication = new Application("cache", queueServiceType);
-        List<Application> fromApplications = List.of(
-                new Application("caller1", ServiceType.STAND_ALONE),
-                new Application("caller2", ServiceType.STAND_ALONE),
-                new Application("caller3", ServiceType.STAND_ALONE)
-        );
+        final ServiceType queueServiceType = ServiceTypeFactory.of(8799, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
+        final Application nodeApplication = new Application("queue", queueServiceType);
+        final Application was1 = new Application("was1", ServiceType.STAND_ALONE);
+        final Application was2 = new Application("was2", ServiceType.STAND_ALONE);
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
-        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createSourceLinkSelector(fromApplications, nodeApplication, timestamp));
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), any(LinkDataMapProcessor.class)))
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(was1, nodeApplication)), timestamp));
 
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, fromApplications, Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was1, was2), Collections.emptyList())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -308,37 +302,70 @@ public class ResponseTimeHistogramServiceImplTest {
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
         Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
-        assertHistogramValues(histogram, 3);
+        assertHistogramValues(histogram, 1);
     }
 
     /**
-     * WAS(out of range) -> QUEUE(target) -> WAS
+     * WAS(out of range) -> QUEUE(target) -> ...
      * <p>
-     * different from serverMapV2
-     * if queue has no fromApplications
-     * check fromApplication(out of search range) using toApplications(caller link data)
+     * ignore Application not in range of serverMap search range
      */
     @Test
     public void selectNodeHistogramDataQueueTest2() {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
-        final ServiceType queueServiceType = ServiceTypeFactory.of(7999, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
-        final Application nodeApplication = new Application("cache", queueServiceType);
-        List<Application> hiddenFromApplications = List.of(new Application("hiddenCaller1", ServiceType.STAND_ALONE));
-        List<Application> queueCalleeApplications = List.of(new Application("Callee1", ServiceType.STAND_ALONE));
+        final ServiceType queueServiceType = ServiceTypeFactory.of(8799, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
+        final Application nodeApplication = new Application("queue", queueServiceType);
+        final Application was = new Application("was", ServiceType.STAND_ALONE);
 
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
-        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), eq(LinkDataMapProcessor.NO_OP), any(LinkDataMapProcessor.class)))
-                .thenReturn(createSourceLinkSelector(hiddenFromApplications, nodeApplication, timestamp));
-
-        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createSourceLinkSelector(hiddenFromApplications, nodeApplication, timestamp));
+        //with no source Application do not scan
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), any(LinkDataMapProcessor.class)))
+                .thenThrow(new IllegalStateException("no scan for QUEUE node with empty sourceApplications"));
 
         //fromApplications out of Search range
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, Collections.emptyList(), queueCalleeApplications)
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, Collections.emptyList(), Collections.emptyList())
+                .setUseStatisticsAgentState(true)
+                .build();
+        NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
+
+        logger.debug(nodeHistogramSummary);
+        NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
+        Histogram histogram = nodeHistogram.getApplicationHistogram();
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        assertHistogramValues(histogram, 0);
+    }
+
+    /**
+     * WAS1(out of range)   ->
+     * ...      -> WAS2     -> QUEUE(target)
+     * <p>
+     * might happen in bidirectional search
+     * ignore Application not in range of serverMap search range
+     */
+    @Test
+    public void selectNodeHistogramDataQueueTest3() {
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+
+        //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
+        final ServiceType queueServiceType = ServiceTypeFactory.of(8799, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
+        final Application nodeApplication = new Application("queue", queueServiceType);
+        final Application was1 = new Application("was1", ServiceType.STAND_ALONE);
+        final Application was2 = new Application("was2", ServiceType.STAND_ALONE);
+
+        final long timestamp = System.currentTimeMillis();
+        final Range range = Range.between(timestamp, timestamp + 60000);
+
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), any(LinkDataMapProcessor.class)))
+                .thenReturn(createCallerLinkSelector(List.of(
+                        new LinkKey(was1, nodeApplication)
+                ), timestamp));
+
+        //fromApplications out of Search range
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was2), Collections.emptyList())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -365,7 +392,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), eq(LinkDataMapProcessor.NO_OP), any(LinkDataMapProcessor.class)))
-                .thenReturn(createTargetLinkSelector(fromApplication, List.of(toApplication), timestamp));
+                .thenReturn(createCalleeLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
         LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
         Histogram histogram = linkHistogramSummary.getHistogram();
@@ -377,19 +404,19 @@ public class ResponseTimeHistogramServiceImplTest {
     }
 
     /**
-     * WAS -> WAS (link)
+     * WAS1 -> WAS2 (link)
      */
     @Test
     public void selectLinkHistogramDataTest2() {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
-        final Application fromApplication = new Application("WAS1", ServiceType.STAND_ALONE);
-        final Application toApplication = new Application("WAS2", ServiceType.STAND_ALONE);
+        final Application fromApplication = new Application("was1", ServiceType.STAND_ALONE);
+        final Application toApplication = new Application("was2", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createTargetLinkSelector(fromApplication, List.of(toApplication), timestamp));
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
         LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
         Histogram histogram = linkHistogramSummary.getHistogram();
@@ -407,13 +434,13 @@ public class ResponseTimeHistogramServiceImplTest {
     public void selectLinkHistogramDataTest3() {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
-        final Application fromApplication = new Application("WAS1", ServiceType.STAND_ALONE);
+        final Application fromApplication = new Application("was", ServiceType.STAND_ALONE);
         final Application toApplication = new Application("unknown", ServiceType.UNKNOWN);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createSourceLinkSelector(List.of(fromApplication), toApplication, timestamp));
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
         LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
         Histogram histogram = linkHistogramSummary.getHistogram();
@@ -433,13 +460,13 @@ public class ResponseTimeHistogramServiceImplTest {
 
         //CACHE_LIBRARY serviceTypeCode 8000 ~ 8299
         ServiceType cacheServiceType = ServiceTypeFactory.of(8299, "CACHE", "CACHE", ServiceTypeProperty.TERMINAL, ServiceTypeProperty.RECORD_STATISTICS);
-        final Application fromApplication = new Application("WAS1", ServiceType.STAND_ALONE);
+        final Application fromApplication = new Application("was", ServiceType.STAND_ALONE);
         final Application toApplication = new Application("cache", cacheServiceType);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createSourceLinkSelector(List.of(fromApplication), toApplication, timestamp));
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
         LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
         Histogram histogram = linkHistogramSummary.getHistogram();
@@ -459,13 +486,13 @@ public class ResponseTimeHistogramServiceImplTest {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
         final ServiceType queueServiceType = ServiceTypeFactory.of(7999, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
-        final Application fromApplication = new Application("WAS", ServiceType.STAND_ALONE);
+        final Application fromApplication = new Application("was", ServiceType.STAND_ALONE);
         final Application toApplication = new Application("queue", queueServiceType);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
-        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createTargetLinkSelector(fromApplication, List.of(toApplication), timestamp));
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), any(LinkDataMapProcessor.class)))
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
         LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
         Histogram histogram = linkHistogramSummary.getHistogram();
@@ -483,14 +510,15 @@ public class ResponseTimeHistogramServiceImplTest {
     public void selectLinkHistogramDataQueueTest2() {
         ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
 
-        final ServiceType queueServiceType = ServiceTypeFactory.of(7999, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
-        final Application fromApplication = new Application("WAS", ServiceType.STAND_ALONE);
-        final Application toApplication = new Application("queue", queueServiceType);
+        //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
+        final ServiceType queueServiceType = ServiceTypeFactory.of(8799, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
+        final Application fromApplication = new Application("queue", queueServiceType);
+        final Application toApplication = new Application("was", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
-        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
-                .thenReturn(createSourceLinkSelector(List.of(fromApplication), toApplication, timestamp));
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), any(LinkDataMapProcessor.class)))
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
         LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
         Histogram histogram = linkHistogramSummary.getHistogram();
@@ -501,13 +529,17 @@ public class ResponseTimeHistogramServiceImplTest {
         assertHistogramValues(histogram, 1);
     }
 
-    private LinkSelector createTargetLinkSelector(Application application, List<Application> toApplication, long timestamp) {
+    private LinkSelector createCallerLinkSelector(List<LinkKey> linkKeys, long timestamp) {
         return new LinkSelector() {
             @Override
             public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
+                if (calleeSearchDepth > 0) {
+                    throw new IllegalArgumentException("use UNIDIRECTIONAL link selector only. calleeSearchDepth: " + calleeSearchDepth);
+                }
+
                 LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-                for (Application toApplication : toApplication) {
-                    linkDataDuplexMap.addTargetLinkData(createLinkData(application, toApplication, timestamp));
+                for (LinkKey linkKey : linkKeys) {
+                    linkDataDuplexMap.addTargetLinkData(createLinkData(linkKey.getFrom(), linkKey.getTo(), timestamp));
                 }
                 return linkDataDuplexMap;
             }
@@ -522,13 +554,17 @@ public class ResponseTimeHistogramServiceImplTest {
         };
     }
 
-    private LinkSelector createSourceLinkSelector(List<Application> fromApplications, Application application, long timestamp) {
+    private LinkSelector createCalleeLinkSelector(List<LinkKey> linkKeys, long timestamp) {
         return new LinkSelector() {
             @Override
             public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
+                if (callerSearchDepth > 0) {
+                    throw new IllegalArgumentException("use UNIDIRECTIONAL link selector only. callerSearchDepth: " + callerSearchDepth);
+                }
+
                 LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-                for (Application fromApplication : fromApplications) {
-                    linkDataDuplexMap.addSourceLinkData(createLinkData(fromApplication, application, timestamp));
+                for (LinkKey linkKey : linkKeys) {
+                    linkDataDuplexMap.addSourceLinkData(createLinkData(linkKey.getFrom(), linkKey.getTo(), timestamp));
                 }
                 return linkDataDuplexMap;
             }

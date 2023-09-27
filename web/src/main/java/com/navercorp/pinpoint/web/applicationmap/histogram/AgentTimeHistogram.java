@@ -81,7 +81,7 @@ public class AgentTimeHistogram {
         return result;
     }
 
-    public Map<String, List<TimeHistogram>> getAgentTimeHistogramMap() {
+    public Map<String, List<TimeHistogram>> getTimeHistogramMap() {
         Map<String, List<TimeHistogram>> result = new HashMap<>();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             result.put(agentHistogram.getAgentId().getName(), sortTimeHistogram(agentHistogram.getTimeHistogram()));
