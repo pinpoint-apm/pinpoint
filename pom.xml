@@ -773,11 +773,7 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-to-slf4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>jul-to-slf4j</artifactId>
+                        <artifactId>log4j-jul</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
