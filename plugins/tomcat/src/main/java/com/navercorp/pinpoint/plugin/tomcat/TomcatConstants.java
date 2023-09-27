@@ -44,4 +44,5 @@ public final class TomcatConstants {
      */
     public static final String JAVAX_ERROR_EXCEPTION = "javax.servlet.error.exception";
     public static final String JAKARTA_ERROR_EXCEPTION = "jakarta.servlet.error.exception";
+    public static final String[] TOMCAT_URI_USER_INPUT_ATTRIBUTE_KEYS = {"pinpoint.metric.uri-template"};
 }
