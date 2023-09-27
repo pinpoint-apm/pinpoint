@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBui
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -33,10 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.LinkSerializer;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
-import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
-import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Collection;
@@ -214,15 +210,6 @@ public class Link {
         // we need Target (to)'s time since time in link is RPC-based
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
         return builder.build(targetLinkCallDataMap.getLinkDataList());
-    }
-
-    public TimeSeriesView getLinkApplicationTimeSeriesHistogram(TimeHistogramType timeHistogramType) {
-        TimeHistogramChartBuilder builder = new TimeHistogramChartBuilder(getLinkApplicationTimeHistogram().getHistogramList());
-        return builder.build(timeHistogramType);
-    }
-
-    public List<TimeHistogram> getLinkApplicationTimeHistogramList() {
-        return getLinkApplicationTimeHistogram().getHistogramList();
     }
 
     public ApplicationTimeHistogram getLinkApplicationTimeHistogram() {

@@ -17,18 +17,21 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeAgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
+import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
+import com.navercorp.pinpoint.web.view.histogram.HistogramView;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
+import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -62,23 +65,54 @@ public class ResponseTimeController {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
     }
 
-    @PostMapping(value = "/getResponseTimeHistogramDataV3")
-    public NodeAgentHistogramList postResponseTimeHistogramDataV3(
+    @GetMapping(value = "/getWas/serverHistogramData")
+    public ServerHistogramView getWasServerHistogramData(
             @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
-            @RequestBody ApplicationPairs applicationPairs,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-                    boolean useStatisticsAgentState) {
+            @RequestParam("to") @PositiveOrZero long to
+    ) {
         final Range range = Range.between(from, to);
         dateLimit.limit(range);
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
-        ResponseTimeHistogramServiceOption option = buildOption(application, range, applicationPairs, useStatisticsAgentState);
+        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
+                .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
+                .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        return nodeHistogramSummary.getAgentHistogramView();
+    }
 
-        return new NodeAgentHistogramList(application, nodeHistogramSummary.getNodeHistogram(), nodeHistogramSummary.getServerGroupList());
+    @GetMapping(value = "/getWas/histogram")
+    public Histogram getWasHistogram(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to
+    ) {
+        final Range range = Range.between(from, to);
+        dateLimit.limit(range);
+        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+
+        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
+                .setUseStatisticsAgentState(true)
+                .build();
+        NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        return nodeHistogramSummary.getHistogram();
+    }
+
+    @GetMapping(value = "/getWas/responseStatistics")
+    public ResponseTimeStatics getWasResponseTimeStatistics(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to
+    ) {
+        Histogram histogram = getWasHistogram(applicationName, serviceTypeCode, serviceTypeName, from, to);
+        return ResponseTimeStatics.fromHistogram(histogram);
     }
 
     @GetMapping(value = "/getWas/{type}/chart")
@@ -88,19 +122,85 @@ public class ResponseTimeController {
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @PathVariable("type") String type) {
+            @PathVariable("type") String type
+    ) {
         final Range range = Range.between(from, to);
         dateLimit.limit(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
-        if (!application.getServiceType().isWas()) {
-            throw new IllegalArgumentException("application is not WAS. application:" + application + ", serviceTypeCode:" + serviceTypeCode);
-        }
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
-        ResponseTimeHistogramServiceOption option = buildOption(application, range, ApplicationPairs.empty(), true);
+        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
+                .setUseStatisticsAgentState(true)
+                .build();
+        NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        return nodeHistogramSummary.getNodeTimeHistogram(timeHistogramType);
+    }
+
+    @GetMapping(value = "/getWas/histogramData")
+    public HistogramView getWasHistogramData(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to
+    ) {
+        final Range range = Range.between(from, to);
+        dateLimit.limit(range);
+        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+
+        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
+                .setUseStatisticsAgentState(true)
+                .build();
+        NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        return nodeHistogramSummary.getHistogramView();
+    }
+
+    private ResponseTimeHistogramServiceOption.Builder createWasOptionBuilder(Application application, Range range) {
+        if (!application.getServiceType().isWas()) {
+            throw new IllegalArgumentException("application is not WAS. application:" + application + ", serviceTypeCode:" + application.getServiceType());
+        }
+        return new ResponseTimeHistogramServiceOption.Builder(application, range, Collections.emptyList(), Collections.emptyList());
+    }
+
+    @PostMapping(value = "/getNode/serverHistogramData")
+    public ServerHistogramView postNodeServerHistogramData(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestBody ApplicationPairs applicationPairs
+    ) {
+        final Range range = Range.between(from, to);
+        dateLimit.limit(range);
+        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, range, applicationPairs)
+                .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
+                .build();
+        NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        return nodeHistogramSummary.getAgentHistogramView();
+    }
+
+    @PostMapping(value = "/getNode/histogramData")
+    public HistogramView postNodeHistogramData(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestBody ApplicationPairs applicationPairs
+    ) {
+        final Range range = Range.between(from, to);
+        dateLimit.limit(range);
+        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, range, applicationPairs)
+                .setUseStatisticsAgentState(true)
+                .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        return nodeHistogramSummary.getNodeTimeHistogram(timeHistogramType);
+        return nodeHistogramSummary.getHistogramView();
     }
 
     @PostMapping(value = "/getNode/{type}/chart")
@@ -111,16 +211,42 @@ public class ResponseTimeController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @PathVariable("type") String type,
-            @RequestBody ApplicationPairs applicationPairs) {
+            @RequestBody ApplicationPairs applicationPairs
+    ) {
         final Range range = Range.between(from, to);
         dateLimit.limit(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
-        ResponseTimeHistogramServiceOption option = buildOption(application, range, applicationPairs, true);
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, range, applicationPairs)
+                .setUseStatisticsAgentState(true)
+                .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
         return nodeHistogramSummary.getNodeTimeHistogram(timeHistogramType);
+    }
+
+    @GetMapping(value = "/getLink/histogramData")
+    public HistogramView getLinkHistogramData(
+            @RequestParam("fromApplicationName") @NotBlank String fromApplicationName,
+            @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
+            @RequestParam(value = "fromServiceTypeName", required = false) @NotBlank String fromServiceTypeName,
+            @RequestParam("toApplicationName") String toApplicationName,
+            @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode,
+            @RequestParam(value = "toServiceTypeName", required = false) @NotBlank String toServiceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to
+    ) {
+        final Range range = Range.between(from, to);
+        dateLimit.limit(range);
+
+        Application fromApplication = createApplication(fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
+        Application toApplication = createApplication(toApplicationName, toServiceTypeCode, toServiceTypeName);
+
+        LinkHistogramSummary linkHistogramSummary =
+                responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
+
+        return linkHistogramSummary.getHistogramView();
     }
 
     @GetMapping(value = "/getLink/{type}/chart")
@@ -133,7 +259,8 @@ public class ResponseTimeController {
             @RequestParam(value = "toServiceTypeName", required = false) @NotBlank String toServiceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @PathVariable("type") String type) {
+            @PathVariable("type") String type
+    ) {
         final Range range = Range.between(from, to);
         dateLimit.limit(range);
 
@@ -147,12 +274,11 @@ public class ResponseTimeController {
         return linkHistogramSummary.getTimeHistogram(timeHistogramType);
     }
 
-    public ResponseTimeHistogramServiceOption buildOption(Application application, Range range,
-                                                          ApplicationPairs applicationPairs, boolean useStatisticsAgentState) {
+    private ResponseTimeHistogramServiceOption.Builder createOptionBuilder(Application application, Range range,
+                                                                           ApplicationPairs applicationPairs) {
         List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
         List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
-        return new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications)
-                .setUseStatisticsAgentState(useStatisticsAgentState).build();
+        return new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications);
     }
 
     private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {

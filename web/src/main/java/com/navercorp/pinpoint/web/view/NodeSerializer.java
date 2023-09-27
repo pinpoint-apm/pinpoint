@@ -151,13 +151,15 @@ public class NodeSerializer extends JsonSerializer<Node> {
                 jgen.writeObjectField("histogram", applicationHistogram);
             }
 
-            if (applicationHistogram == null) {
-                writeEmptyObject(jgen, "apdexScore");
-            } else {
-                //jgen.writeObjectField("apdexScore", node.getApdexScore());
-                JsonSerializer<Object> beanSerializer = provider.findValueSerializer(node.getApdexScore().getClass());
-                JsonSerializer<Object> unwrapping = beanSerializer.unwrappingSerializer(NameTransformer.NOP);
-                unwrapping.serialize(node.getApdexScore(), jgen, provider);
+            if (NodeType.SIMPLIFIED != node.getNodeType()) {
+                if (applicationHistogram == null) {
+                    writeEmptyObject(jgen, "apdexScore");
+                } else {
+                    //jgen.writeObjectField("apdexScore", node.getApdexScore());
+                    JsonSerializer<Object> beanSerializer = provider.findValueSerializer(node.getApdexScore().getClass());
+                    JsonSerializer<Object> unwrapping = beanSerializer.unwrappingSerializer(NameTransformer.NOP);
+                    unwrapping.serialize(node.getApdexScore(), jgen, provider);
+                }
             }
 
             //agent histogram
