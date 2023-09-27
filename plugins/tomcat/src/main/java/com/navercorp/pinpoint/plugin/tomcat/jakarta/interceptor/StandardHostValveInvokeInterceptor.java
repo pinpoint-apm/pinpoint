@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.plugin.tomcat.jakarta.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -34,6 +36,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.util.argument.Validation;
 import com.navercorp.pinpoint.bootstrap.util.argument.Validator;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.HttpServletResponseAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.ParameterRecorderFactory;
@@ -57,14 +60,22 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
 
+    private final TraceContext traceContext;
+    private final boolean uriStatEnable;
+    private final boolean uriStatUseUserInput;
+    private final boolean uriStatCollectMethod;
 
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor,
                                               RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
+        this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
 
         this.validator = buildValidator();
         final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());
 
+        this.uriStatEnable = config.isUriStatEnable();
+        this.uriStatUseUserInput = config.isUriStatUseUserInput();
+        this.uriStatCollectMethod = config.isUriStatCollectMethod();
 
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
@@ -147,10 +158,38 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                     }
                 }
             }
+            if (uriStatEnable && uriStatUseUserInput) {
+                recordUserUriTemplate(request);
+            }
             this.servletResponseListener.destroyed(response, throwable, statusCode); //must before request listener due to trace block ending
             this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
+        }
+    }
+
+    private void recordUserUriTemplate(HttpServletRequest request) {
+        final Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return;
+        }
+        for (String attributeName : TomcatConstants.TOMCAT_URI_USER_INPUT_ATTRIBUTE_KEYS) {
+            final Object uriMapping = request.getAttribute(attributeName);
+            if (!(uriMapping instanceof String)) {
+                continue;
+            }
+
+            String uriTemplate = (String) uriMapping;
+            if (!StringUtils.hasLength(uriTemplate)) {
+                continue;
+            }
+
+            if (uriStatCollectMethod) {
+                uriTemplate = request.getMethod() + " " + uriTemplate;
+            }
+
+            final SpanRecorder spanRecorder = trace.getSpanRecorder();
+            spanRecorder.recordUriTemplate(uriTemplate, true);
         }
     }
 
