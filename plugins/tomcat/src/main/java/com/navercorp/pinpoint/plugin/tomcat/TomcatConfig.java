@@ -39,6 +39,10 @@ public class TomcatConfig {
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
 
+    private final boolean uriStatEnable;
+    private final boolean uriStatUseUserInput;
+    private final boolean uriStatCollectMethod;
+
     public TomcatConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
 
@@ -53,6 +57,10 @@ public class TomcatConfig {
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.tomcat.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.tomcat.realipemptyvalue");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.tomcat.excludemethod");
+        // uri stat
+        this.uriStatEnable = config.readBoolean("profiler.uri.stat.enable", true);
+        this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.tomcat.useuserinput", false);
+        this.uriStatCollectMethod = config.readBoolean("profiler.uri.stat.collect.http.method", false);
     }
 
     public boolean isEnable() {
@@ -87,6 +95,18 @@ public class TomcatConfig {
         return excludeProfileMethodFilter;
     }
 
+    public boolean isUriStatEnable() {
+        return uriStatEnable;
+    }
+
+    public boolean isUriStatUseUserInput() {
+        return uriStatUseUserInput;
+    }
+
+    public boolean isUriStatCollectMethod() {
+        return uriStatCollectMethod;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TomcatConfig{");
@@ -101,4 +121,5 @@ public class TomcatConfig {
         sb.append('}');
         return sb.toString();
     }
+
 }
