@@ -13,8 +13,6 @@ import org.springframework.context.annotation.Import;
 @Import({
         ClusterConfigurationFactory.class,
         ClusterConfiguration.class,
-        ClusterFilterChainConfiguration.class,
-        ClusterServiceConfiguration.class
 })
 public class ClusterModule {
 

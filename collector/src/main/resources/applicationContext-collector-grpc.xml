@@ -93,10 +93,6 @@
         <constructor-arg index="2" ref="serverRequestFactory"/>
     </bean>
 
-    <bean id="commandService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService">
-        <constructor-arg index="0" ref="clusterService"/>
-    </bean>
-
     <util:list id="agentServiceList">
         <ref bean="agentService"/>
         <ref bean="metadataService"/>

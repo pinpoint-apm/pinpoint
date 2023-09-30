@@ -89,7 +89,7 @@ public class AlarmController {
         if (Rule.isRuleInvalid(rule)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "There is not ruleId/userGroupId/applicationId/checkerName to update alarm rule"
+                    "There is not ruleId/userGroupId/applicationId/checkerName to publish alarm rule"
             );
         }
         alarmService.updateRule(rule);

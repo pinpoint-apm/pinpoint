@@ -15,9 +15,8 @@
  */
 package com.navercorp.pinpoint.realtime.collector;
 
-import com.navercorp.pinpoint.realtime.collector.activethread.count.CollectorActiveThreadCountConfig;
-import com.navercorp.pinpoint.realtime.collector.activethread.dump.CollectorActiveThreadDumpConfig;
-import com.navercorp.pinpoint.realtime.collector.echo.CollectorEchoConfig;
+import com.navercorp.pinpoint.realtime.collector.receiver.EmptyCommandService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -25,10 +24,12 @@ import org.springframework.context.annotation.Import;
  * @author youngjin.kim2
  */
 @Configuration
-@Import({
-        CollectorActiveThreadCountConfig.class,
-        CollectorActiveThreadDumpConfig.class,
-        CollectorEchoConfig.class
-})
+@Import({ RealtimeCollectorServerConfig.class })
 public class RealtimeCollectorModule {
+
+    @ConditionalOnMissingBean(name = "commandService")
+    public EmptyCommandService emptyCommandService() {
+        return new EmptyCommandService();
+    }
+
 }

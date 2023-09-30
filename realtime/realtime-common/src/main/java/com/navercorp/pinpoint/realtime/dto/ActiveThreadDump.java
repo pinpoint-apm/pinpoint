@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.realtime.dto;
 
+import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 import jakarta.annotation.Nullable;
 
 /**
@@ -24,7 +25,7 @@ public class ActiveThreadDump {
 
     private long startTime; // required
     private long localTraceId; // required
-    private @Nullable ThreadDump threadDump; // required
+    private @Nullable ThreadDumpBo threadDump; // required
     private boolean sampled; // required
     private @Nullable String transactionId; // optional
     private @Nullable String entryPoint; // optional
@@ -46,11 +47,11 @@ public class ActiveThreadDump {
     }
 
     @Nullable
-    public ThreadDump getThreadDump() {
+    public ThreadDumpBo getThreadDump() {
         return threadDump;
     }
 
-    public void setThreadDump(@Nullable ThreadDump threadDump) {
+    public void setThreadDump(@Nullable ThreadDumpBo threadDump) {
         this.threadDump = threadDump;
     }
 

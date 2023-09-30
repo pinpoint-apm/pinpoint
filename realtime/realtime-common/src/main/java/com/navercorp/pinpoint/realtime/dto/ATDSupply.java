@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author youngjin.kim2
  */
-public class ATDSupply {
+public class ATDSupply implements RealtimeSupply {
 
     private @Nullable List<ActiveThreadDump> threadDumps; // required
     private @Nullable String type; // optional

@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class Echo {
+public class Echo implements RealtimeDemand, RealtimeSupply {
 
     private final long id;
     private final ClusterKey agentKey;

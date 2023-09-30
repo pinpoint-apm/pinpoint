@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.realtime.serde;
 
 import com.navercorp.pinpoint.channel.serde.Serde;
-import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.realtime.vo.CollectorState;
+import com.navercorp.pinpoint.realtime.vo.ProfilerDescription;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,21 +39,21 @@ public class CollectorStateSerde implements Serde<CollectorState> {
     @Override
     @Nonnull
     public CollectorState deserialize(@Nonnull InputStream inputStream) throws IOException {
-        String[] keyArray = new String(inputStream.readAllBytes()).split("\r\n");
-        List<ClusterKey> keyList = new ArrayList<>(keyArray.length);
-        for (String key: keyArray) {
+        String[] profilerArray = new String(inputStream.readAllBytes()).split("\r\n");
+        List<ProfilerDescription> profilers = new ArrayList<>(profilerArray.length);
+        for (String key: profilerArray) {
             try {
-                keyList.add(ClusterKey.parse(key));
+                profilers.add(ProfilerDescription.fromString(key));
             } catch (Exception e) {
                 logger.error("Invalid cluster key: {}", key, e);
             }
         }
-        return new CollectorState(keyList);
+        return new CollectorState(profilers);
     }
 
     @Override
     public void serialize(@Nonnull CollectorState state, @Nonnull OutputStream outputStream) throws IOException {
-        String serialized = state.getAgents().stream().map(ClusterKey::toString).collect(Collectors.joining("\r\n"));
+        String serialized = state.getProfilers().stream().map(ProfilerDescription::toString).collect(Collectors.joining("\r\n"));
         outputStream.write(serialized.getBytes());
     }
 

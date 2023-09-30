@@ -17,16 +17,13 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-import com.navercorp.pinpoint.grpc.trace.PActiveThreadDump;
-import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
-import com.navercorp.pinpoint.thrift.sender.message.ThreadDumpGrpcMessageConverter;
+import com.navercorp.pinpoint.realtime.dto.ActiveThreadDump;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
 import org.junit.jupiter.api.Assertions;
@@ -37,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpListTest.createThreadDump;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -45,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AgentActiveThreadDumpListSerializerTest {
 
     private final ObjectMapper mapper = Jackson.newMapper();
-    private final MessageConverter<Object, PThreadDump> threadDumpConverter = new ThreadDumpGrpcMessageConverter();
 
     @Test
     public void serializeTest() throws Exception {
@@ -73,13 +70,13 @@ public class AgentActiveThreadDumpListSerializerTest {
     }
 
     private AgentActiveThreadDumpList createThreadDumpList(ThreadInfo[] allThreadInfo) {
-        List<PActiveThreadDump> activeThreadDumpList = new ArrayList<>();
+        List<ActiveThreadDump> activeThreadDumpList = new ArrayList<>();
         for (ThreadInfo threadInfo : allThreadInfo) {
-            final ThreadDumpMetricSnapshot snapshot = ThreadDumpUtils.createThreadDump(threadInfo);
-            activeThreadDumpList.add(PActiveThreadDump.newBuilder()
-                    .setStartTime(System.currentTimeMillis() - 1000)
-                    .setThreadDump(this.threadDumpConverter.toMessage(snapshot))
-                    .build());
+            ThreadDumpMetricSnapshot snapshot = ThreadDumpUtils.createThreadDump(threadInfo);
+            ActiveThreadDump dump = new ActiveThreadDump();
+            dump.setStartTime(System.currentTimeMillis() - 1000);
+            dump.setThreadDump(createThreadDump(snapshot));
+            activeThreadDumpList.add(dump);
         }
 
         AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();

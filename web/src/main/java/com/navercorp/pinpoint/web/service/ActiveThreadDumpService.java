@@ -16,8 +16,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 
 import java.util.List;
 
@@ -26,14 +25,14 @@ import java.util.List;
  */
 public interface ActiveThreadDumpService {
 
-    PCmdActiveThreadLightDumpRes getLightDump(
+    ATDSupply getLightDump(
             ClusterKey clusterKey,
             List<String> threadNames,
             List<Long> localTraceIds,
             int limit
     );
 
-    PCmdActiveThreadDumpRes getDetailedDump(
+    ATDSupply getDetailedDump(
             ClusterKey clusterKey,
             List<String> threadNames,
             List<Long> localTraceIds,
