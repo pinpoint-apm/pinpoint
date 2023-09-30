@@ -17,19 +17,21 @@
 package com.navercorp.pinpoint.web.vo.activethread;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.grpc.trace.PActiveThreadDump;
-import com.navercorp.pinpoint.grpc.trace.PActiveThreadLightDump;
-import com.navercorp.pinpoint.grpc.trace.PThreadLightDump;
+import com.navercorp.pinpoint.common.server.bo.event.MonitorInfoBo;
+import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
+import com.navercorp.pinpoint.common.server.bo.event.ThreadState;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
-import com.navercorp.pinpoint.thrift.sender.message.ThreadDumpGrpcMessageConverter;
+import com.navercorp.pinpoint.realtime.dto.ActiveThreadDump;
 import com.navercorp.pinpoint.thrift.sender.message.ThreadStateGrpcMessageConverter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,8 +43,7 @@ public class AgentActiveThreadDumpListTest {
     private static final int CREATE_DUMP_SIZE = 10;
 
     private final PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory(this.getClass().getSimpleName());
-    private final ThreadDumpGrpcMessageConverter threadDumpConverter = new ThreadDumpGrpcMessageConverter();
-    private final ThreadStateGrpcMessageConverter threadStateConverter = new ThreadStateGrpcMessageConverter();
+    private static final ThreadStateGrpcMessageConverter threadStateConverter = new ThreadStateGrpcMessageConverter();
 
     @Test
     public void basicFunctionTest1() {
@@ -124,14 +125,12 @@ public class AgentActiveThreadDumpListTest {
     }
 
     private AgentActiveThreadDumpList createThreadDumpList(Thread[] threads) {
-        List<PActiveThreadDump> activeThreadDumpList = new ArrayList<>();
+        List<ActiveThreadDump> activeThreadDumpList = new ArrayList<>();
         for (Thread thread : threads) {
-            final long startTime = System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000);
-            final ThreadDumpMetricSnapshot threadDumpMetricSnapshot = ThreadDumpUtils.createThreadDump(thread);
-            activeThreadDumpList.add(PActiveThreadDump.newBuilder()
-                    .setStartTime(startTime)
-                    .setThreadDump(this.threadDumpConverter.toMessage(threadDumpMetricSnapshot))
-                    .build());
+            ActiveThreadDump dump = new ActiveThreadDump();
+            dump.setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000));
+            dump.setThreadDump(createThreadDump(thread));
+            activeThreadDumpList.add(dump);
         }
 
         AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
@@ -139,24 +138,51 @@ public class AgentActiveThreadDumpListTest {
     }
 
     private AgentActiveThreadDumpList createThreadLightDumpList(Thread[] threads) {
-        List<PActiveThreadLightDump> activeThreadLightDumpList = new ArrayList<>();
+        List<ActiveThreadDump> activeThreadLightDumpList = new ArrayList<>();
         for (Thread thread : threads) {
-            activeThreadLightDumpList.add(PActiveThreadLightDump.newBuilder()
-                    .setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000))
-                    .setThreadDump(createPThreadLightDump(thread))
-                    .build());
+            ActiveThreadDump dump = new ActiveThreadDump();
+            dump.setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000));
+            dump.setThreadDump(createThreadLightDump(thread));
+            activeThreadLightDumpList.add(dump);
         }
 
         AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
         return factory.create2(activeThreadLightDumpList);
     }
 
-    private PThreadLightDump createPThreadLightDump(Thread thread) {
-        return PThreadLightDump.newBuilder()
-                .setThreadName(thread.getName())
-                .setThreadId(thread.getId())
-                .setThreadState(this.threadStateConverter.toMessage(thread.getState()))
-                .build();
+    private static ThreadDumpBo createThreadDump(Thread thread) {
+        ThreadDumpMetricSnapshot snapshot = Objects.requireNonNull(ThreadDumpUtils.createThreadDump(thread));
+        return createThreadDump(snapshot);
+    }
+
+    public static ThreadDumpBo createThreadDump(ThreadDumpMetricSnapshot snapshot) {
+        ThreadDumpBo dump = new ThreadDumpBo();
+        dump.setThreadName(snapshot.getThreadName());
+        dump.setThreadId(snapshot.getThreadId());
+        dump.setThreadState(ThreadState.findByValue(threadStateConverter.toMessage(snapshot.getThreadState()).getNumber()));
+        dump.setStackTraceList(snapshot.getStackTrace());
+        dump.setLockedSynchronizerList(snapshot.getLockedSynchronizers());
+        dump.setLockedMonitorInfoList(snapshot.getLockedMonitors().stream()
+                .map(el -> new MonitorInfoBo(el.getStackDepth(), el.getStackFrame()))
+                .collect(Collectors.toUnmodifiableList()));
+        dump.setLockName(snapshot.getLockName());
+        dump.setLockOwnerId(snapshot.getLockOwnerId());
+        dump.setLockOwnerName(snapshot.getLockOwnerName());
+        dump.setSuspended(snapshot.isSuspended());
+        dump.setWaitedCount(snapshot.getWaitedCount());
+        dump.setWaitedTime(snapshot.getWaitedTime());
+        dump.setBlockedCount(snapshot.getBlockedCount());
+        dump.setBlockedTime(snapshot.getBlockedTime());
+        dump.setInNative(snapshot.isInNative());
+        return dump;
+    }
+
+    private ThreadDumpBo createThreadLightDump(Thread thread) {
+        ThreadDumpBo dump = new ThreadDumpBo();
+        dump.setThreadName(thread.getName());
+        dump.setThreadId(thread.getId());
+        dump.setThreadState(ThreadState.findByValue(threadStateConverter.toMessage(thread.getState()).getNumber()));
+        return dump;
     }
 
     private void clearResource(List<WaitingJob> waitingJobList) {

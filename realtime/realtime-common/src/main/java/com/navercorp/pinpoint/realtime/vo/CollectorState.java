@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.realtime.vo;
 
-import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -25,14 +23,14 @@ import java.util.Objects;
  */
 public class CollectorState {
 
-    List<ClusterKey> agents;
+    List<ProfilerDescription> profilers;
 
-    public CollectorState(List<ClusterKey> agents) {
-        this.agents = Objects.requireNonNullElse(agents, List.of());
+    public CollectorState(List<ProfilerDescription> profilers) {
+        this.profilers = Objects.requireNonNullElse(profilers, List.of());
     }
 
-    public List<ClusterKey> getAgents() {
-        return agents;
+    public List<ProfilerDescription> getProfilers() {
+        return profilers;
     }
 
 }

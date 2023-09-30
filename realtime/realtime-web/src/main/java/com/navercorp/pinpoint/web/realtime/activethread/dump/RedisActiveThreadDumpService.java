@@ -16,11 +16,8 @@
 package com.navercorp.pinpoint.web.realtime.activethread.dump;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
-import com.navercorp.pinpoint.realtime.dto.mapper.grpc.GrpcDtoMapper;
 import com.navercorp.pinpoint.redis.value.Incrementer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,16 +41,14 @@ public class RedisActiveThreadDumpService {
         this.dao = Objects.requireNonNull(dao, "dao");
     }
 
-    public PCmdActiveThreadLightDumpRes getLightDump(ClusterKey clusterKey, List<String> threadNames,
+    public ATDSupply getLightDump(ClusterKey clusterKey, List<String> threadNames,
                                                      List<Long> localTraceIds, int limit) {
-        final ATDSupply supply = get(clusterKey, threadNames, localTraceIds, limit, true);
-        return GrpcDtoMapper.buildLightDumpResult(supply);
+        return get(clusterKey, threadNames, localTraceIds, limit, true);
     }
 
-    public PCmdActiveThreadDumpRes getDetailedDump(ClusterKey clusterKey, List<String> threadNames,
+    public ATDSupply getDetailedDump(ClusterKey clusterKey, List<String> threadNames,
                                                    List<Long> localTraceIds, int limit) {
-        final ATDSupply supply = get(clusterKey, threadNames, localTraceIds, limit, false);
-        return GrpcDtoMapper.buildDetailedDumpResult(supply);
+        return get(clusterKey, threadNames, localTraceIds, limit, false);
     }
 
     private ATDSupply get(

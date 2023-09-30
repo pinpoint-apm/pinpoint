@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class ATCSupply {
+public class ATCSupply implements RealtimeSupply {
 
     private String applicationName;
     private String agentId;
@@ -96,9 +96,7 @@ public class ATCSupply {
     @Override
     public String toString() {
         return "ATCSupply{" +
-                "applicationName='" + applicationName + '\'' +
-                ", agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
+                "agentKey='" + applicationName + ':' + agentId + ':' + startTimestamp +
                 ", collectorId='" + collectorId + '\'' +
                 ", values=" + values +
                 ", message='" + message + '\'' +

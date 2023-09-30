@@ -27,6 +27,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author youngjin.kim2
@@ -107,12 +108,13 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
         private boolean responseToDemand(D demand) {
             Mono<S> response = this.backend.demand(demand);
             if (response != null) {
-                logger.info("Responding long pubsub demand ({})", demand);
-                PubChannel supplyPubChannel = getSupplyPubChannel(demand);
-                response.subscribe(new PubChannelProxy(supplyPubChannel));
+                response
+                        .doOnError(e -> logger.debug("Ignored short pubsub demand: {}", demand))
+                        .onErrorComplete(IgnoreDemandException.class)
+                        .subscribe(new PubChannelProxy(demand));
                 return true;
             } else {
-                logger.debug("Ignored long pubsub demand (id: {})", demand);
+                logger.debug("Ignored short pubsub demand: {}", demand);
             }
             return false;
         }
@@ -139,12 +141,13 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
         private boolean responseToDemand(D demand) {
             Flux<S> response = this.backend.demand(demand);
             if (response != null) {
-                logger.info("Responding long pubsub demand ({})", demand);
-                PubChannel supplyPubChannel = getSupplyPubChannel(demand);
-                response.subscribe(new PubChannelProxy(supplyPubChannel));
+                response
+                        .doOnError(e -> logger.debug("Ignored long pubsub demand: {}", demand))
+                        .onErrorComplete(IgnoreDemandException.class)
+                        .subscribe(new PubChannelProxy(demand));
                 return true;
             } else {
-                logger.debug("Ignored long pubsub demand (id: {})", demand);
+                logger.debug("Ignored long pubsub demand: {}", demand);
             }
             return false;
         }
@@ -153,19 +156,32 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
 
     private class PubChannelProxy extends BaseSubscriber<S> {
 
-        private final PubChannel channel;
+        private final D demand;
+        private final AtomicReference<PubChannel> channelRef = new AtomicReference<>(null);
 
-        PubChannelProxy(PubChannel channel) {
-            this.channel = channel;
+        PubChannelProxy(D demand) {
+            this.demand = demand;
         }
 
         @Override
         public void hookOnNext(@NonNull S supply) {
             try {
                 byte[] rawResponse = getProtocol().serializeSupply(supply);
-                this.channel.publish(rawResponse);
+                this.getPubChannel().publish(rawResponse);
             } catch (Exception e) {
                 logger.error("Failed to send", e);
+            }
+        }
+
+        private PubChannel getPubChannel() {
+            PubChannel prev = this.channelRef.get();
+            if (prev == null) {
+                logger.info("Responding pubsub demand ({})", demand);
+                PubChannel pub = getSupplyPubChannel(this.demand);
+                this.channelRef.set(pub);
+                return pub;
+            } else {
+                return prev;
             }
         }
 

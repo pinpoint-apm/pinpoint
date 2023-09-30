@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.collector;
 
 
-import com.navercorp.pinpoint.collector.cluster.RealtimeCollectorModuleAdaptorConfig;
 import com.navercorp.pinpoint.collector.config.ClusterModule;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.config.FlinkContextModule;
@@ -10,6 +9,7 @@ import com.navercorp.pinpoint.collector.event.config.CollectorEventConfiguration
 import com.navercorp.pinpoint.collector.grpc.ssl.GrpcSslModule;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
+import com.navercorp.pinpoint.realtime.collector.RealtimeCollectorModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +39,7 @@ import org.springframework.context.annotation.ImportResource;
 
         GrpcSslModule.class,
 
-        RealtimeCollectorModuleAdaptorConfig.class,
+        RealtimeCollectorModule.class,
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.collector.handler",

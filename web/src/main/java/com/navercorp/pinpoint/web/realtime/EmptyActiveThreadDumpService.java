@@ -16,8 +16,7 @@
 package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
 
 import java.util.List;
@@ -28,12 +27,12 @@ import java.util.List;
 public class EmptyActiveThreadDumpService implements ActiveThreadDumpService {
 
     @Override
-    public PCmdActiveThreadLightDumpRes getLightDump(ClusterKey clusterKey, List<String> threadNames, List<Long> localTraceIds, int limit) {
+    public ATDSupply getLightDump(ClusterKey clusterKey, List<String> threadNames, List<Long> localTraceIds, int limit) {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public PCmdActiveThreadDumpRes getDetailedDump(ClusterKey clusterKey, List<String> threadNames, List<Long> localTraceIds, int limit) {
+    public ATDSupply getDetailedDump(ClusterKey clusterKey, List<String> threadNames, List<Long> localTraceIds, int limit) {
         throw new RuntimeException("Not implemented");
     }
 
