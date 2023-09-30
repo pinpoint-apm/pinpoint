@@ -25,6 +25,16 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-thrift-datasender</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-server-cluster</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

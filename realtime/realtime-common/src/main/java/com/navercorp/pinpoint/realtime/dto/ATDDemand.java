@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author youngjin.kim2
  */
-public class ATDDemand {
+public class ATDDemand implements RealtimeDemand {
 
     private long id;
     private ClusterKey clusterKey;
@@ -80,5 +80,17 @@ public class ATDDemand {
 
     public void setLocalTraceIdList(@Nullable List<Long> localTraceIdList) {
         this.localTraceIdList = localTraceIdList;
+    }
+
+    @Override
+    public String toString() {
+        return "ATDDemand{" +
+                "id=" + id +
+                ", clusterKey=" + clusterKey +
+                ", isLight=" + isLight +
+                ", limit=" + limit +
+                ", threadNameList=" + threadNameList +
+                ", localTraceIdList=" + localTraceIdList +
+                '}';
     }
 }

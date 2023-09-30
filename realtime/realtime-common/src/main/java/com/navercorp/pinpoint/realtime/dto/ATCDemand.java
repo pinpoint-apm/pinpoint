@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class ATCDemand {
+public class ATCDemand implements RealtimeDemand {
 
     private long id;
     private String applicationName;
@@ -72,4 +72,11 @@ public class ATCDemand {
         return Objects.hash(id, applicationName, agentId, startTimestamp);
     }
 
+    @Override
+    public String toString() {
+        return "ATCDemand{" +
+                "id=" + id +
+                ", clusterKey='" + applicationName + ':' + agentId + ':' + startTimestamp +
+                '}';
+    }
 }

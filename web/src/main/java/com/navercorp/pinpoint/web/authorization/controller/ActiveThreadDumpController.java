@@ -17,8 +17,7 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
@@ -69,11 +68,11 @@ public class ActiveThreadDumpController {
     ) {
         final ClusterKey clusterKey = getClusterKey(applicationName, agentId);
 
-        final PCmdActiveThreadDumpRes response = this.activeThreadDumpService.getDetailedDump(
+        final ATDSupply response = this.activeThreadDumpService.getDetailedDump(
                 clusterKey, threadNameList, localTraceIdList, limit);
 
         final AgentActiveThreadDumpList activeThreadDumpList = (new AgentActiveThreadDumpFactory())
-                .create1(response.getThreadDumpList());
+                .create1(response.getThreadDumps());
 
         return CodeResult.ok(new ThreadDumpResult(
                 activeThreadDumpList,
@@ -91,12 +90,12 @@ public class ActiveThreadDumpController {
             @RequestParam(value = "threadName", required = false) List<String> threadNameList,
             @RequestParam(value = "localTraceId", required = false) List<Long> localTraceIdList
     ) {
-        final ClusterKey clusterKey = getClusterKey(applicationName, agentId);
-        final PCmdActiveThreadLightDumpRes response = this.activeThreadDumpService.getLightDump(
+        ClusterKey clusterKey = getClusterKey(applicationName, agentId);
+        ATDSupply response = this.activeThreadDumpService.getLightDump(
                 clusterKey, threadNameList, localTraceIdList, limit);
 
-        final AgentActiveThreadDumpList activeThreadDumpList = (new AgentActiveThreadDumpFactory())
-                .create2(response.getThreadDumpList());
+        AgentActiveThreadDumpList activeThreadDumpList = (new AgentActiveThreadDumpFactory())
+                .create2(response.getThreadDumps());
 
         return CodeResult.ok(new ThreadDumpResult(
                 activeThreadDumpList,

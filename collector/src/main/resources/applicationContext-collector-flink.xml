@@ -10,7 +10,7 @@
         <constructor-arg index="0" ref="flinkClusterProperties"/>
     </bean>
 
-    <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.cluster.flink.TcpDataSenderRepository">
+    <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.flink.TcpDataSenderRepository">
         <constructor-arg index="0" ref="sendDataToFlinkService"/>
     </bean>
 
@@ -25,13 +25,13 @@
         <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
     <bean id="flinkRequestFactory" class="com.navercorp.pinpoint.collector.sender.FlinkRequestFactory"/>
-    <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterConnectionManager">
+    <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.flink.FlinkClusterConnectionManager">
         <constructor-arg index="0" ref="tcpDataSenderRepository"/>
         <constructor-arg index="1" ref="flinkHeaderTBaseSerializerFactory"/>
         <constructor-arg index="2" ref="flinkRequestFactory"/>
     </bean>
 
-    <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterService">
+    <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.flink.FlinkClusterService">
         <constructor-arg index="0" ref="flinkProperties"/>
         <constructor-arg index="1" ref="flinkClusterConnectionManager"/>
     </bean>

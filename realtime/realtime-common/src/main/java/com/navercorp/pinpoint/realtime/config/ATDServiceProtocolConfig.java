@@ -72,7 +72,7 @@ public class ATDServiceProtocolConfig {
         return ChannelServiceProtocol.<ATDDemand, ATDSupply>builder()
                 .setDemandSerde(JacksonSerde.byClass(objectMapper, ATDDemand.class))
                 .setDemandPubChannelURIProvider(demand -> URI.create(RedisPubSubConstants.SCHEME + ":demand:atd-2"))
-                .setDemandSubChannelURI(URI.create(RedisPubSubConstants.SCHEME + ":demand:atd:*"))
+                .setDemandSubChannelURI(URI.create(RedisPubSubConstants.SCHEME + ":demand:atd-2"))
                 .setSupplySerde(JacksonSerde.byClass(objectMapper, ATDSupply.class))
                 .setSupplyChannelURIProvider(
                         demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atd-2:" + demand.getId()))

@@ -16,8 +16,7 @@
 package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 import com.navercorp.pinpoint.web.realtime.activethread.dump.RedisActiveThreadDumpService;
 import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
 
@@ -36,7 +35,7 @@ public class RedisActiveThreadDumpServiceAdaptor implements ActiveThreadDumpServ
     }
 
     @Override
-    public PCmdActiveThreadLightDumpRes getLightDump(
+    public ATDSupply getLightDump(
             ClusterKey clusterKey,
             List<String> threadNames,
             List<Long> localTraceIds,
@@ -46,7 +45,7 @@ public class RedisActiveThreadDumpServiceAdaptor implements ActiveThreadDumpServ
     }
 
     @Override
-    public PCmdActiveThreadDumpRes getDetailedDump(
+    public ATDSupply getDetailedDump(
             ClusterKey clusterKey,
             List<String> threadNames,
             List<Long> localTraceIds,
