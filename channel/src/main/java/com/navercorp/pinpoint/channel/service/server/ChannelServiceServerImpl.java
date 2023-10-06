@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.channel.service.server;
 
+import com.google.common.base.Suppliers;
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.PubChannel;
 import com.navercorp.pinpoint.channel.SubChannel;
@@ -27,7 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 /**
  * @author youngjin.kim2
@@ -157,7 +158,7 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
     private class PubChannelProxy extends BaseSubscriber<S> {
 
         private final D demand;
-        private final AtomicReference<PubChannel> channelRef = new AtomicReference<>(null);
+        private final Supplier<PubChannel> channelSupplier = Suppliers.memoize(this::buildPubChannel);
 
         PubChannelProxy(D demand) {
             this.demand = demand;
@@ -167,22 +168,15 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
         public void hookOnNext(@NonNull S supply) {
             try {
                 byte[] rawResponse = getProtocol().serializeSupply(supply);
-                this.getPubChannel().publish(rawResponse);
+                this.channelSupplier.get().publish(rawResponse);
             } catch (Exception e) {
                 logger.error("Failed to send", e);
             }
         }
 
-        private PubChannel getPubChannel() {
-            PubChannel prev = this.channelRef.get();
-            if (prev == null) {
-                logger.info("Responding pubsub demand ({})", demand);
-                PubChannel pub = getSupplyPubChannel(this.demand);
-                this.channelRef.set(pub);
-                return pub;
-            } else {
-                return prev;
-            }
+        private PubChannel buildPubChannel() {
+            logger.info("Responding pubsub demand ({})", demand);
+            return getSupplyPubChannel(this.demand);
         }
 
     }

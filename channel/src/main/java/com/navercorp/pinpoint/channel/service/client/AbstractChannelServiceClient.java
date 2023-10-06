@@ -20,11 +20,12 @@ import com.navercorp.pinpoint.channel.PubChannel;
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubConsumer;
 import com.navercorp.pinpoint.channel.Subscription;
+import com.navercorp.pinpoint.channel.reactor.DeferredDisposable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import reactor.core.Disposable;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -61,17 +62,17 @@ public class AbstractChannelServiceClient<D, S> implements ChannelServiceClient 
             Consumer<Exception> errorEmitter,
             Runnable completeEmitter
     ) {
-        AtomicReference<Subscription> subscriptionRef = new AtomicReference<>(null);
+        DeferredDisposable deferredDisposable = new DeferredDisposable();
         SubChannel supplyChannel = getSupplySubChannel(demand);
         SubConsumer subConsumer = new SupplyProxyConsumer<>(
                 valueEmitter,
                 errorEmitter,
                 completeEmitter,
-                subscriptionRef,
+                deferredDisposable,
                 getProtocol()
         );
         Subscription subscription = supplyChannel.subscribe(subConsumer);
-        subscriptionRef.set(subscription);
+        deferredDisposable.setDisposable(() -> subscription.unsubscribe());
         return subscription;
     }
 
@@ -82,20 +83,20 @@ public class AbstractChannelServiceClient<D, S> implements ChannelServiceClient 
         private final Consumer<S> valueEmitter;
         private final Consumer<Exception> errorEmitter;
         private final Runnable completeEmitter;
-        private final AtomicReference<Subscription> subscriptionRef;
+        private final Disposable disposable;
         private final ChannelServiceClientProtocol<?, S> protocol;
 
         SupplyProxyConsumer(
                 Consumer<S> valueEmitter,
                 Consumer<Exception> errorEmitter,
                 Runnable completeEmitter,
-                AtomicReference<Subscription> subscriptionRef,
+                Disposable disposable,
                 ChannelServiceClientProtocol<?, S> protocol
         ) {
             this.valueEmitter = valueEmitter;
             this.errorEmitter = errorEmitter;
             this.completeEmitter = completeEmitter;
-            this.subscriptionRef = subscriptionRef;
+            this.disposable = disposable;
             this.protocol = protocol;
         }
 
@@ -108,10 +109,10 @@ public class AbstractChannelServiceClient<D, S> implements ChannelServiceClient 
             } else if (channelState == ChannelState.SENT_LAST_MESSAGE) {
                 this.valueEmitter.accept(supply);
                 this.completeEmitter.run();
-                subscriptionRef.get().unsubscribe();
+                this.disposable.dispose();
             } else {
                 this.completeEmitter.run();
-                subscriptionRef.get().unsubscribe();
+                this.disposable.dispose();
             }
             return true;
         }
@@ -122,13 +123,9 @@ public class AbstractChannelServiceClient<D, S> implements ChannelServiceClient 
             } catch (Exception e) {
                 logger.error("Failed to deserialize raw supply", e);
                 this.errorEmitter.accept(e);
-                close();
+                this.disposable.dispose();
                 throw new IllegalArgumentException("Failed to deserialize raw supply", e);
             }
-        }
-
-        private void close() {
-            subscriptionRef.get().unsubscribe();
         }
 
     }
