@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.collector.manage.ClusterManager;
-import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnectionRepository;
+import com.navercorp.pinpoint.realtime.collector.receiver.ClusterPointLocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
@@ -20,8 +20,8 @@ public class ClusterConfiguration {
     }
 
     @Bean
-    public ClusterManager clusterManager(GrpcAgentConnectionRepository targetClusterPointRepository) {
-        return new ClusterManager(targetClusterPointRepository);
+    public ClusterManager clusterManager(ClusterPointLocator clusterPointLocator) {
+        return new ClusterManager(clusterPointLocator);
     }
     
 }
