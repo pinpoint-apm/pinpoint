@@ -15,21 +15,35 @@
  */
 package com.navercorp.pinpoint.realtime.collector;
 
+import com.navercorp.pinpoint.realtime.collector.receiver.ClusterPointLocator;
+import com.navercorp.pinpoint.realtime.collector.receiver.EmptyClusterPointLocator;
 import com.navercorp.pinpoint.realtime.collector.receiver.EmptyCommandService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
  * @author youngjin.kim2
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import({ RealtimeCollectorServerConfig.class })
 public class RealtimeCollectorModule {
 
-    @ConditionalOnMissingBean(name = "commandService")
-    public EmptyCommandService emptyCommandService() {
-        return new EmptyCommandService();
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(value = "pinpoint.modules.realtime.enabled", havingValue = "false", matchIfMissing = true)
+    public static class DisabledRealtimeCollectorConfig {
+
+        @Bean("commandService")
+        public EmptyCommandService emptyCommandService() {
+            return new EmptyCommandService();
+        }
+
+        @Bean
+        public ClusterPointLocator emptyClusterPointLocator() {
+            return new EmptyClusterPointLocator();
+        }
+
     }
 
 }
