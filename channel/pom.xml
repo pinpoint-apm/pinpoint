@@ -40,6 +40,10 @@
             <artifactId>jakarta.annotation-api</artifactId>
             <version>${jakarta.annotation-api2.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
