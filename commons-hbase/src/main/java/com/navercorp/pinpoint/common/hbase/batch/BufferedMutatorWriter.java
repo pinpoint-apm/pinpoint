@@ -14,8 +14,8 @@ import org.apache.hadoop.hbase.client.BufferedMutatorUtils;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.util.function.Function;
 public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final BufferedMutatorConfiguration configuration;
+    private final BufferedMutatorProperties properties;
     private final boolean autoFlush;
 
     //    private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -51,11 +51,11 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
     private final ExecutorService sharedPool;
 
 
-    public BufferedMutatorWriter(Connection connection, BufferedMutatorConfiguration configuration) {
+    public BufferedMutatorWriter(Connection connection, BufferedMutatorProperties properties) {
         Objects.requireNonNull(connection, "connection");
-        logger.info("{}", configuration);
-        this.configuration = Objects.requireNonNull(configuration, "configuration");
-        this.autoFlush = configuration.isAutoFlush();
+        logger.info("{}", properties);
+        this.properties = Objects.requireNonNull(properties, "properties");
+        this.autoFlush = properties.isAutoFlush();
 
         this.mutatorSupplier = new MutatorFactory(connection);
 
@@ -78,9 +78,9 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
 
     private BufferedMutatorParams newBufferedMutatorParams(TableName tableName) {
         BufferedMutatorParams params = new BufferedMutatorParams(tableName);
-        params.writeBufferSize(configuration.getWriteBufferSize());
-        params.setWriteBufferPeriodicFlushTimeoutMs(configuration.getWriteBufferPeriodicFlushTimerTickMs());
-        params.setWriteBufferPeriodicFlushTimerTickMs(configuration.getWriteBufferPeriodicFlushTimerTickMs());
+        params.writeBufferSize(properties.getWriteBufferSize());
+        params.setWriteBufferPeriodicFlushTimeoutMs(properties.getWriteBufferPeriodicFlushTimerTickMs());
+        params.setWriteBufferPeriodicFlushTimerTickMs(properties.getWriteBufferPeriodicFlushTimerTickMs());
         params.pool(this.sharedPool);
 //        params.listener(this::onException);
         return params;
@@ -93,7 +93,7 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
         final BufferedMutatorImpl mutator = getBufferedMutator(tableName);
 
         final long currentWriteBufferSize = BufferedMutatorUtils.getCurrentWriteBufferSize(mutator);
-        if (currentWriteBufferSize > configuration.getWriteBufferHeapLimit()) {
+        if (currentWriteBufferSize > properties.getWriteBufferHeapLimit()) {
             this.errorCounter.increment();
             return false;
         }
