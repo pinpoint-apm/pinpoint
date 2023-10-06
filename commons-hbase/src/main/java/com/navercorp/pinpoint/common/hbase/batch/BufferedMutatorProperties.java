@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.common.hbase.batch;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.unit.DataSize;
 
-public class BufferedMutatorConfiguration {
+public class BufferedMutatorProperties {
 
     @Value("${collector.batchwrite.enable:true}")
     private boolean batchWriter = true;

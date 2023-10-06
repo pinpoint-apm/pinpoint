@@ -10,11 +10,11 @@ public class SimpleBatchWriterFactoryBean implements FactoryBean<SimpleBatchWrit
 
     private final SimpleBatchWriter batchWriter;
 
-    public SimpleBatchWriterFactoryBean(BufferedMutatorConfiguration configuration,
+    public SimpleBatchWriterFactoryBean(BufferedMutatorProperties properties,
                                         HbaseBatchWriter hbaseBatchWriter,
                                         HBaseAsyncOperation asyncOperation,
                                         HbaseTemplate2 HbaseTemplate2) {
-        if (configuration != null && configuration.isBatchWriter()) {
+        if (properties != null && properties.isBatchWriter()) {
             this.batchWriter = new SimpleBufferWriter(hbaseBatchWriter);
         }
         else if (asyncOperation.isAvailable()) {

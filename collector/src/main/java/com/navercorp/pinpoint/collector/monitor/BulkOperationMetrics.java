@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
-import com.navercorp.pinpoint.common.util.StringUtils;
-
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
+import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +49,7 @@ public class BulkOperationMetrics implements MetricSet {
         for (BulkOperationReporter bulkOperationReporter : bulkOperationReporters) {
             String clazzName = bulkOperationReporter.getClass().getSimpleName();
 
-            String[] splittedName = clazzName.split("\\$");
+            String[] splittedName = clazzName.split("\\$", 2);
             if (splittedName.length > 1 && StringUtils.hasText(splittedName[0])) {
                 clazzName = splittedName[0];
             }
@@ -79,7 +77,7 @@ public class BulkOperationMetrics implements MetricSet {
 
         }
 
-        return Collections.unmodifiableMap(metrics);
+        return Map.copyOf(metrics);
     }
 
 }
