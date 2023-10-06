@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.flink;
 
 import com.navercorp.pinpoint.common.hbase.HadoopResourceCleanerRegistry;
 import com.navercorp.pinpoint.common.hbase.config.HbaseMultiplexerProperties;
+import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory;
 import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguration;
 import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
@@ -48,6 +49,7 @@ import org.springframework.context.annotation.PropertySource;
         ApplicationDaoConfiguration.class,
         FlinkExecutorConfiguration.class,
         HbaseClientConfiguration.class,
+        HbaseTemplateConfiguration.class,
 
         ClusterConfigurationFactory.class
 })
