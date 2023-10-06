@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.collector.config.ScatterProperties;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
@@ -26,12 +25,9 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
-import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
-import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
@@ -44,7 +40,7 @@ import java.util.Objects;
 
 /**
  * find traceids by application name
- * 
+ *
  * @author netspider
  * @author emeroad
  */
@@ -61,23 +57,17 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final AcceptedTimeService acceptedTimeService;
 
-    private final AbstractRowKeyDistributor rowKeyDistributor;
-
-    private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
-    private final ScatterProperties scatterProperties;
-
-    private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
+    private final RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder;
 
     public HbaseApplicationTraceIndexDao(HbaseOperations2 hbaseTemplate,
                                          TableNameProvider tableNameProvider,
-                                         @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor rowKeyDistributor,
-                                         AcceptedTimeService acceptedTimeService,
-                                         ScatterProperties scatterProperties) {
+                                         @Qualifier("applicationIndexRowKeyEncoder") RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder,
+                                         AcceptedTimeService acceptedTimeService) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
-        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.scatterProperties = Objects.requireNonNull(scatterProperties, "scatterProperties");
+        this.applicationIndexRowKeyEncoder = Objects.requireNonNull(applicationIndexRowKeyEncoder, "applicationIndexRowKeyEncoder");
+        logger.info("ApplicationIndexRowKeyEncoder:{}", applicationIndexRowKeyEncoder);
     }
 
     @Override
@@ -94,7 +84,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         CollectorUtils.checkApplicationName(span.getApplicationId());
 
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
-        final byte[] distributedKey = createRowKey(span, acceptedTime);
+        final byte[] distributedKey = applicationIndexRowKeyEncoder.encodeRowKey(span);
 
         final Put put = new Put(distributedKey);
 
@@ -115,8 +105,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         buffer.putVInt(span.getElapsed());
         buffer.putSVInt(span.getErrCode());
         buffer.putPrefixedString(span.getAgentId());
-        final byte[] indexValue = buffer.getBuffer();
-        return indexValue;
+        return buffer.getBuffer();
     }
 
     /**
@@ -138,39 +127,4 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         return buffer.getBuffer();
     }
 
-    private byte[] createRowKey(SpanBo span, long acceptedTime) {
-        if (scatterProperties.getServerSideScan() == ScatterProperties.ServerSideScan.v2) {
-            return createRowKeyV2(span, acceptedTime);
-        }
-        return createRowKeyV1(span, acceptedTime);
-    }
-
-    private byte[] createRowKeyV1(SpanBo span, long acceptedTime) {
-        // distribute key evenly
-        final byte[] applicationTraceIndexRowKey = rowKeyEncoder.encodeRowKey(span.getApplicationId(), acceptedTime);
-        return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
-    }
-
-
-    private byte[] createRowKeyV2(SpanBo span, long acceptedTime) {
-        // distribute key evenly
-        byte fuzzyKey = fuzzyRowKeyFactory.getKey(span.getElapsed());
-        final byte[] appTraceIndexRowKey = newRowKeyV2(span.getApplicationId(), acceptedTime, fuzzyKey);
-        return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);
-    }
-
-    byte[] newRowKeyV2(String applicationName, long acceptedTime, byte fuzzySlotKey) {
-        Objects.requireNonNull(applicationName, "applicationName");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("fuzzySlotKey:{}", fuzzySlotKey);
-        }
-        byte[] rowKey = rowKeyEncoder.encodeRowKey(applicationName, acceptedTime);
-
-        byte[] fuzzyRowKey = new byte[rowKey.length + 1];
-        System.arraycopy(rowKey, 0, fuzzyRowKey, 0, rowKey.length);
-
-        fuzzyRowKey[rowKey.length] = fuzzySlotKey;
-        return fuzzyRowKey;
-    }
 }
