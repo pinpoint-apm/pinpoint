@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.config.executor;
 
 import com.navercorp.pinpoint.common.util.CpuUtils;
 
-import javax.validation.constraints.Null;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -39,7 +38,6 @@ public class ExecutorProperties {
     @PositiveOrZero
     protected int queueCapacity = 1024 * 10;
 
-    @Null
     protected String threadNamePrefix;
 
     protected boolean daemon = true;
