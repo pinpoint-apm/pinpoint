@@ -16,6 +16,9 @@
 package com.navercorp.pinpoint.it.plugin.jdbc.mssql;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
+import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
+import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DataBaseTestCase;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DefaultJDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
@@ -23,14 +26,11 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
-import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
-import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
 import com.navercorp.pinpoint.plugin.jdbc.mssql.MssqlJdbcUrlParser;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
@@ -48,7 +48,7 @@ import java.util.Properties;
  *
  * @author Woonduk Kang(emeroad)
  */
-@PluginTest
+@PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8],[6.2.0.jre8],[6.4.0.jre8],[7.0.0.jre8],[7.2.0.jre8],[7.4.0.jre8]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
