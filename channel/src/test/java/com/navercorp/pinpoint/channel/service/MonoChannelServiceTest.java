@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.channel.service.server.ChannelServiceServer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
 
 import java.net.URI;
 import java.time.Duration;
@@ -99,7 +98,6 @@ public class MonoChannelServiceTest {
                 .setSupplySerde(JacksonSerde.byClass(objectMapper, String.class))
                 .setSupplyChannelURIProvider(d -> URI.create("mem:hello:supply"))
                 .setRequestTimeout(Duration.ofSeconds(1))
-                .setFailureHandlerEmitComplete(Sinks.EmitFailureHandler.FAIL_FAST)
                 .buildMono();
     }
 

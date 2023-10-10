@@ -20,13 +20,11 @@ import com.navercorp.pinpoint.channel.PubChannel;
 import com.navercorp.pinpoint.channel.Subscription;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
+import reactor.core.publisher.FluxSink;
 import reactor.core.scheduler.Scheduler;
-import reactor.util.concurrent.Queues;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.Queue;
 
 /**
  * @author youngjin.kim2
@@ -34,7 +32,7 @@ import java.util.Queue;
 class FluxChannelServiceClientImpl<D, S>
         extends AbstractChannelServiceClient<D, S> implements FluxChannelServiceClient<D, S> {
 
-    private static final Disposable EMPTY_DISPOSABLE = new EmptyDisposable();
+    private static final Disposable EMPTY_DISPOSABLE = () -> {};
 
     private final FluxChannelServiceClientProtocol<D, S> protocol;
     private final Scheduler demandScheduler;
@@ -51,33 +49,20 @@ class FluxChannelServiceClientImpl<D, S>
 
     @Override
     public Flux<S> request(D demand) {
-        try {
-            byte[] rawDemand = getProtocol().serializeDemand(demand);
-
-            Sinks.Many<S> sink = getSink(this.protocol.getBufferSize());
-            Subscription supplySubscription = subscribe(
-                    demand,
-                    e -> sink.emitNext(e, this.protocol.getFailureHandlerEmitNext()),
-                    e -> sink.emitError(e, this.protocol.getFailureHandlerEmitError()),
-                    () -> sink.emitComplete(this.protocol.getFailureHandlerEmitComplete())
-            );
-
-            PubChannel demandPubChannel = getDemandPubChannel(demand);
-            Disposable demandSubscription = scheduleDemandPeriodically(rawDemand, demandPubChannel);
-
-            return sink.asFlux()
-                    .doFinally(e -> {
-                        supplySubscription.unsubscribe();
-                        demandSubscription.dispose();
-                    });
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to request", e);
-        }
+        return Flux.<S>create(sink -> request0(demand, sink))
+                .onErrorMap(e -> new RuntimeException("Failed to request", e));
     }
 
-    private static <S> Sinks.Many<S> getSink(int bufferSize) {
-        Queue<S> queue = Queues.<S>get(bufferSize).get();
-        return Sinks.many().unicast().onBackpressureBuffer(queue);
+    private void request0(D demand, FluxSink<S> sink) {
+        byte[] rawDemand = getProtocol().serializeDemand(demand);
+        Subscription supplySubscription = subscribe(demand, sink::next, sink::error, sink::complete);
+        PubChannel demandPubChannel = getDemandPubChannel(demand);
+        Disposable demandSubscription = scheduleDemandPeriodically(rawDemand, demandPubChannel);
+
+        sink.onDispose(() -> {
+            supplySubscription.unsubscribe();
+            demandSubscription.dispose();
+        });
     }
 
     private Disposable scheduleDemandPeriodically(byte[] rawDemand, PubChannel demandPubChannel) {
@@ -89,11 +74,6 @@ class FluxChannelServiceClientImpl<D, S>
         } else {
             return EMPTY_DISPOSABLE;
         }
-    }
-
-    private static class EmptyDisposable implements Disposable {
-        @Override
-        public void dispose() {}
     }
 
 }

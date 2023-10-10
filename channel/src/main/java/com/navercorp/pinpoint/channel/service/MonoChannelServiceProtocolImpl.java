@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.channel.service;
 
 import com.navercorp.pinpoint.channel.serde.Serde;
 import com.navercorp.pinpoint.channel.service.client.ChannelState;
-import reactor.core.publisher.Sinks;
 
 import java.net.URI;
 import java.time.Duration;
@@ -31,8 +30,6 @@ class MonoChannelServiceProtocolImpl<D, S>
         extends AbstractChannelServiceProtocol<D, S> implements MonoChannelServiceProtocol<D, S> {
 
     private final Duration requestTimeout;
-    private final Sinks.EmitFailureHandler failureHandlerEmitNext;
-    private final Sinks.EmitFailureHandler failureHandlerEmitError;
 
     MonoChannelServiceProtocolImpl(
             Serde<D> demandSerde,
@@ -40,29 +37,15 @@ class MonoChannelServiceProtocolImpl<D, S>
             URI demandSubChannelURI,
             Serde<S> supplySerde,
             Function<D, URI> supplyChannelURIProvider,
-            Duration requestTimeout,
-            Sinks.EmitFailureHandler failureHandlerEmitNext,
-            Sinks.EmitFailureHandler failureHandlerEmitError
+            Duration requestTimeout
     ) {
         super(demandSerde, demandPubChannelURIProvider, demandSubChannelURI, supplySerde, supplyChannelURIProvider);
         this.requestTimeout = Objects.requireNonNull(requestTimeout, "requestTimeout");
-        this.failureHandlerEmitNext = Objects.requireNonNull(failureHandlerEmitNext, "failureHandlerEmitNext");
-        this.failureHandlerEmitError = Objects.requireNonNull(failureHandlerEmitError, "failureHandlerEmitError");
     }
 
     @Override
     public Duration getRequestTimeout() {
         return this.requestTimeout;
-    }
-
-    @Override
-    public Sinks.EmitFailureHandler getFailureHandlerEmitNext() {
-        return this.failureHandlerEmitNext;
-    }
-
-    @Override
-    public Sinks.EmitFailureHandler getFailureHandlerEmitError() {
-        return this.failureHandlerEmitError;
     }
 
     @Override

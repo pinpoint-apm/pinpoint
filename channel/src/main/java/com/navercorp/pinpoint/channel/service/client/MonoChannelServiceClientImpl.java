@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.channel.service.client;
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.Subscription;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
+import reactor.core.publisher.MonoSink;
 
-import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -41,26 +40,15 @@ class MonoChannelServiceClientImpl<D, S>
 
     @Override
     public Mono<S> request(D demand) {
-        try {
-            byte[] rawDemand = getProtocol().serializeDemand(demand);
+        return Mono.<S>create(sink -> request0(demand, sink))
+                .timeout(this.protocol.getRequestTimeout())
+                .onErrorMap(e -> new RuntimeException("Failed to request", e));
+    }
 
-            Sinks.One<S> sink = Sinks.one();
-            Subscription subscription = subscribe(
-                    demand,
-                    e -> sink.emitValue(e, Sinks.EmitFailureHandler.FAIL_FAST),
-                    e -> sink.emitError(e, Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1))),
-                    () -> {}
-            );
-
-            getDemandPubChannel(demand).publish(rawDemand);
-
-            return sink.asMono()
-                    .doOnNext(e -> subscription.unsubscribe())
-                    .doFinally(e -> subscription.unsubscribe())
-                    .timeout(this.protocol.getRequestTimeout());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to request", e);
-        }
+    private void request0(D demand, MonoSink<S> sink) {
+        Subscription subscription = subscribe(demand, sink::success, sink::error, () -> {});
+        getDemandPubChannel(demand).publish(getProtocol().serializeDemand(demand));
+        sink.onDispose(subscription::unsubscribe);
     }
 
 }

@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.channel.service.client;
 
-import reactor.core.publisher.Sinks;
-
 import java.time.Duration;
 
 /**
@@ -25,9 +23,5 @@ import java.time.Duration;
 public interface MonoChannelServiceClientProtocol<D, S> extends ChannelServiceClientProtocol<D, S> {
 
     Duration getRequestTimeout();
-
-    Sinks.EmitFailureHandler getFailureHandlerEmitNext();
-
-    Sinks.EmitFailureHandler getFailureHandlerEmitError();
 
 }

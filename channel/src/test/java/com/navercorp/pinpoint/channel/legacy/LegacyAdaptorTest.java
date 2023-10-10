@@ -30,7 +30,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
@@ -106,7 +105,6 @@ public class LegacyAdaptorTest {
                 .setSupplySerde(JacksonSerde.byParameterized(objectMapper, SupplyMessage.class, String.class))
                 .setSupplyChannelURIProvider(d -> URI.create("mem:hello:supply"))
                 .setRequestTimeout(Duration.ofSeconds(1))
-                .setFailureHandlerEmitComplete(Sinks.EmitFailureHandler.FAIL_FAST)
                 .buildMono();
     }
 
