@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import reactor.core.publisher.Sinks;
 
 import java.net.URI;
 import java.time.Duration;
@@ -56,8 +55,6 @@ public class ATCServiceProtocolConfig {
                         demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atc:" + demand.getId().getValue()))
                 .setDemandInterval(Duration.ofSeconds(10))
                 .setBufferSize(4)
-                .setFailureHandlerEmitError(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
-                .setFailureHandlerEmitComplete(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
                 .setChannelStateFn(supply -> ChannelState.ALIVE)
                 .buildFlux();
     }
@@ -72,8 +69,6 @@ public class ATCServiceProtocolConfig {
                 .setSupplyChannelURIProvider(ATCServiceProtocolConfig::getATCSupplyChannelURI)
                 .setDemandInterval(Duration.ofSeconds(5))
                 .setBufferSize(4)
-                .setFailureHandlerEmitError(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
-                .setFailureHandlerEmitComplete(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
                 .setChannelStateFn(supply -> ChannelState.ALIVE)
                 .buildFlux();
     }

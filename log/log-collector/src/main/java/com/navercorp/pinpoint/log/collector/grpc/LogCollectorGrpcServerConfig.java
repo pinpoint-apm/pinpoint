@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.log.collector.grpc;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSupplier;
+import com.navercorp.pinpoint.common.config.executor.ThreadPoolExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
@@ -47,6 +48,10 @@ import java.util.concurrent.ExecutorService;
 @Import({GrpcLogReceiverPropertiesConfig.class, LogServiceConfig.class})
 public class LogCollectorGrpcServerConfig {
 
+    @Bean
+    public MonitoringExecutors monitoringExecutors() {
+        return new MonitoringExecutors(new ThreadPoolExecutorCustomizer(), null);
+    }
 
     @Bean("grpcLogServerExecutor")
     public FactoryBean<ExecutorService> grpcLogServerExecutor(MonitoringExecutors executors,

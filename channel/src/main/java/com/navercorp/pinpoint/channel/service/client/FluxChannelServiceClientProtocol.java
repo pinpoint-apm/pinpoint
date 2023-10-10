@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.channel.service.client;
 
-import reactor.core.publisher.Sinks;
-
 import java.time.Duration;
 
 /**
@@ -27,11 +25,5 @@ public interface FluxChannelServiceClientProtocol<D, S> extends ChannelServiceCl
     Duration getDemandInterval();
 
     int getBufferSize();
-
-    Sinks.EmitFailureHandler getFailureHandlerEmitNext();
-
-    Sinks.EmitFailureHandler getFailureHandlerEmitError();
-
-    Sinks.EmitFailureHandler getFailureHandlerEmitComplete();
 
 }

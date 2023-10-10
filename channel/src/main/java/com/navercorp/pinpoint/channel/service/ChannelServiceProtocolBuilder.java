@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.channel.service;
 
 import com.navercorp.pinpoint.channel.serde.Serde;
 import com.navercorp.pinpoint.channel.service.client.ChannelState;
-import reactor.core.publisher.Sinks;
 
 import java.net.URI;
 import java.time.Duration;
@@ -36,9 +35,6 @@ public class ChannelServiceProtocolBuilder<D, S> {
     private Duration requestTimeout;
     private Duration demandInterval = Duration.ZERO;
     private int bufferSize = 4;
-    private Sinks.EmitFailureHandler failureHandlerEmitNext = Sinks.EmitFailureHandler.FAIL_FAST;
-    private Sinks.EmitFailureHandler failureHandlerEmitError = Sinks.EmitFailureHandler.FAIL_FAST;
-    private Sinks.EmitFailureHandler failureHandlerEmitComplete = Sinks.EmitFailureHandler.FAIL_FAST;
     private Function<S, ChannelState> channelStateFn;
 
     ChannelServiceProtocolBuilder() {
@@ -84,21 +80,6 @@ public class ChannelServiceProtocolBuilder<D, S> {
         return this;
     }
 
-    public ChannelServiceProtocolBuilder<D, S> setFailureHandlerEmitNext(Sinks.EmitFailureHandler failureHandlerEmitNext) {
-        this.failureHandlerEmitNext = failureHandlerEmitNext;
-        return this;
-    }
-
-    public ChannelServiceProtocolBuilder<D, S> setFailureHandlerEmitError(Sinks.EmitFailureHandler failureHandlerEmitError) {
-        this.failureHandlerEmitError = failureHandlerEmitError;
-        return this;
-    }
-
-    public ChannelServiceProtocolBuilder<D, S> setFailureHandlerEmitComplete(Sinks.EmitFailureHandler failureHandlerEmitComplete) {
-        this.failureHandlerEmitComplete = failureHandlerEmitComplete;
-        return this;
-    }
-
     public ChannelServiceProtocolBuilder<D, S> setChannelStateFn(Function<S, ChannelState> channelStateFn) {
         this.channelStateFn = channelStateFn;
         return this;
@@ -113,9 +94,6 @@ public class ChannelServiceProtocolBuilder<D, S> {
                 this.supplyChannelURIProvider,
                 this.demandInterval,
                 this.bufferSize,
-                this.failureHandlerEmitNext,
-                this.failureHandlerEmitError,
-                this.failureHandlerEmitComplete,
                 this.channelStateFn
         );
     }
@@ -127,9 +105,7 @@ public class ChannelServiceProtocolBuilder<D, S> {
                 this.demandSubChannelURI,
                 this.supplySerde,
                 this.supplyChannelURIProvider,
-                this.requestTimeout,
-                this.failureHandlerEmitNext,
-                this.failureHandlerEmitError
+                this.requestTimeout
         );
     }
 
