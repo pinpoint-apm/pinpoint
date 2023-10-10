@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.log.vo.LogPile;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import reactor.core.publisher.Sinks;
 
 import java.net.URI;
 import java.time.Duration;
@@ -50,7 +49,6 @@ public class LogServiceProtocolConfig {
                 .setSupplyChannelURIProvider(demand -> URI.create("stream:log:supply:" + demand))
                 .setDemandInterval(Duration.ofSeconds(5))
                 .setBufferSize(4)
-                .setFailureHandlerEmitError(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
                 .setChannelStateFn(supply -> ChannelState.ALIVE)
                 .buildFlux();
     }

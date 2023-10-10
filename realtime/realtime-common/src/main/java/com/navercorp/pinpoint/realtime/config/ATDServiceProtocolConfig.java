@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import reactor.core.publisher.Sinks;
 
 import java.net.URI;
 import java.time.Duration;
@@ -58,7 +57,6 @@ public class ATDServiceProtocolConfig {
                 .setSupplyChannelURIProvider(
                         demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atd:" + demand.getId().getValue()))
                 .setRequestTimeout(Duration.ofSeconds(3))
-                .setFailureHandlerEmitError(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
                 .buildMono();
 
     }
@@ -77,7 +75,6 @@ public class ATDServiceProtocolConfig {
                 .setSupplyChannelURIProvider(
                         demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atd-2:" + demand.getId()))
                 .setRequestTimeout(Duration.ofSeconds(3))
-                .setFailureHandlerEmitError(Sinks.EmitFailureHandler.busyLooping(Duration.ofSeconds(1)))
                 .buildMono();
     }
 

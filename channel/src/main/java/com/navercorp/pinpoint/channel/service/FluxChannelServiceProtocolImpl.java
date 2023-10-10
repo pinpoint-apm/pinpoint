@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.channel.service;
 
 import com.navercorp.pinpoint.channel.serde.Serde;
 import com.navercorp.pinpoint.channel.service.client.ChannelState;
-import reactor.core.publisher.Sinks;
 
 import java.net.URI;
 import java.time.Duration;
@@ -32,9 +31,6 @@ class FluxChannelServiceProtocolImpl<D, S>
 
     private final Duration demandInterval;
     private final int bufferSize;
-    private final Sinks.EmitFailureHandler failureHandlerEmitNext;
-    private final Sinks.EmitFailureHandler failureHandlerEmitError;
-    private final Sinks.EmitFailureHandler failureHandlerEmitComplete;
     private final Function<S, ChannelState> channelStateFn;
 
     FluxChannelServiceProtocolImpl(
@@ -45,17 +41,11 @@ class FluxChannelServiceProtocolImpl<D, S>
             Function<D, URI> supplyChannelURIProvider,
             Duration demandInterval,
             int bufferSize,
-            Sinks.EmitFailureHandler failureHandlerEmitNext,
-            Sinks.EmitFailureHandler failureHandlerEmitError,
-            Sinks.EmitFailureHandler failureHandlerEmitComplete,
             Function<S, ChannelState> channelStateFn
     ) {
         super(demandSerde, demandPubChannelURIProvider, demandSubChannelURI, supplySerde, supplyChannelURIProvider);
         this.demandInterval = Objects.requireNonNull(demandInterval, "demandInterval");
         this.bufferSize = bufferSize;
-        this.failureHandlerEmitNext = Objects.requireNonNull(failureHandlerEmitNext, "failureHandlerEmitNext");
-        this.failureHandlerEmitError = Objects.requireNonNull(failureHandlerEmitError, "failureHandlerEmitError");
-        this.failureHandlerEmitComplete = Objects.requireNonNull(failureHandlerEmitComplete, "failureHandlerEmitComplete");
         this.channelStateFn = Objects.requireNonNull(channelStateFn, "channelStateFn");
     }
 
@@ -67,21 +57,6 @@ class FluxChannelServiceProtocolImpl<D, S>
     @Override
     public int getBufferSize() {
         return bufferSize;
-    }
-
-    @Override
-    public Sinks.EmitFailureHandler getFailureHandlerEmitNext() {
-        return failureHandlerEmitNext;
-    }
-
-    @Override
-    public Sinks.EmitFailureHandler getFailureHandlerEmitError() {
-        return failureHandlerEmitError;
-    }
-
-    @Override
-    public Sinks.EmitFailureHandler getFailureHandlerEmitComplete() {
-        return this.failureHandlerEmitComplete;
     }
 
     @Override

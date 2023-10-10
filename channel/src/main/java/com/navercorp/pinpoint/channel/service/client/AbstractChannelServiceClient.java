@@ -26,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 import reactor.core.Disposable;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -86,6 +87,8 @@ public class AbstractChannelServiceClient<D, S> implements ChannelServiceClient 
         private final Disposable disposable;
         private final ChannelServiceClientProtocol<?, S> protocol;
 
+        private final AtomicBoolean isComplete = new AtomicBoolean(false);
+
         SupplyProxyConsumer(
                 Consumer<S> valueEmitter,
                 Consumer<Exception> errorEmitter,
@@ -105,14 +108,12 @@ public class AbstractChannelServiceClient<D, S> implements ChannelServiceClient 
             S supply = deserializeRawSupply(rawSupply);
             ChannelState channelState = protocol.getChannelState(supply);
             if (channelState == ChannelState.ALIVE) {
-                this.valueEmitter.accept(supply);
+                this.next(supply);
             } else if (channelState == ChannelState.SENT_LAST_MESSAGE) {
-                this.valueEmitter.accept(supply);
-                this.completeEmitter.run();
-                this.disposable.dispose();
+                this.next(supply);
+                this.complete();
             } else {
-                this.completeEmitter.run();
-                this.disposable.dispose();
+                this.complete();
             }
             return true;
         }
@@ -122,9 +123,28 @@ public class AbstractChannelServiceClient<D, S> implements ChannelServiceClient 
                 return this.protocol.deserializeSupply(rawSupply);
             } catch (Exception e) {
                 logger.error("Failed to deserialize raw supply", e);
-                this.errorEmitter.accept(e);
-                this.disposable.dispose();
+                this.error(e);
                 throw new IllegalArgumentException("Failed to deserialize raw supply", e);
+            }
+        }
+
+        private void next(S data) {
+            if (!this.isComplete.get()) {
+                this.valueEmitter.accept(data);
+            }
+        }
+
+        private void complete() {
+            if (!this.isComplete.getAndSet(true)) {
+                this.completeEmitter.run();
+                this.disposable.dispose();
+            }
+        }
+
+        private void error(Exception t) {
+            if (!this.isComplete.getAndSet(true)) {
+                this.errorEmitter.accept(t);
+                this.disposable.dispose();
             }
         }
 

@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.channel.service.server.ChannelServiceServer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
@@ -65,9 +64,6 @@ public class FluxChannelServiceTest {
                 .setSupplyChannelURIProvider(d -> URI.create("mem:split:supply"))
                 .setDemandInterval(Duration.ZERO)
                 .setBufferSize(4)
-                .setFailureHandlerEmitNext(Sinks.EmitFailureHandler.FAIL_FAST)
-                .setFailureHandlerEmitError(Sinks.EmitFailureHandler.FAIL_FAST)
-                .setFailureHandlerEmitComplete(Sinks.EmitFailureHandler.FAIL_FAST)
                 .setChannelStateFn(supply -> supply.equals("END") ? ChannelState.TERMINATED : ChannelState.ALIVE)
                 .buildFlux();
     }
