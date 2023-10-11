@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import com.navercorp.pinpoint.common.util.ClassUtils;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -59,9 +60,12 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
             if (!javaModuleFactory.isNamedModule(transformedModuleObject)) {
                 return transform;
             }
+
+            final String className0 = ensureClassName(className, classfileBuffer);
+
             // bootstrap-core permission
             final JavaModule transformedModule = javaModuleFactory.wrapFromModule(transformedModuleObject);
-            addModulePermission(transformedModule, className, bootstrapModule);
+            addModulePermission(transformedModule, className0, bootstrapModule);
 
 
             if (loader != Object.class.getClassLoader()) {
@@ -69,10 +73,17 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
                 final Object pluginModuleObject = getPluginModule(loader);
                 final JavaModule pluginModule = javaModuleFactory.wrapFromModule(pluginModuleObject);
 
-                addModulePermission(transformedModule, className, pluginModule);
+                addModulePermission(transformedModule, className0, pluginModule);
             }
         }
         return transform;
+    }
+
+    private static String ensureClassName(String className, byte[] classfileBuffer) {
+        if (className != null) {
+            return className;
+        }
+        return SimpleClassMetadataReader.readSimpleClassMetadata(classfileBuffer).getClassName();
     }
 
     private Object getPluginModule(ClassLoader loader) {
