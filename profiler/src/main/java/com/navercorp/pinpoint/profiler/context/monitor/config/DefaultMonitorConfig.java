@@ -22,11 +22,21 @@ public class DefaultMonitorConfig implements MonitorConfig {
 
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
     public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
+    public static final int DEFAULT_NETWORK_METRIC_COLLECTION_INTERVAL_MS = 5 * 1000;
 
     @Value("${profiler.custommetric.enable}")
     private boolean customMetricEnable = false;
     @Value("${profiler.custommetric.limit.size}")
     private int customMetricLimitSize = 10;
+
+    @Value("${profiler.network.metric.enable}")
+    private boolean networkMetricEnable = false;
+    @Value("${profiler.network.metric.enable.udpstats}")
+    private boolean udpStatsEnable = false;
+    @Value("${profiler.network.metric.enable.tcpstats}")
+    private boolean tcpStatsEnable = false;
+    @Value("${profiler.network.metric.collect.interval}")
+    private int networkMetricCollectIntervalMs = DEFAULT_NETWORK_METRIC_COLLECTION_INTERVAL_MS;
 
     @Value("${profiler.uri.stat.enable}")
     private boolean uriStatEnable = false;
@@ -68,6 +78,26 @@ public class DefaultMonitorConfig implements MonitorConfig {
     @Override
     public int getCustomMetricLimitSize() {
         return customMetricLimitSize;
+    }
+
+    @Override
+    public boolean isNetworkMetricEnable() {
+        return networkMetricEnable;
+    }
+
+    @Override
+    public int getNetworkMetricCollectIntervalMs() {
+        return networkMetricCollectIntervalMs;
+    }
+
+    @Override
+    public boolean isUdpStatsEnable() {
+        return udpStatsEnable;
+    }
+
+    @Override
+    public boolean isTcpStatsEnable() {
+        return tcpStatsEnable;
     }
 
     @Override

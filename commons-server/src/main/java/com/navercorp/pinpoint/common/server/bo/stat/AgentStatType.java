@@ -35,7 +35,8 @@ public enum AgentStatType {
     FILE_DESCRIPTOR((byte) 9, "FileDescriptor", "fileDescriptor"),
     DIRECT_BUFFER((byte) 10, "DirectBuffer", "directBuffer"),
     TOTAL_THREAD((byte) 11, "Total Thread Count", "totalThreadCount"),
-    LOADED_CLASS((byte) 12, "Loaded Class", "loadedClass");
+    LOADED_CLASS((byte) 12, "Loaded Class", "loadedClass"),
+    PROFILER_METRIC((byte) 13, "Profiler Metric", "profilerMetric");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.config.FlinkProperties;
 import com.navercorp.pinpoint.collector.mapper.flink.TFAgentStatBatchMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ProfilerMetricBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -50,5 +51,10 @@ public class SendAgentStatService implements AgentStatService {
 
         TFAgentStatBatch tFAgentStatBatch = tFAgentStatBatchMapper.map(agentStatBo);
         flinkService.sendData(tFAgentStatBatch);
+    }
+
+    @Override
+    public void save(ProfilerMetricBo profilerMetricBo) {
+        // does nothing
     }
 }

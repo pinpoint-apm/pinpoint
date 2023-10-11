@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.inspector.collector.service;
 
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ProfilerMetricBo;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
+import com.navercorp.pinpoint.inspector.collector.dao.pinot.ProfilerMetricDao;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -35,9 +37,11 @@ public class PinotAgentStatService implements AgentStatService {
     private final Logger logger = LogManager.getLogger(PinotAgentStatService.class.getName());
 
     private final AgentStatDao<?>[] agentStatDaoList;
+    private final ProfilerMetricDao profilerMetricDao;
 
-    public PinotAgentStatService(AgentStatDao<?>[] agentStatDaoList) {
+    public PinotAgentStatService(AgentStatDao<?>[] agentStatDaoList, ProfilerMetricDao profilerMetricDao) {
         this.agentStatDaoList = Objects.requireNonNull(agentStatDaoList, "agentStatDaoList");
+        this.profilerMetricDao = Objects.requireNonNull(profilerMetricDao, "profilerMetricDao");
 
         for (AgentStatDao<?> agentStatDao : agentStatDaoList) {
             logger.info("AgentStatDaoV2:{}", agentStatDao.getClass().getSimpleName());
@@ -52,7 +56,11 @@ public class PinotAgentStatService implements AgentStatService {
             } catch (Exception e) {
                 logger.warn("Error inserting AgentStatBo to pinot. Caused:{}", e.getMessage(), e);
             }
-
         }
+    }
+
+    @Override
+    public void save(ProfilerMetricBo profilerMetricBo) {
+        profilerMetricDao.dispatch(profilerMetricBo);
     }
 }

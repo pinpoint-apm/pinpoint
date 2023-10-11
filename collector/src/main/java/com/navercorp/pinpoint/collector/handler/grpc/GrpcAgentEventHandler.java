@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
+import com.navercorp.pinpoint.grpc.trace.PProfilerMetric;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
 import org.apache.logging.log4j.Logger;
@@ -73,7 +74,7 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
             handleAgentStat((PAgentStat) data);
         } else if (data instanceof PAgentStatBatch) {
             handleAgentStatBatch((PAgentStatBatch) data);
-        } else if (data instanceof PAgentUriStat) {
+        } else if ((data instanceof PAgentUriStat) || (data instanceof PProfilerMetric)) {
             // do nothing
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
