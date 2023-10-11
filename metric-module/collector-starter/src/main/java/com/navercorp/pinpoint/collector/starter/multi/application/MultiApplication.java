@@ -6,9 +6,9 @@ import com.navercorp.pinpoint.common.server.env.EnvironmentLoggingListener;
 import com.navercorp.pinpoint.common.server.env.ExternalEnvironmentListener;
 import com.navercorp.pinpoint.common.server.env.ProfileResolveListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
+import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorConfig;
 import com.navercorp.pinpoint.inspector.collector.InspectorCollectorApp;
 import com.navercorp.pinpoint.log.collector.LogCollectorModule;
-import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorConfig;
 import com.navercorp.pinpoint.metric.collector.CollectorType;
 import com.navercorp.pinpoint.metric.collector.CollectorTypeParser;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
@@ -55,18 +55,6 @@ public class MultiApplication {
         TypeSet types = parser.parse(args);
         logger.info(String.format("MultiApplication --%s=%s", CollectorTypeParser.COLLECTOR_TYPE_KEY, types));
 
-        if (types.hasType(CollectorType.BASIC)) {
-            logger.info(String.format("Start %s collector", CollectorType.BASIC));
-            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400,
-                    BasicCollectorApp.class,
-                    UriStatCollectorConfig.class,
-                    ExceptionTraceCollectorConfig.class
-            );
-            collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
-            collectorAppBuilder.listeners(new AdditionalProfileListener("uri"));
-            collectorAppBuilder.build().run(args);
-        }
-
         if (types.hasType(CollectorType.BASIC_WITH_INSPECTOR)) {
             logger.info(String.format("Start %s collector", CollectorType.BASIC_WITH_INSPECTOR));
             SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400,
@@ -75,6 +63,16 @@ public class MultiApplication {
                     ExceptionTraceCollectorConfig.class,
                     InspectorCollectorApp.class
             );
+            collectorAppBuilder.build().run(args);
+        } else if (types.hasType(CollectorType.BASIC)) {
+            logger.info(String.format("Start %s collector", CollectorType.BASIC));
+            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400,
+                    BasicCollectorApp.class,
+                    UriStatCollectorConfig.class,
+                    ExceptionTraceCollectorConfig.class
+            );
+            collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
+            collectorAppBuilder.listeners(new AdditionalProfileListener("uri"));
             collectorAppBuilder.build().run(args);
         }
 

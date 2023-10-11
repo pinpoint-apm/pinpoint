@@ -16,10 +16,10 @@
 package com.navercorp.pinpoint.flink.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HadoopResourceCleanerRegistry;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.ipc.AbstractRpcClient;
 import org.apache.hadoop.hbase.ipc.NettyRpcClientConfigHelper;
-import org.apache.hadoop.hbase.shaded.io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.hbase.thirdparty.io.netty.buffer.PoolArenaCleaner;
 import org.apache.hbase.thirdparty.io.netty.channel.EventLoopGroup;
 import org.apache.hbase.thirdparty.io.netty.channel.nio.NioEventLoopGroup;
