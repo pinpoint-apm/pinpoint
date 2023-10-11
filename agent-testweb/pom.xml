@@ -82,6 +82,8 @@
         <module>ning-asynchttpclient-plugin-testweb</module>
         <module>okhttp-plugin-testweb</module>
         <module>grpc-plugin-testweb</module>
+        <module>closed-module-testweb</module>
+        <module>closed-module-testlib</module>
     </modules>
 
     <dependencyManagement>
