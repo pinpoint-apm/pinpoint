@@ -17,8 +17,8 @@
 
 package com.navercorp.pinpoint.web.applicationmap.config;
 
-import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
-import com.navercorp.pinpoint.common.config.executor.ExecutorProperties;
+import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;

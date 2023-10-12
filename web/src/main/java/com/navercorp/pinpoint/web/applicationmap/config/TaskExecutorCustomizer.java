@@ -17,8 +17,8 @@
 
 package com.navercorp.pinpoint.web.applicationmap.config;
 
-import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
-import com.navercorp.pinpoint.common.config.executor.ExecutorProperties;
+import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 

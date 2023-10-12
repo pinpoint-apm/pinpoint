@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
-import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

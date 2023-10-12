@@ -18,8 +18,8 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
-import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
-import com.navercorp.pinpoint.common.config.executor.ThreadPoolExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.flink.config;
 
 import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
-import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
-import com.navercorp.pinpoint.common.config.executor.ThreadPoolExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import org.springframework.beans.factory.FactoryBean;
