@@ -5,9 +5,9 @@ name: Maven
 
 on:
   push:
-    branches: [ master, 2.3.x ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, 2.3.x ]
+    branches: [ master ]
 
 jobs:
 
