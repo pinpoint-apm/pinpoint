@@ -81,14 +81,14 @@ public class SystemMetricChartTest {
         List<Point> pointsFromChart1 = chartList.get(0).getPoints();
         int index = 0;
         for (Point point : pointsFromChart1) {
-            Assertions.assertTrue(point.equals(sampledSystemMetricList.get(index * 2).getPoint()));
+            Assertions.assertEquals(point, sampledSystemMetricList.get(index * 2).getPoint());
             index++;
         }
 
         List<Point> pointsFromChart2 = chartList.get(1).getPoints();
         index = 0;
         for (Point point : pointsFromChart2) {
-            Assertions.assertTrue(point.equals(sampledSystemMetricList.get(index * 2 + 1).getPoint()));
+            Assertions.assertEquals(point, sampledSystemMetricList.get(index * 2 + 1).getPoint());
             index++;
         }
     }
