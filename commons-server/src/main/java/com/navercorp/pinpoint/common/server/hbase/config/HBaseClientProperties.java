@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.common.hbase.config;
+package com.navercorp.pinpoint.common.server.hbase.config;
 
 import org.apache.hadoop.hbase.HConstants;
 

@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.common.hbase.config;
+package com.navercorp.pinpoint.common.server.hbase.config;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @ExtendWith(SpringExtension.class)
-@EnableConfigurationProperties
 @ContextConfiguration(classes = HBaseClientPropertiesTest.TestConfig.class)
 @TestPropertySource(properties = {
         "hbase.client.host=host",
@@ -47,6 +46,7 @@ class HBaseClientPropertiesTest {
     HBaseClientProperties properties;
 
     @Configuration
+    @EnableConfigurationProperties
     static class TestConfig {
         @Bean
         @ConfigurationProperties(prefix = "hbase.client")

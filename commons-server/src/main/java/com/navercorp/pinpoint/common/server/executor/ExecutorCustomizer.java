@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.common.config.executor;
+package com.navercorp.pinpoint.common.server.executor;
 
 public interface ExecutorCustomizer<T> {
     void customize(T executor, ExecutorProperties executorProperties);

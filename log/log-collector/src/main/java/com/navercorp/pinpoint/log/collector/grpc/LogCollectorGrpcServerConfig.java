@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.log.collector.grpc;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSupplier;
-import com.navercorp.pinpoint.common.config.executor.ThreadPoolExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;

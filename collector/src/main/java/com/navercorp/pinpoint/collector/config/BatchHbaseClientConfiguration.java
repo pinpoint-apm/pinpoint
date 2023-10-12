@@ -17,8 +17,9 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
+import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.springframework.beans.factory.FactoryBean;
@@ -39,7 +40,7 @@ public class BatchHbaseClientConfiguration {
     @Bean
     public FactoryBean<ExecutorService> batchHbaseThreadPool(@Qualifier("hbaseExecutorCustomizer") ExecutorCustomizer<ThreadPoolExecutorFactoryBean> executorCustomizer,
                                                              @Qualifier("hbaseClientExecutorProperties")
-                                                             com.navercorp.pinpoint.common.config.executor.ExecutorProperties properties) {
+                                                             ExecutorProperties properties) {
         ThreadPoolExecutorFactoryBean factory = new ThreadPoolExecutorFactoryBean();
         executorCustomizer.customize(factory, properties);
         return factory;
