@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.monitor;
 
 import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
 
 import java.util.Objects;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -28,17 +27,14 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class CountingRejectedExecutionHandler implements RejectedExecutionHandler {
 
-    private final Meter rejected;
+    private final Meter meter;
 
-    public CountingRejectedExecutionHandler(String executorName, MetricRegistry registry) {
-        Objects.requireNonNull(executorName, "executorName");
-        Objects.requireNonNull(registry, "registry");
-
-        this.rejected = registry.meter(MetricRegistry.name(executorName, "rejected"));
+    public CountingRejectedExecutionHandler(Meter meter) {
+        this.meter = Objects.requireNonNull(meter, "meter");
     }
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-        rejected.mark();
+        meter.mark();
     }
 }
