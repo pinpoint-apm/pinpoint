@@ -15,14 +15,15 @@
  *
  */
 
-package com.navercorp.pinpoint.common.hbase.config;
+package com.navercorp.pinpoint.common.server.hbase.config;
 
-import com.navercorp.pinpoint.common.config.executor.ExecutorCustomizer;
-import com.navercorp.pinpoint.common.config.executor.ExecutorProperties;
-import com.navercorp.pinpoint.common.config.executor.ThreadPoolExecutorCustomizer;
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.config.Warmup;
+import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
+import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
@@ -38,6 +39,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 @org.springframework.context.annotation.Configuration
 public class HbaseClientConfiguration {
@@ -103,7 +105,7 @@ public class HbaseClientConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "hbase.client.warmup.enable", havingValue = "true")
-    public Warmup hbaseConnectionWarmup(TableNameProvider tableNameProvider) {
+    public Consumer<Connection> hbaseConnectionWarmup(TableNameProvider tableNameProvider) {
         return new Warmup(tableNameProvider);
     }
 }

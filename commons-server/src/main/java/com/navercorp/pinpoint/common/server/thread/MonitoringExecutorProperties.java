@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.common.server.thread;
 
-import com.navercorp.pinpoint.common.config.executor.ExecutorProperties;
+import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 
 import javax.validation.constraints.Positive;
 

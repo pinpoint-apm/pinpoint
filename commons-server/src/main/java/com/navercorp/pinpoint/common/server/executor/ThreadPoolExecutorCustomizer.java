@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.common.config.executor;
+package com.navercorp.pinpoint.common.server.executor;
 
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 

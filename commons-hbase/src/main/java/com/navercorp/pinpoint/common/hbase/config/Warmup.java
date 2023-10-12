@@ -29,8 +29,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
-public class Warmup {
+public class Warmup implements Consumer<Connection> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TableNameProvider tableNameProvider;
@@ -63,5 +64,10 @@ public class Warmup {
                 logger.warn("Failed to warmup for Table:{}. message:{}", hBaseTable.getName(), e.getMessage(), e);
             }
         }
+    }
+
+    @Override
+    public void accept(Connection connection) {
+        warmup(connection);
     }
 }

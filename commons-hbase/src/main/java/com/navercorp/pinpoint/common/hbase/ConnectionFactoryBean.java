@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.navercorp.pinpoint.common.hbase.config.Warmup;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -32,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 /**
  * @author HyunGil Jeong
@@ -49,7 +49,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     private Connection connection;
     private ExecutorService executorService;
 
-    private Warmup warmup;
+    private Consumer<Connection> postProcessor;
 
     public ConnectionFactoryBean(Configuration configuration) {
         Objects.requireNonNull(configuration, "configuration");
@@ -80,8 +80,8 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
             throw new HbaseSystemException(e);
         }
 
-        if (warmup != null) {
-            warmup.warmup(connection);
+        if (postProcessor != null) {
+            postProcessor.accept(connection);
         }
     }
 
@@ -97,8 +97,8 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     }
 
     @Autowired(required = false)
-    public void setWarmup(Warmup warmup) {
-        this.warmup = warmup;
+    public void setPostProcessor(Consumer<Connection> postProcessor) {
+        this.postProcessor = postProcessor;
     }
 
     @Override
