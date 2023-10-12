@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.collector.monitor;
 
 import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 
 import java.util.Objects;
@@ -68,7 +69,8 @@ public class MonitoredThreadPoolExecutorFactory {
 
         RejectedExecutionHandlerChain.Builder builder = new RejectedExecutionHandlerChain.Builder();
         if (registry != null) {
-            RejectedExecutionHandler countingHandler = new CountingRejectedExecutionHandler(name, registry);
+            Meter rejected = registry.meter(MetricRegistry.name(name, "rejected"));
+            RejectedExecutionHandler countingHandler = new CountingRejectedExecutionHandler(rejected);
             builder.addRejectHandler(countingHandler);
         }
 
