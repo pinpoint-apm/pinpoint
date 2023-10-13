@@ -41,6 +41,7 @@ public class LookupHandlerMethodInterceptor implements AroundInterceptor {
                 final SpanRecorder spanRecorder = trace.getSpanRecorder();
 
                 final String uri = ServletRequestAttributeUtils.extractAttribute(request, SpringWebMvcConstants.SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEYS);
+                logger.debug("Attempt recording URI with template: {}", uri);
                 if (StringUtils.hasLength(uri)) {
                     spanRecorder.recordUriTemplate(uri);
                 }
