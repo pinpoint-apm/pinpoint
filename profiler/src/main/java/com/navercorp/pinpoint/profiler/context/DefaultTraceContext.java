@@ -47,7 +47,6 @@ public class DefaultTraceContext implements TraceContext {
 
     private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
-
     private final AgentInformation agentInformation;
 
     private final ApiMetaDataService apiMetaDataService;
@@ -59,6 +58,8 @@ public class DefaultTraceContext implements TraceContext {
     private final ServerMetaDataHolder serverMetaDataHolder;
 
     private final JdbcContext jdbcContext;
+
+    private TraceId beforeTraceId;
 
     public DefaultTraceContext(final ProfilerConfig profilerConfig,
                                final AgentInformation agentInformation,
@@ -164,6 +165,7 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public Trace removeTraceObject(boolean closeUnsampledTrace) {
         final Trace trace = traceFactory.removeTraceObject();
+        this.beforeTraceId = trace.getTraceId();
         if (closeUnsampledTrace) {
             return closeUnsampledTrace(trace);
         } else {
@@ -234,8 +236,6 @@ public class DefaultTraceContext implements TraceContext {
         return this.sqlMetaDataService.wrapSqlResult(sql);
     }
 
-
-
     @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return this.serverMetaDataHolder;
@@ -245,6 +245,11 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public JdbcContext getJdbcContext() {
         return jdbcContext;
+    }
+
+    @Override
+    public TraceId beforeTraceId(){
+        return this.beforeTraceId;
     }
 
 }
