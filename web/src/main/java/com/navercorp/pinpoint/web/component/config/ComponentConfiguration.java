@@ -18,7 +18,6 @@
 package com.navercorp.pinpoint.web.component.config;
 
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
-import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
@@ -50,11 +49,6 @@ public class ComponentConfiguration {
     @Bean
     public RangeFactory rangeFactory(TimeSlot timeSlot) {
         return new RangeFactory(timeSlot);
-    }
-
-    @Bean
-    public TimeSlot timeSlot() {
-        return new DefaultTimeSlot();
     }
 
     @Bean
