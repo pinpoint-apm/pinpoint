@@ -4,7 +4,9 @@ import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
+import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.server.util.ThreadLocalAcceptedTimeService;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,4 +33,8 @@ public class CommonsServerConfiguration {
         return new SpanFactory();
     }
 
+    @Bean
+    public TimeSlot timeSlot() {
+        return new DefaultTimeSlot();
+    }
 }
