@@ -20,7 +20,8 @@ import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import com.navercorp.pinpoint.common.util.ClassUtils;
-import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
+import com.navercorp.pinpoint.profiler.instrument.classreading.ClassReaderWrapper;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,7 +84,12 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
         if (className != null) {
             return className;
         }
-        return SimpleClassMetadataReader.readSimpleClassMetadata(classfileBuffer).getClassName();
+        return readClassName(classfileBuffer);
+    }
+
+    private static String readClassName(byte[] classfileBuffer) {
+        String className = new ClassReaderWrapper(classfileBuffer).getClassInternalName();
+        return JavaAssistUtils.jvmNameToJavaName(className);
     }
 
     private Object getPluginModule(ClassLoader loader) {
