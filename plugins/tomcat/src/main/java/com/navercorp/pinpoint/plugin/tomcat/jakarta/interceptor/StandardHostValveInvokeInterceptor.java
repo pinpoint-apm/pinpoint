@@ -157,6 +157,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                     }
                 }
             }
+            logger.debug("Raw Request URI: {}", request.getRequestURI());
             if (uriStatEnable && uriStatUseUserInput) {
                 recordUserUriTemplate(request);
             }
