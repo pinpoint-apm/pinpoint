@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.pinot.PinotColumns;
  */
 public enum GroupByAttributes {
     ERROR_MESSAGE("errorMessage", PinotColumns.ERROR_MESSAGE),
-    TIMESTMAP("timestamp", PinotColumns.TIMESTAMP),
+    ERROR_CLASS_NAME("errorClassName", PinotColumns.ERROR_CLASS_NAME),
     STACK_TRACE("stackTrace", PinotColumns.STACK_TRACE_HASH),
     URI_TEMPLATE("uriTemplate", PinotColumns.URI_TEMPLATE);
 
