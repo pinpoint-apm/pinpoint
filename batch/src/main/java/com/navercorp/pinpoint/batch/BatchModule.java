@@ -20,6 +20,8 @@ package com.navercorp.pinpoint.batch;
 import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.batch.configuration.AlarmJobModule;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
+import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.datasource.MetaDataSourceConfiguration;
 import com.navercorp.pinpoint.web.UserModule;
@@ -29,6 +31,7 @@ import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
@@ -61,7 +64,12 @@ import org.springframework.context.annotation.ImportResource;
         RestTemplateConfiguration.class,
         UserModule.class,
         UriStatAlarmConfiguration.class,
-        AlarmSenderConfiguration.class
+        AlarmSenderConfiguration.class,
 })
 public class BatchModule {
+
+    @Bean
+    public TimeSlot timeSlot() {
+        return new DefaultTimeSlot();
+    }
 }
