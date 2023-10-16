@@ -100,6 +100,5 @@ public interface TraceContext {
 
     JdbcContext getJdbcContext();
 
-    TraceId beforeTraceId();
-
+    TraceId getBeforeTraceId();
 }
