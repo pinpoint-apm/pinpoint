@@ -165,7 +165,13 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public Trace removeTraceObject(boolean closeUnsampledTrace) {
         final Trace trace = traceFactory.removeTraceObject();
-        this.beforeTraceId = trace.getTraceId();
+        try {
+            this.beforeTraceId = trace.getTraceId();
+        } catch (Exception e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Unsupported Trace Id");
+            }
+        }
         if (closeUnsampledTrace) {
             return closeUnsampledTrace(trace);
         } else {
