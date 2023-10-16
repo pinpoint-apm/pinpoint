@@ -35,6 +35,9 @@ public class ExceptionWrapperFactoryProvider implements Provider<ExceptionWrappe
 
     @Override
     public ExceptionWrapperFactory get() {
-        return new ExceptionWrapperFactory(exceptionTraceConfig.getExceptionTraceMaxDepth());
+        return new ExceptionWrapperFactory(
+                exceptionTraceConfig.getExceptionTraceMaxDepth(),
+                exceptionTraceConfig.getErrorMessageMaxLength()
+        );
     }
 }

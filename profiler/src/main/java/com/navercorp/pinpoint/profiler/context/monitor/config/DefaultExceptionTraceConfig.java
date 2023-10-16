@@ -7,6 +7,8 @@ public class DefaultExceptionTraceConfig implements ExceptionTraceConfig {
     private boolean exceptionTraceEnable = false;
     @Value("${profiler.exceptiontrace.new.throughput}")
     private double exceptionTraceNewThroughPut = 1000;
+    @Value("${profiler.exceptiontrace.errormessage.max}")
+    private int errorMessageMaxLength = 2048;
     @Value("${profiler.exceptiontrace.max.depth}")
     private int exceptionTraceMaxDepth = 0;
     @Value("${profiler.exceptiontrace.io.buffering.buffersize}")
@@ -20,6 +22,11 @@ public class DefaultExceptionTraceConfig implements ExceptionTraceConfig {
     @Override
     public double getExceptionTraceNewThroughput() {
         return exceptionTraceNewThroughPut;
+    }
+
+    @Override
+    public int getErrorMessageMaxLength() {
+        return errorMessageMaxLength;
     }
 
     @Override
@@ -37,6 +44,7 @@ public class DefaultExceptionTraceConfig implements ExceptionTraceConfig {
         return "DefaultExceptionTraceConfig{" +
                 "exceptionTraceEnable=" + exceptionTraceEnable +
                 ", exceptionTraceNewThroughPut=" + exceptionTraceNewThroughPut +
+                ", errorMessageMaxLength=" + errorMessageMaxLength +
                 ", exceptionTraceMaxDepth=" + exceptionTraceMaxDepth +
                 ", ioBufferingBufferSize=" + ioBufferingBufferSize +
                 '}';

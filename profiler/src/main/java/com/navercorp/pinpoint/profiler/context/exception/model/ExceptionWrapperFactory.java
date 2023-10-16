@@ -24,9 +24,11 @@ import java.util.List;
  */
 public class ExceptionWrapperFactory {
     private final int maxDepth;
+    private final int maxErrorMessageLength;
 
-    public ExceptionWrapperFactory(int maxDepth) {
+    public ExceptionWrapperFactory(int maxDepth, int maxErrorMessageLength) {
         this.maxDepth = maxDepth;
+        this.maxErrorMessageLength = maxErrorMessageLength;
     }
 
     public List<ExceptionWrapper> newExceptionWrappers(ExceptionContext context) {
@@ -44,7 +46,7 @@ public class ExceptionWrapperFactory {
         Throwable curr = throwable;
         int depth = 0;
         while (curr != null && (maxDepth == 0 || depth < maxDepth)) {
-            exceptionWrappers.add(ExceptionWrapper.newException(curr, startTime, exceptionId, depth));
+            exceptionWrappers.add(ExceptionWrapper.newException(curr, startTime, exceptionId, depth, maxErrorMessageLength));
             curr = curr.getCause();
             depth++;
         }
