@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import org.mapstruct.Qualifier;
@@ -58,14 +59,17 @@ public class StackTraceMapper {
         for (int i = 0; i < classNameIterable.size(); i++) {
             wrappers.add(
                     new StackTraceElementWrapper(
-                            classNameIterable.get(i),
-                            fileNameIterable.get(i),
+                            abbreviate(classNameIterable.get(i)),
+                            abbreviate(fileNameIterable.get(i)),
                             lineNumberIterable.get(i),
-                            methodNameIterable.get(i)
+                            abbreviate(methodNameIterable.get(i))
                     )
             );
         }
         return wrappers;
     }
 
+    private static String abbreviate(String str) {
+        return StringUtils.abbreviate(str, 2048);
+    }
 }
