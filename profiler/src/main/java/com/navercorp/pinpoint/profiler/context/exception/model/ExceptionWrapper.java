@@ -33,21 +33,38 @@ public class ExceptionWrapper {
     private final long exceptionId;
     private final int exceptionDepth;
 
-    private ExceptionWrapper(Throwable throwable, long startTime, long exceptionId, int exceptionDepth) {
-        Objects.requireNonNull(throwable);
-        this.exceptionClassName = StringUtils.defaultIfEmpty(throwable.getClass().getSimpleName(), EMPTY_STRING);
-        this.exceptionMessage = StringUtils.defaultIfEmpty(throwable.getMessage(), EMPTY_STRING);
-        this.stackTraceElements = throwable.getStackTrace();
+    public ExceptionWrapper(
+            String exceptionClassName,
+            String exceptionMessage,
+            StackTraceElement[] stackTraceElements,
+            long startTime,
+            long exceptionId,
+            int exceptionDepth
+    ) {
+        this.exceptionClassName = Objects.requireNonNull(exceptionClassName, "exceptionClassName");
+        this.exceptionMessage = Objects.requireNonNull(exceptionMessage, "exceptionMessage");
+        this.stackTraceElements = Objects.requireNonNull(stackTraceElements, "stackTraceElements");
         this.startTime = startTime;
         this.exceptionId = exceptionId;
         this.exceptionDepth = exceptionDepth;
     }
 
-    public static ExceptionWrapper newException(Throwable throwable, long startTime, long exceptionId, int exceptionDepth) {
+    public static ExceptionWrapper newException(
+            Throwable throwable,
+            long startTime, long exceptionId, int exceptionDepth,
+            int maxErrorMessageLength
+    ) {
         if (throwable == null) {
             return null;
         }
-        return new ExceptionWrapper(throwable, startTime, exceptionId, exceptionDepth);
+        return new ExceptionWrapper(
+                StringUtils.defaultIfEmpty(throwable.getClass().getSimpleName(), EMPTY_STRING),
+                StringUtils.abbreviate(throwable.getMessage(), maxErrorMessageLength),
+                throwable.getStackTrace(),
+                startTime,
+                exceptionId,
+                exceptionDepth
+        );
     }
 
     public String getExceptionClassName() {
