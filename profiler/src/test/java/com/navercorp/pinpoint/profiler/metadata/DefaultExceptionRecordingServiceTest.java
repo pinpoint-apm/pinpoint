@@ -39,7 +39,7 @@ public class DefaultExceptionRecordingServiceTest {
     private final static Logger logger = LogManager.getLogger(DefaultExceptionRecordingServiceTest.class);
 
     ExceptionTraceSampler exceptionTraceSampler = new ExceptionTraceSampler(1000);
-    ExceptionWrapperFactory exceptionWrapperFactory = new ExceptionWrapperFactory(10);
+    ExceptionWrapperFactory exceptionWrapperFactory = new ExceptionWrapperFactory(10, 1048);
     DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
             exceptionTraceSampler, exceptionWrapperFactory
     );
