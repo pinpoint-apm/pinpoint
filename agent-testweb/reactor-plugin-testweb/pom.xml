@@ -29,6 +29,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-testweb-commons</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
