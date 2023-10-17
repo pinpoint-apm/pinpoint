@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.metric.common.config;
 
-import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
@@ -9,6 +8,7 @@ import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.mybatis.MetricDataTypeHandler;
+import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
@@ -24,17 +24,17 @@ public class CommonRegistryHandler implements MyBatisRegistryHandler {
 
     @Override
     public void registerTypeAlias(TypeAliasRegistry typeAliasRegistry) {
-        typeAliasRegistry.registerAlias("Number", Number.class);
+        typeAliasRegistry.registerAlias(Number.class);
         
-        typeAliasRegistry.registerAlias("Tag", Tag.class);
-        typeAliasRegistry.registerAlias("DoubleMetric", DoubleMetric.class);
-        typeAliasRegistry.registerAlias("MetricData", MetricData.class);
-        typeAliasRegistry.registerAlias("MetricDataName", MetricDataName.class);
-        typeAliasRegistry.registerAlias("MetricDataType", MetricDataType.class);
-        typeAliasRegistry.registerAlias("MetricTag", MetricTag.class);
-        typeAliasRegistry.registerAlias("MetricTagKey", MetricTagKey.class);
-        typeAliasRegistry.registerAlias("MetricDataTypeHandler", MetricDataTypeHandler.class);
-        typeAliasRegistry.registerAlias("TagListTypeHandler", com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler.class);
+        typeAliasRegistry.registerAlias(Tag.class);
+        typeAliasRegistry.registerAlias(DoubleMetric.class);
+        typeAliasRegistry.registerAlias(MetricData.class);
+        typeAliasRegistry.registerAlias(MetricDataName.class);
+        typeAliasRegistry.registerAlias(MetricDataType.class);
+        typeAliasRegistry.registerAlias(MetricTag.class);
+        typeAliasRegistry.registerAlias(MetricTagKey.class);
+        typeAliasRegistry.registerAlias(MetricDataTypeHandler.class);
+        typeAliasRegistry.registerAlias(com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler.class);
     }
 
 

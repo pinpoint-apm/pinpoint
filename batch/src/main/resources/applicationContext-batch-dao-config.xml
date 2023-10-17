@@ -23,7 +23,7 @@
         <property name="plugins">
             <list>
                 <!-- use the patch version because of mybatis 3.2's incompatibility-->
-                <bean class="com.navercorp.pinpoint.web.dao.ibatis.BindingLogPlugin32"/>
+                <bean class="com.navercorp.pinpoint.mybatis.plugin.BindingLogPlugin"/>
             </list>
         </property>
     </bean>

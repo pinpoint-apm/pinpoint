@@ -1,27 +1,21 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.navercorp.pinpoint.web.dao.ibatis;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+package com.navercorp.pinpoint.mybatis.plugin;
 
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -40,10 +34,17 @@ import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
+
 /**
  * Plugin for printing out the bind variables of {@link java.sql.PreparedStatement} and {@link java.sql.CallableStatement} with Query string.
  * format of Query string can be changed with {@link BindLogFormatter}.
- * base implementation is {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter}.
+ * base implementation is {@link DefaultBindingLogFormatter}.
  * removeWhitespace option is supported
  *
  * @author emeroad
@@ -53,18 +54,18 @@ import org.apache.ibatis.session.RowBounds;
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})}
 )
-public class BindingLogPlugin32 implements Interceptor {
+public class BindingLogPlugin implements Interceptor {
 
     private static final Log pLogger = LogFactory.getLog(PreparedStatement.class);
-    private static final Log internalLogger = LogFactory.getLog(BindingLogPlugin32.class);
+    private static final Log internalLogger = LogFactory.getLog(BindingLogPlugin.class);
 
     private BindLogFormatter bindLogFormatter;
 
-    public BindingLogPlugin32() {
+    public BindingLogPlugin() {
         this.bindLogFormatter = new DefaultBindingLogFormatter();
     }
 
-    public BindingLogPlugin32(BindLogFormatter bindLogFormatter) {
+    public BindingLogPlugin(BindLogFormatter bindLogFormatter) {
         this.bindLogFormatter = Objects.requireNonNull(bindLogFormatter, "bindLogFormatter");
     }
 
@@ -128,7 +129,7 @@ public class BindingLogPlugin32 implements Interceptor {
     }
 
     /**
-     * {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter} is the implementation of {@link BindLogFormatter} supports removeWhitespace option.
+     * {@link DefaultBindingLogFormatter} is the implementation of {@link BindLogFormatter} supports removeWhitespace option.
      * removeWhitespace : setting for printing out query format in a row.
      *
      * @param properties option properties

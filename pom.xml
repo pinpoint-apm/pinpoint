@@ -98,6 +98,7 @@
         <module>commons-hbase</module>
         <module>commons-server</module>
         <module>commons-server-cluster</module>
+        <module>commons-mybatis</module>
         <module>datasource</module>
         <module>basic-login</module>
         <module>tools</module>
@@ -306,6 +307,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-buffer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-mybatis</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
