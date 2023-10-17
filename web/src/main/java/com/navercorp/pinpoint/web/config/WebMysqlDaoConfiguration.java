@@ -12,18 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.navercorp.pinpoint.inspector.web.config;
+package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
-import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
+import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandlerChain;
+import com.navercorp.pinpoint.mybatis.plugin.BindingLogPlugin;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.transaction.TransactionFactory;
-import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -32,62 +32,66 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
+import java.util.List;
 
-/**
- * @author minwoo.jung
- */
 @org.springframework.context.annotation.Configuration
+@ComponentScan(basePackages = {
+        "com.navercorp.pinpoint.web.dao.mysql",
+})
 @Import(MyBatisConfiguration.class)
-public class InspectorWebPinotDaoConfiguration {
-    private final Logger logger = LogManager.getLogger(InspectorWebPinotDaoConfiguration.class);
+public class WebMysqlDaoConfiguration {
+
+    private final Logger logger = LogManager.getLogger(WebMysqlDaoConfiguration.class);
+
 
     @Bean
-    public FactoryBean<SqlSessionFactory> inspectorPinotSessionFactory(
-            @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
-            @Qualifier("pinotDataSource") DataSource dataSource,
-            @Value("classpath*:/inspector/web/mapper/pinot/*Mapper.xml") Resource[] mappers) {
+    public WebMyBatisRegistryHandler webCommonMyBatisRegistryHandler() {
+        return new WebCommonMyBatisRegistryHandler();
+    }
+
+    @Bean
+    public MyBatisRegistryHandler webMyBatisRegistryHandler(List<WebMyBatisRegistryHandler> handlers) {
+        return new MyBatisRegistryHandlerChain(handlers);
+    }
+
+    @Bean
+    public FactoryBean<SqlSessionFactory> sqlSessionFactory(
+            @Qualifier("myBatisConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
+            @Qualifier("dataSource") DataSource dataSource,
+//            @Value("classpath:/mybatis-config.xml") Resource mybatisConfig,
+            @Qualifier("webMyBatisRegistryHandler") MyBatisRegistryHandler myBatisRegistryHandler,
+            @Value("classpath*:mapper/*Mapper.xml") Resource[] mappers,
+            BindingLogPlugin bindingLogPlugin) {
 
         for (Resource mapper : mappers) {
             logger.info("Mapper location: {}", mapper.getDescription());
         }
-        Configuration config = new Configuration();
-        customizer.customize(config);
-        registryHandler(config);
 
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource);
-        sessionFactoryBean.setConfiguration(config);
-
         sessionFactoryBean.setMapperLocations(mappers);
+
+        Configuration config = new Configuration();
+        customizer.customize(config);
+
+        sessionFactoryBean.setConfiguration(config);
         sessionFactoryBean.setFailFast(true);
-        sessionFactoryBean.setTransactionFactory(transactionFactory());
+        sessionFactoryBean.setPlugins(bindingLogPlugin);
+
+        myBatisRegistryHandler.registerTypeAlias(config.getTypeAliasRegistry());
+        myBatisRegistryHandler.registerTypeHandler(config.getTypeHandlerRegistry());
 
         return sessionFactoryBean;
     }
 
-    private TransactionFactory transactionFactory() {
-        return new ManagedTransactionFactory();
-    }
-
-    private void registryHandler(Configuration config) {
-        MyBatisRegistryHandler registryHandler = new InspectorRegistryHandler();
-        registryHandler.registerTypeAlias(config.getTypeAliasRegistry());
-        registryHandler.registerTypeHandler(config.getTypeHandlerRegistry());
-    }
-
     @Bean
-    public PinotAsyncTemplate inspectorPinotAsyncTemplate(
-            @Qualifier("inspectorPinotSessionFactory") SqlSessionFactory sessionFactory) {
-        return new PinotAsyncTemplate(sessionFactory);
-    }
-
-    @Bean
-    public SqlSessionTemplate inspectorPinotTemplate(
-            @Qualifier("inspectorPinotSessionFactory") SqlSessionFactory sessionFactory) {
+    public SqlSessionTemplate sqlSessionTemplate(
+            @Qualifier("sqlSessionFactory") SqlSessionFactory sessionFactory) {
         return new SqlSessionTemplate(sessionFactory);
     }
 

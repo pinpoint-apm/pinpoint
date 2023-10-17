@@ -1,10 +1,11 @@
 package com.navercorp.pinpoint.metric.web.config;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.metric.web.mapping.Mappings;
 import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
-import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
+import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
+import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
+import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
@@ -30,6 +32,7 @@ import java.io.InputStream;
  * @author Woonduk Kang(emeroad)
  */
 @org.springframework.context.annotation.Configuration
+@Import(MyBatisConfiguration.class)
 public class MetricWebPinotDaoConfiguration {
     private final Logger logger = LogManager.getLogger(MetricWebPinotDaoConfiguration.class);
 
@@ -41,6 +44,7 @@ public class MetricWebPinotDaoConfiguration {
 
     @Bean
     public FactoryBean<SqlSessionFactory> sqlPinotSessionFactory(
+            @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath*:/pinot-web/mapper/pinot/*Mapper.xml") Resource[] mappers) {
 
@@ -53,13 +57,14 @@ public class MetricWebPinotDaoConfiguration {
         sessionFactoryBean.setMapperLocations(mappers);
         sessionFactoryBean.setTransactionFactory(transactionFactory());
 
-        Configuration config = MyBatisConfiguration.defaultConfiguration();
+        Configuration config = new Configuration();
+        customizer.customize(config);
+
         sessionFactoryBean.setConfiguration(config);
 
         MyBatisRegistryHandler registry = registryHandler();
         registry.registerTypeAlias(config.getTypeAliasRegistry());
         registry.registerTypeHandler(config.getTypeHandlerRegistry());
-
         return sessionFactoryBean;
     }
 

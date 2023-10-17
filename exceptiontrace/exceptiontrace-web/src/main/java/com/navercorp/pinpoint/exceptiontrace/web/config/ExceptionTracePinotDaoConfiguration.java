@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.config;
 
-import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
-import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
+import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
+import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
@@ -36,6 +36,7 @@ public class ExceptionTracePinotDaoConfiguration {
 
     @Bean
     public SqlSessionFactory exceptionTracePinotSessionFactory(
+            @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath:exceptiontrace/mapper/*Mapper.xml") Resource[] mappers
     ) throws Exception {
@@ -43,7 +44,11 @@ public class ExceptionTracePinotDaoConfiguration {
 
         sessionFactoryBean.setDataSource(dataSource);
 
-        sessionFactoryBean.setConfiguration(newConfiguration());
+        Configuration config = new Configuration();
+        customizer.customize(config);
+        registryHandler(config);
+
+        sessionFactoryBean.setConfiguration(config);
         sessionFactoryBean.setMapperLocations(mappers);
         sessionFactoryBean.setFailFast(true);
         sessionFactoryBean.setTransactionFactory(transactionFactory());
@@ -55,18 +60,12 @@ public class ExceptionTracePinotDaoConfiguration {
         return new ManagedTransactionFactory();
     }
 
-    private Configuration newConfiguration() {
-        Configuration config = MyBatisConfiguration.defaultConfiguration();
-
-        MyBatisRegistryHandler registryHandler = registryHandler();
+    private void registryHandler(Configuration config) {
+        MyBatisRegistryHandler registryHandler = new ExceptionTraceRegistryHandler();
         registryHandler.registerTypeAlias(config.getTypeAliasRegistry());
         registryHandler.registerTypeHandler(config.getTypeHandlerRegistry());
-        return config;
     }
 
-    private MyBatisRegistryHandler registryHandler() {
-        return new ExceptionTraceRegistryHandler();
-    }
 
     @Bean
     public SqlSessionTemplate exceptionTracePinotSessionTemplate(

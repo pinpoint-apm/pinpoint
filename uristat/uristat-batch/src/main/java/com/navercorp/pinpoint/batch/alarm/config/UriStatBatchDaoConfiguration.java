@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.batch.alarm.config;
 
-import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
+import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
@@ -20,13 +20,18 @@ public class UriStatBatchDaoConfiguration {
 
     @Bean
     public FactoryBean<SqlSessionFactory> uriStatSessionFactory (
+            @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath:mapper/uristat/*Mapper.xml") Resource[] mappers) {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
 
         sessionFactoryBean.setDataSource(dataSource);
 
-        sessionFactoryBean.setConfiguration(newConfiguration());
+        Configuration config = new Configuration();
+        customizer.customize(config);
+        registryHandler(config);
+
+        sessionFactoryBean.setConfiguration(config);
 
         sessionFactoryBean.setMapperLocations(mappers);
         sessionFactoryBean.setFailFast(true);
@@ -40,18 +45,12 @@ public class UriStatBatchDaoConfiguration {
         return new ManagedTransactionFactory();
     }
 
-    private Configuration newConfiguration() {
-        Configuration config = MyBatisConfiguration.defaultConfiguration();
-
-        UriStatBatchRegistryHandler registryHandler = registryHandler();
+    private void registryHandler(Configuration config) {
+        UriStatBatchRegistryHandler registryHandler = new UriStatBatchRegistryHandler();
         registryHandler.registerTypeAlias(config.getTypeAliasRegistry());
         registryHandler.registerTypeHandler(config.getTypeHandlerRegistry());
-        return config;
     }
 
-    private UriStatBatchRegistryHandler registryHandler() {
-        return new UriStatBatchRegistryHandler();
-    }
 
     @Bean
     public SqlSessionTemplate uriStatSessionTemplate(

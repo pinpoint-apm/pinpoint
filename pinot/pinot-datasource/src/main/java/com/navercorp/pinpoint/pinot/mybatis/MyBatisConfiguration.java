@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.pinot.mybatis;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 
+@Deprecated
 public class MyBatisConfiguration {
     public static Configuration defaultConfiguration() {
         Configuration config = new org.apache.ibatis.session.Configuration();
