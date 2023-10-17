@@ -37,6 +37,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxSubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoDelayInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoIntervalInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoPublishOnInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoSubscribeOnInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxConstructorInterceptor;
@@ -131,6 +133,9 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addRunnableCoreSubscriberTransform("reactor.core.publisher.FluxSubscribeOnCallable$CallableSubscribeOnSubscription");
         addFluxOperatorTransform("reactor.core.publisher.FluxSubscribeOn");
         addRunnableCoreSubscriberTransform("reactor.core.publisher.FluxSubscribeOn$SubscribeOnSubscriber");
+        // interval
+        addFluxTransform("reactor.core.publisher.FluxInterval");
+        addRunnableCoreSubscriberTransform("reactor.core.publisher.FluxInterval$IntervalRunnable");
 
         transformTemplate.transform("reactor.core.publisher.Mono", MonoMethodTransform.class);
         // publishOn
@@ -141,6 +146,12 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addMonoTransform("reactor.core.publisher.MonoSubscribeOnCallable");
         addMonoOperatorTransform("reactor.core.publisher.MonoSubscribeOn");
         addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoSubscribeOn$SubscribeOnSubscriber");
+        // delay
+        addMonoOperatorTransform("reactor.core.publisher.MonoDelay");
+        addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoDelay$MonoDelayRunnable");
+        addMonoDelaySubscriptionTransform("reactor.core.publisher.MonoDelaySubscription");
+        addMonoOperatorTransform("reactor.core.publisher.MonoDelayElement");
+        addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoDelayElement$DelayElementSubscriber");
     }
 
     private void addFlux() {
@@ -205,7 +216,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addFluxOperatorTransform("reactor.core.publisher.FluxHide");
         addFluxOperatorTransform("reactor.core.publisher.FluxIndex");
         addFluxOperatorTransform("reactor.core.publisher.FluxIndexFuseable");
-        addFluxTransform("reactor.core.publisher.FluxInterval");
+
         addFluxTransform("reactor.core.publisher.FluxIterable");
         addFluxOperatorTransform("reactor.core.publisher.FluxJoin");
         addFluxTransform("reactor.core.publisher.FluxJust");
@@ -324,9 +335,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addMonoOperatorTransform("reactor.core.publisher.MonoDefaultIfEmpty");
         addMonoTransform("reactor.core.publisher.MonoDefer");
         addMonoTransform("reactor.core.publisher.MonoDeferContextual");
-        addMonoTransform("reactor.core.publisher.MonoDelay");
-        addMonoOperatorTransform("reactor.core.publisher.MonoDelayElement");
-        addMonoDelaySubscriptionTransform("reactor.core.publisher.MonoDelaySubscription");
+
         addMonoTransform("reactor.core.publisher.MonoDelayUntil");
         addMonoOperatorTransform("reactor.core.publisher.MonoDematerialize");
         addMonoOperatorTransform("reactor.core.publisher.MonoDetach");
@@ -486,7 +495,10 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             if (subscribeOnMethod != null) {
                 subscribeOnMethod.addInterceptor(FluxAndMonoSubscribeOnInterceptor.class);
             }
-
+            final InstrumentMethod intervalMethod = target.getDeclaredMethod("interval", "java.time.Duration", "java.time.Duration", "reactor.core.scheduler.Scheduler");
+            if (intervalMethod != null) {
+                intervalMethod.addInterceptor(FluxAndMonoIntervalInterceptor.class);
+            }
             return target.toBytecode();
         }
     }
@@ -636,6 +648,15 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             if (subscribeOnMethod != null) {
                 subscribeOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
             }
+            final InstrumentMethod delayMethod = target.getDeclaredMethod("delay", "java.time.Duration", "reactor.core.scheduler.Scheduler");
+            if (delayMethod != null) {
+                delayMethod.addInterceptor(FluxAndMonoDelayInterceptor.class);
+            }
+            final InstrumentMethod delayElementMethod = target.getDeclaredMethod("delayElement", "java.time.Duration", "reactor.core.scheduler.Scheduler");
+            if (delayMethod != null) {
+                delayElementMethod.addInterceptor(FluxAndMonoDelayInterceptor.class);
+            }
+
             return target.toBytecode();
         }
     }
