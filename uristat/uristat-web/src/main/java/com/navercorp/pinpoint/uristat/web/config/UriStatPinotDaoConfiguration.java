@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.uristat.web.config;
 
-import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
-import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
+import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
+import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
@@ -24,13 +24,17 @@ public class UriStatPinotDaoConfiguration {
 
     @Bean
     public FactoryBean<SqlSessionFactory> uriStatPinotSessionFactory(
+            @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath:mapper/uristat/*Mapper.xml") Resource[] mappers) {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
 
         sessionFactoryBean.setDataSource(dataSource);
 
-        sessionFactoryBean.setConfiguration(newConfiguration());
+        Configuration config = new Configuration();
+        customizer.customize(config);
+        registryHandler(config);
+        sessionFactoryBean.setConfiguration(config);
 
         sessionFactoryBean.setMapperLocations(mappers);
         sessionFactoryBean.setFailFast(true);
@@ -44,17 +48,10 @@ public class UriStatPinotDaoConfiguration {
         return new ManagedTransactionFactory();
     }
 
-    private Configuration newConfiguration() {
-        Configuration config = MyBatisConfiguration.defaultConfiguration();
-
-        MyBatisRegistryHandler registryHandler = registryHandler();
+    private void registryHandler(Configuration config) {
+        MyBatisRegistryHandler registryHandler = new UriRegistryHandler();
         registryHandler.registerTypeAlias(config.getTypeAliasRegistry());
         registryHandler.registerTypeHandler(config.getTypeHandlerRegistry());
-        return config;
-    }
-
-    private MyBatisRegistryHandler registryHandler() {
-        return new UriRegistryHandler();
     }
 
     @Bean

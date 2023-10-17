@@ -1,7 +1,8 @@
 package com.navercorp.pinpoint.metric.common.config;
 
-import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
-import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
+import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
+import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
+import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
@@ -24,6 +26,7 @@ import javax.sql.DataSource;
  * @author Woonduk Kang(emeroad)
  */
 @org.springframework.context.annotation.Configuration
+@Import(MyBatisConfiguration.class)
 public class MetricCollectorPinotDaoConfiguration {
     private final Logger logger = LogManager.getLogger(MetricCollectorPinotDaoConfiguration.class);
 
@@ -35,6 +38,7 @@ public class MetricCollectorPinotDaoConfiguration {
 
     @Bean
     public FactoryBean<SqlSessionFactory> sqlPinotSessionFactory(
+            @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath*:/pinot-collector/mapper/pinot/*Mapper.xml") Resource[] mappers) {
 
@@ -47,7 +51,8 @@ public class MetricCollectorPinotDaoConfiguration {
         sessionFactoryBean.setMapperLocations(mappers);
         sessionFactoryBean.setTransactionFactory(transactionFactory());
 
-        Configuration config = MyBatisConfiguration.defaultConfiguration();
+        Configuration config = new Configuration();
+        customizer.customize(config);
         sessionFactoryBean.setConfiguration(config);
 
         MyBatisRegistryHandler registry = registryHandler();

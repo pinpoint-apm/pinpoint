@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.config.LogProperties;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.config.WebClusterProperties;
+import com.navercorp.pinpoint.web.config.WebMysqlDaoConfiguration;
 import com.navercorp.pinpoint.web.frontend.FrontendConfigExportConfiguration;
 import com.navercorp.pinpoint.web.install.InstallModule;
 import com.navercorp.pinpoint.web.query.QueryServiceConfiguration;
@@ -20,13 +21,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.StandardEnvironment;
 
 @Configuration
-@ImportResource({
-        "classpath:applicationContext-web-dao-config.xml",
-})
 @Import({
         WebAppPropertySources.class,
         CommonsServerConfiguration.class,
@@ -44,6 +41,8 @@ import org.springframework.core.env.StandardEnvironment;
 
         ApplicationMapModule.class,
         WebHbaseModule.class,
+
+        WebMysqlDaoConfiguration.class,
 
         InstallModule.class,
         WebhookFacadeModule.class,

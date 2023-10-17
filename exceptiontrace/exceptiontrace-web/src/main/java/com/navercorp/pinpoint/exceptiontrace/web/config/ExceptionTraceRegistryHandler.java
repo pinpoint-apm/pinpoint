@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEnt
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
-import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
+import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
@@ -30,11 +30,11 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 public class ExceptionTraceRegistryHandler implements MyBatisRegistryHandler {
     @Override
     public void registerTypeAlias(TypeAliasRegistry typeAliasRegistry) {
-        typeAliasRegistry.registerAlias("ExceptionMetaDataEntity", ExceptionMetaDataEntity.class);
-        typeAliasRegistry.registerAlias("GroupedFieldNameEntity", GroupedFieldNameEntity.class);
-        typeAliasRegistry.registerAlias("ExceptionTraceSummaryEntity", ExceptionTraceSummaryEntity.class);
-        typeAliasRegistry.registerAlias("ExceptionTraceValueViewEntity", ExceptionTraceValueViewEntity.class);
-        typeAliasRegistry.registerAlias("ExceptionTraceQueryParameter", ExceptionTraceQueryParameter.class);
+        typeAliasRegistry.registerAlias(ExceptionMetaDataEntity.class);
+        typeAliasRegistry.registerAlias(GroupedFieldNameEntity.class);
+        typeAliasRegistry.registerAlias(ExceptionTraceSummaryEntity.class);
+        typeAliasRegistry.registerAlias(ExceptionTraceValueViewEntity.class);
+        typeAliasRegistry.registerAlias(ExceptionTraceQueryParameter.class);
     }
 
     @Override
