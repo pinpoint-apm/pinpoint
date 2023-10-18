@@ -26,7 +26,7 @@ import java.util.EnumSet;
 public enum OrderByAttributes {
     ERROR_CLASS_NAME("errorClassName", PinotColumns.ERROR_CLASS_NAME),
     ERROR_MESSAGE("errorMessage", PinotColumns.ERROR_MESSAGE),
-    TIMESTMAP("timestamp", PinotColumns.TIMESTAMP),
+    TIMESTAMP("timestamp", PinotColumns.TIMESTAMP),
     STACK_TRACE("stackTrace", PinotColumns.STACK_TRACE_HASH),
     URI_TEMPLATE("uriTemplate", PinotColumns.URI_TEMPLATE);
 
