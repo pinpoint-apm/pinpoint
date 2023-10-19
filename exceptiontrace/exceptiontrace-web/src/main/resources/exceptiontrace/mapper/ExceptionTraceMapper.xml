@@ -164,7 +164,7 @@
         <include refid="getGroupedFieldNameEntity"></include>
         LASTWITHTIME(errorClassName, "timestamp", 'STRING') as "mostRecentErrorClass",
         LASTWITHTIME(
-            substr("errorMessage", 0, -1),
+            substr("errorMessage", 0, ${messageLengthLimit}),
             "timestamp", 'STRING') as "mostRecentErrorMessage",
         count(*) as "count",
         FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
@@ -184,9 +184,6 @@
             ${attr.getAttributeName}
         </foreach>
         ORDER BY "count" desc
-        <foreach collection="groupByAttributes" item="attr" open=', ' close="" separator=", ">
-            ${attr.getAttributeName}
-        </foreach>
         LIMIT 5
     </select>
 

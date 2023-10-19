@@ -40,7 +40,7 @@ public class ExceptionTraceValueView implements TimeSeriesValueView {
 
     @Override
     public String getFieldName() {
-        return groupedFieldName != null ? StringUtils.defaultString(groupedFieldName.inAString(), TOTAL_FIELDNAME) : TOTAL_FIELDNAME;
+        return groupedFieldName != null ? StringUtils.defaultIfEmpty(groupedFieldName.inAString(), TOTAL_FIELDNAME) : TOTAL_FIELDNAME;
     }
 
     @JsonIgnore
