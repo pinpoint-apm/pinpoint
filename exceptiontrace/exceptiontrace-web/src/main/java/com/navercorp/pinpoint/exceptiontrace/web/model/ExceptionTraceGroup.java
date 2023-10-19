@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class ExceptionTraceGroup implements TimeseriesValueGroupView {
 
-    private static final TimeseriesChartType CHART_TYPE = TimeseriesChartType.bar;
+    private static final TimeseriesChartType CHART_TYPE = TimeseriesChartType.line;
     private static final String UNIT = "COUNT";
     private final String groupName;
     private final List<TimeSeriesValueView> values;

@@ -122,16 +122,26 @@ public class ExceptionTraceController {
 
             @RequestParam("groupBy") List<String> groupByList
     ) {
-        ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+        ExceptionTraceQueryParameter.Builder builder = new ExceptionTraceQueryParameter.Builder()
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
                 .setTimePrecision(DETAILED_TIME_PRECISION)
-                .addAllGroupByList(groupByList)
-                .build();
-        return exceptionTraceService.getSummaries(
-                queryParameter
-        );
+                .addAllGroupByList(groupByList);
+
+        try {
+            ExceptionTraceQueryParameter queryParameter = builder.build();
+            return exceptionTraceService.getSummaries(
+                    queryParameter
+            );
+        } catch (Exception e) {
+            ExceptionTraceQueryParameter queryParameter = builder
+                    .setMessageLengthLimit(ExceptionTraceQueryParameter.MESSAGE_MAX_LENGTH)
+                    .build();
+            return exceptionTraceService.getSummaries(
+                    queryParameter
+            );
+        }
     }
 
     @GetMapping("/chart")
