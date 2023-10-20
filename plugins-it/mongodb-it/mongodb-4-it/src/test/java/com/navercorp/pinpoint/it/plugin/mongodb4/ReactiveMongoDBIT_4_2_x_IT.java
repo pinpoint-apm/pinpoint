@@ -21,16 +21,16 @@ import com.mongodb.WriteConcern;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
-import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.jupiter.api.AfterAll;
@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
-@PluginTest
+@PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-mongodb-driver-plugin"})
