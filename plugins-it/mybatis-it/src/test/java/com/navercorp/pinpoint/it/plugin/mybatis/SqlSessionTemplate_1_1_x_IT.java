@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
 
 /**
  * Tests against mybatis-spring 1.1.x (1.1.x requires mybatis 3.1.0 or higher)
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.test.plugin.PluginTest;
  *
  * @author HyunGil Jeong
  */
-@PluginTest
+@PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({ "org.mybatis:mybatis-spring:[1.1.0,1.1.max)", "org.mybatis:mybatis:3.2.7",
         "org.springframework:spring-jdbc:[4.1.7.RELEASE]", "org.mockito:mockito-core:4.8.1" })
