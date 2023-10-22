@@ -96,9 +96,6 @@
 
 
     <util:list id="serverTransportFilterList" value-type="io.grpc.ServerTransportFilter">
-        <bean class="com.navercorp.pinpoint.grpc.channelz.ChannelzServerTransportFilter">
-            <constructor-arg ref="channelzRegistry"/>
-        </bean>
     </util:list>
 
 

@@ -320,7 +320,7 @@ public class GrpcCommandServiceTest {
                                 "debugString",
                                 InetSocketAddress.createUnresolved("127.0.0.2", 53253),
                                 InetSocketAddress.createUnresolved("127.0.0.1", 9991),
-                                0, 1234, 0L
+                                0, 1234
                         ))
                         .withValue(ServerContext.getAgentInfoKey(), new Header(
                                 "name",

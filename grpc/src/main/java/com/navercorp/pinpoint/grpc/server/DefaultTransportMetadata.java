@@ -29,16 +29,14 @@ public class DefaultTransportMetadata implements TransportMetadata {
     private final InetSocketAddress localAddress;
     private final Long transportId;
     private final long connectTime;
-    private final Long logId;
 
 
-    public DefaultTransportMetadata(String debugString, InetSocketAddress remoteAddress, InetSocketAddress localAddreess, long transportId, long connectTime, Long logId) {
+    public DefaultTransportMetadata(String debugString, InetSocketAddress remoteAddress, InetSocketAddress localAddreess, long transportId, long connectTime) {
         this.debugString = Objects.requireNonNull(debugString, "debugString");
         this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
         this.localAddress = Objects.requireNonNull(localAddreess, "localAddreess");
         this.transportId = transportId;
         this.connectTime = connectTime;
-        this.logId = Objects.requireNonNull(logId, "logId");
     }
 
     @Override
@@ -62,11 +60,6 @@ public class DefaultTransportMetadata implements TransportMetadata {
     }
 
     @Override
-    public Long getLogId() {
-        return logId;
-    }
-
-    @Override
     public String toString() {
         return "DefaultTransportMetadata{" +
                 "debugString='" + debugString + '\'' +
@@ -74,7 +67,6 @@ public class DefaultTransportMetadata implements TransportMetadata {
                 ", localAddress=" + localAddress +
                 ", transportId=" + transportId +
                 ", connectTime=" + connectTime +
-                ", logId=" + logId +
                 '}';
     }
 }

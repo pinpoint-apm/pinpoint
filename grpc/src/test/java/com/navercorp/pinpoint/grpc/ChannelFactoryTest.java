@@ -151,7 +151,8 @@ public class ChannelFactoryTest {
     }
 
 
-    private static Server serverStart(ExecutorService executorService) throws SSLException {
+    private static Server serverStart(ExecutorService executorService)
+            throws SSLException, NoSuchFieldException, IllegalAccessException {
         logger.debug("server start");
 
         serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, null, ServerOption.newBuilder().build());
