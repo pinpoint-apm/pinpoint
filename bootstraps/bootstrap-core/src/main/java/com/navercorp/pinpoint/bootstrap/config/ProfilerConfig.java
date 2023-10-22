@@ -45,6 +45,8 @@ public interface ProfilerConfig {
 
     int getMaxSqlBindValueSize();
 
+    String getGrpcStatLoggingPeriod();
+
     @InterfaceAudience.Private
     @VisibleForTesting
     boolean getStaticResourceCleanup();

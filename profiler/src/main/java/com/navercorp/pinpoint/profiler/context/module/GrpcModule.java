@@ -54,7 +54,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.SubconnectionExpiringLoadBalancerProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
-import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzScheduledReporter;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporterBuilder;
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.NameResolverProvider;
 import io.netty.handler.ssl.SslContext;
@@ -74,10 +74,11 @@ public class GrpcModule extends PrivateModule {
 
     private final ProfilerConfig profilerConfig;
 
-    private final ChannelzScheduledReporter reporter = new DefaultChannelzScheduledReporter();
+    private final ChannelzScheduledReporter reporter;
 
     public GrpcModule(ProfilerConfig profilerConfig) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.reporter = new ChannelzScheduledReporterBuilder().acceptConfig(this.profilerConfig).build();
     }
 
     @Override
@@ -86,7 +87,7 @@ public class GrpcModule extends PrivateModule {
         GrpcTransportConfig grpcTransportConfig = loadGrpcTransportConfig();
         bind(GrpcTransportConfig.class).toInstance(grpcTransportConfig);
 
-        bind(ChannelzScheduledReporter.class).toInstance(reporter);
+        bind(ChannelzScheduledReporter.class).toInstance(this.reporter);
 
         // dns executor
         bind(ExecutorService.class).toProvider(DnsExecutorServiceProvider.class).in(Scopes.SINGLETON);

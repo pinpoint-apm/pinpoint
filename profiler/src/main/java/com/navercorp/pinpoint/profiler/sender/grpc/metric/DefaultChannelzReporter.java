@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.metric;
 
 import com.google.common.base.MoreObjects;
-import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzUtils;
 import io.grpc.InternalChannelz;
@@ -11,11 +10,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultChannelzReporter implements ChannelzReporter {
-    private static final long TIMEOUT = 3000;
-
     private final Logger logger;
 
     private final InternalChannelz channelz = InternalChannelz.instance();
