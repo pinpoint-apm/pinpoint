@@ -51,18 +51,11 @@ public class TransportMetadataFactory {
         final long transportId = idGenerator.getAndIncrement();
         final long connectedTime = System.currentTimeMillis();
 
-        final Long logId = attributes.get(MetadataServerTransportFilter.LOG_ID);
-        if (logId == null) {
-            throw Status.INTERNAL.withDescription("LogId not found").asRuntimeException();
-        }
-        return new DefaultTransportMetadata(debugString, remoteSocketAddress, localSocketAddress, transportId, connectedTime, logId);
+        return new DefaultTransportMetadata(debugString, remoteSocketAddress, localSocketAddress, transportId, connectedTime);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("TransportMetadataFactory{");
-        sb.append("debugString='").append(debugString).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "TransportMetadataFactory{" + "debugString='" + debugString + '\'' + '}';
     }
 }

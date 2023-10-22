@@ -1,70 +1,43 @@
+/*
+ * Copyright 2023 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.collector.receiver.grpc.channelz;
 
-import org.junit.jupiter.api.Assertions;
+import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import org.junit.jupiter.api.Test;
 
-import java.net.InetSocketAddress;
+import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * @author youngjin.kim2
+ */
 public class DefaultChannelzRegistryTest {
-    @Test
-    public void testAddSocket() {
-        InetSocketAddress remote = InetSocketAddress.createUnresolved("1.1.1.1", 80);
-        InetSocketAddress local = InetSocketAddress.createUnresolved("127.0.0.1", 9991);
-        long logId = 1;
-
-        DefaultChannelzRegistry registry = new DefaultChannelzRegistry();
-        registry.addSocket(logId, remote, local);
-
-        Long removedLogId = registry.removeSocket(remote);
-        Assertions.assertEquals(logId, removedLogId.longValue());
-    }
 
     @Test
-    public void testAddSocket_multiple() {
-        InetSocketAddress remote1 = InetSocketAddress.createUnresolved("1.1.1.1", 80);
-        InetSocketAddress local1 = InetSocketAddress.createUnresolved("127.0.0.1", 9991);
-        long logId1 = 1;
+    public void shouldAddServer() {
+        ChannelzRegistry registry = new DefaultChannelzRegistry();
 
-        InetSocketAddress remote2 = InetSocketAddress.createUnresolved("2.2.2.2", 90);
-        InetSocketAddress local2 = InetSocketAddress.createUnresolved("127.0.0.1", 19991);
-        long logId2 = 2;
+        registry.register(1, "server-1");
+        registry.register(2, "server-2");
+        registry.register(3, "server-2");
 
-        DefaultChannelzRegistry registry = new DefaultChannelzRegistry();
-        registry.addSocket(logId1, remote1, local1);
-        registry.addSocket(logId2, remote2, local2);
-
-        Long removedLogId = registry.removeSocket(remote1);
-        Assertions.assertEquals(logId1, removedLogId.longValue());
-
-        Assertions.assertEquals(-1L, registry.removeSocket(remote1).longValue());
+        assertThat(registry.getLogId("server-1")).isEqualTo(1);
+        assertThat(registry.getLogId("server-2")).isEqualTo(2);
+        assertThat(registry.getServerName(1)).isEqualTo("server-1");
+        assertThat(registry.getServerName(2)).isEqualTo("server-2");
     }
 
-    @Test
-    public void testMemoryleak() {
-        InetSocketAddress remote1 = InetSocketAddress.createUnresolved("1.1.1.1", 80);
-        InetSocketAddress local1 = InetSocketAddress.createUnresolved("127.0.0.1", 9991);
-        long logId1 = 1;
-
-
-        DefaultChannelzRegistry registry = new DefaultChannelzRegistry();
-        registry.addSocket(logId1, remote1, local1);
-        long removedLogId = registry.removeSocket(remote1);
-
-        Assertions.assertEquals(logId1, removedLogId);
-
-        Assertions.assertEquals(0, registry.getRemoteAddressSocketMapSize());
-        Assertions.assertEquals(0, registry.getSocketMapSize());
-    }
-
-    @Test
-    public void testMemoryleak2() {
-        InetSocketAddress remote1 = InetSocketAddress.createUnresolved("1.1.1.1", 80);
-        InetSocketAddress local1 = InetSocketAddress.createUnresolved("127.0.0.1", 9991);
-
-        DefaultChannelzRegistry registry = new DefaultChannelzRegistry();
-        registry.addSocket(1, remote1, local1);
-
-        InetSocketAddress unkonwn = InetSocketAddress.createUnresolved("2.2.2.2", 9991);
-        Assertions.assertEquals(-1L, registry.removeSocket(unkonwn).longValue());
-    }
 }

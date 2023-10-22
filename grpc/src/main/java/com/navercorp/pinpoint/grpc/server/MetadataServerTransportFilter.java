@@ -25,7 +25,6 @@ import java.util.Objects;
 
 public class MetadataServerTransportFilter extends ServerTransportFilter {
 
-    public static final Attributes.Key<Long> LOG_ID = Attributes.Key.create("logId");
     public static final Attributes.Key<TransportMetadata> TRANSPORT_METADATA_KEY = Attributes.Key.create("transportMetadata");
 
     private final Logger logger = LogManager.getLogger(this.getClass());

@@ -23,4 +23,10 @@ public class TestController {
     public String async() {
         return "async " + testService.getHello() + " world";
     }
+
+    @GetMapping(value = "/sleep")
+    public String sleep() throws InterruptedException {
+        Thread.sleep(5000);
+        return "sleep " + 5000 + "ms";
+    }
 }
