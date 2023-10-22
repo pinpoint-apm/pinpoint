@@ -70,6 +70,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.jdbc.maxsqlbindvaluesize}")
     private int maxSqlBindValueSize = 1024;
 
+    @Value("${profiler.transport.grpc.stats.logging.period}")
+    private String grpcStatLoggingPeriod = "PT1M";
+
 
     private HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors();
 
@@ -128,6 +131,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return maxSqlBindValueSize;
     }
 
+    @Override
+    public String getGrpcStatLoggingPeriod() {
+        return grpcStatLoggingPeriod;
+    }
 
     @Override
     public boolean getStaticResourceCleanup() {

@@ -67,6 +67,8 @@ public class GrpcTransportConfig {
     private static final int DEFAULT_METADATA_RETRY_DELAY_MILLIS = 1000;
     public static final boolean DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE = true;
 
+    private static final boolean DEFAULT_ENABLE_SPAN_STATS_LOGGING = false;
+
     private ClientOption agentClientOption = new ClientOption();
     private ClientOption metadataClientOption = new ClientOption();
     private ClientOption statClientOption = new ClientOption();
@@ -132,6 +134,8 @@ public class GrpcTransportConfig {
     private int spanSenderExecutorQueueSize = DEFAULT_SPAN_SENDER_EXECUTOR_QUEUE_SIZE;
     @Value("${profiler.transport.grpc.span.sender.channel.executor.queue.size}")
     private int spanChannelExecutorQueueSize = DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE;
+    @Value("${profiler.transport.grpc.span.stats.logging.enable}")
+    private boolean spanEnableStatLogging = DEFAULT_ENABLE_SPAN_STATS_LOGGING;
 
     @Value("${profiler.transport.grpc.span.sender.discardpolicy.logger.discard.ratelimit}")
     private int spanDiscardLogRateLimit = DEFAULT_DISCARD_LOG_RATE_LIMIT;
@@ -363,6 +367,10 @@ public class GrpcTransportConfig {
 
     public int getMetadataRetryDelayMillis() {
         return metadataRetryDelayMillis;
+    }
+
+    public boolean isSpanEnableStatLogging() {
+        return spanEnableStatLogging;
     }
 
     public boolean isNettySystemPropertyTryReflectiveSetAccessible() {

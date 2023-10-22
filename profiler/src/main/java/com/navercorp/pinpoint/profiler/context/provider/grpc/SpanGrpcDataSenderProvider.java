@@ -112,8 +112,9 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
                 senderExecutorQueueSize, messageConverter,
                 reconnectExecutor, channelFactory, failState, grpcTransportConfig.getSpanRpcMaxAgeMillis());
 
-
-        registerChannelzReporter(spanGrpcDataSender);
+        if (grpcTransportConfig.isSpanEnableStatLogging()) {
+            registerChannelzReporter(spanGrpcDataSender);
+        }
 
         return spanGrpcDataSender;
     }
