@@ -28,5 +28,4 @@ public interface TransportMetadata {
 
     long getConnectTime();
 
-    Long getLogId();
 }
