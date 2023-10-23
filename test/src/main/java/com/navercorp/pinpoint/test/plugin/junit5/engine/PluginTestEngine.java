@@ -94,23 +94,29 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
         // Plugin IT
         List<TestDescriptor> removedTestDescriptorList = new ArrayList<>();
         List<TestDescriptor> pluginTestDescriptorList = new ArrayList<>();
-        for (TestDescriptor testDescriptor : engineDescriptor.getChildren()) {
-            if (testDescriptor instanceof ClassTestDescriptor) {
-                final Class<?> testClass = ((ClassTestDescriptor) testDescriptor).getTestClass();
-                TestDescriptor pluginTestDescriptor = null;
-                if (isTestClassWithPluginTest.test(testClass)) {
-                    pluginTestDescriptor = addPluginTestDescriptor(testDescriptor, configuration);
-                } else if (isTestClassWithPluginForkedTest.test(testClass)) {
-                    pluginTestDescriptor = addPluginForkedTestDescriptor(testDescriptor, configuration);
-                } else if (isTestClassWithJunitAgent.test(testClass)) {
-                    pluginTestDescriptor = addPluginJunitTestDescriptor(testDescriptor, configuration);
-                }
 
-                if (pluginTestDescriptor != null) {
-                    pluginTestDescriptorList.add(pluginTestDescriptor);
-                    removedTestDescriptorList.add(testDescriptor);
+        try {
+            for (TestDescriptor testDescriptor : engineDescriptor.getChildren()) {
+                if (testDescriptor instanceof ClassTestDescriptor) {
+                    final Class<?> testClass = ((ClassTestDescriptor) testDescriptor).getTestClass();
+                    TestDescriptor pluginTestDescriptor = null;
+                    if (isTestClassWithPluginTest.test(testClass)) {
+                        pluginTestDescriptor = addPluginTestDescriptor(testDescriptor, configuration);
+                    } else if (isTestClassWithPluginForkedTest.test(testClass)) {
+                        pluginTestDescriptor = addPluginForkedTestDescriptor(testDescriptor, configuration);
+                    } else if (isTestClassWithJunitAgent.test(testClass)) {
+                        pluginTestDescriptor = addPluginJunitTestDescriptor(testDescriptor, configuration);
+                    }
+
+                    if (pluginTestDescriptor != null) {
+                        pluginTestDescriptorList.add(pluginTestDescriptor);
+                        removedTestDescriptorList.add(testDescriptor);
+                    }
                 }
             }
+        } catch (Exception e) {
+            System.out.println("Failed to discover");
+            e.printStackTrace();
         }
 
         for (TestDescriptor removedTestDescriptor : removedTestDescriptorList) {
