@@ -10,11 +10,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 public class ClickHouseSkipInterceptor implements AroundInterceptor {
     @Override
     public void before(Object target, Object[] args) {
-
+        // ignore
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-
+        // ignore
     }
 }

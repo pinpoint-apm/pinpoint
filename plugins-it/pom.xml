@@ -33,6 +33,7 @@
         <module>plugins-it-utils-jdbc</module>
         <module>activemq-it</module>
         <module>cassandra-it</module>
+        <module>clickhouse-jdbc-it</module>
         <module>cxf-it</module>
         <module>druid-it</module>
         <module>dubbo-it</module>

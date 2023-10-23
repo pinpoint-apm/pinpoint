@@ -131,6 +131,12 @@ public class DefaultJDBCApi implements JDBCApi {
             final Class<Statement> statement = getStatement();
             return getDeclaredMethod(statement, "executeUpdate", String.class);
         }
+
+        @Override
+        public Method getExecute() {
+            final Class<Statement> statement = getStatement();
+            return getDeclaredMethod(statement, "execute", String.class);
+        }
     }
 
     public PreparedStatementClass getPreparedStatement() {

@@ -34,9 +34,10 @@ import java.util.List;
  */
 public class ClickHouseJdbcUrlParser implements JdbcUrlParserV2 {
 
+    // >=0.3.2
+    // jdbc:(ch|clickhouse)[:protocol]://endpoint[,endpoint][/database][?parameters][#tags]
     static final String URL_PREFIX = "jdbc:clickhouse:";
-    // jdbc:mysql:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MySQL?characterEncoding=UTF-8
-    private static final String LOADBALANCE_URL_PREFIX = URL_PREFIX + "loadbalance:";
+    static final String URL_SHORT_PREFIX = "jdbc:ch:";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
@@ -46,7 +47,7 @@ public class ClickHouseJdbcUrlParser implements JdbcUrlParserV2 {
             logger.info("jdbcUrl must not be null");
             return UnKnownDatabaseInfo.INSTANCE;
         }
-        if (!jdbcUrl.startsWith(URL_PREFIX)) {
+        if (!jdbcUrl.startsWith(URL_PREFIX) && !jdbcUrl.startsWith(URL_SHORT_PREFIX)) {
             logger.info("jdbcUrl has invalid prefix.(url:{}, prefix:{})", jdbcUrl, URL_PREFIX);
             return UnKnownDatabaseInfo.INSTANCE;
         }
@@ -63,12 +64,17 @@ public class ClickHouseJdbcUrlParser implements JdbcUrlParserV2 {
     }
 
     private DatabaseInfo parse0(String jdbcUrl) {
-        // jdbc:mysql://1.2.3.4:5678/test_db
+        // jdbc:(ch|clickhouse)[:protocol]://endpoint[,endpoint][/database][?parameters][#tags]
         StringMaker maker = new StringMaker(jdbcUrl);
         maker.after(URL_PREFIX);
+        maker.after(URL_SHORT_PREFIX);
+
+        // [:protocol]://endpoint[,endpoint][/database][?parameters][#tags]
+        // endpoint: [protocol://]host[:port][/database][?parameters][#tags]
+        // protocol: (grpc|grpcs|http|https|tcp|tcps)
         // 1.2.3.4:5678 In case of replication driver could have multiple values
         // We have to consider mm db too.
-        String host = maker.after("//").before('/').value();
+        String host = maker.after("//").beforeLast('/').value();
         List<String> hostList = parseHost(host);
         String databaseId = maker.next().after('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
