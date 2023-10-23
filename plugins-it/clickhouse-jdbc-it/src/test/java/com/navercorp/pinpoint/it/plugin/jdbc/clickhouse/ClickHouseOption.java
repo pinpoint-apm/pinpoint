@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor.getter;
+package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
 /**
- * @author HyunGil Jeong
+ * @author intr3p1d
  */
-public interface DatabaseGetter {
-    String _$PINPOINT$_getDatabase();
+public class ClickHouseOption {
+    public static final String VERSION = "1.19.0";
+    public static final String TEST_CONTAINER = "org.testcontainers:testcontainers:" + VERSION;
+    public static final String CLICKHOUSE = "org.testcontainers:clickhouse:" + VERSION;
 }

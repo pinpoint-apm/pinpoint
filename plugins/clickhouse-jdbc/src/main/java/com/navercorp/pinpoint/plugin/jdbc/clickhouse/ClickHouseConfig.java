@@ -26,12 +26,12 @@ public class ClickHouseConfig extends JdbcConfig {
     private final boolean profileRollback;
 
     public ClickHouseConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.mysql", false),
-                config.readBoolean("profiler.jdbc.mysql.tracesqlbindvalue", config.isTraceSqlBindValue()),
+        super(config.readBoolean("profiler.jdbc.clickhouse", false),
+                config.readBoolean("profiler.jdbc.clickhouse.tracesqlbindvalue", config.isTraceSqlBindValue()),
                 config.getMaxSqlBindValueSize());
-        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.mysql.setautocommit", false);
-        this.profileCommit = config.readBoolean("profiler.jdbc.mysql.commit", false);
-        this.profileRollback = config.readBoolean("profiler.jdbc.mysql.rollback", false);
+        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.clickhouse.setautocommit", false);
+        this.profileCommit = config.readBoolean("profiler.jdbc.clickhouse.commit", false);
+        this.profileRollback = config.readBoolean("profiler.jdbc.clickhouse.rollback", false);
     }
 
     public boolean isProfileSetAutoCommit() {

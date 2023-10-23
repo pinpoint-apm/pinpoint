@@ -77,6 +77,11 @@ public interface JDBCApi {
          * {@link java.sql.Statement#executeUpdate(String)}
          */
         Method getExecuteUpdate();
+
+        /**
+         * {@link java.sql.Statement#execute(String)}
+         */
+        Method getExecute();
     }
 
 

@@ -17,7 +17,11 @@
 package com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor;
 
 import java.util.Arrays;
+import java.util.Properties;
 
+import com.clickhouse.client.ClickHouseNode;
+import com.clickhouse.client.ClickHouseNodes;
+import com.clickhouse.jdbc.internal.ClickHouseJdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -29,7 +33,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.jdbc.clickhouse.ClickHouseConstants;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 /**
  * @author emeroad
@@ -53,35 +56,32 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (args == null ) {
-            return;
-        }
 
-        final String url = getString(args[0]);
-        DatabaseInfo databaseInfo = null;
+        DatabaseInfo dbInfo = null;
 
+        if (args[0] instanceof ClickHouseJdbcUrlParser.ConnectionInfo) {
+            ClickHouseJdbcUrlParser.ConnectionInfo connectionInfo = (ClickHouseJdbcUrlParser.ConnectionInfo) args[0];
+            Properties properties = connectionInfo.getProperties();
+            ClickHouseNodes nodes = connectionInfo.getNodes();
+            ClickHouseNode node = nodes.getNodes().get(0);
 
-        if(args[1] instanceof ClickHouseProperties){
-            ClickHouseProperties clickHouseProperties=(ClickHouseProperties)args[1];
-            String databaseId=clickHouseProperties.getDatabase();
-
-            if (url != null && databaseId != null) {
-
-                String tmpURL=url.substring(url.lastIndexOf("/")+1);
-                // It's dangerous to use this url directly
-                databaseInfo = new DefaultDatabaseInfo(ClickHouseConstants.CLICK_HOUSE, ClickHouseConstants.CLICK_HOUSE_EXECUTE_QUERY, tmpURL, tmpURL, Arrays.asList(tmpURL), databaseId);
-                if (InterceptorUtils.isSuccess(throwable)) {
-                    // Set only if connection is success.
-                    if (target instanceof DatabaseInfoAccessor) {
-                        ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
-                    }
-                }
+            String uri = node.getBaseUri();
+            String databaseId = null;
+            if (properties.getProperty("database") != null) {
+                databaseId = properties.getProperty("database");
             }
-        }else {
-            return;
+
+            String tmpURL = uri.substring(uri.lastIndexOf("/") + 1);
+            // It's dangerous to use this url directly
+            dbInfo = createDatabaseInfo(tmpURL, databaseId);
         }
 
-
+        if (InterceptorUtils.isSuccess(throwable)) {
+            // Set only if connection is success.
+            if (target instanceof DatabaseInfoAccessor) {
+                ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(dbInfo);
+            }
+        }
 
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
@@ -90,40 +90,19 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
 
         SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         // We must do this if current transaction is being recorded.
-        if (databaseInfo != null) {
-            recorder.recordServiceType(databaseInfo.getType());
-            recorder.recordEndPoint(databaseInfo.getMultipleHost());
-            recorder.recordDestinationId(databaseInfo.getDatabaseId());
+        if (dbInfo != null) {
+            recorder.recordServiceType(dbInfo.getType());
+            recorder.recordEndPoint(dbInfo.getMultipleHost());
+            recorder.recordDestinationId(dbInfo.getDatabaseId());
         }
-
-    }
-    
-    private DatabaseInfo createDatabaseInfo(String url, Integer port, String databaseId) {
-        if (url.indexOf(':') == -1) {
-            url += ":" + port;
-        }
-
-        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(ClickHouseConstants.CLICK_HOUSE, ClickHouseConstants.CLICK_HOUSE_EXECUTE_QUERY, url, url, Arrays.asList(url), databaseId);
-        return databaseInfo;
-
     }
 
-    private String getString(Object value) {
-        if (value instanceof String) {
-            return (String) value;
-        }
-        return null;
-    }
-
-    private Integer getInteger(Object value) {
-        if (value instanceof Integer) {
-            return (Integer) value;
-        }
-        return null;
+    private DatabaseInfo createDatabaseInfo(String url, String databaseId) {
+        return new DefaultDatabaseInfo(ClickHouseConstants.CLICK_HOUSE, ClickHouseConstants.CLICK_HOUSE_EXECUTE_QUERY, url, url, Arrays.asList(url), databaseId);
     }
 
     @Override
     public void before(Object target, Object[] args) {
-
+        // ignore
     }
 }

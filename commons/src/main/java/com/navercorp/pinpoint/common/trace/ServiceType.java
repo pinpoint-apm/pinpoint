@@ -144,6 +144,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>2751</td><td>H2_EXECUTE_QUERY</td></tr>
  * <tr><td>2752</td><td>R2DBC_H2</td></tr>
  * <tr><td>2753</td><td>R2DBC_H2_EXECUTE_QUERY</td></tr>
+ * <tr><td>2800</td><td>CLICK_HOUSE</td></tr>
+ * <tr><td>2801</td><td>CLICK_HOUSE_EXECUTE_QUERY</td></tr>
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>
