@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @ContextConfiguration(classes = {
         ExceptionMetaDataMapperImpl.class,
         StackTraceMapper.class,
+        ErrorMessageMapper.class,
         MapStructUtils.class,
         JacksonAutoConfiguration.class
 })
@@ -112,6 +114,15 @@ class ExceptionMetaDataMapperTest {
                         s.getClassName(), s.getFileName(), s.getLineNumber(), s.getMethodName()
                 )
         ).collect(Collectors.toList());
+    }
+
+
+    @Test
+    public void testReplaceCharacter() {
+        ErrorMessageMapper errorMessageMapper = new ErrorMessageMapper(true);
+        String text = "가나다라마바사아자차카타파하";
+        String replaced = errorMessageMapper.replaceCharacters(text);
+        Assertions.assertEquals("", replaced);
     }
 
 }

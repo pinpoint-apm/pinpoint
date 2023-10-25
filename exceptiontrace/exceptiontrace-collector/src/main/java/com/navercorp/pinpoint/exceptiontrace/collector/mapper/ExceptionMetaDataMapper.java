@@ -24,14 +24,15 @@ import org.mapstruct.Mappings;
 /**
  * @author intr3p1d
  */
-@Mapper(componentModel = "spring", uses = {StackTraceMapper.class})
+@Mapper(componentModel = "spring", uses = {StackTraceMapper.class, ErrorMessageMapper.class})
 public interface ExceptionMetaDataMapper {
 
     @Mappings({
             @Mapping(source = "stackTrace", target = "stackTraceClassName", qualifiedBy = StackTraceMapper.StackTraceToClassNames.class),
             @Mapping(source = "stackTrace", target = "stackTraceFileName", qualifiedBy = StackTraceMapper.StackTraceToFileNames.class),
             @Mapping(source = "stackTrace", target = "stackTraceLineNumber", qualifiedBy = StackTraceMapper.StackTraceToLineNumbers.class),
-            @Mapping(source = "stackTrace", target = "stackTraceMethodName", qualifiedBy = StackTraceMapper.StackTraceToMethodNames.class)
+            @Mapping(source = "stackTrace", target = "stackTraceMethodName", qualifiedBy = StackTraceMapper.StackTraceToMethodNames.class),
+            @Mapping(source = "errorMessage", target = "errorMessage", qualifiedBy = ErrorMessageMapper.ReplaceCharacters.class)
     })
     ExceptionMetaDataEntity toEntity(ExceptionMetaData model);
 
