@@ -16,8 +16,15 @@
 
 package com.navercorp.pinpoint.exceptiontrace.collector;
 
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
+
 /**
  * @author intr3p1d
  */
+@PropertySources({
+        @PropertySource(name = "ExceptionTracePropertySources", value = ExceptionTraceCollectorPropertySources.EXCEPTIONTRACE_COLLECTOR_PROPERTIES)
+})
 public class ExceptionTraceCollectorPropertySources {
+    public static final String EXCEPTIONTRACE_COLLECTOR_PROPERTIES = "classpath:pinpoint-collector-exceptiontrace.properties";
 }

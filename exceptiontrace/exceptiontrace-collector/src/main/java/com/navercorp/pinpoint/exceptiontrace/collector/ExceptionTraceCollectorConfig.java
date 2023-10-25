@@ -28,7 +28,7 @@ import org.springframework.context.annotation.PropertySource;
  * @author intr3p1d
  */
 @Configuration
-@Import({PinotConfiguration.class, ExceptionMetricKafkaConfiguration.class})
+@Import({PinotConfiguration.class, ExceptionMetricKafkaConfiguration.class, ExceptionTraceCollectorPropertySources.class})
 @ComponentScan({
         "com.navercorp.pinpoint.common.server.mapper",
         "com.navercorp.pinpoint.exceptiontrace.collector.service",

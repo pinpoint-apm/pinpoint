@@ -163,9 +163,7 @@
         SELECT
         <include refid="getGroupedFieldNameEntity"></include>
         LASTWITHTIME(errorClassName, "timestamp", 'STRING') as "mostRecentErrorClass",
-        LASTWITHTIME(
-            substr("errorMessage", 0, ${messageLengthLimit}),
-            "timestamp", 'STRING') as "mostRecentErrorMessage",
+        LASTWITHTIME("errorMessage", "timestamp", 'STRING') as "mostRecentErrorMessage",
         count(*) as "count",
         FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
         LASTWITHTIME("timestamp", "timestamp", 'LONG') as "lastOccurred"

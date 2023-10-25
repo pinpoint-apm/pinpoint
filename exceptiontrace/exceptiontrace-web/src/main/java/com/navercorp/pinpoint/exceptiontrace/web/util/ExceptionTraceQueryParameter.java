@@ -33,8 +33,6 @@ import java.util.stream.Collectors;
 public class ExceptionTraceQueryParameter extends QueryParameter {
 
     public static final int STACKTRACE_COUNT = 3;
-    public static final int MESSAGE_MAX_LENGTH = 20;
-    private final static String TOTAL_FIELD_NAME = "total";
 
     private final String applicationName;
     private final String agentId;
@@ -49,7 +47,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final List<GroupByAttributes> groupByAttributes;
 
     private final long timeWindowRangeCount;
-    private final int messageLengthLimit;
 
     protected ExceptionTraceQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
@@ -63,7 +60,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.isDesc = builder.isDesc;
         this.groupByAttributes = builder.groupByAttributes;
         this.timeWindowRangeCount = builder.timeWindowRangeCount;
-        this.messageLengthLimit = builder.messageLengthLimit;
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
@@ -85,7 +81,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private final List<GroupByAttributes> groupByAttributes = new ArrayList<>();
 
         private long timeWindowRangeCount = 0;
-        private int messageLengthLimit = -1;
 
         @Override
         protected Builder self() {
@@ -131,11 +126,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             if (limit > 200) {
                 this.hardLimit = 200;
             } else this.hardLimit = Math.max(limit, 50);
-            return self();
-        }
-
-        public Builder setMessageLengthLimit(int messageLengthLimit) {
-            this.messageLengthLimit = messageLengthLimit;
             return self();
         }
 
@@ -209,7 +199,6 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
                 ", isDesc='" + isDesc + '\'' +
                 ", groupByAttributes=" + groupByAttributes +
                 ", timeWindowRangeCount=" + timeWindowRangeCount +
-                ", messageLengthLimit=" + messageLengthLimit +
                 '}';
     }
 }
