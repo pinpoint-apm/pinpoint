@@ -20,12 +20,26 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 public class SpringTxConfig {
     private final boolean enabled;
+    private final boolean markError;
 
     public SpringTxConfig(ProfilerConfig config) {
         this.enabled = config.readBoolean("profiler.spring.tx.enable", true);
+        this.markError = config.readBoolean("profiler.spring.tx.mark.error", false);
     }
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isMarkError() {
+        return markError;
+    }
+
+    @Override
+    public String toString() {
+        return "SpringTxConfig{" +
+                "enabled=" + enabled +
+                ", markError=" + markError +
+                '}';
     }
 }
