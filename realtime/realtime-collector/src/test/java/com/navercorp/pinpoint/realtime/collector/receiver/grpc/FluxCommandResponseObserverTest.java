@@ -26,9 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,9 +54,7 @@ public class FluxCommandResponseObserverTest {
         AtomicInteger counter = new AtomicInteger(0);
         AtomicReference<FluxSink<Integer>> sinkRef = new AtomicReference<>();
 
-        Disposable disposable = Flux.<Integer>create(sink -> {
-            sinkRef.set(sink);
-        }).subscribe(v -> {
+        Disposable disposable = Flux.<Integer>create(sinkRef::set).subscribe(v -> {
             latest.set(v);
             counter.getAndIncrement();
         });
@@ -91,7 +87,7 @@ public class FluxCommandResponseObserverTest {
     @Test
     public void testErrorAfterData() {
         AtomicReference<FluxSink<Integer>> sinkRef = new AtomicReference<>();
-        Disposable disposable = Flux.<Integer>create(sink -> sinkRef.set(sink)).subscribe();
+        Disposable disposable = Flux.<Integer>create(sinkRef::set).subscribe();
 
         doAnswer(inv -> sinkRef.get()).when(sinkRepository).get(eq(SINK_ID));
         doNothing().when(connectionObserver).onNext(any());
@@ -110,7 +106,7 @@ public class FluxCommandResponseObserverTest {
     @Test
     public void testErrorAfterHello() {
         AtomicReference<FluxSink<Integer>> sinkRef = new AtomicReference<>();
-        Disposable disposable = Flux.<Integer>create(sink -> sinkRef.set(sink)).subscribe();
+        Disposable disposable = Flux.<Integer>create(sinkRef::set).subscribe();
 
         doAnswer(inv -> sinkRef.get()).when(sinkRepository).get(eq(SINK_ID));
         doNothing().when(connectionObserver).onCompleted();
@@ -126,7 +122,8 @@ public class FluxCommandResponseObserverTest {
 
     @Test
     public void testErrorAtVeryFirst() {
-        Disposable disposable = Flux.<Integer>create(sink -> {}).take(Duration.ofMillis(100)).subscribe();
+        AtomicReference<FluxSink<Integer>> sinkRef = new AtomicReference<>();
+        Disposable disposable = Flux.<Integer>create(sinkRef::set).subscribe();
 
         doNothing().when(connectionObserver).onCompleted();
 
@@ -136,10 +133,6 @@ public class FluxCommandResponseObserverTest {
 
         verify(connectionObserver, times(1)).onCompleted();
         assertThat(disposable.isDisposed()).isFalse();
-
-        Mono.delay(Duration.ofMillis(100)).block();
-
-        assertThat(disposable.isDisposed()).isTrue();
     }
 
     @Test

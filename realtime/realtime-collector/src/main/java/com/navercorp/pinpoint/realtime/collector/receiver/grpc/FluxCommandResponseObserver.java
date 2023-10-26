@@ -97,7 +97,7 @@ public abstract class FluxCommandResponseObserver<T> implements StreamObserver<T
         if (this.sink != null) {
             this.sink.error(t);
         } else {
-            logger.warn("Failed to emit error: sink not found");
+            logger.warn("Failed to emit error: sink not found. the error may have occurred before the first message");
         }
     }
 
