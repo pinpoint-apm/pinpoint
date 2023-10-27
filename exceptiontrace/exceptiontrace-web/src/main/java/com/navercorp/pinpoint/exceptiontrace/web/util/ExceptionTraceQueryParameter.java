@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
  */
 public class ExceptionTraceQueryParameter extends QueryParameter {
 
-    public static final int STACKTRACE_COUNT = 3;
-
     private final String applicationName;
     private final String agentId;
 
