@@ -123,6 +123,13 @@ class ExceptionMetaDataMapperTest {
         String text = "가나다라마바사아자차카타파하";
         String replaced = errorMessageMapper.replaceCharacters(text);
         Assertions.assertEquals("", replaced);
+
+        String text2 = "!\"#$%&'()*+,-./0123456789:;<=>?@" +
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`" +
+                "abcdefghijklmnopqrstuvwxyz{|}~" +
+                "This should be remain.";
+        String replaced2 = errorMessageMapper.replaceCharacters(text2);
+        Assertions.assertEquals(text2, replaced2);
     }
 
 }

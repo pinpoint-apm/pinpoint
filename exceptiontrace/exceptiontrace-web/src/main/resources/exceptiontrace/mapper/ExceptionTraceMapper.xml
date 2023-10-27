@@ -59,35 +59,6 @@
         errorClassName,
         errorMessage,
         exceptionDepth,
-        arraySliceString(stackTraceClassName, 0,
-        ${STACKTRACE_COUNT}
-        )
-        as
-        "stackTraceClassName",
-        arraySliceString
-        (
-        stackTraceFileName,
-        0,
-        ${STACKTRACE_COUNT}
-        )
-        as
-        "stackTraceFileName",
-        arraySliceInt
-        (
-        stackTraceLineNumber,
-        0,
-        ${STACKTRACE_COUNT}
-        )
-        as
-        "stackTraceLineNumber",
-        arraySliceString
-        (
-        stackTraceMethodName,
-        0,
-        ${STACKTRACE_COUNT}
-        )
-        as
-        "stackTraceMethodName",
         stackTraceHash
     </sql>
 
