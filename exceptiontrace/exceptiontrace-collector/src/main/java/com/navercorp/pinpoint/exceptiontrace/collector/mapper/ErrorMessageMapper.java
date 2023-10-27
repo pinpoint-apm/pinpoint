@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.collector.mapper;
 
+import com.google.common.base.CharMatcher;
 import org.mapstruct.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,8 @@ public class ErrorMessageMapper {
     public @interface ReplaceCharacters {
     }
 
+    private static final CharMatcher SAFE_ASCII = CharMatcher.ascii()
+            .or(CharMatcher.whitespace());
     private boolean replaceCharacters = false;
 
     public ErrorMessageMapper(@Value("${pinpoint.collector.exceptiontrace.replace.characters:true}") boolean replaceCharacters) {
@@ -44,9 +47,8 @@ public class ErrorMessageMapper {
 
     @ReplaceCharacters
     public String replaceCharacters(String errorMessage) {
-        String replacementCharacter = "";
         if (replaceCharacters) {
-            return errorMessage.replaceAll("[^\\p{Alnum}\\x21-\\x7E\\s]", replacementCharacter);
+            return SAFE_ASCII.retainFrom(errorMessage);
         }
         return errorMessage;
     }
