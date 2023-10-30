@@ -23,7 +23,6 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author youngjin.kim2
@@ -33,8 +32,6 @@ class RedisStreamSubChannelProvider implements SubChannelProvider, InitializingB
     private final StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
     private final String name;
-
-    private final AtomicLong idCounter = new AtomicLong(0);
 
     RedisStreamSubChannelProvider(
             StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer,
@@ -52,7 +49,6 @@ class RedisStreamSubChannelProvider implements SubChannelProvider, InitializingB
                 this.listenerContainer,
                 this.redisTemplate,
                 this.name,
-                this.idCounter,
                 key
         );
     }

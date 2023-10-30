@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.realtime.collector.service.state;
 import com.navercorp.pinpoint.realtime.collector.receiver.ClusterPointLocator;
 import com.navercorp.pinpoint.realtime.vo.CollectorState;
 import com.navercorp.pinpoint.realtime.vo.ProfilerDescription;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
  * @author youngjin.kim2
  */
 public class CollectorStateUpdateRunnable implements Runnable {
+
+    private static final Logger logger = LogManager.getLogger(CollectorStateUpdateRunnable.class);
 
     private final ClusterPointLocator clusterPointLocator;
     private final CollectorStatePublisherService dao;
@@ -38,7 +42,11 @@ public class CollectorStateUpdateRunnable implements Runnable {
 
     @Override
     public void run() {
-        dao.publish(getCollectorState());
+        try {
+            dao.publish(getCollectorState());
+        } catch (Exception e) {
+            logger.error("Failed to update state on redis", e);
+        }
     }
 
     private CollectorState getCollectorState() {
