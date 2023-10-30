@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.web.vo;
 
-public class UserGroup {
+import java.io.Serializable;
+
+public class UserGroup implements Serializable {
     private String  number;
     private String  id;
     
