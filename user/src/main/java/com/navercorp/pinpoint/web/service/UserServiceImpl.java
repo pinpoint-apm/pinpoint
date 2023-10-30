@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.util.SecurityContextUtils;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.util.UserInfoEncoder;
 import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.web.vo.exception.PinpointUserException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +52,10 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public void insertUser(User user) {
+    public void insertUser(User user) throws PinpointUserException {
+        if (isExistUserId(user.getUserId())) {
+            throw new PinpointUserException(String.format("There is already a user with %s ID.", user.getUserId()));
+        }
         User encodedUser = userInfoEncoder.encodeUserInfo(user);
         userDao.insertUser(encodedUser);
     }

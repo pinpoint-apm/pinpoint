@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service;
 import java.util.List;
 
 import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.web.vo.exception.PinpointUserException;
 
 /**
  * @author minwoo.jung
@@ -26,7 +27,7 @@ public interface UserService {
 
     void dropAndCreateUserTable();
     
-    void insertUser(User user);
+    void insertUser(User user) throws PinpointUserException;
 
     void insertUserList(List<User> users);
 
