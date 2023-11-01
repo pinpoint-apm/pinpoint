@@ -66,7 +66,7 @@ public class DispatchInterceptor implements AroundInterceptor {
                     trace = traceContext.continueTraceObject(traceId);
                 }
                 else {
-                    trace = traceContext.newTraceObject();
+                    return;
                 }
             }
 
