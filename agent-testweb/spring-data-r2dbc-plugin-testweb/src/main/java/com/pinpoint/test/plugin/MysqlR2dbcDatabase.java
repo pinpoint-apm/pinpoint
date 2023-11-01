@@ -20,11 +20,11 @@ import dev.miku.r2dbc.mysql.MySqlConnectionConfiguration;
 import dev.miku.r2dbc.mysql.MySqlConnectionFactory;
 import dev.miku.r2dbc.mysql.constant.SslMode;
 import io.r2dbc.spi.ConnectionFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.time.Duration;
 
 @Component

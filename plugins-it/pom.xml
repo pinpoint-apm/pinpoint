@@ -79,6 +79,7 @@
     </modules>
 
     <properties>
+        <spring.version>${spring5.version}</spring.version>
     </properties>
 
     <dependencyManagement>

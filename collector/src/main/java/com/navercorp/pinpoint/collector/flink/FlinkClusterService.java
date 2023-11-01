@@ -22,13 +22,13 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatc
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonState;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.Objects;
 
 /**

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.util.ValueValidator;
 import com.navercorp.pinpoint.web.vo.User;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 

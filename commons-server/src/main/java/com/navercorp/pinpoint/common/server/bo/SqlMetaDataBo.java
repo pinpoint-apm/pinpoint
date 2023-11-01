@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.Objects;
 
 /**

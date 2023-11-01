@@ -19,11 +19,10 @@ package com.pinpoint.test.plugin;
 import io.r2dbc.mssql.MssqlConnectionConfiguration;
 import io.r2dbc.mssql.MssqlConnectionFactory;
 import io.r2dbc.spi.ConnectionFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 @Component
 @Qualifier("mssql")

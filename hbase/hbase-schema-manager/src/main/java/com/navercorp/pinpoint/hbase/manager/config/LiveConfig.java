@@ -24,13 +24,12 @@ import com.navercorp.pinpoint.hbase.manager.ProgramOptions;
 import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.dao.hbase.HbaseSchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.dao.hbase.codec.SchemaChangeLogCodec;
-import org.apache.logging.log4j.Logger;
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author HyunGil Jeong

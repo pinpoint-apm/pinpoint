@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import org.apache.logging.log4j.Logger;
+import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

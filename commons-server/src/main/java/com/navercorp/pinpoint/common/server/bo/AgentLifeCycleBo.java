@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 
 /**
  * @author HyunGil Jeong

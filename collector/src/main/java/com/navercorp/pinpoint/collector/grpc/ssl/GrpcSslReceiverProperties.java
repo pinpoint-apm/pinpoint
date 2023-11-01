@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.collector.grpc.ssl;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.PostConstruct;
 import java.util.Objects;
 
 /**

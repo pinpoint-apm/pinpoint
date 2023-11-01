@@ -37,6 +37,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.SearchOption;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -48,8 +50,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

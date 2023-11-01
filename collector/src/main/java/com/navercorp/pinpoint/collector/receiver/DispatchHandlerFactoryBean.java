@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
 import com.navercorp.pinpoint.collector.receiver.thrift.DelegateDispatchHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
 import java.util.Objects;
 
 /**

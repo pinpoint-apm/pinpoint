@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.flink.cluster.zookeeper.ZookeeperClusterDataManage
 import com.navercorp.pinpoint.flink.config.FlinkProperties;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,8 +37,6 @@ import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;

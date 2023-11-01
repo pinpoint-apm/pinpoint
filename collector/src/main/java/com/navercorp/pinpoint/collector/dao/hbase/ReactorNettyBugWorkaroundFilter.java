@@ -2,12 +2,11 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.logging.log4j.Logger;
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 /**
  * https://github.com/pinpoint-apm/pinpoint/issues/7659

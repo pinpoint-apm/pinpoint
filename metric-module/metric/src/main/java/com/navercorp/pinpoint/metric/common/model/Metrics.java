@@ -1,7 +1,8 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;

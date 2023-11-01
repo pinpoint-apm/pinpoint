@@ -19,11 +19,11 @@ import com.navercorp.pinpoint.collector.config.FlinkProperties;
 import com.navercorp.pinpoint.collector.mapper.flink.TFAgentStatBatchMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import java.util.Objects;
 
 /**

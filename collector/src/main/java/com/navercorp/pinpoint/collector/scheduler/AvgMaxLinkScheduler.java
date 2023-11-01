@@ -18,11 +18,11 @@
 package com.navercorp.pinpoint.collector.scheduler;
 
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 

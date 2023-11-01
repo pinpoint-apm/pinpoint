@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.hbase.schema.definition.xml.HbaseSchema;
 import com.navercorp.pinpoint.hbase.schema.reader.InvalidHbaseSchemaException;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.reader.xml.XmlHbaseSchemaParseResult;
+import jakarta.xml.bind.JAXBContext;
 import org.springframework.util.CollectionUtils;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.validation.Schema;
 import java.util.Collection;
 import java.util.Collections;

@@ -23,11 +23,10 @@ import com.github.jasync.sql.db.mysql.pool.MySQLConnectionFactory;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.util.CharsetUtil;
 import io.r2dbc.spi.ConnectionFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 @Component
 @Qualifier("jasync-mysql")

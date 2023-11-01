@@ -16,9 +16,9 @@
 package com.navercorp.pinpoint.web.validation;
 
 import com.navercorp.pinpoint.web.util.ValueValidator;
+import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Pattern;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

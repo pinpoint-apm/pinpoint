@@ -16,10 +16,9 @@
 package com.navercorp.pinpoint.common.server.bo.exception;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import jakarta.validation.constraints.NotBlank;
 
-import javax.validation.constraints.NotBlank;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author intr3p1d

@@ -12,6 +12,10 @@
     <name>pinpoint-mybatis-plugin</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <mybatis.spring.version>2.0.7</mybatis.spring.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

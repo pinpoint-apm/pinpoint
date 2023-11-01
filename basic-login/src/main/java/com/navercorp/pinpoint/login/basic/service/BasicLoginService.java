@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.login.basic.service;
 
 import com.navercorp.pinpoint.login.basic.config.BasicLoginProperties;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.Cookie;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 

@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.collector.manage.jmx;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import com.navercorp.pinpoint.collector.manage.CollectorManager;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 

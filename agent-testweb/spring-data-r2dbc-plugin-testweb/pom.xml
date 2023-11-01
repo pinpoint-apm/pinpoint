@@ -18,7 +18,7 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
-        <test.jdk.home>${env.JAVA_11_HOME}</test.jdk.home>
+        <test.jdk.home>${env.JAVA_17_HOME}</test.jdk.home>
     </properties>
 
     <dependencies>

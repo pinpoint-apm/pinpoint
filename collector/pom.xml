@@ -29,8 +29,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jdk.version>11</jdk.version>
-        <jdk.home>${env.JAVA_11_HOME}</jdk.home>
+        <jdk.version>17</jdk.version>
+        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
 
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
 
@@ -264,9 +264,9 @@
             <artifactId>metrics-servlets</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
             <!-- servlet artifactid is odd -->
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
 
         <dependency>
@@ -279,6 +279,7 @@
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
+            <version>2.1.1</version>
         </dependency>
     </dependencies>
 

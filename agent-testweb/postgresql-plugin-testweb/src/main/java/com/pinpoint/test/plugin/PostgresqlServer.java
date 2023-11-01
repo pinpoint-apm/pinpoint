@@ -1,12 +1,12 @@
 package com.pinpoint.test.plugin;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;

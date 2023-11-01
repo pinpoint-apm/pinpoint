@@ -19,8 +19,7 @@ package com.navercorp.pinpoint.collector.grpc.config;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
-
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author Taejin Koo

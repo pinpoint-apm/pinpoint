@@ -15,13 +15,13 @@
  */
 package com.navercorp.pinpoint.web.servlet;
 
+import jakarta.servlet.MultipartConfigElement;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import javax.servlet.MultipartConfigElement;
 import java.util.Objects;
 
 /**

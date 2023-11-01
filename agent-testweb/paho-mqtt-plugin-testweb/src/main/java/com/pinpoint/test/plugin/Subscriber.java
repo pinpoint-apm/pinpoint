@@ -16,12 +16,12 @@
 
 package com.pinpoint.test.plugin;
 
-import org.apache.logging.log4j.Logger;
+import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
 import java.util.UUID;
 
 /**

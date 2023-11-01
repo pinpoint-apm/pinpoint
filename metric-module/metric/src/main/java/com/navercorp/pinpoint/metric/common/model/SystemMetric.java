@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.metric.common.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.Objects;
 

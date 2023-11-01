@@ -29,6 +29,8 @@ import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.bson.BsonArray;
 import org.bson.BsonBinary;
 import org.bson.BsonBinarySubType;
@@ -56,13 +58,10 @@ import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.StringJoiner;
 
 import static com.mongodb.client.model.Filters.and;

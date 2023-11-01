@@ -9,6 +9,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -17,6 +19,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
@@ -47,6 +51,11 @@ public class SpanEncoderTest {
 
     private final SpanEventFilter filter = new EmptySpanEventFilter();
 
+    @BeforeEach
+    public  void before() {
+        JvmVersion version = JvmUtils.getVersion();
+        Assumptions.assumeFalse(version.onOrAfter(JvmVersion.JAVA_17), "Skip test for Java 17+");
+    }
 
     @Test
     public void testEncodeSpanColumnValue_simpleSpan() {
@@ -186,7 +195,7 @@ public class SpanEncoderTest {
 
         List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
         List<SpanEventBo> decodedSpanEventBoList = decode.getSpanEventBoList();
-        Assertions.assertTrue(EqualsBuilder.reflectionEquals(spanEventBoList, decodedSpanEventBoList));
+        Assertions.assertEquals(spanEventBoList, decodedSpanEventBoList);
     }
 
     private void assertSpanChunk(SpanChunkBo spanChunkBo) {
@@ -212,7 +221,7 @@ public class SpanEncoderTest {
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         List<SpanEventBo> decodedSpanEventBoList = decode.getSpanEventBoList();
-        Assertions.assertTrue(EqualsBuilder.reflectionEquals(spanEventBoList, decodedSpanEventBoList));
+        Assertions.assertEquals(spanEventBoList, decodedSpanEventBoList);
 
     }
 

@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataProv
 import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataSetupContext;
 import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestType;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
-import org.apache.logging.log4j.Logger;
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;

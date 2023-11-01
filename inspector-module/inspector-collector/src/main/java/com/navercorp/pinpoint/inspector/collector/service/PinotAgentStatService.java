@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.inspector.collector.service;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
+import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
 import java.util.Objects;
 
 /**

@@ -27,11 +27,11 @@ import com.navercorp.pinpoint.exceptiontrace.collector.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import jakarta.validation.Valid;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

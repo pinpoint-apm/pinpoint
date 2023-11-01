@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.metric.collector.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.metric.collector.model.serialize.TelegrafJsonDeserializer;
+import jakarta.validation.Valid;
 
-import javax.validation.Valid;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;

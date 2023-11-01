@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.hbase.schema.reader.HbaseSchemaParseException;
 import com.navercorp.pinpoint.hbase.schema.reader.InvalidHbaseSchemaException;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.validation.Schema;
 import java.io.StringWriter;
 import java.util.ArrayList;
