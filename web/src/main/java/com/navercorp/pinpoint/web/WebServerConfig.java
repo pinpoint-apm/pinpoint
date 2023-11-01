@@ -3,6 +3,8 @@ package com.navercorp.pinpoint.web;
 import com.navercorp.pinpoint.web.interceptor.PerformanceLoggingInterceptor;
 import com.navercorp.pinpoint.web.servlet.HttpIntentRoutingFilter;
 import com.navercorp.pinpoint.web.servlet.VersionPrefixRewriter;
+import jakarta.servlet.Filter;
+import jakarta.servlet.MultipartConfigElement;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
@@ -15,8 +17,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.ShallowEtagHeaderFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import javax.servlet.Filter;
-import javax.servlet.MultipartConfigElement;
 import java.util.List;
 
 @Configuration

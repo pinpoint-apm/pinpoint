@@ -18,9 +18,8 @@
 package com.navercorp.pinpoint.common.server.executor;
 
 import com.navercorp.pinpoint.common.util.CpuUtils;
-
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 public class ExecutorProperties {
 

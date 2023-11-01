@@ -31,6 +31,8 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+
+        <mybatis.spring.version>2.0.7</mybatis.spring.version>
     </properties>
 
     <dependencies>

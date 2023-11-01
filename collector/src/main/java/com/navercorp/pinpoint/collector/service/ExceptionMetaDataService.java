@@ -16,8 +16,7 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
-
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 /**
  * @author intr3p1d

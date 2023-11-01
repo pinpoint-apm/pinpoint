@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
 import com.navercorp.pinpoint.web.vo.activethread.ThreadDumpResult;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 

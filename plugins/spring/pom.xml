@@ -14,6 +14,7 @@
 
     <properties>
         <spring.version>${spring4.version}</spring.version>
+        <spring.boot.version>${spring.boot2.version}</spring.boot.version>
     </properties>
 
     <dependencies>
@@ -39,6 +40,7 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
+            <version>5.0.0</version>
         </dependency>
     </dependencies>
 

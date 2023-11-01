@@ -1,6 +1,8 @@
 package com.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -8,8 +10,6 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.function.Consumer;
 
 

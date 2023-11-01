@@ -15,8 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.exception;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.util.List;
 import java.util.Objects;
 

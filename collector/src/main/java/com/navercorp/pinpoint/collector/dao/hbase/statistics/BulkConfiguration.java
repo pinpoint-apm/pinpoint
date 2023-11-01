@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import org.apache.logging.log4j.Logger;
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 @Component
 public class BulkConfiguration {

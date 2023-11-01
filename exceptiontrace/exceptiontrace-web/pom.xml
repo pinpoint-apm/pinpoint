@@ -12,8 +12,8 @@
     <artifactId>pinpoint-exceptiontrace-web</artifactId>
 
     <properties>
-        <jdk.version>11</jdk.version>
-        <jdk.home>${env.JAVA_11_HOME}</jdk.home>
+        <jdk.version>17</jdk.version>
+        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
     </properties>
 
     <dependencies>

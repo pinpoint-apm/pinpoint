@@ -18,8 +18,7 @@
 package com.navercorp.pinpoint.common.server.thread;
 
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
-
-import javax.validation.constraints.Positive;
+import jakarta.validation.constraints.Positive;
 
 public class MonitoringExecutorProperties extends ExecutorProperties {
 

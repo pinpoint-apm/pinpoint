@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.common.server.bo.event;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.Arrays;
 
 /**

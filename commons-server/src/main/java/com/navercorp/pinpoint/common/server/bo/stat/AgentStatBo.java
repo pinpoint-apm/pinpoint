@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 
 
 import com.navercorp.pinpoint.common.server.util.FilterUtils;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

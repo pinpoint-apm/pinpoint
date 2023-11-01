@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import com.navercorp.pinpoint.web.vo.UserGroupMemberParam;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 

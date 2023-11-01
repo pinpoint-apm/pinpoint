@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import java.util.Objects;
 
 @Service

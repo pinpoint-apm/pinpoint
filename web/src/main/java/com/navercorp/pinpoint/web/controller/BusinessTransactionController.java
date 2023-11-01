@@ -36,6 +36,8 @@ import com.navercorp.pinpoint.web.view.TraceViewerDataViewModel;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
 import com.navercorp.pinpoint.web.view.TransactionTimelineInfoViewModel;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,8 +47,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PositiveOrZero;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;

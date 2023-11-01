@@ -12,6 +12,10 @@
     <name>pinpoint-spring-data-r2dbc-plugin</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <spring.version>${spring5.version}</spring.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

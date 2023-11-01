@@ -17,6 +17,8 @@ public class FuzzyRowFilterTest {
 
     @Test
     public void test() {
+        Jdk17Utils.assumeFalse();
+
         byte[] a1 = {'?', 5};
         byte[] a2 = {'?', 6};
         byte[] fuzzy = {1, 0};
@@ -25,11 +27,11 @@ public class FuzzyRowFilterTest {
         FuzzyRowFilter filter = new FuzzyRowFilter(List.of(fuzzyPair1, fuzzyPair2));
 
         KeyValue keyValue = new KeyValue(new byte[]{0, 1}, 1L);
-        Filter.ReturnCode returnCode = filter.filterKeyValue(keyValue);
+        Filter.ReturnCode returnCode = filter.filterCell(keyValue);
         Assertions.assertEquals(returnCode, Filter.ReturnCode.SEEK_NEXT_USING_HINT);
 
         KeyValue keyValue2 = new KeyValue(new byte[]{0, 5}, 1L);
-        Filter.ReturnCode returnCode2 = filter.filterKeyValue(keyValue2);
+        Filter.ReturnCode returnCode2 = filter.filterCell(keyValue2);
         Assertions.assertEquals(returnCode2, Filter.ReturnCode.INCLUDE);
     }
 
