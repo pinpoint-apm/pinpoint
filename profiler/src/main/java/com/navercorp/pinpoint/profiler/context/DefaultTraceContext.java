@@ -16,6 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
@@ -30,11 +36,6 @@ import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.Objects;
-
 
 /**
  * @author emeroad
@@ -42,14 +43,11 @@ import java.util.Objects;
  * @author Taejin Koo
  */
 public class DefaultTraceContext implements TraceContext {
-
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
-
     private final AgentInformation agentInformation;
-
     private final ApiMetaDataService apiMetaDataService;
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
@@ -59,6 +57,8 @@ public class DefaultTraceContext implements TraceContext {
     private final ServerMetaDataHolder serverMetaDataHolder;
 
     private final JdbcContext jdbcContext;
+
+    private final AtomicReference<TraceId> beforeTraceIdRef = new AtomicReference<>();
 
     public DefaultTraceContext(final ProfilerConfig profilerConfig,
                                final AgentInformation agentInformation,
@@ -109,7 +109,6 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.disableSampling();
     }
 
-
     @Override
     public ProfilerConfig getProfilerConfig() {
         return profilerConfig;
@@ -119,7 +118,6 @@ public class DefaultTraceContext implements TraceContext {
     public Trace continueTraceObject(final TraceId traceId) {
         return traceFactory.continueTraceObject(traceId);
     }
-
 
     @Override
     public Trace continueTraceObject(Trace trace) {
@@ -153,9 +151,6 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.continueAsyncTraceObject(traceId);
     }
 
-
-
-
     @Override
     public Trace removeTraceObject() {
         return removeTraceObject(true);
@@ -164,6 +159,13 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public Trace removeTraceObject(boolean closeUnsampledTrace) {
         final Trace trace = traceFactory.removeTraceObject();
+        try {
+            this.beforeTraceIdRef.set(trace.getTraceId());
+        } catch (Exception e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Unsupported Trace Id");
+            }
+        }
         if (closeUnsampledTrace) {
             return closeUnsampledTrace(trace);
         } else {
@@ -223,7 +225,8 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceId createTraceId(final String transactionId, final long parentSpanId, final long spanId, final short flags) {
+    public TraceId createTraceId(final String transactionId, final long parentSpanId, final long spanId,
+                                 final short flags) {
         Objects.requireNonNull(transactionId, "transactionId");
         // TODO Should handle exception when parsing failed.
         return traceIdFactory.continueTraceId(transactionId, parentSpanId, spanId, flags);
@@ -234,17 +237,18 @@ public class DefaultTraceContext implements TraceContext {
         return this.sqlMetaDataService.wrapSqlResult(sql);
     }
 
-
-
     @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return this.serverMetaDataHolder;
     }
-
 
     @Override
     public JdbcContext getJdbcContext() {
         return jdbcContext;
     }
 
+    @Override
+    public TraceId getBeforeTraceId() {
+        return beforeTraceIdRef.get();
+    }
 }
