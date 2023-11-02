@@ -58,6 +58,8 @@ import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledRepor
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.NameResolverProvider;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -112,6 +114,8 @@ public class GrpcModule extends PrivateModule {
         Key<ModuleLifeCycle> rpcModuleLifeCycleKey = Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE"));
         bind(rpcModuleLifeCycleKey).to(GrpcModuleLifeCycle.class).in(Scopes.SINGLETON);
         expose(rpcModuleLifeCycleKey);
+
+        InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
 
         NettyPlatformDependent nettyPlatformDependent = new NettyPlatformDependent(profilerConfig, System.getProperties());
         nettyPlatformDependent.setup();
