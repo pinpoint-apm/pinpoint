@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.log.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 /**
  * @author youngjin.kim2
  */
@@ -47,4 +49,16 @@ public class Log {
         return log;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Log log1 = (Log) o;
+        return seq == log1.seq && timestamp == log1.timestamp && Objects.equals(log, log1.log);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(seq, timestamp, log);
+    }
 }
