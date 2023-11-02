@@ -23,23 +23,17 @@ import java.util.List;
 /**
  * @author youngjin.kim2
  */
-public class LiveTailBatch {
+public record LiveTailBatch(String fileKey, List<Log> logs) {
 
-    private final String fileKey;
-    private final List<Log> logs;
-
-    public LiveTailBatch(String fileKey, List<Log> logs) {
-        this.fileKey = fileKey;
-        this.logs = logs;
-    }
-
+    @Override
     @JsonProperty("fileKey")
-    public String getFileKey() {
+    public String fileKey() {
         return fileKey;
     }
 
+    @Override
     @JsonProperty("logs")
-    public List<Log> getLogs() {
+    public List<Log> logs() {
         return logs;
     }
 

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.log.web.controller;
 import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.web.service.LiveTailService;
 import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
-import com.navercorp.pinpoint.log.web.vo.LogHost;
+import com.navercorp.pinpoint.log.web.vo.LogHostGroupInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
@@ -40,7 +41,7 @@ import java.util.Set;
  * @author youngjin.kim2
  */
 @RestController
-@RequestMapping("/log")
+@RequestMapping("log")
 public class LogController {
 
     private final Logger logger = LogManager.getLogger(LogController.class);
@@ -53,26 +54,12 @@ public class LogController {
 
     @GetMapping("hostGroups/{hostGroup}/tail")
     public ResponseEntity<SseEmitter> tailHostGroup(
-            @PathVariable("hostGroup") String hostGroupName
-    ) {
-        return tailSse(FileKey.of(hostGroupName, null, null));
-    }
-
-    @GetMapping("hostGroups/{hostGroup}/hosts/{hostName}/tail")
-    public ResponseEntity<SseEmitter> tailHostGroup(
             @PathVariable("hostGroup") String hostGroupName,
-            @PathVariable("hostName") String hostName
+            @RequestParam(required = false) List<String> hostNames,
+            @RequestParam(required = false) List<String> fileNames
     ) {
-        return tailSse(FileKey.of(hostGroupName, hostName, null));
-    }
-
-    @GetMapping("hostGroups/{hostGroup}/hosts/{hostName}/files/{fileName}/tail")
-    public ResponseEntity<SseEmitter> tailHostGroup(
-            @PathVariable("hostGroup") String hostGroupName,
-            @PathVariable("hostName") String hostName,
-            @PathVariable("fileName") String fileName
-    ) {
-        return tailSse(FileKey.of(hostGroupName, hostName, fileName));
+        List<FileKey> fileKeys = this.service.getFileKeys(hostGroupName, hostNames, fileNames);
+        return tailSse(fileKeys);
     }
 
     @GetMapping("hostGroups")
@@ -80,13 +67,13 @@ public class LogController {
         return this.service.getHostGroupNames();
     }
 
-    @GetMapping("hostGroups/{hostGroup}/hosts")
-    public List<LogHost> getHosts(@PathVariable("hostGroup") String hostGroupName) {
-        return LogHost.from(this.service.getFileKeys(hostGroupName));
+    @GetMapping("hostGroups/{hostGroup}")
+    public LogHostGroupInfo getHosts(@PathVariable("hostGroup") String hostGroupName) {
+        return LogHostGroupInfo.compose(this.service.getFileKeys(hostGroupName));
     }
 
-    private ResponseEntity<SseEmitter> tailSse(FileKey fileKey) {
-        Flux<List<LiveTailBatch>> tail = this.service.tail(fileKey);
+    private ResponseEntity<SseEmitter> tailSse(List<FileKey> fileKeys) {
+        Flux<List<LiveTailBatch>> tail = this.service.tail(fileKeys);
         if (tail == null) {
             return ResponseEntity.notFound().build();
         }

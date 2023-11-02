@@ -95,7 +95,7 @@ class LogFileListServer implements InitializingBean {
             b.append(key).append("\r\n");
         }
         this.pubChannel.publish(b.toString().getBytes());
-        logger.info("Broadcast {} log files", keys.size());
+        logger.trace("Broadcast {} log files", keys.size());
     }
 
     private static String getHostname() {

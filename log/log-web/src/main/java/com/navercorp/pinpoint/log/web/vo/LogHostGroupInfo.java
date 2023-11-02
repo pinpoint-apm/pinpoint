@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.log.web.service;
+package com.navercorp.pinpoint.log.web.vo;
 
 import com.navercorp.pinpoint.log.vo.FileKey;
-import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
-import jakarta.annotation.Nullable;
-import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author youngjin.kim2
  */
-public interface LiveTailService {
+public record LogHostGroupInfo(List<String> hosts, List<String> files) {
 
-    Flux<List<LiveTailBatch>> tail(List<FileKey> fileKeys);
-
-    Set<String> getHostGroupNames();
-
-    List<FileKey> getFileKeys(String hostGroupName);
-
-    List<FileKey> getFileKeys(String hostGroupName, @Nullable List<String> hostNames, @Nullable List<String> fileNames);
+    public static LogHostGroupInfo compose(List<FileKey> fileKeys) {
+        List<String> hosts = new ArrayList<>(fileKeys.size());
+        List<String> files = new ArrayList<>(fileKeys.size());
+        for (FileKey fileKey: fileKeys) {
+            hosts.add(fileKey.getHostKey().getHostName());
+            files.add(fileKey.getFileName());
+        }
+        return new LogHostGroupInfo(
+                hosts.stream().distinct().toList(),
+                files.stream().distinct().toList()
+        );
+    }
 
 }

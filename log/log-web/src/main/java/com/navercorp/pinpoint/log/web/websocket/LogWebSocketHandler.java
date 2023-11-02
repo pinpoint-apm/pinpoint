@@ -83,17 +83,24 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
                 .getRequestParameterMap();
 
         String hostGroupName = getUniParam(params, "hostGroupName");
-        String hostName = getUniParam(params, "hostName");
-        String fileName = getUniParam(params, "fileName");
-        FileKey fileKey = FileKey.of(hostGroupName, hostName, fileName);
+        List<String> hostNames = split(getUniParam(params, "hostNames"));
+        List<String> fileNames = split(getUniParam(params, "fileNames"));
 
-        Disposable disposable = this.liveTailService.tail(fileKey)
+        List<FileKey> fileKeys = this.liveTailService.getFileKeys(hostGroupName, hostNames, fileNames);
+        Disposable disposable = this.liveTailService.tail(fileKeys)
                 .subscribe(supply -> sendSupply(session, supply));
         session.getAttributes().put(LIVE_TAIL_DISPOSABLE_ATTR, disposable);
     }
 
     private static String getUniParam(Map<String, List<String>> params, String key) {
         return CollectionUtils.firstElement(params.get(key));
+    }
+
+    private static List<String> split(String str) {
+        if (str == null) {
+            return List.of();
+        }
+        return List.of(str.split(","));
     }
 
     private void stopLiveTail(@Nonnull WebSocketSession session) {
