@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Objects;
 
 /**

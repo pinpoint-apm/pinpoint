@@ -4,7 +4,7 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallExecutorSupplier;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 

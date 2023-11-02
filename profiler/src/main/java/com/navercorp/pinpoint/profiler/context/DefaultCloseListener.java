@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Objects;
 
 public class DefaultCloseListener implements CloseListener {
