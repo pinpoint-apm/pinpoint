@@ -31,6 +31,9 @@ public class ReactorPluginConfig {
     private final boolean traceSubscribeOn;
     private final boolean traceDelay;
     private final boolean traceInterval;
+    private final boolean traceRetry;
+    private final boolean traceTimeout;
+    private final boolean traceSubscribe;
 
     public ReactorPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -42,6 +45,10 @@ public class ReactorPluginConfig {
         this.traceSubscribeOn = config.readBoolean("profiler.reactor.trace.subscribeOn", true);
         this.traceDelay = config.readBoolean("profiler.reactor.trace.delay", true);
         this.traceInterval = config.readBoolean("profiler.reactor.trace.interval", true);
+
+        this.traceRetry = config.readBoolean("profiler.reactor.trace.retry", true);
+        this.traceTimeout = config.readBoolean("profiler.reactor.trace.timeout", true);
+        this.traceSubscribe = config.readBoolean("profiler.reactor.trace.subscribe", true);
     }
 
     public boolean isEnable() {
@@ -68,6 +75,18 @@ public class ReactorPluginConfig {
         return traceInterval;
     }
 
+    public boolean isTraceRetry() {
+        return traceRetry;
+    }
+
+    public boolean isTraceTimeout() {
+        return traceTimeout;
+    }
+
+    public boolean isTraceSubscribe() {
+        return traceSubscribe;
+    }
+
     @Override
     public String toString() {
         return "ReactorPluginConfig{" +
@@ -77,6 +96,9 @@ public class ReactorPluginConfig {
                 ", traceSubscribeOn=" + traceSubscribeOn +
                 ", traceDelay=" + traceDelay +
                 ", traceInterval=" + traceInterval +
+                ", traceRetry=" + traceRetry +
+                ", traceTimeout=" + traceTimeout +
+                ", traceSubscribe=" + traceSubscribe +
                 '}';
     }
 }

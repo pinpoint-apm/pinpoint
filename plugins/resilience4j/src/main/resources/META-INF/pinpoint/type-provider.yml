@@ -1,0 +1,6 @@
+serviceTypes:
+  - code: 6520
+    name: 'RESILIENCE4J'
+    matcher:
+      type: 'exact'
+      code: -1 # args[0]

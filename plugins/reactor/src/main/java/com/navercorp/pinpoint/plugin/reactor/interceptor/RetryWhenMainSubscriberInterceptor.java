@@ -23,23 +23,24 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
-public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-    private final boolean traceOnError;
+    private final boolean traceRetry;
 
-    public OnErrorSubscriberInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public RetryWhenMainSubscriberInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
-        this.traceOnError = config.isTraceOnError();
+        this.traceRetry = config.isTraceRetry();
     }
 
-    // AsyncContext must exist in Target for tracking.
     public AsyncContext getAsyncContext(Object target, Object[] args) {
-        if (traceOnError) {
+        if (traceRetry) {
             return ReactorContextAccessorUtils.getAsyncContext(target);
         }
         return null;
@@ -50,7 +51,7 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAro
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (traceOnError) {
+        if (traceRetry) {
             return ReactorContextAccessorUtils.getAsyncContext(target);
         }
         return null;
@@ -58,12 +59,20 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAro
 
     @Override
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        if (traceOnError && trace.canSampled()) {
-            recorder.recordServiceType(ReactorConstants.REACTOR);
+        if (traceRetry && trace.canSampled()) {
             recorder.recordApi(methodDescriptor);
+            recorder.recordServiceType(ReactorConstants.REACTOR);
+            recorder.recordException(throwable);
+
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {
-                recorder.recordException(argThrowable);
+                final String message = argThrowable.getMessage();
+                if (StringUtils.hasLength(message)) {
+                    final String whenErrorMessage = "RETRY(" + StringUtils.abbreviate(message, 128) + ")";
+                    recorder.recordAttribute(AnnotationKey.ARGS0, whenErrorMessage);
+                } else {
+                    recorder.recordAttribute(AnnotationKey.ARGS0, "RETRY");
+                }
             }
         }
     }

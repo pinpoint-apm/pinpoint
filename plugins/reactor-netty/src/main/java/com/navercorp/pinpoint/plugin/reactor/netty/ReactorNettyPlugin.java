@@ -218,7 +218,10 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             target.addField(AsyncContextAccessor.class);
 
             // Over reactor-netty-1.0
-            InstrumentMethod constructor = target.getConstructor("reactor.netty.http.client.HttpClientConfig");
+            InstrumentMethod constructor = target.getConstructor("reactor.netty.http.client.HttpConnectionProvider");
+            if (constructor == null) {
+                constructor = target.getConstructor("reactor.netty.http.client.HttpClientConfig");
+            }
             if (constructor != null) {
                 constructor.addInterceptor(HttpClientHandlerConstructorInterceptor.class);
             } else {

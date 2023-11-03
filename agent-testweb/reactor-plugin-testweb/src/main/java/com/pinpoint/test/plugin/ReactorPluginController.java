@@ -18,7 +18,7 @@ package com.pinpoint.test.plugin;
 
 import com.pinpoint.test.common.view.ApiLinkPage;
 import com.pinpoint.test.common.view.HrefTag;
-import io.netty.handler.timeout.WriteTimeoutHandler;
+import io.netty.channel.ChannelOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -28,11 +28,13 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -40,7 +42,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 public class ReactorPluginController {
@@ -131,9 +132,9 @@ public class ReactorPluginController {
 
     @GetMapping("/mono/delay")
     public Mono<String> monoDelay() {
-        System.out.println(Thread.currentThread().getName());
+        System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Mono.delay(Duration.ofMillis(100L)).map(aLong -> {
-            System.out.println(Thread.currentThread().getName());
+            System.out.println("DELAY thread=" + Thread.currentThread().getName());
             WebClient client = WebClient.create("http://naver.com");
             WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                     .uri("").retrieve();
@@ -144,9 +145,9 @@ public class ReactorPluginController {
 
     @GetMapping("/mono/delayElement")
     public Mono<String> monoDelayElement() {
-        System.out.println(Thread.currentThread().getName());
+        System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Mono.just("Hello").delayElement(Duration.ofMillis(100L)).map(o -> {
-            System.out.println(Thread.currentThread().getName());
+            System.out.println("DELAY thread=" + Thread.currentThread().getName());
             WebClient client = WebClient.create("http://naver.com");
             WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                     .uri("").retrieve();
@@ -157,9 +158,9 @@ public class ReactorPluginController {
 
     @GetMapping("/mono/delaySubscription")
     public Mono<String> monoDelaySubscription() {
-        System.out.println(Thread.currentThread().getName());
+        System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Mono.just("Hello").delaySubscription(Duration.ofMillis(100L)).map(o -> {
-            System.out.println(Thread.currentThread().getName());
+            System.out.println("DELAY thread=" + Thread.currentThread().getName());
             WebClient client = WebClient.create("http://naver.com");
             WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                     .uri("").retrieve();
@@ -170,9 +171,9 @@ public class ReactorPluginController {
 
     @GetMapping("/mono/take")
     public Mono<String> monoTake() {
-        System.out.println(Thread.currentThread().getName());
+        System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Mono.just("Hello").take(Duration.ofMillis(100L)).map(o -> {
-            System.out.println(Thread.currentThread().getName());
+            System.out.println("TAKE thread=" + Thread.currentThread().getName());
             WebClient client = WebClient.create("http://naver.com");
             WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                     .uri("").retrieve();
@@ -183,9 +184,9 @@ public class ReactorPluginController {
 
     @GetMapping("/flux/interval")
     public Flux<String> fluxInterval() {
-        System.out.println(Thread.currentThread().getName());
+        System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Flux.interval(Duration.ofMillis(100L)).take(3).map(o -> {
-            System.out.println(Thread.currentThread().getName());
+            System.out.println("INTERVAL thread=" + Thread.currentThread().getName());
             WebClient client = WebClient.create("http://naver.com");
             WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                     .uri("").retrieve();
@@ -207,8 +208,8 @@ public class ReactorPluginController {
         });
     }
 
-    @GetMapping("/mono/subscribe1")
-    public Mono<String> monoSubscribe1() {
+    @GetMapping("/mono/subscribe/dispose")
+    public Mono<String> monoSubscribeDispose() {
         System.out.println(Thread.currentThread().getName());
 
         WebClient client = WebClient.create("http://httpbin.org");
@@ -220,17 +221,13 @@ public class ReactorPluginController {
         return Mono.just("ok");
     }
 
-    @GetMapping("/mono/subscribe2")
-    public Mono<String> monoSubscribe2() {
+    @GetMapping("/mono/subscribe/return")
+    public Mono<String> monoSubscribeReturn() {
         System.out.println(Thread.currentThread().getName());
-        HttpClient httpClient = HttpClient.create().doOnConnected(connection -> {
-            connection.addHandlerFirst(new WriteTimeoutHandler(1, TimeUnit.MILLISECONDS));
-        });
+        HttpClient httpClient = HttpClient.create();
         WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
-        client.method(HttpMethod.GET)
-                .uri("").retrieve().bodyToMono(String.class).subscribe();
-
-        return Mono.just("OK");
+        return client.method(HttpMethod.GET)
+                .uri("").retrieve().bodyToMono(String.class);
     }
 
     @GetMapping("/flux/cancelOn")
@@ -242,5 +239,96 @@ public class ReactorPluginController {
 
         WebClient client2 = WebClient.create("http://httpbin.org");
         return client2.method(HttpMethod.GET).uri("").retrieve().bodyToMono(String.class).cancelOn(Schedulers.parallel()).timeout(Duration.ofMillis(10), callback);
+    }
+
+    @GetMapping("/mono/retry")
+    public Mono<String> clientRetry(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).retry(3).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/mono/retry/unknownHost")
+    public Mono<String> clientRetryUnknownHost(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://fjakjglkajlgkjal").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).retry(3).subscribe();
+
+        return Mono.just("OK");
+    }
+
+
+    @GetMapping("/mono/retry/connectionTimeout")
+    public Mono<String> clientRetryConnectionTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 100);
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).retry(3).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/mono/retryWhen/unknownHost")
+    public Mono<String> clientRetryWhenUnknownHost(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://fjakjglkajlgkjal").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).retryWhen(Retry.max(3)).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/mono/retryWhen/connectionTimeout")
+    public Mono<String> clientRetryWhenConnectionTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 100);
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        response.bodyToMono(String.class).retryWhen(Retry.max(3)).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/mono/timeout")
+    public Mono<String> clientTimeout(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        return response.bodyToMono(String.class).timeout(Duration.ofMillis(10));
+    }
+
+    @GetMapping("/mono/timeout/fallback")
+    public Mono<String> clientTimeoutFallback(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        return response.bodyToMono(String.class).timeout(Duration.ofMillis(10), Mono.just("TIMEOUT"));
+    }
+
+    @GetMapping("/mono/timeout/fallback2")
+    public Mono<String> clientTimeoutFallback2(ServerWebExchange exchange) {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        return response.bodyToMono(String.class).timeout(Duration.ofMillis(10), fallback());
+    }
+
+    private Mono<String> fallback() {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        return response.bodyToMono(String.class);
     }
 }

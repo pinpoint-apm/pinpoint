@@ -45,7 +45,7 @@ public class FuncationApplyInterceptor extends AsyncContextSpanEventSimpleAround
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ReactorConstants.REACTOR_NETTY);
+        recorder.recordServiceType(ReactorConstants.REACTOR);
         recorder.recordException(throwable);
     }
 }

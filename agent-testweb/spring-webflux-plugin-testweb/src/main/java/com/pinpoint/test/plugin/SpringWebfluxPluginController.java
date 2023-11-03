@@ -105,6 +105,7 @@ public class SpringWebfluxPluginController {
     public Mono<String> clientGet(ServerWebExchange exchange) {
         exchange.getAttributes().put("pinpoint.metric.uri-template", "/test");
         WebClient client = WebClient.create("http://naver.com");
+
         WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                 .uri("").retrieve();
         return response.bodyToMono(String.class);

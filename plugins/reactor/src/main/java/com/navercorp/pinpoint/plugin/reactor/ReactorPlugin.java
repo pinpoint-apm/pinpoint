@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.LambdaExpressionMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
@@ -40,6 +41,7 @@ import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxSubscrib
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoDelayInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoIntervalInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoPublishOnInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoSubscribeMethodInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoSubscribeOnInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxDelaySubscriptionConstructorInterceptor;
@@ -58,9 +60,11 @@ import com.navercorp.pinpoint.plugin.reactor.interceptor.OnErrorSubscriberInterc
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ProcessorSubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.RetryWhenMainSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableCoreSubscriberConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableCoreSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.SinkConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.TimeoutMainSubscriberDoTimeoutInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -94,6 +98,9 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             "reactor.core.publisher.FluxOnErrorReturn"
     };
 
+    private static final String FLUX_METHOD_SCOPE = "REACTOR_FLUX_SUBSCRIBE";
+    private static final String MONO_METHOD_SCOPE = "REACTOR_MONO_SUBSCRIBE";
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final ReactorPluginConfig config = new ReactorPluginConfig(context.getConfig());
@@ -103,7 +110,10 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         }
         logger.info("{} version range=[3.1.0.RELEASE, 3.3.0.RELEASE], config:{}", this.getClass().getSimpleName(), config);
 
+        addFluxAndMono();
         addThreadingAndSchedulers();
+        addTimeout();
+        addRetry();
         addFlux();
         addMono();
         addParallelFlux();
@@ -119,8 +129,13 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         this.transformTemplate = transformTemplate;
     }
 
-    private void addThreadingAndSchedulers() {
+    private void addFluxAndMono() {
         transformTemplate.transform("reactor.core.publisher.Flux", FluxMethodTransform.class);
+        transformTemplate.transform("reactor.core.publisher.Mono", MonoMethodTransform.class);
+    }
+
+    private void addThreadingAndSchedulers() {
+        // Flux
         // publishOn
         addFluxOperatorTransform("reactor.core.publisher.FluxPublishOn");
         addRunnableCoreSubscriberTransform("reactor.core.publisher.FluxPublishOn$PublishOnConditionalSubscriber");
@@ -137,7 +152,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addFluxTransform("reactor.core.publisher.FluxInterval");
         addRunnableCoreSubscriberTransform("reactor.core.publisher.FluxInterval$IntervalRunnable");
 
-        transformTemplate.transform("reactor.core.publisher.Mono", MonoMethodTransform.class);
+        // Mono
         // publishOn
         addMonoOperatorTransform("reactor.core.publisher.MonoPublishOn");
         addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoPublishOn$PublishOnSubscriber");
@@ -151,7 +166,18 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoDelay$MonoDelayRunnable");
         addMonoDelaySubscriptionTransform("reactor.core.publisher.MonoDelaySubscription");
         addMonoOperatorTransform("reactor.core.publisher.MonoDelayElement");
+        LambdaExpressionMatcher delayElementSubscriberMatcher = new LambdaExpressionMatcher("reactor.core.publisher.MonoDelayElement$DelayElementSubscriber", "java.lang.Runnable");
+        addRunnableCoreSubscriberTransform(delayElementSubscriberMatcher);
+        // over 3.4.8
         addRunnableCoreSubscriberTransform("reactor.core.publisher.MonoDelayElement$DelayElementSubscriber");
+    }
+
+    private void addTimeout() {
+        transformTemplate.transform("reactor.core.publisher.FluxTimeout$TimeoutMainSubscriber", TimeoutMainSubscriberTransform.class);
+    }
+
+    private void addRetry() {
+        transformTemplate.transform("reactor.core.publisher.FluxRetryWhen$RetryWhenMainSubscriber", RetrySubscriberTransform.class);
     }
 
     private void addFlux() {
@@ -487,6 +513,39 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
+            // public final Disposable subscribe()
+            final InstrumentMethod subscribeMethod1 = target.getDeclaredMethod("subscribe");
+            if (subscribeMethod1 != null) {
+                subscribeMethod1.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, FLUX_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod2 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer");
+            if (subscribeMethod2 != null) {
+                subscribeMethod2.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, FLUX_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod3 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer", "java.util.function.Consumer");
+            if (subscribeMethod3 != null) {
+                subscribeMethod3.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, FLUX_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod4 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer", "java.util.function.Consumer", "java.lang.Runnable");
+            if (subscribeMethod4 != null) {
+                subscribeMethod4.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, FLUX_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod5 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer", "java.util.function.Consumer", "java.lang.Runnable", "java.util.function.Consumer");
+            if (subscribeMethod5 != null) {
+                subscribeMethod5.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, FLUX_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod6 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer", "java.util.function.Consumer", "java.lang.Runnable", "java.util.function.Consumer", "reactor.util.context.Context");
+            if (subscribeMethod6 != null) {
+                subscribeMethod6.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, FLUX_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod7 = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
+            if (subscribeMethod7 != null) {
+                subscribeMethod7.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, FLUX_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeWithMethod = target.getDeclaredMethod("subscribeWith", "java.lang.Object");
+            if (subscribeWithMethod != null) {
+                subscribeWithMethod.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, FLUX_METHOD_SCOPE);
+            }
             final InstrumentMethod publishOnMethod = target.getDeclaredMethod("publishOn", "reactor.core.scheduler.Scheduler", "boolean", "int", "int");
             if (publishOnMethod != null) {
                 publishOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
@@ -499,6 +558,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             if (intervalMethod != null) {
                 intervalMethod.addInterceptor(FluxAndMonoIntervalInterceptor.class);
             }
+
             return target.toBytecode();
         }
     }
@@ -525,7 +585,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(FluxSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
@@ -558,7 +618,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxOperatorSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(FluxOperatorSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
@@ -592,7 +652,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(FluxDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
@@ -601,7 +661,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             }
             final InstrumentMethod acceptMethod = target.getDeclaredMethod("accept", "reactor.core.publisher.FluxDelaySubscription$DelaySubscriptionOtherSubscriber");
             if (acceptMethod != null) {
-                acceptMethod.addInterceptor(FluxDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                acceptMethod.addInterceptor(FluxDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
 
             return target.toBytecode();
@@ -610,6 +670,10 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
     void addRunnableCoreSubscriberTransform(String className) {
         transformTemplate.transform(className, RunnableCoreSubscriberTransform.class);
+    }
+
+    void addRunnableCoreSubscriberTransform(Matcher matcher) {
+        transformTemplate.transform(matcher, RunnableCoreSubscriberTransform.class);
     }
 
     public static class RunnableCoreSubscriberTransform implements TransformCallback {
@@ -639,7 +703,39 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
+            // public final Disposable subscribe()
+            final InstrumentMethod subscribeMethod1 = target.getDeclaredMethod("subscribe");
+            if (subscribeMethod1 != null) {
+                subscribeMethod1.addInterceptor(FluxAndMonoSubscribeMethodInterceptor.class);
+            }
+            final InstrumentMethod subscribeMethod2 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer");
+            if (subscribeMethod2 != null) {
+                subscribeMethod2.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, MONO_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod3 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer", "java.util.function.Consumer");
+            if (subscribeMethod3 != null) {
+                subscribeMethod3.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, MONO_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod4 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer", "java.util.function.Consumer", "java.lang.Runnable");
+            if (subscribeMethod4 != null) {
+                subscribeMethod4.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, MONO_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod5 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer", "java.util.function.Consumer", "java.lang.Runnable", "java.util.function.Consumer");
+            if (subscribeMethod5 != null) {
+                subscribeMethod5.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, MONO_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod6 = target.getDeclaredMethod("subscribe", "java.util.function.Consumer", "java.util.function.Consumer", "java.lang.Runnable", "java.util.function.Consumer", "reactor.util.context.Context");
+            if (subscribeMethod6 != null) {
+                subscribeMethod6.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, MONO_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeMethod7 = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
+            if (subscribeMethod7 != null) {
+                subscribeMethod7.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, MONO_METHOD_SCOPE);
+            }
+            final InstrumentMethod subscribeWithMethod = target.getDeclaredMethod("subscribeWith", "java.lang.Object");
+            if (subscribeWithMethod != null) {
+                subscribeWithMethod.addScopedInterceptor(FluxAndMonoSubscribeMethodInterceptor.class, MONO_METHOD_SCOPE);
+            }
             final InstrumentMethod publishOnMethod = target.getDeclaredMethod("publishOn", "reactor.core.scheduler.Scheduler");
             if (publishOnMethod != null) {
                 publishOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
@@ -681,7 +777,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             }
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(MonoSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(MonoSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
@@ -713,7 +809,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             }
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(MonoOperatorSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(MonoOperatorSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
@@ -746,7 +842,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(MonoDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(MonoDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
@@ -755,7 +851,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             }
             final InstrumentMethod acceptMethod = target.getDeclaredMethod("accept", "reactor.core.publisher.FluxDelaySubscription$DelaySubscriptionOtherSubscriber");
             if (acceptMethod != null) {
-                acceptMethod.addInterceptor(MonoDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                acceptMethod.addInterceptor(MonoDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
 
             return target.toBytecode();
@@ -796,7 +892,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber[]");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(ParallelFluxSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(ParallelFluxSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
             return target.toBytecode();
         }
@@ -812,7 +908,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(ProcessorSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(ProcessorSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
 
             return target.toBytecode();
@@ -840,11 +936,11 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(ConnectableFluxSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                subscribeMethod.addInterceptor(ConnectableFluxSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
             final InstrumentMethod connectMethod = target.getDeclaredMethod("connect", "java.util.function.Consumer");
             if (connectMethod != null) {
-                connectMethod.addInterceptor(ConnectableFluxSubscribeInterceptor.class, va(ReactorConstants.REACTOR_NETTY));
+                connectMethod.addInterceptor(ConnectableFluxSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
 
             return target.toBytecode();
@@ -921,4 +1017,55 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             return target.toBytecode();
         }
     }
+
+    public static class TimeoutMainSubscriberTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+            target.addField(ReactorContextAccessor.class);
+            target.addGetter(TimeoutDescriptionGetter.class, "timeoutDescription");
+
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                final String[] parameterTypes = constructorMethod.getParameterTypes();
+                if (ArrayUtils.hasLength(parameterTypes)) {
+                    constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
+                }
+            }
+
+            final InstrumentMethod doTimeoutMethod = target.getDeclaredMethod("handleTimeout");
+            if (doTimeoutMethod != null) {
+                doTimeoutMethod.addInterceptor(TimeoutMainSubscriberDoTimeoutInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+
+    public static class RetrySubscriberTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+            target.addField(ReactorContextAccessor.class);
+
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                final String[] parameterTypes = constructorMethod.getParameterTypes();
+                if (ArrayUtils.hasLength(parameterTypes)) {
+                    constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
+                }
+            }
+
+            final InstrumentMethod whenErrorMethod = target.getDeclaredMethod("whenError", "java.lang.Throwable");
+            if (whenErrorMethod != null) {
+                whenErrorMethod.addInterceptor(RetryWhenMainSubscriberInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
 }
