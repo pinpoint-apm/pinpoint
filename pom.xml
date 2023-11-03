@@ -147,6 +147,9 @@
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <javadoc.source>${jdk.version}</javadoc.source>
 
+        <!-- java back-end development option -->
+        <build.frontend.skip>false</build.frontend.skip>
+
         <!-- hbase -->
         <hbase.shaded.client.version>2.5.5-hadoop3</hbase.shaded.client.version>
         <!-- for shaded hbase client 1.5.0+ version -->
@@ -1989,6 +1992,13 @@
             <id>code.coverage</id>
             <properties>
                 <plugin.jacoco.skip>false</plugin.jacoco.skip>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>build.frontend.skip</id>
+            <properties>
+                <build.frontend.skip>true</build.frontend.skip>
             </properties>
         </profile>
 

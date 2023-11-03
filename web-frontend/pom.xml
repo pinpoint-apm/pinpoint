@@ -30,9 +30,6 @@
 
     <properties>
         <grunt.build.command>build_release_without_lint</grunt.build.command>
-
-        <!-- java back-end development option -->
-        <build.frontend.skip>false</build.frontend.skip>
     </properties>
 
     <profiles>
