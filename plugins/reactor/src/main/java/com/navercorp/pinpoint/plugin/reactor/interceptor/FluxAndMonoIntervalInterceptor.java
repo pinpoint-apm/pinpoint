@@ -31,7 +31,7 @@ public class FluxAndMonoIntervalInterceptor extends SpanEventSimpleAroundInterce
     public FluxAndMonoIntervalInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
-        this.traceInterval = config.isTracePublishOn();
+        this.traceInterval = config.isTraceInterval();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class FluxAndMonoIntervalInterceptor extends SpanEventSimpleAroundInterce
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ReactorConstants.REACTOR_NETTY);
+        recorder.recordServiceType(ReactorConstants.REACTOR);
         recorder.recordException(throwable);
 
         if (traceInterval && isAsync(result, throwable)) {

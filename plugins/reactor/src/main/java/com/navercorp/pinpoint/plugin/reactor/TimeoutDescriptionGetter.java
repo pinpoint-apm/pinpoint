@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.reactor;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
-
-/**
- * @author jaehong.kim
- */
-public class ReactorConstants {
-    public static final ServiceType REACTOR = ServiceTypeProvider.getByName("REACTOR");
-
+public interface TimeoutDescriptionGetter {
+    String _$PINPOINT$_getTimeoutDescription();
 }

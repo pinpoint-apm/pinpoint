@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.reactor;
+package com.navercorp.pinpoint.plugin.resilience4j;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 /**
  * @author jaehong.kim
  */
-public class ReactorConstants {
-    public static final ServiceType REACTOR = ServiceTypeProvider.getByName("REACTOR");
+public class Resilience4JConstants {
+    public static final ServiceType RESILIENCE4J = ServiceTypeProvider.getByName("RESILIENCE4J");
 
 }

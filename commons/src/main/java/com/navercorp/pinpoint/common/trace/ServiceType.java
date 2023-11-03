@@ -179,6 +179,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>6062</td><td>DRUID</td></tr>
  * <tr><td>6500</td><td>RXJAVA</td></tr>
  * <tr><td>6510</td><td>REACTOR</td></tr>
+ * <tr><td>6520</td><td>RESILIENCE4J</td></tr>
  * <tr><td>6600</td><td>EXPRESS</td></tr>
  * <tr><td>6610</td><td>KOA</td></tr>
  * <tr><td>6620</td><td>HAPI</td></tr>

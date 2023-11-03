@@ -1,6 +1,9 @@
 serviceTypes:
     - code: 6510
       name: 'REACTOR'
+      matcher:
+        type: 'exact'
+        code: -1 # args[0]
     - code: 6511
       name: 'REACTOR_SCHEDULER'
       property:
