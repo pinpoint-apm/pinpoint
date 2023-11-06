@@ -21,15 +21,17 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
+import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,37 +45,37 @@ public class JwtService {
     private static final String KEY_CLAIMS_USER_ID = "userId";
     private static final String KEY_CLAIMS_USER_ROLE = "userRole";
 
+    private final SecretKey secretKey;
     private final JwtParser jwtParser;
-
-    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
-    private final String secretKey;
 
     private final long expirationTimeMillis;
 
     public JwtService(BasicLoginProperties basicLoginProperties) {
-        String secretKey = basicLoginProperties.getJwtSecretKey();
-        Assert.hasLength(secretKey, "secretKey must not be empty");
-
-        this.secretKey = secretKey;
+        String secretKeyStr = basicLoginProperties.getJwtSecretKey();
+        Assert.hasLength(secretKeyStr, "secretKey must not be empty");
 
         Assert.isTrue(basicLoginProperties.getExpirationTimeSeconds() > 0, "expirationTimeSeconds must be '>= 0'");
         this.expirationTimeMillis = TimeUnit.SECONDS.toMillis(basicLoginProperties.getExpirationTimeSeconds());
 
-        JwtParser jwtParser = Jwts.parser();
-        jwtParser.setSigningKey(secretKey);
-        this.jwtParser = jwtParser;
+        byte[] keyBytes = Base64.getDecoder().decode(secretKeyStr);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+
+        JwtParserBuilder jwtParser = Jwts.parser();
+        jwtParser.verifyWith(secretKey);
+        this.jwtParser = jwtParser.build();
     }
 
     public String createToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
-        List<String> collect = authorities.stream().map(e -> ((GrantedAuthority) e).getAuthority()).collect(Collectors.toList());
+        List<String> collect = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
-        claims.put(KEY_CLAIMS_USER_ID, userDetails.getUsername());
-        claims.put(KEY_CLAIMS_USER_ROLE, collect);
+        Map<String, Object> claims = Map.of(
+                KEY_CLAIMS_USER_ID, userDetails.getUsername(),
+                KEY_CLAIMS_USER_ROLE, collect
+        );
 
         return createToken(claims);
     }
@@ -81,24 +83,24 @@ public class JwtService {
     private String createToken(Map<String, Object> claims) {
         JwtBuilder jwtBuilder = Jwts.builder();
 
-        jwtBuilder.setClaims(claims);
-        jwtBuilder.setIssuedAt(new Date(System.currentTimeMillis()));
-        jwtBuilder.setExpiration(new Date(System.currentTimeMillis() + expirationTimeMillis));
-        jwtBuilder.signWith(signatureAlgorithm, secretKey);
+        jwtBuilder.claims(claims);
+        jwtBuilder.issuedAt(new Date(System.currentTimeMillis()));
+        jwtBuilder.expiration(new Date(System.currentTimeMillis() + expirationTimeMillis));
+        jwtBuilder.signWith(secretKey);
 
         return jwtBuilder.compact();
     }
 
     public String getUserId(String token) {
-        Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
-        Claims body = claimsJws.getBody();
+        Jws<Claims> claimsJws = jwtParser.parseSignedClaims(token);
+        Claims body = claimsJws.getPayload();
 
         return body.get(KEY_CLAIMS_USER_ID, String.class);
     }
 
     public Date getExpirationDate(String token) {
-        Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
-        Claims body = claimsJws.getBody();
+        Jws<Claims> claimsJws = jwtParser.parseSignedClaims(token);
+        Claims body = claimsJws.getPayload();
         return body.getExpiration();
     }
 
