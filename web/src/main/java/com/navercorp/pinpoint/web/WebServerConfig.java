@@ -54,7 +54,8 @@ public class WebServerConfig {
             DispatcherServlet dispatcherServlet,
             WebMvcProperties webMvcProperties,
             ObjectProvider<MultipartConfigElement> multipartConfig) {
-        final ServletRegistrationBean<DispatcherServlet> bean = new ServletRegistrationBean<>(dispatcherServlet, "/api/*");
+
+        final ServletRegistrationBean<DispatcherServlet> bean = new ServletRegistrationBean<>(dispatcherServlet, "/api/*", "/monitor/*");
         bean.setName(DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME);
         bean.setLoadOnStartup(webMvcProperties.getServlet().getLoadOnStartup());
         bean.setMultipartConfig(multipartConfig.getObject());
