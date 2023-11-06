@@ -89,31 +89,33 @@ Java version required to run Pinpoint:
 | 2.3.x            | 7-17  | 8         | 8   | 8     |
 | 2.4.x            | 7-18  | 11        | 11  | 11    |
 | 2.5.x            | 8-19  | 11        | 11  | 11    |
+| 3.0.x            | 8-21  | 17        | 17  | 17    |
 
 <!-- </compatibilityJava.md> -->
 HBase compatibility table:
 <!-- <compatibilityHbase.md> -->
 | Pinpoint Version | HBase 1.x | HBase 2.x                                                                                                             |
-|-----------------|-----------|-----------------------------------------------------------------------------------------------------------------------|
-| 2.0.x           | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
-| 2.1.x           | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
-| 2.2.x           | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
-| 2.3.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.3.x/hbase2-module)                                    |
-| 2.4.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.4.x/hbase2-module)                                    |
-| 2.5.x           | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.5.x/hbase2-module)                                    |
-| 2.6.x           | no         | yes                                                                                                                   |                                                                                                                  |
+|------------------|-----------|-----------------------------------------------------------------------------------------------------------------------|
+| 2.0.x            | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
+| 2.1.x            | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
+| 2.2.x            | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
+| 2.3.x            | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.3.x/hbase2-module)                                    |
+| 2.4.x            | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.4.x/hbase2-module)                                    |
+| 2.5.x            | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.5.x/hbase2-module)                                    |
+| 3.0.x            | no         | yes                                    |
 
 <!-- </compatibilityHbase.md> -->
 Agent - Collector compatibility table:
 <!-- <compatibilityPinpoint.md> -->
-| Agent Version | Collector 2.0.x | Collector 2.1.x | Collector 2.2.x | Collector 2.3.x | Collector 2.4.x | Collector 2.5.x |
-|---------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|
-| 2.0.x         | yes             | yes             | yes             | yes             | yes             | yes             |
-| 2.1.x         | no              | yes             | yes             | yes             | yes             | yes             |
-| 2.2.x         | no              | no              | yes             | yes             | yes             | yes             |
-| 2.3.x         | no              | no              | no              | yes             | yes             | yes             |
-| 2.4.x         | no              | no              | no              | no              | yes             | yes             |
-| 2.5.x         | no              | no              | no              | no              | no              | yes             |
+| Agent Version | Collector 2.0.x | Collector 2.1.x | Collector 2.2.x | Collector 2.3.x | Collector 2.4.x | Collector 2.5.x | Collector 3.0.x |
+|---------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|
+| 2.0.x         | yes             | yes             | yes             | yes             | yes             | yes             | yes             |
+| 2.1.x         | no              | yes             | yes             | yes             | yes             | yes             | yes             |
+| 2.2.x         | no              | no              | yes             | yes             | yes             | yes             | yes             |
+| 2.3.x         | no              | no              | no              | yes             | yes             | yes             | yes             |
+| 2.4.x         | no              | no              | no              | no              | yes             | yes             | yes             |
+| 2.5.x         | no              | no              | no              | no              | no              | yes             | yes             |
+| 3.0.x         | no              | no              | no              | no              | no              | no              | yes             |
 
 <!-- </compatibilityPinpoint.md> -->
 Flink compatibility table:
@@ -129,9 +131,10 @@ Flink compatibility table:
 <!-- </compatibilityFlink.md> -->
 Pinot compatibility table:
 <!-- <compatibilityPinot.md> -->
-| Pinpoint Version | Pinot 0.11.0 | Pinot 0.12.0 |
-|------------------|--------------|--------------|
-| 2.5.x            | yes          | yes          | 
+| Pinpoint Version | Pinot 0.11.0 | Pinot 0.12.0 | Pinot 1.0.0    |
+|------------------|--------------|--------------|----------------|
+| 2.5.x            | yes          | yes          | yes            |
+| 3.0.x            | no           | no           | yes            | 
 <!-- </compatibilityPinot.md> -->
 
 ## Community
