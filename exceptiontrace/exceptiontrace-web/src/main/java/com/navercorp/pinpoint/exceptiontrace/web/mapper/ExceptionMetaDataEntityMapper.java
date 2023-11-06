@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEnt
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -36,6 +37,11 @@ public interface ExceptionMetaDataEntityMapper {
             @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class)
     )
     ExceptionMetaData toModel(ExceptionMetaDataEntity entity);
+
+    @Mappings(
+            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class)
+    )
+    ExceptionMetaDataView toView(ExceptionMetaDataEntity entity);
 
     @Mappings({
             @Mapping(source = "values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),

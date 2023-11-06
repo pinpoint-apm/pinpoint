@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
-import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<ExceptionMetaData> getTransactionExceptions(
+    public List<ExceptionMetaDataView> getTransactionExceptions(
             ExceptionTraceQueryParameter queryParameter
     ) {
         return applyQueryFunction(
@@ -54,7 +54,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<ExceptionMetaData> getSummarizedExceptionsInRange(ExceptionTraceQueryParameter queryParameter) {
+    public List<ExceptionMetaDataView> getSummarizedExceptionsInRange(ExceptionTraceQueryParameter queryParameter) {
         return applyQueryFunction(
                 queryParameter,
                 this::getSummarizedExeptionMetaDataList
@@ -84,11 +84,11 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
         return queryFunction.apply(queryParameter);
     }
 
-    private List<ExceptionMetaData> getExeptionMetaDataList(ExceptionTraceQueryParameter queryParameter) {
+    private List<ExceptionMetaDataView> getExeptionMetaDataList(ExceptionTraceQueryParameter queryParameter) {
         return exceptionTraceDao.getExceptions(queryParameter);
     }
 
-    private List<ExceptionMetaData> getSummarizedExeptionMetaDataList(ExceptionTraceQueryParameter queryParameter) {
+    private List<ExceptionMetaDataView> getSummarizedExeptionMetaDataList(ExceptionTraceQueryParameter queryParameter) {
         return exceptionTraceDao.getSummarizedExceptions(queryParameter);
     }
 

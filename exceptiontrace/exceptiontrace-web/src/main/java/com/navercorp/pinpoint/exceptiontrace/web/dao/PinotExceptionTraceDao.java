@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionMetaDataEntityM
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -62,18 +63,18 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     }
 
     @Override
-    public List<ExceptionMetaData> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+    public List<ExceptionMetaDataView> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionMetaDataEntity> dataEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_QUERY, exceptionTraceQueryParameter);
         return dataEntities.stream()
-                .map(mapper::toModel)
+                .map(mapper::toView)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ExceptionMetaData> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+    public List<ExceptionMetaDataView> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionMetaDataEntity> dataEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIZED_QUERY, exceptionTraceQueryParameter);
         return dataEntities.stream()
-                .map(mapper::toModel)
+                .map(mapper::toView)
                 .collect(Collectors.toList());
     }
 

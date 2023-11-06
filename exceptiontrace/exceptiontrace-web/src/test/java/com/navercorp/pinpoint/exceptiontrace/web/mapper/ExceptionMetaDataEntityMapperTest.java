@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEnt
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -57,6 +58,52 @@ class ExceptionMetaDataEntityMapperTest {
         Assertions.assertEquals(expected.getTransactionId(), actual.getTransactionId());
         Assertions.assertEquals(expected.getSpanId(), actual.getSpanId());
         Assertions.assertEquals(expected.getExceptionId(), actual.getExceptionId());
+
+        Assertions.assertEquals(expected.getApplicationServiceType(), actual.getApplicationServiceType());
+        Assertions.assertEquals(expected.getApplicationName(), actual.getApplicationName());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId());
+        Assertions.assertEquals(expected.getUriTemplate(), actual.getUriTemplate());
+
+        Assertions.assertEquals(expected.getErrorClassName(), actual.getErrorClassName());
+        Assertions.assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
+        Assertions.assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
+
+        Assertions.assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
+
+
+        int size = throwable.getStackTrace().length;
+
+        String classNames = expected.getStackTraceClassName();
+        String fileNames = expected.getStackTraceFileName();
+        String lineNumbers = expected.getStackTraceLineNumber();
+        String methodNames = expected.getStackTraceMethodName();
+
+        List<String> classNameIter = convertToList(classNames);
+        List<String> fileNameIter = convertToList(fileNames);
+        List<Integer> lineNumberIter = convertToList(lineNumbers);
+        List<String> methodNameIter = convertToList(methodNames);
+
+        List<StackTraceElementWrapper> actualStackTrace = actual.getStackTrace();
+
+        for (int i = 0; i < size; i++) {
+            Assertions.assertEquals(classNameIter.get(i), actualStackTrace.get(i).getClassName());
+            Assertions.assertEquals(fileNameIter.get(i), actualStackTrace.get(i).getFileName());
+            Assertions.assertEquals(lineNumberIter.get(i), actualStackTrace.get(i).getLineNumber());
+            Assertions.assertEquals(methodNameIter.get(i), actualStackTrace.get(i).getMethodName());
+        }
+    }
+
+    @Test
+    public void testEntityToView() {
+        Throwable throwable = new RuntimeException();
+
+        ExceptionMetaDataEntity expected = newExceptionMetaDataEntity(throwable);
+        ExceptionMetaDataView actual = mapper.toView(expected);
+
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp());
+        Assertions.assertEquals(expected.getTransactionId(), actual.getTransactionId());
+        Assertions.assertEquals(Long.toString(expected.getSpanId()), actual.getSpanId());
+        Assertions.assertEquals(Long.toString(expected.getExceptionId()), actual.getExceptionId());
 
         Assertions.assertEquals(expected.getApplicationServiceType(), actual.getApplicationServiceType());
         Assertions.assertEquals(expected.getApplicationName(), actual.getApplicationName());
