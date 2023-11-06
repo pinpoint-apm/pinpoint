@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
-import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionTraceView;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
@@ -68,7 +68,7 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/transactionInfo")
-    public List<ExceptionMetaData> getListOfExceptionMetaDataFromTransactionId(
+    public List<ExceptionMetaDataView> getListOfExceptionMetaDataFromTransactionId(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("transactionId") @NotBlank String transactionId,
@@ -89,7 +89,7 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/errorList")
-    public List<ExceptionMetaData> getListOfExceptionMetaDataByGivenRange(
+    public List<ExceptionMetaDataView> getListOfExceptionMetaDataByGivenRange(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") @PositiveOrZero long from,

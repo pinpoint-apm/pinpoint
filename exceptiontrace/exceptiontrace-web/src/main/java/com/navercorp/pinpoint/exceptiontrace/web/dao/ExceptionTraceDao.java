@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 
 import java.util.List;
 
@@ -28,8 +29,8 @@ import java.util.List;
  * @author intr3p1d
  */
 public interface ExceptionTraceDao {
-    List<ExceptionMetaData> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-    List<ExceptionMetaData> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<ExceptionMetaDataView> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<ExceptionMetaDataView> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
     ExceptionMetaData getException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
     List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
     List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
