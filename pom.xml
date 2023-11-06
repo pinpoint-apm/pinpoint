@@ -231,7 +231,7 @@
         <mybatis.spring.version>3.0.2</mybatis.spring.version>
         <mybatis.version>3.5.13</mybatis.version>
 
-        <jjwt.version>0.9.1</jjwt.version>
+        <jjwt.version>0.12.3</jjwt.version>
         <javax.jaxb.version>2.3.1</javax.jaxb.version>
         <jakarta.jaxb.version>4.0.1</jakarta.jaxb.version>
 
