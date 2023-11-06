@@ -33,7 +33,6 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -72,15 +71,15 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        Map<String, Object> claims = Map.of(
-                KEY_CLAIMS_USER_ID, userDetails.getUsername(),
-                KEY_CLAIMS_USER_ROLE, collect
-        );
+        Claims claims = Jwts.claims()
+                .add(KEY_CLAIMS_USER_ID, userDetails.getUsername())
+                .add(KEY_CLAIMS_USER_ROLE, collect)
+                .build();
 
         return createToken(claims);
     }
 
-    private String createToken(Map<String, Object> claims) {
+    private String createToken(Claims claims) {
         JwtBuilder jwtBuilder = Jwts.builder();
 
         jwtBuilder.claims(claims);
