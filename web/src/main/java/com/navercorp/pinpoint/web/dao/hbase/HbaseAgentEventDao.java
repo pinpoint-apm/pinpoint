@@ -24,19 +24,18 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
-import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -82,7 +81,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
         Objects.requireNonNull(range, "range");
 
         Scan scan = new Scan();
-        scan.setMaxVersions(1);
+        scan.readVersions(1);
         scan.setCaching(SCANNER_CACHE_SIZE);
 
         scan.withStartRow(createRowKey(agentId, range.getTo()));
@@ -93,7 +92,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
             FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
             for (AgentEventType excludeEventType : excludeEventTypes) {
                 byte[] excludeQualifier = Bytes.toBytes(excludeEventType.getCode());
-                filterList.addFilter(new QualifierFilter(CompareFilter.CompareOp.NOT_EQUAL, new BinaryComparator(excludeQualifier)));
+                filterList.addFilter(new QualifierFilter(CompareOperator.NOT_EQUAL, new BinaryComparator(excludeQualifier)));
             }
             scan.setFilter(filterList);
         }

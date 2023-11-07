@@ -8,9 +8,9 @@ import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.CellBuilderFactory;
+import org.apache.hadoop.hbase.CellBuilderType;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,15 @@ public class ApiMetaDataMapperTest {
         }
         byte[] bufferArray = buffer.getBuffer();
         byte[] valueArray = Bytes.toBytes(1L);
-        Cell cell = CellUtil.createCell(HConstants.EMPTY_BYTE_ARRAY, HConstants.EMPTY_BYTE_ARRAY, bufferArray, HConstants.LATEST_TIMESTAMP, KeyValue.Type.Maximum.getCode(), valueArray);
+
+        Cell cell = CellBuilderFactory.create(CellBuilderType.SHALLOW_COPY)
+                .setRow(HConstants.EMPTY_BYTE_ARRAY)
+                .setFamily(HConstants.EMPTY_BYTE_ARRAY)
+                .setQualifier(bufferArray)
+                .setTimestamp(HConstants.LATEST_TIMESTAMP)
+                .setType(Cell.Type.Put)
+                .setValue(valueArray)
+                .build();
 
         Result mockedResult = mock(Result.class);
         when(mockedResult.rawCells()).thenReturn(new Cell[] { cell });

@@ -36,11 +36,11 @@ import com.navercorp.pinpoint.web.service.FetchResult;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.ByteArrayComparable;
-import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.logging.log4j.LogManager;
@@ -246,8 +246,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     public Filter createSpanQualifierFilter() {
         byte indexPrefix = SpanEncoder.TYPE_SPAN;
         ByteArrayComparable prefixComparator = new BinaryPrefixComparator(new byte[]{indexPrefix});
-        Filter qualifierPrefixFilter = new QualifierFilter(CompareFilter.CompareOp.EQUAL, prefixComparator);
-        return qualifierPrefixFilter;
+        return new QualifierFilter(CompareOperator.EQUAL, prefixComparator);
     }
 
 

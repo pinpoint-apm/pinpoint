@@ -21,12 +21,14 @@ import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StopWatch;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.CheckAndMutate;
+import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.Get;
@@ -36,10 +38,9 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -79,6 +80,8 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     private int maxThreadsPerParallelScan = DEFAULT_MAX_THREADS_PER_PARALLEL_SCAN;
 
     private HBaseAsyncOperation asyncOperation = DisabledHBaseAsyncOperation.INSTANCE;
+
+    private static final CheckAndMutateResult CHECK_AND_MUTATE_RESULT_FAILURE = new CheckAndMutateResult(false, null);
 
     public HbaseTemplate2() {
     }
@@ -311,45 +314,93 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         });
     }
 
-    /**
-     * Atomically checks if a row/family/qualifier value matches the expected
-     * value. If it does, it adds the put.  If the passed value is null, the check
-     * is for the lack of column (ie: non-existence)
-     *
-     * @param tableName  target table
-     * @param rowName       to check
-     * @param familyName    column family to check
-     * @param qualifier column qualifier to check
-     * @param compareOp comparison operator to use
-     * @param value     the expected value
-     * @param put       data to put if check succeeds
-     * @return true if the new put was executed, false otherwise
-     */
     @Override
-    public boolean checkAndPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value, Put put) {
-        return (boolean) execute(tableName, new TableCallback() {
+    public CheckAndMutateResult checkAndMutate(TableName tableName, CheckAndMutate checkAndMutate) {
+        return (CheckAndMutateResult) execute(tableName, new TableCallback() {
             @Override
-            public Object doInTable(Table table) throws Throwable {
+            public CheckAndMutateResult doInTable(Table table) throws Throwable {
                 try {
-                    return table.checkAndPut(rowName, familyName, qualifier, compareOp, value, put);
+                    return table.checkAndMutate(checkAndMutate);
                 } catch (IOException e) {
-                    return Boolean.FALSE;
+                    return CHECK_AND_MUTATE_RESULT_FAILURE;
                 }
             }
         });
     }
 
     @Override
+    public List<CheckAndMutateResult> checkAndMutate(TableName tableName, List<CheckAndMutate> checkAndMutates) {
+        return (List<CheckAndMutateResult>) execute(tableName, new TableCallback() {
+            @Override
+            public List<CheckAndMutateResult> doInTable(Table table) throws Throwable {
+                try {
+                    return table.checkAndMutate(checkAndMutates);
+                } catch (IOException e) {
+                    return List.of(CHECK_AND_MUTATE_RESULT_FAILURE, CHECK_AND_MUTATE_RESULT_FAILURE);
+                }
+            }
+        });
+    }
+
+    /**
+     * Atomically checks if a row/family/qualifier value matches the expected
+     * value. If it does, it adds the put.  If the passed value is null, the check
+     * is for the lack of column (ie: non-existence)
+     *
+     * @param tableName  target table
+     * @param rowName    to check
+     * @param familyName column family to check
+     * @param qualifier  column qualifier to check
+     * @param compareOp  comparison operator to use
+     * @param value      the expected value
+     * @param put        data to put if check succeeds
+     * @return true if the new put was executed, false otherwise
+     */
+    @Override
+    public boolean checkAndPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, CompareOperator compareOp, byte[] value, Put put) {
+
+        CheckAndMutate checkAndMutate = CheckAndMutate.newBuilder(rowName)
+                .ifMatches(familyName, qualifier, compareOp, value)
+                .build(put);
+
+        CheckAndMutateResult result = this.checkAndMutate(tableName, checkAndMutate);
+        return result.isSuccess();
+    }
+
+    @Override
     public void maxColumnValue(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, long value) {
-        byte[] valBytes = Bytes.toBytes(value);
+        final byte[] valBytes = Bytes.toBytes(value);
         Put put = new Put(rowName);
         put.addColumn(familyName, qualifier, valBytes);
-        //check for existence and put for the first time
-        boolean success = checkAndPut(tableName, rowName, familyName, qualifier, CompareFilter.CompareOp.EQUAL, null, put);
-        if (!success) {
-            //check for max and put for update
-            checkAndPut(tableName, rowName, familyName, qualifier, CompareFilter.CompareOp.GREATER, valBytes, put);
-        }
+
+        CheckAndMutate checkAndPut = CheckAndMutate.newBuilder(rowName)
+                .ifMatches(familyName, qualifier, CompareOperator.EQUAL, null)
+                .build(put);
+
+        this.execute(tableName, new TableCallback<Object>() {
+            @Override
+            public Object doInTable(Table table) throws Throwable {
+                CheckAndMutateResult result = table.checkAndMutate(checkAndPut);
+                if (result.isSuccess()) {
+                    logger.debug("MaxUpdate success for null");
+                    return null;
+                }
+                CheckAndMutate checkAndMax = checkAndMax(rowName, familyName, qualifier, valBytes, put);
+                CheckAndMutateResult maxResult = table.checkAndMutate(checkAndMax);
+                if (maxResult.isSuccess()) {
+                    logger.debug("MaxUpdate success for GREATER");
+                } else {
+                    logger.trace("MaxUpdate failure for ConcurrentUpdate");
+                }
+                return null;
+            }
+        });
+    }
+
+    private CheckAndMutate checkAndMax(byte[] rowName, byte[] familyName, byte[] qualifier, byte[] valBytes, Put put) {
+        return CheckAndMutate.newBuilder(rowName)
+                .ifMatches(familyName, qualifier, CompareOperator.GREATER, valBytes)
+                .build(put);
     }
 
     @Override
@@ -722,11 +773,11 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         return execute(tableName, new TableCallback<Long>() {
             @Override
             public Long doInTable(Table table) throws Throwable {
-                return table.incrementColumnValue(rowName, familyName, qualifier, amount, writeToWAL? Durability.SKIP_WAL: Durability.USE_DEFAULT);
+                return table.incrementColumnValue(rowName, familyName, qualifier, amount, writeToWAL ? Durability.SKIP_WAL : Durability.USE_DEFAULT);
             }
         });
     }
-    
+
     @Override
     public <T> T execute(TableName tableName, TableCallback<T> action) {
         Objects.requireNonNull(tableName, "tableName");
@@ -750,7 +801,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             releaseTable(table);
         }
     }
-    
+
     private void releaseTable(Table table) {
         getTableFactory().releaseTable(table);
     }

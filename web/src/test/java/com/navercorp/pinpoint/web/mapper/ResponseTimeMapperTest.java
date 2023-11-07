@@ -25,9 +25,9 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.CellBuilderFactory;
+import org.apache.hadoop.hbase.CellBuilderType;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +50,14 @@ public class ResponseTimeMapperTest {
         byte[] bufferArray = buffer.getBuffer();
         byte[] valueArray = Bytes.toBytes(1L);
 
-        Cell mockCell = CellUtil.createCell(HConstants.EMPTY_BYTE_ARRAY, HConstants.EMPTY_BYTE_ARRAY, bufferArray, HConstants.LATEST_TIMESTAMP, KeyValue.Type.Maximum.getCode(), valueArray);
+        Cell mockCell = CellBuilderFactory.create(CellBuilderType.SHALLOW_COPY)
+                .setRow(HConstants.EMPTY_BYTE_ARRAY)
+                .setFamily(HConstants.EMPTY_BYTE_ARRAY)
+                .setQualifier(bufferArray)
+                .setTimestamp(HConstants.LATEST_TIMESTAMP)
+                .setType(Cell.Type.Put)
+                .setValue(valueArray)
+                .build();
 
         ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper(mock(ServiceTypeRegistryService.class), mock(RowKeyDistributorByHashPrefix.class));
         ResponseTime responseTime = new ResponseTime("applicationName", ServiceType.STAND_ALONE, System.currentTimeMillis());

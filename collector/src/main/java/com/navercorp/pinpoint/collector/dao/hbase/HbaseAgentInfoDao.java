@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -111,7 +111,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);
         scan.addFamily(DESCRIPTOR.getName());
-        scan.setMaxVersions(1);
+        scan.readVersions(1);
         scan.setCaching(SCANNER_CACHING);
 
         return scan;

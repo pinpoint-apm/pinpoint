@@ -17,14 +17,16 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.CheckAndMutate;
+import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.CompareFilter;
 
 import java.util.List;
 
@@ -79,6 +81,10 @@ public interface HbaseOperations2 {
     void put(TableName tableName, final Put put);
     void put(TableName tableName, final List<Put> puts);
 
+    CheckAndMutateResult checkAndMutate(TableName tableName, CheckAndMutate checkAndMutate);
+
+    List<CheckAndMutateResult> checkAndMutate(TableName tableName, List<CheckAndMutate> checkAndMutates);
+
     /**
      * Atomically checks if a row/family/qualifier value matches the expected
      * value. If it does, it adds the put.  If the passed value is null, the check
@@ -93,7 +99,7 @@ public interface HbaseOperations2 {
      * @param put data to put if check succeeds
      * @return true if the new put was executed, false otherwise
      */
-    boolean checkAndPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value, Put put);
+    boolean checkAndPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, CompareOperator compareOp, byte[] value, Put put);
 
     /**
      *

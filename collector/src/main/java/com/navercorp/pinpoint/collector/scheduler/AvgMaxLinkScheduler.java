@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,7 +43,7 @@ public class AvgMaxLinkScheduler {
     @PostConstruct
     public void linkScheduling()  {
         for (CachedStatisticsDao dao : statisticsDaoList) {
-            this.scheduler.scheduleWithFixedDelay(dao::flushAvgMax, 1000);
+            this.scheduler.scheduleWithFixedDelay(dao::flushAvgMax, Duration.ofMillis(1000));
         }
     }
 }
