@@ -27,11 +27,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 /**
  * @author minwoo.jung
@@ -47,7 +47,7 @@ public class PinotSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
     private final KafkaTemplate<String, MetricData> kafkaDataTypeTemplate;
     private final String topic;
 
-    private final ListenableFutureCallback<SendResult<String, MetricData>> resultCallback
+    private final BiConsumer<SendResult<String, MetricData>, Throwable> resultCallback
             = KafkaCallbacks.loggingCallback("Kafka(MetricData)", logger);
 
     public PinotSystemMetricDataTypeDao(SqlSessionTemplate sqlPinotSessionTemplate,
@@ -71,7 +71,7 @@ public class PinotSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
 
     @Override
     public void updateMetricDataType(MetricData metricData) {
-        ListenableFuture<SendResult<String, MetricData>> callback = kafkaDataTypeTemplate.send(topic, metricData.getMetricName(), metricData);
-        callback.addCallback(resultCallback);
+        CompletableFuture<SendResult<String, MetricData>> callback = kafkaDataTypeTemplate.send(topic, metricData.getMetricName(), metricData);
+        callback.whenComplete(resultCallback);
     }
 }

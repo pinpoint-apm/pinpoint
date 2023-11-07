@@ -28,11 +28,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 /**
  * @author intr3p1d
@@ -47,7 +47,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
     private final String topic;
 
-    private final ListenableFutureCallback<SendResult<String, ExceptionMetaDataEntity>> resultCallback
+    private final BiConsumer<SendResult<String, ExceptionMetaDataEntity>, Throwable> resultCallback
             = KafkaCallbacks.loggingCallback("Kafka(ExceptionMetaDataEntity)", logger);
 
 
@@ -68,10 +68,10 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
         for (ExceptionMetaData e : exceptionMetaData) {
             ExceptionMetaDataEntity dataEntity = mapper.toEntity(e);
-            ListenableFuture<SendResult<String, ExceptionMetaDataEntity>> response = this.kafkaExceptionMetaDataTemplate.send(
+            CompletableFuture<SendResult<String, ExceptionMetaDataEntity>> response = this.kafkaExceptionMetaDataTemplate.send(
                     topic, dataEntity
             );
-            response.addCallback(resultCallback);
+            response.whenComplete(resultCallback);
         }
     }
 }

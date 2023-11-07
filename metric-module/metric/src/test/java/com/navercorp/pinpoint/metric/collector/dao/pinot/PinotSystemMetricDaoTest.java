@@ -29,11 +29,12 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.kafka.support.SendResult;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,10 +63,11 @@ public class PinotSystemMetricDaoTest {
 
         doAnswer(new Answer() {
             @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
+            public CompletableFuture<SendResult<String, SystemMetricView>> answer(InvocationOnMock invocation) throws Throwable {
                 sendCount.increment();
                 logger.info("Sending View {}", sendCount.intValue());
-                return mock(ListenableFuture.class);
+                SendResult<String, SystemMetricView> result = mock(SendResult.class);
+                return CompletableFuture.completedFuture(result);
             }
         }).when(kafkaTemplate).send(anyString(), anyString(), any(SystemMetricView.class));
     }

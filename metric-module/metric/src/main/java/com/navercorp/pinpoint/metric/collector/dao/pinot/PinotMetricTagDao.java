@@ -30,11 +30,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 /**
  * @author minwoo.jung
@@ -50,7 +50,7 @@ public class PinotMetricTagDao implements MetricTagDao {
     private final TagListTypeHandler tagListTypeHandler = new TagListTypeHandler();
     private final String topic;
 
-    private final ListenableFutureCallback<SendResult<String, MetricJsonTag>> resultCallback
+    private final BiConsumer<SendResult<String, MetricJsonTag>, Throwable> resultCallback
             = KafkaCallbacks.loggingCallback("Kafka(MetricJsonTag)", logger);
 
     public PinotMetricTagDao(SqlSessionTemplate sqlPinotSessionTemplate,
@@ -64,8 +64,8 @@ public class PinotMetricTagDao implements MetricTagDao {
     @Override
     public void insertMetricTag(MetricTag metricTag) {
         MetricJsonTag metricJsonTag = MetricJsonTag.covertMetricJsonTag(tagListTypeHandler, metricTag);
-        ListenableFuture<SendResult<String, MetricJsonTag>> callBack = kafkaTagTemplate.send(topic, metricTag.getHostGroupName(), metricJsonTag);
-        callBack.addCallback(resultCallback);
+        CompletableFuture<SendResult<String, MetricJsonTag>> callBack = kafkaTagTemplate.send(topic, metricTag.getHostGroupName(), metricJsonTag);
+        callBack.whenComplete(resultCallback);
     }
 
     public static class MetricJsonTag {
