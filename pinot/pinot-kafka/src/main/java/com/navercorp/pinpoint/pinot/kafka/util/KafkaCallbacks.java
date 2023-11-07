@@ -2,21 +2,21 @@ package com.navercorp.pinpoint.pinot.kafka.util;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.util.concurrent.ListenableFutureCallback;
+
+import java.util.function.BiConsumer;
 
 public final class KafkaCallbacks {
 
-    public static <T> ListenableFutureCallback<SendResult<String, T>> loggingCallback(String name, Logger logger) {
-        return new ListenableFutureCallback<>() {
+    public static <T> BiConsumer<SendResult<String, T>, Throwable> loggingCallback(String name, Logger logger) {
+        return new BiConsumer<>() {
             @Override
-            public void onFailure(Throwable ex) {
-                logger.warn("{} onFailure:{}", name, ex.getMessage(), ex);
-            }
-
-            @Override
-            public void onSuccess(SendResult<String, T> result) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("{} onSuccess:{}", name, result);
+            public void accept(SendResult<String, T> result, Throwable throwable) {
+                if (throwable != null) {
+                    logger.warn("{} onFailure:{}", name, throwable.getMessage(), throwable);
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("{} onSuccess:{}", name, result);
+                    }
                 }
             }
         };

@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 @Repository
 public class PinotUriStatDao implements UriStatDao {
@@ -24,7 +24,7 @@ public class PinotUriStatDao implements UriStatDao {
 
     private final String topic;
 
-    private final ListenableFutureCallback<SendResult<String, UriStat>> resultCallback
+    private final BiConsumer<SendResult<String, UriStat>, Throwable> resultCallback
             = KafkaCallbacks.loggingCallback("Kafka(UriStat)", logger);
 
     public PinotUriStatDao(@Qualifier("kafkaUriStatTemplate") KafkaTemplate<String, UriStat> kafkaUriStatTemplate,
@@ -38,8 +38,8 @@ public class PinotUriStatDao implements UriStatDao {
         Objects.requireNonNull(data);
 
         for (UriStat uriStat : data) {
-            ListenableFuture<SendResult<String, UriStat>> response = this.kafkaUriStatTemplate.send(topic, uriStat.getApplicationName(), uriStat);
-            response.addCallback(resultCallback);
+            CompletableFuture<SendResult<String, UriStat>> response = this.kafkaUriStatTemplate.send(topic, uriStat.getApplicationName(), uriStat);
+            response.whenComplete(resultCallback);
         }
 
     }
