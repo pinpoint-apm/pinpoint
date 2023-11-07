@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.pattern.PathPattern;
 
 /**
  * @author jaehong.kim
@@ -57,7 +58,7 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        if (uriStatEnable && uriStatUseUserInput) {
+        if (uriStatEnable) {
             final Trace trace = traceContext.currentRawTraceObject();
             if (trace == null) {
                 return;
@@ -65,18 +66,32 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
 
             final ServerWebExchange exchange = ArrayArgumentUtils.getArgument(args, 0, ServerWebExchange.class);
             if (exchange != null) {
-                for (String attributeName : SpringWebFluxConstants.SPRING_WEBFLUX_URI_USER_INPUT_ATTRIBUTE_KEYS) {
-                    final Object uriMapping = exchange.getAttribute(attributeName);
-                    if (!(uriMapping instanceof String)) {
-                        continue;
-                    }
+                String uriTemplate = "";
 
-                    final String uriTemplate = (String) uriMapping;
-                    if (StringUtils.hasLength(uriTemplate)) {
-                        final SpanRecorder spanRecorder = trace.getSpanRecorder();
-                        spanRecorder.recordUriTemplate(uriTemplate, true);
+                if (uriStatUseUserInput) {
+                    for (String attributeName : SpringWebFluxConstants.SPRING_WEBFLUX_URI_USER_INPUT_ATTRIBUTE_KEYS) {
+                        final Object uriMapping = exchange.getAttribute(attributeName);
+                        if (!(uriMapping instanceof String)) {
+                            continue;
+                        }
+                        uriTemplate = (String) uriMapping;
                     }
                 }
+                if (!StringUtils.hasLength(uriTemplate)) {
+                    for (String attributeName : SpringWebFluxConstants.SPRING_WEBFLUX_DEFAULT_URI_ATTRIBUTE_KEYS) {
+                        final Object uriMapping = exchange.getAttribute(attributeName);
+                        if (!(uriMapping instanceof PathPattern)) {
+                            continue;
+                        }
+                        uriTemplate = ((PathPattern) uriMapping).getPatternString();
+                    }
+                }
+
+                if (StringUtils.hasLength(uriTemplate)) {
+                    final SpanRecorder spanRecorder = trace.getSpanRecorder();
+                    spanRecorder.recordUriTemplate(uriTemplate, true);
+                }
+
             }
         }
     }
