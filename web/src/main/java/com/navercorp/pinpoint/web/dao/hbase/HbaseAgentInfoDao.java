@@ -180,7 +180,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             scan.addColumn(family, DESCRIPTOR.QUALIFIER_JVM);
         }
 
-        scan.setMaxVersions(1);
+        scan.readVersions(1);
         scan.setCaching(SCANNER_CACHING);
 
         return scan;

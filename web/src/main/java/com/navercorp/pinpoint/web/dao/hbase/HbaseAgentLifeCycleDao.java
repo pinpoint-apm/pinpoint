@@ -140,9 +140,12 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         byte[] startKeyBytes = agentIdEncoder.encodeRowKey(agentId, toTimestamp);
         byte[] endKeyBytes = agentIdEncoder.encodeRowKey(agentId, fromTimestamp);
 
-        Scan scan = new Scan(startKeyBytes, endKeyBytes);
+        Scan scan = new Scan();
+        scan.withStartRow(startKeyBytes);
+        scan.withStopRow(endKeyBytes);
+
         scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES);
-        scan.setMaxVersions(1);
+        scan.readVersions(1);
         scan.setCaching(SCANNER_CACHING);
 
         return scan;
