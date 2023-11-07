@@ -166,7 +166,7 @@
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
 
         <fastxml.jackson.version>2.15.2</fastxml.jackson.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
 
         <httpcomponents.version>4.5.13</httpcomponents.version>
