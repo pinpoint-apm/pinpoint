@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.util;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -26,40 +26,7 @@ import java.util.UUID;
  */
 public class AgentUuidUtils {
 
-    private static final char[] CODE_TABLE = {
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-            'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-            'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-            'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-            'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
-            'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
-            '8', '9', '-', '_'
-    };
-
-    private static final InverseLookup INVERSE_LOOKUP = new InverseLookup(CODE_TABLE);
-
-    private static class InverseLookup {
-        private final int[] inverseCodeTable = new int[256];
-
-        private InverseLookup(char[] codeTable) {
-            Arrays.fill(inverseCodeTable, -1);
-            for (int i = 0; i < codeTable.length; i++) {
-                int idx = codeTable[i] & BIT_MASK_8;
-                inverseCodeTable[idx] = i;
-            }
-        }
-
-        private int lookup(byte c) {
-            int idx = inverseCodeTable[c & BIT_MASK_8];
-            if (idx < 0) {
-                throw new IllegalArgumentException("Invalid char found: " + c);
-            }
-            return idx;
-        }
-    }
-
-    private static final int BIT_MASK_6 = 0x3f;
-    private static final int BIT_MASK_8 = 0xff;
+    private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
 
     /**
      * Base64 encodes the given {@code uuidString} into URL and filename safe string as specified by RFC 4648 section 5.
@@ -96,42 +63,9 @@ public class AgentUuidUtils {
         final byte[] bytes = new byte[16];
         BytesUtils.writeLong(uuid.getMostSignificantBits(), bytes, 0);
         BytesUtils.writeLong(uuid.getLeastSignificantBits(), bytes, BytesUtils.LONG_BYTE_LENGTH);
-        byte[] encoded = encodeUuidBytes(bytes);
-        return new String(encoded, StandardCharsets.US_ASCII);
-    }
 
-    private static byte[] encodeUuidBytes(byte[] src) {
-        if (src.length != 16) {
-            throw new IllegalArgumentException("Invalid src byte array: " + BytesUtils.toString(src));
-        }
-        int srcPtr;
-        int dstPtr;
-        byte[] dst = new byte[22];
-        // first 15 bytes, in groups of 3
-        for (int i = 0; i < 5; i++) {
-            //               1         2
-            //     012345678901234567890123
-            // src |......||......||......| -> [11111111][11111111][11111111]
-            // dst |....||....||....||....| -> [00111111][00111111][00111111][00111111]
-            srcPtr = i * 3;
-            dstPtr = i * 4;
-            int currentBits;
-            currentBits  = (src[srcPtr  ] & BIT_MASK_8) << 16;
-            currentBits |= (src[srcPtr+1] & BIT_MASK_8) << 8;
-            currentBits |= (src[srcPtr+2] & BIT_MASK_8);
-            dst[dstPtr  ] = (byte) CODE_TABLE[(currentBits >>> 18) & BIT_MASK_6];
-            dst[dstPtr+1] = (byte) CODE_TABLE[(currentBits >>> 12) & BIT_MASK_6];
-            dst[dstPtr+2] = (byte) CODE_TABLE[(currentBits >>>  6) & BIT_MASK_6];
-            dst[dstPtr+3] = (byte) CODE_TABLE[ currentBits         & BIT_MASK_6];
-        }
-        // left over last byte
-        //     01234567
-        // src |......| -> [11111111]
-        // dst |....||| -> [00111111][00110000]
-        int currentBits = src[15] & BIT_MASK_8;
-        dst[20] = (byte) CODE_TABLE[(currentBits >> 2) & BIT_MASK_6];
-        dst[21] = (byte) CODE_TABLE[(currentBits << 4) & BIT_MASK_6];
-        return dst;
+        byte[] encode = ENCODER.encode(bytes);
+        return new String(encode, StandardCharsets.US_ASCII);
     }
 
     /**
@@ -147,46 +81,16 @@ public class AgentUuidUtils {
      */
     public static UUID decode(String src) {
         Objects.requireNonNull(src, "src");
+        byte[] bytes = src.getBytes(StandardCharsets.US_ASCII);
+        if (bytes.length != 22) {
+            throw new IllegalArgumentException("Invalid src byte array: " + src);
+        }
 
-        byte[] decoded = decodeToUuidBytes(src.getBytes(StandardCharsets.US_ASCII));
+        byte[] decoded = Base64.getUrlDecoder().decode(bytes);
 
         long mostSigBits = BytesUtils.bytesToLong(decoded, 0);
         long leastSigBits = BytesUtils.bytesToLong(decoded, BytesUtils.LONG_BYTE_LENGTH);
         return new UUID(mostSigBits, leastSigBits);
     }
 
-    private static byte[] decodeToUuidBytes(byte[] src) {
-        if (src.length != 22) {
-            throw new IllegalArgumentException("Invalid src byte array: " + BytesUtils.toString(src));
-        }
-        int srcPtr;
-        int dstPtr;
-        byte[] dst = new byte[16];
-        // first 20 bytes, in groups of 4
-        for (int i = 0; i < 5; i++) {
-            //               1         2         3
-            //     01234567890123456789012345678901
-            // src |......||......||......||......| -> [00111111][00111111][00111111][00111111]
-            // dst   |....|  |....|  |....|  |....| -> [11111111][11111111][11111111]
-            srcPtr = i * 4;
-            dstPtr = i * 3;
-            int currentBits;
-            currentBits  = INVERSE_LOOKUP.lookup(src[srcPtr  ]) << 18;
-            currentBits |= INVERSE_LOOKUP.lookup(src[srcPtr+1]) << 12;
-            currentBits |= INVERSE_LOOKUP.lookup(src[srcPtr+2]) << 6;
-            currentBits |= INVERSE_LOOKUP.lookup(src[srcPtr+3]);
-            dst[dstPtr  ] = (byte) (currentBits >> 16);
-            dst[dstPtr+1] = (byte) (currentBits >>  8);
-            dst[dstPtr+2] = (byte)  currentBits;
-        }
-        // left over 2 bytes
-        //               1
-        //     0123456789012345
-        // src |......||......| -> [00111111][00110000]
-        // dst   |....|  ||     -> [11111111]
-        int currentBits = INVERSE_LOOKUP.lookup(src[20]) << 2
-                        | INVERSE_LOOKUP.lookup(src[21]) >> 4;
-        dst[15] = (byte) currentBits;
-        return dst;
-    }
 }
