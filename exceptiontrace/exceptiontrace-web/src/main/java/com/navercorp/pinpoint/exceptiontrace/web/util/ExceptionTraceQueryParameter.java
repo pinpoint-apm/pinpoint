@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
@@ -96,7 +97,9 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         }
 
         public Builder setAgentId(String agentId) {
-            this.agentId = agentId;
+            if (StringUtils.hasLength(agentId)) {
+                this.agentId = agentId;
+            }
             return self();
         }
 
