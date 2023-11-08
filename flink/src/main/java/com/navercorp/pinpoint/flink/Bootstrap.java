@@ -49,6 +49,7 @@ import java.util.Map;
 public class Bootstrap {
     private static final Logger logger = LogManager.getLogger(Bootstrap.class);
     private static final String SPRING_PROFILE = "spring.profiles.active";
+    private static final String PINPOINT_PROFILE = "pinpoint.profiles.active";
 
     private volatile static Bootstrap instance;
 
@@ -102,7 +103,7 @@ public class Bootstrap {
             synchronized(Bootstrap.class) {
                 if (instance == null) {
                     String profiles = jobParameters.getOrDefault(SPRING_PROFILE, "local");
-                    System.setProperty(SPRING_PROFILE, profiles);
+                    System.setProperty(PINPOINT_PROFILE, profiles);
                     instance = new Bootstrap();
                     logger.info("Bootstrap initialization. : job parameter " + jobParameters);
                 }
