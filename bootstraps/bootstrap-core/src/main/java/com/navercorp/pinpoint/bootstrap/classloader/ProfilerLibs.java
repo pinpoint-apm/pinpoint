@@ -43,15 +43,18 @@ public class ProfilerLibs {
                 "io.grpc",
                 "io.netty",
                 "com.google.protobuf",
+                "com.google.gson",
                 "google.protobuf",
                 "com.google.grpc",
                 // proto-google-common-protos-x.x.x.jar
                 "com.google.api",
                 "com.google.cloud",
+                "com.google.geo",
                 "com.google.logging",
                 "com.google.longrunning",
                 "com.google.rpc",
                 "com.google.type",
+                "com.google.errorprone.annotations",
 
                 "com.github.benmanes.caffeine",
                 "org.objectweb.asm",
@@ -59,6 +62,7 @@ public class ProfilerLibs {
                 "org.apache.thrift",
                 "org.jboss.netty",
                 "com.google.common",
+                "com.google.j2objc.annotations",
                 // google guice
                 "com.google.inject",
                 "org.aopalliance",
@@ -66,9 +70,17 @@ public class ProfilerLibs {
                 "org.yaml.snakeyaml",
 
                 "org.apache.commons.lang",
+                "org.apache.commons.logging",
                 "org.apache.log4j",
                 "org.apache.logging.log4j",
-                "com.nhncorp.nelo2"
+                "com.nhncorp.nelo2",
+
+                "io.perfmark",
+                "javax.annotation",
+                "jakarta.annotation",
+                "jakarta.inject",
+                "org.codehaus.mojo.animal_sniffer",
+                "org.checkerframework"
         };
 
         PINPOINT_PROFILER_CLASS = Collections.unmodifiableList(Arrays.asList(lib));
