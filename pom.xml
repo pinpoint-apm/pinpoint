@@ -256,7 +256,7 @@
         <plugin.antrun.version>3.0.0</plugin.antrun.version>
         <plugin.build-helper.version>3.4.0</plugin.build-helper.version>
 
-        <plugin.spotbugs.version>4.4.2.2</plugin.spotbugs.version>
+        <plugin.spotbugs.version>4.8.1</plugin.spotbugs.version>
         <plugin.pmd.version>3.16.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.3.0</plugin.enforcer.version>
