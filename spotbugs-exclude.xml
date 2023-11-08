@@ -19,6 +19,7 @@
             <Package name="com.navercorp.pinpoint.grpc.trace.*" />
 
             <Package name="com.pinpoint.test.plugin.*" />
+            <Package name="com.pinpoint.test.plugin.dto.*" />
         </Or>
     </Match>
 
