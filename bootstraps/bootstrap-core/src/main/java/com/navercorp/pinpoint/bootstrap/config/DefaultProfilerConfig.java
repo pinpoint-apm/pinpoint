@@ -45,6 +45,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // TestAgent only
     public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
 
+    public static final String AGENT_CLASSLOADER_ADDITIONAL_LIBS = "profiler.agent.classloader.additional-libs";
+
     private final Properties properties;
 
     private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.GRPC;
@@ -80,6 +82,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String injectionModuleFactoryClazzName = null;
     @Value("${profiler.application.namespace}")
     private String applicationNamespace = "";
+
+    @Value("${" + AGENT_CLASSLOADER_ADDITIONAL_LIBS + "}")
+    private String agentClassloaderAdditionalLibs = "";
 
 
     public DefaultProfilerConfig() {
@@ -166,6 +171,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getLogDirMaxBackupSize() {
         return logDirMaxBackupSize;
+    }
+
+    @Override
+    public List<String> getAgentClassloaderAdditionalLibs() {
+        return StringUtils.tokenizeToStringList(agentClassloaderAdditionalLibs, ",");
     }
 
     @Override
