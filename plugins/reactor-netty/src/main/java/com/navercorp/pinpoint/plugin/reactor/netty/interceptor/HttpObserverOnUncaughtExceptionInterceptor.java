@@ -29,11 +29,13 @@ import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
 
 public class HttpObserverOnUncaughtExceptionInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
     private final boolean traceHttpError;
+    private final boolean markErrorHttpError;
 
     public HttpObserverOnUncaughtExceptionInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
         final ReactorNettyPluginConfig config = new ReactorNettyPluginConfig(traceContext.getProfilerConfig());
         this.traceHttpError = config.isTraceHttpError();
+        this.markErrorHttpError = config.isMarkErrorHttpError();
     }
 
     @Override
@@ -63,7 +65,7 @@ public class HttpObserverOnUncaughtExceptionInterceptor extends AsyncContextSpan
             recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 1, Throwable.class);
             if (argThrowable != null) {
-                recorder.recordException(argThrowable);
+                recorder.recordException(markErrorHttpError, argThrowable);
             }
         }
     }

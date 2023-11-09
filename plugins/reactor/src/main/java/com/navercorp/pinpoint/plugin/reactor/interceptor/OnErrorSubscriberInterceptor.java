@@ -30,11 +30,13 @@ import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
     private final boolean traceOnError;
+    private final boolean markErrorOnError;
 
     public OnErrorSubscriberInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
         this.traceOnError = config.isTraceOnError();
+        this.markErrorOnError = config.isMarkErrorOnError();
     }
 
     // AsyncContext must exist in Target for tracking.
@@ -63,7 +65,7 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAro
             recorder.recordApi(methodDescriptor);
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {
-                recorder.recordException(argThrowable);
+                recorder.recordException(markErrorOnError, argThrowable);
             }
         }
     }

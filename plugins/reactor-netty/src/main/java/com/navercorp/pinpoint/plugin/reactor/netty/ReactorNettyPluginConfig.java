@@ -39,6 +39,8 @@ public class ReactorNettyPluginConfig {
     private final boolean traceHttpError;
     private final boolean clientEnable;
     private boolean param = true;
+    private final boolean markErrorTransportError;
+    private final boolean markErrorHttpError;
 
     public ReactorNettyPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -60,7 +62,9 @@ public class ReactorNettyPluginConfig {
 
         // Reactor
         this.traceTransportError = config.readBoolean("profiler.reactor-netty.client.trace.transport.error", false);
+        this.markErrorTransportError = config.readBoolean("profiler.reactor-netty.client.mark.error.transport.error", false);
         this.traceHttpError = config.readBoolean("profiler.reactor-netty.client.trace.http.error", false);
+        this.markErrorHttpError = config.readBoolean("profiler.reactor-netty.client.mark.error.http.error", false);
     }
 
     public boolean isEnable() {
@@ -111,6 +115,14 @@ public class ReactorNettyPluginConfig {
         return traceHttpError;
     }
 
+    public boolean isMarkErrorTransportError() {
+        return markErrorTransportError;
+    }
+
+    public boolean isMarkErrorHttpError() {
+        return markErrorHttpError;
+    }
+
     @Override
     public String toString() {
         return "ReactorNettyPluginConfig{" +
@@ -126,6 +138,8 @@ public class ReactorNettyPluginConfig {
                 ", traceHttpError=" + traceHttpError +
                 ", clientEnable=" + clientEnable +
                 ", param=" + param +
+                ", markErrorTransportError=" + markErrorTransportError +
+                ", markErrorHttpError=" + markErrorHttpError +
                 '}';
     }
 }

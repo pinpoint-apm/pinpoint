@@ -29,11 +29,13 @@ import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
 
 public class ClientTransportSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
     private final boolean traceTransportError;
+    private final boolean markErrorTransportError;
 
     public ClientTransportSubscriberInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
         final ReactorNettyPluginConfig config = new ReactorNettyPluginConfig(traceContext.getProfilerConfig());
         this.traceTransportError = config.isTraceTransportError();
+        this.markErrorTransportError = config.isMarkErrorTransportError();
     }
 
     // AsyncContext must exist in Target for tracking.
@@ -62,7 +64,7 @@ public class ClientTransportSubscriberInterceptor extends AsyncContextSpanEventS
             recorder.recordApi(methodDescriptor);
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {
-                recorder.recordException(argThrowable);
+                recorder.recordException(markErrorTransportError, argThrowable);
             }
         }
     }
