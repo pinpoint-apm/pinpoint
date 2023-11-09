@@ -23,19 +23,19 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.resilience4j.Resilience4JConstants;
 import com.navercorp.pinpoint.plugin.resilience4j.Resilience4JPluginConfig;
 
 public class CircuitBreakerSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
     private final boolean traceCircuitBreaker;
+    private final boolean markErrorCircuitBreaker;
 
     public CircuitBreakerSubscriberInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
         final Resilience4JPluginConfig config = new Resilience4JPluginConfig(traceContext.getProfilerConfig());
         this.traceCircuitBreaker = config.isTraceCircuitBreaker();
+        this.markErrorCircuitBreaker = config.isMarkErrorCircuitBreaker();
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args) {
@@ -61,17 +61,10 @@ public class CircuitBreakerSubscriberInterceptor extends AsyncContextSpanEventSi
         if (traceCircuitBreaker && trace.canSampled()) {
             recorder.recordApi(methodDescriptor);
             recorder.recordServiceType(Resilience4JConstants.RESILIENCE4J);
-            recorder.recordException(throwable);
 
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {
-                final String message = argThrowable.getMessage();
-                if (StringUtils.hasLength(message)) {
-                    final String hookOnMessage = "CIRCUIT BREAKER(" + StringUtils.abbreviate(message, 128) + ")";
-                    recorder.recordAttribute(AnnotationKey.ARGS0, hookOnMessage);
-                } else {
-                    recorder.recordAttribute(AnnotationKey.ARGS0, "CIRCUIT BREAKER");
-                }
+                recorder.recordException(markErrorCircuitBreaker, argThrowable);
             }
         }
     }
