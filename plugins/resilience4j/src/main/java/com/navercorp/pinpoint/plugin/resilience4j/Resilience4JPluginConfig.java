@@ -26,6 +26,7 @@ import java.util.Objects;
 public class Resilience4JPluginConfig {
     private final boolean enable;
     private final boolean traceCircuitBreaker;
+    private final boolean markErrorCircuitBreaker;
 
     public Resilience4JPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -33,6 +34,7 @@ public class Resilience4JPluginConfig {
         // plugin
         this.enable = config.readBoolean("profiler.resilience4j.enable", true);
         this.traceCircuitBreaker = config.readBoolean("profiler.resilience4j.trace.circuit-breaker", true);
+        this.markErrorCircuitBreaker = config.readBoolean("profiler.resilience4j.mark.error.circuit-breaker", false);
     }
 
     public boolean isEnable() {
@@ -43,11 +45,16 @@ public class Resilience4JPluginConfig {
         return traceCircuitBreaker;
     }
 
+    public boolean isMarkErrorCircuitBreaker() {
+        return markErrorCircuitBreaker;
+    }
+
     @Override
     public String toString() {
         return "Resilience4JPluginConfig{" +
                 "enable=" + enable +
                 ", traceCircuitBreaker=" + traceCircuitBreaker +
+                ", markErrorCircuitBreaker=" + markErrorCircuitBreaker +
                 '}';
     }
 }
