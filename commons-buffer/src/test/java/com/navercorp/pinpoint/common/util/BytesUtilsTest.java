@@ -214,8 +214,7 @@ public class BytesUtilsTest {
     @Test
     public void testAppropriateBytesToLong() {
         byte[] such_long = new byte[12];
-        int i;
-        for (i = 0; i < 12; i++) {
+        for (int i = 0; i < 12; i++) {
             such_long[i] = (byte) ((i << 4) + i);
         }
         assertEquals(0x33445566778899AAl, BytesUtils.bytesToLong(such_long, 3));
@@ -225,8 +224,7 @@ public class BytesUtilsTest {
     public void testOverflowBytesToLong() {
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
             byte[] such_long = new byte[12];
-            int i;
-            for (i = 0; i < 12; i++) {
+            for (int i = 0; i < 12; i++) {
                 such_long[i] = (byte) ((i << 4) + i);
             }
             // overflow!
