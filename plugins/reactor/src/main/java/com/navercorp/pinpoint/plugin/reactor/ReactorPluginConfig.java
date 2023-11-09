@@ -35,6 +35,7 @@ public class ReactorPluginConfig {
     private final boolean traceTimeout;
     private final boolean traceSubscribe;
     private final boolean markErrorRetry;
+    private final boolean markErrorOnError;
 
     public ReactorPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -42,6 +43,7 @@ public class ReactorPluginConfig {
         // plugin
         this.enable = config.readBoolean("profiler.reactor.enable", true);
         this.traceOnError = config.readBoolean("profiler.reactor.trace.onError", false);
+        this.markErrorOnError = config.readBoolean("profiler.reactor.mark.error.onError", false);
         this.tracePublishOn = config.readBoolean("profiler.reactor.trace.publishOn", true);
         this.traceSubscribeOn = config.readBoolean("profiler.reactor.trace.subscribeOn", true);
         this.traceDelay = config.readBoolean("profiler.reactor.trace.delay", true);
@@ -94,6 +96,10 @@ public class ReactorPluginConfig {
         return markErrorRetry;
     }
 
+    public boolean isMarkErrorOnError() {
+        return markErrorOnError;
+    }
+
     @Override
     public String toString() {
         return "ReactorPluginConfig{" +
@@ -106,6 +112,8 @@ public class ReactorPluginConfig {
                 ", traceRetry=" + traceRetry +
                 ", traceTimeout=" + traceTimeout +
                 ", traceSubscribe=" + traceSubscribe +
+                ", markErrorRetry=" + markErrorRetry +
+                ", markErrorOnError=" + markErrorOnError +
                 '}';
     }
 }
