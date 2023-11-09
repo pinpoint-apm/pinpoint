@@ -34,6 +34,7 @@ public class ReactorPluginConfig {
     private final boolean traceRetry;
     private final boolean traceTimeout;
     private final boolean traceSubscribe;
+    private final boolean markErrorRetry;
 
     public ReactorPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -47,6 +48,8 @@ public class ReactorPluginConfig {
         this.traceInterval = config.readBoolean("profiler.reactor.trace.interval", true);
 
         this.traceRetry = config.readBoolean("profiler.reactor.trace.retry", true);
+        this.markErrorRetry = config.readBoolean("profiler.reactor.mark.error.retry", false);
+
         this.traceTimeout = config.readBoolean("profiler.reactor.trace.timeout", true);
         this.traceSubscribe = config.readBoolean("profiler.reactor.trace.subscribe", true);
     }
@@ -85,6 +88,10 @@ public class ReactorPluginConfig {
 
     public boolean isTraceSubscribe() {
         return traceSubscribe;
+    }
+
+    public boolean isMarkErrorRetry() {
+        return markErrorRetry;
     }
 
     @Override

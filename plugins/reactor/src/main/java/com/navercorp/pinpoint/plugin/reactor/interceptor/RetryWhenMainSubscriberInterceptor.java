@@ -23,20 +23,20 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
 public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
     private final boolean traceRetry;
+    private final boolean markErrorRetry;
 
     public RetryWhenMainSubscriberInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
         this.traceRetry = config.isTraceRetry();
+        this.markErrorRetry = config.isMarkErrorRetry();
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args) {
@@ -62,17 +62,10 @@ public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventSim
         if (traceRetry && trace.canSampled()) {
             recorder.recordApi(methodDescriptor);
             recorder.recordServiceType(ReactorConstants.REACTOR);
-            recorder.recordException(throwable);
 
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {
-                final String message = argThrowable.getMessage();
-                if (StringUtils.hasLength(message)) {
-                    final String whenErrorMessage = "RETRY(" + StringUtils.abbreviate(message, 128) + ")";
-                    recorder.recordAttribute(AnnotationKey.ARGS0, whenErrorMessage);
-                } else {
-                    recorder.recordAttribute(AnnotationKey.ARGS0, "RETRY");
-                }
+                recorder.recordException(markErrorRetry, argThrowable);
             }
         }
     }
