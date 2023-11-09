@@ -57,6 +57,8 @@ public interface ProfilerConfig {
 
     String getApplicationNamespace();
 
+    List<String> getAgentClassloaderAdditionalLibs();
+
     String readString(String propertyName, String defaultValue);
 
     String readString(String propertyName, String defaultValue, ValueResolver valueResolver);

@@ -39,10 +39,12 @@ import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Jongho Moon
@@ -126,7 +128,8 @@ class PinpointStarter {
 
             // this is the library list that must be loaded
             URL[] urls = resolveLib(agentDirectory);
-            final ClassLoader agentClassLoader = createClassLoader("pinpoint.agent", urls, parentClassLoader);
+            List<String> agentClassloaderLibs = getAgentClassloaderLibs(profilerConfig);
+            final ClassLoader agentClassLoader = createClassLoader("pinpoint.agent", urls, parentClassLoader, agentClassloaderLibs);
             if (moduleBootLoader != null) {
                 this.logger.info("defineAgentModule");
                 moduleBootLoader.defineAgentModule(agentClassLoader, urls);
@@ -159,6 +162,16 @@ class PinpointStarter {
             return false;
         }
         return true;
+    }
+
+    private List<String> getAgentClassloaderLibs(ProfilerConfig profilerConfig) {
+        Set<String> libs = new HashSet<>();
+        libs.addAll(ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        libs.addAll(profilerConfig.getAgentClassloaderAdditionalLibs());
+
+        List<String> copy = new ArrayList<>(libs);
+        copy.sort(String.CASE_INSENSITIVE_ORDER);
+        return copy;
     }
 
     private void cleanLogDir(Path agentLogFilePath, ProfilerConfig config) {
@@ -209,17 +222,15 @@ class PinpointStarter {
     }
 
 
-    private ClassLoader createClassLoader(final String name, final URL[] urls, final ClassLoader parentClassLoader) {
+    private ClassLoader createClassLoader(final String name, final URL[] urls, final ClassLoader parentClassLoader, List<String> libClass) {
         if (System.getSecurityManager() != null) {
             return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
                 public ClassLoader run() {
-                    return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader,
-                            ProfilerLibs.PINPOINT_PROFILER_CLASS);
+                    return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, libClass);
                 }
             });
         } else {
-            return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader,
-                    ProfilerLibs.PINPOINT_PROFILER_CLASS);
+            return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, libClass);
         }
     }
 
