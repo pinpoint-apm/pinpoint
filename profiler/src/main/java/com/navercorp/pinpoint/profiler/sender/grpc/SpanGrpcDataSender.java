@@ -155,13 +155,20 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
     }
 
     private void startStream() {
+        DefaultStreamTask<SpanType, PSpanMessage, Empty> streamTask = null;
         try {
-            StreamTask<SpanType, PSpanMessage> streamTask = new DefaultStreamTask<>(id, clientStreamService,
+            streamTask = new DefaultStreamTask<>(id, clientStreamService,
                     this.streamExecutorFactory, this.queue, this.dispatcher, failState);
             streamTask.start();
             this.currentStreamTask = streamTask;
         } catch (Throwable th) {
             logger.error("startStream error", th);
+            if (streamTask != null && streamTask.callOnError(th)) {
+                logger.info("task stopped, reconnection scheduled");
+            } else {
+                reconnector.reconnect();
+                logger.info("reconnection scheduled");
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.stream;
 
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.sender.grpc.ClientStreamingService;
 import com.navercorp.pinpoint.profiler.sender.grpc.MessageDispatcher;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamId;
@@ -8,9 +7,10 @@ import com.navercorp.pinpoint.profiler.sender.grpc.StreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamTask;
 import com.navercorp.pinpoint.profiler.util.NamedRunnable;
 import io.grpc.stub.ClientCallStreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -111,6 +111,7 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
                     status = FinishStatus.INTERRUPTED;
                 } catch (Throwable th) {
                     logger.error("Unexpected DispatchThread error {}/{}", Thread.currentThread().getName(), this, th);
+                    stream.onError(th);
                 }
 
                 logger.info("dispatch thread end status:{} {}", status, this);
@@ -145,6 +146,18 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
 
     public boolean isStop() {
         return stop;
+    }
+
+    public boolean callOnError(Throwable t) {
+        boolean onErrorCalled = false;
+
+        final ClientCallStreamObserver<ReqT> copy = this.stream;
+        if (copy != null) {
+            copy.onError(t);
+            onErrorCalled = true;
+        }
+        logger.info("callOnError {}, onErrorCalled: {}", this.streamId, onErrorCalled);
+        return onErrorCalled;
     }
 
     @Override

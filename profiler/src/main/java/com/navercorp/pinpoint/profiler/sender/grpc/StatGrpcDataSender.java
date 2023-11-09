@@ -128,13 +128,20 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
 
     private void startStream() {
 //        streamTaskManager.closeAllStream();
+        DefaultStreamTask<MetricType, PStatMessage, Empty> streamTask = null;
         try {
-            StreamTask<MetricType, PStatMessage> streamTask =  new DefaultStreamTask<>(ID, clientStreamService,
+            streamTask = new DefaultStreamTask<>(ID, clientStreamService,
                     this.streamExecutorFactory, this.queue, this.dispatcher, failState);
             streamTask.start();
             this.currentStreamTask = streamTask;
         } catch (Throwable th) {
             logger.error("Unexpected error", th);
+            if (streamTask != null && streamTask.callOnError(th)) {
+                logger.info("task stopped, reconnection scheduled");
+            } else {
+                reconnector.reconnect();
+                logger.info("reconnection scheduled");
+            }
         }
     }
 
