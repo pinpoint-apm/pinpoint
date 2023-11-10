@@ -219,10 +219,11 @@
         <caffeine.version>2.9.2</caffeine.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.77.Final</netty4.version>
+        <netty4.version>4.1.97.Final</netty4.version>
 
-        <grpc.version>1.49.2</grpc.version>
-        <protoc.version>3.21.7</protoc.version>
+        <grpc.version>1.59.0</grpc.version>
+        <protobuf-java.version>3.24.0</protobuf-java.version>
+        <protoc.version>3.24.0</protoc.version>
 
         <guava.version>32.1.2-jre</guava.version>
         <guice.version>7.0.0</guice.version>
@@ -1560,7 +1561,7 @@
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>3.21.7</version>
+                <version>${protobuf-java.version}</version>
             </dependency>
 
             <dependency>

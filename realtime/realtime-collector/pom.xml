@@ -29,6 +29,12 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-server-cluster</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-inprocess</artifactId>
+            <version>${grpc.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.awaitility</groupId>
