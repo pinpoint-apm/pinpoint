@@ -58,7 +58,7 @@ public class ExceptionWrapper {
             return null;
         }
         return new ExceptionWrapper(
-                StringUtils.defaultIfEmpty(throwable.getClass().getCanonicalName(), EMPTY_STRING),
+                StringUtils.defaultIfEmpty(throwable.getClass().getName(), EMPTY_STRING),
                 StringUtils.abbreviate(throwable.getMessage(), maxErrorMessageLength),
                 throwable.getStackTrace(),
                 startTime,
