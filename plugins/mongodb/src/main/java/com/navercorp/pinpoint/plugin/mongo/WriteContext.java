@@ -248,11 +248,11 @@ class WriteContext {
     private void parseFilterObject(Object arg) {
 
         String argName = arg.getClass().getName();
-        logger.debug("filter arg : " + arg.getClass().getName());
+        logger.debug("filter arg : {}", argName);
 
         //OperatorFilter
         switch (argName) {
-            case MongoConstants.MONGO_FILTER_GEOMETRYOPERATOR:
+            case MongoConstants.MONGO_FILTER_GEOMETRY_OPERATOR:
                 logger.debug("writing GeometryOperatorFilter");
 
                 bsonWriter.writeStartDocument();
@@ -289,7 +289,7 @@ class WriteContext {
                 bsonWriter.writeEndDocument();
                 break;
             //IterableOperatorFilter
-            case MongoConstants.MONGO_FILTER_ITERABLEOPERATOR:
+            case MongoConstants.MONGO_FILTER_ITERABLE_OPERATOR:
                 logger.debug("writing IterableOperatorFilter");
 
                 if (arg instanceof FieldNameGetter) {
@@ -309,7 +309,7 @@ class WriteContext {
                 }
                 break;
             //SimpleEncodingFilter
-            case MongoConstants.MONGO_FILTER_SIMPLEENCODING:
+            case MongoConstants.MONGO_FILTER_SIMPLE_ENCODING:
                 //else if (arg instanceof FieldNameGetter && arg instanceof ValueGetter) {
 
                 logger.debug("writing SimpleEncodingFilter");
@@ -754,23 +754,27 @@ class WriteContext {
     }
 
     private boolean isSort(Object arg) {
-        if (MongoConstants.MONGO_SORT_COMPOSITE.equals(arg.getClass().getName())) {
-            return true;
-        }
-        return false;
+        return MongoConstants.MONGO_SORT_COMPOSITE.equals(arg.getClass().getName());
     }
 
     private boolean isUpdates(Object arg) {
-        if (MongoConstants.UPDATESLIST.contains(arg.getClass().getName())) {
-            return true;
+        String name = arg.getClass().getName();
+        return contains(MongoConstants.UPDATES_LIST, name);
+    }
+
+    private boolean isFilter(Object arg) {
+        String name = arg.getClass().getName();
+        return contains(MongoConstants.FILTER_LIST, name);
+    }
+
+    private static boolean contains(String[] list, String name) {
+        for (String className : list) {
+            if (className.equals(name)) {
+                return true;
+            }
         }
         return false;
     }
 
-    private boolean isFilter(Object arg) {
-        if (MongoConstants.FILTERLIST.contains(arg.getClass().getName())) {
-            return true;
-        }
-        return false;
-    }
+
 }

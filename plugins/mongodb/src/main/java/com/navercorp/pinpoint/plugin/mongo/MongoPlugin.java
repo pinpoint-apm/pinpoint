@@ -545,13 +545,13 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             }
 
             List<InstrumentClass> nestedClasses = target.getNestedClasses(
-                    ClassFilters.name(MongoConstants.FILTERLIST.toArray(new String[0]))
+                    ClassFilters.name(MongoConstants.FILTER_LIST)
             );
 
             for (final InstrumentClass nestedClass : nestedClasses) {
 
                 //GeometryOperatorFilter 3.1+
-                if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_GEOMETRYOPERATOR)) {
+                if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_GEOMETRY_OPERATOR)) {
                     instrumentor.transform(loader, nestedClass.getName(), GeometryOperatorTransform.class);
                 }
 
@@ -561,12 +561,12 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                 }
 
                 //SimpleEncodingFilter
-                if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_SIMPLEENCODING)) {
+                if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_SIMPLE_ENCODING)) {
                     instrumentor.transform(loader, nestedClass.getName(), SimpleEncodingFilterTransform.class);
                 }
 
                 //IterableOperatorFilter
-                if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_ITERABLEOPERATOR)) {
+                if (nestedClass.getName().equals(MongoConstants.MONGO_FILTER_ITERABLE_OPERATOR)) {
                     instrumentor.transform(loader, nestedClass.getName(), IterableOperatorFilterTransform.class);
                 }
 
@@ -766,7 +766,7 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             }
 
             List<InstrumentClass> nestedClasses = target.getNestedClasses(
-                    ClassFilters.name(MongoConstants.UPDATESLIST.toArray(new String[0]))
+                    ClassFilters.name(MongoConstants.UPDATES_LIST)
             );
 
             for (final InstrumentClass nestedClass : nestedClasses) {
