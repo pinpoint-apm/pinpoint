@@ -120,107 +120,109 @@ class WriteContext {
         String argName = arg.getClass().getName();
 
         //SimpleUpdate
-        if (argName.equals(MongoConstants.MONGO_UPDATES_SIMPLE)) {
-            logger.debug("writing SimpleUpdate");
+        switch (argName) {
+            case MongoConstants.MONGO_UPDATES_SIMPLE:
+                logger.debug("writing SimpleUpdate");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((OperatorGetter) arg)._$PINPOINT$_getOperator());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((OperatorGetter) arg)._$PINPOINT$_getOperator());
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            writeValue(((ValueGetter) arg)._$PINPOINT$_getValue());
-            bsonWriter.writeEndDocument();
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
+                writeValue(((ValueGetter) arg)._$PINPOINT$_getValue());
+                bsonWriter.writeEndDocument();
 
-            bsonWriter.writeEndDocument();
-        }
-        //WithEachUpdate
-        if (argName.equals(MongoConstants.MONGO_UPDATES_WITHEACH)) {
-            logger.debug("writing WithEachUpdate");
+                bsonWriter.writeEndDocument();
+                break;
+            //WithEachUpdate
+            case MongoConstants.MONGO_UPDATES_WITHEACH:
+                logger.debug("writing WithEachUpdate");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((OperatorGetter) arg)._$PINPOINT$_getOperator());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((OperatorGetter) arg)._$PINPOINT$_getOperator());
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            bsonWriter.writeStartDocument();
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
+                bsonWriter.writeStartDocument();
 
-            bsonWriter.writeStartArray("$each");
-            for (Object value : ((ListValuesGetter) arg)._$PINPOINT$_getValues()) {
-                writeValue(value);
-            }
-            bsonWriter.writeEndArray();
-            bsonWriter.writeEndDocument();
-            bsonWriter.writeEndDocument();
-            bsonWriter.writeEndDocument();
-        }
-        //PushUpdate
-        if (argName.equals(MongoConstants.MONGO_UPDATES_PUSH)) {
-            logger.debug("writing PushUpdate");
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((OperatorGetter) arg)._$PINPOINT$_getOperator());
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            bsonWriter.writeStartDocument();
-
-            bsonWriter.writeStartArray("$each");
-            for (Object value : ((ListValuesGetter) arg)._$PINPOINT$_getValues()) {
-                writeValue(value);
-            }
-            bsonWriter.writeEndArray();
-
-            PushOptions options = ((PushOptionsGetter) arg)._$PINPOINT$_getPushOptions();
-            if (options != null) {
-                if (options.getPosition() != null) {
-                    bsonWriter.writeInt32("$position", options.getPosition());
+                bsonWriter.writeStartArray("$each");
+                for (Object value : ((ListValuesGetter) arg)._$PINPOINT$_getValues()) {
+                    writeValue(value);
                 }
-                if (options.getSlice() != null) {
-                    bsonWriter.writeInt32("$slice", options.getSlice());
+                bsonWriter.writeEndArray();
+                bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
+                break;
+            //PushUpdate
+            case MongoConstants.MONGO_UPDATES_PUSH:
+                logger.debug("writing PushUpdate");
+
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((OperatorGetter) arg)._$PINPOINT$_getOperator());
+
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
+                bsonWriter.writeStartDocument();
+
+                bsonWriter.writeStartArray("$each");
+                for (Object value : ((ListValuesGetter) arg)._$PINPOINT$_getValues()) {
+                    writeValue(value);
                 }
-                if (options.getSort() != null) {
-                    bsonWriter.writeInt32("$sort", options.getSort());
-                } else if (options.getSortDocument() != null) {
-                    bsonWriter.writeName("$sort");
-                    writeBsonObject(options.getSortDocument());
+                bsonWriter.writeEndArray();
+
+                PushOptions options = ((PushOptionsGetter) arg)._$PINPOINT$_getPushOptions();
+                if (options != null) {
+                    if (options.getPosition() != null) {
+                        bsonWriter.writeInt32("$position", options.getPosition());
+                    }
+                    if (options.getSlice() != null) {
+                        bsonWriter.writeInt32("$slice", options.getSlice());
+                    }
+                    if (options.getSort() != null) {
+                        bsonWriter.writeInt32("$sort", options.getSort());
+                    } else if (options.getSortDocument() != null) {
+                        bsonWriter.writeName("$sort");
+                        writeBsonObject(options.getSortDocument());
+                    }
                 }
-            }
-            bsonWriter.writeEndDocument();
-            bsonWriter.writeEndDocument();
-            bsonWriter.writeEndDocument();
-        }
-        //PullAllUpdate
-        if (argName.equals(MongoConstants.MONGO_UPDATES_PULLALL)) {
-            logger.debug("writing PullAllUpdate");
+                bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
+                break;
+            //PullAllUpdate
+            case MongoConstants.MONGO_UPDATES_PULLALL:
+                logger.debug("writing PullAllUpdate");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$pullAll");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$pullAll");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
 
-            bsonWriter.writeStartArray();
-            for (Object value : ((ListValuesGetter) arg)._$PINPOINT$_getValues()) {
-                writeValue(value);
-            }
-            bsonWriter.writeEndArray();
+                bsonWriter.writeStartArray();
+                for (Object value : ((ListValuesGetter) arg)._$PINPOINT$_getValues()) {
+                    writeValue(value);
+                }
+                bsonWriter.writeEndArray();
 
-            bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
 
-            bsonWriter.writeEndDocument();
-        }
-        //CompositeUpdate
-        if (argName.equals(MongoConstants.MONGO_UPDATES_COMPOSITE)) {
-            logger.debug("writing CompositeUpdate");
+                bsonWriter.writeEndDocument();
+                break;
+            //CompositeUpdate
+            case MongoConstants.MONGO_UPDATES_COMPOSITE:
+                logger.debug("writing CompositeUpdate");
 
-            bsonWriter.writeStartDocument();
+                bsonWriter.writeStartDocument();
 
-            bsonWriter.writeStartArray("$updates");
-            for (Bson value : ((ExtendedBsonListGetter) arg)._$PINPOINT$_getExtendedBsonList()) {
-                writeBsonObject(value);
-            }
-            bsonWriter.writeEndArray();
-            bsonWriter.writeEndDocument();
+                bsonWriter.writeStartArray("$updates");
+                for (Bson value : ((ExtendedBsonListGetter) arg)._$PINPOINT$_getExtendedBsonList()) {
+                    writeBsonObject(value);
+                }
+                bsonWriter.writeEndArray();
+                bsonWriter.writeEndDocument();
+                break;
         }
 
     }
@@ -249,154 +251,156 @@ class WriteContext {
         logger.debug("filter arg : " + arg.getClass().getName());
 
         //OperatorFilter
-        if (argName.equals(MongoConstants.MONGO_FILTER_GEOMETRYOPERATOR)) {
-            logger.debug("writing GeometryOperatorFilter");
+        switch (argName) {
+            case MongoConstants.MONGO_FILTER_GEOMETRYOPERATOR:
+                logger.debug("writing GeometryOperatorFilter");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((OperatorNameGetter) arg)._$PINPOINT$_getOperatorName());
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$geometry");
-
-            writeValue(((GeometryGetter) arg)._$PINPOINT$_getGeometry());
-
-            if (((MaxDistanceGetter) arg)._$PINPOINT$_getMaxDistance() != null) {
-                bsonWriter.writeDouble("$maxDistance", ((MaxDistanceGetter) arg)._$PINPOINT$_getMaxDistance());
-            }
-
-            if (((MinDistanceGetter) arg)._$PINPOINT$_getMinDistance() != null) {
-                bsonWriter.writeDouble("$minDistance", ((MinDistanceGetter) arg)._$PINPOINT$_getMinDistance());
-            }
-
-            bsonWriter.writeEndDocument();
-            bsonWriter.writeEndDocument();
-            bsonWriter.writeEndDocument();
-        }
-        //OperatorFilter
-        if (argName.equals(MongoConstants.MONGO_FILTER_OPERATOR)) {
-            logger.debug("writing OperatorFilter");
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((OperatorNameGetter) arg)._$PINPOINT$_getOperatorName());
-            writeValue(((ValueGetter) arg)._$PINPOINT$_getValue());
-            bsonWriter.writeEndDocument();
-            bsonWriter.writeEndDocument();
-        }
-        //IterableOperatorFilter
-        else if (argName.equals(MongoConstants.MONGO_FILTER_ITERABLEOPERATOR)) {
-            logger.debug("writing IterableOperatorFilter");
-
-            if (arg instanceof FieldNameGetter) {
                 bsonWriter.writeStartDocument();
                 bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            }
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((OperatorNameGetter) arg)._$PINPOINT$_getOperatorName());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$geometry");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((OperatorNameGetter) arg)._$PINPOINT$_getOperatorName());
+                writeValue(((GeometryGetter) arg)._$PINPOINT$_getGeometry());
 
-            writeValue(((IterableValuesGetter) arg)._$PINPOINT$_getValues());
+                if (((MaxDistanceGetter) arg)._$PINPOINT$_getMaxDistance() != null) {
+                    bsonWriter.writeDouble("$maxDistance", ((MaxDistanceGetter) arg)._$PINPOINT$_getMaxDistance());
+                }
 
-            bsonWriter.writeEndDocument();
+                if (((MinDistanceGetter) arg)._$PINPOINT$_getMinDistance() != null) {
+                    bsonWriter.writeDouble("$minDistance", ((MinDistanceGetter) arg)._$PINPOINT$_getMinDistance());
+                }
 
-            if (arg instanceof FieldNameGetter) {
                 bsonWriter.writeEndDocument();
-            }
-        }
-        //SimpleEncodingFilter
-        else if (argName.equals(MongoConstants.MONGO_FILTER_SIMPLEENCODING)) {
-            //else if (arg instanceof FieldNameGetter && arg instanceof ValueGetter) {
+                bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
+                break;
+            //OperatorFilter
+            case MongoConstants.MONGO_FILTER_OPERATOR:
+                logger.debug("writing OperatorFilter");
 
-            logger.debug("writing SimpleEncodingFilter");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((OperatorNameGetter) arg)._$PINPOINT$_getOperatorName());
+                writeValue(((ValueGetter) arg)._$PINPOINT$_getValue());
+                bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
+                break;
+            //IterableOperatorFilter
+            case MongoConstants.MONGO_FILTER_ITERABLEOPERATOR:
+                logger.debug("writing IterableOperatorFilter");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            writeValue(((ValueGetter) arg)._$PINPOINT$_getValue());
-            bsonWriter.writeEndDocument();
-        }
+                if (arg instanceof FieldNameGetter) {
+                    bsonWriter.writeStartDocument();
+                    bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
+                }
 
-        //SimpleFilter
-        else if (argName.equals(MongoConstants.MONGO_FILTER_SIMPLE)) {
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((OperatorNameGetter) arg)._$PINPOINT$_getOperatorName());
 
-            logger.debug("writing SimpleFilter");
+                writeValue(((IterableValuesGetter) arg)._$PINPOINT$_getValues());
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            BsonValue bsonValue = ((BsonValueGetter) arg)._$PINPOINT$_getValue();
-            writeBsonValueObject(bsonValue);
-            bsonWriter.writeEndDocument();
-        }
+                bsonWriter.writeEndDocument();
 
-        //AndFilter
-        else if (argName.equals(MongoConstants.MONGO_FILTER_AND)) {
-            logger.debug("writing AndFilter");
+                if (arg instanceof FieldNameGetter) {
+                    bsonWriter.writeEndDocument();
+                }
+                break;
+            //SimpleEncodingFilter
+            case MongoConstants.MONGO_FILTER_SIMPLEENCODING:
+                //else if (arg instanceof FieldNameGetter && arg instanceof ValueGetter) {
 
-            bsonWriter.writeStartDocument();
+                logger.debug("writing SimpleEncodingFilter");
 
-            bsonWriter.writeName("$and");
-            bsonWriter.writeStartArray();
-            for (Bson bsonFilter : ((FiltersGetter) arg)._$PINPOINT$_getFilters()) {
-                logger.debug("writing filters");
-                writeBsonObject(bsonFilter);
-            }
-            bsonWriter.writeEndArray();
-            bsonWriter.writeEndDocument();
-        }
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
+                writeValue(((ValueGetter) arg)._$PINPOINT$_getValue());
+                bsonWriter.writeEndDocument();
+                break;
 
-        //NotFilter
-        else if (argName.equals(MongoConstants.MONGO_FILTER_NOT)) {
-            logger.debug("writing NotFilter");
+            //SimpleFilter
+            case MongoConstants.MONGO_FILTER_SIMPLE:
 
-            bsonWriter.writeStartDocument();
+                logger.debug("writing SimpleFilter");
 
-            bsonWriter.writeName("$not");
-            writeBsonObject(((FilterGetter) arg)._$PINPOINT$_getFilter());
-            bsonWriter.writeEndDocument();
-        }
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
+                BsonValue bsonValue = ((BsonValueGetter) arg)._$PINPOINT$_getValue();
+                writeBsonValueObject(bsonValue);
+                bsonWriter.writeEndDocument();
+                break;
 
-        //TextFilter
-        else if (argName.equals(MongoConstants.MONGO_FILTER_TEXT)) {
-            logger.debug("writing TextFilter");
+            //AndFilter
+            case MongoConstants.MONGO_FILTER_AND:
+                logger.debug("writing AndFilter");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$text");
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$search");
-            writeString(((SearchGetter) arg)._$PINPOINT$_getSearch());
+                bsonWriter.writeStartDocument();
 
-            TextSearchOptions textSearchOptions = ((TextSearchOptionsGetter) arg)._$PINPOINT$_getTextSearchOptions();
-            if (textSearchOptions.getLanguage() != null) {
-                bsonWriter.writeName("$language");
-                writeString(textSearchOptions.getLanguage());
-            }
-            if (textSearchOptions.getCaseSensitive() != null) {
-                bsonWriter.writeName("$caseSensitive");
-                writeBoolean(textSearchOptions.getCaseSensitive());
-            }
-            if (textSearchOptions.getDiacriticSensitive() != null) {
-                bsonWriter.writeName("$diacriticSensitive");
-                writeBoolean(textSearchOptions.getDiacriticSensitive());
-            }
+                bsonWriter.writeName("$and");
+                bsonWriter.writeStartArray();
+                for (Bson bsonFilter : ((FiltersGetter) arg)._$PINPOINT$_getFilters()) {
+                    logger.debug("writing filters");
+                    writeBsonObject(bsonFilter);
+                }
+                bsonWriter.writeEndArray();
+                bsonWriter.writeEndDocument();
+                break;
 
-            bsonWriter.writeEndDocument();
-            bsonWriter.writeEndDocument();
-        }
+            //NotFilter
+            case MongoConstants.MONGO_FILTER_NOT:
+                logger.debug("writing NotFilter");
 
-        //OrNorFilter
-        else if (argName.equals(MongoConstants.MONGO_FILTER_ORNOR)) {
-            logger.debug("writing OrNorFilter");
-            String input = setInput(arg);
+                bsonWriter.writeStartDocument();
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName(input);
-            bsonWriter.writeStartArray();
-            for (Bson bsonFilter : ((FiltersGetter) arg)._$PINPOINT$_getFilters()) {
-                writeBsonObject(bsonFilter);
-            }
-            bsonWriter.writeEndArray();
-            bsonWriter.writeEndDocument();
+                bsonWriter.writeName("$not");
+                writeBsonObject(((FilterGetter) arg)._$PINPOINT$_getFilter());
+                bsonWriter.writeEndDocument();
+                break;
+
+            //TextFilter
+            case MongoConstants.MONGO_FILTER_TEXT:
+                logger.debug("writing TextFilter");
+
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$text");
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$search");
+                writeString(((SearchGetter) arg)._$PINPOINT$_getSearch());
+
+                TextSearchOptions textSearchOptions = ((TextSearchOptionsGetter) arg)._$PINPOINT$_getTextSearchOptions();
+                if (textSearchOptions.getLanguage() != null) {
+                    bsonWriter.writeName("$language");
+                    writeString(textSearchOptions.getLanguage());
+                }
+                if (textSearchOptions.getCaseSensitive() != null) {
+                    bsonWriter.writeName("$caseSensitive");
+                    writeBoolean(textSearchOptions.getCaseSensitive());
+                }
+                if (textSearchOptions.getDiacriticSensitive() != null) {
+                    bsonWriter.writeName("$diacriticSensitive");
+                    writeBoolean(textSearchOptions.getDiacriticSensitive());
+                }
+
+                bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
+                break;
+
+            //OrNorFilter
+            case MongoConstants.MONGO_FILTER_ORNOR:
+                logger.debug("writing OrNorFilter");
+                String input = setInput(arg);
+
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName(input);
+                bsonWriter.writeStartArray();
+                for (Bson bsonFilter : ((FiltersGetter) arg)._$PINPOINT$_getFilters()) {
+                    writeBsonObject(bsonFilter);
+                }
+                bsonWriter.writeEndArray();
+                bsonWriter.writeEndDocument();
+                break;
         }
     }
 
