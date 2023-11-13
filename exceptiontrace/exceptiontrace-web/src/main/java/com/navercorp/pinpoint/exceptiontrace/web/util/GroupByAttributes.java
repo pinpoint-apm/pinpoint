@@ -25,7 +25,7 @@ public enum GroupByAttributes {
     ERROR_MESSAGE("errorMessage", PinotColumns.ERROR_MESSAGE),
     ERROR_CLASS_NAME("errorClassName", PinotColumns.ERROR_CLASS_NAME),
     STACK_TRACE("stackTrace", PinotColumns.STACK_TRACE_HASH),
-    URI_TEMPLATE("uriTemplate", PinotColumns.URI_TEMPLATE);
+    URI_TEMPLATE("path", PinotColumns.URI_TEMPLATE);
 
     private static final EnumGetter<GroupByAttributes> GETTER = new EnumGetter<>(GroupByAttributes.class);
     private final String name;
