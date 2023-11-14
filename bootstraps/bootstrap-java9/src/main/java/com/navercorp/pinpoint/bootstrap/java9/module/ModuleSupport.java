@@ -189,46 +189,35 @@ public class ModuleSupport {
 //        final Module unsupportedModule = loadModule("jdk.unsupported");
 //        Set<Module> readModules = Set.of(instrumentModule, managementModule, jdkManagement, unsupportedModule);
 
+        // bootstrap ClassLoader --------------------------------
         ClassLoader bootstrapClassLoader = Object.class.getClassLoader();
-        Class<?> traceMataDataClass = forName("com.navercorp.pinpoint.common.trace.TraceMetadataProvider", bootstrapClassLoader);
-        agentModule.addUses(traceMataDataClass);
+        addUses("com.navercorp.pinpoint.common.trace.TraceMetadataProvider", bootstrapClassLoader, agentModule);
 
+        addUses("com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin", bootstrapClassLoader, agentModule);
 
-        Class<?> pluginClazz = forName("com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin", bootstrapClassLoader);
-        agentModule.addUses(pluginClazz);
+        // agent ClassLoader ------------------------------------------
 
-        final String serviceClassName = "com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserProvider";
-        Class<?> serviceClazz = forName(serviceClassName, classLoader);
-        agentModule.addUses(serviceClazz);
+        addUses("com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserProvider", classLoader, agentModule);
 
-        final String nameResolverProviderName = "io.grpc.NameResolverProvider";
-        Class<?> nameResolverProviderClazz = forName(nameResolverProviderName, classLoader);
-        agentModule.addUses(nameResolverProviderClazz);
+        addUses("io.grpc.NameResolverProvider", classLoader, agentModule);
 
-        final String loadBalancerProviderName = "io.grpc.LoadBalancerProvider";
-        Class<?> loadBalancerProviderClazz = forName(loadBalancerProviderName, classLoader);
-        agentModule.addUses(loadBalancerProviderClazz);
+        addUses("io.grpc.LoadBalancerProvider", classLoader, agentModule);
 
-        final String spiProviderName = "org.apache.logging.log4j.spi.Provider";
-        Class<?> spiProviderClazz = forName(spiProviderName, classLoader);
-        agentModule.addUses(spiProviderClazz);
+        addUses("org.apache.logging.log4j.spi.Provider", classLoader, agentModule);
 
-        final String log4jProviderName = "org.apache.logging.log4j.core.impl.Log4jProvider";
-        Class<?> log4jProviderClazz = forName(log4jProviderName, classLoader);
-        agentModule.addUses(log4jProviderClazz);
+        addUses("org.apache.logging.log4j.core.impl.Log4jProvider", classLoader, agentModule);
 
-        final String contextDataProviderName = "org.apache.logging.log4j.core.util.ContextDataProvider";
-        Class<?> contextProviderClazz = forName(contextDataProviderName, classLoader);
-        agentModule.addUses(contextProviderClazz);
+        addUses("org.apache.logging.log4j.core.util.ContextDataProvider", classLoader, agentModule);
 
-        final String watchEventServiceName = "org.apache.logging.log4j.core.util.WatchEventService";
-        Class<?> watchEventServiceClazz = forName(watchEventServiceName, classLoader);
-        agentModule.addUses(watchEventServiceClazz);
+        addUses("org.apache.logging.log4j.core.util.WatchEventService", classLoader, agentModule);
 
-        final String slf4JServiceProviderName = "org.slf4j.spi.SLF4JServiceProvider";
-        Class<?> slf4JServiceProviderClazz = forName(slf4JServiceProviderName, classLoader);
-        agentModule.addUses(slf4JServiceProviderClazz);
+        addUses("org.slf4j.spi.SLF4JServiceProvider", classLoader, agentModule);
 
+    }
+
+    private void addUses(String className, ClassLoader classLoader, JavaModule agentModule) {
+        Class<?> clazz = forName(className, classLoader);
+        agentModule.addUses(clazz);
     }
 
     private Class<?> forName(String className, ClassLoader classLoader) {
