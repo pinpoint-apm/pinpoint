@@ -224,6 +224,11 @@ public class ModuleSupport {
         final String watchEventServiceName = "org.apache.logging.log4j.core.util.WatchEventService";
         Class<?> watchEventServiceClazz = forName(watchEventServiceName, classLoader);
         agentModule.addUses(watchEventServiceClazz);
+
+        final String slf4JServiceProviderName = "org.slf4j.spi.SLF4JServiceProvider";
+        Class<?> slf4JServiceProviderClazz = forName(slf4JServiceProviderName, classLoader);
+        agentModule.addUses(slf4JServiceProviderClazz);
+
     }
 
     private Class<?> forName(String className, ClassLoader classLoader) {
