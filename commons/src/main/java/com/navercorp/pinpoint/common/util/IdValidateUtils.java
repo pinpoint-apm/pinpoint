@@ -29,7 +29,7 @@ public final class IdValidateUtils {
 
     private static final int DEFAULT_MAX_LENGTH = PinpointConstants.AGENT_ID_MAX_LEN;
 
-    public static String STABLE_VERSION_PATTERN_VALUE = "[0-9]+\\.[0-9]+\\.[0-9]";
+    public static String STABLE_VERSION_PATTERN_VALUE = "[0-9]+\\.[0-9]+\\.[0-9](-p[0-9]+)?";
 
     //    private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9\\._\\-]{1,24}");
     public static final String ID_PATTERN_VALUE = "[a-zA-Z0-9\\._\\-]+";
