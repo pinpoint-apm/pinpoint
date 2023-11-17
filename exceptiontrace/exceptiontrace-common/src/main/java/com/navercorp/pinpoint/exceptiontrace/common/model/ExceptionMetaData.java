@@ -27,6 +27,8 @@ import java.util.List;
  */
 public class ExceptionMetaData {
 
+    private String tenantId;
+
     private long timestamp;
 
     private String transactionId;
@@ -50,6 +52,7 @@ public class ExceptionMetaData {
     }
 
     public ExceptionMetaData(
+            String tenantId,
             long timestamp,
             String transactionId,
             long spanId,
@@ -64,6 +67,7 @@ public class ExceptionMetaData {
             List<StackTraceElementWrapper> stackTrace,
             String stackTraceHash
     ) {
+        this.tenantId = tenantId;
         this.timestamp = timestamp;
         this.transactionId = StringPrecondition.requireHasLength(transactionId, "transactionId");
         this.spanId = spanId;
@@ -80,6 +84,7 @@ public class ExceptionMetaData {
     }
 
     public static ExceptionMetaData valueOf(
+            String tenantId,
             long timestamp, String transactionId, long spanId, long exceptionId,
             String applicationServiceType, String applicationName, String agentId,
             String uriTemplate,
@@ -87,6 +92,7 @@ public class ExceptionMetaData {
             List<StackTraceElementWrapper> wrappers
     ) {
         return new ExceptionMetaData(
+                tenantId,
                 timestamp,
                 transactionId,
                 spanId,
@@ -101,6 +107,14 @@ public class ExceptionMetaData {
                 wrappers,
                 HashUtils.objectsToHashString(wrappers, StackTraceElementWrapper.funnel())
         );
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 
     public long getTimestamp() {
@@ -210,7 +224,8 @@ public class ExceptionMetaData {
     @Override
     public String toString() {
         return "ExceptionMetaData{" +
-                "timestamp=" + timestamp +
+                "tenantId='" + tenantId + '\'' +
+                ", timestamp=" + timestamp +
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
                 ", exceptionId=" + exceptionId +

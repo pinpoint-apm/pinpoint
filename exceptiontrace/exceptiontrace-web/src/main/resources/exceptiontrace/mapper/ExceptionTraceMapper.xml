@@ -69,7 +69,8 @@
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
-        applicationName = #{applicationName}
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
         <if test="range != null">
             AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         </if>
@@ -92,7 +93,8 @@
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
-        applicationName = #{applicationName}
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
         <if test="range != null">
             AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         </if>
@@ -115,7 +117,8 @@
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
-        applicationName = #{applicationName}
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
@@ -143,7 +146,8 @@
         <include refid="exceptionTraceTable"></include>
 
         WHERE
-        applicationName = #{applicationName}
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
         AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         <if test="agentId != null">
             AND agentId = #{agentId}
@@ -167,7 +171,8 @@
         FROM
         <include refid="exceptionTraceTable"></include>
         WHERE
-        applicationName = #{applicationName}
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
         AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         <if test="agentId != null">
             AND agentId = #{agentId}

@@ -2,6 +2,10 @@
   "schemaName": "exceptionTrace",
   "dimensionFieldSpecs": [
     {
+      "name": "tenantId",
+      "dataType": "STRING"
+    },
+    {
       "name": "transactionId",
       "dataType": "STRING"
     },

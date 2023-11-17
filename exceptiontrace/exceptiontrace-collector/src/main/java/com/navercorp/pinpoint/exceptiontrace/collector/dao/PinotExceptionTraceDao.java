@@ -68,6 +68,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
 
         for (ExceptionMetaData e : exceptionMetaData) {
             ExceptionMetaDataEntity dataEntity = mapper.toEntity(e);
+            logger.info("data insert {}", dataEntity);
             CompletableFuture<SendResult<String, ExceptionMetaDataEntity>> response = this.kafkaExceptionMetaDataTemplate.send(
                     topic, dataEntity
             );
