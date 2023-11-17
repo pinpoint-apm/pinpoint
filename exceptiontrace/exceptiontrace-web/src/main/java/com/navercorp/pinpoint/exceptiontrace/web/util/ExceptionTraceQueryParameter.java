@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  */
 public class ExceptionTraceQueryParameter extends QueryParameter {
 
+    private final String tenantId;
     private final String applicationName;
     private final String agentId;
 
@@ -49,6 +50,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
     protected ExceptionTraceQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
+        this.tenantId = builder.tenantId;
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.transactionId = builder.transactionId;
@@ -66,6 +68,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private static final int MAX_LIMIT = 65536;
         private Integer hardLimit = null;
 
+        private String tenantId;
         private String applicationName;
         private String agentId = null;
 
@@ -84,6 +87,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         @Override
         protected Builder self() {
             return this;
+        }
+
+        public Builder setTenantId(String tenantId) {
+            this.tenantId = tenantId;
+            return self();
         }
 
         public Builder setApplicationName(String applicationName) {
@@ -190,7 +198,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     @Override
     public String toString() {
         return "ExceptionTraceQueryParameter{" +
-                "applicationName='" + applicationName + '\'' +
+                "tenantId='" + tenantId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +

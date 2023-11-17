@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.entity;
  * @author intr3p1d
  */
 public class ExceptionMetaDataEntity {
+    private String tenantId;
     private long timestamp;
 
     private String transactionId;
@@ -42,6 +43,14 @@ public class ExceptionMetaDataEntity {
     private String stackTraceHash;
 
     public ExceptionMetaDataEntity() {
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 
     public long getTimestamp() {

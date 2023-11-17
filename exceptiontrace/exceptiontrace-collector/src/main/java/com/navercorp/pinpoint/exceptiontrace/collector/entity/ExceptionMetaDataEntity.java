@@ -21,8 +21,9 @@ import java.util.List;
  * @author intr3p1d
  */
 public class ExceptionMetaDataEntity {
-    private long timestamp;
 
+    private String tenantId;
+    private long timestamp;
     private String transactionId;
     private long spanId;
     private long exceptionId;
@@ -43,6 +44,14 @@ public class ExceptionMetaDataEntity {
     private String stackTraceHash;
 
     public ExceptionMetaDataEntity() {
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 
     public long getTimestamp() {
@@ -171,5 +180,28 @@ public class ExceptionMetaDataEntity {
 
     public void setStackTraceHash(String stackTraceHash) {
         this.stackTraceHash = stackTraceHash;
+    }
+
+    @Override
+    public String toString() {
+        return "ExceptionMetaDataEntity{" +
+                "tenantId='" + tenantId + '\'' +
+                ", timestamp=" + timestamp +
+                ", transactionId='" + transactionId + '\'' +
+                ", spanId=" + spanId +
+                ", exceptionId=" + exceptionId +
+                ", applicationServiceType='" + applicationServiceType + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", uriTemplate='" + uriTemplate + '\'' +
+                ", errorClassName='" + errorClassName + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
+                ", exceptionDepth=" + exceptionDepth +
+                ", stackTraceClassName=" + stackTraceClassName +
+                ", stackTraceFileName=" + stackTraceFileName +
+                ", stackTraceLineNumber=" + stackTraceLineNumber +
+                ", stackTraceMethodName=" + stackTraceMethodName +
+                ", stackTraceHash='" + stackTraceHash + '\'' +
+                '}';
     }
 }

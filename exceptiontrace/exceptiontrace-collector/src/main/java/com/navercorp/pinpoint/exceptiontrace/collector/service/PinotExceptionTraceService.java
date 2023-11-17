@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.exceptiontrace.collector.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.Valid;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -46,10 +47,17 @@ import java.util.stream.Collectors;
 public class PinotExceptionTraceService implements ExceptionMetaDataService {
     private final ExceptionTraceDao exceptionTraceDao;
     private final ServiceTypeRegistryService registry;
+    private final TenantProvider tenantProvider;
 
-    public PinotExceptionTraceService(ExceptionTraceDao exceptionTraceDao, ServiceTypeRegistryService registry) {
+
+    public PinotExceptionTraceService(
+            ExceptionTraceDao exceptionTraceDao,
+            ServiceTypeRegistryService registry,
+            TenantProvider tenantProvider
+    ) {
         this.exceptionTraceDao = Objects.requireNonNull(exceptionTraceDao, "exceptionTraceDao");
         this.registry = Objects.requireNonNull(registry, "serviceTypeRegistryService");
+        this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
     @Override
@@ -63,10 +71,12 @@ public class PinotExceptionTraceService implements ExceptionMetaDataService {
     ) {
         List<ExceptionMetaData> exceptionMetaData = new ArrayList<>();
         final ServiceType serviceType = registry.findServiceType(exceptionMetaDataBo.getServiceType());
+        final String tenantId = tenantProvider.getTenantId();
         for (ExceptionWrapperBo e : exceptionMetaDataBo.getExceptionWrapperBos()) {
             final List<StackTraceElementWrapper> wrappers = traceElementWrappers(e.getStackTraceElements());
             exceptionMetaData.add(
                     ExceptionMetaData.valueOf(
+                            tenantId,
                             e.getStartTime(),
                             transactionIdToString(exceptionMetaDataBo.getTransactionId()),
                             exceptionMetaDataBo.getSpanId(),

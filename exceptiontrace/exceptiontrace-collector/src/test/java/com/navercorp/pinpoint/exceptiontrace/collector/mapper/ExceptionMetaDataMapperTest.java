@@ -90,6 +90,7 @@ class ExceptionMetaDataMapperTest {
         List<StackTraceElementWrapper> wrapperList = wrapperList(throwable);
 
         return new ExceptionMetaData(
+                "",
                 random.nextLong(),
                 "transactionId",
                 random.nextLong(),

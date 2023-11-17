@@ -76,6 +76,7 @@ public class ExceptionTraceController {
             @RequestParam("exceptionId") long exceptionId
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setTransactionId(transactionId)
@@ -100,6 +101,7 @@ public class ExceptionTraceController {
             @RequestParam("count") int count
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
@@ -123,6 +125,7 @@ public class ExceptionTraceController {
             @RequestParam("groupBy") List<String> groupByList
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.newRange(from, to))
@@ -147,6 +150,7 @@ public class ExceptionTraceController {
 
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
+                .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(timeWindow.getWindowRange())
