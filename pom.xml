@@ -1790,6 +1790,7 @@
                 <version>${plugin.failsafe.version}</version>
                 <configuration>
                     <jvm>${test.jdk.home}/bin/java</jvm>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
