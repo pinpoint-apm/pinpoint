@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class CallTreeIterator implements Iterator<CallTreeNode> {
 
-    private List<CallTreeNode> nodes;
+    private List<CallTreeNode> nodes = new ArrayList<>();
     private int index = -1;
 
     public CallTreeIterator(final CallTreeNode root) {
@@ -34,9 +34,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         }
 
         // init
-        int count = traversal(root, false);
-        this.nodes = new ArrayList<>(count);
-
+        traversal(root, false);
         // populate
         addNode(root);
         if (root.hasChild()) {
@@ -46,7 +44,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         index = -1;
     }
 
-    int traversal(final CallTreeNode node, final boolean populate) {
+    private int traversal(final CallTreeNode node, final boolean populate) {
         if (node == null) {
             return 0;
         }
@@ -76,7 +74,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         return count;
     }
 
-    void addNode(CallTreeNode node) {
+    private void addNode(CallTreeNode node) {
         nodes.add(node);
         index++;
 
@@ -93,7 +91,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
 
     }
 
-    public long getGap() {
+    private long getGap() {
         final CallTreeNode current = getCurrent();
         if (current.isRoot()) {
             return 0;
@@ -117,7 +115,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     }
 
 
-    public long getLastExecuteTime(final CallTreeNode current, final CallTreeNode prev) {
+    private long getLastExecuteTime(final CallTreeNode current, final CallTreeNode prev) {
         if (prev.getDepth() < current.getDepth()) {
             // push and not closed.
             return prev.getAlign().getStartTime();
@@ -141,7 +139,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         }
     }
 
-    CallTreeNode getPrevSibling(final CallTreeNode node) {
+    private CallTreeNode getPrevSibling(final CallTreeNode node) {
         CallTreeNode sibling = node.getParent().getChild();
         while (node != sibling.getSibling()) {
             sibling = sibling.getSibling();
@@ -153,11 +151,11 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         return sibling;
     }
 
-    boolean isFirstChild(final CallTreeNode node) {
+    private boolean isFirstChild(final CallTreeNode node) {
         return node.getParent().getChild() == node;
     }
 
-    CallTreeNode getAsyncParent(final CallTreeNode node) {
+    private CallTreeNode getAsyncParent(final CallTreeNode node) {
         final int asyncId = node.getAlign().getAsyncId();
         CallTreeNode parent = node.getParent();
         while (parent != null && !parent.isRoot()) {
@@ -169,7 +167,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         return null;
     }
 
-    public long getExecutionTime() {
+    private long getExecutionTime() {
         final CallTreeNode current = getCurrent();
         final Align align = current.getAlign();
         if (!current.hasChild()) {
@@ -179,7 +177,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         return align.getElapsed() - getChildrenTotalElapsedTime(current);
     }
 
-    long getChildrenTotalElapsedTime(final CallTreeNode node) {
+    private long getChildrenTotalElapsedTime(final CallTreeNode node) {
         long totalElapsed = 0;
         CallTreeNode child = node.getChild();
         while (child != null) {
@@ -226,11 +224,11 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         return nodes.get(index);
     }
 
-    public CallTreeNode getCurrent() {
+    private CallTreeNode getCurrent() {
         return nodes.get(index);
     }
 
-    public CallTreeNode getPrev() {
+    private CallTreeNode getPrev() {
         if (!hasPrev()) {
             return null;
         }
@@ -238,7 +236,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         return nodes.get(index - 1);
     }
 
-    public CallTreeNode getNext() {
+    private CallTreeNode getNext() {
         if (!hasNext()) {
             return null;
         }

@@ -28,6 +28,10 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -41,6 +45,19 @@ public class CallTreeIteratorTest {
     private static final int ELAPSED = 10;
 
     private final CallTreeFactory factory = new CallTreeFactory();
+
+    @Test
+    public void rootIsNull() {
+        CallTreeIterator iterator = new CallTreeIterator(null);
+        List<Align> list = iterator.values();
+        assertNotNull(list);
+        assertFalse(iterator.hasNext());
+        assertNull(iterator.next());
+        assertFalse(iterator.hasPrev());
+        assertNull(iterator.prev());
+        assertTrue(iterator.isEmpty());
+        assertEquals(0, iterator.size());
+    }
 
     @Test
     public void internal00() {
