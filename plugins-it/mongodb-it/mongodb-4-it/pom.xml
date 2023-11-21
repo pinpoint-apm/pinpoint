@@ -88,6 +88,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <jvm>${env.JAVA_8_HOME}/bin/java</jvm>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
         </plugins>

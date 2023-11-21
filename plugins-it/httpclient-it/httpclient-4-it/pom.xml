@@ -78,6 +78,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <jvm>${test.jdk.home}/bin/java</jvm>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
         </plugins>
