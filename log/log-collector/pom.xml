@@ -17,8 +17,6 @@
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
 
-        <log4j.version>2.19.0</log4j.version>
-
         <!-- for development option -->
         <skip.agent.distribution>false</skip.agent.distribution>
 
@@ -51,12 +49,10 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
 
         <dependency>
