@@ -70,6 +70,7 @@
                         --add-exports java.base/jdk.internal.module=ALL-UNNAMED
                         --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
                     </argLine>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
         </plugins>

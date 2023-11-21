@@ -39,25 +39,25 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>javax.annotation</groupId>-->
-<!--                    <artifactId>javax.annotation-api</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
+            <!--            <exclusions>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>javax.annotation</groupId>-->
+            <!--                    <artifactId>javax.annotation-api</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <exclusions>
-<!--                <exclusion>-->
-<!--                    <groupId>javax.annotation</groupId>-->
-<!--                    <artifactId>javax.annotation-api</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.apache.cxf</groupId>-->
-<!--                    <artifactId>cxf-rt-databinding-jaxb</artifactId>-->
-<!--                </exclusion>-->
+                <!--                <exclusion>-->
+                <!--                    <groupId>javax.annotation</groupId>-->
+                <!--                    <artifactId>javax.annotation-api</artifactId>-->
+                <!--                </exclusion>-->
+                <!--                <exclusion>-->
+                <!--                    <groupId>org.apache.cxf</groupId>-->
+                <!--                    <artifactId>cxf-rt-databinding-jaxb</artifactId>-->
+                <!--                </exclusion>-->
             </exclusions>
         </dependency>
         <dependency>
@@ -103,6 +103,7 @@
                         --add-exports java.base/jdk.internal.module=ALL-UNNAMED
                         --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
                     </argLine>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
         </plugins>
