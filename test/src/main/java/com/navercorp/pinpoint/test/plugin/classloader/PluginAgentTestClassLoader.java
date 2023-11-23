@@ -48,7 +48,7 @@ public class PluginAgentTestClassLoader extends PluginTestClassLoader {
 
     @Override
     public boolean isDelegated(String name) {
-        if(isTransformInclude(name)) {
+        if (isTransformInclude(name)) {
             return false;
         }
 
@@ -74,7 +74,7 @@ public class PluginAgentTestClassLoader extends PluginTestClassLoader {
         }
 
         if (c == null) {
-            if (testClassLoader != null) {
+            if (testClassLoader != null && Boolean.FALSE == isPinpointPackage.test(name)) {
                 c = testClassLoader.loadClass(name, false);
             }
         }
