@@ -64,6 +64,7 @@ public class BusinessTransactionController {
 
     public static final String DEFAULT_FOCUS_TIMESTAMP = "0";
     public static final String DEFAULT_SPAN_ID = "-1"; // SpanId.NULL
+    private static final String SERVER_PREFIX = "api";
 
     private final SpanService spanService;
     private final TransactionInfoService transactionInfoService;
@@ -182,7 +183,7 @@ public class BusinessTransactionController {
         final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
-        final String traceViewerDataURL = ServletUriComponentsBuilder.fromPath("traceViewerData.pinpoint")
+        final String traceViewerDataURL = ServletUriComponentsBuilder.fromPath(SERVER_PREFIX + "/traceViewerData")
                 .queryParam("traceId", URLEncoder.encode(traceId, StandardCharsets.UTF_8))
                 .queryParam("focusTimestamp", focusTimestamp)
                 .queryParam("agentId", URLEncoder.encode(agentId, StandardCharsets.UTF_8))
