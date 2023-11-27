@@ -72,6 +72,8 @@ public interface Align {
 
     String getApplicationId();
 
+    Short getApplicationServiceType();
+
     long getAgentStartTime();
 
     short getServiceType();

@@ -35,10 +35,12 @@ public abstract class BaseRecord implements Record {
     protected String agentId;
     protected String agentName;
     protected String applicationName;
-    protected ServiceType serviceType;
+    protected ServiceType applicationServiceType;
+    protected ServiceType apiServiceType;
     protected String destinationId;
     protected boolean hasChild;
     protected boolean hasException;
+    protected long exceptionChainId;
     protected String transactionId;
     protected long spanId;
     protected long executionMilliseconds;
@@ -109,18 +111,25 @@ public abstract class BaseRecord implements Record {
         return applicationName;
     }
 
+    public String getApplicationServiceType() {
+        if (applicationServiceType == null) {
+            return "";
+        }
+        return applicationServiceType.getName();
+    }
+
     public String getApiType() {
         if (destinationId == null) {
-            if (serviceType == null) {
+            if (apiServiceType == null) {
                 // no ServiceType when parameter
                 return "";
             }
-            return serviceType.getDesc();
+            return apiServiceType.getDesc();
         }
-        if (serviceType.isIncludeDestinationId()) {
-            return serviceType.getDesc() + "(" + destinationId + ")";
+        if (apiServiceType.isIncludeDestinationId()) {
+            return apiServiceType.getDesc() + "(" + destinationId + ")";
         } else {
-            return serviceType.getDesc();
+            return apiServiceType.getDesc();
         }
 
     }
@@ -161,6 +170,10 @@ public abstract class BaseRecord implements Record {
         return hasException;
     }
 
+    public long getExceptionChainId() {
+        return exceptionChainId;
+    }
+
     public String getTransactionId() {
         return transactionId;
     }
@@ -191,56 +204,36 @@ public abstract class BaseRecord implements Record {
 
     @Override
     public String toString() {
-        return "{tab=" +
-                tab +
-                ", id=" +
-                id +
-                ", parentId=" +
-                parentId +
-                ", method=" +
-                method +
-                ", title=" +
-                title +
-                ", simpleClassName=" +
-                simpleClassName +
-                ", fullApiDescription=" +
-                fullApiDescription +
-                ", arguments=" +
-                arguments +
-                ", begin=" +
-                begin +
-                ", elapsed=" +
-                elapsed +
-                ", gap=" +
-                gap +
-                ", executionMilliseconds=" +
-                executionMilliseconds +
-                ", agentId=" +
-                agentId +
-                ", agentName=" +
-                agentName +
-                ", applicationName=" +
-                applicationName +
-                ", serviceType=" +
-                serviceType +
-                ", destinationId=" +
-                destinationId +
-                ", excludeFromTimeline=" +
-                excludeFromTimeline +
-                ", transactionId=" +
-                transactionId +
-                ", spanId=" +
-                spanId +
-                ", focused=" +
-                focused +
-                ", hasChild=" +
-                hasChild +
-                ", hasException=" +
-                hasException +
-                ", methodTypeEnum=" +
-                methodTypeEnum +
-                ", isAuthorized=" +
-                isAuthorized +
-                "}";
+        return "BaseRecord{" +
+                "tab=" + tab +
+                ", id=" + id +
+                ", parentId=" + parentId +
+                ", method=" + method +
+                ", title='" + title + '\'' +
+                ", arguments='" + arguments + '\'' +
+                ", begin=" + begin +
+                ", elapsed=" + elapsed +
+                ", gap=" + gap +
+                ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", applicationServiceType=" + applicationServiceType +
+                ", apiServiceType=" + apiServiceType +
+                ", destinationId='" + destinationId + '\'' +
+                ", hasChild=" + hasChild +
+                ", hasException=" + hasException +
+                ", exceptionChainId=" + exceptionChainId +
+                ", transactionId='" + transactionId + '\'' +
+                ", spanId=" + spanId +
+                ", executionMilliseconds=" + executionMilliseconds +
+                ", methodTypeEnum=" + methodTypeEnum +
+                ", isAuthorized=" + isAuthorized +
+                ", excludeFromTimeline=" + excludeFromTimeline +
+                ", focused=" + focused +
+                ", simpleClassName='" + simpleClassName + '\'' +
+                ", fullApiDescription='" + fullApiDescription + '\'' +
+                ", lineNumber=" + lineNumber +
+                ", location='" + location + '\'' +
+                '}';
     }
 }

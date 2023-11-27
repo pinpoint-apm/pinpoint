@@ -29,6 +29,7 @@ public class RecordSet {
 
     private List<Record> recordList;
     private String applicationName;
+    private String applicationServiceType;
     private long beginTimestamp;
 
     private String agentId;
@@ -87,7 +88,6 @@ public class RecordSet {
     public long getBeginTimestamp() {
         return beginTimestamp;
     }
-
 
     public String getAgentId() {
         return agentId;
