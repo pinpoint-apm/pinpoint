@@ -16,22 +16,34 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 /**
  * @author jaehong.kim
  */
 public class ExceptionRecord extends BaseRecord {
 
-    public ExceptionRecord(final int tab, final int id, final int parentId, final Align align) {
+    public ExceptionRecord(
+            final int tab, final int id, final int parentId, final Align align,
+            ServiceType applicationServiceType
+    ) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
         this.title = toSimpleExceptionName(align.getExceptionClass());
         this.arguments = buildArgument(align.getExceptionMessage());
         this.isAuthorized = true;
-        this.hasException = align.isSpan() ? false : true;
+        this.hasException = !align.isSpan();
+        this.agentId = align.getAgentId();
+        this.applicationName = align.getApplicationId();
+        this.applicationServiceType = applicationServiceType;
+        this.exceptionChainId = toExceptionChainId(align.getAnnotationBoList());
     }
 
     String toSimpleExceptionName(String exceptionClass) {
@@ -43,6 +55,17 @@ public class ExceptionRecord extends BaseRecord {
             exceptionClass = exceptionClass.substring(index + 1);
         }
         return exceptionClass;
+    }
+
+    long toExceptionChainId(List<AnnotationBo> annotationBoList) {
+        for (AnnotationBo annotationBo : annotationBoList) {
+            if (annotationBo.getKey() == AnnotationKey.EXCEPTION_LINK_ID.getCode()
+                    && annotationBo.getValue() instanceof Long
+            ) {
+                return (long) annotationBo.getValue();
+            }
+        }
+        return -1;
     }
 
     String buildArgument(String exceptionMessage) {

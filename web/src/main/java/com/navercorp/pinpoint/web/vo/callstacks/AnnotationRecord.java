@@ -20,7 +20,9 @@ package com.navercorp.pinpoint.web.vo.callstacks;
  * @author jaehong.kim
  */
 public class AnnotationRecord extends BaseRecord {
-    public AnnotationRecord(final int tab, final int id, final int parentId, final String title, final String arguments, final boolean authorized) {
+    public AnnotationRecord(
+            final int tab, final int id, final int parentId, final String title, final String arguments, final boolean authorized
+    ) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;

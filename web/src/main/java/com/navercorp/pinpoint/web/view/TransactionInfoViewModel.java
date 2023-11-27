@@ -206,7 +206,9 @@ public class TransactionInfoViewModel {
         isAuthorized,
         agentName,
         lineNumber,
-        location;
+        location,
+        applicationServiceType,
+        exceptionChainId;
 
         private static final Map<String, Integer> MAP = Collections.unmodifiableMap(toNameOrdinalMap());
 
@@ -231,6 +233,7 @@ public class TransactionInfoViewModel {
         private long end;
         private boolean excludeFromTimeline;
         private String applicationName = "";
+        private String applicationServiceType = "";
         private int tab;
         private String id = "";
         private String parentId = "";
@@ -250,6 +253,7 @@ public class TransactionInfoViewModel {
         private String agentName = "";
         private boolean isFocused;
         private boolean hasException;
+        private String exceptionChainId = "";
         private boolean isAuthorized;
         private int lineNumber;
         private String location = "";
@@ -259,6 +263,7 @@ public class TransactionInfoViewModel {
             end = record.getBegin() + record.getElapsed();
             excludeFromTimeline = record.isExcludeFromTimeline();
             applicationName = record.getApplicationName();
+            applicationServiceType = record.getApplicationServiceType();
             tab = record.getTab();
             id = String.valueOf(record.getId());
             if (record.getParentId() > 0) {
@@ -282,6 +287,7 @@ public class TransactionInfoViewModel {
             agentName = record.getAgentName();
             isFocused = record.isFocused();
             hasException = record.getHasException();
+            exceptionChainId = String.valueOf(record.getExceptionChainId());
             isAuthorized = record.isAuthorized();
             lineNumber = record.getLineNumber();
             location = record.getLocation();
@@ -305,6 +311,10 @@ public class TransactionInfoViewModel {
 
         public String getApplicationName() {
             return applicationName;
+        }
+
+        public String getApplicationServiceType() {
+            return applicationServiceType;
         }
 
         public int getTab() {
@@ -381,6 +391,10 @@ public class TransactionInfoViewModel {
 
         public boolean isHasException() {
             return hasException;
+        }
+
+        public String getExceptionChainId() {
+            return exceptionChainId;
         }
 
         public boolean isAuthorized() {

@@ -57,6 +57,8 @@ public class TransactionInfoCallStackSerializer extends JsonSerializer<Transacti
         jgen.writeString(value.getAgentName());
         jgen.writeNumber(value.getLineNumber());
         jgen.writeString(value.getLocation());
+        jgen.writeString(value.getApplicationServiceType());
+        jgen.writeString(value.getExceptionChainId());
         jgen.writeEndArray();
     }
 }

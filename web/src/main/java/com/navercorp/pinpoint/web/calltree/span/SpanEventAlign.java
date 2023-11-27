@@ -159,6 +159,11 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
+    public Short getApplicationServiceType() {
+        return spanBo.getApplicationServiceType();
+    }
+
+    @Override
     public long getAgentStartTime() {
         return spanBo.getAgentStartTime();
     }
