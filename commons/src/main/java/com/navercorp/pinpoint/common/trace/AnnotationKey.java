@@ -242,7 +242,7 @@ public interface AnnotationKey {
     AnnotationKey EXCEPTION = AnnotationKeyFactory.of(-50, "Exception", VIEW_IN_RECORD_SET);
     @Deprecated
     AnnotationKey EXCEPTION_CLASS = AnnotationKeyFactory.of(-51, "ExceptionClass");
-    AnnotationKey EXCEPTION_LINK_ID = AnnotationKeyFactory.of(-52, "ExceptionLinkId", VIEW_IN_RECORD_SET);
+    AnnotationKey EXCEPTION_CHAIN_ID = AnnotationKeyFactory.of(-52, "ExceptionChainId");
     AnnotationKey UNKNOWN = AnnotationKeyFactory.of(-9999, "UNKNOWN");
 
     AnnotationKey ASYNC = AnnotationKeyFactory.of(-100, "Asynchronous Invocation", VIEW_IN_RECORD_SET);
