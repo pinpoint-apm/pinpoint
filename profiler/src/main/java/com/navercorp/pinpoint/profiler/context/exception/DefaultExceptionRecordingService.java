@@ -70,7 +70,7 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
     public void recordExceptionIdAnnotation(SpanEvent spanEvent, ExceptionContext context) {
         if (context.hasValidExceptionId()) {
-            Annotation<Long> linkId = Annotations.of(AnnotationKey.EXCEPTION_LINK_ID.getCode(), context.getExceptionId());
+            Annotation<Long> linkId = Annotations.of(AnnotationKey.EXCEPTION_CHAIN_ID.getCode(), context.getExceptionId());
             spanEvent.addAnnotation(linkId);
         }
     }
