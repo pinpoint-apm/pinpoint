@@ -103,6 +103,7 @@ public class Bootstrap {
             synchronized(Bootstrap.class) {
                 if (instance == null) {
                     String profiles = jobParameters.getOrDefault(SPRING_PROFILE, "local");
+                    System.setProperty(SPRING_PROFILE, profiles);
                     System.setProperty(PINPOINT_PROFILE, profiles);
                     instance = new Bootstrap();
                     logger.info("Bootstrap initialization. : job parameter " + jobParameters);
