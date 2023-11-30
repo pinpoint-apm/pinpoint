@@ -11,11 +11,17 @@ public class JdkHttpPluginConfig {
     private final boolean param;
     private final boolean enable;
     private final HttpDumpConfig httpDumpConfig;
+    private final boolean monitorWeblogicConnection;
 
     public JdkHttpPluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.jdk.http", true);
         this.param = src.readBoolean("profiler.jdk.http.param", true);
+        this.monitorWeblogicConnection = src.readBoolean("profiler.jdk.http.monitorWeblogicConnection", true);
         this.httpDumpConfig = HttpDumpConfig.getDefault();
+    }
+
+    public boolean enableMonitorWeblogicConnection() {
+        return this.monitorWeblogicConnection;
     }
 
     public boolean isEnable() {

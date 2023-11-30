@@ -56,6 +56,10 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         transformTemplate.transform("sun.net.www.protocol.http.HttpURLConnection", HttpURLConnectionTransform.class);
         transformTemplate.transform(INTERCEPT_HTTPS_CLASS_NAME, HttpsURLConnectionImplTransform.class);
+
+        if(config.enableMonitorWeblogicConnection()) {
+            transformTemplate.transform("weblogic.net.http.HttpURLConnection", HttpURLConnectionTransform.class);
+        }
     }
 
     public static class HttpURLConnectionTransform implements TransformCallback {
