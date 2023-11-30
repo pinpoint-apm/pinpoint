@@ -43,38 +43,47 @@ public class BatchProperties {
     @Value("${batch.flink.rest.port:8081}")
     private int flinkRestPort;
 
-    @Value("${job.cleanup.inactive.agents:false}")
-    private boolean enableCleanupInactiveAgents;
+    @Value("${job.alarm.enable:true}")
+    private boolean alarmJobEnable;
 
-    @Value("${job.alarm.uristat.enable:false}")
-    private boolean enableUriStatAlarmJob;
+    @Value("${job.alarm.cron}")
+    private String alarmJobCron;
 
-    private static final int DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 30;
-    private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
+    @Value("${job.agent.count.enable:true}")
+    private boolean agentCountJobEnable;
+
+    @Value("${job.agent.count.cron}")
+    private String agentCountJobCron;
+
+    @Value("${job.flink.check.enable:true}")
+    private boolean flinkCheckJobEnable;
+
+    @Value("${job.flink.check.cron}")
+    private String flinkCheckJobCron;
+
+    @Value("${job.cleanup.inactive.agents.enable:true}")
+    private boolean cleanupInactiveAgentsJobEnable;
+
+    @Value("${job.cleanup.inactive.agents.cron}")
+    private String cleanupInactiveAgentsJobCron;
+
+    @Value("${job.alarm.uristat.enable:true}")
+    private boolean uriStatAlarmJobEnable;
+
+    @Value("${job.alarm.uristat.cron}")
+    private String uriStatAlarmJobCron;
 
     @Value("${job.cleanup.inactive.agents.duration.days:30}")
     private int cleanupInactiveAgentsDurationDays;
 
-    // Spring supports `org.springframework.scheduling.annotation.Scheduled#CRON_DISABLED` since Spring 5.x
-    // https://github.com/spring-projects/spring-framework/issues/21397
-    // BatchLauner does not run a job even if cron is executed. Nevertheless, Cron should be disabled if possible.
-    private static final String DISABLED_CLEANUP_INACTIVE_AGENTS_CRON = "0 0 0 29 2 ?";
-
-    @Value("${job.cleanup.inactive.agents.cron:}")
-    private String cleanupInactiveAgentsCron;
-
+    private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
 
     @PostConstruct
     public void setup() {
         beforeLog();
 
-        if (!enableCleanupInactiveAgents) {
-            cleanupInactiveAgentsDurationDays = DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS;
-            cleanupInactiveAgentsCron = DISABLED_CLEANUP_INACTIVE_AGENTS_CRON;
-        } else {
-            if (cleanupInactiveAgentsDurationDays < MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS) {
-                throw new IllegalArgumentException("'cleanupInactiveAgentsDuration' must be 'cleanupInactiveAgentsDuration >= 30'");
-            }
+        if (cleanupInactiveAgentsDurationDays < MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS) {
+            throw new IllegalArgumentException("'cleanupInactiveAgentsDuration' must be 'cleanupInactiveAgentsDuration >= 30'");
         }
 
         afterLog();
@@ -104,33 +113,67 @@ public class BatchProperties {
         return batchEnv;
     }
 
-    public boolean isEnableCleanupInactiveAgents() {
-        return enableCleanupInactiveAgents;
+    public boolean isCleanupInactiveAgentsJobEnable() {
+        return cleanupInactiveAgentsJobEnable;
     }
 
-    public boolean getEnableUriStatAlarmJob() {
-        return enableUriStatAlarmJob;
+    public boolean isUriStatAlarmJobEnable() {
+        return uriStatAlarmJobEnable;
     }
 
+    public String getCleanupInactiveAgentsJobCron() {
+        return cleanupInactiveAgentsJobCron;
+    }
+
+    public boolean isAlarmJobEnable() {
+        return alarmJobEnable;
+    }
+
+    public String getAlarmJobCron() {
+        return alarmJobCron;
+    }
+
+    public boolean isAgentCountJobEnable() {
+        return agentCountJobEnable;
+    }
+
+    public String getAgentCountJobCron() {
+        return agentCountJobCron;
+    }
+
+    public boolean isFlinkCheckJobEnable() {
+        return flinkCheckJobEnable;
+    }
+
+    public String getFlinkCheckJobCron() {
+        return flinkCheckJobCron;
+    }
+
+    public String getUriStatAlarmJobCron() {
+        return uriStatAlarmJobCron;
+    }
     public int getCleanupInactiveAgentsDurationDays() {
         return cleanupInactiveAgentsDurationDays;
     }
 
-    public String getCleanupInactiveAgentsCron() {
-        return cleanupInactiveAgentsCron;
-    }
-
-
     @Override
     public String toString() {
-        return "BatchConfiguration{" +
-                "batchEnv='" + batchEnv + '\'' +
+        return "BatchProperties{" +
+                "logger=" + logger +
+                ", batchEnv='" + batchEnv + '\'' +
                 ", flinkServerList=" + Arrays.toString(flinkServerList) +
                 ", flinkRestPort=" + flinkRestPort +
-                ", enableCleanupInactiveAgents=" + enableCleanupInactiveAgents +
+                ", alarmJobEnable=" + alarmJobEnable +
+                ", alarmJobCron='" + alarmJobCron + '\'' +
+                ", agentCountJobEnable=" + agentCountJobEnable +
+                ", agentCountJobCron='" + agentCountJobCron + '\'' +
+                ", flinkCheckJobEnable=" + flinkCheckJobEnable +
+                ", flinkCheckJobCron='" + flinkCheckJobCron + '\'' +
+                ", cleanupInactiveAgentsJobEnable=" + cleanupInactiveAgentsJobEnable +
+                ", cleanupInactiveAgentsJobCron='" + cleanupInactiveAgentsJobCron + '\'' +
+                ", uriStatAlarmJobEnable=" + uriStatAlarmJobEnable +
+                ", uriStatAlarmJobCron='" + uriStatAlarmJobCron + '\'' +
                 ", cleanupInactiveAgentsDurationDays=" + cleanupInactiveAgentsDurationDays +
-                ", cleanupInactiveAgentsCron='" + cleanupInactiveAgentsCron + '\'' +
-                ", enableUriStatAlarmJob=" + enableUriStatAlarmJob +
                 '}';
     }
 }

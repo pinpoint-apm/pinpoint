@@ -8,11 +8,11 @@
     <bean id="batchProperties" class="com.navercorp.pinpoint.batch.common.BatchProperties"/>
 
     <task:scheduled-tasks scheduler="scheduler">
-        <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *"/>
-        <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="0 0 2 * * *"/>
-        <task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/10 * * * *"/>
-        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchProperties['cleanupInactiveAgentsCron']}"/>
-        <task:scheduled ref="batchJobLauncher" method="uriStatAlarmJob" cron="0 2/3 * * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="#{batchProperties['alarmJobCron']}"/>
+        <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="#{batchProperties['agentCountJobCron']}"/>
+        <task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="#{batchProperties['flinkCheckJobCron']}"/>
+        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchProperties['cleanupInactiveAgentsJobCron']}"/>
+        <task:scheduled ref="batchJobLauncher" method="uriStatAlarmJob" cron="#{batchProperties['uriStatAlarmJobCron']}"/>
     </task:scheduled-tasks>
 
     <task:scheduler id="scheduler" pool-size="4"/>

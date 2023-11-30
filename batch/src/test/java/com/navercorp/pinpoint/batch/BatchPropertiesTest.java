@@ -52,10 +52,10 @@ public class BatchPropertiesTest {
         properties.setup();
 
         assertThat(properties)
-                .extracting(BatchProperties::isEnableCleanupInactiveAgents,
-                        BatchProperties::getCleanupInactiveAgentsCron,
+                .extracting(BatchProperties::isCleanupInactiveAgentsJobEnable,
+                        BatchProperties::getCleanupInactiveAgentsJobCron,
                         BatchProperties::getCleanupInactiveAgentsDurationDays)
-                .containsExactly(false, "0 0 0 29 2 ?", 30);
+                .containsExactly(false, "0 0 3 * * WED", 30);
 
     }
 
