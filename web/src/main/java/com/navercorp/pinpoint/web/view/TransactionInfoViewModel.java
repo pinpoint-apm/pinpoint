@@ -287,7 +287,7 @@ public class TransactionInfoViewModel {
             agentName = record.getAgentName();
             isFocused = record.isFocused();
             hasException = record.getHasException();
-            exceptionChainId = String.valueOf(record.getExceptionChainId());
+            exceptionChainId = record.getExceptionChainId() >= 0 ? String.valueOf(record.getExceptionChainId()) : "";
             isAuthorized = record.isAuthorized();
             lineNumber = record.getLineNumber();
             location = record.getLocation();
