@@ -107,6 +107,12 @@ public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
                 final int port = (Integer) args[4];
                 return HostAndPort.toHostAndPortString(host, port);
             }
+        } else if (length == 14) {
+            if (args[2] instanceof String && args[3] instanceof Integer) {
+                final String host = (String) args[2];
+                final int port = (Integer) args[3];
+                return HostAndPort.toHostAndPortString(host, port);
+            }
         }
 
         return null;

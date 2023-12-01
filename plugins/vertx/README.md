@@ -7,7 +7,7 @@
 pinpoint.config
 
 #### Compatibility setting
-Vert.x 3.6 ~ 3.7
+Vert.x 3.6 ~ 4.5
 ~~~
 profiler.vertx.http.server.request-handler.method.name=io.vertx.ext.web.impl.RouterImpl.handle
 ~~~

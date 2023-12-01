@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionIntercepto
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HandlerInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.Http1xClientConnectionCreateRequest38Interceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.Http1xClientConnectionCreateRequest4xInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplCreateRequestInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptorV4;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplInterceptor;
@@ -77,7 +78,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         }
 
         // 3.3 <= x <= 3.5
-        logger.info("Enable VertxPlugin. version range=[3.3, 4.2.2]");
+        logger.info("Enable VertxPlugin. version range=[3.3, 4.5.0]");
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // for vertx.io 3.3.x, 3.4.x
@@ -106,6 +107,8 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             addContextImpl("io.vertx.core.impl.WorkerContext");
             // 4.x
             addContextImpl("io.vertx.core.impl.DuplicatedContext");
+            addContextImpl("io.vertx.core.impl.ContextBase");
+            transformTemplate.transform("io.vertx.core.impl.ContextInternal", ContextInternalTransform.class);
         }
 
         if (config.isEnableHttpServer()) {
@@ -226,11 +229,30 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             if (executeBlockingMethod4 != null) {
                 executeBlockingMethod4.addInterceptor(ContextImplExecuteBlockingInterceptor.class);
             }
+            final InstrumentMethod executeBlockingMethod5 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.impl.ContextInternal", "java.util.concurrent.Callable", "io.vertx.core.impl.WorkerPool", "io.vertx.core.impl.TaskQueue");
+            if (executeBlockingMethod5 != null) {
+                executeBlockingMethod5.addInterceptor(ContextImplExecuteBlockingInterceptor.class);
+            }
 
             // skip executeFromIO()
             return target.toBytecode();
         }
     }
+
+    public static class ContextInternalTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            final InstrumentMethod runOnContextMethod = target.getDeclaredMethod("runOnContext", "io.vertx.core.Handler");
+            if (runOnContextMethod != null) {
+                runOnContextMethod.addInterceptor(ContextImplRunOnContextInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
 
     private void addRequestHandlerMethod(final String className, final String methodName) {
         transformTemplate.transform(className, RequestHandlerMethodTransform.class, new Object[]{methodName}, new Class[]{String.class});
@@ -239,8 +261,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
     public static class RequestHandlerMethodTransform implements TransformCallback {
         private final String methodName;
 
-        public RequestHandlerMethodTransform(String methodName)
-        {
+        public RequestHandlerMethodTransform(String methodName) {
             this.methodName = methodName;
         }
 
@@ -381,6 +402,26 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             if (doRequestMethod3 != null) {
                 doRequestMethod3.addScopedInterceptor(HttpClientImplDoRequestInterceptorV4.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
             }
+            // 4.4.0
+            // void doRequest(HttpMethod method, SocketAddress peerAddress, SocketAddress server, String host, int port, Boolean useSSL, String requestURI, MultiMap headers, String traceOperation, long timeout, Boolean followRedirects, ProxyOptions proxyOptions, EndpointKey key, PromiseInternal<HttpClientRequest> requestPromise)
+            final InstrumentMethod doRequestMethod4 = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "io.vertx.core.net.SocketAddress", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap", "java.lang.String", "long", "java.lang.Boolean", "io.vertx.core.net.ProxyOptions", "io.vertx.core.http.impl.EndpointKey", "io.vertx.core.impl.future.PromiseInternal");
+            if (doRequestMethod4 != null) {
+                doRequestMethod4.addScopedInterceptor(HttpClientImplDoRequestInterceptorV4.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+            }
+            // 4.5.0
+            // void doRequest(HttpMethod method, SocketAddress server, String host, int port, Boolean useSSL, String requestURI, MultiMap headers, String traceOperation, long connectTimeout, long idleTimeout, Boolean followRedirects, ProxyOptions proxyOptions, EndpointKey key, PromiseInternal<HttpClientRequest> requestPromise)
+            final InstrumentMethod doRequestMethod5 = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap", "java.lang.String", "long", "long", "java.lang.Boolean", "io.vertx.core.net.ProxyOptions", "io.vertx.core.http.impl.EndpointKey", "io.vertx.core.impl.future.PromiseInternal");
+            if (doRequestMethod5 != null) {
+                doRequestMethod5.addScopedInterceptor(HttpClientImplDoRequestInterceptorV4.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+            }
+
+            // 4.5.0
+            // Forward the asyncContext from HttpClientImpl to HttpClientRequestImpl.
+            final InstrumentMethod createRequestMethod = target.getDeclaredMethod("createRequest", "io.vertx.core.http.impl.HttpClientStream");
+            if (createRequestMethod != null) {
+                createRequestMethod.addInterceptor(HttpClientImplCreateRequestInterceptor.class);
+            }
+
             return target.toBytecode();
         }
     }
@@ -404,6 +445,11 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             InstrumentMethod constructor2 = target.getConstructor("io.vertx.core.http.impl.HttpClientImpl", "io.vertx.core.http.impl.HttpClientStream", "io.vertx.core.impl.future.PromiseInternal", "boolean", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "java.lang.String", "int", "java.lang.String", "java.lang.String");
             if (constructor2 != null) {
                 constructor2.addInterceptor(HttpClientRequestImplConstructorInterceptor.class);
+            }
+            // 4.5.0
+            InstrumentMethod constructor3 = target.getConstructor("io.vertx.core.http.impl.HttpClientStream", "io.vertx.core.impl.future.PromiseInternal", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "java.lang.String", "int", "java.lang.String", "java.lang.String");
+            if (constructor3 != null) {
+                constructor3.addInterceptor(HttpClientRequestImplConstructorInterceptor.class);
             }
 
             // for HttpClientResponseImpl.
@@ -470,6 +516,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
             target.addField(SamplingRateFlagAccessor.class);
 
             // add pinpoint headers.
