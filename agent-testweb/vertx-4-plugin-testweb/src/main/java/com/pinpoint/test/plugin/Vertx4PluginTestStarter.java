@@ -57,7 +57,6 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
             routingContext.response().end(buildMain("Welcome pinpoint vert.x HTTP server test", routes));
         });
 
-
         router.get("/request").handler(routingContext -> {
             request(80, "naver.com", "/");
             routingContext.response().end("Request http://naver.com:80/");
@@ -159,7 +158,7 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
 
     private void runOnContextRequest(HttpServerRequest request) {
         vertx.runOnContext(aVoid -> {
-            request(80, "naver.com", "/");
+            request(80, "httpbin.org", "/");
             request.response().end("Run on context request.");
         });
     }
