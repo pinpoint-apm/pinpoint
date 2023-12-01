@@ -35,6 +35,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
+import org.springframework.util.unit.DataSize;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +49,8 @@ import java.util.Optional;
 @Repository
 public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
-    private static final int SCANNER_CACHING = 20;
+    private static final int SCANNER_CACHING = 32;
+    private static final long MAX_RESULT_SIZE = DataSize.ofKilobytes(4).toBytes();
 
     private static final HbaseColumnFamily.AgentLifeCycleStatus DESCRIPTOR = HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
 
@@ -147,6 +149,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES);
         scan.readVersions(1);
         scan.setCaching(SCANNER_CACHING);
+        scan.setMaxResultSize(MAX_RESULT_SIZE);
 
         return scan;
     }

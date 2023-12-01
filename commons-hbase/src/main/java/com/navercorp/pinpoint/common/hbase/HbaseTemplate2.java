@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.hbase.async.AdvancedAsyncTableCallback;
+import com.navercorp.pinpoint.common.hbase.async.AsyncDistributedScanner;
+import com.navercorp.pinpoint.common.hbase.async.AsyncTableCallback;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
+import com.navercorp.pinpoint.common.hbase.parallel.ScanUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StopWatch;
@@ -27,6 +31,8 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
+import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
@@ -37,6 +43,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.ScanResultConsumer;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
@@ -81,6 +88,8 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     private HBaseAsyncOperation asyncOperation = DisabledHBaseAsyncOperation.INSTANCE;
 
+    private boolean nativeAsync = false;
+
     private static final CheckAndMutateResult CHECK_AND_MUTATE_RESULT_FAILURE = new CheckAndMutateResult(false, null);
 
     public HbaseTemplate2() {
@@ -106,11 +115,17 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         this.asyncOperation = Objects.requireNonNull(asyncOperation, "asyncOperation");
     }
 
+    public void setNativeAsync(boolean nativeAsync) {
+        this.nativeAsync = nativeAsync;
+    }
+
     @Override
     public void afterPropertiesSet() {
         Configuration configuration = getConfiguration();
         Objects.requireNonNull(configuration, "configuration is required");
         Objects.requireNonNull(getTableFactory(), "tableFactory is required");
+        Objects.requireNonNull(getAsyncTableFactory(), "asyncTableFactory is required");
+
         PinpointThreadFactory parallelScannerThreadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner", true);
         if (this.maxThreadsPerParallelScan <= 1) {
             this.enableParallelScan = false;
@@ -122,8 +137,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public void destroy() throws Exception {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
 
         if (isClose.compareAndSet(false, true)) {
             logger.info("HBaseTemplate2.destroy()");
@@ -143,8 +157,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     private boolean awaitAsyncPutOpsCleared(long waitTimeout, long checkUnitTime) {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
 
         while (true) {
             Long currentPutOpsCount = asyncOperation.getCurrentOpsCount();
@@ -504,10 +517,44 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         return find(tableName, scanList, new RowMapperResultsExtractor<>(action));
     }
 
-    @Override
     public <T> List<T> findParallel(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+        if (nativeAsync) {
+            return findParallel_async(tableName, scans, action);
+        }
+        return findParallel_block(tableName, scans, action);
+    }
+
+    public <T> List<T> findParallel_async(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
         assertAccessAvailable();
-        if (!this.enableParallelScan || scans.size() == 1) {
+        if (isSimpleScan(scans)) {
+            return find(tableName, scans, action);
+        }
+        return executeAsync(tableName, new AdvancedAsyncTableCallback<>() {
+            @Override
+            public List<T> doInTable(AsyncTable<AdvancedScanResultConsumer> table) throws Throwable {
+                final Scan[] copy = scans.toArray(new Scan[0]);
+                final List<T> results = new ArrayList<>(copy.length);
+
+                ResultScanner[] resultScanners = ScanUtils.newScanners(table, copy);
+                for (final ResultScanner scanner : resultScanners) {
+                    try (scanner) {
+                        T t = action.extractData(scanner);
+                        results.add(t);
+                    } catch (Throwable th) {
+                        // close all scanners if exception occurred
+                        ScanUtils.closeScanner(resultScanners);
+                        throw new HbaseSystemException(th);
+                    }
+                }
+                return results;
+            }
+        });
+    }
+
+
+    public <T> List<T> findParallel_block(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+        assertAccessAvailable();
+        if (isSimpleScan(scans)) {
             return find(tableName, scans, action);
         }
         List<T> results = new ArrayList<>(scans.size());
@@ -546,6 +593,14 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         return results;
     }
 
+    private boolean isSimpleScan(List<Scan> scans) {
+        return isSimpleScan(scans.size());
+    }
+
+    private boolean isSimpleScan(int parallelism) {
+        return !this.enableParallelScan || parallelism <= 1;
+    }
+
     @Override
     public <T> List<List<T>> findParallel(TableName tableName, final List<Scan> scans, final RowMapper<T> action) {
         return findParallel(tableName, scans, new RowMapperResultsExtractor<>(action));
@@ -575,17 +630,46 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     protected final <T> T executeDistributedScan(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+        if (nativeAsync) {
+            return executeDistributedScan_async(tableName, scan, rowKeyDistributor, action);
+        }
+        return executeDistributedScan_block(tableName, scan, rowKeyDistributor, action);
+    }
+
+    protected final <T> T executeDistributedScan_block(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         assertAccessAvailable();
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
-                StopWatch watch = null;
+                final StopWatch watch = StopWatch.createStarted();
                 final boolean debugEnabled = logger.isDebugEnabled();
-                if (debugEnabled) {
-                    watch = new StopWatch();
-                    watch.start();
+
+                Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
+                final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
+                try (ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners)) {
+                    if (debugEnabled) {
+                        logger.debug("DistributedScanner createTime: {}ms", watch.stop());
+                    }
+                    return action.extractData(scanner);
+                } finally {
+                    if (debugEnabled) {
+                        logger.debug("DistributedScanner scanTime: {}ms", watch.stop());
+                    }
                 }
-                final ResultScanner[] splitScanners = splitScan(table, scan, rowKeyDistributor);
+            }
+        });
+    }
+
+    protected final <T> T executeDistributedScan_async(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+        assertAccessAvailable();
+        final T result = executeAsync(tableName, new AdvancedAsyncTableCallback<T>() {
+            @Override
+            public T doInTable(AsyncTable<AdvancedScanResultConsumer> table) throws Throwable {
+                final StopWatch watch = StopWatch.createStarted();
+                final boolean debugEnabled = logger.isDebugEnabled();
+
+                Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
+                final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
                 try (ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners)) {
                     if (debugEnabled) {
                         logger.debug("DistributedScanner createTime: {}ms", watch.stop());
@@ -599,47 +683,13 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                 }
             }
         });
+        return result;
     }
 
-    private ResultScanner[] splitScan(Table table, Scan originalScan, AbstractRowKeyDistributor rowKeyDistributor) throws IOException {
-        Scan[] scans = rowKeyDistributor.getDistributedScans(originalScan);
-        final int length = scans.length;
-        for (int i = 0; i < length; i++) {
-            Scan scan = scans[i];
-            // other properties are already set upon construction
-            scan.setId(scan.getId() + "-" + i);
-        }
-
-        ResultScanner[] scanners = new ResultScanner[length];
-        boolean success = false;
-        try {
-            for (int i = 0; i < length; i++) {
-                scanners[i] = table.getScanner(scans[i]);
-            }
-            success = true;
-        } finally {
-            if (!success) {
-                closeScanner(scanners);
-            }
-        }
-        return scanners;
-    }
-
-    private void closeScanner(ResultScanner[] scannerList) {
-        for (ResultScanner scanner : scannerList) {
-            if (scanner != null) {
-                try {
-                    scanner.close();
-                } catch (Exception e) {
-                    logger.warn("Scanner.close() error Caused:{}", e.getMessage(), e);
-                }
-            }
-        }
-    }
 
     @Override
     public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, RowMapper<T> action, int numParallelThreads) {
-        if (!this.enableParallelScan || numParallelThreads <= 1) {
+        if (isSimpleScan(numParallelThreads)) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
         } else {
@@ -655,7 +705,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, int numParallelThreads) {
-        if (!this.enableParallelScan || numParallelThreads <= 1) {
+        if (isSimpleScan(numParallelThreads)) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action);
         } else {
@@ -667,7 +717,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, LimitEventHandler limitEventHandler, int numParallelThreads) {
-        if (!this.enableParallelScan || numParallelThreads <= 1) {
+        if (isSimpleScan(numParallelThreads)) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action, limitEventHandler);
         } else {
@@ -679,7 +729,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> T findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
-        if (!this.enableParallelScan || numParallelThreads <= 1) {
+        if (isSimpleScan(numParallelThreads)) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
         } else {
@@ -689,14 +739,47 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     protected final <T> T executeParallelDistributedScan(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+        if (nativeAsync) {
+            return executeParallelDistributedScan_async(tableName, scan, rowKeyDistributor, action, numParallelThreads);
+        }
+        return executeParallelDistributedScan_block(tableName, scan, rowKeyDistributor, action, numParallelThreads);
+    }
+
+    protected final <T> T executeParallelDistributedScan_async(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
         assertAccessAvailable();
         try {
-            StopWatch watch = null;
+            StopWatch watch = StopWatch.createStarted();
             final boolean debugEnabled = logger.isDebugEnabled();
+
+            final Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
+            T result = executeAsync(tableName, new AdvancedAsyncTableCallback<T>() {
+                @Override
+                public T doInTable(AsyncTable<AdvancedScanResultConsumer> table) throws Throwable {
+                    ResultScanner[] resultScanners = ScanUtils.newScanners(table, scans);
+
+                    ResultScanner scanner = new AsyncDistributedScanner(rowKeyDistributor, resultScanners);
+                    try (scanner) {
+                        return action.extractData(scanner);
+                    }
+                }
+            });
+
             if (debugEnabled) {
-                watch = new StopWatch();
-                watch.start();
+                logger.debug("executeParallelDistributedScan createTime: {}ms", watch.stop());
             }
+            return result;
+        } catch (Exception e){
+            throw new HbaseSystemException(e);
+        }
+    }
+
+
+    protected final <T> T executeParallelDistributedScan_block(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+        assertAccessAvailable();
+        try {
+            StopWatch watch = StopWatch.createStarted();
+            final boolean debugEnabled = logger.isDebugEnabled();
+
             try (ParallelResultScanner scanner = new ParallelResultScanner(tableName, this, this.executor, scan, rowKeyDistributor, numParallelThreads)) {
                 if (debugEnabled) {
                     logger.debug("ParallelDistributedScanner createTime: {}ms", watch.stop());
@@ -713,13 +796,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             if (th instanceof ScanTaskException) {
                 throwable = th.getCause();
             }
-            if (throwable instanceof Error) {
-                throw ((Error) th);
-            }
-            if (throwable instanceof RuntimeException) {
-                throw ((RuntimeException) th);
-            }
-            throw new HbaseSystemException((Exception) throwable);
+            return rethrowHbaseException(throwable);
         }
     }
 
@@ -790,13 +867,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             T result = action.doInTable(table);
             return result;
         } catch (Throwable e) {
-            if (e instanceof Error) {
-                throw ((Error) e);
-            }
-            if (e instanceof RuntimeException) {
-                throw ((RuntimeException) e);
-            }
-            throw new HbaseSystemException((Exception) e);
+            return rethrowHbaseException(e);
         } finally {
             releaseTable(table);
         }
@@ -806,4 +877,55 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         getTableFactory().releaseTable(table);
     }
 
+
+    @Override
+    public <T> T executeAsync(TableName tableName, AdvancedAsyncTableCallback<T> action) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(action, "action");
+        assertAccessAvailable();
+
+        AsyncTable<AdvancedScanResultConsumer> table = getAdvancedAsyncTable(tableName);
+
+        try {
+            T result = action.doInTable(table);
+            return result;
+        } catch (Throwable e) {
+            return rethrowHbaseException(e);
+        }
+    }
+
+    private <T> T rethrowHbaseException(Throwable e) {
+        if (e instanceof RuntimeException) {
+            throw ((RuntimeException) e);
+        }
+        if (e instanceof Error) {
+            throw ((Error) e);
+        }
+        throw new HbaseSystemException((Exception) e);
+    }
+
+
+    @Override
+    public <T> T executeAsync(TableName tableName, AsyncTableCallback<T> action) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(action, "action");
+        assertAccessAvailable();
+
+        AsyncTable<ScanResultConsumer> table = getAsyncTable(tableName);
+
+        try {
+            T result = action.doInTable(table);
+            return result;
+        } catch (Throwable e) {
+            return rethrowHbaseException(e);
+        }
+    }
+
+    private AsyncTable<ScanResultConsumer> getAsyncTable(TableName tableName) {
+        return getAsyncTableFactory().getTable(tableName, executor);
+    }
+
+    private AsyncTable<AdvancedScanResultConsumer> getAdvancedAsyncTable(TableName tableName) {
+        return getAsyncTableFactory().getTable(tableName);
+    }
 }

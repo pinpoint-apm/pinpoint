@@ -23,6 +23,12 @@ package com.navercorp.pinpoint.common.util;
 public class StopWatch {
     private long start;
 
+    public static StopWatch createStarted() {
+        final StopWatch sw = new StopWatch();
+        sw.start();
+        return sw;
+    }
+
     public void start() {
         this.start = System.currentTimeMillis();
     }

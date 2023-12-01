@@ -27,7 +27,7 @@ import java.util.Objects;
  * copy : https://github.com/spring-projects/spring-hadoop  1.0.2
  * @author Costin Leau
  */
-class RowMapperResultsExtractor<T> implements ResultsExtractor<List<T>> {
+public class RowMapperResultsExtractor<T> implements ResultsExtractor<List<T>> {
 
     private final RowMapper<T> rowMapper;
 

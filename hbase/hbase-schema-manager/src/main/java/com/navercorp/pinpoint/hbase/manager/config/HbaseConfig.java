@@ -19,12 +19,21 @@ package com.navercorp.pinpoint.hbase.manager.config;
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.HbaseAdminFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean;
+import com.navercorp.pinpoint.common.hbase.HbaseSecurityProvider;
 import com.navercorp.pinpoint.common.hbase.HbaseTableFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
+import com.navercorp.pinpoint.common.hbase.SimpleHbaseSecurityProvider;
+import com.navercorp.pinpoint.common.hbase.TableFactory;
+import com.navercorp.pinpoint.common.hbase.async.AsyncConnectionFactoryBean;
+import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.security.User;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 
@@ -165,14 +174,33 @@ public class HbaseConfig {
         return factoryBean;
     }
 
+
     @Bean
-    public FactoryBean<Connection> connectionFactory(Configuration configuration) {
-        return new ConnectionFactoryBean(configuration);
+    @ConditionalOnProperty(name = "pinpoint.modules.hbase.security.auth", havingValue = "simple", matchIfMissing = true)
+    public User hbaseLoginUser(Configuration configuration) {
+        HbaseSecurityProvider securityProvider = new SimpleHbaseSecurityProvider(configuration);
+        return securityProvider.login();
+    }
+
+
+    @Bean
+    public FactoryBean<Connection> connectionFactory(Configuration configuration, User user) {
+        return new ConnectionFactoryBean(configuration, user);
     }
 
     @Bean
-    public HbaseTableFactory hbaseTableFactory(Connection connection) {
+    public TableFactory hbaseTableFactory(Connection connection) {
         return new HbaseTableFactory(connection);
+    }
+
+    @Bean
+    public FactoryBean<AsyncConnection> hbaseAsyncConnectionFactory(Configuration configuration, User user) {
+        return new AsyncConnectionFactoryBean(configuration, user);
+    }
+
+    @Bean
+    public AsyncTableFactory hbaseAsyncTableFactory(AsyncConnection connection) {
+        return new HbaseAsyncTableFactory(connection);
     }
 
     @Bean
@@ -182,10 +210,12 @@ public class HbaseConfig {
 
     @Bean
     public HbaseTemplate2 hbaseTemplate(Configuration configuration,
-                                        HbaseTableFactory hbaseTableFactory) {
+                                        TableFactory hbaseTableFactory,
+                                        AsyncTableFactory hbaseAsyncTableFactory) {
         HbaseTemplate2 hbaseTemplate2 = new HbaseTemplate2();
         hbaseTemplate2.setConfiguration(configuration);
         hbaseTemplate2.setTableFactory(hbaseTableFactory);
+        hbaseTemplate2.setAsyncTableFactory(hbaseAsyncTableFactory);
         return hbaseTemplate2;
     }
 }

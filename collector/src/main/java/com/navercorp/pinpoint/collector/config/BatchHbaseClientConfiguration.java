@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.security.User;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -32,9 +33,9 @@ import java.util.concurrent.ExecutorService;
 @org.springframework.context.annotation.Configuration
 public class BatchHbaseClientConfiguration {
     @Bean
-    public FactoryBean<Connection> batchConnectionFactory(Configuration configuration,
+    public FactoryBean<Connection> batchConnectionFactory(Configuration configuration, User user,
                                                      @Qualifier("batchHbaseThreadPool") ExecutorService executorService) {
-        return new ConnectionFactoryBean(configuration, executorService);
+        return new ConnectionFactoryBean(configuration, user, executorService);
     }
 
     @Bean

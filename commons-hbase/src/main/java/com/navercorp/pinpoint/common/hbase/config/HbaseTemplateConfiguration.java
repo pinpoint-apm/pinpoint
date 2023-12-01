@@ -25,7 +25,10 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.HbaseVersionCheckBean;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
+import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.Connection;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +47,12 @@ public class HbaseTemplateConfiguration {
     }
 
     @Bean
+    public AsyncTableFactory hbaseAsyncTableFactory(AsyncConnection connection) {
+        return new HbaseAsyncTableFactory(connection);
+    }
+
+
+    @Bean
     @ConditionalOnProperty(name = "hbase.client.parallel.scan.enable", havingValue = "true")
     @ConfigurationProperties("hbase.client.parallel.scan")
     public ParallelScan parallelScan() {
@@ -53,8 +62,10 @@ public class HbaseTemplateConfiguration {
     @Bean
     public HbaseTemplate2 hbaseTemplate(@Qualifier("hbaseConfiguration") Configuration configurable,
                                         @Qualifier("hbaseTableFactory") TableFactory tableFactory,
+                                        @Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
                                         Optional<ParallelScan> parallelScan,
-                                        Optional<HBaseAsyncOperation> asyncOperation) {
+                                        Optional<HBaseAsyncOperation> asyncOperation,
+                                        @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync) {
         HbaseTemplate2 template2 = new HbaseTemplate2();
         template2.setConfiguration(configurable);
         template2.setTableFactory(tableFactory);
@@ -69,6 +80,8 @@ public class HbaseTemplateConfiguration {
         if (asyncOperation.isPresent()) {
             template2.setAsyncOperation(asyncOperation.get());
         }
+        template2.setAsyncTableFactory(asyncTableFactory);
+        template2.setNativeAsync(nativeAsync);
         return template2;
     }
 

@@ -29,6 +29,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.unit.DataSize;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +44,7 @@ import java.util.Objects;
 public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private static final int SCANNER_CACHING = 1;
+    private static final long MAX_RESULT_BYTES = DataSize.ofBytes(1).toBytes();
 
     private static final HbaseColumnFamily.AgentInfo DESCRIPTOR = HbaseColumnFamily.AGENTINFO_INFO;
 
@@ -155,6 +157,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private Scan createScan(String agentId, long startTime, long endTime, AgentInfoColumn column) {
         Scan scan = new Scan();
+        scan.setId("AgentId:" + agentId);
 
         byte[] startKeyBytes;
         byte[] endKeyBytes;
@@ -182,6 +185,9 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         scan.readVersions(1);
         scan.setCaching(SCANNER_CACHING);
+        scan.setOneRowLimit();
+        scan.setMaxResultSize(MAX_RESULT_BYTES);
+//        scan.setAsyncPrefetch(false);
 
         return scan;
     }
