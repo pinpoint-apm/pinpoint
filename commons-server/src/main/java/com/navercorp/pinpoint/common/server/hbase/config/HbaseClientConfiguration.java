@@ -19,14 +19,19 @@ package com.navercorp.pinpoint.common.server.hbase.config;
 
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean;
+import com.navercorp.pinpoint.common.hbase.HbaseSecurityProvider;
+import com.navercorp.pinpoint.common.hbase.SimpleHbaseSecurityProvider;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.AsyncConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.config.Warmup;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.util.ShutdownHookManagerProxy;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -72,9 +77,22 @@ public class HbaseClientConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "pinpoint.modules.hbase.security.auth", havingValue = "simple", matchIfMissing = true)
+    public User hbaseLoginUser(Configuration configuration) {
+        HbaseSecurityProvider provider = new SimpleHbaseSecurityProvider(configuration);
+        return provider.login();
+    }
+
+    @Bean
     public FactoryBean<Connection> hbaseConnection(Configuration configuration,
+                                                   User user,
                                                    @Qualifier("hbaseThreadPool") ExecutorService executorService) {
-        return new ConnectionFactoryBean(configuration, executorService);
+        return new ConnectionFactoryBean(configuration, user, executorService);
+    }
+
+    @Bean
+    public FactoryBean<AsyncConnection> hbaseAsyncConnectionFactory(Configuration configuration, User user) {
+        return new AsyncConnectionFactoryBean(configuration, user);
     }
 
     @Bean

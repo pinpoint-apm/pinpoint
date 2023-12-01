@@ -19,13 +19,13 @@ package com.navercorp.pinpoint.common.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.security.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -40,8 +40,8 @@ import java.util.function.Consumer;
 public class ConnectionFactoryBean implements FactoryBean<Connection>, InitializingBean, DisposableBean {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final User user;
 
-    private HbaseSecurityInterceptor hbaseSecurityInterceptor = new EmptyHbaseSecurityInterceptor();
 
     private HadoopResourceCleanerRegistry cleaner;
 
@@ -51,16 +51,15 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
 
     private Consumer<Connection> postProcessor;
 
-    public ConnectionFactoryBean(Configuration configuration) {
-        Objects.requireNonNull(configuration, "configuration");
-        this.configuration = configuration;
+    public ConnectionFactoryBean(Configuration configuration, User user) {
+        this.configuration = Objects.requireNonNull(configuration, "configuration");
+        this.user = Objects.requireNonNull(user, "user");
     }
 
-    public ConnectionFactoryBean(Configuration configuration, ExecutorService executorService) {
-        Objects.requireNonNull(configuration, "configuration");
-        Objects.requireNonNull(executorService, "executorService");
-        this.configuration = configuration;
-        this.executorService = executorService;
+    public ConnectionFactoryBean(Configuration configuration, User user, ExecutorService executorService) {
+        this.configuration = Objects.requireNonNull(configuration, "configuration");
+        this.user = Objects.requireNonNull(user, "user");
+        this.executorService = Objects.requireNonNull(executorService, "executorService");
     }
 
     @Override
@@ -69,12 +68,11 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
             this.cleaner.register(configuration);
         }
 
-        hbaseSecurityInterceptor.process(configuration);
         try {
             if (executorService == null) {
-                connection = ConnectionFactory.createConnection(this.configuration);
+                connection = ConnectionFactory.createConnection(this.configuration, user);
             } else {
-                connection = ConnectionFactory.createConnection(this.configuration, executorService);
+                connection = ConnectionFactory.createConnection(this.configuration, executorService, user);
             }
         } catch (IOException e) {
             throw new HbaseSystemException(e);
@@ -85,11 +83,11 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
         }
     }
 
-    @Qualifier("hbaseSecurityInterceptor")
-    @Autowired(required = false)
-    public void setHbaseSecurityInterceptor(HbaseSecurityInterceptor hbaseSecurityInterceptor) {
-        this.hbaseSecurityInterceptor = hbaseSecurityInterceptor;
-    }
+//    @Qualifier("hbaseSecurityInterceptor")
+//    @Autowired(required = false)
+//    public void setHbaseSecurityInterceptor(HbaseSecurityProvider hbaseSecurityProvider) {
+//        this.hbaseSecurityProvider = hbaseSecurityProvider;
+//    }
 
     @Autowired(required = false)
     public void setCleaner(HadoopResourceCleanerRegistry cleaner) {
@@ -107,11 +105,8 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     }
 
     @Override
-    public Class<?> getObjectType() {
-        if (connection == null) {
-            return Connection.class;
-        }
-        return connection.getClass();
+    public Class<Connection> getObjectType() {
+        return Connection.class;
     }
 
     @Override

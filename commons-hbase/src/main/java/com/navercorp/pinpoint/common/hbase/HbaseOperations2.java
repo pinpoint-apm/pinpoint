@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.hbase.async.AdvancedAsyncTableCallback;
+import com.navercorp.pinpoint.common.hbase.async.AsyncTableCallback;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
@@ -216,4 +218,8 @@ public interface HbaseOperations2 {
      */
     <T> List<T> find(TableName tableName, final Scan scan, final RowMapper<T> action);
 
+
+    <T> T executeAsync(TableName tableName, AdvancedAsyncTableCallback<T> action);
+
+    <T> T executeAsync(TableName tableName, AsyncTableCallback<T> action);
 }

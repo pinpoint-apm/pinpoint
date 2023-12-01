@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.hbase.async.AdvancedAsyncTableCallback;
+import com.navercorp.pinpoint.common.hbase.async.AsyncTableCallback;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.CompareOperator;
@@ -300,6 +302,16 @@ public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
     @Override
     public <T> List<T> find(TableName tableName, Scan scan, RowMapper<T> action) {
         return delegate.find(tableName, scan, action);
+    }
+
+    @Override
+    public <T> T executeAsync(TableName tableName, AdvancedAsyncTableCallback<T> action) {
+        return delegate.executeAsync(tableName, action);
+    }
+
+    @Override
+    public <T> T executeAsync(TableName tableName, AsyncTableCallback<T> action) {
+        return delegate.executeAsync(tableName, action);
     }
 
 }

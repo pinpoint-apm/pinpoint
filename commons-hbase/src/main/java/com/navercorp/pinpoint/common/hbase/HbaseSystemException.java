@@ -25,6 +25,10 @@ import org.springframework.dao.UncategorizedDataAccessException;
 @SuppressWarnings("serial")
 public class HbaseSystemException extends UncategorizedDataAccessException {
 
+    public HbaseSystemException(Throwable cause) {
+        super(cause.getMessage(), cause);
+    }
+
     public HbaseSystemException(Exception cause) {
         super(cause.getMessage(), cause);
     }

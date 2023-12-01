@@ -15,12 +15,12 @@
  */
 package com.navercorp.pinpoint.common.hbase;
 
-import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.security.User;
 
 /**
  * @author minwoo.jung
  */
-public interface HbaseSecurityInterceptor {
+public interface HbaseSecurityProvider {
 
-    void process(Configuration configuration);
+    User login();
 }
