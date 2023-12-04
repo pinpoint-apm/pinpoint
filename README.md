@@ -120,14 +120,15 @@ Agent - Collector compatibility table:
 <!-- </compatibilityPinpoint.md> -->
 Flink compatibility table:
 <!-- <compatibilityFlink.md> -->
-| Pinpoint Version | Flink 1.3.X | Flink 1.4.X | Flink 1.5.X | Flink 1.6.X | Flink 1.7.X | Flink 1.14.X |
-|------------------|-------------|-------------|-------------|-------------|-------------|--------------|
-| 2.0.x            | yes         | yes         | yes         | yes         | yes         | no           |
-| 2.1.x            | yes         | yes         | yes         | yes         | yes         | no           |
-| 2.2.x            | yes         | yes         | yes         | yes         | yes         | no           |
-| 2.3.x            | yes         | yes         | yes         | yes         | yes         | no           |
-| 2.4.x            | yes         | yes         | yes         | yes         | yes         | yes          |
-| 2.5.x            | yes         | yes         | yes         | yes         | yes         | yes          |
+| Pinpoint Version | Flink 1.3.X | Flink 1.4.X | Flink 1.5.X | Flink 1.6.X | Flink 1.7.X | Flink 1.14.X | Flink 1.18.X |
+|------------------|-------------|-------------|-------------|-------------|-------------|--------------|--------------|
+| 2.0.x            | yes         | yes         | yes         | yes         | yes         | no           |no            |
+| 2.1.x            | yes         | yes         | yes         | yes         | yes         | no           |no            |
+| 2.2.x            | yes         | yes         | yes         | yes         | yes         | no           |no            |
+| 2.3.x            | yes         | yes         | yes         | yes         | yes         | no           |no            |
+| 2.4.x            | yes         | yes         | yes         | yes         | yes         | yes          |no            |
+| 2.5.x            | yes         | yes         | yes         | yes         | yes         | yes          |no            |
+| 3.0.x            | no          | no          | no          | no          | no          | no           |yes           |
 <!-- </compatibilityFlink.md> -->
 Pinot compatibility table:
 <!-- <compatibilityPinot.md> -->
