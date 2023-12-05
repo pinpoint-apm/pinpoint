@@ -119,7 +119,7 @@ public class DefaultAgentInformation implements AgentInformation {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultAgentInformation{");
+        final StringBuilder sb = new StringBuilder("{");
         sb.append("agentId='").append(agentId).append('\'');
         sb.append(", agentName='").append(agentName).append('\'');
         sb.append(", applicationName='").append(applicationName).append('\'');

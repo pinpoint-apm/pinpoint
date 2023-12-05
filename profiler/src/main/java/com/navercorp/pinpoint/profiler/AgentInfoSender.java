@@ -174,35 +174,48 @@ public class AgentInfoSender {
         }
 
         private boolean sendAgentInfo() {
+            AgentInfo agentInfo = null;
             try {
-                AgentInfo agentInfo = agentInfoFactory.createAgentInfo();
+                agentInfo = agentInfoFactory.createAgentInfo();
 
-                logger.info("Sending AgentInfo {}", agentInfo);
+                logger.info("Sending AgentInfo={}", agentInfo);
                 ResponseFutureListener<ResponseMessage, Throwable> listener = new ResponseFutureListener<>();
                 dataSender.request(agentInfo, listener);
                 ResponseMessage responseMessage = listener.getResponseFuture().get(3000, TimeUnit.MILLISECONDS);
                 if (responseMessage == null) {
-                    logger.warn("result not set");
+                    if (agentInfo != null && agentInfo.getAgentInformation() != null) {
+                        logger.warn("Failed to send agentInfo={}. result not set", agentInfo.getAgentInformation());
+                    } else {
+                        logger.warn("Failed to send agentInfo. result not set");
+                    }
                     return false;
                 }
                 final ResultResponse result = messageConverter.toMessage(responseMessage);
                 if (!result.isSuccess()) {
-                    logger.warn("request unsuccessful. Cause : {}", result.getMessage());
+                    if (agentInfo != null && agentInfo.getAgentInformation() != null) {
+                        logger.warn("Failed to send agentInfo={}. request unsuccessful, response={}", agentInfo.getAgentInformation(), result.getMessage());
+                    } else {
+                        logger.warn("Failed to send agentInfo. request unsuccessful, response={}", result.getMessage());
+                    }
                 }
                 return result.isSuccess();
             } catch (ExecutionException ex) {
-                logError(ex.getCause());
+                logError(agentInfo, ex.getCause());
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                logError(ex);
+                logError(agentInfo, ex);
             } catch (TimeoutException ex) {
-                logError(ex);
+                logError(agentInfo, ex);
             }
             return false;
         }
 
-        private void logError(Throwable cause) {
-            logger.warn("failed to send agent info", cause);
+        private void logError(AgentInfo agentInfo, Throwable cause) {
+            if (agentInfo != null && agentInfo.getAgentInformation() != null) {
+                logger.warn("Failed to send agentInfo={}", agentInfo.getAgentInformation(), cause);
+            } else {
+                logger.warn("Failed to send agentInfo", cause);
+            }
         }
     }
 
