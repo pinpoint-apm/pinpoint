@@ -70,6 +70,9 @@ public class ConfigProperties {
     @Value("${config.show.exceptionTrace:false}")
     private boolean showExceptionTrace;
 
+    @Value("${config.show.sqlStat:false}")
+    private boolean showSqlStat;
+
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
     
@@ -126,6 +129,10 @@ public class ConfigProperties {
 
     public boolean isShowExceptionTrace() {
         return showExceptionTrace;
+    }
+
+    public boolean isShowSqlStat() {
+        return showSqlStat;
     }
 
     public String getWebSocketAllowedOrigins() {
