@@ -113,6 +113,7 @@
         <module>spring-data-r2dbc</module>
         <module>spring-tx</module>
         <module>resilience4j</module>
+        <module>clickhouse-jdbc</module>
     </modules>
 
 
