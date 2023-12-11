@@ -45,6 +45,18 @@ public enum JvmVersion {
     JAVA_18(18.0f, 62),
     JAVA_19(19.0f, 63),
     JAVA_20(20.0f, 64),
+    JAVA_21(21.0f, 65),
+    JAVA_22(22.0f, 66),
+    JAVA_23(23.0f, 67),
+    JAVA_24(24.0f, 68),
+    JAVA_25(25.0f, 69),
+    JAVA_26(26.0f, 70),
+    JAVA_27(27.0f, 71),
+    JAVA_28(28.0f, 72),
+    JAVA_29(29.0f, 73),
+    JAVA_30(30.0f, 74),
+    JAVA_31(31.0f, 75),
+    JAVA_32(32.0f, 76),
     JAVA_RECENT(99.0f, 99),
     UNSUPPORTED(-1, -1);
 
