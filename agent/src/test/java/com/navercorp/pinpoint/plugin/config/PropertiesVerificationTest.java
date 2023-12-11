@@ -31,17 +31,17 @@ public class PropertiesVerificationTest {
     public void checkConfigTest() throws Exception {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-root.config");
 
-        String collectorIp = properties.getProperty("profiler.collector.ip");
+        String collectorIp = properties.getProperty("profiler.transport.grpc.collector.ip");
         Assertions.assertEquals("127.0.0.1", collectorIp);
 
-        collectorIp = properties.getProperty("profiler.collector.span.ip");
-        Assertions.assertEquals("${profiler.collector.ip}", collectorIp);
+        collectorIp = properties.getProperty("profiler.transport.grpc.agent.collector.ip");
+        Assertions.assertEquals("${profiler.transport.grpc.collector.ip}", collectorIp);
 
-        collectorIp = properties.getProperty("profiler.collector.stat.ip");
-        Assertions.assertEquals("${profiler.collector.ip}", collectorIp);
+        collectorIp = properties.getProperty("profiler.transport.grpc.stat.collector.ip");
+        Assertions.assertEquals("${profiler.transport.grpc.collector.ip}", collectorIp);
 
-        collectorIp = properties.getProperty("profiler.collector.tcp.ip");
-        Assertions.assertEquals("${profiler.collector.ip}", collectorIp);
+        collectorIp = properties.getProperty("profiler.transport.grpc.span.collector.ip");
+        Assertions.assertEquals("${profiler.transport.grpc.collector.ip}", collectorIp);
     }
 
 }
