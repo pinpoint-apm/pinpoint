@@ -1,10 +1,12 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.util.Increments;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Increment;
 
 import java.util.Objects;
 
@@ -14,7 +16,7 @@ import java.util.Objects;
 public class SyncWriter implements BulkWriter {
 
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations hbaseTemplate;
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final HbaseColumnFamily tableDescriptor;
@@ -22,7 +24,7 @@ public class SyncWriter implements BulkWriter {
 
 
     public SyncWriter(String loggerName,
-                             HbaseOperations2 hbaseTemplate,
+                             HbaseOperations hbaseTemplate,
                              RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                              HbaseColumnFamily tableDescriptor,
                              TableNameProvider tableNameProvider) {
@@ -47,7 +49,8 @@ public class SyncWriter implements BulkWriter {
 
         TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey.getRowKey());
-        this.hbaseTemplate.incrementColumnValue(tableName, rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), 1L);
+        Increment increment = Increments.increment(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), 1);
+        this.hbaseTemplate.asyncIncrement(tableName, increment);
     }
 
     @Override

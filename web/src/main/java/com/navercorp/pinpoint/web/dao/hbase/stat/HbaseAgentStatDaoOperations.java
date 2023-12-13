@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao.hbase.stat;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
@@ -51,17 +51,17 @@ public class HbaseAgentStatDaoOperations {
     private final HbaseColumnFamily columnFamily;
     private final long timespan;
 
-    private final HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
     private final AgentStatHbaseOperationFactory operationFactory;
 
 
     public HbaseAgentStatDaoOperations(HbaseColumnFamily columnFamily, long timespan,
-                                       HbaseOperations2 hbaseOperations2,
+                                       HbaseOperations hbaseOperations,
                                        TableNameProvider tableNameProvider,
                                        AgentStatHbaseOperationFactory operationFactory) {
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.columnFamily = Objects.requireNonNull(columnFamily, "columnFamily");
         this.timespan = timespan;
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
@@ -75,7 +75,7 @@ public class HbaseAgentStatDaoOperations {
         Scan scan = this.createScan(agentStatType, agentId, range);
 
         TableName agentStatTableName = tableNameProvider.getTableName(columnFamily.getTable());
-        List<List<T>> intermediate = hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
+        List<List<T>> intermediate = hbaseOperations.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
         int expectedSize = (int) (range.durationMillis() / timespan);
 
         return ListListUtils.toList(intermediate, expectedSize);
@@ -93,7 +93,7 @@ public class HbaseAgentStatDaoOperations {
         Scan scan = this.createScan(agentStatType, agentId, range, resultLimit);
 
         TableName agentStatTableName = tableNameProvider.getTableName(columnFamily.getTable());
-        List<List<T>> result = hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultLimit, mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
+        List<List<T>> result = hbaseOperations.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultLimit, mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
         if (result.isEmpty()) {
             return false;
         } else {
@@ -109,7 +109,7 @@ public class HbaseAgentStatDaoOperations {
         Scan scan = this.createScan(agentStatType, agentId, range);
 
         TableName agentStatTableName = tableNameProvider.getTableName(columnFamily.getTable());
-        return hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, AGENT_STAT_VER2_NUM_PARTITIONS);
+        return hbaseOperations.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, AGENT_STAT_VER2_NUM_PARTITIONS);
     }
 
     <T extends AgentStatDataPoint> AgentStatMapperV2<T> createRowMapper(AgentStatDecoder<T> decoder, Range range) {

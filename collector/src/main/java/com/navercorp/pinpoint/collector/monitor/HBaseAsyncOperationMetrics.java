@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.collector.monitor;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
-import com.navercorp.pinpoint.common.hbase.HBaseAsyncOperation;
+import com.navercorp.pinpoint.common.hbase.counter.HBaseBatchPerformance;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Collections;
@@ -42,13 +42,13 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
     private static final String WAITING_COUNT = HBASE_ASYNC_OPS + ".waiting.count";
     private static final String AVERAGE_LATENCY = HBASE_ASYNC_OPS + ".latency.value";
 
-    private final List<HBaseAsyncOperation> hBaseAsyncOperations;
+    private final List<HBaseBatchPerformance> hBaseAsyncOperations;
 
-    public HBaseAsyncOperationMetrics(List<HBaseAsyncOperation> hBaseAsyncOperationList) {
+    public HBaseAsyncOperationMetrics(List<HBaseBatchPerformance> hBaseAsyncOperationList) {
         Objects.requireNonNull(hBaseAsyncOperationList, "hBaseAsyncOperation");
 
         this.hBaseAsyncOperations = hBaseAsyncOperationList.stream()
-                .filter(HBaseAsyncOperation::isAvailable)
+                .filter(HBaseBatchPerformance::isAvailable)
                 .collect(Collectors.toList());
     }
 
@@ -63,7 +63,7 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
             @Override
             public Long getValue() {
                 return hBaseAsyncOperations.stream()
-                        .mapToLong(HBaseAsyncOperation::getOpsCount)
+                        .mapToLong(HBaseBatchPerformance::getOpsCount)
                         .sum();
             }
         });
@@ -71,7 +71,7 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
             @Override
             public Long getValue() {
                 return hBaseAsyncOperations.stream()
-                        .mapToLong(HBaseAsyncOperation::getOpsRejectedCount)
+                        .mapToLong(HBaseBatchPerformance::getOpsRejectedCount)
                         .sum();
             }
         });
@@ -79,7 +79,7 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
             @Override
             public Long getValue() {
                 return hBaseAsyncOperations.stream()
-                        .mapToLong(HBaseAsyncOperation::getOpsFailedCount)
+                        .mapToLong(HBaseBatchPerformance::getOpsFailedCount)
                         .sum();
             }
         });
@@ -87,15 +87,7 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
             @Override
             public Long getValue() {
                 return hBaseAsyncOperations.stream()
-                        .mapToLong(HBaseAsyncOperation::getCurrentOpsCount)
-                        .sum();
-            }
-        });
-        gauges.put(AVERAGE_LATENCY, new Gauge<Long>() {
-            @Override
-            public Long getValue() {
-                return hBaseAsyncOperations.stream()
-                        .mapToLong(HBaseAsyncOperation::getOpsAverageLatency)
+                        .mapToLong(HBaseBatchPerformance::getCurrentOpsCount)
                         .sum();
             }
         });

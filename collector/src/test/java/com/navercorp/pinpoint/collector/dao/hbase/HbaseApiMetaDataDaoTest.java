@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -23,7 +23,7 @@ public class HbaseApiMetaDataDaoTest {
     // from node: ApiMetaDataBo{agentId='express-node-sample-id', startTime=1669280767548, apiId=12, apiInfo='express.Function.proto.get(path, callback)', lineNumber=169, methodTypeEnum=DEFAULT, location='/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/routes/index.js'}
     @Test
     public void testInsert() {
-        HbaseOperations2 mockedHbaseTemplate = mock(HbaseOperations2.class);
+        HbaseOperations mockedHbaseTemplate = mock(HbaseOperations.class);
         TableNameProvider mockedProvider = mock(TableNameProvider.class);
         DistributorConfiguration givenConfiguration = new DistributorConfiguration();
         RowKeyDistributorByHashPrefix givenRowKeyDistributorByHashPrefix = givenConfiguration.metadataRowKeyDistributor();

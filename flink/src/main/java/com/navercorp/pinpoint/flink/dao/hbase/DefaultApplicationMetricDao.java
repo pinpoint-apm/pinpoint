@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.flink.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
@@ -26,7 +26,7 @@ public class DefaultApplicationMetricDao<T extends JoinStatBo> implements Applic
     private final ApplicationStatSerializer<T> serializer;
 
     private final HbaseTable tableName;
-    private final HbaseTemplate2 hbaseTemplate2;
+    private final HbasePutWriter putWriter;
     private final ApplicationStatHbaseOperationFactory operations;
     private final TableNameProvider tableNameProvider;
 
@@ -35,7 +35,7 @@ public class DefaultApplicationMetricDao<T extends JoinStatBo> implements Applic
                                        ApplicationStatSerializer<T> serializer,
 
                                        HbaseTable tableName,
-                                       HbaseTemplate2 hbaseTemplate2,
+                                       HbasePutWriter putWriter,
                                        ApplicationStatHbaseOperationFactory operations,
                                        TableNameProvider tableNameProvider) {
         this.statType = Objects.requireNonNull(statType, "statType");
@@ -43,7 +43,7 @@ public class DefaultApplicationMetricDao<T extends JoinStatBo> implements Applic
         this.serializer = Objects.requireNonNull(serializer, "activeTraceSerializer");
 
         this.tableName = Objects.requireNonNull(tableName, "tableName");
-        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
+        this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.operations = Objects.requireNonNull(operations, "operations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
@@ -56,10 +56,11 @@ public class DefaultApplicationMetricDao<T extends JoinStatBo> implements Applic
             logger.debug("[insert] {} : ({})", DateTimeFormatUtils.format(timestamp), appStatBoList);
         }
         List<Put> activeTracePuts = operations.createPuts(id, appStatBoList, statType, serializer);
-        if (!activeTracePuts.isEmpty()) {
-            TableName applicationStatAggreTableName = tableNameProvider.getTableName(tableName);
-            hbaseTemplate2.asyncPut(applicationStatAggreTableName, activeTracePuts);
+        if (activeTracePuts.isEmpty()) {
+            return;
         }
+        TableName applicationStatAggreTableName = tableNameProvider.getTableName(tableName);
+        this.putWriter.put(applicationStatAggreTableName, activeTracePuts);
     }
 
     @Override

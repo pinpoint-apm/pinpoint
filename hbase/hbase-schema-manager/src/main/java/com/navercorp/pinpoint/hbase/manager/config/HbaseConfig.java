@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.common.hbase.HbaseAdminFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean;
 import com.navercorp.pinpoint.common.hbase.HbaseSecurityProvider;
 import com.navercorp.pinpoint.common.hbase.HbaseTableFactory;
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
+import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
 import com.navercorp.pinpoint.common.hbase.SimpleHbaseSecurityProvider;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.navercorp.pinpoint.common.hbase.async.AsyncConnectionFactoryBean;
+import com.navercorp.pinpoint.common.hbase.async.AsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
+import com.navercorp.pinpoint.common.hbase.async.DefaultAsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.AsyncConnection;
@@ -199,8 +201,13 @@ public class HbaseConfig {
     }
 
     @Bean
-    public AsyncTableFactory hbaseAsyncTableFactory(AsyncConnection connection) {
-        return new HbaseAsyncTableFactory(connection);
+    public AsyncTableCustomizer asyncTableCustomizer() {
+        return new DefaultAsyncTableCustomizer();
+    }
+
+    @Bean
+    public AsyncTableFactory hbaseAsyncTableFactory(AsyncConnection connection, AsyncTableCustomizer customizer) {
+        return new HbaseAsyncTableFactory(connection, customizer);
     }
 
     @Bean
@@ -209,10 +216,10 @@ public class HbaseConfig {
     }
 
     @Bean
-    public HbaseTemplate2 hbaseTemplate(Configuration configuration,
-                                        TableFactory hbaseTableFactory,
-                                        AsyncTableFactory hbaseAsyncTableFactory) {
-        HbaseTemplate2 hbaseTemplate2 = new HbaseTemplate2();
+    public HbaseTemplate hbaseTemplate(Configuration configuration,
+                                       TableFactory hbaseTableFactory,
+                                       AsyncTableFactory hbaseAsyncTableFactory) {
+        HbaseTemplate hbaseTemplate2 = new HbaseTemplate();
         hbaseTemplate2.setConfiguration(configuration);
         hbaseTemplate2.setTableFactory(hbaseTableFactory);
         hbaseTemplate2.setAsyncTableFactory(hbaseAsyncTableFactory);

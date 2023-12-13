@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.collector.dao.hbase.HbaseMapStatisticsCalleeDao;
 import com.navercorp.pinpoint.collector.dao.hbase.HbaseMapStatisticsCallerDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,7 +49,7 @@ public class BulkFactory {
     }
 
     private BulkWriter newBulkWriter(String loggerName,
-                                     HbaseOperations2 hbaseTemplate,
+                                     HbaseOperations hbaseTemplate,
                                      HbaseColumnFamily descriptor,
                                      TableNameProvider tableNameProvider,
                                      RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
@@ -80,11 +80,11 @@ public class BulkFactory {
 
 
     @Bean
-    public BulkWriter callerBulkWriter(HbaseOperations2 hbaseTemplate,
-                                          TableNameProvider tableNameProvider,
-                                          @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                          @Qualifier("callerBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                          @Qualifier("callerBulkUpdater") BulkUpdater bulkUpdater) {
+    public BulkWriter callerBulkWriter(HbaseOperations hbaseTemplate,
+                                       TableNameProvider tableNameProvider,
+                                       @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                       @Qualifier("callerBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                       @Qualifier("callerBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapStatisticsCallerDao.class.getName());
         return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
@@ -107,11 +107,11 @@ public class BulkFactory {
     }
 
     @Bean
-    public BulkWriter calleeBulkWriter(HbaseOperations2 hbaseTemplate,
-                                          TableNameProvider tableNameProvider,
-                                          @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                          @Qualifier("calleeBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                          @Qualifier("calleeBulkUpdater") BulkUpdater bulkUpdater) {
+    public BulkWriter calleeBulkWriter(HbaseOperations hbaseTemplate,
+                                       TableNameProvider tableNameProvider,
+                                       @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                       @Qualifier("calleeBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                       @Qualifier("calleeBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapStatisticsCalleeDao.class.getName());
         return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
@@ -132,11 +132,11 @@ public class BulkFactory {
     }
 
     @Bean
-    public BulkWriter selfBulkWriter(HbaseOperations2 hbaseTemplate,
-                                        TableNameProvider tableNameProvider,
-                                        @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                        @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                        @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
+    public BulkWriter selfBulkWriter(HbaseOperations hbaseTemplate,
+                                     TableNameProvider tableNameProvider,
+                                     @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                     @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                     @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapResponseTimeDao.class.getName());
         return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }

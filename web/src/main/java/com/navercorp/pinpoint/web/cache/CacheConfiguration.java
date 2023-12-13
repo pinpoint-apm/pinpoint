@@ -17,33 +17,24 @@
 package com.navercorp.pinpoint.web.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Import;
 
 import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableCaching
-public class CacheConfiguration extends CachingConfigurerSupport {
+@Import(CommonCacheManagerConfiguration.class)
+public class CacheConfiguration implements CachingConfigurer {
 
     public static final String API_METADATA_CACHE_NAME = "apiMetaData";
     public static final String APPLICATION_LIST_CACHE_NAME = "applicationNameList";
-
-    @Bean
-    @Primary
-    public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(600, TimeUnit.SECONDS)
-                .initialCapacity(200)
-                .maximumSize(1000));
-        return cacheManager;
-    }
 
     @Bean
     public CacheManager apiMetaData() {

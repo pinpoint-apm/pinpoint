@@ -31,11 +31,14 @@ import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 @Validated
@@ -55,19 +58,22 @@ public class HbaseTraceService implements TraceService {
     private final ServiceTypeRegistryService registry;
 
     private final SpanStorePublisher publisher;
+    private final Executor grpcSpanServerExecutor;
 
     public HbaseTraceService(TraceDao traceDao,
                              ApplicationTraceIndexDao applicationTraceIndexDao,
                              HostApplicationMapDao hostApplicationMapDao,
                              StatisticsService statisticsService,
                              ServiceTypeRegistryService registry,
-                             SpanStorePublisher spanStorePublisher) {
+                             SpanStorePublisher spanStorePublisher,
+                             @Qualifier("grpcSpanServerExecutor") Executor grpcSpanServerExecutor) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
         this.statisticsService = Objects.requireNonNull(statisticsService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.publisher = Objects.requireNonNull(spanStorePublisher, "spanStorePublisher");
+        this.grpcSpanServerExecutor = Objects.requireNonNull(grpcSpanServerExecutor, "grpcSpanServerExecutor");
     }
 
     @Override
@@ -91,13 +97,17 @@ public class HbaseTraceService implements TraceService {
 
     @Override
     public void insertSpan(@Valid final SpanBo spanBo) {
-        boolean success = traceDao.insert(spanBo);
+        CompletableFuture<Void> future = traceDao.asyncInsert(spanBo);
         applicationTraceIndexDao.insert(spanBo);
         insertAcceptorHost(spanBo);
         insertSpanStat(spanBo);
         insertSpanEventStat(spanBo);
 
-        publisher.publishSpanInsert(spanBo, success);
+        future.whenCompleteAsync((unused, throwable) -> {
+            final boolean result = throwable == null;
+            logger.trace("success {}", result);
+            publisher.publishSpanInsert(spanBo, result);
+        }, grpcSpanServerExecutor);
     }
 
     private void insertAcceptorHost(SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
@@ -210,7 +220,7 @@ public class HbaseTraceService implements TraceService {
             return;
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("handle spanEvent size:{}", spanEventList.size());
+            logger.debug("handle spanEvent {}/{} size:{}", span.getApplicationId(), span.getAgentId(), spanEventList.size());
         }
 
         final ServiceType applicationServiceType = getApplicationServiceType(span);

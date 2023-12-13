@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
-import com.navercorp.pinpoint.common.hbase.SimpleBatchWriter;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -31,13 +31,17 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerialize
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -49,7 +53,6 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private static final HbaseColumnFamily.Trace descriptor = HbaseColumnFamily.TRACE_V2_SPAN;
 
-    private final SimpleBatchWriter writer;
     private final TableNameProvider tableNameProvider;
 
     private final SpanSerializerV2 spanSerializer;
@@ -57,13 +60,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private final SpanChunkSerializerV2 spanChunkSerializer;
 
     private final RowKeyEncoder<TransactionId> rowKeyEncoder;
+    private final HbasePutWriter putWriter;
 
-    public HbaseTraceDaoV2(SimpleBatchWriter writer,
+    public HbaseTraceDaoV2(HbasePutWriter putWriter,
                            TableNameProvider tableNameProvider,
                            @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
                            SpanSerializerV2 spanSerializer,
                            SpanChunkSerializerV2 spanChunkSerializer) {
-        this.writer = Objects.requireNonNull(writer, "writer");
+        this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.spanSerializer = Objects.requireNonNull(spanSerializer, "spanSerializer");
@@ -71,7 +75,21 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     @Override
-    public boolean insert(final SpanBo spanBo) {
+    public boolean insert(SpanBo span) {
+        CompletableFuture<Void> future = asyncInsert(span);
+        try {
+            future.get(3, TimeUnit.SECONDS);
+            return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } catch (ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public CompletableFuture<Void> asyncInsert(final SpanBo spanBo) {
         Objects.requireNonNull(spanBo, "spanBo");
         if (logger.isDebugEnabled()) {
             logger.debug("insert trace: {}", spanBo);
@@ -91,7 +109,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         this.spanSerializer.serialize(spanBo, put, null);
 
         TableName traceTableName = tableNameProvider.getTableName(descriptor.getTable());
-        return writer.write(traceTableName, put);
+        return putWriter.put(traceTableName, put);
     }
 
     @Override
@@ -111,9 +129,10 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         this.spanChunkSerializer.serialize(spanChunkBo, put, null);
 
-        if (!put.isEmpty()) {
-            TableName traceTableName = tableNameProvider.getTableName(descriptor.getTable());
-            writer.write(traceTableName, put);
+        if (put.isEmpty()) {
+            return;
         }
+        TableName traceTableName = tableNameProvider.getTableName(descriptor.getTable());
+        this.putWriter.put(traceTableName, put);
     }
 }

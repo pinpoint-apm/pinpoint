@@ -17,14 +17,13 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Application;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -50,7 +49,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     private static final HbaseColumnFamily.ApplicationIndex DESCRIPTOR = HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
 
-    private final HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<List<Application>> applicationNameMapper;
@@ -58,11 +57,11 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     private final RowMapper<List<String>> agentIdMapper;
 
 
-    public HbaseApplicationIndexDao(HbaseOperations2 hbaseOperations2,
+    public HbaseApplicationIndexDao(HbaseOperations hbaseOperations,
                                     TableNameProvider tableNameProvider,
                                     @Qualifier("applicationNameMapper") RowMapper<List<Application>> applicationNameMapper,
                                     @Qualifier("agentIdMapper") RowMapper<List<String>> agentIdMapper) {
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationNameMapper = Objects.requireNonNull(applicationNameMapper, "applicationNameMapper");
         this.agentIdMapper = Objects.requireNonNull(agentIdMapper, "agentIdMapper");
@@ -75,7 +74,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         scan.addFamily(DESCRIPTOR.getName());
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<List<Application>> results = hbaseOperations2.find(applicationIndexTableName, scan, applicationNameMapper);
+        List<List<Application>> results = hbaseOperations.find(applicationIndexTableName, scan, applicationNameMapper);
 
         return ListListUtils.toList(results);
     }
@@ -100,7 +99,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         get.addFamily(DESCRIPTOR.getName());
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return hbaseOperations2.get(applicationIndexTableName, get, rowMapper);
+        return hbaseOperations.get(applicationIndexTableName, get, rowMapper);
     }
 
     @Override
@@ -111,7 +110,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         Delete delete = new Delete(rowKey);
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        hbaseOperations2.delete(applicationIndexTableName, delete);
+        hbaseOperations.delete(applicationIndexTableName, delete);
     }
 
     @Override
@@ -141,7 +140,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         }
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        hbaseOperations2.delete(applicationIndexTableName, deletes);
+        hbaseOperations.delete(applicationIndexTableName, deletes);
     }
 
     @Override
@@ -155,7 +154,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         delete.addColumns(DESCRIPTOR.getName(), qualifier);
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        hbaseOperations2.delete(applicationIndexTableName, delete);
+        hbaseOperations.delete(applicationIndexTableName, delete);
     }
 
 }

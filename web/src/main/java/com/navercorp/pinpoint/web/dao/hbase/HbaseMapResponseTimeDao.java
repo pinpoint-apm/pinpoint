@@ -17,20 +17,20 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -55,19 +55,19 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private final RowMapper<ResponseTime> responseTimeMapper;
 
-    private final HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
     private final RangeFactory rangeFactory;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    public HbaseMapResponseTimeDao(HbaseOperations2 hbaseOperations2,
+    public HbaseMapResponseTimeDao(HbaseOperations hbaseOperations,
                                    TableNameProvider tableNameProvider,
                                    @Qualifier("responseTimeMapper") RowMapper<ResponseTime> responseTimeMapper,
                                    RangeFactory rangeFactory,
                                    @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.responseTimeMapper = Objects.requireNonNull(responseTimeMapper, "responseTimeMapper");
         this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
@@ -86,7 +86,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         Scan scan = createScan(application, range, DESCRIPTOR.getName());
 
         TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
+        List<ResponseTime> responseTimeList = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
 
         if (responseTimeList.isEmpty()) {
             return new ArrayList<>();

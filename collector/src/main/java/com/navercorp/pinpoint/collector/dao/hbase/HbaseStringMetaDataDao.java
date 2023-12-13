@@ -19,10 +19,9 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
-
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
@@ -30,8 +29,8 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -48,7 +47,7 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     private static final HbaseColumnFamily.StringMetadataStr DESCRIPTOR = HbaseColumnFamily.STRING_METADATA_STR;
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
 
 
@@ -56,7 +55,7 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
 
-    public HbaseStringMetaDataDao(HbaseOperations2 hbaseTemplate,
+    public HbaseStringMetaDataDao(HbaseOperations hbaseTemplate,
                                   TableNameProvider tableNameProvider,
                                   @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");

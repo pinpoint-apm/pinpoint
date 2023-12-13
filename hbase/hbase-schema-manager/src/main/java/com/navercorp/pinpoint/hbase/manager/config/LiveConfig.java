@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.hbase.manager.config;
 import com.navercorp.pinpoint.common.hbase.AdminFactory;
 import com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate;
 import com.navercorp.pinpoint.common.hbase.HbaseAdminOperation;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.hbase.manager.ProgramOptions;
 import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.dao.hbase.HbaseSchemaChangeLogDao;
@@ -52,8 +52,8 @@ public class LiveConfig {
 
     @Bean
     public SchemaChangeLogDao schemaChangeLogDao(HbaseAdminOperation hbaseAdminOperation,
-                                                 HbaseOperations2 hbaseOperations2,
+                                                 HbaseOperations hbaseOperations,
                                                  SchemaChangeLogCodec schemaChangeLogCodec) {
-        return new HbaseSchemaChangeLogDao(hbaseAdminOperation, hbaseOperations2, schemaChangeLogCodec);
+        return new HbaseSchemaChangeLogDao(hbaseAdminOperation, hbaseOperations, schemaChangeLogCodec);
     }
 }

@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.flink.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
@@ -29,14 +29,14 @@ import java.util.function.Function;
 public class ApplicationDaoConfiguration {
 
     private final HbaseTable tableName = HbaseTable.APPLICATION_STAT_AGGRE;
-    private final HbaseTemplate2 hbaseTemplate2;
     private final ApplicationStatHbaseOperationFactory operations;
     private final TableNameProvider tableNameProvider;
+    private final HbasePutWriter putWriter;
 
-    public ApplicationDaoConfiguration(HbaseTemplate2 hbaseTemplate2,
+    public ApplicationDaoConfiguration(HbasePutWriter putWriter,
                                        ApplicationStatHbaseOperationFactory operations,
                                        TableNameProvider tableNameProvider) {
-        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
+        this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.operations = Objects.requireNonNull(operations, "operations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
@@ -49,7 +49,7 @@ public class ApplicationDaoConfiguration {
         Objects.requireNonNull(serializer, "serializer");
 
         return new DefaultApplicationMetricDao<>(statType, appStatFunction,
-                serializer, tableName, hbaseTemplate2, operations, tableNameProvider);
+                serializer, tableName, putWriter, operations, tableNameProvider);
     }
 
     @Bean

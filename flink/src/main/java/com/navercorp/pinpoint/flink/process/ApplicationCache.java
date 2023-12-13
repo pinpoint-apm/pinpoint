@@ -15,17 +15,16 @@
  */
 package com.navercorp.pinpoint.flink.process;
 
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
+import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.dao.hbase.mapper.AgentInfoBoMapper;
 import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
-
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Objects;
@@ -43,13 +42,13 @@ public class ApplicationCache {
 
     private final transient AgentInfoBoMapper agentInfoMapper = new AgentInfoBoMapper();
 
-    private final transient HbaseTemplate2 hbaseTemplate2;
+    private final transient HbaseTemplate hbaseTemplate2;
 
     private final transient TableNameProvider tableNameProvider;
 
     private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
-    public ApplicationCache(HbaseTemplate2 hbaseTemplate2, TableNameProvider tableNameProvider) {
+    public ApplicationCache(HbaseTemplate hbaseTemplate2, TableNameProvider tableNameProvider) {
         this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }

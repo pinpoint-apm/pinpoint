@@ -19,18 +19,19 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
+import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -45,12 +46,12 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     private static final HbaseColumnFamily.AgentLifeCycleStatus DESCRIPTOR = HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations hbaseTemplate;
 
     private final TableNameProvider tableNameProvider;
     private final ValueMapper<AgentLifeCycleBo> valueMapper;
 
-    public HbaseAgentLifeCycleDao(HbaseOperations2 hbaseTemplate,
+    public HbaseAgentLifeCycleDao(HbaseOperations hbaseTemplate,
                                   TableNameProvider tableNameProvider,
                                   ValueMapper<AgentLifeCycleBo> valueMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
@@ -75,8 +76,10 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         byte[] rowKey = createRowKey(agentId, startTimestamp, eventIdentifier);
 
         TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        this.hbaseTemplate.put(agentLifeCycleTableName, rowKey, DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES,
-                agentLifeCycleBo, this.valueMapper);
+
+        byte[] value = this.valueMapper.mapValue(agentLifeCycleBo);
+        Put put = Puts.put(rowKey, DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES, value);
+        this.hbaseTemplate.put(agentLifeCycleTableName, put);
     }
 
     byte[] createRowKey(String agentId, long startTimestamp, long eventIdentifier) {

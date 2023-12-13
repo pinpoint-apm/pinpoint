@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,11 @@
  *
  */
 
-package com.navercorp.pinpoint.common.hbase;
+package com.navercorp.pinpoint.common.hbase.async;
 
 import com.navercorp.pinpoint.common.hbase.config.HbaseMultiplexerProperties;
+import com.navercorp.pinpoint.common.hbase.counter.HBaseBatchPerformance;
+import com.navercorp.pinpoint.common.hbase.counter.HbaseBatchPerformanceCounter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HTableMultiplexer;
@@ -34,9 +36,9 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author Taejin Koo
  */
-public class HBaseAsyncOperationFactory implements DisposableBean, FactoryBean<HBaseAsyncOperation> {
+public class HBaseTableMultiplexerFactory implements DisposableBean, FactoryBean<HbasePutWriter> {
 
-    private final Logger logger = LogManager.getLogger(HBaseAsyncOperationFactory.class);
+    private final Logger logger = LogManager.getLogger(HBaseTableMultiplexerFactory.class);
 
     public static final String ASYNC_PERIODIC_FLUSH_TIME = HTableMultiplexer.TABLE_MULTIPLEXER_FLUSH_PERIOD_MS;
     public static final int DEFAULT_ASYNC_PERIODIC_FLUSH_TIME = 100;
@@ -47,10 +49,12 @@ public class HBaseAsyncOperationFactory implements DisposableBean, FactoryBean<H
     private HbaseMultiplexerProperties hbaseMultiplexerProperties;
     private final Connection connection;
     private HTableMultiplexer hTableMultiplexer;
+    private final HbaseBatchPerformanceCounter counter;
 
 
-    public HBaseAsyncOperationFactory(Connection connection) {
+    public HBaseTableMultiplexerFactory(Connection connection, HbaseBatchPerformanceCounter counter) {
         this.connection = Objects.requireNonNull(connection, "connection");
+        this.counter = Objects.requireNonNull(counter, "counter");
     }
 
 
@@ -60,14 +64,9 @@ public class HBaseAsyncOperationFactory implements DisposableBean, FactoryBean<H
     }
 
     @Override
-    public HBaseAsyncOperation getObject() throws Exception {
-        if (hbaseMultiplexerProperties == null || !hbaseMultiplexerProperties.isEnable()) {
-            logger.info("hbaseMultiplexerProperties is disabled");
-            return DisabledHBaseAsyncOperation.INSTANCE;
-        }
-
+    public HbasePutWriter getObject() throws Exception {
         this.hTableMultiplexer = this.getHTableMultiplexer();
-        return new TableMultiplexerAsyncOperation(hTableMultiplexer);
+        return new TableMultiplexerPutWriter(hTableMultiplexer, counter);
     }
 
     private HTableMultiplexer getHTableMultiplexer() {
@@ -131,8 +130,8 @@ public class HBaseAsyncOperationFactory implements DisposableBean, FactoryBean<H
     }
 
     @Override
-    public Class<HBaseAsyncOperation> getObjectType() {
-        return HBaseAsyncOperation.class;
+    public Class<HBaseBatchPerformance> getObjectType() {
+        return HBaseBatchPerformance.class;
     }
 
 }

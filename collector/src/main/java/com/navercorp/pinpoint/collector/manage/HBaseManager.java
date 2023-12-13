@@ -17,9 +17,8 @@
 
 package com.navercorp.pinpoint.collector.manage;
 
-import com.navercorp.pinpoint.common.hbase.HBaseAsyncOperation;
+import com.navercorp.pinpoint.common.hbase.counter.HBaseBatchPerformance;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -27,9 +26,9 @@ import java.util.Objects;
  */
 public class HBaseManager extends AbstractCollectorManager implements HBaseManagerMBean {
 
-    private final HBaseAsyncOperation hBaseAsyncOperation;
+    private final HBaseBatchPerformance hBaseAsyncOperation;
 
-    public HBaseManager(HBaseAsyncOperation hBaseAsyncOperation) {
+    public HBaseManager(HBaseBatchPerformance hBaseAsyncOperation) {
         this.hBaseAsyncOperation = Objects.requireNonNull(hBaseAsyncOperation, "hBaseAsyncOperation");
     }
 
@@ -41,21 +40,6 @@ public class HBaseManager extends AbstractCollectorManager implements HBaseManag
     @Override
     public Long getAsyncOpsRejectedCount() {
         return hBaseAsyncOperation.getOpsRejectedCount();
-    }
-
-    @Override
-    public Map<String, Long> getCurrentAsyncOpsCountForEachRegionServer() {
-        return hBaseAsyncOperation.getCurrentOpsCountForEachRegionServer();
-    }
-
-    @Override
-    public Map<String, Long> getAsyncOpsFailedCountForEachRegionServer() {
-        return hBaseAsyncOperation.getOpsFailedCountForEachRegionServer();
-    }
-
-    @Override
-    public Map<String, Long> getAsyncOpsAverageLatencyForEachRegionServer() {
-        return hBaseAsyncOperation.getOpsAverageLatencyForEachRegionServer();
     }
 
 }

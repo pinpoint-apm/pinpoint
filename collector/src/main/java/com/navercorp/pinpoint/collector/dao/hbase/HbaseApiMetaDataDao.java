@@ -21,18 +21,17 @@ import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
-
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -49,7 +48,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private static final HbaseColumnFamily.ApiMetadata description = HbaseColumnFamily.API_METADATA_API;
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations hbaseTemplate;
 
     private final TableNameProvider tableNameProvider;
 
@@ -57,7 +56,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
 
-    public HbaseApiMetaDataDao(HbaseOperations2 hbaseTemplate,
+    public HbaseApiMetaDataDao(HbaseOperations hbaseTemplate,
                                TableNameProvider tableNameProvider,
                                @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");

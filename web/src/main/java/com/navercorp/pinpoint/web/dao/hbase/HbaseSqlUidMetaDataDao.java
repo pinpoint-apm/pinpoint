@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
@@ -23,7 +23,7 @@ import java.util.Objects;
 public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
     private final HbaseColumnFamily.SqlUidMetaData DESCRIPTOR = HbaseColumnFamily.SQL_UID_METADATA_SQL;
 
-    private final HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<List<SqlUidMetaDataBo>> sqlUidMetaDataMapper;
@@ -32,11 +32,11 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
 
     private final RowKeyEncoder<UidMetaDataRowKey> rowKeyEncoder = new UidMetadataEncoder();
 
-    public HbaseSqlUidMetaDataDao(HbaseOperations2 hbaseOperations2,
+    public HbaseSqlUidMetaDataDao(HbaseOperations hbaseOperations,
                                   TableNameProvider tableNameProvider,
                                   @Qualifier("sqlUidMetaDataMapper") RowMapper<List<SqlUidMetaDataBo>> sqlUidMetaDataMapper,
                                   @Qualifier("metadataRowKeyDistributor2") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.sqlUidMetaDataMapper = Objects.requireNonNull(sqlUidMetaDataMapper, "sqlUidMetaDataMapper");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
@@ -53,7 +53,7 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
         get.addFamily(DESCRIPTOR.getName());
 
         TableName sqlUidMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return hbaseOperations2.get(sqlUidMetaDataTableName, get, sqlUidMetaDataMapper);
+        return hbaseOperations.get(sqlUidMetaDataTableName, get, sqlUidMetaDataMapper);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {

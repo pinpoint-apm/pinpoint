@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
@@ -45,13 +45,13 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily.AgentInfo DESCRIPTOR = HbaseColumnFamily.AGENTINFO_INFO;
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
 
     private final ResultsExtractor<AgentInfoBo> agentInfoResultsExtractor;
     private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
-    public HbaseAgentInfoDao(HbaseOperations2 hbaseTemplate,
+    public HbaseAgentInfoDao(HbaseOperations hbaseTemplate,
                              TableNameProvider tableNameProvider,
                              ResultsExtractor<AgentInfoBo> agentInfoResultsExtractor) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");

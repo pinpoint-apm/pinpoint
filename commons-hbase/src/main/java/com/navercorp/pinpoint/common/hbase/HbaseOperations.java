@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.common.hbase;
 import com.navercorp.pinpoint.common.hbase.async.AdvancedAsyncTableCallback;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableCallback;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
@@ -31,77 +31,40 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author emeroad
  * @author minwoo.jung
  * @author Taejin Koo
  */
-public interface HbaseOperations2 {
+public interface HbaseOperations {
     /**
      * Gets an individual row from the given table. The content is mapped by the given action.
      *
      * @param tableName target table
-     * @param rowName   row name
-     * @param mapper    row mapper
+     * @param get    Get
      * @return object mapping the target row
      */
-    <T> T get(TableName tableName, byte[] rowName, final RowMapper<T> mapper);
-
-
-    /**
-     * Gets an individual row from the given table. The content is mapped by the given action.
-     *
-     * @param tableName  target table
-     * @param rowName    row name
-     * @param familyName column family
-     * @param mapper     row mapper
-     * @return object mapping the target row
-     */
-    <T> T get(TableName tableName, byte[] rowName, byte[] familyName, final RowMapper<T> mapper);
-
-    /**
-     * Gets an individual row from the given table. The content is mapped by the given action.
-     *
-     * @param tableName  target table
-     * @param rowName    row name
-     * @param familyName family
-     * @param qualifier  column qualifier
-     * @param mapper     row mapper
-     * @return object mapping the target row
-     */
-    <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper);
-
     <T> T get(TableName tableName, final Get get, final RowMapper<T> mapper);
 
     <T> List<T> get(TableName tableName, final List<Get> get, final RowMapper<T> mapper);
 
-    void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value);
-    void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value);
-    <T> void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final T value, final ValueMapper<T> mapper);
-    <T> void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper);
     void put(TableName tableName, final Put put);
     void put(TableName tableName, final List<Put> puts);
 
-    CheckAndMutateResult checkAndMutate(TableName tableName, CheckAndMutate checkAndMutate);
-
-    List<CheckAndMutateResult> checkAndMutate(TableName tableName, List<CheckAndMutate> checkAndMutates);
 
     /**
-     * Atomically checks if a row/family/qualifier value matches the expected
+     * Atomically checks if a CheckAndMutate value matches the expected
      * value. If it does, it adds the put.  If the passed value is null, the check
      * is for the lack of column (ie: non-existence)
      *
      * @param tableName  target table
-     * @param rowName to check
-     * @param familyName column family to check
-     * @param qualifier column qualifier to check
-     * @param compareOp comparison operator to use
-     * @param value the expected value
-     * @param put data to put if check succeeds
-     * @return true if the new put was executed, false otherwise
+     * @param checkAndMutate CheckAndMutate
      */
-    boolean checkAndPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, CompareOperator compareOp, byte[] value, Put put);
+    CheckAndMutateResult checkAndMutate(TableName tableName, CheckAndMutate checkAndMutate);
+
+    List<CheckAndMutateResult> checkAndMutate(TableName tableName, List<CheckAndMutate> checkAndMutates);
 
     /**
      *
@@ -112,35 +75,6 @@ public interface HbaseOperations2 {
      * @param value if the value provided is greater than the saved, update the saved
      */
     void maxColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long value);
-
-    /**
-     * If asyncOperation is not set, then execute put method instead of asyncPut method.
-     */
-    boolean asyncPut(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value);
-    /**
-     * If asyncOperation is not set, then execute put method instead of asyncPut method.
-     */
-    boolean asyncPut(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value);
-    /**
-     * If asyncOperation is not set, then execute put method instead of asyncPut method.
-     */
-    <T> boolean asyncPut(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final T value, final ValueMapper<T> mapper);
-    /**
-     * If asyncOperation is not set, then execute put method instead of asyncPut method.
-     */
-    <T> boolean asyncPut(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper);
-    /**
-     * If asyncOperation is not set, then execute put method instead of asyncPut method.
-     */
-    boolean asyncPut(TableName tableName, final Put put);
-
-    /**
-     * If asyncOperation is not set, then execute put method instead of asyncPut method.
-     * @param tableName
-     * @param puts
-     * @return the list of puts which could not be queued or put serially. May be null if all put operations were successfully queued.
-     */
-    List<Put> asyncPut(TableName tableName, final List<Put> puts);
 
     void delete(TableName tableName, final Delete delete);
     void delete(TableName tableName, final List<Delete> deletes);
@@ -177,7 +111,12 @@ public interface HbaseOperations2 {
     List<Result> increment(TableName tableName, final List<Increment> incrementList);
 
     long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount);
-    long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL);
+    long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final Durability durability);
+
+    CompletableFuture<Result> asyncIncrement(final TableName tableName, final Increment incrementList);
+    List<CompletableFuture<Result>> asyncIncrement(final TableName tableName, final List<Increment> incrementList);
+    CompletableFuture<Long> asyncIncrement(TableName tableName, byte[] row, byte[] family, byte[] qualifier, long amount, Durability durability);
+
 
     /**
      * Executes the given action against the specified table handling resource management.
@@ -219,7 +158,7 @@ public interface HbaseOperations2 {
     <T> List<T> find(TableName tableName, final Scan scan, final RowMapper<T> action);
 
 
-    <T> T executeAsync(TableName tableName, AdvancedAsyncTableCallback<T> action);
+    <T> T asyncExecute(TableName tableName, AdvancedAsyncTableCallback<T> action);
 
-    <T> T executeAsync(TableName tableName, AsyncTableCallback<T> action);
+    <T> T asyncExecute(TableName tableName, AsyncTableCallback<T> action);
 }

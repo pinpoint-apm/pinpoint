@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.mapper.MapStatisticsTimeWindowReducer;
@@ -29,14 +30,12 @@ import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
-
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -57,7 +56,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private static final HbaseColumnFamily.CalleeStatMap DESCRIPTOR = HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER;
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<LinkDataMap> mapStatisticsCallerMapper;
@@ -68,7 +67,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     public HbaseMapStatisticsCallerDao(
-            HbaseOperations2 hbaseTemplate,
+            HbaseOperations hbaseTemplate,
             TableNameProvider tableNameProvider,
             @Qualifier("mapStatisticsCallerMapper") RowMapper<LinkDataMap> mapStatisticsCallerMapper,
             @Qualifier("mapStatisticsCallerTimeAggregatedMapper") RowMapper<LinkDataMap> mapStatisticsCallerTimeAggregatedMapper,
