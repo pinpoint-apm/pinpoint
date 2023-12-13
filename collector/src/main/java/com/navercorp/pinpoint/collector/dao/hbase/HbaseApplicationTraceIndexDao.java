@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
@@ -52,18 +52,19 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
     private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
 
     private final AcceptedTimeService acceptedTimeService;
 
     private final RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder;
 
-    public HbaseApplicationTraceIndexDao(HbaseOperations2 hbaseTemplate,
+
+    public HbaseApplicationTraceIndexDao(HbasePutWriter putWriter,
                                          TableNameProvider tableNameProvider,
                                          @Qualifier("applicationIndexRowKeyEncoder") RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder,
                                          AcceptedTimeService acceptedTimeService) {
-        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationIndexRowKeyEncoder = Objects.requireNonNull(applicationIndexRowKeyEncoder, "applicationIndexRowKeyEncoder");
@@ -97,7 +98,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         put.addColumn(META.getName(), qualifier, metaDataValue);
 
         final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        hbaseTemplate.asyncPut(applicationTraceIndexTableName, put);
+        putWriter.put(applicationTraceIndexTableName, put);
     }
 
     private byte[] buildIndexValue(SpanBo span) {

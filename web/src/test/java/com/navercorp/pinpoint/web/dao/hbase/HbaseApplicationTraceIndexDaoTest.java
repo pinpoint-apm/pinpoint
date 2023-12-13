@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
@@ -55,7 +55,7 @@ import static org.mockito.Mockito.when;
 public class HbaseApplicationTraceIndexDaoTest {
 
     @Mock
-    private HbaseOperations2 hbaseOperations2;
+    private HbaseOperations hbaseOperations;
 
     @Mock
     private RowMapper<List<TransactionId>> traceIndexMapper;
@@ -77,7 +77,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations2, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
+        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
     }
 
     @AfterEach
@@ -95,7 +95,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     @Test
     public void scanTraceIndexTest() {
         final List<List<TransactionId>> scannedList = createTraceIndexList();
-        when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
+        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<TransactionId>> result =
                 this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 20, false);
@@ -119,7 +119,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     @Test
     public void scanTraceScatterDataEmptyTest() {
 
-        when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
+        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(List.of());
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
@@ -136,7 +136,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     @Test
     public void scanTraceScatterDataTest() {
         List<List<Dot>> scatterDotList = createScatterDotList();
-        when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
+        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), anyInt())).thenReturn(scatterDotList);
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult

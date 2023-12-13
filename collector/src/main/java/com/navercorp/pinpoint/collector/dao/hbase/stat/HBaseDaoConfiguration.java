@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDao;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
@@ -31,20 +31,20 @@ import java.util.function.Function;
 @Configuration
 public class HBaseDaoConfiguration {
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbasePutWriter putWriter;
     private final HbaseTable hbaseTable = HbaseTable.AGENT_STAT_VER2;
     private final TableNameProvider tableNameProvider;
     private final AgentStatHbaseOperationFactory operations;
 
-    public HBaseDaoConfiguration(HbaseOperations2 hbaseTemplate, TableNameProvider tableNameProvider, AgentStatHbaseOperationFactory operations) {
-        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+    public HBaseDaoConfiguration(HbasePutWriter putWriter, TableNameProvider tableNameProvider, AgentStatHbaseOperationFactory operations) {
+        this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.operations = Objects.requireNonNull(operations, "operations");
     }
 
     private <T extends AgentStatDataPoint> AgentStatDao<T> newAgentStatDao(AgentStatType agentStatType, Function<AgentStatBo, List<T>> dataPointFunction, AgentStatSerializer<T> serializer) {
         return new DefaultAgentStatDao<>(agentStatType, hbaseTable, dataPointFunction,
-                hbaseTemplate, tableNameProvider, operations, serializer);
+                putWriter, tableNameProvider, operations, serializer);
     }
 
     @Bean
@@ -59,7 +59,7 @@ public class HBaseDaoConfiguration {
 
     @Bean
     public AgentStatDao<DataSourceListBo> getDataSourceListDao(AgentStatSerializer<DataSourceListBo> serializer) {
-        return new HbaseDataSourceListDao(hbaseTemplate, tableNameProvider, operations, serializer);
+        return new HbaseDataSourceListDao(putWriter, tableNameProvider, operations, serializer);
     }
 
     @Bean

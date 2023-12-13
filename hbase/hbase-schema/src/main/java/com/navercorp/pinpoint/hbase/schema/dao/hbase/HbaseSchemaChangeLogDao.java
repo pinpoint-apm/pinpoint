@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.hbase.schema.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseAdminOperation;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
@@ -50,7 +50,7 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
 
     private final HbaseAdminOperation hbaseAdminOperation;
 
-    private final HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations hbaseOperations;
 
     private final SchemaChangeLogCodec schemaChangeLogCodec;
 
@@ -59,10 +59,10 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
     private final ResultsExtractor<List<SchemaChangeLog>> schemaChangeLogResultsExtractor;
 
     public HbaseSchemaChangeLogDao(HbaseAdminOperation hbaseAdminOperation,
-                                   HbaseOperations2 hbaseOperations2,
+                                   HbaseOperations hbaseOperations,
                                    SchemaChangeLogCodec schemaChangeLogCodec) {
         this.hbaseAdminOperation = Objects.requireNonNull(hbaseAdminOperation, "hbaseAdminOperation");
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.schemaChangeLogCodec = Objects.requireNonNull(schemaChangeLogCodec, "schemaChangeLogCodec");
         this.schemaChangeLogRowMapper = new SchemaChangeLogRowMapper(this.schemaChangeLogCodec);
         this.schemaChangeLogResultsExtractor = new SchemaChangeLogResultsExtractor(this.schemaChangeLogRowMapper);
@@ -102,7 +102,7 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
         Put put = new Put(rowKey);
         byte[] value = schemaChangeLogCodec.writeData(schemaChangeLog);
         put.addColumn(COLUMN_FAMILY_NAME, COLUMN_QUALIFIER, value);
-        hbaseOperations2.put(tableName, put);
+        hbaseOperations.put(tableName, put);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
         TableName tableName = TableName.valueOf(namespace, TABLE_QUALIFIER);
         Scan scan = new Scan();
         scan.addColumn(COLUMN_FAMILY_NAME, COLUMN_QUALIFIER);
-        return hbaseOperations2.find(tableName, scan, schemaChangeLogResultsExtractor);
+        return hbaseOperations.find(tableName, scan, schemaChangeLogResultsExtractor);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
         TableName tableName = TableName.valueOf(namespace, TABLE_QUALIFIER);
         byte[] rowKey = Bytes.toBytes(id);
         Get get = new Get(rowKey);
-        return hbaseOperations2.get(tableName, get, schemaChangeLogRowMapper);
+        return hbaseOperations.get(tableName, get, schemaChangeLogRowMapper);
     }
 
     private static class SchemaChangeLogRowMapper implements RowMapper<SchemaChangeLog> {

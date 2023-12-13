@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -23,6 +24,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -41,7 +43,7 @@ import java.util.Properties;
 @Disabled
 public class HbaseTemplate2IT {
     private static Connection connection;
-    private static HbaseTemplate2 hbaseTemplate2;
+    private static HbaseTemplate hbaseTemplate2;
 
     @BeforeAll
     public static void beforeClass() throws IOException {
@@ -52,7 +54,7 @@ public class HbaseTemplate2IT {
         cfg.set("hbase.zookeeper.property.clientPort", properties.getProperty("hbase.client.port"));
 
         connection = ConnectionFactory.createConnection(cfg);
-        hbaseTemplate2 = new HbaseTemplate2();
+        hbaseTemplate2 = new HbaseTemplate();
         hbaseTemplate2.setConfiguration(cfg);
         hbaseTemplate2.setTableFactory(new HbaseTableFactory(connection));
         hbaseTemplate2.afterPropertiesSet();
@@ -71,7 +73,8 @@ public class HbaseTemplate2IT {
     @Test
     public void notExist() {
         try {
-            hbaseTemplate2.put(TableName.valueOf("NOT_EXIST"), new byte[]{0, 0, 0}, "familyName".getBytes(), "columnName".getBytes(), new byte[]{0, 0, 0});
+            Put put = Puts.put(new byte[]{0, 0, 0}, "familyName".getBytes(), "columnName".getBytes(), new byte[]{0, 0, 0});
+            hbaseTemplate2.put(TableName.valueOf("NOT_EXIST"), put);
             Assertions.fail("exceptions");
         } catch (HbaseSystemException e) {
             RetriesExhaustedWithDetailsException exception = (RetriesExhaustedWithDetailsException) (e.getCause());

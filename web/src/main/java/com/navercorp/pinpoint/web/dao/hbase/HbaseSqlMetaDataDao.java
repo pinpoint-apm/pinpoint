@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
@@ -44,7 +44,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final HbaseColumnFamily.SqlMetadataV2 DESCRIPTOR = HbaseColumnFamily.SQL_METADATA_VER2_SQL;
 
-    private final HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper;
@@ -53,11 +53,11 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
 
-    public HbaseSqlMetaDataDao(HbaseOperations2 hbaseOperations2,
+    public HbaseSqlMetaDataDao(HbaseOperations hbaseOperations,
                                TableNameProvider tableNameProvider,
                                @Qualifier("sqlMetaDataMapper") RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper,
                                @Qualifier("metadataRowKeyDistributor2") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.sqlMetaDataMapper = Objects.requireNonNull(sqlMetaDataMapper, "sqlMetaDataMapper");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
@@ -74,7 +74,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         get.addFamily(DESCRIPTOR.getName());
 
         TableName sqlMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return hbaseOperations2.get(sqlMetaDataTableName, get, sqlMetaDataMapper);
+        return hbaseOperations.get(sqlMetaDataTableName, get, sqlMetaDataMapper);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao.hbase.appmetric;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -25,17 +25,16 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.hbase.HBaseUtils;
 import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
-
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -53,15 +52,15 @@ public class HbaseApplicationStatDaoOperations {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily.ApplicationStatStatistics DESCRIPTOR = HbaseColumnFamily.APPLICATION_STAT_STATISTICS;
 
-    private final HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
     private final ApplicationStatHbaseOperationFactory operationFactory;
 
-    public HbaseApplicationStatDaoOperations(HbaseOperations2 hbaseOperations2,
+    public HbaseApplicationStatDaoOperations(HbaseOperations hbaseOperations,
                                              TableNameProvider tableNameProvider,
                                              ApplicationStatHbaseOperationFactory operationFactory) {
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.operationFactory = Objects.requireNonNull(operationFactory, "operationFactory");
     }
@@ -76,7 +75,7 @@ public class HbaseApplicationStatDaoOperations {
         Scan scan = this.createScan(statType, applicationId, range);
 
         TableName applicationStatAggreTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return hbaseOperations2.findParallel(applicationStatAggreTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, APPLICATION_STAT_NUM_PARTITIONS);
+        return hbaseOperations.findParallel(applicationStatAggreTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, APPLICATION_STAT_NUM_PARTITIONS);
     }
 
     <IN extends JoinStatBo> RowMapper<List<IN>> createRowMapper(ApplicationStatDecoder<IN> decoder, Range range) {

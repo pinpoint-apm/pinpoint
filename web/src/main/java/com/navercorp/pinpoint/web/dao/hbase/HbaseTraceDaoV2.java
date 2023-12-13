@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
@@ -66,7 +66,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private static final HbaseColumnFamily.Trace DESCRIPTOR = HbaseColumnFamily.TRACE_V2_SPAN;
 
-    private final HbaseOperations2 template2;
+    private final HbaseOperations template2;
     private final TableNameProvider tableNameProvider;
 
     private final RowKeyEncoder<TransactionId> rowKeyEncoder;
@@ -84,7 +84,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private final Filter spanFilter = createSpanQualifierFilter();
 
-    public HbaseTraceDaoV2(HbaseOperations2 template2,
+    public HbaseTraceDaoV2(HbaseOperations template2,
                            TableNameProvider tableNameProvider,
                            @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
                            SpanMapperFactory spanMapperFactory) {

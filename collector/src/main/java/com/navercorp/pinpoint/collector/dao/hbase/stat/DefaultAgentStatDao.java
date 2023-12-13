@@ -2,9 +2,9 @@ package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
@@ -23,7 +23,7 @@ public class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentS
     private final AgentStatType agentStatType;
     private final HbaseTable tableName;
     private final Function<AgentStatBo, List<T>> dataPointFunction;
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
     private final AgentStatHbaseOperationFactory operations;
     private final AgentStatSerializer<T> serializer;
@@ -33,7 +33,7 @@ public class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentS
     public DefaultAgentStatDao(AgentStatType agentStatType,
                                HbaseTable tableName,
                                Function<AgentStatBo, List<T>> dataPointFunction,
-                               HbaseOperations2 hbaseTemplate,
+                               HbasePutWriter putWriter,
                                TableNameProvider tableNameProvider,
                                AgentStatHbaseOperationFactory operations,
                                AgentStatSerializer<T> serializer) {
@@ -41,7 +41,8 @@ public class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentS
         this.tableName = Objects.requireNonNull(tableName, "tableName");
         this.dataPointFunction = Objects.requireNonNull(dataPointFunction, "dataPointFunction");
 
-        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
+
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.operations = Objects.requireNonNull(operations, "operations");
         this.serializer = Objects.requireNonNull(serializer, "serializer");
@@ -63,10 +64,11 @@ public class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentS
 
         dataPoints = preprocessor.apply(dataPoints);
         List<Put> puts = this.operations.createPuts(agentId, agentStatType, dataPoints, this.serializer);
-        if (!puts.isEmpty()) {
-            TableName tableName = tableNameProvider.getTableName(this.tableName);
-            this.hbaseTemplate.asyncPut(tableName, puts);
+        if (puts.isEmpty()) {
+            return;
         }
+        TableName tableName = tableNameProvider.getTableName(this.tableName);
+        this.putWriter.put(tableName, puts);
     }
 
     @Override

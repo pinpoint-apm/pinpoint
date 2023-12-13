@@ -23,7 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Base class for {@link HbaseTemplate2} , defining commons properties such as {@link TableInterfaceFactory} and {@link Configuration}.
+ * Base class for {@link HbaseTemplate} , defining commons properties such as {@link TableInterfaceFactory} and {@link Configuration}.
  * 
  * Not intended to be used directly.
  * 

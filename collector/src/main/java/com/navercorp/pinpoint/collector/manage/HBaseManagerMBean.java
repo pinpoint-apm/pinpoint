@@ -17,8 +17,6 @@
 
 package com.navercorp.pinpoint.collector.manage;
 
-import java.util.Map;
-
 /**
  * @author Taejin Koo
  */
@@ -28,10 +26,5 @@ public interface HBaseManagerMBean {
 
     Long getAsyncOpsRejectedCount();
 
-    Map<String, Long> getCurrentAsyncOpsCountForEachRegionServer();
-
-    Map<String, Long> getAsyncOpsFailedCountForEachRegionServer();
-
-    Map<String, Long> getAsyncOpsAverageLatencyForEachRegionServer();
 
 }

@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
@@ -37,12 +37,12 @@ import java.util.List;
  */
 public class HbaseDataSourceListDao extends DefaultAgentStatDao<DataSourceListBo> {
 
-    public HbaseDataSourceListDao(HbaseOperations2 hbaseTemplate,
-                               TableNameProvider tableNameProvider,
-                               AgentStatHbaseOperationFactory operationFactory,
-                               AgentStatSerializer<DataSourceListBo> serializer) {
+    public HbaseDataSourceListDao(HbasePutWriter putWriter,
+                                  TableNameProvider tableNameProvider,
+                                  AgentStatHbaseOperationFactory operationFactory,
+                                  AgentStatSerializer<DataSourceListBo> serializer) {
         super(AgentStatType.DATASOURCE, HbaseTable.AGENT_STAT_VER2, AgentStatBo::getDataSourceListBos,
-                hbaseTemplate, tableNameProvider, operationFactory, serializer);
+                putWriter, tableNameProvider, operationFactory, serializer);
         this.preprocessor = this::reorderDataSourceListBos;
     }
 

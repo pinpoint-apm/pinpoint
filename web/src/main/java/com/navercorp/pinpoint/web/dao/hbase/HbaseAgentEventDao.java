@@ -17,10 +17,11 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.util.Gets;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.FilterList;
@@ -55,7 +57,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private static final HbaseColumnFamily.AgentEvent DESCRIPTOR = HbaseColumnFamily.AGENT_EVENT_EVENTS;
 
-    private final HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations hbaseOperations;
 
     private final TableNameProvider tableNameProvider;
 
@@ -65,11 +67,11 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
-    public HbaseAgentEventDao(HbaseOperations2 hbaseOperations2,
+    public HbaseAgentEventDao(HbaseOperations hbaseOperations,
                               TableNameProvider tableNameProvider,
                               @Qualifier("agentEventMapper") RowMapper<List<AgentEventBo>> agentEventMapper,
                               ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor) {
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentEventMapper = Objects.requireNonNull(agentEventMapper, "agentEventMapper");
         this.agentEventResultsExtractor = Objects.requireNonNull(agentEventResultsExtractor, "agentEventResultsExtractor");
@@ -98,7 +100,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
         }
 
         TableName agentEventTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<AgentEventBo> agentEvents = this.hbaseOperations2.find(agentEventTableName, scan, agentEventResultsExtractor);
+        List<AgentEventBo> agentEvents = this.hbaseOperations.find(agentEventTableName, scan, agentEventResultsExtractor);
         logger.debug("agentEvents found. {}", agentEvents);
         return agentEvents;
     }
@@ -115,8 +117,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
 
         TableName agentEventTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<AgentEventBo> events = this.hbaseOperations2.get(agentEventTableName, rowKey,
-                DESCRIPTOR.getName(), qualifier, this.agentEventMapper);
+
+        Get get = Gets.get(rowKey, DESCRIPTOR.getName(), qualifier);
+        List<AgentEventBo> events = this.hbaseOperations.get(agentEventTableName, get, this.agentEventMapper);
         if (CollectionUtils.isEmpty(events)) {
             return null;
         }

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.hbase.manager.config;
 import com.navercorp.pinpoint.common.hbase.AdminFactory;
 import com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate;
 import com.navercorp.pinpoint.common.hbase.HbaseAdminOperation;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.hbase.manager.ProgramOptions;
 import com.navercorp.pinpoint.hbase.manager.hbase.ReadOnlyAdminTemplate;
 import com.navercorp.pinpoint.hbase.manager.hbase.ReadOnlyHbaseSchemaChangeLogDao;
@@ -55,9 +55,9 @@ public class DryConfig {
 
     @Bean
     public SchemaChangeLogDao schemaChangeLogDao(HbaseAdminOperation hbaseAdminOperation,
-                                                 HbaseOperations2 hbaseOperations2,
+                                                 HbaseOperations hbaseOperations,
                                                  SchemaChangeLogCodec schemaChangeLogCodec) {
-        HbaseSchemaChangeLogDao delegate = new HbaseSchemaChangeLogDao(hbaseAdminOperation, hbaseOperations2, schemaChangeLogCodec);
+        HbaseSchemaChangeLogDao delegate = new HbaseSchemaChangeLogDao(hbaseAdminOperation, hbaseOperations, schemaChangeLogCodec);
         return new ReadOnlyHbaseSchemaChangeLogDao(delegate);
 
     }

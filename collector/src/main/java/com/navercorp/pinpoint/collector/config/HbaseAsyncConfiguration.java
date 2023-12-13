@@ -21,66 +21,57 @@ import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.manage.HBaseManager;
 import com.navercorp.pinpoint.collector.monitor.BulkOperationMetrics;
 import com.navercorp.pinpoint.collector.monitor.HBaseAsyncOperationMetrics;
-import com.navercorp.pinpoint.common.hbase.HBaseAsyncOperation;
-import com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory;
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
-import com.navercorp.pinpoint.common.hbase.SimpleBatchWriter;
-import com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorProperties;
-import com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorWriter;
-import com.navercorp.pinpoint.common.hbase.batch.HbaseBatchWriter;
-import com.navercorp.pinpoint.common.hbase.batch.SimpleBatchWriterFactoryBean;
+import com.navercorp.pinpoint.common.hbase.async.HBaseTableMultiplexerFactory;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
+import com.navercorp.pinpoint.common.hbase.async.LoggingHbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.config.HbaseMultiplexerProperties;
+import com.navercorp.pinpoint.common.hbase.counter.HBaseBatchPerformance;
+import com.navercorp.pinpoint.common.hbase.counter.HbaseBatchPerformanceCounter;
+import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
-import org.springframework.beans.factory.FactoryBean;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
 @Configuration
+@Import(CommonCacheManagerConfiguration.class)
 public class HbaseAsyncConfiguration {
 
+    private final Logger logger = LogManager.getLogger(HbaseAsyncConfiguration.class);
+
     @Bean
-    @ConfigurationProperties(prefix = "hbase.client.async")
     public HbaseMultiplexerProperties hbaseMultiplexerProperties() {
         return new HbaseMultiplexerProperties();
     }
 
     @Bean
-    public FactoryBean<HBaseAsyncOperation> asyncOperation(@Qualifier("hbaseConnection") Connection connection) {
-        return new HBaseAsyncOperationFactory(connection);
+    public HbaseBatchPerformanceCounter batchPerformanceCounter() {
+        return new HbaseBatchPerformanceCounter();
     }
 
     @Bean
-    public HBaseAsyncOperationMetrics asyncOperationMetrics(List<HBaseAsyncOperation> hBaseAsyncOperationList) {
+    public HBaseAsyncOperationMetrics asyncOperationMetrics(List<HBaseBatchPerformance> hBaseAsyncOperationList) {
         return new HBaseAsyncOperationMetrics(hBaseAsyncOperationList);
     }
 
     @Bean
-    public FactoryBean<HBaseAsyncOperation> batchAsyncOperation(@Qualifier("batchConnectionFactory") Connection connection) {
-        return new HBaseAsyncOperationFactory(connection);
+    @ConditionalOnProperty(name = "hbase.client.put-writer", havingValue = "tableMultiplexer")
+    public HbasePutWriter tableMultiplexerBatchWriter(@Qualifier("batchConnectionFactory") Connection connection,
+                                                           HbaseBatchPerformanceCounter counter,
+                                                           HbaseMultiplexerProperties properties) throws Exception {
+        HBaseTableMultiplexerFactory factory = new HBaseTableMultiplexerFactory(connection, counter);
+        factory.setHbaseMultiplexerProperties(properties);
+        HbasePutWriter writer = factory.getObject();
+        logger.info("HbasePutWriter:{}", writer);
+        return new LoggingHbasePutWriter(writer);
     }
 
-    @Bean
-    public BufferedMutatorProperties bufferedMutatorConfiguration() {
-        return new BufferedMutatorProperties();
-    }
-
-    @Bean
-    public HbaseBatchWriter hbaseBatchWriter(@Qualifier("batchConnectionFactory") Connection connection) {
-        BufferedMutatorProperties properties = bufferedMutatorConfiguration();
-        return new BufferedMutatorWriter(connection, properties);
-    }
-
-    @Bean
-    public FactoryBean<SimpleBatchWriter> simpleBatchWriter(@Qualifier("hbaseBatchWriter") HbaseBatchWriter writer,
-                                                            HBaseAsyncOperation asyncOperation,
-                                                            @Qualifier("hbaseTemplate") HbaseTemplate2 hbaseTemplate2) {
-        BufferedMutatorProperties properties = bufferedMutatorConfiguration();
-        return new SimpleBatchWriterFactoryBean(properties, writer, asyncOperation, hbaseTemplate2);
-    }
 
     @Bean
     public BulkOperationMetrics cachedStatisticsDaoMetrics(List<BulkOperationReporter> bulkOperationReporters) {
@@ -88,10 +79,9 @@ public class HbaseAsyncConfiguration {
     }
 
     @Bean
-    public HBaseManager hBaseManager(@Qualifier("asyncOperation") HBaseAsyncOperation hBaseAsyncOperation) {
+    public HBaseManager hBaseManager(@Qualifier("batchPerformanceCounter") HBaseBatchPerformance hBaseAsyncOperation) {
         return new HBaseManager(hBaseAsyncOperation);
     }
-
 
 
 }

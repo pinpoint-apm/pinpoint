@@ -22,14 +22,16 @@ import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,7 +49,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily.HostStatMap DESCRIPTOR = HbaseColumnFamily.HOST_APPLICATION_MAP_VER2_MAP;
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations hbaseTemplate;
 
     private final TableNameProvider tableNameProvider;
 
@@ -61,7 +63,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
 
 
-    public HbaseHostApplicationMapDao(HbaseOperations2 hbaseTemplate,
+    public HbaseHostApplicationMapDao(HbaseOperations hbaseTemplate,
                                       TableNameProvider tableNameProvider,
                                       @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor,
                                       AcceptedTimeService acceptedTimeService,
@@ -112,12 +114,10 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 
         TableName hostApplicationMapTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        try {
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, DESCRIPTOR.getName(), columnName, null);
-        } catch (Exception ex) {
-            logger.warn("retry one. Caused:{}", ex.getCause(), ex);
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, DESCRIPTOR.getName(), columnName, null);
-        }
+
+        Put put = Puts.put(rowKey, DESCRIPTOR.getName(), columnName, null);
+        this.hbaseTemplate.put(hostApplicationMapTableName, put);
+
     }
 
     private byte[] createColumnName(String host, String bindApplicationName, short bindServiceType) {
