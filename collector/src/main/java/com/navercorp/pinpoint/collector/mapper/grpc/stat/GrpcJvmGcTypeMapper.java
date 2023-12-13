@@ -38,6 +38,8 @@ public class GrpcJvmGcTypeMapper {
                 return JvmGcType.CMS;
             case JVM_GC_TYPE_G1:
                 return JvmGcType.G1;
+            case JVM_GC_TYPE_ZGC:
+                return JvmGcType.ZGC;
             default:
                 return JvmGcType.UNKNOWN;
         }

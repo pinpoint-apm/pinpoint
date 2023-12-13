@@ -27,7 +27,8 @@ public enum JvmGcType {
     SERIAL(1),
     PARALLEL(2),
     CMS(3),
-    G1(4);
+    G1(4),
+    ZGC(5);
 
     private final int typeCode;
 

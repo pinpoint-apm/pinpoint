@@ -48,6 +48,8 @@ public class GrpcJvmGcTypeMessageConverter implements MessageConverter<Object, P
                 return PJvmGcType.JVM_GC_TYPE_CMS;
             case G1:
                 return PJvmGcType.JVM_GC_TYPE_G1;
+            case ZGC:
+                return PJvmGcType.JVM_GC_TYPE_ZGC;
             default:
                 return PJvmGcType.JVM_GC_TYPE_UNKNOWN;
         }
