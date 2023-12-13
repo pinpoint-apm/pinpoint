@@ -23,7 +23,9 @@ public enum GarbageCollectorType {
     SERIAL(JvmGcType.SERIAL, "MarkSweepCompact", "Copy"),
     PARALLEL(JvmGcType.PARALLEL, "PS MarkSweep", "PS Scavenge"),
     CMS(JvmGcType.CMS, "ConcurrentMarkSweep", "ParNew"),
-    G1(JvmGcType.G1, "G1 Old Generation", "G1 Young Generation");
+    G1(JvmGcType.G1, "G1 Old Generation", "G1 Young Generation"),
+
+    ZGC(JvmGcType.ZGC, "ZGC Major Pauses", "ZGC Minor Pauses");
 
     private final JvmGcType jvmGcType;
     private final String oldGenName;
