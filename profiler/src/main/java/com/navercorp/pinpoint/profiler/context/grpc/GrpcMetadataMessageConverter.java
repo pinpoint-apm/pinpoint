@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
@@ -57,21 +58,24 @@ public class GrpcMetadataMessageConverter implements MessageConverter<MetaDataTy
         return null;
     }
 
-    private PSqlMetaData convertSqlMetaData(final SqlMetaData sqlMetaData) {
+    @VisibleForTesting
+    PSqlMetaData convertSqlMetaData(final SqlMetaData sqlMetaData) {
         final PSqlMetaData.Builder builder = PSqlMetaData.newBuilder();
         builder.setSqlId(sqlMetaData.getSqlId());
         builder.setSql(sqlMetaData.getSql());
         return builder.build();
     }
 
-    private PSqlUidMetaData convertSqlUidMetaData(final SqlUidMetaData sqlUidMetaData) {
+    @VisibleForTesting
+    PSqlUidMetaData convertSqlUidMetaData(final SqlUidMetaData sqlUidMetaData) {
         PSqlUidMetaData.Builder builder = PSqlUidMetaData.newBuilder();
         builder.setSqlUid(ByteString.copyFrom(sqlUidMetaData.getSqlUid()));
         builder.setSql(sqlUidMetaData.getSql());
         return builder.build();
     }
 
-    private PApiMetaData convertApiMetaData(final ApiMetaData apiMetaData) {
+    @VisibleForTesting
+    PApiMetaData convertApiMetaData(final ApiMetaData apiMetaData) {
         final PApiMetaData.Builder builder = PApiMetaData.newBuilder();
         builder.setApiId(apiMetaData.getApiId());
         builder.setApiInfo(apiMetaData.getApiInfo());
@@ -80,7 +84,8 @@ public class GrpcMetadataMessageConverter implements MessageConverter<MetaDataTy
         return builder.build();
     }
 
-    private PStringMetaData convertStringMetaData(final StringMetaData stringMetaData) {
+    @VisibleForTesting
+    PStringMetaData convertStringMetaData(final StringMetaData stringMetaData) {
         final PStringMetaData.Builder builder = PStringMetaData.newBuilder();
         builder.setStringId(stringMetaData.getStringId());
         builder.setStringValue(stringMetaData.getStringValue());
