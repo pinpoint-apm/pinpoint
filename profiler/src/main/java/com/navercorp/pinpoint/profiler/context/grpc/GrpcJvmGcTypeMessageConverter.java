@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
@@ -34,7 +35,8 @@ public class GrpcJvmGcTypeMessageConverter implements MessageConverter<Object, P
         throw new IllegalArgumentException("invalid message type. message=" + message);
     }
 
-    private PJvmGcType convertJvmGcType(final JvmGcType jvmGcType) {
+    @VisibleForTesting
+    PJvmGcType convertJvmGcType(final JvmGcType jvmGcType) {
         switch (jvmGcType) {
             case UNKNOWN:
                 return PJvmGcType.JVM_GC_TYPE_UNKNOWN;

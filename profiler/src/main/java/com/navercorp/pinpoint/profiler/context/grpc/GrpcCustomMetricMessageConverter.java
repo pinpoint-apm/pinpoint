@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetric;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
@@ -122,7 +123,8 @@ public class GrpcCustomMetricMessageConverter implements MessageConverter<Metric
 
     // raw data              : 10, 12, 13, 14, 14
     // count metric format   : 10, 2, 1, 1, 0
-    private PCustomMetric createIntCountMetric(String metricName, CustomMetricVo[] customMetricVos) {
+    @VisibleForTesting
+    PCustomMetric createIntCountMetric(String metricName, CustomMetricVo[] customMetricVos) {
         PIntCountMetric.Builder intCountMetricBuilder = PIntCountMetric.newBuilder();
         intCountMetricBuilder.setName(metricName);
 
@@ -145,7 +147,8 @@ public class GrpcCustomMetricMessageConverter implements MessageConverter<Metric
 
     // raw data              : 10, 12, 13, 14, 14
     // count metric format   : 10, 2, 1, 1, 0
-    private PCustomMetric createLongCountMetric(String metricName, CustomMetricVo[] customMetricVos) {
+    @VisibleForTesting
+    PCustomMetric createLongCountMetric(String metricName, CustomMetricVo[] customMetricVos) {
         PLongCountMetric.Builder longCountMetricBuilder = PLongCountMetric.newBuilder();
         longCountMetricBuilder.setName(metricName);
 
@@ -166,7 +169,8 @@ public class GrpcCustomMetricMessageConverter implements MessageConverter<Metric
         return customMetricBuilder.build();
     }
 
-    private PCustomMetric createIntGaugeMetric(String metricName, CustomMetricVo[] customMetricVos) {
+    @VisibleForTesting
+    PCustomMetric createIntGaugeMetric(String metricName, CustomMetricVo[] customMetricVos) {
         PIntGaugeMetric.Builder intGaugeMetricBuilder = PIntGaugeMetric.newBuilder();
         intGaugeMetricBuilder.setName(metricName);
 
@@ -185,7 +189,8 @@ public class GrpcCustomMetricMessageConverter implements MessageConverter<Metric
         return customMetricBuilder.build();
     }
 
-    private PCustomMetric createLongGaugeMetric(String metricName, CustomMetricVo[] customMetricVos) {
+    @VisibleForTesting
+    PCustomMetric createLongGaugeMetric(String metricName, CustomMetricVo[] customMetricVos) {
         PLongGaugeMetric.Builder longGaugeMetricBuilder = PLongGaugeMetric.newBuilder();
         longGaugeMetricBuilder.setName(metricName);
 
@@ -204,7 +209,8 @@ public class GrpcCustomMetricMessageConverter implements MessageConverter<Metric
         return customMetricBuilder.build();
     }
 
-    private PCustomMetric createDoubleGaugeMetric(String metricName, CustomMetricVo[] customMetricVos) {
+    @VisibleForTesting
+    PCustomMetric createDoubleGaugeMetric(String metricName, CustomMetricVo[] customMetricVos) {
         PDouleGaugeMetric.Builder doubleGaugeMetricBuilder = PDouleGaugeMetric.newBuilder();
         doubleGaugeMetricBuilder.setName(metricName);
 

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PThreadState;
 
@@ -33,7 +34,8 @@ public class GrpcThreadStateMessageConverter implements MessageConverter<Object,
         }
     }
 
-    private PThreadState convertThreadState(Thread.State threadState) {
+    @VisibleForTesting
+    PThreadState convertThreadState(Thread.State threadState) {
         switch (threadState) {
             case NEW:
                 return PThreadState.THREAD_STATE_NEW;
