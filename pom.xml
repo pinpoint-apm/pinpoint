@@ -181,7 +181,7 @@
 <!--        <spring.security.version>5.8.1</spring.security.version>-->
         <spring.security.version>6.1.4</spring.security.version>
         <spring.boot2.version>2.7.13</spring.boot2.version>
-        <spring.kafka.version>3.0.12</spring.kafka.version>
+        <spring.kafka.version>3.0.13</spring.kafka.version>
 
         <spring.version>${spring6.version}</spring.version>
         <spring.boot.version>${spring.boot3.version}</spring.boot.version>
