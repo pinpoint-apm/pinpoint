@@ -68,6 +68,9 @@ public class RedisBasicConfig {
     @Value("${spring.data.redis.lettuce.client.request-queue-size:1024}")
     int lettuceRequestQueueSize;
 
+    @Value("${io.lettuce.core.kqueue:false}")
+    boolean ioLettuceCoreKqueue;
+
     @Bean
     public RedisTemplate<String, String> redisStringToStringTemplate(RedisConnectionFactory connectionFactory) {
         final RedisTemplate<String, String> template = new RedisTemplate<>();
@@ -101,6 +104,8 @@ public class RedisBasicConfig {
 
     @Bean
     public LettuceClientConfiguration lettuceClientConfiguration() {
+        System.setProperty("io.lettuce.core.kqueue", String.valueOf(ioLettuceCoreKqueue));
+
         final ClientResources clientResources = ClientResources.builder()
                 .ioThreadPoolSize(lettuceIOThreadPoolSize)
                 .computationThreadPoolSize(lettuceComputationThreadPoolSize)
