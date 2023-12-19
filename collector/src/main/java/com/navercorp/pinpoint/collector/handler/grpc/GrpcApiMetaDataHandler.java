@@ -69,7 +69,7 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedM
         }
     }
 
-    GeneratedMessageV3 handleApiMetaData(final PApiMetaData apiMetaData) {
+    PResult handleApiMetaData(final PApiMetaData apiMetaData) {
         if (isDebug) {
             logger.debug("Handle PApiMetaData={}", MessageFormatUtils.debugLog(apiMetaData));
         }
