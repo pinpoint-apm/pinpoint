@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.collector.service.ChannelzService.SocketStatsWithI
 import com.navercorp.pinpoint.collector.service.ChannelzTestUtils.SimpleInternalInstrumented;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import io.grpc.InternalChannelz;
-import io.grpc.InternalChannelz.ServerList;
 import io.grpc.InternalChannelz.ServerStats;
 import io.grpc.InternalChannelz.SocketStats;
 import io.grpc.InternalLogId;
@@ -36,8 +35,6 @@ import java.util.List;
 import static com.navercorp.pinpoint.collector.service.ChannelzTestUtils.mockServerStats;
 import static com.navercorp.pinpoint.collector.service.ChannelzTestUtils.mockSocketStats;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -56,38 +53,37 @@ public class DefaultChannelzServiceTest {
     private final SimpleInternalInstrumented<ServerStats> serverInst =
             new SimpleInternalInstrumented<>(serverStats, serverId);
 
-    @Mock private InternalChannelz channelz;
+    private InternalChannelz channelz;
     @Mock private ChannelzRegistry registry;
     private ChannelzService service;
 
     @BeforeEach
     public void setUp() {
+        channelz = new InternalChannelz();
         service = new DefaultChannelzService(channelz, registry);
+
+        channelz.addServer(serverInst);
+        channelz.addServerSocket(serverInst, socketInst);
     }
 
     @Test
     public void testGetSocketStats() {
-        when(channelz.getSocket(eq(1L))).thenReturn(socketInst);
-
-        SocketStatsWithId result = service.getSocketStats(1);
+        SocketStatsWithId result = service.getSocketStats(socketId.getId());
 
         assertThat(result.stats).isSameAs(socketStats);
-        assertThat(result.id).isEqualTo(1);
+        assertThat(result.id).isEqualTo(socketId.getId());
     }
 
     @Test
     public void testGetSocketStatsList() {
-        when(channelz.getSocket(eq(1L))).thenReturn(socketInst);
-
-        SocketStatsWithId result = service.getSocketStatsList(List.of(1L)).get(0);
+        SocketStatsWithId result = service.getSocketStatsList(List.of(socketId.getId())).get(0);
 
         assertThat(result.stats).isSameAs(socketStats);
-        assertThat(result.id).isEqualTo(1);
+        assertThat(result.id).isEqualTo(socketId.getId());
     }
 
     @Test
     public void testGetAllServers() {
-        when(channelz.getServers(anyLong(), anyInt())).thenReturn(new ServerList(List.of(serverInst), true));
         when(registry.getServerName(eq(serverId.getId()))).thenReturn("server-1");
 
         ServerStatsWithId result = service.getAllServerStats().get(0);
@@ -99,13 +95,12 @@ public class DefaultChannelzServiceTest {
 
     @Test
     public void testGetServer() {
-        when(registry.getLogId(eq("server-1"))).thenReturn(1L);
-        when(channelz.getServer(eq(1L))).thenReturn(serverInst);
+        when(registry.getLogId(eq("server-1"))).thenReturn(serverId.getId());
 
         ServerStatsWithId result = service.getServerStats("server-1");
 
         assertThat(result.stats).isSameAs(serverStats);
-        assertThat(result.id).isEqualTo(1);
+        assertThat(result.id).isEqualTo(serverId.getId());
         assertThat(result.name).isEqualTo("server-1");
     }
 
