@@ -24,7 +24,7 @@ import io.grpc.Context;
  */
 public class ServerContext {
 
-    private static final Context.Key<Header> AGENT_INFO_KEY = Context.key("agentinfo");
+    public static final Context.Key<Header> AGENT_INFO_KEY = Context.key("agentinfo");
 
     private static final Context.Key<TransportMetadata> TRANSPORT_METADATA_KEY = Context.key("transportmetadata");
 
