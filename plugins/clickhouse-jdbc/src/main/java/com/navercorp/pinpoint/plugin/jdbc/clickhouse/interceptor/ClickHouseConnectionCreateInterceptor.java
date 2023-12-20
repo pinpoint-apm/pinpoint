@@ -19,9 +19,6 @@ package com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor;
 import java.util.Arrays;
 import java.util.Properties;
 
-import com.clickhouse.client.ClickHouseNode;
-import com.clickhouse.client.ClickHouseNodes;
-import com.clickhouse.jdbc.internal.ClickHouseJdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -58,23 +55,23 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
         }
 
         DatabaseInfo dbInfo = null;
+        String jdbcUrl = null;
+        String tmpURL = null;
+        String databaseId = null;
 
-        if (args[0] instanceof ClickHouseJdbcUrlParser.ConnectionInfo) {
-            ClickHouseJdbcUrlParser.ConnectionInfo connectionInfo = (ClickHouseJdbcUrlParser.ConnectionInfo) args[0];
-            Properties properties = connectionInfo.getProperties();
-            ClickHouseNodes nodes = connectionInfo.getNodes();
-            ClickHouseNode node = nodes.getNodes().get(0);
+        if (args[0] instanceof String) {
+            jdbcUrl = (String) args[0];
+            tmpURL = jdbcUrl.substring(jdbcUrl.lastIndexOf("/") + 1);
+        }
 
-            String uri = node.getBaseUri();
-            String databaseId = null;
+        if (args[1] instanceof Properties) {
+            Properties properties = (Properties) args[1];
             if (properties.getProperty("database") != null) {
                 databaseId = properties.getProperty("database");
             }
-
-            String tmpURL = uri.substring(uri.lastIndexOf("/") + 1);
-            // It's dangerous to use this url directly
-            dbInfo = createDatabaseInfo(tmpURL, databaseId);
         }
+
+        dbInfo = createDatabaseInfo(tmpURL, databaseId);
 
         if (InterceptorUtils.isSuccess(throwable)) {
             // Set only if connection is success.
