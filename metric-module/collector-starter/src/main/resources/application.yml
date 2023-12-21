@@ -10,3 +10,5 @@ pinpoint:
     collector:
       exceptiontrace:
         enabled: true
+    realtime:
+      enabled: true

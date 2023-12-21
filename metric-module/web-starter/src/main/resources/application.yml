@@ -20,3 +20,5 @@ pinpoint:
     web:
       exceptiontrace:
         enabled: true
+    realtime:
+      enabled: true

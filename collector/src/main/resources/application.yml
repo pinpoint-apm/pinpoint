@@ -11,3 +11,5 @@ pinpoint:
       grpc:
         ssl:
           enabled: false
+    realtime:
+      enabled: true
