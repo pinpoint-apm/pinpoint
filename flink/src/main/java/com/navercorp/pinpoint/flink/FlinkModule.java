@@ -17,7 +17,9 @@
 
 package com.navercorp.pinpoint.flink;
 
+import com.navercorp.pinpoint.collector.config.HbaseAsyncConfiguration;
 import com.navercorp.pinpoint.common.hbase.HadoopResourceCleanerRegistry;
+import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseMultiplexerProperties;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory;
@@ -42,7 +44,6 @@ import org.springframework.context.annotation.PropertySource;
         "classpath:applicationContext-flink.xml",
 
         "classpath:applicationContext-flink-extend.xml",
-        "classpath:applicationContext-hbase.xml",
 })
 @Import({
         FlinkCacheConfiguration.class,
@@ -51,7 +52,9 @@ import org.springframework.context.annotation.PropertySource;
         HbaseClientConfiguration.class,
         HbaseTemplateConfiguration.class,
 
-        ClusterConfigurationFactory.class
+        ClusterConfigurationFactory.class,
+        HbaseAsyncConfiguration.class,
+        DistributorConfiguration.class,
 })
 @PropertySource(name = "FlinkModule", value = {
         "classpath:profiles/${pinpoint.profiles.active:local}/hbase.properties",
