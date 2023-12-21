@@ -22,6 +22,8 @@ pinpoint:
       # basicLogin
       login:
       webhook: true
+    realtime:
+      enabled: true
 
 
 pinpoint.web.cache-resources: true
