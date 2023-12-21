@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.batch;
 
 import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.batch.configuration.AlarmJobModule;
+import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
@@ -65,6 +66,7 @@ import org.springframework.context.annotation.ImportResource;
         UserModule.class,
         UriStatAlarmConfiguration.class,
         AlarmSenderConfiguration.class,
+        CommonCacheManagerConfiguration.class,
 })
 public class BatchModule {
 
