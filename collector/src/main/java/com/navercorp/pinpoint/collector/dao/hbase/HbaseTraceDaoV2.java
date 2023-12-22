@@ -82,9 +82,11 @@ public class HbaseTraceDaoV2 implements TraceDao {
             return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            logger.debug("insert interrupted", e);
+            return false;
         } catch (ExecutionException | TimeoutException e) {
-            throw new RuntimeException(e);
+            logger.debug("insert failed", e);
+            return false;
         }
     }
 
