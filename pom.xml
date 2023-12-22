@@ -147,6 +147,8 @@
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <javadoc.source>${jdk.version}</javadoc.source>
 
+        <docker.repository.name>pinpointdocker</docker.repository.name>
+
         <!-- java back-end development option -->
         <build.frontend.skip>false</build.frontend.skip>
 
