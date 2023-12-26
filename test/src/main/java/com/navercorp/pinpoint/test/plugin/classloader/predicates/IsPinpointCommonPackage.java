@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 
-public interface PluginTestInstance {
-    String getTestId();
-
-    ClassLoader getClassLoader();
-
-    Class<?> getTestClass();
-
-    <T> T execute(final Callable<T> callable, boolean verify);
-
-    void clear();
+public class IsPinpointCommonPackage implements Predicate<String> {
+    @Override
+    public boolean test(String name) {
+        return name.startsWith("com.navercorp.pinpoint.common.");
+    }
 }

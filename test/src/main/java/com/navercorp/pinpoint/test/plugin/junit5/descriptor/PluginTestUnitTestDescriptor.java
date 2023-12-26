@@ -105,4 +105,10 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
     public Class<?> getTestClass() {
         return testClass;
     }
+
+    @Override
+    public void cleanUp(JupiterEngineExecutionContext context) throws Exception {
+        super.cleanUp(context);
+        this.sharedInstance.clear();
+    }
 }
