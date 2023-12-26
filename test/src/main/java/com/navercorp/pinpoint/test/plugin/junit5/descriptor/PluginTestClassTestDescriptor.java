@@ -52,6 +52,8 @@ public class PluginTestClassTestDescriptor extends ClassTestDescriptor {
     @Override
     public void cleanUp(JupiterEngineExecutionContext context) throws Exception {
         super.cleanUp(context);
-        this.pluginTestInstance.clear();
+        if (this.pluginTestInstance != null) {
+            this.pluginTestInstance.clear();
+        }
     }
 }

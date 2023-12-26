@@ -109,6 +109,8 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
     @Override
     public void cleanUp(JupiterEngineExecutionContext context) throws Exception {
         super.cleanUp(context);
-        this.sharedInstance.clear();
+        if (this.sharedInstance != null) {
+            this.sharedInstance.clear();
+        }
     }
 }
