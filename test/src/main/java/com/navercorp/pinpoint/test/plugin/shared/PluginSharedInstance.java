@@ -69,6 +69,10 @@ public class PluginSharedInstance {
         }
     }
 
+    public void clear() {
+        classLoader = null;
+    }
+
     @Override
     public String toString() {
         return "PluginSharedInstance{" +

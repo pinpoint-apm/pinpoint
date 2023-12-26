@@ -186,6 +186,7 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
         if (previousThrowable != throwableCollector.getThrowable()) {
             throwableCollector.assertEmpty();
         }
+
     }
 
     public Class<?> getTestClass() {

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.JvmVersion;
 
 import java.util.function.Predicate;
 
+// exclude "javax.servlet.", "javax.xml.bind.", "javax.annotation.", "javax.ws", "javax.jms", "java.", "jdk.", ...
 public class IsJdkPackage implements Predicate<String> {
     @Override
     public boolean test(String name) {

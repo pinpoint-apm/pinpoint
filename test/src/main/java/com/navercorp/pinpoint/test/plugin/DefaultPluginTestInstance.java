@@ -86,4 +86,10 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void clear() {
+        this.classLoader = null;
+        this.executorService.shutdown();
+    }
 }

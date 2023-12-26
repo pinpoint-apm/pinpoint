@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointTestP
 import java.net.URL;
 import java.util.List;
 
+// parent: "java...", "javax...", "com.navercorp.pinpoint.test.", "com.navercorp.pinpoint.bootstrap.plugin.test."
+// this: "com.navercorp.pinpoint.profiler.test.", "com.navercorp.pinpoint.test.plugin.agent."
 public class PluginAgentTestClassLoader extends PluginTestClassLoader {
     public static final IsPinpointPackage isPinpointPackage = new IsPinpointPackage();
     public static final IsPinpointTestPackage isPinpointTestPackage = new IsPinpointTestPackage();

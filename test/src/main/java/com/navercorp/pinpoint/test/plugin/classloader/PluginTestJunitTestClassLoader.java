@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+// parent: "com.navercorp.pinpoint.bootstrap.plugin.test."
 public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
     public static final IsPinpointPackage isPinpointPackage = new IsPinpointPackage();
     public static final IsPinpointBootstrapPluginTestPackage isPinpointBootstrapPluginTestPackage = new IsPinpointBootstrapPluginTestPackage();

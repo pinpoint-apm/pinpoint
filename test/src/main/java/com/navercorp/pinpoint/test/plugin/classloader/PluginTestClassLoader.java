@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsJdkPackage;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsJunitPackage;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsLogPackage;
+import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointCommonPackage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,10 +28,12 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Enumeration;
 
+// parent: jdk, log, junit
 public class PluginTestClassLoader extends URLClassLoader {
     public static final IsJdkPackage isJdkPackage = new IsJdkPackage();
     public static final IsLogPackage isLogPackage = new IsLogPackage();
     public static final IsJunitPackage isJunitPackage = new IsJunitPackage();
+    public static final IsPinpointCommonPackage isPinpointCommonPackage = new IsPinpointCommonPackage();
 
     // find child first classloader
     static {
@@ -70,7 +73,7 @@ public class PluginTestClassLoader extends URLClassLoader {
                 }
             }
             if (c == null) {
-                throw new ClassNotFoundException("not found " + name);
+                throw new ClassNotFoundException("not found " + name + ", urls=" + Arrays.asList(urls));
             }
 
             if (resolve) {
@@ -82,7 +85,7 @@ public class PluginTestClassLoader extends URLClassLoader {
     }
 
     protected boolean isDelegated(String name) {
-        return isJdkPackage.test(name) || isLogPackage.test(name) || isJunitPackage.test(name);
+        return isJdkPackage.test(name) || isLogPackage.test(name) || isJunitPackage.test(name) || isPinpointCommonPackage.test(name);
     }
 
     protected boolean isChild(String name) {
