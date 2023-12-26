@@ -1,0 +1,83 @@
+name: Create and push dockerfiles
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Delete existing latest tag (if exists)
+        run: |
+          git push --delete origin latest || true
+          git tag -d latest || true
+        
+      - name: Tag Latest Release
+        run: |
+          # Get the latest release tag
+          latest_tag=$(git describe --tags --abbrev=0)
+        
+          # Get the commit hash of the latest release
+          latest_commit=$(git rev-list -n 1 $latest_tag)
+        
+          # Create a new tag based on the latest commit
+          git tag -a latest -m "Latest release" $latest_commit
+        
+          # Push the new tag to the repository
+          git push origin latest
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          
+      - name: Set JAVA_HOME
+        run: |
+          echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+          echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
+          echo "JAVA_17_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
+          echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+
+      - name: Build Project
+        run: mvn install -DskipTests=true
+        
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+             
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Build Docker Images
+        run: |
+          mvn docker:build -pl agent
+          mvn docker:build -pl flink
+          mvn docker:build -pl hbase/hbase-docker
+          mvn verify spring-boot:build-image -DskipTests=true -pl metric-module/collector-starter
+          mvn verify spring-boot:build-image -DskipTests=true -pl metric-module/web-starter
+          mvn verify spring-boot:build-image -DskipTests=true -pl batch
+          mvn verify spring-boot:build-image -DskipTests=true -pl collector
+          mvn verify spring-boot:build-image -DskipTests=true -pl web
+          docker images
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.docker_username }}
+          password: ${{ secrets.docker_token }}
+
+      - name: Push to Docker Hub
+        run: |
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-agent
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-flink
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-hbase
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-batch
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-collector
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-web
+          
