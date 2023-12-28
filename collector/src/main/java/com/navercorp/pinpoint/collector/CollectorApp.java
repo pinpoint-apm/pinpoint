@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.collector;
 
+import com.navercorp.pinpoint.collector.event.config.CollectorEventConfiguration;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import org.springframework.boot.SpringBootConfiguration;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Import;
 @Import({
         PinpointCollectorModule.class,
         RedisPropertySources.class,
+        CollectorEventConfiguration.class,
 })
 public class CollectorApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(CollectorApp.class);

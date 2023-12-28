@@ -35,16 +35,22 @@ public class SpanStorePublisherImpl implements SpanStorePublisher {
     }
 
     @Override
-    public void publishSpanInsert(SpanBo spanBo, boolean success) {
-        SpanInsertEvent event = new SpanInsertEvent(spanBo, success);
-
-        publisher.publishEvent(event);
+    public SpanInsertEvent captureContext(SpanBo spanBo) {
+        return new SpanInsertEvent(spanBo, false);
     }
 
     @Override
-    public void publishSpanChunkInsert(SpanChunkBo spanChunkBo, boolean success) {
-        SpanChunkInsertEvent event = new SpanChunkInsertEvent(spanChunkBo, success);
+    public SpanChunkInsertEvent captureContext(SpanChunkBo spanChunkBo) {
+        return new SpanChunkInsertEvent(spanChunkBo, false);
+    }
 
-        publisher.publishEvent(event);
+    @Override
+    public void publishEvent(SpanInsertEvent event, boolean success) {
+        publisher.publishEvent(new SpanInsertEvent(event.getSpanBo(), success));
+    }
+
+    @Override
+    public void publishEvent(SpanChunkInsertEvent event, boolean success) {
+        publisher.publishEvent(new SpanChunkInsertEvent(event.getSpanChunkBo(), success));
     }
 }

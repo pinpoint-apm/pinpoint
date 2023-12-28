@@ -6,7 +6,6 @@ import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.config.FlinkContextModule;
 import com.navercorp.pinpoint.collector.config.MetricConfiguration;
-import com.navercorp.pinpoint.collector.event.config.CollectorEventConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.CollectorGrpcConfiguration;
 import com.navercorp.pinpoint.collector.grpc.ssl.GrpcSslModule;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
@@ -35,8 +34,6 @@ import org.springframework.context.annotation.ImportResource;
         CollectorHbaseModule.class,
 
         CollectorGrpcConfiguration.class,
-
-        CollectorEventConfiguration.class,
 
         ClusterModule.class,
 
