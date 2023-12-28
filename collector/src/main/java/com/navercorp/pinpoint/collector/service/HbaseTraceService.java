@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.event.SpanChunkInsertEvent;
+import com.navercorp.pinpoint.common.server.event.SpanInsertEvent;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -78,6 +80,7 @@ public class HbaseTraceService implements TraceService {
 
     @Override
     public void insertSpanChunk(@Valid final SpanChunkBo spanChunkBo) {
+        SpanChunkInsertEvent event = publisher.captureContext(spanChunkBo);
         traceDao.insertSpanChunk(spanChunkBo);
         final ServiceType applicationServiceType = getApplicationServiceType(spanChunkBo);
         final List<SpanEventBo> spanEventList = spanChunkBo.getSpanEventBoList();
@@ -87,7 +90,7 @@ public class HbaseTraceService implements TraceService {
         }
 
         // TODO should be able to tell whether the span chunk is successfully inserted
-        publisher.publishSpanChunkInsert(spanChunkBo, true);
+        publisher.publishEvent(event, true);
     }
 
     private ServiceType getApplicationServiceType(SpanChunkBo spanChunk) {
@@ -97,6 +100,7 @@ public class HbaseTraceService implements TraceService {
 
     @Override
     public void insertSpan(@Valid final SpanBo spanBo) {
+        SpanInsertEvent event = publisher.captureContext(spanBo);
         CompletableFuture<Void> future = traceDao.asyncInsert(spanBo);
         applicationTraceIndexDao.insert(spanBo);
         insertAcceptorHost(spanBo);
@@ -106,7 +110,7 @@ public class HbaseTraceService implements TraceService {
         future.whenCompleteAsync((unused, throwable) -> {
             final boolean result = throwable == null;
             logger.trace("success {}", result);
-            publisher.publishSpanInsert(spanBo, result);
+            publisher.publishEvent(event, result);
         }, grpcSpanServerExecutor);
     }
 

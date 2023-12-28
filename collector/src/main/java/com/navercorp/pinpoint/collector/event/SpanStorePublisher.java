@@ -19,9 +19,15 @@ package com.navercorp.pinpoint.collector.event;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.event.SpanChunkInsertEvent;
+import com.navercorp.pinpoint.common.server.event.SpanInsertEvent;
 
 public interface SpanStorePublisher {
-    void publishSpanInsert(SpanBo spanBo, boolean success);
+    SpanInsertEvent captureContext(SpanBo spanBo);
 
-    void publishSpanChunkInsert(SpanChunkBo spanChunkBo, boolean success);
+    SpanChunkInsertEvent captureContext(SpanChunkBo spanChunkBo);
+
+    void publishEvent(SpanInsertEvent event, boolean success);
+
+    void publishEvent(SpanChunkInsertEvent event, boolean success);
 }
