@@ -18,31 +18,51 @@
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 public class LinkDataMapProcessors implements LinkDataMapProcessor {
 
-    private final List<LinkDataMapProcessor> linkDataMapProcessors = new ArrayList<>();
+    private final LinkDataMapProcessor[] linkDataMapProcessors;
 
-    public void addLinkDataMapProcessor(LinkDataMapProcessor linkDataMapProcessor) {
-        if (linkDataMapProcessor == null) {
-            return;
-        }
-        linkDataMapProcessors.add(linkDataMapProcessor);
+    public LinkDataMapProcessors(List<LinkDataMapProcessor> linkDataMapProcessors) {
+        Objects.requireNonNull(linkDataMapProcessors, "linkDataMapProcessors");
+        this.linkDataMapProcessors = linkDataMapProcessors.toArray(new LinkDataMapProcessor[0]);
     }
 
     @Override
-    public LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range) {
+    public LinkDataMap processLinkDataMap(LinkDirection linkDirection, LinkDataMap linkDataMap, Range range) {
         LinkDataMap processedLinkDataMap = linkDataMap;
         for (LinkDataMapProcessor linkDataMapProcessor : linkDataMapProcessors) {
-            processedLinkDataMap = linkDataMapProcessor.processLinkDataMap(processedLinkDataMap, range);
+            processedLinkDataMap = linkDataMapProcessor.processLinkDataMap(linkDirection, processedLinkDataMap, range);
         }
         return processedLinkDataMap;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final List<LinkDataMapProcessor> linkDataMapProcessors = new ArrayList<>();
+
+        Builder() {
+        }
+
+        public void addLinkProcessor(LinkDataMapProcessor linkProcessor) {
+            Objects.requireNonNull(linkProcessor, "linkProcessor");
+            linkDataMapProcessors.add(linkProcessor);
+        }
+
+        public LinkDataMapProcessors build() {
+            return new LinkDataMapProcessors(linkDataMapProcessors);
+        }
     }
 }

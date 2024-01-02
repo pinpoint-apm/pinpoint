@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupList
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
@@ -188,10 +188,10 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
         LinkDataDuplexMap linkDataDuplexMap;
         ServiceType fromApplicationServiceType = fromApplication.getServiceType();
-        CreateType createType = CreateType.Target;
+        LinkDirection linkDirection = LinkDirection.OUT_LINK;
         if (fromApplicationServiceType.isUser()) {
             //scan using toApplication to distinguish same applicationName with different serviceType
-            createType = CreateType.Source;
+            linkDirection = LinkDirection.IN_LINK;
             LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(fromApplication);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);
             linkDataDuplexMap = linkSelector.select(Collections.singletonList(toApplication), range, 0, 1);
@@ -206,15 +206,15 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         LinkKey linkKey = new LinkKey(fromApplication, toApplication);
         Link link = linkList.getLink(linkKey);
         if (link == null) {
-            return createEmptyLinkHistogramSummary(createType, fromApplication, toApplication, range);
+            return createEmptyLinkHistogramSummary(linkDirection, fromApplication, toApplication, range);
         }
         return new LinkHistogramSummary(link);
     }
 
-    private LinkHistogramSummary createEmptyLinkHistogramSummary(CreateType createType, Application fromApplication, Application toApplication, Range range) {
+    private LinkHistogramSummary createEmptyLinkHistogramSummary(LinkDirection direction, Application fromApplication, Application toApplication, Range range) {
         Node fromNode = new Node(fromApplication);
         Node toNode = new Node(toApplication);
-        Link emptyLink = new Link(createType, fromNode, toNode, range);
+        Link emptyLink = new Link(direction, fromNode, toNode, range);
         return new LinkHistogramSummary(emptyLink);
     }
 }

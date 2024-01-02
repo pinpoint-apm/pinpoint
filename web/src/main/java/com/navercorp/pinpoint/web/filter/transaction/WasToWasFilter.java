@@ -91,7 +91,7 @@ public class WasToWasFilter implements Filter<LinkContext> {
             return Filter.REJECT;
         }
 
-        // Check for url pattern should now be done on the caller side (from spans) as to spans are missing at this point
+        // Check for url pattern should now be done on the out link side (from spans) as to spans are missing at this point
         if (!rpcUrlFilter.accept(fromSpanList)) {
             return Filter.REJECT;
         }
@@ -132,7 +132,7 @@ public class WasToWasFilter implements Filter<LinkContext> {
         }
         if (eventServiceType.isRpcClient() || eventServiceType.isQueue()) {
             // check rpc call fail
-            // There are also cases where multiple applications receiving the same request from the caller node
+            // There are also cases where multiple applications receiving the same request from the out node
             // but not all of them have agents installed. RpcHint is used for such cases as acceptUrlFilter will
             // reject these transactions.
             for (RpcHint rpcHint : rpcHintList) {

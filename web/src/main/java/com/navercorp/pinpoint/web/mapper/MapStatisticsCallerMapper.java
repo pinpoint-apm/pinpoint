@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -51,9 +51,6 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     private final LinkFilter filter;
 
     @Autowired
-    private ServiceTypeRegistryService registry;
-
-    @Autowired
     private ApplicationFactory applicationFactory;
 
     @Autowired
@@ -78,14 +75,14 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         final Buffer row = new FixedBuffer(rowKey);
-        final Application caller = readCallerApplication(row);
+        final Application out = readCallerApplication(row);
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (Cell cell : result.rawCells()) {
             final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            final Application callee = readCalleeApplication(buffer);
+            final Application callee = readOutApplication(buffer);
             if (filter.filter(callee)) {
                 continue;
             }
@@ -99,30 +96,30 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
             long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
-                logger.debug("    Fetched Caller.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", caller, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
+                logger.debug("    Fetched {}.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", LinkDirection.OUT_LINK, out, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
             }
 
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
             if (StringUtils.isEmpty(calleeHost)) {
                 calleeHost = callee.getName();
             }
-            linkDataMap.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
+            linkDataMap.addLinkData(out, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
         }
 
         return linkDataMap;
     }
 
 
-    private Application readCalleeApplication(Buffer buffer) {
+    private Application readOutApplication(Buffer buffer) {
         short calleeServiceType = buffer.readShort();
         String calleeApplicationName = buffer.readPrefixedString();
         return applicationFactory.createApplication(calleeApplicationName, calleeServiceType);
     }
 
     private Application readCallerApplication(Buffer row) {
-        String callerApplicationName = row.read2PrefixedString();
+        String ApplicationName = row.read2PrefixedString();
         short callerServiceType = row.readShort();
-        return this.applicationFactory.createApplication(callerApplicationName, callerServiceType);
+        return this.applicationFactory.createApplication(ApplicationName, callerServiceType);
     }
 
     private byte[] getOriginalKey(byte[] rowKey) {

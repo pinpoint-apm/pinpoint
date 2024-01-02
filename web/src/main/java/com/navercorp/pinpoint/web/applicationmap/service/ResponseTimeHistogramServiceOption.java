@@ -27,11 +27,11 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class ResponseTimeHistogramServiceOption {
-    private Application application;
-    private Range range;
-    private List<Application> fromApplications;
-    private List<Application> toApplications;
-    private boolean useStatisticsAgentState;
+    private final Application application;
+    private final Range range;
+    private final List<Application> fromApplications;
+    private final List<Application> toApplications;
+    private final boolean useStatisticsAgentState;
 
     private ResponseTimeHistogramServiceOption(Builder builder) {
         this.application = builder.application;
@@ -63,21 +63,19 @@ public class ResponseTimeHistogramServiceOption {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ResponseTimeHistogramServiceOption{");
-        sb.append("application=").append(application);
-        sb.append(", range=").append(range);
-        sb.append(", fromApplications=").append(fromApplications);
-        sb.append(", toApplications=").append(toApplications);
-        sb.append(", useStatisticsAgentState=").append(useStatisticsAgentState);
-        sb.append('}');
-        return sb.toString();
+        return "ResponseTimeHistogramServiceOption{" + "application=" + application +
+                ", range=" + range +
+                ", fromApplications=" + fromApplications +
+                ", toApplications=" + toApplications +
+                ", useStatisticsAgentState=" + useStatisticsAgentState +
+                '}';
     }
 
     public static class Builder {
-        private Application application;
-        private Range range;
-        private List<Application> fromApplications;
-        private List<Application> toApplications;
+        private final Application application;
+        private final Range range;
+        private final List<Application> fromApplications;
+        private final List<Application> toApplications;
 
         private boolean useStatisticsAgentState;
 

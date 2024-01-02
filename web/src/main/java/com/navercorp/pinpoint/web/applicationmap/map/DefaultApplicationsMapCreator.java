@@ -65,7 +65,7 @@ public class DefaultApplicationsMapCreator implements ApplicationsMapCreator {
             resultMap.addLinkDataDuplexMap(searchResult);
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("depth search. callerDepth : {}, calleeDepth : {}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
+            logger.debug("depth search. outDepth:{}, inDepth:{}", linkSelectContext.getOutDepth(), linkSelectContext.getInDepth());
         }
         return resultMap;
     }
@@ -81,7 +81,7 @@ public class DefaultApplicationsMapCreator implements ApplicationsMapCreator {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("depth search. callerDepth : {}, calleeDepth : {}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
+            logger.debug("depth search. inDepth:{}, inDepth:{}", linkSelectContext.getOutDepth(), linkSelectContext.getInDepth());
         }
         return resultMap;
     }

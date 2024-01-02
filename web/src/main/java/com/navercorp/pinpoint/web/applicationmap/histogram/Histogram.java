@@ -16,15 +16,16 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.view.HistogramSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -243,6 +244,13 @@ public class Histogram implements StatisticsHistogram {
                 return pingCount;
         }
         throw new IllegalArgumentException("slotType:" + slotType);
+    }
+
+    public void addAll(final Collection<? extends Histogram> histograms) {
+        Objects.requireNonNull(histograms, "histograms");
+        for (Histogram histogram : histograms) {
+            add(histogram);
+        }
     }
 
     public void add(final Histogram histogram) {

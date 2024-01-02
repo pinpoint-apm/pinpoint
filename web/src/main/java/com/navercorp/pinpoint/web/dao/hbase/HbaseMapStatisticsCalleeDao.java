@@ -23,7 +23,9 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMapUtils;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.mapper.MapStatisticsTimeWindowReducer;
 import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
@@ -99,11 +101,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
         TableName mapStatisticsCallerTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         LinkDataMap linkDataMap = hbaseTemplate.findParallel(mapStatisticsCallerTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
-        logger.debug("Callee data. {}, {}", linkDataMap, range);
-        if (linkDataMap != null && linkDataMap.size() > 0) {
+        logger.debug("{} data. {}, {}", LinkDirection.IN_LINK, linkDataMap, range);
+        if (LinkDataMapUtils.hasLength(linkDataMap)) {
             return linkDataMap;
         }
-
         return new LinkDataMap();
     }
 

@@ -59,20 +59,19 @@ public class AgentTimeHistogramBuilder {
     public AgentTimeHistogram buildSource(LinkCallDataMap linkCallDataMap) {
         Objects.requireNonNull(linkCallDataMap, "linkCallDataMap");
 
-        return build(linkCallDataMap.getSourceList());
+        return build(linkCallDataMap.getInLinkList());
     }
 
     public AgentTimeHistogram buildTarget(LinkCallDataMap linkCallDataMap) {
         Objects.requireNonNull(linkCallDataMap, "linkCallDataMap");
 
-        return build(linkCallDataMap.getTargetList());
+        return build(linkCallDataMap.getOutLinkList());
     }
 
 
     private AgentTimeHistogram build(AgentHistogramList agentHistogramList) {
         AgentHistogramList histogramList = interpolation(agentHistogramList, window);
-        AgentTimeHistogram agentTimeHistogram = new AgentTimeHistogram(application, range, histogramList);
-        return agentTimeHistogram;
+        return new AgentTimeHistogram(application, range, histogramList);
     }
 
 

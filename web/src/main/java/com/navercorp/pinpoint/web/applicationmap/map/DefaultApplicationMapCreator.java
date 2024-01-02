@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
@@ -38,32 +39,31 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
 
     private final LinkDataMapService linkDataMapService;
 
-    private final LinkDataMapProcessor callerLinkDataMapProcessor;
+    private final LinkDataMapProcessor outLinkDataMapProcessor;
 
-    private final LinkDataMapProcessor calleeLinkDataMapProcessor;
+    private final LinkDataMapProcessor inLinkDataMapProcessor;
 
-    public DefaultApplicationMapCreator(LinkDataMapService linkDataMapService, LinkDataMapProcessor callerLinkDataMapProcessor, LinkDataMapProcessor calleeLinkDataMapProcessor) {
+    public DefaultApplicationMapCreator(LinkDataMapService linkDataMapService, LinkDataMapProcessor outLinkDataMapProcessor, LinkDataMapProcessor inLinkDataMapProcessor) {
         this.linkDataMapService = Objects.requireNonNull(linkDataMapService, "linkDataMapService");
-        this.callerLinkDataMapProcessor = Objects.requireNonNull(callerLinkDataMapProcessor, "callerLinkDataMapProcessor");
-        this.calleeLinkDataMapProcessor = Objects.requireNonNull(calleeLinkDataMapProcessor, "calleeLinkDataMapProcessor");
+        this.outLinkDataMapProcessor = Objects.requireNonNull(outLinkDataMapProcessor, "outLinkDataMapProcessor");
+        this.inLinkDataMapProcessor = Objects.requireNonNull(inLinkDataMapProcessor, "inLinkDataMapProcessor");
     }
 
     @Override
     public LinkDataDuplexMap createMap(Application application, LinkSelectContext linkSelectContext) {
-        logger.debug("Finding Caller/Callee link data for {}", application);
+        logger.debug("Finding Out/In link data for {}", application);
         final Range range = linkSelectContext.getRange();
         LinkDataDuplexMap searchResult = new LinkDataDuplexMap();
 
-        final boolean searchCallerNode = linkSelectContext.checkNextCaller(application);
-        if (searchCallerNode) {
-            logger.debug("Finding Caller link data for {}", application);
-            final LinkDataMap callerLinkDataMap = linkDataMapService.selectCallerLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
-            logger.debug("Found Caller. count={}, caller={}, depth={}", callerLinkDataMap.size(), application, linkSelectContext.getCallerDepth());
+        if (linkSelectContext.checkNextOut(application)) {
+            final LinkDataMap outLinkDataMap = linkDataMapService.selectCallerLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
+            logger.debug("Found {}. node={}, depth={}, count={}", LinkDirection.OUT_LINK, application, linkSelectContext.getOutDepth(), outLinkDataMap.size());
 
-            final LinkDataMap processedCallerLinkDataMap = callerLinkDataMapProcessor.processLinkDataMap(callerLinkDataMap, range);
-            for (LinkData callerLinkData : processedCallerLinkDataMap.getLinkDataList()) {
-                searchResult.addSourceLinkData(callerLinkData);
-                final Application toApplication = callerLinkData.getToApplication();
+            final LinkDataMap processedOutLinkDataMap = outLinkDataMapProcessor.processLinkDataMap(LinkDirection.OUT_LINK, outLinkDataMap, range);
+            logger.debug("Processed {} node={} count:{} {}", LinkDirection.OUT_LINK, application, processedOutLinkDataMap.size(), processedOutLinkDataMap);
+            for (LinkData outLinkData : processedOutLinkDataMap.getLinkDataList()) {
+                searchResult.addSourceLinkData(outLinkData);
+                final Application toApplication = outLinkData.getToApplication();
                 // skip if nextApplication is a terminal or an unknown cloud
                 if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
                     continue;
@@ -72,16 +72,15 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
             }
         }
 
-        final boolean searchCalleeNode = linkSelectContext.checkNextCallee(application);
-        if (searchCalleeNode) {
-            logger.debug("Finding Callee link data for {}", application);
-            final LinkDataMap calleeLinkDataMap = linkDataMapService.selectCalleeLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
-            logger.debug("Found Callee. count={}, callee={}, depth={}", calleeLinkDataMap.size(), application, linkSelectContext.getCalleeDepth());
+        if (linkSelectContext.checkNextIn(application)) {
+            final LinkDataMap inLinkDataMap = linkDataMapService.selectCalleeLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
+            logger.debug("Found {}. node={}, depth={}, count={}", LinkDirection.IN_LINK, application, linkSelectContext.getInDepth(), inLinkDataMap.size());
 
-            final LinkDataMap processedCalleeLinkDataMap = calleeLinkDataMapProcessor.processLinkDataMap(calleeLinkDataMap, range);
-            for (LinkData calleeLinkData : processedCalleeLinkDataMap.getLinkDataList()) {
-                searchResult.addTargetLinkData(calleeLinkData);
-                final Application fromApplication = calleeLinkData.getFromApplication();
+            final LinkDataMap processedInLinkDataMap = inLinkDataMapProcessor.processLinkDataMap(LinkDirection.IN_LINK, inLinkDataMap, range);
+            logger.debug("Processed {} node={} count:{} {}", LinkDirection.IN_LINK, application, processedInLinkDataMap.size(), processedInLinkDataMap);
+            for (LinkData inLinkData : processedInLinkDataMap.getLinkDataList()) {
+                searchResult.addTargetLinkData(inLinkData);
+                final Application fromApplication = inLinkData.getFromApplication();
                 linkSelectContext.addNextApplication(fromApplication);
             }
         }

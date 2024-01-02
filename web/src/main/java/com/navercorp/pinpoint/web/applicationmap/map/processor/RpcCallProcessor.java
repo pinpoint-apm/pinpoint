@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.applicationmap.map.processor;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.applicationmap.map.VirtualLinkMarker;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
@@ -60,27 +61,27 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
     }
 
     @Override
-    public LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range) {
+    public LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, Range range) {
         final LinkDataMap replacedLinkDataMap = new LinkDataMap();
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
-            final List<LinkData> replacedLinkDatas = replaceLinkData(linkData, range);
+            final List<LinkData> replacedLinkDatas = replaceLinkData(direction, linkData, range);
             for (LinkData replacedLinkData : replacedLinkDatas)
                 replacedLinkDataMap.addLinkData(replacedLinkData);
         }
         return replacedLinkDataMap;
     }
 
-    private List<LinkData> replaceLinkData(LinkData linkData, Range range) {
+    private List<LinkData> replaceLinkData(LinkDirection direction, LinkData linkData, Range range) {
         final Application toApplication = linkData.getToApplication();
         if (toApplication.getServiceType().isRpcClient() || toApplication.getServiceType().isQueue()) {
             // rpc client's destination could have an agent installed in which case the link data must be replaced to point
             // to the destination application.
-            logger.debug("Finding accept applications for {}, {}", toApplication, range);
+            logger.debug("Finding {} accept applications for {}, {}", direction, toApplication, range);
             final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), range);
-            logger.debug("Found accept applications: {}", acceptApplicationList);
+            logger.debug("Found {} accept applications: {}", direction, acceptApplicationList);
             if (CollectionUtils.hasLength(acceptApplicationList)) {
                 if (acceptApplicationList.size() == 1) {
-                    logger.debug("Application info replaced. {} => {}", linkData, acceptApplicationList);
+                    logger.debug("Application info replaced. {} {} => {}", direction, linkData, acceptApplicationList);
 
                     AcceptApplication first = acceptApplicationList.iterator().next();
                     final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), first.getApplication());
@@ -88,7 +89,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
                     return Collections.singletonList(acceptedLinkData);
                 } else {
                     // special case - there are more than 2 nodes grouped by a single url
-                    return virtualLinkMarker.createVirtualLinkData(linkData, toApplication, acceptApplicationList);
+                    return virtualLinkMarker.createVirtualLink(linkData, toApplication, acceptApplicationList);
                 }
             } else {
                 // for queues, accept application may not exist if no consumers have an agent installed

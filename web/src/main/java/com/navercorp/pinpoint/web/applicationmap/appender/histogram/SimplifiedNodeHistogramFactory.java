@@ -50,8 +50,8 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
         if (terminalApplication.getServiceType().isTerminal() || terminalApplication.getServiceType().isAlias()) {
             final Map<String, Histogram> agentHistogramMap = new HashMap<>();
             for (Link link : toLinkList) {
-                LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-                AgentHistogramList targetList = sourceLinkCallDataMap.getTargetList();
+                LinkCallDataMap inLink = link.getInLink();
+                AgentHistogramList targetList = inLink.getOutLinkList();
                 for (AgentHistogram histogram : targetList.getAgentHistogramList()) {
                     Histogram find = agentHistogramMap.get(histogram.getId());
                     if (find == null) {

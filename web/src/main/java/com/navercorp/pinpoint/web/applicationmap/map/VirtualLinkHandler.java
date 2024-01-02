@@ -61,7 +61,7 @@ public class VirtualLinkHandler {
         logger.debug("Virtual link size : {}", virtualLinkDataSet.size());
         List<Application> unpopulatedEmulatedNodes = getUnpopulatedEmulatedNodes(linkDataDuplexMap.getTargetLinkDataMap(), virtualLinkDataSet);
         if (unpopulatedEmulatedNodes.isEmpty()) {
-            logger.debug("unpopulated emulated node not found.");
+            logger.debug("unpopulated emulated node not found");
         } else {
             logger.info("unpopulated emulated nodes : {}", unpopulatedEmulatedNodes);
             for (Application unpopulatedEmulatedNode : unpopulatedEmulatedNodes) {
@@ -99,7 +99,7 @@ public class VirtualLinkHandler {
                 continue;
             }
             // filter callee link data from nodes that haven't been visited as we don't need them
-            if (!linkVisitChecker.isVisitedCaller(fromApplication)) {
+            if (!linkVisitChecker.isVisitedOut(fromApplication)) {
                 logger.trace("filtered {} as {} is not in scope of the current server map", calleeLinkData, fromApplication);
                 continue;
             }

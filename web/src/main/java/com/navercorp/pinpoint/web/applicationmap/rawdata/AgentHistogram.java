@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -74,9 +74,7 @@ public class AgentHistogram {
     @JsonProperty("histogram")
     public Histogram getHistogram() {
         Histogram histogram = new Histogram(agentId.getServiceType());
-        for (TimeHistogram timeHistogram : timeHistogramMap.values()) {
-            histogram.add(timeHistogram);
-        }
+        histogram.addAll(timeHistogramMap.values());
         return histogram;
     }
 

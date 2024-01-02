@@ -59,9 +59,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
         final Histogram applicationHistogram = new Histogram(applicationServiceType);
         for (ResponseTime responseTime : responseHistogram) {
             final Collection<TimeHistogram> histogramList = responseTime.getAgentResponseHistogramList();
-            for (Histogram histogram : histogramList) {
-                applicationHistogram.add(histogram);
-            }
+            applicationHistogram.addAll(histogramList);
         }
         return applicationHistogram;
     }

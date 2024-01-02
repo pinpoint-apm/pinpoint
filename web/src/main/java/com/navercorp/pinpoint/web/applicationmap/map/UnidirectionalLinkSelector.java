@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.service.SearchDepth;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
@@ -55,33 +56,33 @@ public class UnidirectionalLinkSelector implements LinkSelector {
     }
 
     @Override
-    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
-        return select(sourceApplications, range, callerSearchDepth, calleeSearchDepth, false);
+    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int outSearchDepth, int inSearchDepth) {
+        return select(sourceApplications, range, outSearchDepth, inSearchDepth, false);
     }
 
     @Override
-    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
+    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int outSearchDepth, int inSearchDepth, boolean timeAggregated) {
         logger.debug("Creating link data map for {}", sourceApplications);
-        final SearchDepth callerDepth = new SearchDepth(callerSearchDepth);
-        final SearchDepth calleeDepth = new SearchDepth(calleeSearchDepth);
+        final SearchDepth outDepth = new SearchDepth(outSearchDepth);
+        final SearchDepth inDepth = new SearchDepth(inSearchDepth);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
         List<Application> applications = filterApplications(sourceApplications);
 
         List<Application> outboundApplications = Collections.unmodifiableList(applications);
-        LinkSelectContext outboundLinkSelectContext = new LinkSelectContext(range, callerDepth, new SearchDepth(0), linkVisitChecker, timeAggregated);
+        LinkSelectContext outboundLinkSelectContext = new LinkSelectContext(range, outDepth, new SearchDepth(0), linkVisitChecker, timeAggregated);
         List<Application> inboundApplications = Collections.unmodifiableList(applications);
-        LinkSelectContext inboundLinkSelectContext = new LinkSelectContext(range, new SearchDepth(0), calleeDepth, linkVisitChecker, timeAggregated);
+        LinkSelectContext inboundLinkSelectContext = new LinkSelectContext(range, new SearchDepth(0), inDepth, linkVisitChecker, timeAggregated);
 
         while (!outboundApplications.isEmpty() || !inboundApplications.isEmpty()) {
 
-            logger.info("outbound depth search start. callerDepth:{}, calleeDepth:{}, size:{}, nodes:{}", outboundLinkSelectContext.getCallerDepth(), outboundLinkSelectContext.getCalleeDepth(), outboundApplications.size(), outboundApplications);
+            logger.info("{} depth search start. outDepth:{}, inDepth:{}, size:{}, nodes:{}", LinkDirection.OUT_LINK, outboundLinkSelectContext.getOutDepth(), outboundLinkSelectContext.getInDepth(), outboundApplications.size(), outboundApplications);
             LinkDataDuplexMap outboundMap = applicationsMapCreator.createLinkDataDuplexMap(outboundApplications, outboundLinkSelectContext);
-            logger.info("outbound depth search end. callerDepth:{}, calleeDepth:{}", outboundLinkSelectContext.getCallerDepth(), outboundLinkSelectContext.getCalleeDepth());
+            logger.info("{} depth search end. outDepth:{}, inDepth:{}", LinkDirection.OUT_LINK, outboundLinkSelectContext.getOutDepth(), outboundLinkSelectContext.getInDepth());
 
-            logger.info("inbound depth search start. callerDepth:{}, calleeDepth:{}, size:{}, nodes:{}", inboundLinkSelectContext.getCallerDepth(), inboundLinkSelectContext.getCalleeDepth(), inboundApplications.size(), inboundApplications);
+            logger.info("{} depth search start. outDepth:{}, inDepth:{}, size:{}, nodes:{}", LinkDirection.IN_LINK, inboundLinkSelectContext.getOutDepth(), inboundLinkSelectContext.getInDepth(), inboundApplications.size(), inboundApplications);
             LinkDataDuplexMap inboundMap = applicationsMapCreator.createLinkDataDuplexMap(inboundApplications, inboundLinkSelectContext);
-            logger.info("inbound depth search end. callerDepth:{}, calleeDepth:{}", inboundLinkSelectContext.getCallerDepth(), inboundLinkSelectContext.getCalleeDepth());
+            logger.info("{} depth search end. outDepth:{}, inDepth:{}", LinkDirection.IN_LINK, inboundLinkSelectContext.getOutDepth(), inboundLinkSelectContext.getInDepth());
 
             linkDataDuplexMap.addLinkDataDuplexMap(outboundMap);
             linkDataDuplexMap.addLinkDataDuplexMap(inboundMap);
