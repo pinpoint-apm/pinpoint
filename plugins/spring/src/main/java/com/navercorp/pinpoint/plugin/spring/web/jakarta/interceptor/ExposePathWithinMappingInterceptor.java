@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class ExposePathWithinMappingInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
     private final TraceContext traceContext;
     private final Boolean uriStatCollectMethod;
 
@@ -35,7 +36,11 @@ public class ExposePathWithinMappingInterceptor implements AroundInterceptor {
         try {
             final SpanRecorder spanRecorder = trace.getSpanRecorder();
             final String url = ArrayArgumentUtils.getArgument(args, 0, String.class);
-            logger.debug("Attempt recording URI with template: {}", url);
+
+            if (isDebug) {
+                logger.debug("Attempt recording URI with template: {}", url);
+            }
+
             if (StringUtils.hasLength(url)) {
                 spanRecorder.recordUriTemplate(url);
             }
