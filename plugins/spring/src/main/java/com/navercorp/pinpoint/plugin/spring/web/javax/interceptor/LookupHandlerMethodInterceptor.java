@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class LookupHandlerMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
     private final TraceContext traceContext;
     private final Boolean uriStatCollectMethod;
 
@@ -40,7 +41,11 @@ public class LookupHandlerMethodInterceptor implements AroundInterceptor {
                 final SpanRecorder spanRecorder = trace.getSpanRecorder();
 
                 final String uri = ServletRequestAttributeUtils.extractAttribute(request, SpringWebMvcConstants.SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEYS);
-                logger.debug("Attempt recording URI with template: {}", uri);
+
+                if (isDebug) {
+                    logger.debug("Attempt recording URI with template: {}", uri);
+                }
+
                 if (StringUtils.hasLength(uri)) {
                     spanRecorder.recordUriTemplate(uri);
                 }

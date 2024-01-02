@@ -14,6 +14,7 @@ import jakarta.servlet.ServletRequest;
 
 public class ProcessRequestInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
     private final TraceContext traceContext;
     private final Boolean uriStatUseUserInput;
 
@@ -41,7 +42,11 @@ public class ProcessRequestInterceptor implements AroundInterceptor {
             final ServletRequest request = ArrayArgumentUtils.getArgument(args, 0, ServletRequest.class);
             if (request != null) {
                 final String uri = ServletRequestAttributeUtils.extractAttribute(request, SpringWebMvcConstants.SPRING_MVC_URI_USER_INPUT_ATTRIBUTE_KEYS);
-                logger.debug("Attempt recording URI with template: {}", uri);
+
+                if (isDebug) {
+                    logger.debug("Attempt recording URI with template: {}", uri);
+                }
+
                 if (StringUtils.hasLength(uri)) {
                     final SpanRecorder spanRecorder = trace.getSpanRecorder();
                     spanRecorder.recordUriTemplate(uri, true);
