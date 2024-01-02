@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * representation of caller/callee relationship 
+ * representation of out/in relationship
  * @author emeroad
  */
 public class LinkCallData {

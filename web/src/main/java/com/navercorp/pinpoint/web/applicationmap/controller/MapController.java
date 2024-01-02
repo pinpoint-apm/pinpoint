@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -102,14 +103,16 @@ public class MapController {
             @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int outDepth,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int inDepth,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly) {
         final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
-        final SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        final SearchOption searchOption = new SearchOption(outDepth, inDepth, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
         final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
@@ -134,8 +137,10 @@ public class MapController {
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly) {
         final Range range = Range.between(from, to);
@@ -167,8 +172,10 @@ public class MapController {
             @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
@@ -211,8 +218,10 @@ public class MapController {
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
@@ -252,9 +261,10 @@ public class MapController {
         Objects.requireNonNull(range, "range");
         Objects.requireNonNull(searchOption, "searchOption");
 
-        final MapServiceOption mapServiceOption = new MapServiceOption.Builder(
-                application, range, searchOption, nodeType, linkType
-        ).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        final MapServiceOption mapServiceOption = new MapServiceOption
+                .Builder(application, range, searchOption, nodeType, linkType)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
         logger.info("Select applicationMap. option={}", mapServiceOption);
         final ApplicationMap map = this.mapService.selectApplicationMap(mapServiceOption);
 
@@ -265,11 +275,11 @@ public class MapController {
     }
 
     private static void assertSearchOption(SearchOption searchOption) {
-        final int callerSearchDepth = searchOption.getCallerSearchDepth();
-        assertSearchDepth(callerSearchDepth, "invalid caller depth: " + callerSearchDepth);
+        final int outSearchDepth = searchOption.getOutSearchDepth();
+        assertSearchDepth(outSearchDepth, "invalid out depth: " + outSearchDepth);
 
-        final int calleeSearchDepth = searchOption.getCalleeSearchDepth();
-        assertSearchDepth(calleeSearchDepth, "invalid callee depth: " + calleeSearchDepth);
+        final int inSearchDepth = searchOption.getInSearchDepth();
+        assertSearchDepth(inSearchDepth, "invalid in depth: " + inSearchDepth);
     }
 
     private static void assertSearchDepth(int depth, String message) {
@@ -317,9 +327,10 @@ public class MapController {
                 mapApplicationPairsToApplications(applicationPairs.getFromApplications());
         final List<Application> toApplications =
                 mapApplicationPairsToApplications(applicationPairs.getToApplications());
-        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(
-                application, range, fromApplications, toApplications
-        ).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
+                .Builder(application, range, fromApplications, toApplications)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
         if (useLoadHistogramFormat) {
@@ -363,8 +374,8 @@ public class MapController {
 
         final List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
         final List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
-        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(
-                application, range, fromApplications, toApplications)
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
+                .Builder(application, range, fromApplications, toApplications)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
@@ -437,8 +448,10 @@ public class MapController {
             @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
@@ -460,8 +473,10 @@ public class MapController {
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @Positive int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)

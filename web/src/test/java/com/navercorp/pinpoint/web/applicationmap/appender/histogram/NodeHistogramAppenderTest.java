@@ -24,13 +24,15 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +56,8 @@ import static org.mockito.Mockito.when;
  * @author HyunGil Jeong
  */
 public class NodeHistogramAppenderTest {
+
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
 
@@ -140,7 +144,7 @@ public class NodeHistogramAppenderTest {
         String toNodeAgent = "test-database";
         nodeList.addNode(toNode);
 
-        Link link = new Link(CreateType.Source, fromNode, toNode, range);
+        Link link = new Link(LinkDirection.IN_LINK, fromNode, toNode, range);
         HistogramSlot fastSlot = toNode.getServiceType().getHistogramSchema().getFastSlot();
         HistogramSlot normalSlot = toNode.getServiceType().getHistogramSchema().getNormalSlot();
         HistogramSlot slowSlot = toNode.getServiceType().getHistogramSchema().getSlowSlot();
@@ -148,9 +152,9 @@ public class NodeHistogramAppenderTest {
         long fastCallCount = 200L;
         long normalCallCount = 100L;
         long slowCallCount = 75L;
-        link.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), fastSlot, fastCallCount));
-        link.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), normalSlot, normalCallCount));
-        link.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), slowSlot, slowCallCount));
+        link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), fastSlot, fastCallCount));
+        link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), normalSlot, normalCallCount));
+        link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), slowSlot, slowCallCount));
         linkList.addLink(link);
 
         // When
@@ -196,15 +200,15 @@ public class NodeHistogramAppenderTest {
         String toNodeAgent2 = "test-database2";
         nodeList.addNode(toNode);
 
-        Link link = new Link(CreateType.Source, fromNode, toNode, range);
+        Link link = new Link(LinkDirection.IN_LINK, fromNode, toNode, range);
         HistogramSlot fastSlot = toNode.getServiceType().getHistogramSchema().getFastSlot();
         HistogramSlot normalSlot = toNode.getServiceType().getHistogramSchema().getNormalSlot();
         // [testApp] test-app -> [testDatabase] test-database1
         long callCount1 = 100L;
-        link.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent1, toNode.getServiceType(), fastSlot, callCount1));
+        link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent1, toNode.getServiceType(), fastSlot, callCount1));
         // [testApp] test-app -> [testDatabase] test-database2
         long callCount2 = 50L;
-        link.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent2, toNode.getServiceType(), normalSlot, callCount2));
+        link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent2, toNode.getServiceType(), normalSlot, callCount2));
         linkList.addLink(link);
 
         // When
@@ -254,19 +258,19 @@ public class NodeHistogramAppenderTest {
         String cacheNodeAgent = "test-cache";
         nodeList.addNode(cacheNode);
 
-        Link databaseLink = new Link(CreateType.Source, fromNode, databaseNode, range);
+        Link databaseLink = new Link(LinkDirection.IN_LINK, fromNode, databaseNode, range);
         HistogramSlot databaseSlowSlot = databaseNode.getServiceType().getHistogramSchema().getSlowSlot();
         long databaseCallSlowCount = 50L;
-        databaseLink.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), databaseNodeAgent, databaseNode.getServiceType(), databaseSlowSlot, databaseCallSlowCount));
+        databaseLink.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), databaseNodeAgent, databaseNode.getServiceType(), databaseSlowSlot, databaseCallSlowCount));
         linkList.addLink(databaseLink);
 
-        Link cacheLink = new Link(CreateType.Source, fromNode, cacheNode, range);
+        Link cacheLink = new Link(LinkDirection.IN_LINK, fromNode, cacheNode, range);
         HistogramSlot cacheFastSlot = cacheNode.getServiceType().getHistogramSchema().getFastSlot();
         HistogramSlot cacheSlowSlot = cacheNode.getServiceType().getHistogramSchema().getSlowSlot();
         long cacheCallFastCount = 199L;
         long cacheCallSlowCount = 99L;
-        cacheLink.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), cacheNodeAgent, cacheNode.getServiceType(), cacheFastSlot, cacheCallFastCount));
-        cacheLink.addSource(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), cacheNodeAgent, cacheNode.getServiceType(), cacheSlowSlot, cacheCallSlowCount));
+        cacheLink.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), cacheNodeAgent, cacheNode.getServiceType(), cacheFastSlot, cacheCallFastCount));
+        cacheLink.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), cacheNodeAgent, cacheNode.getServiceType(), cacheSlowSlot, cacheCallSlowCount));
         linkList.addLink(cacheLink);
 
         // When
@@ -323,15 +327,15 @@ public class NodeHistogramAppenderTest {
         String wasNodeAgent2 = "was-2";
         nodeList.addNode(wasNode);
 
-        Link link = new Link(CreateType.Target, userNode, wasNode, range);
+        Link link = new Link(LinkDirection.OUT_LINK, userNode, wasNode, range);
         HistogramSlot fastSlot = wasNode.getServiceType().getHistogramSchema().getFastSlot();
         HistogramSlot normalSlot = wasNode.getServiceType().getHistogramSchema().getNormalSlot();
         // [userNode] user -> [wasNode] was-1
         long fastCallCount = 100L;
-        link.addTarget(createLinkCallDataMap(userNodeAgent, userNode.getServiceType(), wasNodeAgent1, wasNode.getServiceType(), fastSlot, fastCallCount));
+        link.addOutLink(createLinkCallDataMap(userNodeAgent, userNode.getServiceType(), wasNodeAgent1, wasNode.getServiceType(), fastSlot, fastCallCount));
         // [userNode] user -> [wasNode] was-2
         long normalCallCount = 50L;
-        link.addTarget(createLinkCallDataMap(userNodeAgent, userNode.getServiceType(), wasNodeAgent2, wasNode.getServiceType(), normalSlot, normalCallCount));
+        link.addOutLink(createLinkCallDataMap(userNodeAgent, userNode.getServiceType(), wasNodeAgent2, wasNode.getServiceType(), normalSlot, normalCallCount));
         linkList.addLink(link);
 
         // When
@@ -368,35 +372,35 @@ public class NodeHistogramAppenderTest {
         executor.setQueueCapacity(1024);
 
         int maxCount = 100;
-        CompletableFuture[] array = new CompletableFuture[maxCount];
+        @SuppressWarnings("unchecked")
+        CompletableFuture<String>[] array = new CompletableFuture[maxCount];
         AtomicBoolean timeout = new AtomicBoolean(false);
-        for(int i = 0; i < maxCount; i++) {
+        for (int i = 0; i < maxCount; i++) {
             array[i] = makeCompletableFuture(i, timeout);
         }
 
-        CompletableFuture completableFuture = CompletableFuture.allOf(array);
+        CompletableFuture<Void> completableFuture = CompletableFuture.allOf(array);
         try {
             completableFuture.get(100, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             timeout.set(Boolean.TRUE);
         }
         TimeUnit.SECONDS.sleep(3);
-        System.out.println("END");
+        logger.debug("END");
     }
 
-    private CompletableFuture makeCompletableFuture(final int sleepMillis, final AtomicBoolean timeout) {
-        CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(() -> {
-            if(timeout.get()) {
-                System.out.println("Timeout");
+    private CompletableFuture<String> makeCompletableFuture(final int sleepMillis, final AtomicBoolean timeout) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (timeout.get()) {
+                logger.debug("Timeout");
                 return "Timeout";
             }
             try {
                 Thread.sleep(100);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignore) {
             }
-            System.out.println("RUN " + sleepMillis);
+            logger.debug("RUN {}", sleepMillis);
             return "Completed";
         }, executor);
-        return completableFuture;
     }
 }

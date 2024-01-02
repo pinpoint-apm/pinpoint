@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -66,13 +66,13 @@ public class LinkListTest {
     private Link createTomcatToTomcatLink() {
         Node from = new Node(new Application("from", TOMCAT));
         Node to = new Node(new Application("to", TOMCAT));
-        return new Link(CreateType.Source, from, to, Range.between(0, 0));
+        return new Link(LinkDirection.IN_LINK, from, to, Range.between(0, 0));
     }
 
     private Link createTomcatToBlocLink() {
         Node from = new Node(new Application("from", TOMCAT));
         Node to = new Node(new Application("to", BLOC));
-        return new Link(CreateType.Source, from, to, Range.between(0, 0));
+        return new Link(LinkDirection.IN_LINK, from, to, Range.between(0, 0));
     }
 
     @Test

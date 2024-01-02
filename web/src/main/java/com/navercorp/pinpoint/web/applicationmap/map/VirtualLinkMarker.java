@@ -23,7 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,23 +38,24 @@ public class VirtualLinkMarker {
     private final Set<LinkData> virtualLinkDataMarker = ConcurrentHashMap.newKeySet();
 
     public Set<LinkData> getVirtualLinkData() {
-        return new HashSet<>(virtualLinkDataMarker);
+        return Collections.unmodifiableSet(virtualLinkDataMarker);
     }
 
-    public List<LinkData> createVirtualLinkData(LinkData linkData, Application toApplication, Set<AcceptApplication> acceptApplicationList) {
-        logger.warn("one to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
+    public List<LinkData> createVirtualLink(LinkData linkData, Application toApplication, Set<AcceptApplication> acceptApplicationList) {
+        logger.info("one to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
         List<LinkData> virtualLinkDataList = new ArrayList<>();
+        logger.debug("acceptApplicationList:{}", acceptApplicationList);
         for (AcceptApplication acceptApplication : acceptApplicationList) {
             // linkCallData needs to be modified - remove callHistogram on purpose
             LinkData virtualLinkData = new LinkData(linkData.getFromApplication(), acceptApplication.getApplication());
             virtualLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
             virtualLinkDataList.add(virtualLinkData);
-            markVirtualLinkData(virtualLinkData);
+            markVirtualLink(virtualLinkData);
         }
         return virtualLinkDataList;
     }
 
-    private void markVirtualLinkData(LinkData virtualLinkData) {
+    private void markVirtualLink(LinkData virtualLinkData) {
         final boolean add = virtualLinkDataMarker.add(virtualLinkData);
         if (!add) {
             logger.warn("virtualLinkData add error - {}", virtualLinkData);

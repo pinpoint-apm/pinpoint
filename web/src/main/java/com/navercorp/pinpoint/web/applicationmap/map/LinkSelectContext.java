@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.service.SearchDepth;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 /**
  * @author HyunGil Jeong
@@ -37,17 +39,19 @@ public class LinkSelectContext {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Range range;
-    private final SearchDepth callerDepth;
-    private final SearchDepth calleeDepth;
+    private final SearchDepth outDepth;
+    private final SearchDepth inDepth;
+
     private final LinkVisitChecker linkVisitChecker;
     private final boolean timeAggregated;
 
     private final Set<Application> nextApplications = ConcurrentHashMap.newKeySet();
 
-    public LinkSelectContext(Range range, SearchDepth callerDepth, SearchDepth calleeDepth, LinkVisitChecker linkVisitChecker, boolean timeAggregated) {
+    public LinkSelectContext(Range range, SearchDepth outDepth, SearchDepth inDepth,
+                             LinkVisitChecker linkVisitChecker, boolean timeAggregated) {
         this.range = Objects.requireNonNull(range, "range");
-        this.callerDepth = Objects.requireNonNull(callerDepth, "callerDepth");
-        this.calleeDepth = Objects.requireNonNull(calleeDepth, "calleeDepth");
+        this.outDepth = Objects.requireNonNull(outDepth, "outDepth");
+        this.inDepth = Objects.requireNonNull(inDepth, "inDepth");
         this.linkVisitChecker = Objects.requireNonNull(linkVisitChecker, "linkVisitChecker");
         this.timeAggregated = timeAggregated;
     }
@@ -56,37 +60,33 @@ public class LinkSelectContext {
         return range;
     }
 
-    public int getCallerDepth() {
-        return callerDepth.getDepth();
+    public int getOutDepth() {
+        return outDepth.getDepth();
     }
 
-    public int getCalleeDepth() {
-        return calleeDepth.getDepth();
+    public int getInDepth() {
+        return inDepth.getDepth();
     }
 
     public boolean isTimeAggregated() {
         return timeAggregated;
     }
 
-    public boolean checkNextCaller(Application application) {
-        if (callerDepth.isDepthOverflow()) {
-            logger.debug("caller depth overflow application:{} depth:{}", application, callerDepth.getDepth());
-            return false;
-        }
-        if (linkVisitChecker.visitCaller(application)) {
-            logger.debug("already visited caller:{}", application);
-            return false;
-        }
-        return true;
+    public boolean checkNextOut(Application application) {
+        return filterNextLink(LinkDirection.OUT_LINK, outDepth, application, linkVisitChecker::visitOut);
     }
 
-    public boolean checkNextCallee(Application application) {
-        if (calleeDepth.isDepthOverflow()) {
-            logger.debug("callee depth overflow application:{} depth:{}", application, calleeDepth.getDepth());
+    public boolean checkNextIn(Application application) {
+        return filterNextLink(LinkDirection.IN_LINK, inDepth, application, linkVisitChecker::visitIn);
+    }
+
+    private boolean filterNextLink(LinkDirection inLink, SearchDepth inDepth, Application application, Predicate<Application> linkVisitChecker) {
+        if (inDepth.isDepthOverflow()) {
+            logger.debug("{} depth overflow application:{} depth:{}", inLink, application, inDepth.getDepth());
             return false;
         }
-        if (linkVisitChecker.visitCallee(application)) {
-            logger.debug("already visited callee:{}", application);
+        if (linkVisitChecker.test(application)) {
+            logger.debug("already visited {}:{}", inLink, application);
             return false;
         }
         return true;
@@ -104,8 +104,8 @@ public class LinkSelectContext {
     }
 
     public LinkSelectContext advance() {
-        SearchDepth nextCallerDepth = callerDepth.nextDepth();
-        SearchDepth nextCalleeDepth = calleeDepth.nextDepth();
-        return new LinkSelectContext(range, nextCallerDepth, nextCalleeDepth, linkVisitChecker, timeAggregated);
+        SearchDepth nextOutDepth = outDepth.nextDepth();
+        SearchDepth nextInDepth = inDepth.nextDepth();
+        return new LinkSelectContext(range, nextOutDepth, nextInDepth, linkVisitChecker, timeAggregated);
     }
 }

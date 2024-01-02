@@ -39,12 +39,12 @@ public class LinkVisitCheckerTest {
         LinkVisitChecker checker = new LinkVisitChecker();
 
         Application testApplication = new Application("test", ServiceType.STAND_ALONE);
-        Assertions.assertFalse(checker.visitCaller(testApplication));
-        Assertions.assertTrue(checker.visitCaller(testApplication));
+        Assertions.assertFalse(checker.visitOut(testApplication));
+        Assertions.assertTrue(checker.visitOut(testApplication));
 
         Application newApp = new Application("newApp", ServiceType.STAND_ALONE);
-        Assertions.assertFalse(checker.visitCaller(newApp));
-        Assertions.assertTrue(checker.visitCaller(newApp));
+        Assertions.assertFalse(checker.visitOut(newApp));
+        Assertions.assertTrue(checker.visitOut(newApp));
     }
 
     @Test
@@ -52,12 +52,12 @@ public class LinkVisitCheckerTest {
         LinkVisitChecker checker = new LinkVisitChecker();
 
         Application testApplication = new Application("test", ServiceType.STAND_ALONE);
-        Assertions.assertFalse(checker.visitCallee(testApplication));
-        Assertions.assertTrue(checker.visitCallee(testApplication));
+        Assertions.assertFalse(checker.visitIn(testApplication));
+        Assertions.assertTrue(checker.visitIn(testApplication));
 
         Application newApp = new Application("newApp", ServiceType.STAND_ALONE);
-        Assertions.assertFalse(checker.visitCallee(newApp));
-        Assertions.assertTrue(checker.visitCallee(newApp));
+        Assertions.assertFalse(checker.visitIn(newApp));
+        Assertions.assertTrue(checker.visitIn(newApp));
     }
 
     @Test
@@ -190,7 +190,7 @@ public class LinkVisitCheckerTest {
 
         @Override
         public boolean visit(Application application) {
-            return linkVisitChecker.visitCaller(application);
+            return linkVisitChecker.visitOut(application);
         }
     }
 
@@ -204,7 +204,7 @@ public class LinkVisitCheckerTest {
 
         @Override
         public boolean visit(Application application) {
-            return linkVisitChecker.visitCallee(application);
+            return linkVisitChecker.visitIn(application);
         }
     }
 }

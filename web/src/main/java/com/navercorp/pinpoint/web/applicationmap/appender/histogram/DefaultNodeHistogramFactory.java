@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
@@ -29,9 +30,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -72,8 +72,8 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
         // create applicationTimeHistogram
         LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
         for (Link link : toLinkList) {
-            LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-            linkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
+            LinkCallDataMap inLink = link.getInLink();
+            linkCallDataMap.addLinkDataMap(inLink);
         }
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(terminalApplication, range);
         ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataList());
@@ -84,10 +84,10 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
             LinkCallDataMap mergeSource = new LinkCallDataMap();
             final Map<String, Histogram> agentHistogramMap = new HashMap<>();
             for (Link link : toLinkList) {
-                LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-                mergeSource.addLinkDataMap(sourceLinkCallDataMap);
-                AgentHistogramList targetList = sourceLinkCallDataMap.getTargetList();
-                for (AgentHistogram histogram : targetList.getAgentHistogramList()) {
+                LinkCallDataMap inLinkCallDataMap = link.getInLink();
+                mergeSource.addLinkDataMap(inLinkCallDataMap);
+                AgentHistogramList outLinkList = inLinkCallDataMap.getOutLinkList();
+                for (AgentHistogram histogram : outLinkList.getAgentHistogramList()) {
                     Histogram find = agentHistogramMap.get(histogram.getId());
                     if (find == null) {
                         find = new Histogram(histogram.getServiceType());
@@ -145,11 +145,11 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
         // create applicationTimeHistogram
         LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
         for (Link link : toLinkList) {
-            LinkCallDataMap linkCallDataMapToUse = link.getSourceLinkCallDataMap();
+            LinkCallDataMap linkCallDataMapToUse = link.getInLink();
             // queues, unlike terminal nodes, could have targetLinkCallDataMap instead of sourceLinkCallDataMap
-            // depending on whether the link has been generated with the queue node as the caller, or the callee.
+            // depending on whether the link has been generated with the queue node as the out link, or the in link.
             if (linkCallDataMapToUse.getLinkDataList().isEmpty()) {
-                linkCallDataMapToUse = link.getTargetLinkCallDataMap();
+                linkCallDataMapToUse = link.getOutLink();
             }
             linkCallDataMap.addLinkDataMap(linkCallDataMapToUse);
         }

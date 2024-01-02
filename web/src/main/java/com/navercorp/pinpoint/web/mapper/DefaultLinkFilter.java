@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.web.vo.Application;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -30,51 +29,51 @@ public class DefaultLinkFilter implements LinkFilter {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Application callerApplication;
-    private final Application calleeApplication;
+    private final Application outApplication;
+    private final Application inApplication;
 
-    public DefaultLinkFilter(Application callerApplication, Application calleeApplication) {
-        this.callerApplication = Objects.requireNonNull(callerApplication, "callerApplication");
-        this.calleeApplication = Objects.requireNonNull(calleeApplication, "calleeApplication");
+    public DefaultLinkFilter(Application outApplication, Application inApplication) {
+        this.outApplication = Objects.requireNonNull(outApplication, "outApplication");
+        this.inApplication = Objects.requireNonNull(inApplication, "inApplication");
     }
 
     public boolean filter(Application foundApplication) {
         Objects.requireNonNull(foundApplication, "foundApplication");
 
-        if (this.calleeApplication.getServiceType().isWas() && this.callerApplication.getServiceType().isWas()) {
+        if (this.inApplication.getServiceType().isWas() && this.outApplication.getServiceType().isWas()) {
             logger.debug("check was to was.");
             // if not from same source, drop
-            if (!this.callerApplication.equals(foundApplication)) {
+            if (!this.outApplication.equals(foundApplication)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("  DROP THE ROW,1, DIFFERENT SRC. fetched={} , params={}", foundApplication, calleeApplication);
+                    logger.debug("  DROP THE ROW,1, DIFFERENT SRC. fetched={} , params={}", foundApplication, inApplication);
                 }
                 return true;
             }
-        } else if (this.callerApplication.getServiceType().isUser()) {
+        } else if (this.outApplication.getServiceType().isUser()) {
             logger.debug("check client to was");
             // if dest not equals to that WAS, drop
-            if (!this.calleeApplication.getName().equals(foundApplication.getName())) {
+            if (!this.inApplication.getName().equals(foundApplication.getName())) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("  DROP THE ROW,2, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.calleeApplication);
+                    logger.debug("  DROP THE ROW,2, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.inApplication);
                 }
                 return true;
             }
         } else {
             logger.debug("check any to any.");
-            if (this.calleeApplication.getServiceType().isUnknown()) {
+            if (this.inApplication.getServiceType().isUnknown()) {
                 //  compare just only application name when dest is unknown.
                 // TODO need more nice way to compare
-                if (!this.calleeApplication.getName().equals(foundApplication.getName())) {
+                if (!this.inApplication.getName().equals(foundApplication.getName())) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("  DROP THE ROW,3, DIFFERENT DEST. fetched={}, params={}", foundApplication, calleeApplication);
+                        logger.debug("  DROP THE ROW,3, DIFFERENT DEST. fetched={}, params={}", foundApplication, inApplication);
                     }
                     return true;
                 }
             } else {
                 // compare all of application name and type when dest is not unknown.
-                if (!this.calleeApplication.equals(foundApplication)) {
+                if (!this.inApplication.equals(foundApplication)) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("  DROP THE ROW,4, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.calleeApplication);
+                        logger.debug("  DROP THE ROW,4, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.inApplication);
                     }
                     return true;
                 }

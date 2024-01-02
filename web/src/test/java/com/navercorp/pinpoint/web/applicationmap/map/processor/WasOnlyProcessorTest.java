@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -47,7 +48,7 @@ public class WasOnlyProcessorTest {
 
         // When
         WasOnlyProcessor wasOnlyProcessor = new WasOnlyProcessor();
-        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
+        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
 
         // Then
         assertThat(filteredLinkDataMap.getLinkDataList()).isEmpty();
@@ -64,7 +65,7 @@ public class WasOnlyProcessorTest {
 
         // When
         WasOnlyProcessor wasOnlyProcessor = new WasOnlyProcessor();
-        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
+        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
 
         // Then
         assertThat(filteredLinkDataMap.getLinkDataList()).isEmpty();
@@ -81,7 +82,7 @@ public class WasOnlyProcessorTest {
 
         // When
         WasOnlyProcessor wasOnlyProcessor = new WasOnlyProcessor();
-        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
+        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
 
         // Then
         assertThat(filteredLinkDataMap.getLinkDataList()).isNotEmpty();
@@ -98,7 +99,7 @@ public class WasOnlyProcessorTest {
 
         // When
         WasOnlyProcessor wasOnlyProcessor = new WasOnlyProcessor();
-        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
+        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
 
         // Then
         assertThat(filteredLinkDataMap.getLinkDataList()).isNotEmpty();

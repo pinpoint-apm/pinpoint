@@ -99,7 +99,7 @@ public class LinkCallDataMap {
         return linkDataMap.values();
     }
 
-    public AgentHistogramList getTargetList() {
+    public AgentHistogramList getOutLinkList() {
         AgentHistogramList targetList = new AgentHistogramList();
         for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
@@ -110,7 +110,7 @@ public class LinkCallDataMap {
     }
 
 
-    public AgentHistogramList getSourceList() {
+    public AgentHistogramList getInLinkList() {
         AgentHistogramList sourceList = new AgentHistogramList();
         for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();

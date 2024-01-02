@@ -78,4 +78,13 @@ public class ApdexScore {
     public double getApdexScore() {
         return this.apdexScore;
     }
+
+
+    @Override
+    public String toString() {
+        return "ApdexScore{" +
+                "apdexScore=" + apdexScore +
+                ", apdexFormula=" + apdexFormula +
+                '}';
+    }
 }

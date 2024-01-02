@@ -46,7 +46,7 @@ public class LinkList {
     }
 
     /**
-     * find all callers of toApplication
+     * find all in links of toApplication
      * @param toApplication
      * @return
      */
@@ -56,7 +56,7 @@ public class LinkList {
         List<Link> findList = new ArrayList<>();
         for (Link link : linkMap.values()) {
             Node toNode = link.getTo();
-            // find all the callers of toApplication/destination
+            // find all the out link of toApplication/destination
             if (toNode.getApplication().equals(toApplication)) {
                 findList.add(link);
             }
@@ -65,7 +65,7 @@ public class LinkList {
     }
 
     /**
-     * find all callees of fromApplication
+     * find all out links of fromApplication
      * @param fromApplication
      * @return
      */

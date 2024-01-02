@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -46,7 +47,7 @@ public class SourceApplicationFilter implements LinkDataMapProcessor {
     }
 
     @Override
-    public LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range) {
+    public LinkDataMap processLinkDataMap(LinkDirection linkDirection, LinkDataMap linkDataMap, Range range) {
         final LinkDataMap filteredLinkDataMap = new LinkDataMap();
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             if (accept(linkData)) {

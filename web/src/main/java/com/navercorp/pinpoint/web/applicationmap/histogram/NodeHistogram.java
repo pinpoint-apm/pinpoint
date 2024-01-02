@@ -190,9 +190,7 @@ public class NodeHistogram {
         final Histogram applicationHistogram = new Histogram(this.application.getServiceType());
         for (ResponseTime responseTime : responseHistogram) {
             final Collection<TimeHistogram> histogramList = responseTime.getAgentResponseHistogramList();
-            for (Histogram histogram : histogramList) {
-                applicationHistogram.add(histogram);
-            }
+            applicationHistogram.addAll(histogramList);
         }
         return applicationHistogram;
     }

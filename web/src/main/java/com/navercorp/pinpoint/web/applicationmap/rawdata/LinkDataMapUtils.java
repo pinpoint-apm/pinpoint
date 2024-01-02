@@ -15,19 +15,13 @@
  *
  */
 
-package com.navercorp.pinpoint.web.applicationmap.map;
+package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.vo.Application;
+public final class LinkDataMapUtils {
+    private LinkDataMapUtils() {
+    }
 
-import java.util.List;
-
-/**
- * @author emeroad
- */
-public interface LinkSelector {
-    LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int outSearchDepth, int inSearchDepth);
-
-    LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int outSearchDepth, int inSearchDepth, boolean timeAggregated);
+    public static boolean hasLength(LinkDataMap linkDataMap) {
+        return linkDataMap != null && linkDataMap.size() > 0;
+    }
 }

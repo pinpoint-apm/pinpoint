@@ -96,24 +96,24 @@ public class MapServiceImpl implements MapService {
         logger.debug("SelectApplicationMap");
 
         StopWatch watch = new StopWatch("ApplicationMap");
-        watch.start("ApplicationMap Hbase Io Fetch(Caller,Callee) Time");
+        watch.start("ApplicationMap Hbase Io Fetch(Out,In) Time");
 
         final SearchOption searchOption = option.getSearchOption();
         LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
-        int callerSearchDepth = searchOption.getCallerSearchDepth();
-        int calleeSearchDepth = searchOption.getCalleeSearchDepth();
+        int outSearchDepth = searchOption.getOutSearchDepth();
+        int inSearchDepth = searchOption.getInSearchDepth();
         boolean timeAggregate = false;
         if (NodeType.SIMPLIFIED == option.getNodeType() && LinkType.SIMPLIFIED == option.getLinkType()) {
             timeAggregate = true;
         }
 
-        LinkDataMapProcessor callerLinkDataMapProcessor = LinkDataMapProcessor.NO_OP;
+        LinkDataMapProcessor outLinkProcessor = LinkDataMapProcessor.NO_OP;
         if (searchOption.isWasOnly()) {
-            callerLinkDataMapProcessor = new WasOnlyProcessor();
+            outLinkProcessor = new WasOnlyProcessor();
         }
-        LinkDataMapProcessor calleeLinkDataMapProcessor = LinkDataMapProcessor.NO_OP;
-        LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, callerLinkDataMapProcessor, calleeLinkDataMapProcessor);
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), option.getRange(), callerSearchDepth, calleeSearchDepth, timeAggregate);
+        LinkDataMapProcessor inLinkProcessor = LinkDataMapProcessor.NO_OP;
+        LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, outLinkProcessor, inLinkProcessor);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), option.getRange(), outSearchDepth, inSearchDepth, timeAggregate);
         watch.stop();
 
         if (linkDataLimiter.excess(linkDataDuplexMap.getTotalCount())) {

@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,22 +34,22 @@ public class LinkVisitChecker {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Set<Application> calleeFound = ConcurrentHashMap.newKeySet();
-    private final Set<Application> callerFound = ConcurrentHashMap.newKeySet();
+    private final Set<Application> outFound = ConcurrentHashMap.newKeySet();
+    private final Set<Application> inFound = ConcurrentHashMap.newKeySet();
 
-    public boolean visitCaller(Application caller) {
-        return visit(callerFound, caller, "Caller");
+    public boolean visitOut(Application out) {
+        return visit(outFound, out, LinkDirection.OUT_LINK);
     }
 
-    public boolean isVisitedCaller(Application caller) {
-        return callerFound.contains(caller);
+    public boolean isVisitedOut(Application in) {
+        return outFound.contains(in);
     }
 
-    public boolean visitCallee(Application callee) {
-        return visit(calleeFound, callee, "Callee");
+    public boolean visitIn(Application in) {
+        return visit(inFound, in, LinkDirection.IN_LINK);
     }
 
-    private boolean visit(Set<Application> visitedSet, Application application, String type) {
+    private boolean visit(Set<Application> visitedSet, Application application, LinkDirection type) {
         Objects.requireNonNull(visitedSet, "application");
 
         final boolean alreadyVisited = !visitedSet.add(application);

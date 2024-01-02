@@ -20,7 +20,11 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author emeroad
@@ -91,9 +95,7 @@ public class ResponseTime {
 
     public Histogram getApplicationResponseHistogram() {
         Histogram result = new Histogram(applicationServiceType);
-        for (Histogram histogram : responseHistogramMap.values()) {
-            result.add(histogram);
-        }
+        result.addAll(responseHistogramMap.values());
         return result;
     }
 
