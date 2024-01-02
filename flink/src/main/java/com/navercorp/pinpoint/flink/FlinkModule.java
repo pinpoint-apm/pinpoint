@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConf
 import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguration;
 import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
 import com.navercorp.pinpoint.flink.config.FlinkExecutorConfiguration;
+import com.navercorp.pinpoint.flink.config.PropertySourcesPlaceholderConfig;
 import com.navercorp.pinpoint.flink.dao.hbase.ApplicationDaoConfiguration;
 import com.navercorp.pinpoint.flink.hbase.Hbase2HadoopResourceCleanerRegistry;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -34,7 +35,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -42,26 +42,20 @@ import org.springframework.context.annotation.PropertySource;
 })
 @ImportResource({
         "classpath:applicationContext-flink.xml",
-
         "classpath:applicationContext-flink-extend.xml",
 })
 @Import({
+        PropertySourcesPlaceholderConfig.class,
         FlinkCacheConfiguration.class,
         ApplicationDaoConfiguration.class,
         FlinkExecutorConfiguration.class,
         HbaseClientConfiguration.class,
         HbaseTemplateConfiguration.class,
-
         ClusterConfigurationFactory.class,
         HbaseAsyncConfiguration.class,
         DistributorConfiguration.class,
 })
-@PropertySource(name = "FlinkModule", value = {
-        "classpath:profiles/${pinpoint.profiles.active:local}/hbase.properties",
-        "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-flink.properties"
-})
 public class FlinkModule {
-
     @Bean
     public HadoopResourceCleanerRegistry hbase2HadoopResourceCleanerRegistry() {
         return new Hbase2HadoopResourceCleanerRegistry();
