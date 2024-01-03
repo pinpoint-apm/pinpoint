@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.bootstrap.interceptor.registry;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -55,6 +55,17 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
             return LOGGING_INTERCEPTOR;
         } else {
             return interceptor;
+        }
+    }
+
+    @Override
+    public void clear() {
+        if (this.index != null) {
+            int length = index.length();
+            for (int i = 0; i < length; i++) {
+                Interceptor interceptor = index.get(0);
+                interceptor = null;
+            }
         }
     }
 }

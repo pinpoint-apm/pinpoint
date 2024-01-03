@@ -160,4 +160,12 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
 
         return findResources(name);
     }
+
+    @Override
+    public void clear() {
+        super.clear();
+        if (this.agentClassLoader != null) {
+            this.agentClassLoader.clear();
+        }
+    }
 }

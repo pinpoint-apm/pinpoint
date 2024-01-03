@@ -31,9 +31,11 @@ public class PluginTestAgentStarter {
     private InterceptorRegistryBinder interceptorRegistryBinder;
     private PluginTestVerifier pluginTestVerifier;
 
+    private DefaultApplicationContext applicationContext;
+
     public PluginTestAgentStarter(String configFile, ClassLoader classLoader) {
         final com.navercorp.pinpoint.profiler.test.MockApplicationContextFactory factory = new MockApplicationContextFactory();
-        final DefaultApplicationContext applicationContext = factory.build(configFile);
+        this.applicationContext = factory.build(configFile);
         this.mockInstrumentor = new MockInstrumentor(classLoader, applicationContext.getClassFileTransformer());
         this.interceptorRegistryBinder = applicationContext.getInterceptorRegistryBinder();
         this.pluginTestVerifier = new PluginVerifierExternalAdaptor(applicationContext);
@@ -61,6 +63,24 @@ public class PluginTestAgentStarter {
                 if (verify) {
                     pluginTestVerifier.cleanUp(manageTraceObject);
                     PluginTestVerifierHolder.setInstance(null);
+                }
+            }
+
+            @Override
+            public void clear() {
+                if (applicationContext != null) {
+                    applicationContext.close();
+                    applicationContext = null;
+                }
+                if (interceptorRegistryBinder.getInterceptorRegistryAdaptor() != null) {
+                    interceptorRegistryBinder.getInterceptorRegistryAdaptor().clear();
+                    interceptorRegistryBinder = null;
+                }
+                if (pluginTestVerifier != null) {
+                    pluginTestVerifier = null;
+                }
+                if (mockInstrumentor != null) {
+                    mockInstrumentor = null;
                 }
             }
         };

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.classloader.PluginTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.shared.ThreadFactory;
 
 import java.util.concurrent.Callable;
@@ -29,13 +30,13 @@ import java.util.concurrent.TimeoutException;
 public class DefaultPluginTestInstance implements PluginTestInstance {
 
     private String id;
-    private ClassLoader classLoader;
+    private PluginTestClassLoader classLoader;
     private Class<?> testClass;
     private boolean manageTraceObject;
     private PluginTestInstanceCallback callback;
     private ExecutorService executorService;
 
-    public DefaultPluginTestInstance(String id, ClassLoader classLoader, Class<?> testClass, boolean manageTraceObject, PluginTestInstanceCallback callback) {
+    public DefaultPluginTestInstance(String id, PluginTestClassLoader classLoader, Class<?> testClass, boolean manageTraceObject, PluginTestInstanceCallback callback) {
         this.id = id;
         this.classLoader = classLoader;
         this.testClass = testClass;
@@ -89,7 +90,16 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
 
     @Override
     public void clear() {
-        this.classLoader = null;
-        this.executorService.shutdown();
+        if (this.callback != null) {
+            this.callback.clear();
+            this.callback = null;
+        }
+        if (this.classLoader != null) {
+            this.classLoader.clear();
+            this.classLoader = null;
+        }
+        if (this.executorService != null) {
+            this.executorService.shutdownNow();
+        }
     }
 }

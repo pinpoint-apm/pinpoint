@@ -124,6 +124,16 @@ public class PluginTestClassLoader extends URLClassLoader {
         return findResources(name);
     }
 
+    public void clear() {
+        if (this.urls != null) {
+            this.urls = null;
+        }
+        try {
+            close();
+        } catch (IOException e) {
+        }
+    }
+
     @Override
     public String toString() {
         return "{" +
