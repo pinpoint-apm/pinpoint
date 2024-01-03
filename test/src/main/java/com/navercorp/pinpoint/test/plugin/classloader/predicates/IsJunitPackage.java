@@ -22,6 +22,7 @@ public class IsJunitPackage implements Predicate<String> {
     @Override
     public boolean test(String name) {
         return name.startsWith("org.junit.jupiter.")
-                || name.startsWith("org.mockito.");
+                || name.startsWith("org.mockito.")
+                || name.startsWith("com.intellij.");
     }
 }

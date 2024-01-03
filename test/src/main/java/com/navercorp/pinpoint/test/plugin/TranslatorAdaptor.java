@@ -19,4 +19,6 @@ package com.navercorp.pinpoint.test.plugin;
 public interface TranslatorAdaptor {
 
     byte[] transform(ClassLoader classLoader, String name, byte[] classfileBuffer) throws ClassNotFoundException;
+
+    void clear();
 }

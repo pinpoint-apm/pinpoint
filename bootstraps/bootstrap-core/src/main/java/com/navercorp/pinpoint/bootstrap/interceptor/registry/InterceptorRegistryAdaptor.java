@@ -9,4 +9,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 public interface InterceptorRegistryAdaptor {
     int addInterceptor(Interceptor interceptor);
     Interceptor getInterceptor(int key);
+
+    void clear();
 }

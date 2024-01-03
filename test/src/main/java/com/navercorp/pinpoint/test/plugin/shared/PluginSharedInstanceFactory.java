@@ -33,7 +33,7 @@ public class PluginSharedInstanceFactory {
             fileList.add(file);
         }
         final URL[] urls = URLUtils.fileToUrls(fileList);
-        final ClassLoader classLoader = new PluginTestSharedTestClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        final PluginTestSharedTestClassLoader classLoader = new PluginTestSharedTestClassLoader(urls, Thread.currentThread().getContextClassLoader());
 
         return new PluginSharedInstance(testClassName, sharedClassName, classLoader);
     }

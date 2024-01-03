@@ -41,4 +41,8 @@ public final class EmptyRegistryAdaptor implements InterceptorRegistryAdaptor {
     public Interceptor getInterceptor(int key) {
         return LOGGING_INTERCEPTOR;
     }
+
+    @Override
+    public void clear() {
+    }
 }

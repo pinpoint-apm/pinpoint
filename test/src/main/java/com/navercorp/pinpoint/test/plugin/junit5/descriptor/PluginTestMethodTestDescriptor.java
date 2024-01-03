@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test.plugin.junit5.descriptor;
 
-import com.navercorp.pinpoint.test.plugin.ExceptionReader;
 import com.navercorp.pinpoint.test.plugin.PluginTestInstance;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
@@ -27,7 +26,6 @@ import java.lang.reflect.Method;
 
 public class PluginTestMethodTestDescriptor extends TestMethodTestDescriptor {
 
-    private final ExceptionReader reader = new ExceptionReader();
     private final PluginTestInstance pluginTestInstance;
 
     public PluginTestMethodTestDescriptor(UniqueId uniqueId, Class<?> testClass, Method testMethod, JupiterConfiguration configuration, PluginTestInstance pluginTestInstance) {
@@ -48,4 +46,6 @@ public class PluginTestMethodTestDescriptor extends TestMethodTestDescriptor {
             return super.execute(context, dynamicTestExecutor);
         }, true);
     }
+
+
 }

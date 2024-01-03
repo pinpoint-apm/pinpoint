@@ -16,16 +16,18 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.test.plugin.classloader.PluginTestClassLoader;
+
 public class PluginSharedInstance {
 
     private String className;
     private String sharedClassName;
-    private ClassLoader classLoader;
+    private PluginTestClassLoader classLoader;
     private Class<?> sharedClass;
 
     Object object = null;
 
-    public PluginSharedInstance(String className, String sharedClassName, ClassLoader classLoader) {
+    public PluginSharedInstance(String className, String sharedClassName, PluginTestClassLoader classLoader) {
         this.className = className;
         this.sharedClassName = sharedClassName;
         this.classLoader = classLoader;
@@ -70,7 +72,11 @@ public class PluginSharedInstance {
     }
 
     public void clear() {
-        classLoader = null;
+        if (classLoader != null) {
+            classLoader.clear();
+            classLoader = null;
+        }
+
     }
 
     @Override
