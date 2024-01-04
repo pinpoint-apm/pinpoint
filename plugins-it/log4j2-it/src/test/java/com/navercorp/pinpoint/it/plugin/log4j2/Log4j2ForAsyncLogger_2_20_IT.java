@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmVersion(11)
-@Dependency({"org.apache.logging.log4j:log4j-core:[2.20,]", "com.lmax:disruptor:[3.4.4]"})
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.20,2.22]", "com.lmax:disruptor:[3.4.4]"})
 @JvmArgument({"-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector", "-DtestLoggerEnable=false"})
 public class Log4j2ForAsyncLogger_2_20_IT extends Log4j2TestBase {
 

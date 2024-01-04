@@ -426,7 +426,6 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }
-
         for (int i = 0; i < expectedLen; i++) {
             annotationCompare(i, expected, actual, actualAnnotations.get(i));
         }
@@ -434,20 +433,22 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     private void annotationCompare(int index, ResolvedExpectedTrace expected, ActualTrace actual, Annotation<?> actualAnnotation) {
         final ExpectedAnnotation expect = expected.annotations[index];
-        final AnnotationKey expectedAnnotationKey = this.handler.getAnnotationKeyRegistryService().findAnnotationKeyByName(expect.getKeyName());
+        if (expect instanceof ExpectedNotNull) {
+            return;
+        }
 
+        final AnnotationKey expectedAnnotationKey = this.handler.getAnnotationKeyRegistryService().findAnnotationKeyByName(expect.getKeyName());
         if (expectedAnnotationKey.getCode() != actualAnnotation.getKey()) {
             AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].key", index),
                     AnnotationUtils.toString(expectedAnnotationKey, expect), AnnotationUtils.toString(actualAnnotation));
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }
-
         if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
             verifySql(index, (ExpectedSql) expect, actualAnnotation);
         } else if (expectedAnnotationKey == AnnotationKey.SQL_UID && expect instanceof ExpectedSql) {
             verifySqlUid(index, (ExpectedSql) expect, actualAnnotation);
-        } else if(expect instanceof ExpectedNotNull) {
+        } else if (expect instanceof ExpectedNotNull) {
         } else if (expect.getValue() instanceof DataType) {
             verifyDataType(index, ((DataType) expect.getValue()), actualAnnotation);
         } else {

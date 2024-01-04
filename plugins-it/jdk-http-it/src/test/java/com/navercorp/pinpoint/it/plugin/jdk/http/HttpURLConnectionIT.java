@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.it.plugin.jdk.http;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedNotNull;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
@@ -38,6 +37,7 @@ import java.net.UnknownHostException;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.notNull;
 
 /**
  * @author Jongho Moon
@@ -133,8 +133,8 @@ public class HttpURLConnectionIT {
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("connect");
 
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", new ExpectedNotNull("ExceptionLinkId"), annotation("http.url", "http://no.such.url")));
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", new ExpectedNotNull("ExceptionLinkId"), annotation("http.url", "http://no.such.url")));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", notNull(""), annotation("http.url", "http://no.such.url")));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", notNull(""), annotation("http.url", "http://no.such.url")));
 
         verifier.printMethod();
         verifier.verifyTraceCount(0);

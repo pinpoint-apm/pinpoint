@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmVersion(11)
-@Dependency({"org.apache.logging.log4j:log4j-core:[2.20,]", PluginITConstants.VERSION})
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.20,2.22]", PluginITConstants.VERSION})
 @JvmArgument("-DtestLoggerEnable=false")
 @TransformInclude("org.apache.logging.log4j.")
 public class Log4j2_2_20_IT extends Log4j2TestBase {
