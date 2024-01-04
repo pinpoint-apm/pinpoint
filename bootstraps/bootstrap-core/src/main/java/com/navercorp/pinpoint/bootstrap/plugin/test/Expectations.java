@@ -174,6 +174,10 @@ public final class Expectations {
         return new ExpectedAnnotation(annotationKeyName, value);
     }
 
+    public static ExpectedNotNull notNull(String name) {
+        return new ExpectedNotNull(name);
+    }
+
     public static ExpectedAnnotation[] args(Object... args) {
         ExpectedAnnotation[] annotations = new ExpectedAnnotation[args.length];
 
