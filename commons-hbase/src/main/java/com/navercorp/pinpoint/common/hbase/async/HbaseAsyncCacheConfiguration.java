@@ -125,11 +125,12 @@ public class HbaseAsyncCacheConfiguration {
     public CacheManager hbaseAsyncBufferedMutatorManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         Caffeine<Object, Object> asyncBufferedMutator = Caffeine.newBuilder()
-                .expireAfterWrite(10, TimeUnit.SECONDS)
+                .expireAfterWrite(5, TimeUnit.MINUTES)
                 .initialCapacity(200)
                 .maximumSize(1000)
-                .removalListener(new RemovalListener<Object, Object>() {
+                .removalListener(new RemovalListener<>() {
                     private final Logger logger = LogManager.getLogger("com.navercorp.pinpoint.common.hbase.async.RemovalListener");
+
                     @Override
                     public void onRemoval(@Nullable Object key, @Nullable Object value, @NonNull RemovalCause cause) {
                         if (cause.wasEvicted()) {
@@ -139,7 +140,6 @@ public class HbaseAsyncCacheConfiguration {
                                     logger.debug("{} AsyncBufferedMutator close", key);
                                 }
                             }
-
                         }
                     }
                 });
