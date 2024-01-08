@@ -32,8 +32,8 @@ public class WebSocketSessionContext {
 
     static WebSocketSessionContext getSessionContext(WebSocketSession webSocketSession) {
         final Object context = webSocketSession.getAttributes().get(WEBSOCKET_SESSION_CONTEXT_KEY);
-        if (context instanceof WebSocketSessionContext) {
-            return (WebSocketSessionContext) context;
+        if (context instanceof WebSocketSessionContext sc) {
+            return sc;
         }
         return null;
     }

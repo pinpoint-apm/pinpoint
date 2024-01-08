@@ -79,10 +79,9 @@ public class SimpleOrderedThreadPool implements Executor {
     }
 
     private ExecutorService getChildExecutor(Runnable command) {
-        if (!(command instanceof HashSelector)) {
+        if (!(command instanceof HashSelector selector)) {
             throw new IllegalArgumentException("invalid HashSelector command");
         }
-        final HashSelector selector = (HashSelector) command;
         final int mod = mod(selector);
 
         return this.childExecutors[mod];

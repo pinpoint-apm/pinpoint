@@ -108,7 +108,7 @@ public class HbaseSchemaCommandManager {
         TableName tableName = TableName.valueOf(namespace, tableChange.getName());
 
         switch (changeType) {
-            case CREATE:
+            case CREATE -> {
                 if (tableCommandMap.containsKey(tableName)) {
                     throw new IllegalArgumentException("Cannot create an existing table : " + tableName);
                 }
@@ -116,16 +116,16 @@ public class HbaseSchemaCommandManager {
                 createTableCommand.applyConfiguration(tableChange.getTableConfiguration());
                 createTableCommand.applyColumnFamilyChanges(tableChange.getColumnFamilyChanges());
                 tableCommandMap.put(tableName, createTableCommand);
-                break;
-            case MODIFY:
+            }
+            case MODIFY -> {
                 TableCommand tableCommand = tableCommandMap.get(tableName);
                 if (tableCommand == null) {
                     throw new IllegalArgumentException("Cannot modify a non-existent table : " + tableName);
                 }
                 tableCommand.applyConfiguration(tableChange.getTableConfiguration());
                 tableCommand.applyColumnFamilyChanges(tableChange.getColumnFamilyChanges());
-                break;
-            default:
+            }
+            default ->
                 throw new UnsupportedOperationException("Invalid change type : " + changeType);
         }
         affectedTables.add(tableName);

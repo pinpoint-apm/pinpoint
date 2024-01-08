@@ -34,8 +34,8 @@ public class AgentEventMessageSerializerV1 {
         Objects.requireNonNull(agentEventType, "agentEventType");
 
 
-        if (eventMessage instanceof DeadlockBo) {
-            return serializeDeadlockBo((DeadlockBo) eventMessage);
+        if (eventMessage instanceof DeadlockBo deadlockBo) {
+            return serializeDeadlockBo(deadlockBo);
         }
 
         throw new IllegalArgumentException("Unsupported event message type [" + eventMessage.getClass().getName() + "]");

@@ -157,16 +157,13 @@ public class MetadataClientMock {
             return;
         }
 
-        if (message instanceof PSqlMetaData) {
-            PSqlMetaData sqlMetaData = (PSqlMetaData) message;
+        if (message instanceof PSqlMetaData sqlMetaData) {
             StreamObserver<PResult> responseObserver = newResponseObserver(message, retryCount);
             this.metadataStub.requestSqlMetaData(sqlMetaData, responseObserver);
-        } else if (message instanceof PApiMetaData) {
-            final PApiMetaData apiMetaData = (PApiMetaData) message;
+        } else if (message instanceof PApiMetaData apiMetaData) {
             StreamObserver<PResult> responseObserver = newResponseObserver(message, retryCount);
             this.metadataStub.requestApiMetaData(apiMetaData, responseObserver);
-        } else if (message instanceof PStringMetaData) {
-            final PStringMetaData stringMetaData = (PStringMetaData) message;
+        } else if (message instanceof PStringMetaData stringMetaData) {
             StreamObserver<PResult> responseObserver = newResponseObserver(message, retryCount);
             this.metadataStub.requestStringMetaData(stringMetaData, responseObserver);
         } else {

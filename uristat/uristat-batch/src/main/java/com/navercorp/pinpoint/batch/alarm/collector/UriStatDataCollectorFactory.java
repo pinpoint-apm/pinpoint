@@ -47,19 +47,13 @@ public class UriStatDataCollectorFactory {
             throw new IllegalArgumentException("checker not an instance of UriStatAlarmCheckers");
         }
 
-        switch (checker) {
-            case TOTAL_COUNT:
-                return new TotalCountDataCollector(tenantId, uriStatDao);
-            case FAILURE_COUNT:
-                return new FailureCountDataCollector(tenantId, uriStatDao);
-            case APDEX:
-                return new ApdexDataCollector(tenantId, uriStatDao);
-            case AVG_RESPONSE_MS:
-                return new AvgResponseDataCollector(tenantId, uriStatDao);
-            case MAX_RESPONES_MS:
-                return new MaxResponseDataCollector(tenantId, uriStatDao);
-        }
-
-        throw new IllegalArgumentException("unable to create DataCollector : " + checker);
+        return switch (checker) {
+            case TOTAL_COUNT -> new TotalCountDataCollector(tenantId, uriStatDao);
+            case FAILURE_COUNT -> new FailureCountDataCollector(tenantId, uriStatDao);
+            case APDEX -> new ApdexDataCollector(tenantId, uriStatDao);
+            case AVG_RESPONSE_MS -> new AvgResponseDataCollector(tenantId, uriStatDao);
+            case MAX_RESPONES_MS -> new MaxResponseDataCollector(tenantId, uriStatDao);
+            default -> throw new IllegalArgumentException("unable to create DataCollector : " + checker);
+        };
     }
 }

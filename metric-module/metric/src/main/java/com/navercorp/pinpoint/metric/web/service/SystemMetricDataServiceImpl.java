@@ -129,13 +129,11 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
             List<MetricTag> metricTagList = systemMetricHostInfoService.getTag(metricDataSearchKey, field, tags);
 
             for (MetricTag metricTag : metricTagList) {
-                switch (metricDataType) {
-                    case DOUBLE:
-                        Future<List<SystemMetricPoint<Double>>> doubleFuture = systemMetricDoubleDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
-                        invokeList.add(new QueryResult<>(metricDataType, doubleFuture, metricTag));
-                        break;
-                    default:
-                        throw new RuntimeException("No Such Metric");
+                if (MetricDataType.DOUBLE == metricDataType) {
+                    Future<List<SystemMetricPoint<Double>>> doubleFuture = systemMetricDoubleDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
+                    invokeList.add(new QueryResult<>(metricDataType, doubleFuture, metricTag));
+                } else {
+                    throw new RuntimeException("No Such Metric");
                 }
             }
         }
@@ -168,12 +166,10 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
 
     private List<MetricValueGroup<? extends Number>> groupingMetricValue(List<MetricValue<?>> metricValueList, GroupingRule groupingRule) {
-        switch (groupingRule) {
-            case TAG:
-                return groupingByTag(metricValueList);
-            default:
-                throw new UnsupportedOperationException("unsupported groupingRule :" + groupingRule);
+        if (GroupingRule.TAG == groupingRule) {
+            return groupingByTag(metricValueList);
         }
+        throw new UnsupportedOperationException("unsupported groupingRule :" + groupingRule);
     }
 
     private List<MetricValueGroup<? extends Number>> groupingByTag(List<MetricValue<? extends Number>> metricValueList) {

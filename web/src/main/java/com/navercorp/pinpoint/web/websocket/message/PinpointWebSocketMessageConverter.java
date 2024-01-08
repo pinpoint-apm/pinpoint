@@ -76,19 +76,14 @@ public class PinpointWebSocketMessageConverter {
 
         JsonNode type = root.path(TYPE);
         PinpointWebSocketMessageType messageType = PinpointWebSocketMessageType.getType(type.asText());
-        switch (messageType) {
-            case PING:
-                return new PingMessage();
-            case PONG:
-                return new PongMessage();
-            case REQUEST:
-                return readRequest(root);
-            case RESPONSE:
-                return readResponse(root);
-            case SEND:
-                return readSend(root);
-        }
-        return new UnknownMessage();
+        return switch (messageType) {
+            case PING -> new PingMessage();
+            case PONG -> new PongMessage();
+            case REQUEST -> readRequest(root);
+            case RESPONSE -> readResponse(root);
+            case SEND -> readSend(root);
+            default -> new UnknownMessage();
+        };
     }
 
     private PinpointWebSocketMessage readSend(JsonNode root) {

@@ -60,8 +60,8 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedM
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PApiMetaData) {
-            GeneratedMessageV3 result = handleApiMetaData((PApiMetaData) data);
+        if (data instanceof PApiMetaData apiMetaData) {
+            GeneratedMessageV3 result = handleApiMetaData(apiMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);

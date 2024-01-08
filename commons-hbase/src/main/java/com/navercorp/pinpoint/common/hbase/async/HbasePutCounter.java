@@ -61,8 +61,8 @@ public class HbasePutCounter implements HbasePutWriter {
             return future;
         } catch (Throwable throwable) {
             this.counter.opsReject();
-            if (throwable instanceof RuntimeException) {
-                throw (RuntimeException) throwable;
+            if (throwable instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             }
             throw new HbaseSystemException(throwable);
         }
@@ -80,8 +80,8 @@ public class HbasePutCounter implements HbasePutWriter {
             return futures;
         } catch (Throwable throwable) {
             this.counter.opsReject(puts.size());
-            if (throwable instanceof RuntimeException) {
-                throw (RuntimeException) throwable;
+            if (throwable instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             }
             throw new HbaseSystemException(throwable);
         }

@@ -26,12 +26,11 @@ public class PinpointErrorData {
         private static final String UNKNOWN = "UNKNOWN";
         private final String method;
         private final String url;
-        private  Map<String, List<String>> headers;
-        private  Map<String, String[]> parameters;
+        private final Map<String, List<String>> headers;
+        private final Map<String, String[]> parameters;
 
         public RequestInfo(WebRequest request) {
-            if (request instanceof ServletWebRequest) {
-                ServletWebRequest webRequest = (ServletWebRequest) request;
+            if (request instanceof ServletWebRequest webRequest) {
                 this.method = webRequest.getRequest().getMethod();
                 this.url = String.valueOf(webRequest.getRequest().getRequestURL());
                 this.headers = getRequestHeader(webRequest);

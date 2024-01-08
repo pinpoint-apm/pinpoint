@@ -53,14 +53,11 @@ public class SpanResponseConditionFilter implements Filter<SpanBo> {
     }
 
     private boolean hasError(SpanBo spanBo) {
-        switch (errorCheck) {
-            case SPAN:
-                return hasErrorSpan(spanBo);
-            case SPAN_AND_SPANEVENT:
-                return hasErrorSpan(spanBo) || hasErrorSpanEvent(spanBo);
-            default:
-                throw new IllegalStateException("unknown state:" + errorCheck);
-        }
+        return switch (errorCheck) {
+            case SPAN -> hasErrorSpan(spanBo);
+            case SPAN_AND_SPANEVENT -> hasErrorSpan(spanBo) || hasErrorSpanEvent(spanBo);
+            default -> throw new IllegalStateException("unknown state:" + errorCheck);
+        };
     }
 
     protected boolean hasErrorSpan(SpanBo span) {

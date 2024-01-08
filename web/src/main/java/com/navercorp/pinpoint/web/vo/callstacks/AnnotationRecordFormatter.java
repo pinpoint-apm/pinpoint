@@ -46,11 +46,10 @@ public class AnnotationRecordFormatter {
 
     public String formatTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, Align align) {
         if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
-            if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
+            if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue value)) {
                 return proxyRequestTypeRegistryService.unknown().getDisplayName();
             }
 
-            final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
             final ProxyRequestType type = this.proxyRequestTypeRegistryService.findByCode(value.getIntValue1());
             return type.getDisplayName(value.getStringValue());
         }
@@ -59,32 +58,27 @@ public class AnnotationRecordFormatter {
 
     String formatArguments(final AnnotationKey annotationKey, final AnnotationBo annotationBo, final Align align) {
         if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
-            if (annotationBo.getValue() instanceof LongIntIntByteByteStringValue) {
-                final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
+            if (annotationBo.getValue() instanceof LongIntIntByteByteStringValue value) {
                 return buildProxyHttpHeaderAnnotationArguments(value, align.getStartTime());
             } else {
                 return "Unsupported type(collector server needs to be upgraded)";
             }
         } else if (annotationKey.getCode() == AnnotationKey.HTTP_IO.getCode() || annotationKey.getCode() == AnnotationKey.REDIS_IO.getCode()) {
-            if (annotationBo.getValue() instanceof IntBooleanIntBooleanValue) {
-                final IntBooleanIntBooleanValue value = (IntBooleanIntBooleanValue) annotationBo.getValue();
+            if (annotationBo.getValue() instanceof IntBooleanIntBooleanValue value) {
                 return buildHttpIoArguments(value);
             }
         }
         // TODO complext-type formatting
         final Object value = annotationBo.getValue();
-        if (value instanceof StringStringValue) {
-            return formatStringStringValue((StringStringValue) value);
+        if (value instanceof StringStringValue stringStringValue) {
+            return formatStringStringValue(stringStringValue);
         }
 
         return Objects.toString(annotationBo.getValue(), "");
     }
 
     private String formatStringStringValue(StringStringValue value) {
-        StringBuilder sb = new StringBuilder(value.getStringValue1());
-        sb.append('=');
-        sb.append(value.getStringValue2());
-        return sb.toString();
+        return value.getStringValue1() + '=' + value.getStringValue2();
     }
 
     String buildProxyHttpHeaderAnnotationArguments(final LongIntIntByteByteStringValue value, final long startTimeMillis) {
@@ -117,7 +111,7 @@ public class AnnotationRecordFormatter {
     }
 
     private void appendComma(final StringBuilder buffer) {
-        if (buffer.length() > 0) {
+        if (!buffer.isEmpty()) {
             buffer.append(", ");
         }
     }

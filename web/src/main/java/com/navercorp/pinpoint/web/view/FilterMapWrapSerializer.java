@@ -44,8 +44,8 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
         jgen.writeObjectField("applicationMapData", wrap.getApplicationMap());
         jgen.writeNumberField("lastFetchedTimestamp", wrap.getLastFetchedTimestamp());
 
-        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterScanResult) {
-            final List<ApplicationScatterScanResult> applicationScatterScanResult = ((ApplicationMapWithScatterScanResult) wrap.getApplicationMap()).getApplicationScatterScanResultList();
+        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterScanResult applicationMap) {
+            final List<ApplicationScatterScanResult> applicationScatterScanResult = applicationMap.getApplicationScatterScanResultList();
 
             jgen.writeFieldName("applicationScatterScanResult");
             jgen.writeStartObject();
@@ -56,14 +56,13 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
             jgen.writeEndObject();
         }
 
-        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterData) {
-            Map<Application, ScatterData> applicationScatterDataMap = ((ApplicationMapWithScatterData) wrap.getApplicationMap()).getApplicationScatterDataMap();
+        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterData applicationMap) {
+            Map<Application, ScatterData> applicationScatterDataMap = applicationMap.getApplicationScatterDataMap();
 
             writeScatterData(jgen, applicationScatterDataMap);
         }
 
-        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterDataV3) {
-            ApplicationMapWithScatterDataV3 applicationMap = (ApplicationMapWithScatterDataV3) wrap.getApplicationMap();
+        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterDataV3 applicationMap) {
             Map<Application, ScatterData> applicationScatterDataMap = applicationMap.getApplicationScatterDataMap();
 
             writeScatterData(jgen, applicationScatterDataMap);

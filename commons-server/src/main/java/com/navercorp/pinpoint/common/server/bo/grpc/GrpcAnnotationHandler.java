@@ -60,8 +60,8 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
 
     @Override
     public Object buildCustomAnnotationValue(Object annotationValue) {
-        if (annotationValue instanceof ByteString) {
-            return ((ByteString) annotationValue).toByteArray();
+        if (annotationValue instanceof ByteString byteString) {
+            return byteString.toByteArray();
         } else if (annotationValue instanceof PIntStringValue) {
             return newIntStringValue(annotationValue);
         } else if (annotationValue instanceof PIntStringStringValue) {

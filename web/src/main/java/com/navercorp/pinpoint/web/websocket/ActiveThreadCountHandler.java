@@ -77,14 +77,9 @@ public abstract class ActiveThreadCountHandler extends TextWebSocketHandler impl
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(message.getPayload());
         PinpointWebSocketMessageType webSocketMessageType = webSocketMessage.getType();
         switch (webSocketMessageType) {
-            case REQUEST:
-                handleRequestMessage0(webSocketSession, (RequestMessage) webSocketMessage);
-                break;
-            case PONG:
-                handlePongMessage0(webSocketSession);
-                break;
-            default:
-                logger.warn("Unexpected WebSocketMessageType received. messageType:{}.", webSocketMessageType);
+            case REQUEST -> handleRequestMessage0(webSocketSession, (RequestMessage) webSocketMessage);
+            case PONG -> handlePongMessage0(webSocketSession);
+            default -> logger.warn("Unexpected WebSocketMessageType received. messageType:{}.", webSocketMessageType);
         }
 
         // this method will be checked socket status.

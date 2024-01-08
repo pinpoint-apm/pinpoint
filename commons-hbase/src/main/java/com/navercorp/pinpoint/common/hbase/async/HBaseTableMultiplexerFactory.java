@@ -103,8 +103,8 @@ public class HBaseTableMultiplexerFactory implements DisposableBean, FactoryBean
             final Field executorField = HTableMultiplexer.class.getDeclaredField("executor");
             executorField.setAccessible(true);
             final Object executorObj = executorField.get(this.hTableMultiplexer);
-            if (executorObj instanceof ExecutorService) {
-                ((ExecutorService) executorObj).shutdown();
+            if (executorObj instanceof ExecutorService executorService) {
+                executorService.shutdown();
             } else {
                 throw new RuntimeException("Invalid executorService");
             }

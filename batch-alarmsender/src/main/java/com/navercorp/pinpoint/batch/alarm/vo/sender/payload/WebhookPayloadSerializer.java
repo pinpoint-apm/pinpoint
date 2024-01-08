@@ -42,10 +42,10 @@ public class WebhookPayloadSerializer extends JsonSerializer<WebhookPayload> {
         
         jgen.writeStringField("unit", webhookPayload.getUnit());
         Number threshold = webhookPayload.getThreshold();
-        if (threshold instanceof Integer) {
-            jgen.writeNumberField("threshold", (Integer) threshold);
-        } else if (threshold instanceof BigDecimal){
-            jgen.writeNumberField("threshold", (BigDecimal) threshold);
+        if (threshold instanceof Integer integer) {
+            jgen.writeNumberField("threshold", integer);
+        } else if (threshold instanceof BigDecimal bigDecimal){
+            jgen.writeNumberField("threshold", bigDecimal);
         } else {
             throw new IOException("threshold type should be either Integer or BigDecimal");
         }

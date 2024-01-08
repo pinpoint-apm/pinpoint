@@ -47,8 +47,7 @@ public class DefaultAgentStatChartService<IN extends SampledAgentStatDataPoint, 
         Objects.requireNonNull(timeWindow, "timeWindow");
         List<IN> dataPoint = this.statDao.getSampledAgentStatList(agentId, timeWindow);
         for (IN in : dataPoint) {
-            if (in instanceof SampledJvmGc) {
-                SampledJvmGc sampledJvmGc = (SampledJvmGc) in;
+            if (in instanceof SampledJvmGc sampledJvmGc) {
                 System.out.println("### time: "+ new Date(sampledJvmGc.getGcOldCount().getXVal()) + " sampledJvmGc = " + sampledJvmGc.getGcOldCount().getSumYVal());
             }
         }

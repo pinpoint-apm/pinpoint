@@ -67,8 +67,8 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PSpan) {
-            handleSpan((PSpan) data);
+        if (data instanceof PSpan span) {
+            handleSpan(span);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
             throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();

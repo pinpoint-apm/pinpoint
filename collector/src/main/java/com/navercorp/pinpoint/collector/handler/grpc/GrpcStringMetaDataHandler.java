@@ -57,8 +57,8 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<Generat
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PStringMetaData) {
-            PResult result = handleStringMetaData((PStringMetaData) data);
+        if (data instanceof PStringMetaData stringMetaData) {
+            PResult result = handleStringMetaData(stringMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);

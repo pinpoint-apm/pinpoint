@@ -184,13 +184,13 @@ public class HBaseAdminTemplate implements HbaseAdminOperation {
         try {
             return action.doInAdmin(admin);
         } catch (Throwable e) {
-            if (e instanceof Error) {
-                throw (Error) e;
+            if (e instanceof Error error) {
+                throw error;
             }
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
+            if (e instanceof RuntimeException ex) {
+                throw ex;
             }
-            throw new HbaseSystemException((Exception) e);
+            throw new HbaseSystemException(e);
         } finally {
             adminFactory.releaseAdmin(admin);
         }

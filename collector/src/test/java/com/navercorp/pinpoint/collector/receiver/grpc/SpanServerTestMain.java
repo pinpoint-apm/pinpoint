@@ -140,8 +140,7 @@ public class SpanServerTestMain {
             }
 
             final GeneratedMessageV3 data = serverRequest.getData();
-            if (data instanceof PSpan) {
-                PSpan span = (PSpan) data;
+            if (data instanceof PSpan span) {
                 System.out.println("Dispatch send message " + span.getSpanId());
             } else {
                 System.out.println("Invalid send message " + serverRequest.getData());

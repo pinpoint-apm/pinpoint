@@ -33,6 +33,7 @@ import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import io.netty.handler.ssl.SslContext;
+import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanNameAware;
@@ -41,7 +42,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NestedExceptionUtils;
 
-import jakarta.annotation.Nonnull;
 import java.io.Closeable;
 import java.net.BindException;
 import java.util.ArrayList;
@@ -149,10 +149,10 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private void addService() {
         // Add service
         for (Object service : serviceList) {
-            if (service instanceof BindableService) {
-                this.serverFactory.addService((BindableService) service);
-            } else if (service instanceof ServerServiceDefinition) {
-                this.serverFactory.addService((ServerServiceDefinition) service);
+            if (service instanceof BindableService bindableService) {
+                this.serverFactory.addService(bindableService);
+            } else if (service instanceof ServerServiceDefinition serviceDefinition) {
+                this.serverFactory.addService(serviceDefinition);
             } else {
                 throw new IllegalStateException("unsupported service type " + service);
             }
@@ -195,8 +195,8 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         shutdownServer();
 
         for (Object bindableService : serviceList) {
-            if (bindableService instanceof Closeable) {
-                ((Closeable) bindableService).close();
+            if (bindableService instanceof Closeable closeable) {
+                closeable.close();
             }
         }
 

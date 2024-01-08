@@ -62,8 +62,8 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PAgentInfo) {
-            handleAgentInfo((PAgentInfo) data);
+        if (data instanceof PAgentInfo agentInfo) {
+            handleAgentInfo(agentInfo);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
             throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
@@ -73,8 +73,8 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PAgentInfo) {
-            final PResult result = handleAgentInfo((PAgentInfo) data);
+        if (data instanceof PAgentInfo agentInfo) {
+            final PResult result = handleAgentInfo(agentInfo);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);

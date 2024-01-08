@@ -84,8 +84,8 @@ class RedisStreamSubChannel implements SubChannel {
 
     @Override
     public void unsubscribe(Subscription subscription) {
-        if (subscription instanceof RedisStreamSubscription) {
-            unsubscribe((RedisStreamSubscription) subscription);
+        if (subscription instanceof RedisStreamSubscription redisStreamSubscription) {
+            unsubscribe(redisStreamSubscription);
         }
     }
 

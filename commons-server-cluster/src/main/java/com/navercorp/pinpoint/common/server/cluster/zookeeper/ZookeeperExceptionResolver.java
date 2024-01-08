@@ -38,29 +38,20 @@ public final class ZookeeperExceptionResolver {
     }
 
     public static PinpointZookeeperException resolve(Exception exception) {
-        if (exception instanceof KeeperException) {
-            KeeperException keeperException = (KeeperException) exception;
-            switch (keeperException.code()) {
-                case CONNECTIONLOSS:
-                case SESSIONEXPIRED:
-                    return new ConnectionException(keeperException.getMessage(), keeperException);
-                case AUTHFAILED:
-                case INVALIDACL:
-                case NOAUTH:
-                    return new AuthException(keeperException.getMessage(), keeperException);
-                case BADARGUMENTS:
-                case BADVERSION:
-                case NOCHILDRENFOREPHEMERALS:
-                case NOTEMPTY:
-                case NODEEXISTS:
-                    return new BadOperationException(keeperException.getMessage(), keeperException);
-                case NONODE:
-                    return new NoNodeException(keeperException.getMessage(), keeperException);
-                case OPERATIONTIMEOUT:
-                    return new TimeoutException(keeperException.getMessage(), keeperException);
-                default:
-                    return new UnknownException(keeperException.getMessage(), keeperException);
-            }
+        if (exception instanceof KeeperException keeperException) {
+            return switch (keeperException.code()) {
+                case CONNECTIONLOSS, SESSIONEXPIRED ->
+                        new ConnectionException(keeperException.getMessage(), keeperException);
+                case AUTHFAILED, INVALIDACL, NOAUTH ->
+                        new AuthException(keeperException.getMessage(), keeperException);
+                case BADARGUMENTS, BADVERSION, NOCHILDRENFOREPHEMERALS, NOTEMPTY, NODEEXISTS ->
+                        new BadOperationException(keeperException.getMessage(), keeperException);
+                case NONODE ->
+                        new NoNodeException(keeperException.getMessage(), keeperException);
+                case OPERATIONTIMEOUT ->
+                        new TimeoutException(keeperException.getMessage(), keeperException);
+                default -> new UnknownException(keeperException.getMessage(), keeperException);
+            };
         } else {
             return new UnknownException(exception.getMessage(), exception);
         }

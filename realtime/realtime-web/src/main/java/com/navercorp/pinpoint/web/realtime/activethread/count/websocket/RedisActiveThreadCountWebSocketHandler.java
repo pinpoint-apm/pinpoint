@@ -93,8 +93,8 @@ public class RedisActiveThreadCountWebSocketHandler {
 
         public static HandlerSession get(WebSocketSession wsSession) {
             Object t = wsSession.getAttributes().get(ATTR_KEY);
-            if (t instanceof HandlerSession) {
-                return (HandlerSession) t;
+            if (t instanceof HandlerSession handlerSession) {
+                return handlerSession;
             }
             return null;
         }

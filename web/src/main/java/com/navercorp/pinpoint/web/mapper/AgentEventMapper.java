@@ -43,7 +43,7 @@ public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        
+
         List<AgentEventBo> agentEvents = new ArrayList<>();
         for (Cell cell : result.rawCells()) {
             final int code = CellUtils.qualifierToInt(cell);
@@ -51,14 +51,13 @@ public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
             if (eventType == null) {
                 continue;
             }
-            
+
             byte[] value = CellUtil.cloneValue(cell);
             final Buffer buffer = new FixedBuffer(value);
-            
+
             final int version = buffer.readInt();
             switch (version) {
-                case 0 :
-                case 1 :
+                case 0, 1 -> {
                     final String agentId = buffer.readPrefixedString();
                     final long startTimestamp = buffer.readLong();
                     final long eventTimestamp = buffer.readLong();
@@ -66,12 +65,10 @@ public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
                     final AgentEventBo agentEvent = new AgentEventBo(version, agentId, startTimestamp, eventTimestamp, eventType);
                     agentEvent.setEventBody(eventMessage);
                     agentEvents.add(agentEvent);
-                    break;
-                default :
-                    break;
+                }
             }
         }
-        
+
         return agentEvents;
     }
 

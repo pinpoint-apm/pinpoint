@@ -840,13 +840,13 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     }
 
     private <T> T rethrowHbaseException(Throwable e) {
-        if (e instanceof RuntimeException) {
-            throw ((RuntimeException) e);
+        if (e instanceof RuntimeException ex) {
+            throw ex;
         }
-        if (e instanceof Error) {
-            throw ((Error) e);
+        if (e instanceof Error error) {
+            throw error;
         }
-        throw new HbaseSystemException((Exception) e);
+        throw new HbaseSystemException(e);
     }
 
 

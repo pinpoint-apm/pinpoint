@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.common.server.env;
 
 import com.navercorp.pinpoint.common.server.profile.PinpointProfileEnvironment;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -67,8 +67,8 @@ public class ExternalEnvironment {
 
     private String getString(Map<String, Object> systemEnvironment, String key) {
         final Object value = systemEnvironment.get(key);
-        if (value instanceof String) {
-            return (String) value;
+        if (value instanceof String strValue) {
+            return strValue;
         }
         return null;
     }

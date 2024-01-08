@@ -151,8 +151,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     }
 
     private static boolean isReady(StreamObserver<PPing> responseObserver) {
-        if (responseObserver instanceof ServerCallStreamObserver<?>) {
-            ServerCallStreamObserver<PPing> observer = (ServerCallStreamObserver<PPing>) responseObserver;
+        if (responseObserver instanceof ServerCallStreamObserver<?> observer) {
             return observer.isReady();
         }
         return true;

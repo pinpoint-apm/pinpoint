@@ -61,8 +61,8 @@ class RedisKVSubChannel implements SubChannel {
 
     @Override
     public void unsubscribe(Subscription subscription) {
-        if (subscription instanceof KVSubscription) {
-            unsubscribe0((KVSubscription) subscription);
+        if (subscription instanceof KVSubscription kvSubscription) {
+            unsubscribe0(kvSubscription);
         }
     }
 

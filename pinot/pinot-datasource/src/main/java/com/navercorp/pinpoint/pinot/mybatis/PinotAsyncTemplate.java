@@ -139,8 +139,8 @@ public class PinotAsyncTemplate {
     }
 
     private RuntimeException translateException(Throwable th) {
-        if (th instanceof PersistenceException) {
-            DataAccessException dataAccessException = exceptionTranslator.translateExceptionIfPossible((PersistenceException) th);
+        if (th instanceof PersistenceException persistenceException) {
+            DataAccessException dataAccessException = exceptionTranslator.translateExceptionIfPossible(persistenceException);
             if (dataAccessException != null) {
                 return dataAccessException;
             }

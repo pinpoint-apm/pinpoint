@@ -92,8 +92,7 @@ public class AgentServerTestMain {
         @Override
         public void dispatchRequestMessage(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
             System.out.println("Dispatch request message " + serverRequest + ", " + serverResponse);
-            if (serverRequest.getData() instanceof PApiMetaData) {
-                PApiMetaData apiMetaData = (PApiMetaData) serverRequest.getData();
+            if (serverRequest.getData() instanceof PApiMetaData apiMetaData) {
                 PResult result = PResult.newBuilder().setMessage(String.valueOf(apiMetaData.getApiId())).build();
                 serverResponse.write(result);
             } else {
