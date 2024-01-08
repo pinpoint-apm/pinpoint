@@ -35,34 +35,21 @@ public enum AgentState {
     private static final Set<AgentEventType> AGENT_EVENT_TYPE_SET = AgentEventType.getTypesByCategory(AgentEventTypeCategory.AGENT_LIFECYCLE);
 
     public static AgentState fromAgentLifeCycleState(AgentLifeCycleState state) {
-        switch (state) {
-            case RUNNING:
-                return RUNNING;
-            case SHUTDOWN:
-            case UNEXPECTED_SHUTDOWN:
-                return SHUTDOWN;
-            case DISCONNECTED:
-            case UNKNOWN:
-            default:
-                return UNKNOWN;
-        }
+        return switch (state) {
+            case RUNNING -> RUNNING;
+            case SHUTDOWN, UNEXPECTED_SHUTDOWN -> SHUTDOWN;
+            default -> UNKNOWN;
+        };
     }
 
     public static AgentState fromAgentEvent(AgentEvent agentEvent) {
         AgentEventType eventType = AgentEventType.getTypeByCode(agentEvent.getEventTypeCode());
         if (eventType != null && AGENT_EVENT_TYPE_SET.contains(eventType)) {
-            switch (eventType) {
-                case AGENT_CONNECTED:
-                case AGENT_PING:
-                    return RUNNING;
-                case AGENT_SHUTDOWN:
-                case AGENT_UNEXPECTED_SHUTDOWN:
-                    return SHUTDOWN;
-                case AGENT_CLOSED_BY_SERVER:
-                case AGENT_UNEXPECTED_CLOSE_BY_SERVER:
-                default:
-                    return UNKNOWN;
-            }
+            return switch (eventType) {
+                case AGENT_CONNECTED, AGENT_PING -> RUNNING;
+                case AGENT_SHUTDOWN, AGENT_UNEXPECTED_SHUTDOWN -> SHUTDOWN;
+                default -> UNKNOWN;
+            };
         } else {
             throw new IllegalArgumentException("agentEvent must be a life cycle event");
         }

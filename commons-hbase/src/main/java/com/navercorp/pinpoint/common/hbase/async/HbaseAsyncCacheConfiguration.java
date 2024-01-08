@@ -128,15 +128,14 @@ public class HbaseAsyncCacheConfiguration {
                 .expireAfterWrite(5, TimeUnit.MINUTES)
                 .initialCapacity(200)
                 .maximumSize(1000)
-                .removalListener(new RemovalListener<>() {
+                .removalListener(new RemovalListener<Object, Object>() {
                     private final Logger logger = LogManager.getLogger("com.navercorp.pinpoint.common.hbase.async.RemovalListener");
-
                     @Override
                     public void onRemoval(@Nullable Object key, @Nullable Object value, @NonNull RemovalCause cause) {
                         if (cause.wasEvicted()) {
                             if (value != null) {
-                                if (value instanceof Closeable) {
-                                    IOUtils.closeQuietly((Closeable) value);
+                                if (value instanceof Closeable closeable) {
+                                    IOUtils.closeQuietly(closeable);
                                     logger.debug("{} AsyncBufferedMutator close", key);
                                 }
                             }

@@ -27,23 +27,15 @@ import org.springframework.stereotype.Component;
 public class GrpcThreadStateMapper {
 
     public ThreadState map(final PThreadState threadState) {
-        switch (threadState) {
-            case THREAD_STATE_NEW:
-                return ThreadState.NEW;
-            case THREAD_STATE_RUNNABLE:
-                return ThreadState.RUNNABLE;
-            case THREAD_STATE_BLOCKED:
-                return ThreadState.BLOCKED;
-            case THREAD_STATE_WAITING:
-                return ThreadState.WAITING;
-            case THREAD_STATE_TIMED_WAITING:
-                return ThreadState.TIMED_WAITING;
-            case THREAD_STATE_TERMINATED:
-                return ThreadState.TERMINATED;
-            case THREAD_STATE_UNKNOWN:
-                return ThreadState.UNKNOWN;
-            default:
-                return ThreadState.UNKNOWN;
-        }
+        return switch (threadState) {
+            case THREAD_STATE_NEW -> ThreadState.NEW;
+            case THREAD_STATE_RUNNABLE -> ThreadState.RUNNABLE;
+            case THREAD_STATE_BLOCKED -> ThreadState.BLOCKED;
+            case THREAD_STATE_WAITING -> ThreadState.WAITING;
+            case THREAD_STATE_TIMED_WAITING -> ThreadState.TIMED_WAITING;
+            case THREAD_STATE_TERMINATED -> ThreadState.TERMINATED;
+            case THREAD_STATE_UNKNOWN -> ThreadState.UNKNOWN;
+            default -> ThreadState.UNKNOWN;
+        };
     }
 }

@@ -27,21 +27,14 @@ import org.springframework.stereotype.Component;
 public class GrpcJvmGcTypeMapper {
 
     public JvmGcType map(final PJvmGcType type) {
-        switch (type) {
-            case JVM_GC_TYPE_UNKNOWN:
-                return JvmGcType.UNKNOWN;
-            case JVM_GC_TYPE_SERIAL:
-                return JvmGcType.SERIAL;
-            case JVM_GC_TYPE_PARALLEL:
-                return JvmGcType.PARALLEL;
-            case JVM_GC_TYPE_CMS:
-                return JvmGcType.CMS;
-            case JVM_GC_TYPE_G1:
-                return JvmGcType.G1;
-            case JVM_GC_TYPE_ZGC:
-                return JvmGcType.ZGC;
-            default:
-                return JvmGcType.UNKNOWN;
-        }
+        return switch (type) {
+            case JVM_GC_TYPE_UNKNOWN -> JvmGcType.UNKNOWN;
+            case JVM_GC_TYPE_SERIAL -> JvmGcType.SERIAL;
+            case JVM_GC_TYPE_PARALLEL -> JvmGcType.PARALLEL;
+            case JVM_GC_TYPE_CMS -> JvmGcType.CMS;
+            case JVM_GC_TYPE_G1 -> JvmGcType.G1;
+            case JVM_GC_TYPE_ZGC -> JvmGcType.ZGC;
+            default -> JvmGcType.UNKNOWN;
+        };
     }
 }

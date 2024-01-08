@@ -66,11 +66,11 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PSqlMetaData) {
-            PResult result = handleSqlMetaData((PSqlMetaData) data);
+        if (data instanceof PSqlMetaData sqlMetaData) {
+            PResult result = handleSqlMetaData(sqlMetaData);
             serverResponse.write(result);
-        } else if (data instanceof PSqlUidMetaData) {
-            PResult result = handleSqlUidMetaData((PSqlUidMetaData) data);
+        } else if (data instanceof PSqlUidMetaData sqlUidMetaData) {
+            PResult result = handleSqlUidMetaData(sqlUidMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);

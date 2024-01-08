@@ -107,8 +107,8 @@ public class Hbase2HadoopResourceCleanerRegistry implements HadoopResourceCleane
         final Field sweeperField = AbstractRpcClient.class.getDeclaredField("IDLE_CONN_SWEEPER");
         sweeperField.setAccessible(true);
         final Object sweeperObj = sweeperField.get(null);
-        if (sweeperObj instanceof ExecutorService) {
-            return ((ExecutorService) sweeperObj);
+        if (sweeperObj instanceof ExecutorService executor) {
+            return executor;
         } else {
             throw new RuntimeException("idleConnSweeper not found");
         }
@@ -127,8 +127,8 @@ public class Hbase2HadoopResourceCleanerRegistry implements HadoopResourceCleane
         final Field wheelTimerField = AbstractRpcClient.class.getDeclaredField("WHEEL_TIMER");
         wheelTimerField.setAccessible(true);
         final Object wheelTimerObj = wheelTimerField.get(null);
-        if (wheelTimerObj instanceof HashedWheelTimer) {
-            return ((HashedWheelTimer) wheelTimerObj);
+        if (wheelTimerObj instanceof HashedWheelTimer timer) {
+            return timer;
         } else {
             throw new RuntimeException("wheelTimer not found");
         }

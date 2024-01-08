@@ -56,19 +56,19 @@ public class AgentEventSerializer extends JsonSerializer<AgentEvent> {
         if (agentEvent.getEventMessage() != null) {
             Object eventMessage = agentEvent.getEventMessage();
 
-            if (eventMessage instanceof TDeadlock) {
+            if (eventMessage instanceof TDeadlock deadlock) {
                 StringBuilder message = new StringBuilder();
 
-                List<TThreadDump> deadlockedThreadList = ((TDeadlock) eventMessage).getDeadlockedThreadList();
+                List<TThreadDump> deadlockedThreadList = deadlock.getDeadlockedThreadList();
 
                 for (TThreadDump threadDump : deadlockedThreadList) {
                     message.append(ThreadDumpUtils.createDumpMessage(threadDump));
                 }
 
                 jgen.writeObjectField("eventMessage", message.toString());
-            } else if (eventMessage instanceof DeadlockBo) {
+            } else if (eventMessage instanceof DeadlockBo deadlock) {
                 final StringBuilder message = new StringBuilder();
-                final List<ThreadDumpBo> threadDumpBoList = ((DeadlockBo) eventMessage).getThreadDumpBoList();
+                final List<ThreadDumpBo> threadDumpBoList = deadlock.getThreadDumpBoList();
                 for (ThreadDumpBo threadDump : threadDumpBoList) {
                     message.append(ThreadDumpUtils.createDumpMessage(threadDump));
                 }

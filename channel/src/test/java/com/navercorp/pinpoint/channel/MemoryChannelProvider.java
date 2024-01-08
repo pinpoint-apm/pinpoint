@@ -60,8 +60,8 @@ public class MemoryChannelProvider implements ChannelProvider {
 
         @Override
         public void unsubscribe(Subscription subscription) {
-            if (subscription instanceof MemChannelSubscription) {
-                this.consumers.remove(((MemChannelSubscription) subscription).getConsumer());
+            if (subscription instanceof MemChannelSubscription memSubscription) {
+                this.consumers.remove(memSubscription.getConsumer());
             } else {
                 throw new IllegalArgumentException("Illegal subscription");
             }

@@ -93,16 +93,12 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     public List<MetricTag> getTag(MetricDataSearchKey metricDataSearchKey, Field field, List<Tag> tags) {
         MatchingRule matchingRule = field.getMatchingRule();
 
-        switch (matchingRule) {
-            case EXACT_ONE:
-                return getExactMatchingTag(metricDataSearchKey, field);
-            case ANY_ONE:
-                return getAnyOneTag(metricDataSearchKey, field);
-            case PASSED_ALL :
-                return createTag(metricDataSearchKey, field, tags);
-            default :
-                throw new UnsupportedOperationException("unsupported matchingRule:" + matchingRule);
-        }
+        return switch (matchingRule) {
+            case EXACT_ONE -> getExactMatchingTag(metricDataSearchKey, field);
+            case ANY_ONE -> getAnyOneTag(metricDataSearchKey, field);
+            case PASSED_ALL -> createTag(metricDataSearchKey, field, tags);
+            default -> throw new UnsupportedOperationException("unsupported matchingRule:" + matchingRule);
+        };
     }
 
     private List<MetricTag> getAnyOneTag(MetricDataSearchKey metricDataSearchKey, Field field) {

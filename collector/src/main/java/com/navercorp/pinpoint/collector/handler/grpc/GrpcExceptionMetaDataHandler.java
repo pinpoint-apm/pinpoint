@@ -67,8 +67,8 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PExceptionMetaData) {
-            PResult result = handleExceptionMetaData((PExceptionMetaData) data);
+        if (data instanceof PExceptionMetaData exceptionMetaData) {
+            PResult result = handleExceptionMetaData(exceptionMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);

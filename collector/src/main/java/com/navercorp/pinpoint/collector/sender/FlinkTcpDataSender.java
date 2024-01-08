@@ -57,8 +57,7 @@ public class FlinkTcpDataSender extends TcpDataSender<TBase<?, ?>> {
     @Override
     protected void sendPacket(Object request) {
         try {
-            if (request instanceof FlinkRequest) {
-                FlinkRequest flinkRequest = (FlinkRequest)  request;
+            if (request instanceof FlinkRequest flinkRequest) {
                 byte[] copy = flinkHeaderTBaseSerializer.serialize(flinkRequest.getData(), flinkRequest.getHeaderEntity());
                 if (copy == null) {
                     return;

@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.flink;
 
 import com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import com.navercorp.pinpoint.flink.config.FlinkProperties;
 import com.navercorp.pinpoint.flink.dao.hbase.ApplicationMetricDao;
@@ -36,9 +37,9 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceCont
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -121,9 +122,9 @@ public class Bootstrap {
             }
             logger.info("Closing bootstrap: {}", instance);
             final ApplicationContext applicationContext = instance.getApplicationContext();
-            if (applicationContext instanceof ConfigurableApplicationContext) {
-                logger.info("Closing an instance of ConfigurableApplicationContext: {}", applicationContext);
-                ((ConfigurableApplicationContext) applicationContext).close();
+            if (applicationContext instanceof Closeable closeable) {
+                logger.info("Closing an instance of ApplicationContext: {}", applicationContext);
+                IOUtils.closeQuietly(closeable);
             } else {
                 logger.warn("Invalid type of applicationContext was found: {}", applicationContext);
             }

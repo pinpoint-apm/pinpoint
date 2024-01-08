@@ -36,17 +36,17 @@ public final class SecurityContextUtils {
 
     public static String getPrincipalName(String defaultValue) {
         final Object principal = getPrincipal(Object.class);
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
         }
-        if (principal instanceof AuthenticatedPrincipal) {
-            return ((AuthenticatedPrincipal) principal).getName();
+        if (principal instanceof AuthenticatedPrincipal authenticatedPrincipal) {
+            return authenticatedPrincipal.getName();
         }
-        if (principal instanceof Principal) {
-            return ((Principal) principal).getName();
+        if (principal instanceof Principal basicPrincipal) {
+            return basicPrincipal.getName();
         }
-        if (principal instanceof String) {
-            return (String) principal;
+        if (principal instanceof String stringPrincipal) {
+            return stringPrincipal;
         }
         return defaultValue;
     }

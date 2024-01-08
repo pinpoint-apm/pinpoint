@@ -426,8 +426,8 @@ public class SpanDecoderV0 implements SpanDecoder {
     private void setLocalAsyncId(BasicSpan basicSpan, Buffer buffer) {
         final LocalAsyncIdBo localAsyncIdBo = readQualifierLocalAsyncIdBo(buffer);
         if (localAsyncIdBo != null) {
-            if (basicSpan instanceof SpanChunkBo) {
-                ((SpanChunkBo) basicSpan).setLocalAsyncId(localAsyncIdBo);
+            if (basicSpan instanceof SpanChunkBo spanChunk) {
+                spanChunk.setLocalAsyncId(localAsyncIdBo);
             } else {
                 throw new IllegalStateException("decode error. unexpected span:" + basicSpan);
             }

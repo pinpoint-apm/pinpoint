@@ -57,18 +57,18 @@ public class AgentEventMessageSerializer {
                     + eventMessageType.getClass().getName() + "]");
         }
 
-        if (eventMessage instanceof TBase) {
+        if (eventMessage instanceof TBase tBaseEvent) {
             for (SerializerFactory serializerFactory : serializerFactoryList) {
                 if (serializerFactory.isSupport(eventMessage)) {
                     try {
-                        return SerializationUtils.serialize((TBase<?, ?>) eventMessage, serializerFactory);
+                        return SerializationUtils.serialize(tBaseEvent, serializerFactory);
                     } catch (TException e) {
                         throw new UnsupportedEncodingException(e.getMessage());
                     }
                 }
             }
-        } else if (eventMessage instanceof String) {
-            return BytesUtils.toBytes((String) eventMessage);
+        } else if (eventMessage instanceof String stringEvent) {
+            return BytesUtils.toBytes(stringEvent);
         }
         throw new UnsupportedEncodingException("Unsupported event message type [" + eventMessage.getClass().getName() + "]");
     }

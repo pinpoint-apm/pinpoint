@@ -240,14 +240,13 @@ public class HbaseSchemaCommandManagerTest {
 
     private TableChange newTableChange(ChangeType changeType, String tableName, ColumnFamilyChange... cfChanges) {
         List<ColumnFamilyChange> columnFamilyChanges = List.of(cfChanges);
-        switch (changeType) {
-            case CREATE:
-                return new CreateTableChange(tableName, TableConfiguration.EMPTY_CONFIGURATION, columnFamilyChanges, CreateTableChange.SplitOption.NONE);
-            case MODIFY:
-                return new ModifyTableChange(tableName, TableConfiguration.EMPTY_CONFIGURATION, columnFamilyChanges);
-            default:
-                throw new IllegalArgumentException("changeType : " + changeType + " not supported");
-        }
+        return switch (changeType) {
+            case CREATE ->
+                    new CreateTableChange(tableName, TableConfiguration.EMPTY_CONFIGURATION, columnFamilyChanges, CreateTableChange.SplitOption.NONE);
+            case MODIFY ->
+                    new ModifyTableChange(tableName, TableConfiguration.EMPTY_CONFIGURATION, columnFamilyChanges);
+            default -> throw new IllegalArgumentException("changeType : " + changeType + " not supported");
+        };
     }
 
     private ChangeSet newChangeSet(TableChange... tableChanges) {

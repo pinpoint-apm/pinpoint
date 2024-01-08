@@ -26,6 +26,7 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
@@ -37,7 +38,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -157,12 +157,8 @@ public class CollectorMetric {
     @PreDestroy
     private void shutdown() {
         for (Reporter reporter : reporterList) {
-            if (reporter instanceof Closeable) {
-                try {
-                    ((Closeable) reporter).close();
-                } catch (IOException ignored) {
-                    // ignore
-                }
+            if (reporter instanceof Closeable closeable) {
+                IOUtils.closeQuietly(closeable);
             }
         }
         reporterList = null;

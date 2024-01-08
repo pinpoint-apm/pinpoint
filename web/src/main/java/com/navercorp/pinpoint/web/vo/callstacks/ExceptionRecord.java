@@ -60,9 +60,8 @@ public class ExceptionRecord extends BaseRecord {
     long toExceptionChainId(List<AnnotationBo> annotationBoList) {
         for (AnnotationBo annotationBo : annotationBoList) {
             if (annotationBo.getKey() == AnnotationKey.EXCEPTION_CHAIN_ID.getCode()
-                    && annotationBo.getValue() instanceof Long
-            ) {
-                return (long) annotationBo.getValue();
+                    && annotationBo.getValue() instanceof Long longValue) {
+                return longValue;
             }
         }
         return -1;

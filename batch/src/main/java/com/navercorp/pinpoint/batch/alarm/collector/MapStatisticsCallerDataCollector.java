@@ -77,23 +77,23 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
 
         long count = 0;
         switch (dataCategory) {
-            case SLOW_COUNT:
+            case SLOW_COUNT -> {
                 for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
                     count += timeHistogram.getSlowCount();
                     count += timeHistogram.getVerySlowCount();
                 }
-                break;
-            case ERROR_COUNT:
+            }
+            case ERROR_COUNT -> {
                 for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
                     count += timeHistogram.getTotalErrorCount();
                 }
-                break;
-            case TOTAL_COUNT:
+            }
+            case TOTAL_COUNT -> {
                 for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
                     count += timeHistogram.getTotalCount();
                 }
-                break;
-            default:
+            }
+            default ->
                 throw new IllegalArgumentException("Can't count for " + dataCategory);
         }
 

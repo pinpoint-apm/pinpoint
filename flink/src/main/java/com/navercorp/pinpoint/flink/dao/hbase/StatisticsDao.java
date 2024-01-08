@@ -53,11 +53,11 @@ public class StatisticsDao extends RichSinkFunction<Tuple3<String, JoinStatBo, L
 
         try {
             JoinStatBo joinStatBo = statData.f1;
-            if (joinStatBo instanceof JoinAgentStatBo) {
+            if (joinStatBo instanceof JoinAgentStatBo joinAgentStatBo) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("JoinAgentStatBo insert data : {}", joinStatBo);
                 }
-                insertJoinAgentStatBo((JoinAgentStatBo) joinStatBo);
+                insertJoinAgentStatBo(joinAgentStatBo);
             } else if (joinStatBo instanceof JoinApplicationStatBo) {
 //            logger.info("JoinApplicationStatBo insert data : " + joinStatBo);
                 insertJoinApplicationStatBo((JoinApplicationStatBo) joinStatBo);

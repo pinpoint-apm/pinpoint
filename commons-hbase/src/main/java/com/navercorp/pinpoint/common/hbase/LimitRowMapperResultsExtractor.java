@@ -73,10 +73,10 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
         for (Result result : results) {
             final T t = this.rowMapper.mapRow(result, rowNum);
             lastResult = result;
-            if (t instanceof Collection) {
-                rowNum += ((Collection<?>) t).size();
-            } else if (t instanceof Map) {
-                rowNum += ((Map<?, ?>) t).size();
+            if (t instanceof Collection<?> collection) {
+                rowNum += collection.size();
+            } else if (t instanceof Map<?, ?> map) {
+                rowNum += map.size();
             } else if (t == null) {
                 // empty
             } else if (t.getClass().isArray()) {

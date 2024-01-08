@@ -96,13 +96,12 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
     private List<Tuple3<String, JoinStatBo, Long>> serverRequestFlatMap(TBase<?, ?> tBase) {
         List<Tuple3<String, JoinStatBo, Long>> outData = new ArrayList<>(5);
 
-        if (tBase instanceof TFAgentStatBatch) {
+        if (tBase instanceof TFAgentStatBatch tFAgentStatBatch) {
             if (logger.isDebugEnabled()) {
                 logger.debug("raw data : {}", tBase);
             }
 
             final long time = new Date().getTime() + 3600000;
-            final TFAgentStatBatch tFAgentStatBatch = (TFAgentStatBatch) tBase;
             final JoinAgentStatBo joinAgentStatBo;
             try {
                 joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);

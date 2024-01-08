@@ -78,36 +78,27 @@ public class NonWhiteLabelErrorController extends AbstractErrorController {
     }
 
     private boolean isIncludeStackTrace(HttpServletRequest request) {
-        switch (this.getErrorProperties().getIncludeStacktrace()) {
-            case ALWAYS:
-                return true;
-            case ON_PARAM:
-                return this.getTraceParameter(request);
-            default:
-                return false;
-        }
+        return switch (this.getErrorProperties().getIncludeStacktrace()) {
+            case ALWAYS -> true;
+            case ON_PARAM -> this.getTraceParameter(request);
+            default -> false;
+        };
     }
 
     private boolean isIncludeMessage(HttpServletRequest request) {
-        switch (this.getErrorProperties().getIncludeMessage()) {
-            case ALWAYS:
-                return true;
-            case ON_PARAM:
-                return this.getMessageParameter(request);
-            default:
-                return false;
-        }
+        return switch (this.getErrorProperties().getIncludeMessage()) {
+            case ALWAYS -> true;
+            case ON_PARAM -> this.getMessageParameter(request);
+            default -> false;
+        };
     }
 
     private boolean isIncludeBindingErrors(HttpServletRequest request) {
-        switch (this.getErrorProperties().getIncludeBindingErrors()) {
-            case ALWAYS:
-                return true;
-            case ON_PARAM:
-                return this.getErrorsParameter(request);
-            default:
-                return false;
-        }
+        return switch (this.getErrorProperties().getIncludeBindingErrors()) {
+            case ALWAYS -> true;
+            case ON_PARAM -> this.getErrorsParameter(request);
+            default -> false;
+        };
     }
 
     private ErrorProperties getErrorProperties() {

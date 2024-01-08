@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOpe
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPointList;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
-
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -93,8 +92,7 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
     }
 
     private boolean filter(T candidate) {
-        if (candidate instanceof AgentStatDataPointList) {
-            AgentStatDataPointList<AgentStatDataPoint> agentStatDataPointList = (AgentStatDataPointList) candidate;
+        if (candidate instanceof AgentStatDataPointList agentStatDataPointList) {
             List<AgentStatDataPoint> list = agentStatDataPointList.getList();
             for (AgentStatDataPoint agentStatDataPoint : list) {
                 long timestamp = agentStatDataPoint.getTimestamp();

@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,10 +69,10 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PAgentStat) {
-            handleAgentStat((PAgentStat) data);
-        } else if (data instanceof PAgentStatBatch) {
-            handleAgentStatBatch((PAgentStatBatch) data);
+        if (data instanceof PAgentStat agentStat) {
+            handleAgentStat(agentStat);
+        } else if (data instanceof PAgentStatBatch agentStatBatch) {
+            handleAgentStatBatch(agentStatBatch);
         } else if (data instanceof PAgentUriStat) {
             // do nothing
         } else {
@@ -127,8 +127,8 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
     }
 
     private Object getEventMessage(AgentEventBo agentEventBo) {
-        if (agentEventBo instanceof DeadlockEventBo) {
-            return ((DeadlockEventBo) agentEventBo).getDeadlockBo();
+        if (agentEventBo instanceof DeadlockEventBo deadlockEventBo) {
+            return deadlockEventBo.getDeadlockBo();
         }
         throw new IllegalArgumentException("unsupported message " + agentEventBo);
     }

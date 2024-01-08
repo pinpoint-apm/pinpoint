@@ -88,26 +88,24 @@ public class ZookeeperClusterManager {
 
     public void start() {
         switch (this.workerState.getCurrentState()) {
-            case NEW:
+            case NEW -> {
                 if (this.workerState.changeStateInitializing()) {
                     logger.info("{} initialization started.", this.getClass().getSimpleName());
                     this.workerThread.start();
 
                     workerState.changeStateStarted();
                     logger.info("{} initialization completed.", this.getClass().getSimpleName());
-                    break;
                 }
-            case INITIALIZING:
+            }
+            case INITIALIZING ->
                 logger.info("{} already initializing.", this.getClass().getSimpleName());
-                break;
-            case STARTED:
+            case STARTED ->
                 logger.info("{} already started.", this.getClass().getSimpleName());
-                break;
-            case DESTROYING:
+            case DESTROYING ->
                 throw new IllegalStateException("Already destroying.");
-            case STOPPED:
+            case STOPPED ->
                 throw new IllegalStateException("Already stopped.");
-            case ILLEGAL_STATE:
+            case ILLEGAL_STATE ->
                 throw new IllegalStateException("Invalid State.");
         }
     }
@@ -186,8 +184,8 @@ public class ZookeeperClusterManager {
                             retryMode.compareAndSet(true, false);
                         }
                     }
-                } else if (task instanceof GetAndRegisterTask) {
-                    boolean success = ((GetAndRegisterTask) task).handleAndRegisterWatcher0();
+                } else if (task instanceof GetAndRegisterTask registerTask) {
+                    boolean success = registerTask.handleAndRegisterWatcher0();
                     if (!success) {
                         retryMode.compareAndSet(false, true);
                     }

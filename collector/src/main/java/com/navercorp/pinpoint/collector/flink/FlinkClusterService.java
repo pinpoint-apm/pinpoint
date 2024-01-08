@@ -61,7 +61,7 @@ public class FlinkClusterService {
         }
 
         switch (this.serviceState.getCurrentState()) {
-            case NEW:
+            case NEW -> {
                 if (this.serviceState.changeStateInitializing()) {
                     logger.info("{} initialization started.", this.getClass().getSimpleName());
 
@@ -83,19 +83,12 @@ public class FlinkClusterService {
                         watcher.handleConnected();
                     }
                 }
-                break;
-            case INITIALIZING:
-                logger.info("{} already initializing.", this.getClass().getSimpleName());
-                break;
-            case STARTED:
-                logger.info("{} already started.", this.getClass().getSimpleName());
-                break;
-            case DESTROYING:
-                throw new IllegalStateException("Already destroying.");
-            case STOPPED:
-                throw new IllegalStateException("Already stopped.");
-            case ILLEGAL_STATE:
-                throw new IllegalStateException("Invalid State.");
+            }
+            case INITIALIZING -> logger.info("{} already initializing.", this.getClass().getSimpleName());
+            case STARTED -> logger.info("{} already started.", this.getClass().getSimpleName());
+            case DESTROYING -> throw new IllegalStateException("Already destroying.");
+            case STOPPED -> throw new IllegalStateException("Already stopped.");
+            case ILLEGAL_STATE -> throw new IllegalStateException("Invalid State.");
         }
     }
 

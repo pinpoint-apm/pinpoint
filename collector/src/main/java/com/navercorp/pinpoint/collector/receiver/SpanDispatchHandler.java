@@ -41,13 +41,11 @@ public class SpanDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
 
     private SimpleHandler<REQ> getSimpleHandler(Header header) {
         final short type = header.getType();
-        switch (type) {
-            case DefaultTBaseLocator.SPAN:
-                return spanDataHandler;
-            case DefaultTBaseLocator.SPANCHUNK:
-                return spanChunkHandler;
-        }
-        throw new UnsupportedOperationException("unsupported header:" + header);
+        return switch (type) {
+            case DefaultTBaseLocator.SPAN -> spanDataHandler;
+            case DefaultTBaseLocator.SPANCHUNK -> spanChunkHandler;
+            default -> throw new UnsupportedOperationException("unsupported header:" + header);
+        };
     }
 
     @Override

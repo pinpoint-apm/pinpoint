@@ -28,9 +28,8 @@ public class ChartTypeMappingBuilder<T> {
     }
 
     protected String getChartType(T service) {
-        if (service instanceof ChartTypeSupport) {
-            final ChartTypeSupport a = (ChartTypeSupport)service;
-            return a.getChartType();
+        if (service instanceof ChartTypeSupport chartTypeSupport) {
+            return chartTypeSupport.getChartType();
         }
         throw new RuntimeException("Unknown ChartTypeSupport " + service);
     }

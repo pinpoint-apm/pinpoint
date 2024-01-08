@@ -79,23 +79,25 @@ public class DataCollectorFactory {
         this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
     }
 
-    public DataCollector  createDataCollector(CheckerCategory checker, Application application, List<String> agentIds, long timeSlotEndTime) {
-        switch (checker.getDataCollectorCategory()) {
-            case RESPONSE_TIME:
-                return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-            case AGENT_STAT:
-                return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-            case AGENT_EVENT:
-                return new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, agentEventDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-            case CALLER_STAT:
-                return new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-            case DATA_SOURCE_STAT:
-                return new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, dataSourceDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-            case FILE_DESCRIPTOR:
-                return new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, fileDescriptorDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-        }
+    public DataCollector createDataCollector(CheckerCategory checker, Application application, List<String> agentIds, long timeSlotEndTime) {
+        return switch (checker.getDataCollectorCategory()) {
+            case RESPONSE_TIME ->
+                    new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case AGENT_STAT ->
+                    new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case AGENT_EVENT ->
+                    new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, agentEventDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case CALLER_STAT ->
+                    new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case DATA_SOURCE_STAT ->
+                    new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, dataSourceDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case FILE_DESCRIPTOR ->
+                    new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, fileDescriptorDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            default ->
+                    throw new IllegalArgumentException("unable to create DataCollector : " + checker.getName());
+        };
 
-        throw new IllegalArgumentException("unable to create DataCollector : " + checker.getName());
+
     }
 
 }

@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.trace.ParsedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderParser;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -70,9 +70,9 @@ public class TraceMetadataProviderYamlParser implements TraceMetadataProviderPar
             }
             return parsedTraceMetadata;
         } catch (IOException e) {
-            throw new IllegalStateException("Error opening stream : " + metaUrl.toString(), e);
+            throw new IllegalStateException("Error opening stream : " + metaUrl, e);
         } catch (YAMLException e) {
-            throw new IllegalStateException("Error parsing yml : " + metaUrl.toString(), e);
+            throw new IllegalStateException("Error parsing yml : " + metaUrl, e);
         } finally {
             if (inputStream != null) {
                 inputStream.close();

@@ -58,8 +58,8 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
     @Override
     public void afterConnectionEstablished(@Nonnull WebSocketSession session) throws Exception {
         try {
-            if (session instanceof StandardWebSocketSession) {
-                startLiveTail((StandardWebSocketSession) session);
+            if (session instanceof StandardWebSocketSession webSocketSession) {
+                startLiveTail(webSocketSession);
             } else {
                 logger.error("Failed to handle live-tail: session is not an instance of StandardWebSocketSession");
                 throw new RuntimeException("Failed to handle live-tail: session is not an instance of " +
@@ -106,8 +106,8 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
     private void stopLiveTail(@Nonnull WebSocketSession session) {
         logger.info("Stopping live-tail, session: {}", session);
         Object disposable = session.getAttributes().get(LIVE_TAIL_DISPOSABLE_ATTR);
-        if (disposable instanceof Disposable) {
-            ((Disposable) disposable).dispose();
+        if (disposable instanceof Disposable dis) {
+            dis.dispose();
         }
     }
 

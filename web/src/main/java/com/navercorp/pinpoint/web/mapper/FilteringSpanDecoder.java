@@ -42,8 +42,7 @@ public class FilteringSpanDecoder implements SpanDecoder {
     public Object decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
         final Object decodedObject = delegate.decode(qualifier, columnValue, decodingContext);
 
-        if (decodedObject instanceof SpanBo) {
-            final SpanBo spanBo = (SpanBo) decodedObject;
+        if (decodedObject instanceof SpanBo spanBo) {
             if (spanFilter.test(spanBo)) {
                 return spanBo;
             }

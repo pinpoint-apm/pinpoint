@@ -74,16 +74,14 @@ public final class ThreadDumpUtils {
 
             if (i == 0 && !StringUtils.isBlank(threadDump.getLockName())) {
                 switch (threadState) {
-                    case BLOCKED:
+                    case BLOCKED -> {
                         message.append(TAB_SEPARATOR + "-  blocked on ").append(threadDump.getLockName());
                         message.append(LINE_SEPARATOR);
-                        break;
-                    case WAITING:
-                    case TIMED_WAITING:
+                    }
+                    case WAITING, TIMED_WAITING -> {
                         message.append(TAB_SEPARATOR + "-  waiting on ").append(threadDump.getLockName());
                         message.append(LINE_SEPARATOR);
-                        break;
-                    default:
+                    }
                 }
             }
 
@@ -149,16 +147,16 @@ public final class ThreadDumpUtils {
 
             if (i == 0 && !StringUtils.isBlank(threadDump.getLockName())) {
                 switch (threadState) {
-                    case BLOCKED:
+                    case BLOCKED -> {
                         message.append(TAB_SEPARATOR + "-  blocked on ").append(threadDump.getLockName());
                         message.append(LINE_SEPARATOR);
-                        break;
-                    case WAITING:
-                    case TIMED_WAITING:
+                    }
+                    case WAITING, TIMED_WAITING -> {
                         message.append(TAB_SEPARATOR + "-  waiting on ").append(threadDump.getLockName());
                         message.append(LINE_SEPARATOR);
-                        break;
-                    default:
+                    }
+                    default -> {
+                    }
                 }
             }
 

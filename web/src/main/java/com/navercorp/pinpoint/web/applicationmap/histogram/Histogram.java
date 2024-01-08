@@ -216,34 +216,23 @@ public class Histogram implements StatisticsHistogram {
     public long getCount(SlotType slotType) {
         Objects.requireNonNull(slotType, "slotType");
 
-        switch (slotType) {
-            case FAST:
-                return fastCount;
-            case FAST_ERROR:
-                return fastErrorCount;
-            case NORMAL:
-                return normalCount;
-            case NORMAL_ERROR:
-                return normalErrorCount;
-            case SLOW:
-                return slowCount;
-            case SLOW_ERROR:
-                return slowErrorCount;
-            case VERY_SLOW:
-                return verySlowCount;
-            case VERY_SLOW_ERROR:
-                return verySlowErrorCount;
-            case ERROR:
+        return switch (slotType) {
+            case FAST -> fastCount;
+            case FAST_ERROR -> fastErrorCount;
+            case NORMAL -> normalCount;
+            case NORMAL_ERROR -> normalErrorCount;
+            case SLOW -> slowCount;
+            case SLOW_ERROR -> slowErrorCount;
+            case VERY_SLOW -> verySlowCount;
+            case VERY_SLOW_ERROR -> verySlowErrorCount;
+            case ERROR ->
                 // for backward compatibility.
-                return errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
-            case SUM_STAT:
-                return sumElapsed;
-            case MAX_STAT:
-                return maxElapsed;
-            case PING:
-                return pingCount;
-        }
-        throw new IllegalArgumentException("slotType:" + slotType);
+                    errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
+            case SUM_STAT -> sumElapsed;
+            case MAX_STAT -> maxElapsed;
+            case PING -> pingCount;
+            default -> throw new IllegalArgumentException("slotType:" + slotType);
+        };
     }
 
     public void addAll(final Collection<? extends Histogram> histograms) {
@@ -293,20 +282,20 @@ public class Histogram implements StatisticsHistogram {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Histogram{");
-        sb.append("schema=").append(schema);
-        sb.append(", fastCount=").append(fastCount);
-        sb.append(", normalCount=").append(normalCount);
-        sb.append(", slowCount=").append(slowCount);
-        sb.append(", verySlowCount=").append(verySlowCount);
-        sb.append(", errorCount=").append(errorCount);
-        sb.append(", fastErrorCount=").append(fastErrorCount);
-        sb.append(", normalErrorCount=").append(normalErrorCount);
-        sb.append(", slowErrorCount=").append(slowErrorCount);
-        sb.append(", verySlowErrorCount=").append(verySlowErrorCount);
-        sb.append(", sumElapsed=").append(sumElapsed);
-        sb.append(", maxElapsed=").append(maxElapsed);
-        sb.append('}');
-        return sb.toString();
+        return "Histogram{" +
+                "schema=" + schema +
+                ", fastCount=" + fastCount +
+                ", normalCount=" + normalCount +
+                ", slowCount=" + slowCount +
+                ", verySlowCount=" + verySlowCount +
+                ", errorCount=" + errorCount +
+                ", fastErrorCount=" + fastErrorCount +
+                ", normalErrorCount=" + normalErrorCount +
+                ", slowErrorCount=" + slowErrorCount +
+                ", verySlowErrorCount=" + verySlowErrorCount +
+                ", sumElapsed=" + sumElapsed +
+                ", maxElapsed=" + maxElapsed +
+                ", pingCount=" + pingCount +
+                '}';
     }
 }
