@@ -26,9 +26,9 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConf
 import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguration;
 import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
 import com.navercorp.pinpoint.flink.config.FlinkExecutorConfiguration;
-import com.navercorp.pinpoint.flink.config.PropertySourcesPlaceholderConfig;
 import com.navercorp.pinpoint.flink.dao.hbase.ApplicationDaoConfiguration;
 import com.navercorp.pinpoint.flink.hbase.Hbase2HadoopResourceCleanerRegistry;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -45,7 +45,7 @@ import org.springframework.context.annotation.ImportResource;
         "classpath:applicationContext-flink-extend.xml",
 })
 @Import({
-        PropertySourcesPlaceholderConfig.class,
+        PropertyPlaceholderAutoConfiguration.class,
         FlinkCacheConfiguration.class,
         ApplicationDaoConfiguration.class,
         FlinkExecutorConfiguration.class,
