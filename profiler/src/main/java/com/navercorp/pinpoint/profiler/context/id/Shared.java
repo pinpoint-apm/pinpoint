@@ -57,4 +57,5 @@ public interface Shared {
 
     String getHttpMethod();
 
+    int incrementAndGetSqlCount();
 }

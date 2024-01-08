@@ -63,9 +63,7 @@ public class PreparedStatementExecuteQueryInterceptor extends SpanEventSimpleAro
             databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
 
-        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
-        recorder.recordEndPoint(databaseInfo.getMultipleHost());
-        recorder.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordDatabaseInfo(databaseInfo, true);
 
         ParsingResult parsingResult = null;
         if (target instanceof ParsingResultAccessor) {

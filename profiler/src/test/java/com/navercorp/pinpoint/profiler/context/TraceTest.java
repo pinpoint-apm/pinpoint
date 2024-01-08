@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
@@ -64,6 +64,8 @@ public class TraceTest {
     private SqlMetaDataService sqlMetaDataService;
     @Mock
     private ExceptionRecordingService exceptionRecordingService;
+    @Mock
+    private SqlCountService sqlCountService;
 
     private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
 
@@ -77,7 +79,7 @@ public class TraceTest {
         final Span span = newSpan(traceRoot);
 
         SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService, sqlCountService);
         ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
 
         Storage storage = mock(Storage.class);
@@ -108,7 +110,7 @@ public class TraceTest {
         final Span span = newSpan(traceRoot);
 
         SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService, sqlCountService);
         ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
 
         Storage storage = mock(Storage.class);

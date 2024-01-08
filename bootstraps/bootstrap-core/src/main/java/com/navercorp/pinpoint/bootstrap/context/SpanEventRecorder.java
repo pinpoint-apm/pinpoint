@@ -45,6 +45,8 @@ public interface SpanEventRecorder extends AttributeRecorder, FrameAttachment {
 
     void recordSqlParsingResult(ParsingResult parsingResult, String bindValue);
 
+    void recordDatabaseInfo(DatabaseInfo databaseInfo, boolean executeQueryType);
+
     void recordServiceType(ServiceType serviceType);
 
     void recordDestinationId(String destinationId);

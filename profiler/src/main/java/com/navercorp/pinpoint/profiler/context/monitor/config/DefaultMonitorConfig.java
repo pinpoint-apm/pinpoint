@@ -37,6 +37,10 @@ public class DefaultMonitorConfig implements MonitorConfig {
 
     @Value("${profiler.sql.stat.enable}")
     private boolean sqlStatEnable = false;
+    @Value("${profiler.sql.error.enable}")
+    private boolean sqlErrorEnable = true;
+    @Value("${profiler.sql.error.count}")
+    private int sqlErrorCount = 100;
 
     @Value("${profiler.jvm.stat.collect.interval}")
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
@@ -86,6 +90,16 @@ public class DefaultMonitorConfig implements MonitorConfig {
     }
 
     @Override
+    public boolean isSqlErrorEnable() {
+        return sqlErrorEnable;
+    }
+
+    @Override
+    public int getSqlErrorCount() {
+        return sqlErrorCount;
+    }
+
+    @Override
     public int getCompletedUriStatDataLimitSize() {
         return completedUriStatDataLimitSize;
     }
@@ -98,6 +112,9 @@ public class DefaultMonitorConfig implements MonitorConfig {
                 ", uriStatEnable=" + uriStatEnable +
                 ", uriStatCollectHttpMethod=" + uriStatCollectHttpMethod +
                 ", completedUriStatDataLimitSize=" + completedUriStatDataLimitSize +
+                ", sqlStatEnable=" + sqlStatEnable +
+                ", sqlErrorEnable=" + sqlErrorEnable +
+                ", sqlErrorCount=" + sqlErrorCount +
                 ", profileJvmStatCollectIntervalMs=" + profileJvmStatCollectIntervalMs +
                 ", profileJvmStatBatchSendCount=" + profileJvmStatBatchSendCount +
                 ", profilerJvmStatCollectDetailedMetrics=" + profilerJvmStatCollectDetailedMetrics +

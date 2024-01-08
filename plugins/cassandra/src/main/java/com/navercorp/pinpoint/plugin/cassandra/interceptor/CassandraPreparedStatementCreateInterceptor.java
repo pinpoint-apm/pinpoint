@@ -46,9 +46,7 @@ public class CassandraPreparedStatementCreateInterceptor extends SpanEventSimple
             databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
 
-        recorder.recordServiceType(databaseInfo.getType());
-        recorder.recordEndPoint(databaseInfo.getMultipleHost());
-        recorder.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordDatabaseInfo(databaseInfo, false);
     }
 
     @Override
