@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.id;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
@@ -40,6 +41,9 @@ public class DefaultShared implements Shared {
     private static final AtomicReferenceFieldUpdater<DefaultShared, String> HTTP_METHODS_UPDATER
             = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "httpMethods");
 
+    private static final AtomicIntegerFieldUpdater<DefaultShared> SQL_COUNT_UPDATER
+            = AtomicIntegerFieldUpdater.newUpdater(DefaultShared.class, "sqlExecutionCount");
+
     private volatile int errorCode;
     private volatile byte loggingInfo;
 
@@ -56,6 +60,8 @@ public class DefaultShared implements Shared {
     private volatile String uriTemplate = null;
 
     private volatile String httpMethods = null;
+
+    private volatile int sqlExecutionCount = 0;
 
     @Override
     public void maskErrorCode(int errorCode) {
@@ -177,5 +183,10 @@ public class DefaultShared implements Shared {
     @Override
     public String getHttpMethod() {
         return httpMethods;
+    }
+
+    @Override
+    public int incrementAndGetSqlCount() {
+        return SQL_COUNT_UPDATER.incrementAndGet(this);
     }
 }

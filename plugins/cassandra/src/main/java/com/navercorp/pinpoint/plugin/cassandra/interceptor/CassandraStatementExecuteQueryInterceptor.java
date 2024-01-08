@@ -65,9 +65,7 @@ public class CassandraStatementExecuteQueryInterceptor extends SpanEventSimpleAr
             databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
 
-        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
-        recorder.recordEndPoint(databaseInfo.getMultipleHost());
-        recorder.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordDatabaseInfo(databaseInfo, true);
 
         String sql = retrieveSql(args[0]);
 

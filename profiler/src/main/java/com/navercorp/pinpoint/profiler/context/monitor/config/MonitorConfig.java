@@ -33,6 +33,10 @@ public interface MonitorConfig {
 
     boolean isSqlStatEnable();
 
+    boolean isSqlErrorEnable();
+
+    int getSqlErrorCount();
+
     int getCompletedUriStatDataLimitSize();
 
 }

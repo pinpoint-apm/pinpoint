@@ -53,10 +53,7 @@ public class DefaultSessionExecuteInterceptor extends SpanEventSimpleAroundInter
         if (databaseInfo == null) {
             databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
-
-        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
-        recorder.recordEndPoint(databaseInfo.getMultipleHost());
-        recorder.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordDatabaseInfo(databaseInfo, true);
 
         final Request request = ArrayArgumentUtils.getArgument(args, 0, Request.class);
         final String sql = retrieveSql(request);

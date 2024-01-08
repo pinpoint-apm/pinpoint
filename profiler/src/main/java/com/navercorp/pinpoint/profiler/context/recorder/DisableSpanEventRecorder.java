@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -87,6 +88,11 @@ public class DisableSpanEventRecorder implements SpanEventRecorder {
 
     @Override
     public void recordSqlParsingResult(ParsingResult parsingResult, String bindValue) {
+
+    }
+
+    @Override
+    public void recordDatabaseInfo(DatabaseInfo databaseInfo, boolean executeQueryType) {
 
     }
 

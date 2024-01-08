@@ -18,16 +18,18 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.SqlCountService;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -45,6 +47,7 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 public class WrappedSpanEventRecorderTest {
+    private WrappedSpanEventRecorder sut;
 
     @Mock
     private TraceRoot traceRoot;
@@ -64,20 +67,27 @@ public class WrappedSpanEventRecorderTest {
     @Mock
     private ExceptionRecordingService exceptionRecordingService;
 
+    @Mock
+    private SqlCountService sqlCountService;
+
     private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
+
+    @BeforeEach
+    void setUp() {
+        sut = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService, sqlCountService);
+    }
 
     @Test
     public void testSetExceptionInfo_RootMarkError() throws Exception {
         when(traceRoot.getShared()).thenReturn(shared);
 
         SpanEvent spanEvent = new SpanEvent();
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
         ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
-        recorder.setWrapped(spanEvent, exceptionContext);
+        sut.setWrapped(spanEvent, exceptionContext);
 
         final String exceptionMessage1 = "exceptionMessage1";
         final Exception exception1 = new Exception(exceptionMessage1);
-        recorder.recordException(false, exception1);
+        sut.recordException(false, exception1);
 
         Assertions.assertEquals(spanEvent.getExceptionInfo().getStringValue(), exceptionMessage1, "Exception recoding");
         verify(shared, never()).maskErrorCode(anyInt());
@@ -85,7 +95,7 @@ public class WrappedSpanEventRecorderTest {
 
         final String exceptionMessage2 = "exceptionMessage2";
         final Exception exception2 = new Exception(exceptionMessage2);
-        recorder.recordException(true, exception2);
+        sut.recordException(true, exception2);
 
         Assertions.assertEquals(spanEvent.getExceptionInfo().getStringValue(), exceptionMessage2, "Exception recoding");
         verify(shared, only()).maskErrorCode(1);
@@ -94,16 +104,13 @@ public class WrappedSpanEventRecorderTest {
     @Test
     public void testRecordAPIId() throws Exception {
         SpanEvent spanEvent = new SpanEvent();
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
         ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
-        recorder.setWrapped(spanEvent, exceptionContext);
+        sut.setWrapped(spanEvent, exceptionContext);
 
 
         final int API_ID = 1000;
-        recorder.recordApiId(API_ID);
+        sut.recordApiId(API_ID);
 
         Assertions.assertEquals(spanEvent.getApiId(), API_ID, "API ID");
     }
-
-
 }
