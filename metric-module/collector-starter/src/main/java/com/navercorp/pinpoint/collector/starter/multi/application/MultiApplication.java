@@ -1,5 +1,12 @@
 package com.navercorp.pinpoint.collector.starter.multi.application;
 
+import com.navercorp.pinpoint.collector.starter.multi.application.type.CollectorType;
+import com.navercorp.pinpoint.collector.starter.multi.application.type.CollectorTypeParser;
+import com.navercorp.pinpoint.collector.starter.multi.application.type.CollectorTypeSet;
+import com.navercorp.pinpoint.collector.starter.multi.application.type.FallbackCollectorTypeParser;
+import com.navercorp.pinpoint.collector.starter.multi.application.type.ShellBlockerConfig;
+import com.navercorp.pinpoint.collector.starter.multi.application.type.ShellCollectorTypeParser;
+import com.navercorp.pinpoint.collector.starter.multi.application.type.SimpleCollectorTypeParser;
 import com.navercorp.pinpoint.common.server.banner.PinpointSpringBanner;
 import com.navercorp.pinpoint.common.server.env.AdditionalProfileListener;
 import com.navercorp.pinpoint.common.server.env.EnvironmentLoggingListener;
@@ -9,10 +16,7 @@ import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorConfig;
 import com.navercorp.pinpoint.inspector.collector.InspectorCollectorApp;
 import com.navercorp.pinpoint.log.collector.LogCollectorModule;
-import com.navercorp.pinpoint.metric.collector.CollectorType;
-import com.navercorp.pinpoint.metric.collector.CollectorTypeParser;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
-import com.navercorp.pinpoint.metric.collector.TypeSet;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
@@ -25,6 +29,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoCo
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.shell.boot.ApplicationRunnerAutoConfiguration;
 
 import java.util.Arrays;
 
@@ -34,7 +39,8 @@ import java.util.Arrays;
         SpringDataWebAutoConfiguration.class,
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class,
-        RedisReactiveAutoConfiguration.class
+        RedisReactiveAutoConfiguration.class,
+        ApplicationRunnerAutoConfiguration.class,
 })
 public class MultiApplication {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(MultiApplication.class);
@@ -47,13 +53,16 @@ public class MultiApplication {
 
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
 
-        builder.sources(MultiApplication.class);
+        builder.sources(MultiApplication.class, ShellBlockerConfig.class);
         builder.listeners(new ProfileResolveListener());
 
 
-        CollectorTypeParser parser = new CollectorTypeParser();
-        TypeSet types = parser.parse(args);
-        logger.info(String.format("MultiApplication --%s=%s", CollectorTypeParser.COLLECTOR_TYPE_KEY, types));
+        CollectorTypeParser parser = new FallbackCollectorTypeParser(
+                new SimpleCollectorTypeParser(),
+                new ShellCollectorTypeParser()
+        );
+        CollectorTypeSet types = parser.parse(args);
+        logger.info(String.format("Collector type set: %s", types));
 
         if (types.hasType(CollectorType.BASIC_WITH_INSPECTOR)) {
             logger.info(String.format("Start %s collector", CollectorType.BASIC_WITH_INSPECTOR));
@@ -96,7 +105,7 @@ public class MultiApplication {
 
 
     private static SpringApplicationBuilder createAppBuilder(SpringApplicationBuilder builder, int port, Class<?>... appClass) {
-        SpringApplicationBuilder appBuilder = builder.child(appClass)
+        return builder.child(appClass)
                 .web(WebApplicationType.SERVLET)
                 .bannerMode(Banner.Mode.OFF)
                 .listeners(new ProfileResolveListener())
@@ -104,7 +113,6 @@ public class MultiApplication {
                 .listeners(new ExternalEnvironmentListener(EXTERNAL_PROPERTY_SOURCE_NAME, EXTERNAL_CONFIGURATION_KEY))
                 .listeners(new PinpointSpringBanner())
                 .properties(String.format("server.port:%1s", port));
-
-        return appBuilder;
     }
+
 }

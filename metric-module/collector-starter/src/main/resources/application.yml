@@ -4,6 +4,9 @@ spring:
 #    web-application-type: none
   profiles:
     active: local
+  shell:
+    history:
+      enabled: false
 
 pinpoint:
   modules:
