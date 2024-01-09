@@ -43,10 +43,6 @@ public class UriStatDataCollectorFactory {
     }
 
     private PinotDataCollector<? extends Number> createDataCollector(UriStatAlarmChecker checker) {
-        if (! (checker instanceof UriStatAlarmChecker)) {
-            throw new IllegalArgumentException("checker not an instance of UriStatAlarmCheckers");
-        }
-
         return switch (checker) {
             case TOTAL_COUNT -> new TotalCountDataCollector(tenantId, uriStatDao);
             case FAILURE_COUNT -> new FailureCountDataCollector(tenantId, uriStatDao);
