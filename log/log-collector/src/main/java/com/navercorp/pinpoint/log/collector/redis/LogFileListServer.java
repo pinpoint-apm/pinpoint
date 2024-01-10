@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.log.collector.redis;
 
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.PubChannel;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.log.collector.service.LogConsumerService;
 import com.navercorp.pinpoint.log.vo.FileKey;
@@ -94,7 +95,7 @@ class LogFileListServer implements InitializingBean {
         for (FileKey key: keys) {
             b.append(key).append("\r\n");
         }
-        this.pubChannel.publish(b.toString().getBytes());
+        this.pubChannel.publish(BytesUtils.toBytes(b.toString()));
         logger.trace("Broadcast {} log files", keys.size());
     }
 

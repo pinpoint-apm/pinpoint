@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.realtime.collector.service.state;
 
 import com.navercorp.pinpoint.channel.serde.Serde;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.realtime.vo.CollectorState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,7 +60,7 @@ class RedisCollectorStatePublisherService implements CollectorStatePublisherServ
     }
 
     private void publishBytes(byte[] bytes) {
-        String value = new String(bytes);
+        String value = BytesUtils.toString(bytes);
         this.redisTemplate.opsForValue().set(this.key, value);
         this.redisTemplate.expire(this.key, this.ttl);
     }

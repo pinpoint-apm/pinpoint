@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.channel.redis.kv;
 
 import com.navercorp.pinpoint.channel.PubChannel;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Objects;
@@ -38,7 +39,7 @@ class RedisKVPubChannel implements PubChannel {
 
     @Override
     public void publish(byte[] content) {
-        this.template.opsForValue().set(this.key, new String(content));
+        this.template.opsForValue().set(this.key, BytesUtils.toString(content));
         this.template.expire(this.key, expireMs, TimeUnit.MILLISECONDS);
     }
 

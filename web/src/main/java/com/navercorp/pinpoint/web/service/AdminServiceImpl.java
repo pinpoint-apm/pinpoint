@@ -101,7 +101,10 @@ public class AdminServiceImpl implements AdminService {
     private void waitOneMinute() {
         try {
             Thread.sleep(60000);
-        } catch (Exception ignored) {}
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted while waiting for retry", e);
+        }
     }
 
     private int removeInactiveAgentInApplication0(String applicationName, int durationDays) {

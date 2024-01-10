@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.channel.redis.stream;
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubConsumer;
 import com.navercorp.pinpoint.channel.Subscription;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -69,7 +70,8 @@ class RedisStreamSubChannel implements SubChannel {
                         Consumer.from(groupName, groupName),
                         StreamOffset.create(this.key, ReadOffset.lastConsumed()),
                         message -> {
-                            if (subConsumer.consume(message.getValue().get("content").getBytes())) {
+                            byte[] contents = BytesUtils.toBytes(message.getValue().get("content"));
+                            if (subConsumer.consume(contents)) {
                                 this.streamOps.acknowledge(groupName, message).block();
                             }
                         }

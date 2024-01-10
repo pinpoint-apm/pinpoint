@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.realtime.serde;
 
 import com.navercorp.pinpoint.channel.serde.Serde;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.realtime.vo.CollectorState;
 import com.navercorp.pinpoint.realtime.vo.ProfilerDescription;
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +40,7 @@ public class CollectorStateSerde implements Serde<CollectorState> {
     @Override
     @Nonnull
     public CollectorState deserialize(@Nonnull InputStream inputStream) throws IOException {
-        String[] profilerArray = new String(inputStream.readAllBytes()).split("\r\n");
+        String[] profilerArray = BytesUtils.toString(inputStream.readAllBytes()).split("\r\n");
         List<ProfilerDescription> profilers = new ArrayList<>(profilerArray.length);
         for (String key: profilerArray) {
             try {
@@ -53,8 +54,10 @@ public class CollectorStateSerde implements Serde<CollectorState> {
 
     @Override
     public void serialize(@Nonnull CollectorState state, @Nonnull OutputStream outputStream) throws IOException {
-        String serialized = state.getProfilers().stream().map(ProfilerDescription::toString).collect(Collectors.joining("\r\n"));
-        outputStream.write(serialized.getBytes());
+        String serialized = state.getProfilers().stream()
+                .map(ProfilerDescription::toString)
+                .collect(Collectors.joining("\r\n"));
+        outputStream.write(BytesUtils.toBytes(serialized));
     }
 
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.channel.redis.kv;
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubConsumer;
 import com.navercorp.pinpoint.channel.Subscription;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -92,7 +93,7 @@ class RedisKVSubChannel implements SubChannel {
         if (value == null) {
             return;
         }
-        byte[] bytes = value.getBytes();
+        byte[] bytes = BytesUtils.toBytes(value);
         for (SubConsumer consumer: this.getConsumers()) {
             consumer.consume(bytes);
         }
