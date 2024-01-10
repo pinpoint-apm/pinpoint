@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.PubChannel;
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubConsumer;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
@@ -102,7 +103,7 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
             try {
                 return responseToDemand(getProtocol().deserializeDemand(rawDemand));
             } catch (Exception e) {
-                throw new RuntimeException("Failed to supply for demand: " + new String(rawDemand), e);
+                throw new RuntimeException("Failed to supply for demand: " + BytesUtils.toString(rawDemand), e);
             }
         }
 
@@ -135,7 +136,7 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
             try {
                 return responseToDemand(getProtocol().deserializeDemand(rawDemand));
             } catch (Exception e) {
-                throw new RuntimeException("Failed to supply for demand: " + new String(rawDemand), e);
+                throw new RuntimeException("Failed to supply for demand: " + BytesUtils.toString(rawDemand), e);
             }
         }
 

@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -62,7 +63,7 @@ public class DockerTestUtils {
     }
 
     private static String readAll(InputStream is) {
-        return new BufferedReader(new InputStreamReader(is))
+        return new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
                 .lines()
                 .collect(Collectors.joining("\n"));
     }

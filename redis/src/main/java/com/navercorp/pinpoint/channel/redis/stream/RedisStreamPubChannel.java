@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.channel.redis.stream;
 
 import com.navercorp.pinpoint.channel.PubChannel;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.ReactiveStreamOperations;
 
@@ -40,7 +41,7 @@ class RedisStreamPubChannel implements PubChannel {
 
     @Override
     public void publish(byte[] bytes) {
-        final String content = new String(bytes);
+        final String content = BytesUtils.toString(bytes);
         final MapRecord<String, String, String> record =
                 MapRecord.create(this.key, Map.of(STREAM_RECORD_KEY, content));
         this.streamOps.add(record)

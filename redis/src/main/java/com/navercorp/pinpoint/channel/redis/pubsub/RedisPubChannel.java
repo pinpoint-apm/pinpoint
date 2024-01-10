@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.channel.redis.pubsub;
 
 import com.navercorp.pinpoint.channel.PubChannel;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 
 import java.util.Objects;
@@ -35,7 +36,7 @@ class RedisPubChannel implements PubChannel {
 
     @Override
     public void publish(byte[] bytes) {
-        final String content = new String(bytes);
+        final String content = BytesUtils.toString(bytes);
         this.redisTemplate.convertAndSend(this.key, content).subscribe();
     }
 

@@ -4,14 +4,12 @@ import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.banner.PinpointBanner;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
 public class PinpointBannerImpl extends PinpointBanner {
-    private BootLogger logger;
+    private final BootLogger logger;
     private Properties properties;
 
     public PinpointBannerImpl(List<String> keysToPrint, BootLogger logger) {
@@ -40,34 +38,29 @@ public class PinpointBannerImpl extends PinpointBanner {
             case OFF:
                 return;
             case LOG:
-                printBanner(logger);
+                logger.info(buildBannerString());
                 return;
             default:
-                printBanner(System.out);
+                System.out.println(buildBannerString());
                 return;
         }
     }
 
-    private void printBanner(PrintStream out) {
+    private String buildBannerString() {
+        StringBuilder sb = new StringBuilder();
         for (String line : BANNER) {
-            out.println(line);
+            sb.append(line).append(System.lineSeparator());
         }
-        out.println(format("Pinpoint Version", Version.VERSION));
+        sb.append(format("Pinpoint Version", Version.VERSION)).append(System.lineSeparator());
 
         for (String key: keysToPrint) {
             String value = properties.getProperty(key);
             if ( value != null ) {
-                out.println(format(key, value));
+                sb.append(format(key, value)).append('\n');
             }
         }
 
-        out.println();
+        return sb.toString();
     }
 
-    private void printBanner(BootLogger logger) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(outputStream);
-        printBanner(ps);
-        logger.info(outputStream.toString());
-    }
 }

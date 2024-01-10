@@ -19,21 +19,32 @@ package com.navercorp.pinpoint.it.plugin.utils;
 import com.navercorp.pinpoint.common.util.IOUtils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class StdoutRecorder {
 
     public String record(Runnable runnable) {
+        try {
+            return record0(runnable);
+        } catch (UnsupportedEncodingException e) {
+            // UTF-8 is actually guaranteed to be supported by the JVM
+            throw new RuntimeException("Unsupported charset: utf-8", e);
+        }
+    }
+
+    public String record0(Runnable runnable) throws UnsupportedEncodingException {
         Objects.requireNonNull(runnable, "runnable");
 
         final PrintStream originalOut = System.out;
 
-        final OutputStream stream = new ByteArrayOutputStream();
-        final PrintStream printStream = new PrintStream(stream);
+        final StringOutputStream stream = new StringOutputStream();
+        final PrintStream printStream = new PrintStream(stream, false, StandardCharsets.UTF_8.name());
 
         System.setOut(printStream);
+
         try {
             runnable.run();
             return stream.toString();
@@ -41,6 +52,13 @@ public class StdoutRecorder {
             System.setOut(originalOut);
             IOUtils.closeQuietly(printStream);
             IOUtils.closeQuietly(stream);
+        }
+    }
+
+    private static class StringOutputStream extends ByteArrayOutputStream {
+        @Override
+        public synchronized String toString() {
+            return new String(this.buf, 0, this.count, StandardCharsets.UTF_8);
         }
     }
 
