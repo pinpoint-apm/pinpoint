@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
 import org.springframework.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -28,12 +31,8 @@ public class SearchOption {
     private final LinkSelectorType linkSelectorType;
     private final boolean wasOnly;
 
-    public SearchOption(int outSearchDepth, int inSearchDepth) {
-        this(outSearchDepth, inSearchDepth, false, false);
-    }
-
     public SearchOption(int outSearchDepth, int inSearchDepth, boolean bidirectional, boolean wasOnly) {
-        this(outSearchDepth, inSearchDepth, bidirectional ? LinkSelectorType.BIDIRECTIONAL : LinkSelectorType.UNIDIRECTIONAL, wasOnly);
+        this(outSearchDepth, inSearchDepth, LinkSelectorType.ofBidirectional(bidirectional), wasOnly);
     }
 
     public SearchOption(int outSearchDepth, int inSearchDepth, LinkSelectorType linkSelectorType, boolean wasOnly) {
@@ -41,9 +40,40 @@ public class SearchOption {
         Assert.isTrue(inSearchDepth >= 0, "negative inSearchDepth");
         this.outSearchDepth = outSearchDepth;
         this.inSearchDepth = inSearchDepth;
-        this.linkSelectorType = linkSelectorType;
+        this.linkSelectorType = Objects.requireNonNull(linkSelectorType, "linkSelectorType");
         this.wasOnly = wasOnly;
     }
+
+    public static Builder newBuilder(int maxDepth) {
+        return new Builder(maxDepth);
+    }
+
+    public static class Builder {
+        private final int maxDepth;
+
+        private Builder(int maxDepth) {
+            this.maxDepth = maxDepth;
+        }
+
+        public SearchOption build(int outSearchDepth, int inSearchDepth, boolean bidirectional, boolean wasOnly) {
+            assertSearchDepth(outSearchDepth, LinkDirection.OUT_LINK);
+            assertSearchDepth(inSearchDepth, LinkDirection.IN_LINK);
+
+            LinkSelectorType selectorType = LinkSelectorType.ofBidirectional(bidirectional);
+            return new SearchOption(outSearchDepth, inSearchDepth, selectorType, wasOnly);
+        }
+
+
+        private void assertSearchDepth(int depth, LinkDirection direction) {
+            if (depth < 0) {
+                throw new IllegalArgumentException("negative " + direction);
+            }
+            if (depth > maxDepth) {
+                throw new IllegalArgumentException(direction + " too large");
+            }
+        }
+    }
+
 
     public int getOutSearchDepth() {
         return outSearchDepth;

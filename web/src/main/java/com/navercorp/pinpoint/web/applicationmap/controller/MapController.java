@@ -72,8 +72,8 @@ public class MapController {
     private final Limiter dateLimit;
     private final ApplicationFactory applicationFactory;
 
-    private static final String DEFAULT_SEARCH_DEPTH = "8";
-    private static final int DEFAULT_MAX_SEARCH_DEPTH = 8;
+    private static final String DEFAULT_SEARCH_DEPTH = "4";
+    private static final int DEFAULT_MAX_SEARCH_DEPTH = 4;
 
     public MapController(
             MapService mapService,
@@ -86,6 +86,10 @@ public class MapController {
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         this.dateLimit = Objects.requireNonNull(dateLimit, "dateLimit");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+    }
+
+    private SearchOption.Builder searchOptionBuilder() {
+        return SearchOption.newBuilder(DEFAULT_MAX_SEARCH_DEPTH);
     }
 
     /**
@@ -113,8 +117,7 @@ public class MapController {
         final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
-        final SearchOption searchOption = new SearchOption(outDepth, inDepth, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
+        final SearchOption searchOption = searchOptionBuilder().build(outDepth, inDepth, bidirectional, wasOnly);
 
         final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
@@ -151,8 +154,7 @@ public class MapController {
         final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
-        final SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
+        final SearchOption searchOption = searchOptionBuilder().build(callerRange, calleeRange, bidirectional, wasOnly);
 
         final Application application =
                 applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
@@ -196,8 +198,7 @@ public class MapController {
         final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
-        final SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
+        final SearchOption searchOption = searchOptionBuilder().build(callerRange, calleeRange, bidirectional, wasOnly);
 
         final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
@@ -239,8 +240,7 @@ public class MapController {
         final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
-        final SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
+        final SearchOption searchOption = searchOptionBuilder().build(callerRange, calleeRange, bidirectional, wasOnly);
 
         final Application application =
                 applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
@@ -268,23 +268,6 @@ public class MapController {
             return new MapWrap(map, TimeHistogramFormat.V2);
         }
         return new MapWrap(map, TimeHistogramFormat.V1);
-    }
-
-    private static void assertSearchOption(SearchOption searchOption) {
-        final int outSearchDepth = searchOption.getOutSearchDepth();
-        assertSearchDepth(outSearchDepth, "invalid out depth: " + outSearchDepth);
-
-        final int inSearchDepth = searchOption.getInSearchDepth();
-        assertSearchDepth(inSearchDepth, "invalid in depth: " + inSearchDepth);
-    }
-
-    private static void assertSearchDepth(int depth, String message) {
-        if (depth < 0) {
-            throw new IllegalArgumentException(message);
-        }
-        if (depth > DEFAULT_MAX_SEARCH_DEPTH) {
-            throw new IllegalArgumentException(message);
-        }
     }
 
     @GetMapping(value = "/getResponseTimeHistogramData", params = "serviceTypeName")
@@ -457,8 +440,7 @@ public class MapController {
         this.dateLimit.limit(range);
 
         final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
+        SearchOption searchOption = searchOptionBuilder().build(callerRange, calleeRange, bidirectional, wasOnly);
 
         final MapServiceOption mapServiceOption = new MapServiceOption
                 .Builder(application, range, searchOption)
@@ -488,8 +470,7 @@ public class MapController {
         this.dateLimit.limit(range);
 
         final Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
+        SearchOption searchOption = searchOptionBuilder().build(callerRange, calleeRange, bidirectional, wasOnly);
 
         final MapServiceOption mapServiceOption = new MapServiceOption
                 .Builder(application, range, searchOption)
