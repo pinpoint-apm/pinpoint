@@ -17,14 +17,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
@@ -93,11 +93,12 @@ public class MapController {
      *
      * @param applicationName applicationName
      * @param serviceTypeCode serviceTypeCode
-     * @param from from (timestamp)
-     * @param to to (timestamp)
+     * @param from            from (timestamp)
+     * @param to              to (timestamp)
      * @return MapWrap
      */
     @GetMapping(value = "/getServerMapData", params = "serviceTypeCode")
+    @JsonView(MapViews.Detailed.class)
     public MapWrap getServerMapData(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -117,9 +118,12 @@ public class MapController {
 
         final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(
-                application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED, false, false
-        );
+        final MapServiceOption option = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setUseStatisticsAgentState(false)
+                .build();
+
+        return selectApplicationMap(application, option, false);
     }
 
     /**
@@ -127,11 +131,12 @@ public class MapController {
      *
      * @param applicationName applicationName
      * @param serviceTypeName serviceTypeName
-     * @param from from (timestamp)
-     * @param to to (timestamp)
+     * @param from            from (timestamp)
+     * @param to              to (timestamp)
      * @return MapWrap
      */
     @GetMapping(value = "/getServerMapData", params = "serviceTypeName")
+    @JsonView(MapViews.Detailed.class)
     public MapWrap getServerMapData(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
@@ -152,21 +157,26 @@ public class MapController {
         final Application application =
                 applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return selectApplicationMap(
-                application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED, false, false
-        );
+        final MapServiceOption option = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setUseStatisticsAgentState(false)
+                .build();
+
+        return selectApplicationMap(application, option, false);
     }
+
 
     /**
      * Server map data query within from ~ to timeframe
      *
      * @param applicationName applicationName
      * @param serviceTypeCode serviceTypeCode
-     * @param from from (timestamp)
-     * @param to to (timestamp)
+     * @param from            from (timestamp)
+     * @param to              to (timestamp)
      * @return MapWrap
      */
     @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeCode")
+    @JsonView(MapViews.Basic.class)
     public MapWrap getServerMapDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -191,15 +201,12 @@ public class MapController {
 
         final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(
-                application,
-                range,
-                searchOption,
-                NodeType.BASIC,
-                LinkType.BASIC,
-                useStatisticsAgentState,
-                useLoadHistogramFormat
-        );
+        final MapServiceOption option = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        return selectApplicationMap(application, option, useLoadHistogramFormat);
     }
 
     /**
@@ -207,12 +214,12 @@ public class MapController {
      *
      * @param applicationName applicationName
      * @param serviceTypeName serviceTypeName
-     * @param from from (timestamp)
-     * @param to to (timestamp)
+     * @param from            from (timestamp)
+     * @param to              to (timestamp)
      * @return MapWrap
      */
-
     @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeName")
+    @JsonView(MapViews.Basic.class)
     public MapWrap getServerMapDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
@@ -237,34 +244,23 @@ public class MapController {
 
         final Application application =
                 applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-        return selectApplicationMap(
-                application,
-                range,
-                searchOption,
-                NodeType.BASIC,
-                LinkType.BASIC,
-                useStatisticsAgentState,
-                useLoadHistogramFormat
-        );
+
+        final MapServiceOption option = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        return selectApplicationMap(application, option, useLoadHistogramFormat);
     }
 
     private MapWrap selectApplicationMap(
             Application application,
-            Range range,
-            SearchOption searchOption,
-            NodeType nodeType,
-            LinkType linkType,
-            boolean useStatisticsAgentState,
+            MapServiceOption mapServiceOption,
             boolean useLoadHistogramFormat
     ) {
         Objects.requireNonNull(application, "application");
-        Objects.requireNonNull(range, "range");
-        Objects.requireNonNull(searchOption, "searchOption");
+        Objects.requireNonNull(mapServiceOption, "mapServiceOption");
 
-        final MapServiceOption mapServiceOption = new MapServiceOption
-                .Builder(application, range, searchOption, nodeType, linkType)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
-                .build();
         logger.info("Select applicationMap. option={}", mapServiceOption);
         final ApplicationMap map = this.mapService.selectApplicationMap(mapServiceOption);
 
@@ -443,6 +439,7 @@ public class MapController {
     }
 
     @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeCode")
+    @JsonView({MapViews.Simplified.class})
     public MapWrap getServerMapDataV3(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -463,11 +460,17 @@ public class MapController {
         SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.SIMPLIFIED, LinkType.SIMPLIFIED,
-                useStatisticsAgentState, false);
+        final MapServiceOption mapServiceOption = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setSimpleResponseHistogram(true)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        return selectApplicationMap(application, mapServiceOption, false);
     }
 
     @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeName")
+    @JsonView({MapViews.Simplified.class})
     public MapWrap getServerMapDataV3(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
@@ -488,7 +491,12 @@ public class MapController {
         SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
         assertSearchOption(searchOption);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.SIMPLIFIED, LinkType.SIMPLIFIED,
-                useStatisticsAgentState, false);
+        final MapServiceOption mapServiceOption = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setSimpleResponseHistogram(true)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        return selectApplicationMap(application, mapServiceOption, false);
     }
 }

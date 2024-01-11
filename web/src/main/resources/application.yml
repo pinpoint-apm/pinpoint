@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: release
+  jackson:
+    mapper:
+      default-view-inclusion: true
 
 server:
   port: 8080

@@ -51,8 +51,6 @@ import java.util.Set;
 @JsonSerialize(using = LinkSerializer.class)
 public class Link {
 
-    private final LinkType linkType;
-
     // specifies who created the link.
     // indicates whether it was automatically created by the source, or if it was manually created by the target.
     private final LinkDirection direction;
@@ -72,11 +70,6 @@ public class Link {
     private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public Link(LinkDirection direction, Node fromNode, Node toNode, Range range) {
-        this(LinkType.DETAILED, direction, fromNode, toNode, range);
-    }
-
-    public Link(LinkType linkType, LinkDirection direction, Node fromNode, Node toNode, Range range) {
-        this.linkType = Objects.requireNonNull(linkType, "linkType");
         this.direction = Objects.requireNonNull(direction, "direction");
         this.fromNode = Objects.requireNonNull(fromNode, "fromNode");
         this.toNode = Objects.requireNonNull(toNode, "toNode");
@@ -98,10 +91,6 @@ public class Link {
 
     public LinkKey getLinkKey() {
         return new LinkKey(fromNode.getApplication(), toNode.getApplication());
-    }
-
-    public LinkType getLinkType() {
-        return linkType;
     }
 
     public Node getFrom() {

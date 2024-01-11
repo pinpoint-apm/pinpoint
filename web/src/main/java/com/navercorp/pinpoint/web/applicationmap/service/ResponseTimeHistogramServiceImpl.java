@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkListFactory;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
@@ -45,7 +44,6 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
@@ -135,8 +133,8 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
                 serverGroupList = serverGroupListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap);
             }
 
-            NodeList nodeList = NodeListFactory.createNodeList(NodeType.DETAILED, linkDataDuplexMap);
-            LinkList linkList = LinkListFactory.createLinkList(LinkType.DETAILED, nodeList, linkDataDuplexMap, option.getRange());
+            NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
+            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, option.getRange());
             NodeHistogram nodeHistogram = nodeHistogramFactory.createTerminalNodeHistogram(option.getApplication(), option.getRange(), linkList);
             return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else if (applicationServiceType.isQueue()) {
@@ -150,8 +148,8 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
             ServerGroupList serverGroupList = serverGroupListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap);
 
-            NodeList nodeList = NodeListFactory.createNodeList(NodeType.DETAILED, linkDataDuplexMap);
-            LinkList linkList = LinkListFactory.createLinkList(LinkType.DETAILED, nodeList, linkDataDuplexMap, option.getRange());
+            NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
+            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, option.getRange());
             NodeHistogram nodeHistogram = nodeHistogramFactory.createQueueNodeHistogram(option.getApplication(), option.getRange(), linkList);
             return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else if (applicationServiceType.isUser()) {
@@ -164,8 +162,8 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
             ServerGroupList serverGroupList = serverGroupListFactory.createUserNodeInstanceList();
 
-            NodeList nodeList = NodeListFactory.createNodeList(NodeType.DETAILED, linkDataDuplexMap);
-            LinkList linkList = LinkListFactory.createLinkList(LinkType.DETAILED, nodeList, linkDataDuplexMap, option.getRange());
+            NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
+            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, option.getRange());
             NodeHistogram nodeHistogram = nodeHistogramFactory.createUserNodeHistogram(option.getApplication(), option.getRange(), linkList);
             return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else {
@@ -201,8 +199,8 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             linkDataDuplexMap = linkSelector.select(Collections.singletonList(fromApplication), range, 1, 0);
         }
 
-        NodeList nodeList = NodeListFactory.createNodeList(NodeType.DETAILED, linkDataDuplexMap);
-        LinkList linkList = LinkListFactory.createLinkList(LinkType.DETAILED, nodeList, linkDataDuplexMap, range);
+        NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
+        LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, range);
         LinkKey linkKey = new LinkKey(fromApplication, toApplication);
         Link link = linkList.getLink(linkKey);
         if (link == null) {

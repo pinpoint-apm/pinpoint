@@ -33,10 +33,8 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.W
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMap;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMapBuilder;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
@@ -200,10 +198,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap, boolean v3Format) {
         final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getOriginalRange());
         if (v3Format) {
-            applicationMapBuilder.linkType(LinkType.SIMPLIFIED);
-            applicationMapBuilder.nodeType(NodeType.SIMPLIFIED);
-        } else {
-            applicationMapBuilder.linkType(LinkType.DETAILED);
+//            applicationMapBuilder.linkType(LinkType.SIMPLIFIED);
+//            applicationMapBuilder.nodeType(NodeType.SIMPLIFIED);
         }
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
