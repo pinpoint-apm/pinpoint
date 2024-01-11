@@ -21,19 +21,19 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.WasOnlyProcessor;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
@@ -102,10 +102,7 @@ public class MapServiceImpl implements MapService {
         LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
         int outSearchDepth = searchOption.getOutSearchDepth();
         int inSearchDepth = searchOption.getInSearchDepth();
-        boolean timeAggregate = false;
-        if (NodeType.SIMPLIFIED == option.getNodeType() && LinkType.SIMPLIFIED == option.getLinkType()) {
-            timeAggregate = true;
-        }
+        boolean timeAggregate = option.isSimpleResponseHistogram();
 
         LinkDataMapProcessor outLinkProcessor = LinkDataMapProcessor.NO_OP;
         if (searchOption.isWasOnly()) {
@@ -139,22 +136,29 @@ public class MapServiceImpl implements MapService {
 
     private ApplicationMapBuilder createApplicationMapBuilder(MapServiceOption option) {
         ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getRange());
-        builder.nodeType(option.getNodeType());
-        builder.linkType(option.getLinkType());
 
-        if (NodeType.SIMPLIFIED == option.getNodeType()) {
-            builder.includeNodeHistogram(new SimplifiedNodeHistogramFactory(new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao)));
+        final NodeHistogramFactory nodeHistogramFactory = newNodeHistogramFactory(option);
+        builder.includeNodeHistogram(nodeHistogramFactory);
+
+        final ServerGroupListFactory serverGroupListFactory = newServerGroupListFactory(option);
+        builder.includeServerInfo(serverGroupListFactory);
+        return builder;
+    }
+
+    private NodeHistogramFactory newNodeHistogramFactory(MapServiceOption option) {
+        if (option.isSimpleResponseHistogram()) {
+            return new SimplifiedNodeHistogramFactory(new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao));
         } else {
-            builder.includeNodeHistogram(new DefaultNodeHistogramFactory(new MapResponseNodeHistogramDataSource(mapResponseDao)));
+            return new DefaultNodeHistogramFactory(new MapResponseNodeHistogramDataSource(mapResponseDao));
         }
+    }
 
+    private ServerGroupListFactory newServerGroupListFactory(MapServiceOption option) {
         ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
         if (option.isUseStatisticsAgentState()) {
-            builder.includeServerInfo(new StatisticsServerGroupListFactory(serverGroupListDataSource));
+            return new StatisticsServerGroupListFactory(serverGroupListDataSource);
         } else {
-            builder.includeServerInfo(new DefaultServerGroupListFactory(serverGroupListDataSource));
+            return new DefaultServerGroupListFactory(serverGroupListDataSource);
         }
-
-        return builder;
     }
 }

@@ -18,8 +18,6 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 
@@ -32,16 +30,15 @@ public class MapServiceOption {
     private final Application sourceApplication;
     private final Range range;
     private final SearchOption searchOption;
-    private final NodeType nodeType;
-    private final LinkType linkType;
+
+    private final boolean simpleResponseHistogram;
     private final boolean useStatisticsAgentState;
 
     private MapServiceOption(Builder builder) {
         this.sourceApplication = builder.sourceApplication;
         this.range = builder.range;
         this.searchOption = builder.searchOption;
-        this.nodeType = builder.nodeType;
-        this.linkType = builder.linkType;
+        this.simpleResponseHistogram = builder.simpleResponseHistogram;
         this.useStatisticsAgentState = builder.useStatisticsAgentState;
     }
 
@@ -57,12 +54,8 @@ public class MapServiceOption {
         return searchOption;
     }
 
-    public NodeType getNodeType() {
-        return nodeType;
-    }
-
-    public LinkType getLinkType() {
-        return linkType;
+    public boolean isSimpleResponseHistogram() {
+        return simpleResponseHistogram;
     }
 
     public boolean isUseStatisticsAgentState() {
@@ -71,32 +64,33 @@ public class MapServiceOption {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MapServiceOption{");
-        sb.append("sourceApplication=").append(sourceApplication);
-        sb.append(", range=").append(range);
-        sb.append(", searchOption=").append(searchOption);
-        sb.append(", nodeType=").append(nodeType);
-        sb.append(", linkType=").append(linkType);
-        sb.append(", useStatisticsAgentState=").append(useStatisticsAgentState);
-        sb.append('}');
-        return sb.toString();
+        return "MapServiceOption{" +
+                "sourceApplication=" + sourceApplication +
+                ", range=" + range +
+                ", searchOption=" + searchOption +
+                ", simpleResponseHistogram=" + simpleResponseHistogram +
+                ", useStatisticsAgentState=" + useStatisticsAgentState +
+                '}';
     }
 
     public static class Builder {
         private final Application sourceApplication;
         private final Range range;
         private final SearchOption searchOption;
-        private final NodeType nodeType;
-        private final LinkType linkType;
+
+        private boolean simpleResponseHistogram;
         // option
         private boolean useStatisticsAgentState;
 
-        public Builder(Application sourceApplication, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
+        public Builder(Application sourceApplication, Range range, SearchOption searchOption) {
             this.sourceApplication = Objects.requireNonNull(sourceApplication, "sourceApplication");
             this.range = Objects.requireNonNull(range,"range");
             this.searchOption = Objects.requireNonNull(searchOption, "searchOption");
-            this.nodeType = Objects.requireNonNull(nodeType, "nodeType");
-            this.linkType = Objects.requireNonNull(linkType, "linkType");
+        }
+
+        public Builder setSimpleResponseHistogram(boolean simpleResponseHistogram) {
+            this.simpleResponseHistogram = simpleResponseHistogram;
+            return this;
         }
 
         public Builder setUseStatisticsAgentState(boolean useStatisticsAgentState) {

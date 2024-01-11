@@ -16,27 +16,25 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.EmptyNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkListFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -54,8 +52,6 @@ public class ApplicationMapBuilder {
     private final NodeHistogramAppenderFactory nodeHistogramAppenderFactory;
     private final ServerInfoAppenderFactory serverInfoAppenderFactory;
 
-    private NodeType nodeType;
-    private LinkType linkType;
     private NodeHistogramFactory nodeHistogramFactory;
     private ServerGroupListFactory serverGroupListFactory;
 
@@ -66,15 +62,6 @@ public class ApplicationMapBuilder {
         this.serverInfoAppenderFactory = Objects.requireNonNull(serverInfoAppenderFactory, "serverInfoAppenderFactory");
     }
 
-    public ApplicationMapBuilder nodeType(NodeType nodeType) {
-        this.nodeType = nodeType;
-        return this;
-    }
-
-    public ApplicationMapBuilder linkType(LinkType linkType) {
-        this.linkType = linkType;
-        return this;
-    }
 
     public ApplicationMapBuilder includeNodeHistogram(NodeHistogramFactory nodeHistogramFactory) {
         this.nodeHistogramFactory = nodeHistogramFactory;
@@ -92,12 +79,7 @@ public class ApplicationMapBuilder {
         NodeList nodeList = new NodeList();
         LinkList emptyLinkList = new LinkList();
 
-        NodeType nodeType = this.nodeType;
-        if (nodeType == null) {
-            nodeType = NodeType.DETAILED;
-        }
-
-        Node node = new Node(nodeType, application);
+        Node node = new Node(application);
         if (serverGroupListFactory != null) {
             ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(node, range.getToInstant());
             if (runningInstances.getInstanceCount() > 0) {
@@ -121,18 +103,8 @@ public class ApplicationMapBuilder {
 
         logger.info("Building application map");
 
-        NodeType nodeType = this.nodeType;
-        if (nodeType == null) {
-            nodeType = NodeType.DETAILED;
-        }
-
-        LinkType linkType = this.linkType;
-        if (linkType == null) {
-            linkType = LinkType.DETAILED;
-        }
-
-        NodeList nodeList = NodeListFactory.createNodeList(nodeType, linkDataDuplexMap);
-        LinkList linkList = LinkListFactory.createLinkList(linkType, nodeList, linkDataDuplexMap, range);
+        NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
+        LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, range);
 
         NodeHistogramFactory nodeHistogramFactory = this.nodeHistogramFactory;
         if (nodeHistogramFactory == null) {
