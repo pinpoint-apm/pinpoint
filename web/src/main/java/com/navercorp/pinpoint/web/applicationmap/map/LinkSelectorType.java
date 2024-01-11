@@ -22,5 +22,9 @@ package com.navercorp.pinpoint.web.applicationmap.map;
  */
 public enum LinkSelectorType {
     UNIDIRECTIONAL,
-    BIDIRECTIONAL
+    BIDIRECTIONAL;
+
+    public static LinkSelectorType ofBidirectional(boolean bidirectional) {
+        return bidirectional ? BIDIRECTIONAL : UNIDIRECTIONAL;
+    }
 }
