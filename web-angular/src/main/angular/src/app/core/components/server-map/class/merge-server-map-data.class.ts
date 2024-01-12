@@ -14,7 +14,6 @@ export class MergeServerMapData {
         mergeNodeAgentIdNameMap(old, neo);
         mergeHistogram(old, neo);
         mergeResponseStatistics(old, neo);
-        mergeAgentHistogram(old, neo);
         mergeTimeSeriesHistogram(old, neo);
         mergeAgentTimeSeriesHistogramByType(old, neo, 'agentTimeSeriesHistogram');
         mergeServerList(old, neo);
@@ -134,15 +133,6 @@ function mergeHistogramType(oldHistogram: IResponseTime | IResponseMilliSecondTi
     }
 }
 
-function mergeAgentHistogram(old: INodeInfo, neo: INodeInfo): void {
-    Object.keys(neo.agentHistogram).forEach((key: string) => {
-        if (old.agentHistogram[key]) {
-            mergeHistogramType(old.agentHistogram[key], neo.agentHistogram[key]);
-        } else {
-            old.agentHistogram[key] = neo.agentHistogram[key];
-        }
-    });
-}
 
 // 내부 값의 순서가 보장되어야한 유의미한 코드
 function mergeTimeSeriesHistogram(old: INodeInfo | ILinkInfo, neo: INodeInfo | ILinkInfo): void {

@@ -34,7 +34,7 @@ public class FilterMapWrap {
         this.applicationMap = applicationMap;
 
         if(timeHistogramFormat == TimeHistogramFormat.V2) {
-            for(Node node : applicationMap.getNodes()) {
+            for (Node node : applicationMap.getNodes()) {
                 node.setTimeHistogramFormat(timeHistogramFormat);
             }
             for(Link link : applicationMap.getLinks()) {

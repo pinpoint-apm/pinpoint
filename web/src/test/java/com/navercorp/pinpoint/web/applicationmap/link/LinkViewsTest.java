@@ -33,12 +33,12 @@ class LinkViewsTest {
     public void basic_map() {
         Assertions.assertTrue(LinkViews.Basic.inView(MapViews.Basic.class));
 
-        Assertions.assertFalse(LinkViews.Basic.inView(MapViews.Detailed.class));
+        Assertions.assertFalse(LinkViews.Basic.inView(MapViews.Simplified.class));
     }
 
     @Test
     public void basic_failure() {
-        Assertions.assertFalse(LinkViews.Basic.inView(LinkViews.Detailed.class));
-        Assertions.assertFalse(LinkViews.Basic.inView(NodeViews.Detailed.class));
+        Assertions.assertFalse(LinkViews.Basic.inView(LinkViews.Simplified.class));
+        Assertions.assertFalse(LinkViews.Basic.inView(NodeViews.Simplified.class));
     }
 }

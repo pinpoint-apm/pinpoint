@@ -86,16 +86,6 @@ public class LinkSerializer extends JsonSerializer<Link> {
             writeTimeSeriesHistogram(link, jgen);
         }
 
-        //agent histogram
-        if (LinkViews.Detailed.inView(activeView)) {
-            // data showing how agents call each of their respective links
-            writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
-            writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
-            writeSourceAgentTimeSeriesHistogram(link, jgen);
-            writeAgentResponseStatistics("sourceResponseStatistics", link.getSourceList(), jgen);
-            writeAgentResponseStatistics("targetResponseStatistics", link.getTargetList(), jgen);
-        }
-
 //        String state = link.getLinkState();
 //        jgen.writeStringField("state", state); // for go.js
         jgen.writeBooleanField("hasAlert", link.getLinkAlert()); // for go.js

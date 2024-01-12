@@ -35,10 +35,4 @@ public interface MapViews {
         }
     }
 
-    interface Detailed extends NodeViews.Detailed, LinkViews.Detailed {
-        static boolean inView(Class<?> activeView) {
-            return JsonViewUtils.inView(MapViews.Detailed.class, activeView);
-        }
-    }
-
 }

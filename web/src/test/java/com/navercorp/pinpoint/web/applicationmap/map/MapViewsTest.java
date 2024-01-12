@@ -28,7 +28,7 @@ class MapViewsTest {
         Assertions.assertTrue(MapViews.Simplified.inView(MapViews.Simplified.class));
         Assertions.assertTrue(LinkViews.Simplified.inView(MapViews.Simplified.class));
 
-        Assertions.assertFalse(MapViews.Simplified.inView(MapViews.Detailed.class));
+        Assertions.assertFalse(MapViews.Simplified.inView(MapViews.Basic.class));
     }
 
 

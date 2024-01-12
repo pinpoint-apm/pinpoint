@@ -34,18 +34,12 @@ public interface NodeViews {
         }
     }
 
-    interface Detailed {
-        static boolean inView(Class<?> activeView) {
-            return JsonViewUtils.inView(Detailed.class, activeView);
-        }
-    }
-
 
     static Class<?> getActiveView(SerializerProvider provider) {
         final Class<?> activeView = provider.getActiveView();
         if (activeView != null) {
             return activeView;
         }
-        return NodeViews.Detailed.class;
+        return NodeViews.Basic.class;
     }
 }

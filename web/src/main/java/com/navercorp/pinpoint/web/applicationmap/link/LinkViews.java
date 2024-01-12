@@ -33,17 +33,11 @@ public interface LinkViews {
         }
     }
 
-    interface Detailed {
-        static boolean inView(Class<?> activeView) {
-            return JsonViewUtils.inView(LinkViews.Detailed.class, activeView);
-        }
-    }
-
     static Class<?> getActiveView(SerializerProvider provider) {
         final Class<?> activeView = provider.getActiveView();
         if (activeView != null) {
             return activeView;
         }
-        return LinkViews.Detailed.class;
+        return LinkViews.Basic.class;
     }
 }

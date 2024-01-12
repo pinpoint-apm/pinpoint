@@ -86,9 +86,6 @@ public class NodeSerializer extends JsonSerializer<Node> {
             writeEmptyArray(jgen, "agentIds");
             writeEmptyObject(jgen, agentIdNameMapKey);
 
-            if (NodeViews.Detailed.inView(activeView)) {
-                writeEmptyObject(jgen, "serverList");
-            }
         } else {
             jgen.writeNumberField("instanceCount", serverGroupList.getInstanceCount());
             long instanceErrorCount = 0;
@@ -113,10 +110,6 @@ public class NodeSerializer extends JsonSerializer<Node> {
                 jgen.writeStringField(entry.getKey(), entry.getValue());
             }
             jgen.writeEndObject();
-
-            if (NodeViews.Detailed.inView(activeView)) {
-                jgen.writeObjectField("serverList", serverGroupList);
-            }
         }
     }
 
@@ -163,18 +156,6 @@ public class NodeSerializer extends JsonSerializer<Node> {
                     unwrapping.serialize(node.getApdexScore(), jgen, provider);
                 }
             }
-
-            // agent histogram
-            if (NodeViews.Detailed.inView(activeView)) {
-                Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-                if (agentHistogramMap == null) {
-                    writeEmptyObject(jgen, "agentHistogram");
-                    writeEmptyObject(jgen, ResponseTimeStatics.AGENT_RESPONSE_STATISTICS);
-                } else {
-                    jgen.writeObjectField("agentHistogram", agentHistogramMap);
-                    jgen.writeObjectField(ResponseTimeStatics.AGENT_RESPONSE_STATISTICS, nodeHistogram.getAgentResponseStatisticsMap());
-                }
-            }
         } else {
             jgen.writeBooleanField("hasAlert", false);  // for go.js
         }
@@ -188,11 +169,6 @@ public class NodeSerializer extends JsonSerializer<Node> {
                     writeEmptyArray(jgen, "timeSeriesHistogram");
                 } else {
                     jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
-                }
-
-                if (NodeViews.Detailed.inView(activeView)) {
-                    AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(node.getTimeHistogramFormat());
-                    jgen.writeObject(agentTimeSeriesHistogram);
                 }
             }
         }
