@@ -21,6 +21,8 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         DEPARTMENT_LABEL: '',
         PHONE_LABEL: '',
         EMAIL_LABEL: '',
+        PINPOINT_USER_LABEL: '',
+        SUBMIT_LABEL: '',
     };
     i18nGuide: { [key: string]: IFormFieldErrorType };
     i18nText = {
@@ -88,9 +90,12 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             this.translateService.get('CONFIGURATION.PINPOINT_USER.DEPARTMENT_VALIDATION'),
             this.translateService.get('CONFIGURATION.PINPOINT_USER.PHONE_VALIDATION'),
             this.translateService.get('CONFIGURATION.PINPOINT_USER.EMAIL_VALIDATION'),
+            this.translateService.get('CONFIGURATION.PINPOINT_USER.TITLE'),
+            this.translateService.get('COMMON.SUBMIT'),
         ).subscribe(([
             emptyText, minLengthMessage, requiredMessage, idLabel, nameLabel, departmentLabel, phoneLabel, emailLabel,
-            userIdValidation, nameValidation, departmentValidation, phoneValidation, emailValidation
+            userIdValidation, nameValidation, departmentValidation, phoneValidation, emailValidation,
+                                 pinpointUserLabel, submitLabel
         ]: string[]) => {
             this.i18nGuide = {
                 userId: {
@@ -121,6 +126,8 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             this.i18nLabel.DEPARTMENT_LABEL = departmentLabel;
             this.i18nLabel.PHONE_LABEL = phoneLabel;
             this.i18nLabel.EMAIL_LABEL = emailLabel;
+            this.i18nLabel.PINPOINT_USER_LABEL = pinpointUserLabel;
+            this.i18nLabel.SUBMIT_LABEL = submitLabel;
         });
     }
 

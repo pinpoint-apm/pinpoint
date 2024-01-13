@@ -1,5 +1,6 @@
 {
     "COMMON": {
+        "APPLICATION": "Application",
         "POPUP_BLOCK_MESSAGE": "팝업이 차단 되었습니다.<br/>브라우저 설정을 확인해 주세요.",
         "NO_DATA": "데이터가 없습니다.",
         "FAILED_TO_FETCH_DATA": "데이터를 가져오지 못했습니다.",
@@ -52,36 +53,45 @@
     },
     "SCATTER": {},
     "CONFIGURATION": {
+        "TITLE": "Configuration",
+        "ADMINISTRATION": {
+            "TITLE": "Administration"
+        },
         "AGENT_MANAGEMENT": {
+            "TITLE": "Agent Management",
             "REMOVE_APPLICATION": "선택한 Application을 삭제합니다.",
             "REMOVE_AGENT": "선택한 Agent를 삭제합니다.",
-            "PASSWORD_GUIDE": "설정한 비밀번호가 있다면 입력하세요."
+            "PASSWORD_GUIDE": "설정한 비밀번호가 있다면 입력하세요.",
+            "REMOVABLE_TITLE": "Removable Agent List"
         },
         "AGENT_STATISTIC": {
+            "TITLE": "Agent Statistic",
             "ZOOM_GUIDE": "마우스를 통해 차트를 Zoom In/Out 할 수 있습니다.",
             "LOAD_GUIDE": "Agent의 통계 정보를 가져오는 작업은 많은 시간을 소요합니다.",
             "LOADING": "데이터 가져오기",
             "RELOAD": "데이터 다시 가져오기"
         },
         "GENERAL": {
+            "TITLE": "General",
             "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원할 예정입니다."
         },
         "INSPECTOR_MANAGER": {
             "EMPTY": "화면에 표시 할 차트를 선택하세요."
         },
-        "ALARM": {
-            "EMPTY": "등록된 알람이 없습니다." 
-        },
         "INSTALLATION": {
+            "TITLE": "Installation",
             "DESC": "* Application Name과 Agent ID의 중복 여부를 확인할 수 있습니다.",
             "LENGTH_GUIDE": "1 ~ !{0} 자의 문자를 입력하세요.",
             "APPLICATION_NAME_PLACEHOLDER": "Application Name을 입력하세요.",
             "AGENT_ID_PLACEHOLDER": "Agent ID를 입력하세요."
         },
         "USER_GROUP": {
-            "VALIDATION": "영문자와 숫자, '-', '_'를 입력할 수 있습니다.(4~30)"
+            "TITLE": "User Group",
+            "VALIDATION": "영문자와 숫자, '-', '_'를 입력할 수 있습니다.(4~30)",
+            "MEMBER": "Group Member"
         },
         "PINPOINT_USER": {
+            "TITLE": "Pinpoint User",
             "USER_ID_VALIDATION": "영문 소문자와 숫자, '-', '_'만 입력할 수 있습니다.(4~24)",
             "NAME_VALIDATION": "영문자와 한글, 숫자, '_', '-', '.'만 입력할 수 있습니다.(1~30)",
             "DEPARTMENT_VALIDATION": "영문자와 한글, 숫자, '_', '-', '.'만 입력할 수 있습니다.(3~40)",
@@ -100,14 +110,32 @@
             "TYPE": "알림 형식",
             "NOTES": "메모"
         },
+        "ALARM": {
+            "TITLE": "Alarm",
+            "EMPTY": "등록된 알람이 없습니다.",
+            "RULE_NAME": "Rule Name",
+            "EDIT_TITLE": "Edit Alarm",
+            "ADD_TITLE": "Add Alarm"
+        },
         "EXPERIMENTAL": {
+            "TITLE": "Experimental",
             "DESC": "* 실험 중인 기능을 적용해볼 수 있습니다."
         },
         "WEBHOOK": {
+            "TITLE": "Webhook",
+            "EDIT_TITLE": "Edit Webhook",
+            "ADD_TITLE": "Add Webhook",
+            "ALIAS_TITLE": "Alias",
             "URL": "url",
             "URL_VALIDATION": "Url을 올바르게 입력해주세요.",
             "ALIAS": "빈 값일 경우, 입력한  Url로 설정됩니다.",
             "MAX_LENGTH": "256자까지 입력 가능합니다."
+        },
+        "HELP": {
+            "TITLE": "Help"
+        },
+        "THEME": {
+            "TITLE": "Theme"
         }
     },
     "TRANSACTION": {

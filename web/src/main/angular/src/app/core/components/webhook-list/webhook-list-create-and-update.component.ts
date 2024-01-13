@@ -32,7 +32,7 @@ export class WebhookListCreateAndUpdateComponent implements OnInit, OnChanges {
         ]),
         'url': new FormControl('', [
             Validators.maxLength(256),
-            Validators.required, 
+            Validators.required,
             CustomFormValidatorService.validate(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/),
         ]),
     });
@@ -65,6 +65,6 @@ export class WebhookListCreateAndUpdateComponent implements OnInit, OnChanges {
     }
 
     get title(): string {
-        return this.editWebhook ? 'Edit Webhook' : 'Add Webhook';
+        return this.editWebhook ? this.i18nText.EDIT_LABEL : this.i18nText.ADD_LABEL;
     }
 }

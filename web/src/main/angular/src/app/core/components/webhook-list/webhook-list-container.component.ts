@@ -25,6 +25,11 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
         APP_NOT_SELECTED: '',
         NO_WEBHOOK_RESGISTERED: '',
         ALIAS_PLACEHOLDER: '',
+        WEBHOOK_TITLE_LABEL: '',
+        EDIT_LABEL: '',
+        ADD_LABEL: '',
+        ALIAS_LABEL: '',
+        SUBMIT_LABEL: '',
     };
     i18nFormGuide: {[key: string]: IFormFieldErrorType};
     errorMessage: string;
@@ -80,7 +85,14 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
             this.translateService.get('CONFIGURATION.WEBHOOK.URL_VALIDATION'),
             this.translateService.get('CONFIGURATION.WEBHOOK.ALIAS'),
             this.translateService.get('CONFIGURATION.WEBHOOK.MAX_LENGTH'),
-        ).subscribe(([requiredMessage, selectApp, empty, urlLabel, urlValidation, alias, maxlength]: string[]) => {
+            this.translateService.get('CONFIGURATION.WEBHOOK.TITLE'),
+            this.translateService.get('CONFIGURATION.WEBHOOK.EDIT_TITLE'),
+            this.translateService.get('CONFIGURATION.WEBHOOK.ADD_TITLE'),
+            this.translateService.get('CONFIGURATION.WEBHOOK.ALIAS_TITLE'),
+            this.translateService.get('COMMON.SUBMIT'),
+        ).subscribe(([requiredMessage, selectApp, empty, urlLabel, urlValidation, alias,
+                                 maxlength, webhookTitleLabel, editLabel,
+                                 addLabel, aliasLabel, submitLabel]: string[]) => {
             this.i18nFormGuide = {
                 alias: {
                     maxlength,
@@ -95,6 +107,11 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
                 APP_NOT_SELECTED: selectApp,
                 NO_WEBHOOK_RESGISTERED: empty,
                 ALIAS_PLACEHOLDER: alias,
+                WEBHOOK_TITLE_LABEL: webhookTitleLabel,
+                EDIT_LABEL: editLabel,
+                ADD_LABEL: addLabel,
+                ALIAS_LABEL: aliasLabel,
+                SUBMIT_LABEL: submitLabel
             };
         });
     }

@@ -5,7 +5,7 @@
     <ng-container *ngIf="props.app; else guide">
         <section class="l-title-section">
             <span class="l-app-name">{{selectedApplication.getApplicationName()}}</span>
-            <button class="btn l-remove-app-btn" (click)="onRemoveApplication()">Remove Application</button>
+            <button class="btn l-remove-app-btn" (click)="onRemoveApplication()">{{ i18nText.removeButton }}</button>
         </section>
         <section class="l-contents-section">
             <pp-removable-agent-list
@@ -36,7 +36,7 @@
                         <span class="l-password-guide-text">{{i18nText.passwordGuide}}</span>
                     </div>
                     <section class="l-btn-section">
-                        <button class="l-submit-btn l-remove-btn" (click)="onRemoveConfirm()">{{i18nText.removeButton}}</button>            
+                        <button class="l-submit-btn l-remove-btn" (click)="onRemoveConfirm()">{{i18nText.removeButton}}</button>
                     </section>
                 </section>
             </section>
@@ -50,8 +50,7 @@
             [message]="errorMessage"
             (outClose)="onCloseErrorMessage()">
         </pp-server-error-message>
-    </ng-container>         
+    </ng-container>
 </ng-container>
-<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>
 <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
-    

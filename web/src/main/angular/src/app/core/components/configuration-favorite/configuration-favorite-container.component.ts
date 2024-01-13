@@ -12,7 +12,7 @@ import { getApplicationList, getFavApplicationList } from 'app/shared/store/acti
 })
 export class ConfigurationFavoriteContainerComponent implements OnInit {
     desc$: Observable<string>;
-
+    favoriteLabel$: Observable<string>;
     constructor(
         private translateService: TranslateService,
         private storeHelperService: StoreHelperService,
@@ -26,5 +26,6 @@ export class ConfigurationFavoriteContainerComponent implements OnInit {
 
     private initDescText(): void {
         this.desc$ = this.translateService.get('CONFIGURATION.GENERAL.DESC');
+        this.favoriteLabel$ = this.translateService.get('MAIN.FAVORITE_APP_LIST');
     }
 }
