@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
@@ -72,6 +73,7 @@ public class FilteredMapController {
     }
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeCode")
+    @JsonView({MapViews.Detailed.class})
     public FilterMapWrap getFilteredServerMapDataMadeOfDotGroup(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -108,6 +110,7 @@ public class FilteredMapController {
     }
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeName")
+    @JsonView({MapViews.Detailed.class})
     public FilterMapWrap getFilteredServerMapDataMadeOfDotGroup(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
@@ -137,14 +140,10 @@ public class FilteredMapController {
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, to);
         logger.debug("originalRange: {}, scannerRange: {}", originalRange, scannerRange);
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(
-                limitedScanResult.getScanData(),
-                originalRange,
-                xGroupUnit,
-                yGroupUnit,
-                filter,
-                viewVersion
-        ).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        final FilteredMapServiceOption option = new FilteredMapServiceOption
+                .Builder(limitedScanResult.getScanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
         final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(option);
 
         if (logger.isDebugEnabled()) {
