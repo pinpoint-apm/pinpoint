@@ -28,6 +28,9 @@ import java.util.List;
 public class SpringBootDetector {
 
     private static final String[] DEFAULT_EXPECTED_MAIN_CLASSES = {
+            "org.springframework.boot.loader.launch.JarLauncher",
+            "org.springframework.boot.loader.launch.WarLauncher",
+            "org.springframework.boot.loader.launch.PropertiesLauncher",
             "org.springframework.boot.loader.JarLauncher",
             "org.springframework.boot.loader.WarLauncher",
             "org.springframework.boot.loader.PropertiesLauncher"
