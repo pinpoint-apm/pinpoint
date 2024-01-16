@@ -48,6 +48,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
 
     private final Reconnector reconnector;
     private final StreamState failState;
+    private final StreamState taskFailState;
     private final StreamExecutorFactory<PStatMessage> streamExecutorFactory;
 
 
@@ -110,6 +111,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
         };
         this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
         this.failState = new SimpleStreamState(100, 5000);
+        this.taskFailState = new SimpleStreamState(10, 150000);
         this.streamExecutorFactory = new StreamExecutorFactory<>(executor);
 
         ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
@@ -128,20 +130,36 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
 
     private void startStream() {
 //        streamTaskManager.closeAllStream();
-        DefaultStreamTask<MetricType, PStatMessage, Empty> streamTask = null;
         try {
-            streamTask = new DefaultStreamTask<>(ID, clientStreamService,
+            StreamTask<MetricType, PStatMessage> streamTask = new DefaultStreamTask<>(ID, clientStreamService,
                     this.streamExecutorFactory, this.queue, this.dispatcher, failState);
             streamTask.start();
-            this.currentStreamTask = streamTask;
+            currentStreamTask = streamTask;
         } catch (Throwable th) {
             logger.error("Unexpected error", th);
-            if (streamTask != null && streamTask.callOnError(th)) {
-                logger.info("task stopped, reconnection scheduled");
-            } else {
+        }
+    }
+
+    @Override
+    public boolean send(MetricType data) {
+        streamTaskCheck();
+        return super.send(data);
+    }
+
+    private void streamTaskCheck() {
+        if (currentStreamTask != null && currentStreamTask.isJobStarted()) {
+            taskFailState.success();
+            return;
+        }
+        taskFailState.fail();
+
+        if (taskFailState.isFailure()) {
+            logger.warn("stat task fail state, scheduling reconnection");
+            if (currentStreamTask == null || currentStreamTask.callOnError(new Exception("no stream job started"))) {
                 reconnector.reconnect();
-                logger.info("reconnection scheduled");
             }
+            taskFailState.success();
+            logger.info("reconnection scheduled");
         }
     }
 
