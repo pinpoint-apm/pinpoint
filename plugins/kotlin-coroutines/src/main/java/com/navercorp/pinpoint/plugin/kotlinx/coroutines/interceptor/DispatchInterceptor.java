@@ -56,7 +56,7 @@ public class DispatchInterceptor implements AroundInterceptor {
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, descriptor.getClassName(), descriptor.getMethodName(), descriptor.getParameterDescriptor(), args);
+            logger.beforeInterceptor(target, args);
         }
 
         Trace trace = traceContext.currentTraceObject();
@@ -64,16 +64,13 @@ public class DispatchInterceptor implements AroundInterceptor {
             return;
         }
 
-        if (isCompletedContinuation(args)) {
-            return;
-        }
-
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(serviceType);
-        AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
-        if (accessor != null) {
-            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            accessor._$PINPOINT$_setAsyncContext(asyncContext);
+        if (Boolean.FALSE == isCompletedContinuation(args)) {
+            AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
+            if (accessor != null) {
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+                accessor._$PINPOINT$_setAsyncContext(asyncContext);
+            }
         }
     }
 
@@ -90,15 +87,11 @@ public class DispatchInterceptor implements AroundInterceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, descriptor.getClassName(), descriptor.getMethodName(), descriptor.getParameterDescriptor(), args, result, throwable);
+            logger.afterInterceptor(target, args);
         }
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            return;
-        }
-
-        if (isCompletedContinuation(args)) {
             return;
         }
 
@@ -110,7 +103,5 @@ public class DispatchInterceptor implements AroundInterceptor {
         } finally {
             trace.traceBlockEnd();
         }
-
     }
-
 }
