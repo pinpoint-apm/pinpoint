@@ -65,44 +65,44 @@ public class LiveTailServiceTest {
 
     @Test
     public void testGetHostGroupNames() {
-        when(dao.getHostGroupNames()).thenReturn(Set.of("a1", "a2", "a3"));
+        mockDao();
         Set<String> result = new LiveTailServiceImpl(dao).getHostGroupNames();
         assertThat(result).hasSameElementsAs(List.of("a1", "a2", "a3"));
     }
 
     @Test
     public void testGetFileKeys() {
-        FileKey fileKey1 = FileKey.of("hostGroupName", "hostName", "fileName1");
-        FileKey fileKey2 = FileKey.of("hostGroupName", "hostName", "fileName2");
-        when(dao.getFileKeys(eq("hostGroupName"))).thenReturn(List.of(fileKey1, fileKey2));
+        mockDao();
 
-        List<FileKey> result = new LiveTailServiceImpl(dao).getFileKeys("hostGroupName");
-        assertThat(result).hasSameElementsAs(List.of(fileKey1, fileKey2));
+        List<FileKey> result = new LiveTailServiceImpl(dao).getFileKeys("a1");
+        assertThat(result).hasSameElementsAs(List.of(
+                FileKey.of("a1", "b1", "c1"),
+                FileKey.of("a1", "b2", "c2")));
     }
 
     @Test
     public void testGetFileKeys2() {
-        List<FileKey> fileKeys = List.of(
-                FileKey.of("hostGroupName", "hostName1", "fileName1"),
-                FileKey.of("hostGroupName", "hostName1", "fileName2"),
-                FileKey.of("hostGroupName", "hostName2", "fileName1"),
-                FileKey.of("hostGroupName", "hostName2", "fileName2"),
-                FileKey.of("hostGroupName", "hostName3", "fileName1"),
-                FileKey.of("hostGroupName", "hostName3", "fileName2")
-        );
-        when(dao.getFileKeys(eq("hostGroupName"))).thenReturn(fileKeys);
+        mockDao();
 
-        List<FileKey> result = new LiveTailServiceImpl(dao)
-                .getFileKeys(
-                        "hostGroupName",
-                        List.of("hostName1", "hostName2"),
-                        List.of("fileName1")
-                );
+        List<FileKey> result = new LiveTailServiceImpl(dao).getFileKeys(
+                "a1",
+                List.of("b1", "b2"),
+                List.of("c1")
+        );
 
         assertThat(result).hasSameElementsAs(List.of(
-                FileKey.of("hostGroupName", "hostName1", "fileName1"),
-                FileKey.of("hostGroupName", "hostName2", "fileName1")
+                FileKey.of("a1", "b1", "c1")
         ));
+    }
+
+    private void mockDao() {
+        when(dao.getFileKeys()).thenReturn(List.of(
+                FileKey.of("a1", "b1", "c1"),
+                FileKey.of("a1", "b2", "c2"),
+                FileKey.of("a2", "b1", "c1"),
+                FileKey.of("a2", "b2", "c2"),
+                FileKey.of("a3", "b1", "c1"),
+                FileKey.of("a3", "b2", "c2")));
     }
 
 }

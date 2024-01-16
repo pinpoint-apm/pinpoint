@@ -27,8 +27,10 @@ import reactor.core.publisher.Flux;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * @author youngjin.kim2
@@ -39,8 +41,12 @@ public class LiveTailServiceImpl implements LiveTailService {
 
     private final LiveTailDao dao;
 
+    private final Supplier<Map<String, List<FileKey>>> fileKeyMapSupplier;
+
+
     public LiveTailServiceImpl(LiveTailDao dao) {
         this.dao = Objects.requireNonNull(dao, "dao");
+        this.fileKeyMapSupplier = new LogFileKeyMapSupplier(this.dao);
     }
 
     @Override
@@ -82,12 +88,12 @@ public class LiveTailServiceImpl implements LiveTailService {
 
     @Override
     public Set<String> getHostGroupNames() {
-        return this.dao.getHostGroupNames();
+        return this.getFileKeyMap().keySet();
     }
 
     @Override
     public List<FileKey> getFileKeys(String hostGroupName) {
-        return this.dao.getFileKeys(hostGroupName);
+        return Objects.requireNonNullElse(this.getFileKeyMap().get(hostGroupName), List.of());
     }
 
     @Override
@@ -108,6 +114,10 @@ public class LiveTailServiceImpl implements LiveTailService {
             result.add(candidate);
         }
         return result;
+    }
+
+    private Map<String, List<FileKey>> getFileKeyMap() {
+        return this.fileKeyMapSupplier.get();
     }
 
     private record LogPileWithSource(FileKey source, LogPile pile) {
