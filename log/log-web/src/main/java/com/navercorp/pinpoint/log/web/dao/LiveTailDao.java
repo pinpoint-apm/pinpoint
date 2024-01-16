@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.log.vo.LogPile;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author youngjin.kim2
@@ -29,8 +28,6 @@ public interface LiveTailDao {
 
     Flux<LogPile> tail(FileKey fileKey);
 
-    Set<String> getHostGroupNames();
-
-    List<FileKey> getFileKeys(String hostGroupName);
+    List<FileKey> getFileKeys();
 
 }

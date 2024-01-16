@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.log.web.dao;
 
-import com.google.common.base.Suppliers;
 import com.navercorp.pinpoint.channel.service.client.FluxChannelServiceClient;
 import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.vo.LogPile;
@@ -24,13 +23,9 @@ import reactor.core.publisher.Flux;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 /**
  * @author youngjin.kim2
@@ -39,9 +34,6 @@ public class LiveTailDaoImpl implements LiveTailDao {
 
     private final RedisTemplate<String, String> redis;
     private final FluxChannelServiceClient<FileKey, LogPile> client;
-
-    private final Supplier<Map<String, List<FileKey>>> fileKeyMapSupplier =
-            Suppliers.memoizeWithExpiration(this::getFileKeyMap, 10, TimeUnit.SECONDS);
 
     public LiveTailDaoImpl(
             RedisTemplate<String, String> redis,
@@ -57,28 +49,7 @@ public class LiveTailDaoImpl implements LiveTailDao {
     }
 
     @Override
-    public Set<String> getHostGroupNames() {
-        return this.fileKeyMapSupplier.get().keySet();
-    }
-
-    @Override
-    public List<FileKey> getFileKeys(String hostGroupName) {
-        return Objects.requireNonNullElse(this.fileKeyMapSupplier.get().get(hostGroupName), List.of());
-    }
-
-    private Map<String, List<FileKey>> getFileKeyMap() {
-        return groupByHostGroupName(getAllFileKeys());
-    }
-
-    private Map<String, List<FileKey>> groupByHostGroupName(List<FileKey> fileKeys) {
-        Map<String, List<FileKey>> result = new HashMap<>(fileKeys.size() * 3);
-        for (FileKey fileKey: fileKeys) {
-            result.computeIfAbsent(fileKey.getHostKey().getHostGroupName(), k -> new ArrayList<>(2)).add(fileKey);
-        }
-        return result;
-    }
-
-    private List<FileKey> getAllFileKeys() {
+    public List<FileKey> getFileKeys() {
         Set<String> keys = this.redis.keys("log:files:*");
         if (keys == null) {
             return List.of();
