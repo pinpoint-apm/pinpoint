@@ -30,6 +30,10 @@ public enum PinotColumns {
     URI_TEMPLATE("uriTemplate"),
     ERROR_CLASS_NAME("errorClassName"),
     ERROR_MESSAGE("errorMessage"),
+    ERROR_MESSAGE_LOG_TYPE("errorMessage" + CLPSuffix.LOGTYPE_COLUMN_SUFFIX),
+    ERROR_MESSAGE_ENCODED_VARS("errorMessage" + CLPSuffix.ENCODED_VARS_COLUMN_SUFFIX),
+    ERROR_MESSAGE_DICTIONARY_VARS("errorMessage" + CLPSuffix.DICTIONARY_VARS_COLUMN_SUFFIX),
+
     EXCEPTION_DEPTH("exceptionDepth"),
     STACK_TRACE_CLASS_NAME("stackTraceClassName"),
     STACK_TRACE_FILE_NAME("stackTraceFileName"),

@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.common.server.mapper;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -65,8 +64,19 @@ public class MapStructUtils {
             return Collections.emptyList();
         }
         try {
-            return mapper.readValue(s, new TypeReference<>() {
-            });
+            List<T> value = mapper.readValue(s, new TypeReference<List<T>>() {});
+            return value;
+        } catch (JacksonException e) {
+            throw new JsonRuntimeException("Json read error", e);
+        }
+    }
+
+    public List<Long> jsonStrToLongList(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return Collections.emptyList();
+        }
+        try {
+            return mapper.readValue(s, new TypeReference<List<Long>>() {});
         } catch (JacksonException e) {
             throw new JsonRuntimeException("Json read error", e);
         }
