@@ -22,6 +22,7 @@ public class GroupedFieldNameEntity {
     private String uriTemplate;
     private String errorClassName;
     private String errorMessage;
+    private String errorMessage_logtype;
     private String stackTraceHash;
 
     public GroupedFieldNameEntity() {
@@ -49,6 +50,14 @@ public class GroupedFieldNameEntity {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public String getErrorMessage_logtype() {
+        return errorMessage_logtype;
+    }
+
+    public void setErrorMessage_logtype(String errorMessage_logtype) {
+        this.errorMessage_logtype = errorMessage_logtype;
     }
 
     public String getStackTraceHash() {

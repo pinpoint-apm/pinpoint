@@ -40,7 +40,10 @@
       ],
       "loadMode": "MMAP",
       "onHeapDictionaryColumns": [],
-      "varLengthDictionaryColumns": [],
+      "varLengthDictionaryColumns": [
+        "errorMessage_logtype",
+        "errorMessage_dictionaryVars"
+      ],
       "enableDefaultStarTree": false,
       "enableDynamicStarTreeCreation": false
     },

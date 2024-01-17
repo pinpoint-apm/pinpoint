@@ -20,34 +20,44 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
+
+import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
 
 /**
  * @author intr3p1d
  */
-@Mapper(componentModel = "spring", uses = {StackTraceMapper.class, MapStructUtils.class})
+@Mapper(
+        componentModel = "spring",
+        uses = {
+                StackTraceMapper.class,
+                MapStructUtils.class
+        }
+)
 public interface ExceptionMetaDataEntityMapper {
 
-    @Mappings(
-            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class)
-    )
+    @Mappings({
+            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
+    })
     ExceptionMetaData toModel(ExceptionMetaDataEntity entity);
 
-    @Mappings(
-            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class)
-    )
+    @Mappings({
+            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
+    })
     ExceptionMetaDataView toView(ExceptionMetaDataEntity entity);
 
     @Mappings({
             @Mapping(source = "values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),
             @Mapping(source = "uriTemplate", target = "groupedFieldName.uriTemplate"),
             @Mapping(source = "errorClassName", target = "groupedFieldName.errorClassName"),
-            @Mapping(source = "errorMessage", target = "groupedFieldName.errorMessage"),
+            @Mapping(source = ".", target = "groupedFieldName.errorMessage", qualifiedByName = "selectErrorMessage"),
             @Mapping(source = "stackTraceHash", target = "groupedFieldName.stackTraceHash")
     })
     ExceptionTraceValueView entityToExceptionTraceValueView(ExceptionTraceValueViewEntity entity);
@@ -55,9 +65,16 @@ public interface ExceptionMetaDataEntityMapper {
     @Mappings({
             @Mapping(source = "uriTemplate", target = "groupedFieldName.uriTemplate"),
             @Mapping(source = "errorClassName", target = "groupedFieldName.errorClassName"),
-            @Mapping(source = "errorMessage", target = "groupedFieldName.errorMessage"),
+            @Mapping(source = ".", target = "groupedFieldName.errorMessage", qualifiedByName = "selectErrorMessage"),
             @Mapping(source = "stackTraceHash", target = "groupedFieldName.stackTraceHash")
     })
     ExceptionTraceSummary entityToExceptionTraceSummary(ExceptionTraceSummaryEntity entity);
 
+    @Named("selectErrorMessage")
+    default String selectErrorMessage(GroupedFieldNameEntity entity) {
+        if (entity.getErrorMessage_logtype() != null) {
+            return replacePlaceHolders(entity.getErrorMessage_logtype());
+        }
+        return entity.getErrorMessage();
+    }
 }

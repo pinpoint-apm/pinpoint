@@ -41,7 +41,8 @@
         "stream.kafka.consumer.type": "lowlevel",
         "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
         "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
-        "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+        "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.inputformat.clplog.CLPLogMessageDecoder",
+        "stream.kafka.decoder.prop.fieldsForClpEncoding": "errorMessage",
         "realtime.segment.flush.threshold.rows": "0",
         "realtime.segment.flush.threshold.time": "24h",
         "realtime.segment.flush.segment.size": "100M"
@@ -51,7 +52,10 @@
       ],
       "loadMode": "MMAP",
       "onHeapDictionaryColumns": [],
-      "varLengthDictionaryColumns": [],
+      "varLengthDictionaryColumns": [
+        "errorMessage_logtype",
+        "errorMessage_dictionaryVars"
+      ],
       "enableDefaultStarTree": false,
       "enableDynamicStarTreeCreation": false
     },

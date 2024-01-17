@@ -203,7 +203,7 @@ class ExceptionMetaDataEntityMapperTest {
 
     @Test
     public void testEntityToSummary() {
-        ExceptionTraceSummaryEntity expected = newExceptionTraceSymmaryEntity();
+        ExceptionTraceSummaryEntity expected = newExceptionTraceSummaryEntity();
 
         ExceptionTraceSummary actual = mapper.entityToExceptionTraceSummary(expected);
 
@@ -219,7 +219,7 @@ class ExceptionMetaDataEntityMapperTest {
         Assertions.assertEquals(expected.getStackTraceHash(), actual.getGroupedFieldName().getStackTraceHash());
     }
 
-    private ExceptionTraceSummaryEntity newExceptionTraceSymmaryEntity() {
+    private ExceptionTraceSummaryEntity newExceptionTraceSummaryEntity() {
         ExceptionTraceSummaryEntity entity = new ExceptionTraceSummaryEntity();
 
         entity.setMostRecentErrorClass("MostRecentErrorClass");
@@ -234,4 +234,5 @@ class ExceptionMetaDataEntityMapperTest {
         entity.setStackTraceHash("stackTraceHash");
         return entity;
     }
+
 }
