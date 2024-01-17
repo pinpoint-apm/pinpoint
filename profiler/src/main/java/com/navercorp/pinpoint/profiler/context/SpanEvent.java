@@ -52,6 +52,8 @@ public class SpanEvent extends DefaultFrameAttachment {
 
     private AsyncId asyncIdObject;
 
+    private boolean executeQueryType;
+
     public SpanEvent() {
     }
 
@@ -204,6 +206,14 @@ public class SpanEvent extends DefaultFrameAttachment {
         return asyncIdObject;
     }
 
+    public void setExecuteQueryType(boolean executeQueryType) {
+        this.executeQueryType = executeQueryType;
+    }
+
+    public boolean isExecuteQueryType() {
+        return executeQueryType;
+    }
+
     @Override
     public String toString() {
         return "SpanEvent{" +
@@ -221,6 +231,7 @@ public class SpanEvent extends DefaultFrameAttachment {
                 ", destinationId='" + destinationId + '\'' +
                 ", apiId=" + apiId +
                 ", exceptionInfo=" + exceptionInfo +
+                ", executeQueryType=" + executeQueryType +
                 "} ";
     }
 }
