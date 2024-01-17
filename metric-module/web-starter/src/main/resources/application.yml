@@ -1,6 +1,9 @@
 spring:
   main:
     allow-bean-definition-overriding: true
+  jackson:
+    mapper:
+      default-view-inclusion: true
   profiles:
     active: release, metric
 
