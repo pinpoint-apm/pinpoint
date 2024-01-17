@@ -58,8 +58,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     private ExceptionContext exceptionContext;
 
-    private DatabaseInfo databaseInfo;
-
     public WrappedSpanEventRecorder(TraceRoot traceRoot,
                                     AsyncContextFactory asyncContextFactory,
                                     StringMetaDataService stringMetaDataService,
@@ -89,7 +87,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     public void setWrapped(final SpanEvent spanEvent, ExceptionContext exceptionContext) {
         this.spanEvent = spanEvent;
         this.exceptionContext = exceptionContext;
-        this.databaseInfo = null;
     }
 
     @Override
@@ -116,14 +113,14 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         Annotation<?> sqlAnnotation = this.sqlMetaDataService.newSqlAnnotation(parsingResult, bindValue);
         spanEvent.addAnnotation(sqlAnnotation);
 
-        if (databaseInfo != null && spanEvent.getServiceType() == databaseInfo.getExecuteQueryType().getCode()) {
+        if (spanEvent.isExecuteQueryType()) {
             sqlCountService.recordSqlCount(this.traceRoot);
         }
     }
 
     @Override
     public void recordDatabaseInfo(DatabaseInfo databaseInfo, boolean executeQueryType) {
-        this.databaseInfo = databaseInfo;
+        this.spanEvent.setExecuteQueryType(executeQueryType);
         recordServiceType(executeQueryType ? databaseInfo.getExecuteQueryType() : databaseInfo.getType());
         recordEndPoint(databaseInfo.getMultipleHost());
         recordDestinationId(databaseInfo.getDatabaseId());
