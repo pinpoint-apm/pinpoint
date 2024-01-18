@@ -79,7 +79,8 @@
                     <mainClass>com.navercorp.pinpoint.collector.starter.multi.application.MultiApplication</mainClass>
                     <outputDirectory>target/deploy</outputDirectory>
                     <executable>true</executable>
-                    <attach>false</attach>
+                    <attach>true</attach>
+                    <classifier>exec</classifier>
                     <finalName>${pinpoint.collector.executable.name}</finalName>
                     <image>
                         <name>${docker.repository.name}/pinpoint-collector</name>

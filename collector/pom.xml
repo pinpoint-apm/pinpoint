@@ -292,7 +292,8 @@
                     <mainClass>com.navercorp.pinpoint.collector.CollectorApp</mainClass>
                     <outputDirectory>${project.build.directory}/deploy</outputDirectory>
                     <executable>true</executable>
-                    <attach>false</attach>
+                    <attach>true</attach>
+                    <classifier>exec</classifier>
                     <finalName>${pinpoint.collector.executable.name}</finalName>
                     <image>
                         <name>${docker.repository.name}/pinpoint-collector</name>
