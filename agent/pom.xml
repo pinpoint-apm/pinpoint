@@ -199,6 +199,7 @@
                             </descriptors>
                             <skipAssembly>${skip.agent.distribution}</skipAssembly>
                             <tarLongFileMode>posix</tarLongFileMode>
+                            <attach>true</attach>
                         </configuration>
                     </execution>
                 </executions>

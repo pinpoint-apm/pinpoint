@@ -119,7 +119,8 @@
                     <mainClass>com.navercorp.pinpoint.log.collector.LogCollectorApp</mainClass>
                     <outputDirectory>${project.build.directory}/deploy</outputDirectory>
                     <executable>true</executable>
-                    <attach>false</attach>
+                    <attach>true</attach>
+                    <classifier>exec</classifier>
                     <finalName>${pinpoint.log.collector.executable.name}</finalName>
                 </configuration>
             </plugin>
