@@ -120,7 +120,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             node.setNodeHistogram(nodeHistogram);
             ServerGroupList serverGroupList = serverGroupListFactory.createWasNodeInstanceList(node, option.getRange().getToInstant());
             return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
-        } else if (applicationServiceType.isTerminal() || applicationServiceType.isUnknown() || applicationServiceType.isAlias()) {
+        } else if (isTerminal(applicationServiceType)) {
             if (sourceApplications.isEmpty()) {
                 return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
             }
@@ -169,6 +169,10 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         } else {
             return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
         }
+    }
+
+    private boolean isTerminal(ServiceType applicationServiceType) {
+        return applicationServiceType.isTerminal() || applicationServiceType.isUnknown() || applicationServiceType.isAlias();
     }
 
     private NodeHistogramSummary createEmptyNodeHistogramSummary(ServerGroupListFactory serverGroupListFactory, Application application, Range range) {

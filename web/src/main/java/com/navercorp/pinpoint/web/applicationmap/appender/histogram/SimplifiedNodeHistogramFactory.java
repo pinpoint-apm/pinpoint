@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
@@ -40,14 +41,16 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
 
         // create applicationHistogram
         final List<Link> toLinkList = linkList.findToLink(terminalApplication);
-        final Histogram applicationHistogram = new Histogram(terminalApplication.getServiceType());
+
+        final ServiceType terminalService = terminalApplication.getServiceType();
+        final Histogram applicationHistogram = new Histogram(terminalService);
         for (Link link : toLinkList) {
             applicationHistogram.add(link.getHistogram());
         }
         nodeHistogram.setApplicationHistogram(applicationHistogram);
 
         // create Agent histogram map for StatisticsAgentState
-        if (terminalApplication.getServiceType().isTerminal() || terminalApplication.getServiceType().isAlias()) {
+        if (terminalService.isTerminal() || terminalService.isAlias()) {
             final Map<String, Histogram> agentHistogramMap = new HashMap<>();
             for (Link link : toLinkList) {
                 LinkCallDataMap inLink = link.getInLink();

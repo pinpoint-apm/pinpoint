@@ -73,15 +73,15 @@ public class TraceViewerDataViewModel {
         Record prev = null;
         Record possibleException = null;
 
-        List<Stack<Record>> recordTraces = new ArrayList<Stack<Record>>();
+        List<Stack<Record>> recordTraces = new ArrayList<>();
 
         for (Record record : recordSet.getRecordList()) {
             if (record.getElapsed() != 0) {
                 boolean isRecordHighlighted = StringUtils.equals(recordSet.getApplicationId(), record.getApplicationName());
                 boolean isApplicationNameChanged = !previousAppName.equals(record.getApplicationName());
 
-                if (recordTraces.size() == 0) {
-                    Stack<Record> recordTrace = new Stack<Record>();
+                if (recordTraces.isEmpty()) {
+                    Stack<Record> recordTrace = new Stack<>();
                     recordTrace.push(record);
                     recordTraces.add(recordTrace);
                     occupiedRange.add(new Long[]{record.getBegin(), record.getBegin() + record.getElapsed()});
@@ -100,8 +100,10 @@ public class TraceViewerDataViewModel {
                 previousAppName = record.getApplicationName();
                 prev = record;
             } else {
-                if ((record.getTitle().equals("SQL") || (record.getTitle().equals("MONGO-JSON")))) {
-                    addQueryInfo(prev, record);
+                if (isQueryTitle(record.getTitle())) {
+                    if (prev != null) {
+                        addQueryInfo(prev, record);
+                    }
                 }
 
                 if (record.getHasException()) {
@@ -114,7 +116,10 @@ public class TraceViewerDataViewModel {
             }
             possibleException = record;
         }
+    }
 
+    private boolean isQueryTitle(String title) {
+        return "SQL".equals(title) || "MONGO-JSON".equals(title);
     }
 
     private void addToInvisibleRecords(Record record) {

@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
@@ -65,7 +66,8 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
                 searchResult.addSourceLinkData(outLinkData);
                 final Application toApplication = outLinkData.getToApplication();
                 // skip if nextApplication is a terminal or an unknown cloud
-                if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
+                final ServiceType toServiceType = toApplication.getServiceType();
+                if (toServiceType.isTerminal() || toServiceType.isUnknown()) {
                     continue;
                 }
                 linkSelectContext.addNextApplication(toApplication);
