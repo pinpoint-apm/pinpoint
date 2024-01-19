@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.metric.web.model.chart;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -29,7 +28,7 @@ import java.io.IOException;
 public class AgentStatPointSerializer extends JsonSerializer<AgentStatPoint<? extends Number>> {
 
     @Override
-    public void serialize(AgentStatPoint<? extends Number> agentStatPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+    public void serialize(AgentStatPoint<? extends Number> agentStatPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
         jgen.writeStartArray();
         jgen.writeObject(agentStatPoint.getMinYVal());
         jgen.writeObject(agentStatPoint.getMaxYVal());

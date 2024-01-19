@@ -17,14 +17,11 @@
 package com.navercorp.pinpoint.metric.collector.model.serialize;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
-
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
-
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.TagComparator;
@@ -47,7 +44,7 @@ public class TelegrafJsonDeserializer extends JsonDeserializer<TelegrafMetrics> 
     }
 
     @Override
-    public TelegrafMetrics deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public TelegrafMetrics deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         if (jp.nextToken() != JsonToken.FIELD_NAME) {
             ctxt.handleUnexpectedToken(TelegrafMetrics.class, jp);
         }

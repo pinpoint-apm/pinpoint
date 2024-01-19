@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -50,7 +49,7 @@ public class FilterDescriptor {
 
     public static class FilterDescriptorDeserializer extends JsonDeserializer<FilterDescriptor> {
         @Override
-        public FilterDescriptor deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public FilterDescriptor deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode jsonNode = p.readValueAsTree();
 
             FromNode fromNode = readValueAs(FromNode.class, jsonNode, p);

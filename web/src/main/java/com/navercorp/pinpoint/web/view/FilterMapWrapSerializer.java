@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
@@ -38,7 +37,7 @@ import java.util.Map;
  */
 public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
     @Override
-    public void serialize(FilterMapWrap wrap, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(FilterMapWrap wrap, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
 
         jgen.writeObjectField("applicationMapData", wrap.getApplicationMap());

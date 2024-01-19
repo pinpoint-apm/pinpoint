@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -28,7 +27,7 @@ import java.io.IOException;
 public class TransactionInfoCallStackSerializer extends JsonSerializer<TransactionInfoViewModel.CallStack> {
 
     @Override
-    public void serialize(TransactionInfoViewModel.CallStack value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(TransactionInfoViewModel.CallStack value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartArray();
         jgen.writeString(value.getDepth());
         jgen.writeNumber(value.getBegin());

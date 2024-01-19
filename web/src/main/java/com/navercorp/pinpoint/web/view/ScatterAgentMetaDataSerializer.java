@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.scatter.ScatterAgentMetaData;
@@ -32,7 +31,7 @@ import java.util.Set;
 public class ScatterAgentMetaDataSerializer extends JsonSerializer<ScatterAgentMetaData> {
 
     @Override
-    public void serialize(ScatterAgentMetaData value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(ScatterAgentMetaData value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
 
         Set<Map.Entry<Integer, DotAgentInfo>> entries = value.entrySet();
