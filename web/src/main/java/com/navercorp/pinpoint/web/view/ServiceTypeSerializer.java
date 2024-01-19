@@ -14,13 +14,12 @@
  */
 package com.navercorp.pinpoint.web.view;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+
+import java.io.IOException;
 
 /**
  * @author Jongho Moon
@@ -29,7 +28,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public class ServiceTypeSerializer extends JsonSerializer<ServiceType> {
 
     @Override
-    public void serialize(ServiceType value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(ServiceType value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeString(value.getName());
     }
 

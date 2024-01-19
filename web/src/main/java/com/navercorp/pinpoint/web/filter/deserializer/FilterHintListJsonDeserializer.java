@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.filter.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -35,7 +34,7 @@ import java.util.List;
 public class FilterHintListJsonDeserializer extends JsonDeserializer<FilterHint> {
 
     @Override
-    public FilterHint deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public FilterHint deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         if (!jp.getCurrentToken().isStructStart()) {
             ctxt.handleUnexpectedToken(RpcHint.class, jp);
         }

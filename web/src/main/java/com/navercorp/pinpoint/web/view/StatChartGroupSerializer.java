@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -37,7 +36,7 @@ import java.util.Set;
 public class StatChartGroupSerializer extends JsonSerializer<StatChartGroup> {
 
     @Override
-    public void serialize(StatChartGroup statChartGroup, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+    public void serialize(StatChartGroup statChartGroup, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
         jgen.writeStartObject();
         Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = statChartGroup.getCharts();
         writeSchema(jgen, charts.keySet());

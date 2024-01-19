@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 
 import java.io.IOException;
 
@@ -32,7 +31,7 @@ public class HistogramSerializer extends JsonSerializer<Histogram> {
 
 
     @Override
-    public void serialize(Histogram histogram, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(Histogram histogram, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         final HistogramSchema schema = histogram.getHistogramSchema();
 

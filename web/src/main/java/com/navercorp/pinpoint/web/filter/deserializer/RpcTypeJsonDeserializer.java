@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.filter.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.navercorp.pinpoint.web.filter.RpcType;
@@ -34,7 +33,7 @@ public class RpcTypeJsonDeserializer extends JsonDeserializer<RpcType> {
     }
 
     @Override
-    public RpcType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public RpcType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         String address = jp.getText();
         jp.nextToken();
         int serviceCode = jp.getIntValue();

@@ -87,7 +87,7 @@ public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
 
         };
         @Override
-        public List<Tag> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+        public List<Tag> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
             List<String> list = jsonParser.readValueAs(REF);
             List<Tag> tagList = new ArrayList<>();

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -30,7 +29,7 @@ import java.io.IOException;
 public class ApplicationSerializer extends JsonSerializer<Application> {
 
     @Override
-    public void serialize(Application application, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(Application application, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         jgen.writeStringField("applicationName", application.getName());
         jgen.writeStringField("serviceType", application.getServiceType().getDesc());

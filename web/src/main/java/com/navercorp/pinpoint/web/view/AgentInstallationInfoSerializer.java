@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.install.model.AgentInstallationInfo;
@@ -30,7 +29,7 @@ import java.io.IOException;
 public class AgentInstallationInfoSerializer  extends JsonSerializer<AgentInstallationInfo> {
 
     @Override
-    public void serialize(AgentInstallationInfo installationInfo, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(AgentInstallationInfo installationInfo, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
 
         jgen.writeStringField("version", installationInfo.getVersion());
