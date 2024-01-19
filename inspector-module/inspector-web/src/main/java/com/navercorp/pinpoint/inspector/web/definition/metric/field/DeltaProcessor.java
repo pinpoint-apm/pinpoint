@@ -30,7 +30,7 @@ public class DeltaProcessor implements FieldPostProcessor {
 
     @Override
     public List<SystemMetricPoint<Double>> postProcess(List<SystemMetricPoint<Double>> systemMetricPointList) {
-        if (systemMetricPointList.size() == 0) {
+        if (systemMetricPointList.isEmpty()) {
             return systemMetricPointList;
         }
 

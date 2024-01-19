@@ -193,7 +193,7 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT extends SpringAmqpRabbitITBase {
             }
         }
 
-        if (availableMethodList.size() == 0) {
+        if (availableMethodList.isEmpty()) {
             throw new NoSuchMethodException("executeListener");
         } else if (availableMethodList.size() == 1) {
             return availableMethodList.get(0);
