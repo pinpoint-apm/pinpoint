@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapper;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
@@ -72,15 +73,20 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     private List<ClientInterceptor> clientInterceptorList;
     private final Provider<SslContext> sslContextProvider;
 
+    private final ThreadDumpMapper threadDumpMapper;
+
     @Inject
-    public AgentGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
-                                       @MetadataDataSender MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
-                                       HeaderFactory headerFactory,
-                                       Provider<ReconnectExecutor> reconnectExecutor,
-                                       ScheduledExecutorService retransmissionExecutor,
-                                       NameResolverProvider nameResolverProvider,
-                                       ActiveTraceRepository activeTraceRepository,
-                                       Provider<SslContext> sslContextProvider) {
+    public AgentGrpcDataSenderProvider(
+            GrpcTransportConfig grpcTransportConfig,
+            @MetadataDataSender MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
+            HeaderFactory headerFactory,
+            Provider<ReconnectExecutor> reconnectExecutor,
+            ScheduledExecutorService retransmissionExecutor,
+            NameResolverProvider nameResolverProvider,
+            ActiveTraceRepository activeTraceRepository,
+            Provider<SslContext> sslContextProvider,
+            ThreadDumpMapper threadDumpMapper
+    ) {
         this.grpcTransportConfig = Objects.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
         this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
         this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
@@ -93,6 +99,8 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
 
         this.sslContextProvider = Objects.requireNonNull(sslContextProvider, "sslContextProvider");
+
+        this.threadDumpMapper = Objects.requireNonNull(threadDumpMapper, "threadDumpMapper");
     }
 
     @Inject(optional = true)
@@ -120,10 +128,10 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     }
 
     protected EnhancedDataSender<MetaDataType, ResponseMessage> newAgentGrpcDataSender(String collectorIp, int collectorPort, int senderExecutorQueueSize,
-                                                                MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
-                                                                ChannelFactory channelFactory, ReconnectExecutor reconnectExecutor,
-                                                                ScheduledExecutorService retransmissionExecutor,
-                                                                ProfilerCommandServiceLocator profilerCommandServiceLocator) {
+                                                                                       MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
+                                                                                       ChannelFactory channelFactory, ReconnectExecutor reconnectExecutor,
+                                                                                       ScheduledExecutorService retransmissionExecutor,
+                                                                                       ProfilerCommandServiceLocator profilerCommandServiceLocator) {
         return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, channelFactory, profilerCommandServiceLocator);
     }
 
@@ -159,8 +167,8 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         profilerCommandLocatorBuilder.addService(new GrpcEchoService());
         if (activeTraceRepository != null) {
             profilerCommandLocatorBuilder.addService(new GrpcActiveThreadCountService(activeTraceRepository));
-            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadDumpService(activeTraceRepository));
-            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadLightDumpService(activeTraceRepository));
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadDumpService(activeTraceRepository, threadDumpMapper));
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadLightDumpService(activeTraceRepository, threadDumpMapper));
         }
 
         final ProfilerCommandServiceLocator commandServiceLocator = profilerCommandLocatorBuilder.build();

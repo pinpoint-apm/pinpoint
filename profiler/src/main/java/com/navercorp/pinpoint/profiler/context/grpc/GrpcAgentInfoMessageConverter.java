@@ -17,87 +17,29 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
-import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
-import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
-import com.navercorp.pinpoint.grpc.trace.PJvmInfo;
-import com.navercorp.pinpoint.grpc.trace.PServerMetaData;
-import com.navercorp.pinpoint.grpc.trace.PServiceInfo;
-import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.JvmInformation;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcAgentInfoMessageConverter implements MessageConverter<MetaDataType, GeneratedMessageV3> {
+    private final AgentInfoMapper mapper;
 
-    private final GrpcJvmGcTypeMessageConverter jvmGcTypeMessageConverter = new GrpcJvmGcTypeMessageConverter();
+    public GrpcAgentInfoMessageConverter(AgentInfoMapper agentInfoMapper) {
+        this.mapper = Objects.requireNonNull(agentInfoMapper, "agentInfoMapper");
+    }
 
     @Override
     public GeneratedMessageV3 toMessage(MetaDataType message) {
         if (message instanceof AgentInfo) {
             final AgentInfo agentInfo = (AgentInfo) message;
-            return convertAgentInfo(agentInfo);
+            return mapper.map(agentInfo);
         }
         return null;
-    }
-
-
-    public PAgentInfo convertAgentInfo(final AgentInfo agentInfo) {
-        final AgentInformation agentInformation = agentInfo.getAgentInformation();
-
-        final PAgentInfo.Builder builder = PAgentInfo.newBuilder();
-        builder.setIp(agentInformation.getHostIp());
-        builder.setHostname(agentInformation.getMachineName());
-        builder.setPorts("");
-        builder.setContainer(agentInformation.isContainer());
-        builder.setPid(agentInformation.getPid());
-        builder.setServiceType(agentInformation.getServerType().getCode());
-        builder.setVmVersion(agentInformation.getJvmVersion());
-        builder.setAgentVersion(Version.VERSION);
-
-        final ServerMetaData serverMetaData = agentInfo.getServerMetaData();
-        if (serverMetaData != null) {
-            final PServerMetaData tServerMetaData = convertServerMetaData(agentInfo.getServerMetaData());
-            builder.setServerMetaData(tServerMetaData);
-        }
-
-        final JvmInformation jvmInformation = agentInfo.getJvmInfo();
-        if (jvmInformation != null) {
-            final PJvmInfo tJvmInfo = convertJvmInfo(agentInfo.getJvmInfo());
-            builder.setJvmInfo(tJvmInfo);
-        }
-        return builder.build();
-    }
-
-    private PServerMetaData convertServerMetaData(final ServerMetaData serverMetaData) {
-        final PServerMetaData.Builder serverMetaDataBuilder = PServerMetaData.newBuilder();
-        serverMetaDataBuilder.setServerInfo(serverMetaData.getServerInfo());
-        serverMetaDataBuilder.addAllVmArg(serverMetaData.getVmArgs());
-        final List<PServiceInfo> serviceInfoList = new ArrayList<PServiceInfo>();
-        for (ServiceInfo serviceInfo : serverMetaData.getServiceInfos()) {
-            final PServiceInfo.Builder serviceInfoBuilder = PServiceInfo.newBuilder();
-            serviceInfoBuilder.setServiceName(serviceInfo.getServiceName());
-            serviceInfoBuilder.addAllServiceLib(serviceInfo.getServiceLibs());
-            serviceInfoList.add(serviceInfoBuilder.build());
-        }
-        serverMetaDataBuilder.addAllServiceInfo(serviceInfoList);
-        return serverMetaDataBuilder.build();
-    }
-
-    private PJvmInfo convertJvmInfo(final JvmInformation jvmInformation) {
-        final PJvmInfo.Builder builder = PJvmInfo.newBuilder();
-        builder.setVmVersion(jvmInformation.getJvmVersion());
-        PJvmGcType gcType = this.jvmGcTypeMessageConverter.toMessage(jvmInformation.getJvmGcType());
-        builder.setGcType(gcType);
-        return builder.build();
     }
 }

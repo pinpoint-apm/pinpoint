@@ -38,6 +38,19 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverter
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetterProvider;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapperImpl;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ExceptionMetaDataMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.JvmGcTypeMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.MetaDataMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.UriStatMapper;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentHeaderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
@@ -62,6 +75,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mapstruct.factory.Mappers;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -105,6 +119,8 @@ public class GrpcModule extends PrivateModule {
         // not singleton
         bind(ReconnectExecutor.class).toProvider(ReconnectExecutorProvider.class);
 
+        bindMappers();
+
         bindAgentDataSender();
 
         bindSpanDataSender();
@@ -125,18 +141,39 @@ public class GrpcModule extends PrivateModule {
         LoadBalancerRegistry.getDefaultRegistry().register(new SubconnectionExpiringLoadBalancerProvider(grpcTransportConfig));
     }
 
+    private void bindMappers() {
+        bind(SpanUriGetter.class).toProvider(SpanUriGetterProvider.class).in(Scopes.SINGLETON);
+
+        bind(AnnotationValueMapper.class).toInstance(Mappers.getMapper(AnnotationValueMapper.class));
+        bind(JvmGcTypeMapper.class).toInstance(Mappers.getMapper(JvmGcTypeMapper.class));
+
+        bind(CustomMetricMapper.class).toInstance(Mappers.getMapper(CustomMetricMapper.class));
+        bind(ExceptionMetaDataMapper.class).toInstance(Mappers.getMapper(ExceptionMetaDataMapper.class));
+        bind(MetaDataMapper.class).toInstance(Mappers.getMapper(MetaDataMapper.class));
+        bind(ThreadDumpMapper.class).toInstance(Mappers.getMapper(ThreadDumpMapper.class));
+        bind(UriStatMapper.class).toInstance(Mappers.getMapper(UriStatMapper.class));
+
+
+        bind(SpanMessageMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl.class);
+        bind(AgentInfoMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapperImpl.class);
+        bind(AgentStatMapper.class).to(com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapperImpl.class);
+    }
+
     private void bindAgentDataSender() {
         // Agent
-        TypeLiteral<MessageConverter<MetaDataType, GeneratedMessageV3>> metadataMessageConverter = new TypeLiteral<MessageConverter<MetaDataType, GeneratedMessageV3>>() {};
+        TypeLiteral<MessageConverter<MetaDataType, GeneratedMessageV3>> metadataMessageConverter = new TypeLiteral<MessageConverter<MetaDataType, GeneratedMessageV3>>() {
+        };
         Key<MessageConverter<MetaDataType, GeneratedMessageV3>> metadataMessageConverterKey = Key.get(metadataMessageConverter, MetadataDataSender.class);
-        bind(metadataMessageConverterKey).toProvider(GrpcMetadataMessageConverterProvider.class ).in(Scopes.SINGLETON);
+        bind(metadataMessageConverterKey).toProvider(GrpcMetadataMessageConverterProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {};
+        TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {
+        };
         Key<MessageConverter<Object, ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
-        bind(resultMessageConverterKey).toProvider(GrpcMessageToResultConverterProvider.class ).in(Scopes.SINGLETON);
+        bind(resultMessageConverterKey).toProvider(GrpcMessageToResultConverterProvider.class).in(Scopes.SINGLETON);
         expose(resultMessageConverterKey);
 
-        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {};
+        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {
+        };
         Key<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
         bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(agentDataSender);
@@ -148,11 +185,13 @@ public class GrpcModule extends PrivateModule {
 
     private void bindStatDataSender() {
         // Stat
-        TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>> statMessageConverter = new TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>>() {};
+        TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>> statMessageConverter = new TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>>() {
+        };
         Key<MessageConverter<MetricType, GeneratedMessageV3>> statMessageConverterKey = Key.get(statMessageConverter, StatDataSender.class);
-        bind(statMessageConverterKey).toProvider(GrpcStatMessageConverterProvider.class ).in(Scopes.SINGLETON);
+        bind(statMessageConverterKey).toProvider(GrpcStatMessageConverterProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {};
+        TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {
+        };
         Key<DataSender<MetricType>> statDataSender = Key.get(statDataSenderType, StatDataSender.class);
         bind(statDataSender).toProvider(StatGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(statDataSender);
@@ -160,15 +199,18 @@ public class GrpcModule extends PrivateModule {
 
     private void bindSpanDataSender() {
         // Span
-        TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {};
+        TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {
+        };
         Key<MessageConverter<SpanType, GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanDataSender.class);
+
         // not singleton
         bind(spanMessageConverterKey).toProvider(GrpcSpanMessageConverterProvider.class);
-
-        TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> spanPostProcessorType = new TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>() {};
+        TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> spanPostProcessorType = new TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>() {
+        };
         bind(spanPostProcessorType).toProvider(GrpcSpanProcessorProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
+        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {
+        };
         Key<DataSender<SpanType>> spanDataSender = Key.get(spanDataSenderType, SpanDataSender.class);
         bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(spanDataSender);

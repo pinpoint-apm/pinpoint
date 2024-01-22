@@ -13,6 +13,10 @@ import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaData;
 import com.navercorp.pinpoint.profiler.context.DefaultServiceInfo;
 import com.navercorp.pinpoint.profiler.context.TestAgentInformation;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapperImpl;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.JvmGcTypeMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.JvmGcTypeMapperImpl;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import org.junit.jupiter.api.Test;
@@ -30,7 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class GrpcAgentInfoMessageConverterTest {
 
-    private final GrpcAgentInfoMessageConverter converter = new GrpcAgentInfoMessageConverter();
+    private final JvmGcTypeMapper jvmGcTypeMapper = new JvmGcTypeMapperImpl();
+    private final AgentInfoMapper mapper = new AgentInfoMapperImpl(jvmGcTypeMapper);
+    private final GrpcAgentInfoMessageConverter converter = new GrpcAgentInfoMessageConverter(mapper);
 
     @Test
     void testMapAgentInfo() {
@@ -44,7 +50,7 @@ class GrpcAgentInfoMessageConverterTest {
                 ),
                 new JvmInformation("1.0", JvmGcType.G1)
         );
-        PAgentInfo pAgentInfo = converter.convertAgentInfo(agentInfo);
+        PAgentInfo pAgentInfo = (PAgentInfo) converter.toMessage(agentInfo);
 
 
         AgentInformation agentInformation = agentInfo.getAgentInformation();

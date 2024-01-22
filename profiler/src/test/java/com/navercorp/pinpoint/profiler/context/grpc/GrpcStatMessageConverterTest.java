@@ -5,6 +5,14 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PDataSource;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapperImpl;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapperImpl;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.JvmGcTypeMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.JvmGcTypeMapperImpl;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.UriStatMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.UriStatMapperImpl;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
@@ -188,8 +196,14 @@ class GrpcStatMessageConverterTest {
         );
     }
 
+    private final JvmGcTypeMapper jvmGcTypeMapper = new JvmGcTypeMapperImpl();
+    private final AgentStatMapper agentStatMapper = new AgentStatMapperImpl(jvmGcTypeMapper);
+    private final CustomMetricMapper customMetricMapper = new CustomMetricMapperImpl();
+    private final UriStatMapper uriStatMapper = new UriStatMapperImpl();
 
-    private final GrpcStatMessageConverter converter = new GrpcStatMessageConverter();
+    private final GrpcStatMessageConverter converter = new GrpcStatMessageConverter(
+            agentStatMapper, customMetricMapper, uriStatMapper
+    );
 
     @Test
     void testAgentStat() {

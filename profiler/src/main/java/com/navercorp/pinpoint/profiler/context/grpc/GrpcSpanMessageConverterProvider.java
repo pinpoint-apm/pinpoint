@@ -19,17 +19,14 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.grpc.config.SpanAutoUriGetter;
-import com.navercorp.pinpoint.profiler.context.grpc.config.SpanRawUriGetter;
-import com.navercorp.pinpoint.profiler.context.grpc.config.SpanTemplateUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 
@@ -39,45 +36,28 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcSpanMessageConverterProvider implements Provider<MessageConverter<SpanType, GeneratedMessageV3>> {
-    public static final String SPAN_COLLECTED_URI_CONFIG = "profiler.span.collected.uri.type";
 
     private final String agentId;
     private final short applicationServiceTypeCode;
-
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor;
-
-    public enum SpanUriType {
-        TEMPLATE, RAW, AUTO
-    }
-
     private final SpanUriGetter spanUriGetter;
-
+    private final SpanMessageMapper mapper;
 
     @Inject
     public GrpcSpanMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
                                             SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor,
-                                            ProfilerConfig profilerConfig) {
+                                            SpanUriGetter spanUriGetter,
+                                            SpanMessageMapper spanMessageMapper) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceTypeCode = applicationServiceType.getCode();
         this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
-        Objects.requireNonNull(profilerConfig, "profilerConfig");
-        SpanUriType spanCollectedUriType = SpanUriType.valueOf(profilerConfig.readString(SPAN_COLLECTED_URI_CONFIG, "AUTO"));
-        this.spanUriGetter = getSpanUriGetter(spanCollectedUriType);
+        this.spanUriGetter = Objects.requireNonNull(spanUriGetter, "spanUriGetter");
+        this.mapper = Objects.requireNonNull(spanMessageMapper, "spanMessageMapper");
     }
 
     @Override
     public MessageConverter<SpanType, GeneratedMessageV3> get() {
-        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor, spanUriGetter);
+        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor, mapper);
     }
 
-    private SpanUriGetter getSpanUriGetter(SpanUriType spanCollectedUriType) {
-        switch (spanCollectedUriType) {
-            case RAW:
-                return new SpanRawUriGetter();
-            case TEMPLATE:
-                return new SpanTemplateUriGetter();
-            default:
-                return new SpanAutoUriGetter();
-        }
-    }
 }

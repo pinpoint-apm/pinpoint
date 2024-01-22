@@ -16,16 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
-import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 
 /**
  * @author emeroad
  */
-public class ShortAnnotation implements Annotation<Short>,
-        GrpcAnnotationSerializable {
+public class ShortAnnotation implements Annotation<Short> {
     private final int key;
     private final short value;
 
@@ -43,15 +39,6 @@ public class ShortAnnotation implements Annotation<Short>,
     public Short getValue() {
         return value;
     }
-
-
-    @Override
-    public PAnnotationValue apply(GrpcAnnotationValueMapper context) {
-        PAnnotationValue.Builder builder = context.getAnnotationBuilder();
-        builder.setShortValue(this.value);
-        return builder.build();
-    }
-
 
     @Override
     public String toString() {

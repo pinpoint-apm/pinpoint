@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.profiler.context.grpc;
+package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.DoubleGauge;
@@ -8,6 +8,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetric;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
+import com.navercorp.pinpoint.grpc.trace.PDouleGaugeMetric;
+import com.navercorp.pinpoint.grpc.trace.PIntCountMetric;
+import com.navercorp.pinpoint.grpc.trace.PIntGaugeMetric;
+import com.navercorp.pinpoint.grpc.trace.PLongCountMetric;
+import com.navercorp.pinpoint.grpc.trace.PLongGaugeMetric;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.DoubleGaugeWrapper;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.IntCounterWrapper;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.IntGaugeWrapper;
@@ -33,11 +38,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author intr3p1d
  */
-class GrpcCustomMetricMessageConverterTest {
+class CustomMetricMapperTest {
 
     private static final Random random = new Random();
     private static final int size = 20;
-    GrpcCustomMetricMessageConverter converter = new GrpcCustomMetricMessageConverter();
+    CustomMetricMapper mapper = new CustomMetricMapperImpl();
 
 
     static AgentCustomMetricSnapshotBatch newAgentCustomMetricSnapshotBatch(CustomMetricVo[] customMetricVos) {
@@ -182,7 +187,7 @@ class GrpcCustomMetricMessageConverterTest {
         final String randomString = randomString();
         IntCountMetricVo[] intCountMetricVos = newIntCountMetricVos(randomString);
         AgentCustomMetricSnapshotBatch batch = newAgentCustomMetricSnapshotBatch(intCountMetricVos);
-        PCustomMetricMessage pCustomMetricMessage = converter.toMessage(batch);
+        PCustomMetricMessage pCustomMetricMessage = mapper.map(batch);
 
         PCustomMetric pCustomMetric = pCustomMetricMessage.getCustomMetrics(0);
         assertEquals(randomString, pCustomMetric.getIntCountMetric().getName());
@@ -204,7 +209,7 @@ class GrpcCustomMetricMessageConverterTest {
         final String randomString = randomString();
         LongCountMetricVo[] longCountMetricVos = newLongCountMetricVos(randomString);
         AgentCustomMetricSnapshotBatch batch = newAgentCustomMetricSnapshotBatch(longCountMetricVos);
-        PCustomMetricMessage pCustomMetricMessage = converter.toMessage(batch);
+        PCustomMetricMessage pCustomMetricMessage = mapper.map(batch);
 
         PCustomMetric pCustomMetric = pCustomMetricMessage.getCustomMetrics(0);
         assertEquals(randomString, pCustomMetric.getLongCountMetric().getName());
@@ -226,7 +231,7 @@ class GrpcCustomMetricMessageConverterTest {
         final String randomString = randomString();
         IntGaugeMetricVo[] intGaugeMetricVos = newIntGaugeMetricVos(randomString);
         AgentCustomMetricSnapshotBatch batch = newAgentCustomMetricSnapshotBatch(intGaugeMetricVos);
-        PCustomMetricMessage pCustomMetricMessage = converter.toMessage(batch);
+        PCustomMetricMessage pCustomMetricMessage = mapper.map(batch);
 
         PCustomMetric pCustomMetric = pCustomMetricMessage.getCustomMetrics(0);
         assertEquals(randomString, pCustomMetric.getIntGaugeMetric().getName());
@@ -248,7 +253,7 @@ class GrpcCustomMetricMessageConverterTest {
         final String randomString = randomString();
         LongGaugeMetricVo[] longGaugeMetricVos = newLongGaugeMetricVos(randomString);
         AgentCustomMetricSnapshotBatch batch = newAgentCustomMetricSnapshotBatch(longGaugeMetricVos);
-        PCustomMetricMessage pCustomMetricMessage = converter.toMessage(batch);
+        PCustomMetricMessage pCustomMetricMessage = mapper.map(batch);
 
         PCustomMetric pCustomMetric = pCustomMetricMessage.getCustomMetrics(0);
         assertEquals(randomString, pCustomMetric.getLongGaugeMetric().getName());
@@ -270,7 +275,7 @@ class GrpcCustomMetricMessageConverterTest {
         final String randomString = randomString();
         DoubleGaugeMetricVo[] doubleGaugeMetricVos = newDoubleGaugeMetricVos(randomString);
         AgentCustomMetricSnapshotBatch batch = newAgentCustomMetricSnapshotBatch(doubleGaugeMetricVos);
-        PCustomMetricMessage pCustomMetricMessage = converter.toMessage(batch);
+        PCustomMetricMessage pCustomMetricMessage = mapper.map(batch);
 
         PCustomMetric pCustomMetric = pCustomMetricMessage.getCustomMetrics(0);
         assertEquals(randomString, pCustomMetric.getDoubleGaugeMetric().getName());
@@ -288,33 +293,33 @@ class GrpcCustomMetricMessageConverterTest {
     void testNotSet() {
         final int size = 20;
         final String randomString = randomString();
-        DoubleGaugeMetricVo[] doubleGaugeMetricVos = newDoubleGaugeMetricVos(randomString);
-        IntCountMetricVo[] intCountMetricVos = newIntCountMetricVos(randomString);
+        DoubleGaugeMetricVo[] notMatchedVos = newDoubleGaugeMetricVos(randomString);
+        IntCountMetricVo[] anotherNotMatchedVos = newIntCountMetricVos(randomString);
 
-        PCustomMetric pIntCount = converter.createIntCountMetric(randomString, doubleGaugeMetricVos);
-        PCustomMetric pLongCount = converter.createLongCountMetric(randomString, doubleGaugeMetricVos);
-        PCustomMetric pIntGauge = converter.createIntGaugeMetric(randomString, doubleGaugeMetricVos);
-        PCustomMetric pLongGauge = converter.createLongGaugeMetric(randomString, doubleGaugeMetricVos);
-        PCustomMetric pDoubleGauge = converter.createDoubleGaugeMetric(randomString, intCountMetricVos);
+        PIntCountMetric pIntCount = mapper.createIntCountMetric(randomString, notMatchedVos);
+        PLongCountMetric pLongCount = mapper.createLongCountMetric(randomString, notMatchedVos);
+        PIntGaugeMetric pIntGauge = mapper.createIntGaugeMetric(randomString, notMatchedVos);
+        PLongGaugeMetric pLongGauge = mapper.createLongGaugeMetric(randomString, notMatchedVos);
+        PDouleGaugeMetric pDoubleGauge = mapper.createDoubleGaugeMetric(randomString, anotherNotMatchedVos);
 
-        assertEquals(randomString, pIntCount.getIntCountMetric().getName());
-        assertEquals(randomString, pLongCount.getLongCountMetric().getName());
-        assertEquals(randomString, pIntGauge.getIntGaugeMetric().getName());
-        assertEquals(randomString, pLongGauge.getLongGaugeMetric().getName());
-        assertEquals(randomString, pDoubleGauge.getDoubleGaugeMetric().getName());
+        assertEquals(randomString, pIntCount.getName());
+        assertEquals(randomString, pLongCount.getName());
+        assertEquals(randomString, pIntGauge.getName());
+        assertEquals(randomString, pLongGauge.getName());
+        assertEquals(randomString, pDoubleGauge.getName());
 
-        assertEquals(size, pIntCount.getIntCountMetric().getValuesCount());
-        assertEquals(size, pLongCount.getLongCountMetric().getValuesCount());
-        assertEquals(size, pIntGauge.getIntGaugeMetric().getValuesCount());
-        assertEquals(size, pLongGauge.getLongGaugeMetric().getValuesCount());
-        assertEquals(size, pDoubleGauge.getDoubleGaugeMetric().getValuesCount());
+        assertEquals(size, pIntCount.getValuesCount());
+        assertEquals(size, pLongCount.getValuesCount());
+        assertEquals(size, pIntGauge.getValuesCount());
+        assertEquals(size, pLongGauge.getValuesCount());
+        assertEquals(size, pDoubleGauge.getValuesCount());
 
         for (int i = 0; i < size; i++) {
-            assertEquals(Boolean.TRUE, pIntCount.getIntCountMetric().getValues(i).getIsNotSet());
-            assertEquals(Boolean.TRUE, pLongCount.getLongCountMetric().getValues(i).getIsNotSet());
-            assertEquals(Boolean.TRUE, pIntGauge.getIntGaugeMetric().getValues(i).getIsNotSet());
-            assertEquals(Boolean.TRUE, pLongGauge.getLongGaugeMetric().getValues(i).getIsNotSet());
-            assertEquals(Boolean.TRUE, pDoubleGauge.getDoubleGaugeMetric().getValues(i).getIsNotSet());
+            assertEquals(Boolean.TRUE, pIntCount.getValues(i).getIsNotSet());
+            assertEquals(Boolean.TRUE, pLongCount.getValues(i).getIsNotSet());
+            assertEquals(Boolean.TRUE, pIntGauge.getValues(i).getIsNotSet());
+            assertEquals(Boolean.TRUE, pLongGauge.getValues(i).getIsNotSet());
+            assertEquals(Boolean.TRUE, pDoubleGauge.getValues(i).getIsNotSet());
         }
     }
 

@@ -16,18 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
-import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 
 import java.util.Objects;
 
 /**
  * @author emeroad
  */
-public class StringAnnotation implements Annotation<String>,
-        GrpcAnnotationSerializable {
+public class StringAnnotation implements Annotation<String> {
 
     private final int key;
     private final String value;
@@ -45,14 +41,6 @@ public class StringAnnotation implements Annotation<String>,
     @Override
     public String getValue() {
         return value;
-    }
-
-
-    @Override
-    public PAnnotationValue apply(GrpcAnnotationValueMapper context) {
-        PAnnotationValue.Builder builder = context.getAnnotationBuilder();
-        builder.setStringValue(this.value);
-        return builder.build();
     }
 
     @Override

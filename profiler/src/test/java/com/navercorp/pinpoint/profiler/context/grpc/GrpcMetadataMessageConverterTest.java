@@ -5,6 +5,8 @@ import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.MetaDataMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.MetaDataMapperImpl;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
 import com.navercorp.pinpoint.profiler.metadata.SqlUidMetaData;
@@ -24,7 +26,8 @@ class GrpcMetadataMessageConverterTest {
 
     Random random = new Random();
 
-    GrpcMetadataMessageConverter converter = new GrpcMetadataMessageConverter();
+    MetaDataMapper mapper = new MetaDataMapperImpl();
+    GrpcMetadataMessageConverter converter = new GrpcMetadataMessageConverter(mapper);
 
     @Test
     void testSqlMetaData() {

@@ -16,19 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
-import com.google.protobuf.ByteString;
-import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 
 import java.util.Objects;
 
 /**
  * @author emeroad
  */
-public class BytesAnnotation implements Annotation<byte[]>,
-        GrpcAnnotationSerializable {
+public class BytesAnnotation implements Annotation<byte[]> {
     private final int key;
     private final byte[] value;
 
@@ -45,13 +40,6 @@ public class BytesAnnotation implements Annotation<byte[]>,
     @Override
     public byte[] getValue() {
         return value;
-    }
-
-    @Override
-    public PAnnotationValue apply(GrpcAnnotationValueMapper context) {
-        PAnnotationValue.Builder builder = context.getAnnotationBuilder();
-        builder.setBinaryValue(ByteString.copyFrom(this.value));
-        return builder.build();
     }
 
     @Override

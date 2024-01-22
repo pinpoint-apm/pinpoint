@@ -16,29 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
-import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.DataType;
-import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.common.util.IntStringStringValue;
-import com.navercorp.pinpoint.common.util.IntStringValue;
-import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.common.util.StringStringValue;
-import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
-import com.navercorp.pinpoint.grpc.trace.PBytesStringStringValue;
-import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
-import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
-import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 
 /**
  * @author emeroad
  */
-public class DataTypeAnnotation implements Annotation<DataType>,
-        GrpcAnnotationSerializable {
+public class DataTypeAnnotation implements Annotation<DataType> {
 
     private final int key;
     private final DataType value;
@@ -57,45 +41,6 @@ public class DataTypeAnnotation implements Annotation<DataType>,
     @Override
     public DataType getValue() {
         return value;
-    }
-
-    @Override
-    public PAnnotationValue apply(GrpcAnnotationValueMapper context) {
-        PAnnotationValue.Builder builder = context.getAnnotationBuilder();
-
-        final DataType dataType = this.value;
-        if (dataType instanceof IntStringValue) {
-            final IntStringValue v = (IntStringValue) dataType;
-            PIntStringValue pIntStringValue = context.newIntStringValue(v);
-            builder.setIntStringValue(pIntStringValue);
-            return builder.build();
-        } else if (dataType instanceof StringStringValue) {
-            final StringStringValue v = (StringStringValue) dataType;
-            PStringStringValue pStringStringValue = context.newStringStringValue(v);
-            builder.setStringStringValue(pStringStringValue);
-            return builder.build();
-        } else if (dataType instanceof IntStringStringValue) {
-            final IntStringStringValue v = (IntStringStringValue) dataType;
-            final PIntStringStringValue pIntStringStringValue = context.newIntStringStringValue(v);
-            builder.setIntStringStringValue(pIntStringStringValue);
-            return builder.build();
-        } else if (dataType instanceof LongIntIntByteByteStringValue) {
-            final LongIntIntByteByteStringValue v = (LongIntIntByteByteStringValue) dataType;
-            final PLongIntIntByteByteStringValue pValue = context.newLongIntIntByteByteStringValue(v);
-            builder.setLongIntIntByteByteStringValue(pValue);
-            return builder.build();
-        } else if (dataType instanceof IntBooleanIntBooleanValue) {
-            final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) dataType;
-            final PIntBooleanIntBooleanValue pValue = context.newIntBooleanIntBooleanValue(v);
-            builder.setIntBooleanIntBooleanValue(pValue);
-            return builder.build();
-        } else if (dataType instanceof BytesStringStringValue) {
-            final BytesStringStringValue v = (BytesStringStringValue) dataType;
-            PBytesStringStringValue pValue = context.newBytesStringStringValue(v);
-            builder.setBytesStringStringValue(pValue);
-            return builder.build();
-        }
-        throw new UnsupportedOperationException("unsupported type:" + dataType);
     }
 
     @Override
