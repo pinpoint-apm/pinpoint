@@ -31,6 +31,7 @@ public class ReactorNettyPluginConfig {
     private final List<String> bootstrapMains;
     private final boolean traceRequestParam;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
@@ -53,6 +54,7 @@ public class ReactorNettyPluginConfig {
         final ServerConfig serverConfig = new ServerConfig(config);
         this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.reactor-netty.server.tracerequestparam");
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.reactor-netty.server.excludeurl");
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter("profiler.reactor-netty.server.trace.excludemethod");
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.reactor-netty.server.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.reactor-netty.server.realipemptyvalue");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.reactor-netty.server.excludemethod");
@@ -81,6 +83,10 @@ public class ReactorNettyPluginConfig {
 
     public Filter<String> getExcludeUrlFilter() {
         return excludeUrlFilter;
+    }
+
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
     }
 
     public String getRealIpHeader() {
@@ -130,6 +136,7 @@ public class ReactorNettyPluginConfig {
                 ", bootstrapMains=" + bootstrapMains +
                 ", traceRequestParam=" + traceRequestParam +
                 ", excludeUrlFilter=" + excludeUrlFilter +
+                ", traceExcludeMethodFilter=" + traceExcludeMethodFilter +
                 ", realIpHeader='" + realIpHeader + '\'' +
                 ", realIpEmptyValue='" + realIpEmptyValue + '\'' +
                 ", excludeProfileMethodFilter=" + excludeProfileMethodFilter +

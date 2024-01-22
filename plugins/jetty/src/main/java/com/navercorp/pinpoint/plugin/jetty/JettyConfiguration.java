@@ -29,6 +29,7 @@ public class JettyConfiguration {
     private final boolean enable;
     private final List<String> bootstrapMains;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final boolean hidePinpointHeader;
     private final String realIpHeader;
     private final String realIpEmptyValue;
@@ -42,6 +43,7 @@ public class JettyConfiguration {
         // Server
         final ServerConfig serverConfig = new ServerConfig(config);
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.jetty.excludeurl");
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter("profiler.jetty.trace.excludemethod");
         this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.jetty.hidepinpointheader");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.jetty.excludemethod");
         this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.jetty.tracerequestparam");
@@ -59,6 +61,10 @@ public class JettyConfiguration {
 
     public Filter<String> getExcludeUrlFilter() {
         return excludeUrlFilter;
+    }
+
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
     }
 
     public boolean isHidePinpointHeader() {
@@ -83,16 +89,16 @@ public class JettyConfiguration {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("JettyConfiguration{");
-        sb.append("enable=").append(enable);
-        sb.append(", bootstrapMains=").append(bootstrapMains);
-        sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
-        sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
-        sb.append(", realIpHeader='").append(realIpHeader).append('\'');
-        sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
-        sb.append(", traceRequestParam=").append(traceRequestParam);
-        sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
-        sb.append('}');
-        return sb.toString();
+        return "JettyConfiguration{" +
+                "enable=" + enable +
+                ", bootstrapMains=" + bootstrapMains +
+                ", excludeUrlFilter=" + excludeUrlFilter +
+                ", traceExcludeMethodFilter=" + traceExcludeMethodFilter +
+                ", hidePinpointHeader=" + hidePinpointHeader +
+                ", realIpHeader='" + realIpHeader + '\'' +
+                ", realIpEmptyValue='" + realIpEmptyValue + '\'' +
+                ", traceRequestParam=" + traceRequestParam +
+                ", excludeProfileMethodFilter=" + excludeProfileMethodFilter +
+                '}';
     }
 }

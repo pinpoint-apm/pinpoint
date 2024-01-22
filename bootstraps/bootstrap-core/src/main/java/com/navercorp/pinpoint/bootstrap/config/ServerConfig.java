@@ -28,6 +28,7 @@ public class ServerConfig {
     static final String REAL_IP_HEADER_PROPERTY_NAME = "profiler.server.realipheader";
     static final String REAL_IP_EMPTY_VALUE_PROPERTY_NAME = "profiler.server.realipemptyvalue";
     static final String EXCLUDE_METHOD_PROPERTY_NAME = "profiler.server.excludemethod";
+    static final String PRE_EXCLUDE_METHOD_PROPERTY_NAME = "profiler.server.trace.excludemethod";
 
     private final ProfilerConfig config;
 
@@ -100,6 +101,14 @@ public class ServerConfig {
     }
 
     public Filter<String> getExcludeMethodFilter(final String propertyName) {
+        return getStringFilter(propertyName, EXCLUDE_METHOD_PROPERTY_NAME);
+    }
+
+    public Filter<String> getTraceExcludeMethodFilter(final String propertyName) {
+        return getStringFilter(propertyName, PRE_EXCLUDE_METHOD_PROPERTY_NAME);
+    }
+
+    private Filter<String> getStringFilter(String propertyName, String fallbackPropertyName) {
         Objects.requireNonNull(propertyName, "propertyName");
 
         final String propertyValue = config.readString(propertyName, "");
@@ -107,11 +116,12 @@ public class ServerConfig {
             // Individual settings take precedence.
             return new ExcludeMethodFilter(propertyValue);
         }
-        final String serverExcludeUrlPropertyValue = config.readString(EXCLUDE_METHOD_PROPERTY_NAME, "");
+        final String serverExcludeUrlPropertyValue = config.readString(fallbackPropertyName, "");
         if (!serverExcludeUrlPropertyValue.isEmpty()) {
             return new ExcludeMethodFilter(serverExcludeUrlPropertyValue);
         }
 
         return new SkipFilter<>();
     }
+
 }

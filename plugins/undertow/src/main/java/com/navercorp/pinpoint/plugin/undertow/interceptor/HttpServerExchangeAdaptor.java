@@ -73,6 +73,11 @@ public class HttpServerExchangeAdaptor implements RequestAdaptor<HttpServerExcha
     }
 
     @Override
+    public String getMethodName(HttpServerExchange request) {
+        return request.getRequestMethod().toString();
+    }
+
+    @Override
     public String getEndPoint(HttpServerExchange request) {
         final InetSocketAddress address = request.getDestinationAddress();
         if (address != null) {

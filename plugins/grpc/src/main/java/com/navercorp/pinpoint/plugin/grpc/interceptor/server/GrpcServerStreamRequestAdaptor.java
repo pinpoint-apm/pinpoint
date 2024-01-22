@@ -51,6 +51,11 @@ public class GrpcServerStreamRequestAdaptor implements RequestAdaptor<GrpcServer
     }
 
     @Override
+    public String getMethodName(GrpcServerStreamRequest request) {
+        return request.getMethodName();
+    }
+
+    @Override
     public String getEndPoint(GrpcServerStreamRequest request) {
         return request.getServerAddress();
     }

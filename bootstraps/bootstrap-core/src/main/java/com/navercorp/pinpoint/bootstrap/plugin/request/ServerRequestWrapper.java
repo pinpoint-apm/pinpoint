@@ -30,6 +30,13 @@ public interface ServerRequestWrapper extends RequestWrapper {
     String getRpcName();
 
     /**
+     * Method name (optional)
+     *
+     * @return
+     */
+    String getMethodName();
+
+    /**
      * Server address
      *
      * @return

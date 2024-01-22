@@ -66,6 +66,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
 
         ServletRequestListenerBuilder<HttpServletRequest> reqBuilder = new ServletRequestListenerBuilder<>(ResinConstants.RESIN, traceContext, requestAdaptor);
         reqBuilder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        reqBuilder.setTraceExcludeMethodFilter(config.getTraceExcludeMethodFilter());
         reqBuilder.setParameterRecorder(parameterRecorder);
         reqBuilder.setRequestRecorderFactory(requestRecorderFactory);
 

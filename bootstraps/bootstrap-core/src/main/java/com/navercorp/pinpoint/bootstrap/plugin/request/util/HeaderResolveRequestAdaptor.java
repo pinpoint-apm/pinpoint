@@ -52,6 +52,11 @@ public class HeaderResolveRequestAdaptor<T> implements RequestAdaptor<T> {
     }
 
     @Override
+    public String getMethodName(T request) {
+        return delegate.getMethodName(request);
+    }
+
+    @Override
     public String getEndPoint(T request) {
         return delegate.getEndPoint(request);
     }

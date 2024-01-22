@@ -47,6 +47,11 @@ public class IRequestAdaptor implements RequestAdaptor<IRequest> {
     }
 
     @Override
+    public String getMethodName(IRequest request) {
+        return request.getMethod();
+    }
+
+    @Override
     public String getEndPoint(IRequest request) {
         final int port = request.getServerPort();
         return HostAndPort.toHostAndPortString(request.getServerName(), port);

@@ -59,6 +59,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final boolean isTrace = logger.isTraceEnabled();
 
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
 
     private final ProxyRequestRecorder<HttpServerRequest> proxyRequestRecorder;
     private final VertxHttpHeaderFilter httpHeaderFilter;
@@ -79,6 +80,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
         final VertxHttpServerConfig config = new VertxHttpServerConfig(traceContext.getProfilerConfig());
         this.excludeUrlFilter = config.getExcludeUrlFilter();
+        this.traceExcludeMethodFilter = config.getTraceExcludeMethodFilter();
 
         RequestAdaptor<HttpServerRequest> requestAdaptor = new HttpServerRequestAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
@@ -222,6 +224,15 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             // skip request.
             if (isTrace) {
                 logger.trace("filter requestURI:{}", requestURI);
+            }
+            return null;
+        }
+
+        final String methodName = request.method().name();
+        if (methodName != null && traceExcludeMethodFilter.filter(methodName)) {
+            // skip request.
+            if (isTrace) {
+                logger.trace("filter methodName:{}", methodName);
             }
             return null;
         }

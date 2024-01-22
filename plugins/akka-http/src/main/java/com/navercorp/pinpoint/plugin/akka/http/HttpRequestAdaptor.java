@@ -107,6 +107,11 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpRequest> {
         return UNKNOWN;
     }
 
+    @Override
+    public String getMethodName(HttpRequest request) {
+        return request.method().name();
+    }
+
     private boolean validateRpcName(Uri uri) {
         if (uri == null) {
             return false;

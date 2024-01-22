@@ -61,6 +61,7 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
 
         ServletRequestListenerBuilder<IRequest> builder = new ServletRequestListenerBuilder<>(WebsphereConstants.WEBSPHERE, traceContext, requestAdaptor);
         builder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        builder.setTraceExcludeMethodFilter(config.getTraceExcludeMethodFilter());
         builder.setParameterRecorder(parameterRecorder);
         builder.setRequestRecorderFactory(requestRecorderFactory);
 

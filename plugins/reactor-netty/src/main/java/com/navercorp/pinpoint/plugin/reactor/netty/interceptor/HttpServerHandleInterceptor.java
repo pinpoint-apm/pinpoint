@@ -71,6 +71,7 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
 
         ServletRequestListenerBuilder<HttpServerRequest> reqBuilder = new ServletRequestListenerBuilder<>(ReactorNettyConstants.REACTOR_NETTY, traceContext, requestAdaptor);
         reqBuilder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        reqBuilder.setTraceExcludeMethodFilter(config.getTraceExcludeMethodFilter());
         reqBuilder.setParameterRecorder(parameterRecorder);
         reqBuilder.setRequestRecorderFactory(requestRecorderFactory);
 

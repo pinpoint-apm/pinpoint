@@ -17,9 +17,9 @@ package com.navercorp.pinpoint.plugin.websphere;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
-import java.util.Objects;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author sjmittal
@@ -35,6 +35,7 @@ public class WebsphereConfiguration {
     private final String realIpEmptyValue;
 
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final Filter<String> excludeProfileMethodFilter;
     private final boolean hidePinpointHeader;
 
@@ -50,6 +51,7 @@ public class WebsphereConfiguration {
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.websphere.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.websphere.realipemptyvalue");
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.websphere.excludeurl");
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter("profiler.websphere.trace.excludemethod");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.websphere.excludemethod");
         this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.websphere.hidepinpointheader");
     }
@@ -82,6 +84,10 @@ public class WebsphereConfiguration {
         return excludeUrlFilter;
     }
 
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
+    }
+
     public boolean isHidePinpointHeader() {
         return hidePinpointHeader;
     }
@@ -95,6 +101,7 @@ public class WebsphereConfiguration {
         sb.append(", realIpHeader='").append(realIpHeader).append('\'');
         sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
         sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
+        sb.append(", traceExcludeMethodFilter=").append(traceExcludeMethodFilter);
         sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
         sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
         sb.append('}');

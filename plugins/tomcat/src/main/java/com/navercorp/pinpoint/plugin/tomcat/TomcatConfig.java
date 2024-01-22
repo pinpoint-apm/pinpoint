@@ -35,6 +35,7 @@ public class TomcatConfig {
 
     private final boolean traceRequestParam;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
@@ -54,6 +55,7 @@ public class TomcatConfig {
         this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.tomcat.hidepinpointheader");
         this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.tomcat.tracerequestparam");
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.tomcat.excludeurl");
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter("profiler.tomcat.trace.excludemethod");
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.tomcat.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.tomcat.realipemptyvalue");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.tomcat.excludemethod");
@@ -81,6 +83,10 @@ public class TomcatConfig {
 
     public Filter<String> getExcludeUrlFilter() {
         return excludeUrlFilter;
+    }
+
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
     }
 
     public String getRealIpHeader() {
@@ -115,6 +121,7 @@ public class TomcatConfig {
         sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
         sb.append(", traceRequestParam=").append(traceRequestParam);
         sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
+        sb.append(", traceExcludeMethodFilter=").append(traceExcludeMethodFilter);
         sb.append(", realIpHeader='").append(realIpHeader).append('\'');
         sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
         sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);

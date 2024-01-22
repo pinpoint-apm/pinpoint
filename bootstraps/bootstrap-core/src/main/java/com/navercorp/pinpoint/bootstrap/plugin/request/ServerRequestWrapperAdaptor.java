@@ -40,6 +40,11 @@ public class ServerRequestWrapperAdaptor implements RequestAdaptor<ServerRequest
     }
 
     @Override
+    public String getMethodName(ServerRequestWrapper request) {
+        return request.getMethodName();
+    }
+
+    @Override
     public String getEndPoint(ServerRequestWrapper request) {
         return request.getEndPoint();
     }

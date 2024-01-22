@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.weblogic;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
+
+import java.util.List;
 
 /**
  * @author andyspan
@@ -29,6 +29,7 @@ public class WeblogicConfiguration {
     private final boolean enable;
     private final List<String> bootstrapMains;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final Filter<String> excludeProfileMethodFilter;
     private final String realIpHeader;
     private final String realIpEmptyValue;
@@ -41,6 +42,7 @@ public class WeblogicConfiguration {
         // Server
         final ServerConfig serverConfig = new ServerConfig(config);
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.weblogic.excludeurl");
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter("profiler.weblogic.trace.excludemethod");
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.weblogic.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.weblogic.realipemptyvalue");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.weblogic.excludemethod");
@@ -50,6 +52,10 @@ public class WeblogicConfiguration {
 
     public Filter<String> getExcludeUrlFilter() {
         return excludeUrlFilter;
+    }
+
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
     }
 
     public boolean isEnable() {
@@ -86,10 +92,11 @@ public class WeblogicConfiguration {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("WeblogicConfiguration{");
+        final StringBuilder sb = new StringBuilder("WebLogicConfiguration{");
         sb.append("enable=").append(enable);
         sb.append(", bootstrapMains=").append(bootstrapMains);
         sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
+        sb.append(", traceExcludeMethodFilter=").append(traceExcludeMethodFilter);
         sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
         sb.append(", realIpHeader='").append(realIpHeader).append('\'');
         sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
