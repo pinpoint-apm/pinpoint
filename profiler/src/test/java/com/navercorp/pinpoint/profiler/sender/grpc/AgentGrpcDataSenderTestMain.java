@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaData;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.MetaDataMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.MetaDataMapperImpl;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcNameResolverProvider;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
@@ -54,7 +56,8 @@ public class AgentGrpcDataSenderTestMain {
 
 
     public void request() throws Exception {
-        MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
+        MetaDataMapper mapper = new MetaDataMapperImpl();
+        MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter(mapper);
         HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();

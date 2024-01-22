@@ -16,16 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
-import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 
 /**
  * @author emeroad
  */
-public class BooleanAnnotation implements Annotation<Boolean>,
-        GrpcAnnotationSerializable {
+public class BooleanAnnotation implements Annotation<Boolean> {
     private final int key;
     private final boolean value;
 
@@ -42,14 +38,6 @@ public class BooleanAnnotation implements Annotation<Boolean>,
     @Override
     public Boolean getValue() {
         return value;
-    }
-
-
-    @Override
-    public PAnnotationValue apply(GrpcAnnotationValueMapper context) {
-        PAnnotationValue.Builder builder = context.getAnnotationBuilder();
-        builder.setBoolValue(this.value);
-        return builder.build();
     }
 
     @Override

@@ -24,6 +24,10 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanAutoUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapperImpl;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.jupiter.api.Assertions;
@@ -38,7 +42,9 @@ public class GrpcSpanProcessorV2Test {
 
     private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
 
-    private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2, new SpanAutoUriGetter());
+    private AnnotationValueMapper annotationValueMapper = new AnnotationValueMapperImpl();
+    private SpanMessageMapper mapper = new SpanMessageMapperImpl(annotationValueMapper, new SpanAutoUriGetter());
+    private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2, mapper);
 
     @Test
     public void preProcess() {
@@ -78,7 +84,7 @@ public class GrpcSpanProcessorV2Test {
 
         PSpan.Builder builder = PSpan.newBuilder();
         for (SpanEvent spanEvent : span.getSpanEventList()) {
-            PSpanEvent pSpanEvent = converter.buildPSpanEvent(spanEvent);
+            PSpanEvent pSpanEvent = mapper.map(spanEvent);
             builder.addSpanEvent(pSpanEvent);
         }
 

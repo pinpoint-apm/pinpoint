@@ -20,26 +20,41 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ExceptionMetaDataMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.MetaDataMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapper;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
 public class GrpcMetadataMessageConverterProvider implements Provider<MessageConverter<MetaDataType, GeneratedMessageV3>> {
 
+    private final MetaDataMapper metaDataMapper;
+    private final AgentInfoMapper agentInfoMapper;
+    private final ExceptionMetaDataMapper exceptionMetaDataMapper;
 
     @Inject
-    public GrpcMetadataMessageConverterProvider() {
-
+    public GrpcMetadataMessageConverterProvider(
+            MetaDataMapper metaDataMapper,
+            AgentInfoMapper agentInfoMapper,
+            ExceptionMetaDataMapper exceptionMetaDataMapper
+    ) {
+        this.metaDataMapper = Objects.requireNonNull(metaDataMapper, "metaDataMapper");
+        this.agentInfoMapper = Objects.requireNonNull(agentInfoMapper, "agentInfoMapper");
+        this.exceptionMetaDataMapper = Objects.requireNonNull(exceptionMetaDataMapper, "exceptionMetaDataMapper");
     }
 
     @Override
     public MessageConverter<MetaDataType, GeneratedMessageV3> get() {
-        MessageConverter<MetaDataType, GeneratedMessageV3> metadataMessageConverter = new GrpcMetadataMessageConverter();
-        MessageConverter<MetaDataType, GeneratedMessageV3> agentMessageConverter = new GrpcAgentInfoMessageConverter();
-        MessageConverter<MetaDataType, GeneratedMessageV3> exceptionMessageConverter = new GrpcExceptionMetaDataConverter();
+        MessageConverter<MetaDataType, GeneratedMessageV3> metadataMessageConverter = new GrpcMetadataMessageConverter(metaDataMapper);
+        MessageConverter<MetaDataType, GeneratedMessageV3> agentMessageConverter = new GrpcAgentInfoMessageConverter(agentInfoMapper);
+        MessageConverter<MetaDataType, GeneratedMessageV3> exceptionMessageConverter = new GrpcExceptionMetaDataConverter(exceptionMetaDataMapper);
 
         return MessageConverterGroup.wrap(
                 Arrays.asList(metadataMessageConverter, agentMessageConverter, exceptionMessageConverter)

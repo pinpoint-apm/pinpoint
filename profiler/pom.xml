@@ -16,7 +16,7 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
@@ -27,7 +27,7 @@
     <artifactId>pinpoint-profiler</artifactId>
     <name>pinpoint-profiler</name>
     <packaging>jar</packaging>
-    
+
     <properties>
         <spring.version>${spring4.version}</spring.version>
     </properties>
@@ -50,7 +50,7 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-profiler</artifactId>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-grpc</artifactId>
         </dependency>
@@ -158,7 +158,30 @@
                 </exclusion>
             </exclusions>
         </dependency>-->
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <!-- other annotation processors -->
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

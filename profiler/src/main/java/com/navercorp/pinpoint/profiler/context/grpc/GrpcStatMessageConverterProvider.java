@@ -20,20 +20,37 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.UriStatMapper;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
 public class GrpcStatMessageConverterProvider implements Provider<MessageConverter<MetricType, GeneratedMessageV3>> {
 
+    private final AgentStatMapper agentStatMapper;
+    private final CustomMetricMapper customMetricMapper;
+    private final UriStatMapper uriStatMapper;
+
+
     @Inject
-    public GrpcStatMessageConverterProvider() {
+    public GrpcStatMessageConverterProvider(
+            AgentStatMapper agentStatMapper,
+            CustomMetricMapper customMetricMapper,
+            UriStatMapper uriStatMapper
+    ) {
+        this.agentStatMapper = Objects.requireNonNull(agentStatMapper, "agentStatMapper");
+        this.customMetricMapper = Objects.requireNonNull(customMetricMapper, "customMetricMapper");
+        this.uriStatMapper = Objects.requireNonNull(uriStatMapper, "uriStatMapper");
     }
 
 
     @Override
     public MessageConverter<MetricType, GeneratedMessageV3> get() {
-        return new GrpcStatMessageConverter();
+        return new GrpcStatMessageConverter(agentStatMapper, customMetricMapper, uriStatMapper);
     }
 }

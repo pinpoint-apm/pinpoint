@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapperImpl;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.MonitorInfoMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import org.junit.jupiter.api.Test;
@@ -20,7 +22,8 @@ import static org.mockito.Mockito.when;
  */
 class GrpcThreadDumpMessageConverterTest {
 
-    GrpcThreadDumpMessageConverter converter = new GrpcThreadDumpMessageConverter();
+    ThreadDumpMapper mapper = new ThreadDumpMapperImpl();
+    GrpcThreadDumpMessageConverter converter = new GrpcThreadDumpMessageConverter(mapper);
     Random random = new Random();
 
     ThreadDumpMetricSnapshot newThreadDumpMetricSnapshot() {

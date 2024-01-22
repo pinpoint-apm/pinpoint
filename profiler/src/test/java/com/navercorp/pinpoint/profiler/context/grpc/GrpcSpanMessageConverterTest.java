@@ -15,10 +15,14 @@ import com.navercorp.pinpoint.profiler.context.compress.GrpcSpanProcessorV2;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanAutoUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapperImpl;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,10 +43,12 @@ class GrpcSpanMessageConverterTest {
     private static final String agentId = "agent";
     private static final String parentAgentId = "agent-parent";
     private static final short applicationServiceType = 0;
-    private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
-    private SpanUriGetter spanUriGetter = new SpanAutoUriGetter();
+    private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
+    private final SpanUriGetter spanUriGetter = new SpanAutoUriGetter();
+    private final AnnotationValueMapper annotationValueMapper = Mappers.getMapper(AnnotationValueMapper.class);
+    private final SpanMessageMapper spanMessageMapper = new SpanMessageMapperImpl(annotationValueMapper, spanUriGetter);
     GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter(
-            agentId, applicationServiceType, spanProcessorProtoV2, spanUriGetter
+            agentId, applicationServiceType, spanProcessorProtoV2, spanMessageMapper
     );
 
     static Span newSpan() {

@@ -7,6 +7,8 @@ import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionMetaData
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionMetaDataFactory;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ExceptionMetaDataMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ExceptionMetaDataMapperImpl;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -28,7 +30,8 @@ class GrpcExceptionMetaDataConverterTest {
     ExceptionWrapperFactory wrapperFactory = new ExceptionWrapperFactory(0, 3000);
 
 
-    GrpcExceptionMetaDataConverter grpcExceptionMetaDataConverter = new GrpcExceptionMetaDataConverter();
+    ExceptionMetaDataMapper exceptionMetaDataMapper = new ExceptionMetaDataMapperImpl();
+    GrpcExceptionMetaDataConverter grpcExceptionMetaDataConverter = new GrpcExceptionMetaDataConverter(exceptionMetaDataMapper);
 
     private static TraceRoot newTraceRoot() {
         TraceRoot traceRoot = mock(TraceRoot.class);
@@ -50,7 +53,7 @@ class GrpcExceptionMetaDataConverterTest {
         ExceptionMetaData exceptionMetaData = exceptionMetaDataFactory.newExceptionMetaData(
                 wrapperFactory.newExceptionWrappers(new RuntimeException(), 0, 0)
         );
-        PExceptionMetaData pExceptionMetaData = grpcExceptionMetaDataConverter.convertPExceptionMetaData(exceptionMetaData);
+        PExceptionMetaData pExceptionMetaData = (PExceptionMetaData) grpcExceptionMetaDataConverter.toMessage(exceptionMetaData);
 
         assertEquals(exceptionMetaData.getExceptionWrappers().size(), pExceptionMetaData.getExceptionsList().size());
         for (int i = 0; i < exceptionMetaData.getExceptionWrappers().size(); i++) {

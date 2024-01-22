@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 public class MapperTestUtil {
 
-    static Map<Integer, String> randomIntegerStringMap(){
+    public static Map<Integer, String> randomIntegerStringMap(){
         Map<Integer, String> map = new HashMap<>();
         for (int i = 0; i < 10; i++) {
             map.put(i, randomString());
@@ -34,7 +34,7 @@ public class MapperTestUtil {
         return map;
     }
 
-    static List<String> randomStringList() {
+    public static List<String> randomStringList() {
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             strings.add(randomString());
@@ -42,7 +42,7 @@ public class MapperTestUtil {
         return strings;
     }
 
-    static String randomString() {
+    public static String randomString() {
         UUID randomUUID = UUID.randomUUID();
         return randomUUID.toString();
     }
