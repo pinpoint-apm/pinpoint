@@ -35,6 +35,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -54,6 +55,10 @@ import org.springframework.context.annotation.ImportResource;
         ClusterConfigurationFactory.class,
         HbaseAsyncConfiguration.class,
         DistributorConfiguration.class,
+})
+@PropertySource(name = "FlinkModule", value = {
+        "classpath:profiles/${pinpoint.profiles.active:local}/hbase.properties",
+        "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-flink.properties"
 })
 public class FlinkModule {
     @Bean
