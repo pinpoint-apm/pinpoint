@@ -16,16 +16,27 @@
 
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public final class ModuleLogger {
 
+    private static final ModuleLogLevel LOG_LEVEL = getLogLevel();
     private final String loggerName;
     private final int prefixSize;
 
     public static ModuleLogger getLogger(String loggerName) {
         return new ModuleLogger(loggerName);
+    }
+
+    private static ModuleLogLevel getLogLevel() {
+        String logLevel = System.getProperty("pinpoint.agent.bootlogger.loglevel", ModuleLogLevel.INFO.name());
+        logLevel = logLevel.toUpperCase();
+
+        final ModuleLogLevel level = ModuleLogLevel.of(logLevel);
+
+        return level != null ? level : ModuleLogLevel.INFO;
     }
 
     private ModuleLogger(String loggerName) {
@@ -34,12 +45,14 @@ public final class ModuleLogger {
     }
 
     public void info(String log) {
-        StringBuilder sb = new StringBuilder(getLength(log) + prefixSize);
-        sb.append('[');
-        sb.append(loggerName);
-        sb.append("] ");
-        sb.append(log);
-        System.out.println(sb.toString());
+        if (LOG_LEVEL.logInfo()) {
+            StringBuilder sb = new StringBuilder(getLength(log) + prefixSize);
+            sb.append('[');
+            sb.append(loggerName);
+            sb.append("] ");
+            sb.append(log);
+            System.out.println(sb.toString());
+        }
     }
 
     private int getLength(String log) {
@@ -48,5 +61,4 @@ public final class ModuleLogger {
         }
         return log.length();
     }
-
 }
