@@ -28,6 +28,7 @@ public class VertxHttpServerConfig {
     // server
     private final boolean traceRequestParam;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
@@ -42,6 +43,7 @@ public class VertxHttpServerConfig {
         final ServerConfig serverConfig = new ServerConfig(config);
         this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.vertx.http.server.tracerequestparam");
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.vertx.http.server.excludeurl");
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter("profiler.vertx.http.server.trace.excludemethod");
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.vertx.http.server.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.vertx.http.server.realipemptyvalue");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.vertx.http.server.excludemethod");
@@ -54,6 +56,10 @@ public class VertxHttpServerConfig {
 
     public Filter<String> getExcludeUrlFilter() {
         return excludeUrlFilter;
+    }
+
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
     }
 
     public String getRealIpHeader() {

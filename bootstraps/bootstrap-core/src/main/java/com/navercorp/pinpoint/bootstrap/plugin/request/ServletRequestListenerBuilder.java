@@ -48,6 +48,7 @@ public class ServletRequestListenerBuilder<REQ> {
     private ParameterRecorder<REQ> parameterRecorder;
 
     private Filter<String> excludeUrlFilter;
+    private Filter<String> traceExcludeMethodFilter;
     private RequestRecorderFactory<REQ> requestRecorderFactory;
 
     private HttpStatusCodeErrors httpStatusCodeErrors;
@@ -79,6 +80,10 @@ public class ServletRequestListenerBuilder<REQ> {
         this.excludeUrlFilter = excludeUrlFilter;
     }
 
+    public void setTraceExcludeMethodFilter(Filter<String> traceExcludeMethodFilter) {
+        this.traceExcludeMethodFilter = traceExcludeMethodFilter;
+    }
+
     public void setRequestRecorderFactory(RequestRecorderFactory<REQ> requestRecorderFactory) {
         this.requestRecorderFactory = requestRecorderFactory;
     }
@@ -97,12 +102,19 @@ public class ServletRequestListenerBuilder<REQ> {
     }
 
     private <T> Filter<T> newExcludeUrlFilter(Filter<T> excludeUrlFilter) {
+        return filterNonNull(excludeUrlFilter);
+    }
+
+    private <T> Filter<T> newTraceExcludeMethodFilter(Filter<T> excludeMethodFilter) {
+        return filterNonNull(excludeMethodFilter);
+    }
+
+    private static <T> Filter<T> filterNonNull(Filter<T> excludeUrlFilter) {
         if (excludeUrlFilter == null) {
             return new SkipFilter<>();
         }
         return excludeUrlFilter;
     }
-
 
     public ServletRequestListener<REQ> build() {
 
@@ -120,6 +132,7 @@ public class ServletRequestListenerBuilder<REQ> {
 
 
         Filter<String> excludeUrlFilter = newExcludeUrlFilter(this.excludeUrlFilter);
+        Filter<String> traceExcludeMethodFilter = newTraceExcludeMethodFilter(this.traceExcludeMethodFilter);
 
         final ServerRequestRecorder<REQ> serverRequestRecorder = newServerRequestRecorder(requestAdaptor);
 
@@ -136,7 +149,8 @@ public class ServletRequestListenerBuilder<REQ> {
 
 
         return new ServletRequestListener<>(serviceType, traceContext, requestAdaptor, requestTraceReader,
-                excludeUrlFilter, parameterRecorder, proxyRequestRecorder, serverRequestRecorder, httpStatusCodeRecorder);
+                excludeUrlFilter, traceExcludeMethodFilter, parameterRecorder, proxyRequestRecorder,
+                serverRequestRecorder, httpStatusCodeRecorder);
     }
 
 

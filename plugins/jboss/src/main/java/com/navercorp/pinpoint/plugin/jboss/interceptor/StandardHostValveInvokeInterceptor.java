@@ -80,6 +80,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
         ServletRequestListenerBuilder<HttpServletRequest> reqBuilder = new ServletRequestListenerBuilder<>(JbossConstants.JBOSS, traceContext, requestAdaptor);
         reqBuilder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        reqBuilder.setTraceExcludeMethodFilter(config.getTraceExcludeMethodFilter());
         reqBuilder.setParameterRecorder(parameterRecorder);
         reqBuilder.setRequestRecorderFactory(requestRecorderFactory);
 

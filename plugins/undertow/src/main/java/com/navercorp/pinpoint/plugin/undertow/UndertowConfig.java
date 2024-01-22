@@ -34,6 +34,7 @@ public class UndertowConfig {
     private final boolean hidePinpointHeader;
     private final boolean traceRequestParam;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
@@ -52,6 +53,7 @@ public class UndertowConfig {
         this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.undertow.hidepinpointheader");
         this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.undertow.tracerequestparam");
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.undertow.excludeurl");
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter("profiler.undertow.trace.excludemethod");
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.undertow.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.undertow.realipemptyvalue");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.undertow.excludemethod");
@@ -93,6 +95,10 @@ public class UndertowConfig {
         return excludeUrlFilter;
     }
 
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
+    }
+
     public String getRealIpHeader() {
         return realIpHeader;
     }
@@ -117,6 +123,7 @@ public class UndertowConfig {
         sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
         sb.append(", traceRequestParam=").append(traceRequestParam);
         sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
+        sb.append(", traceExcludeMethodFilter=").append(traceExcludeMethodFilter);
         sb.append(", realIpHeader='").append(realIpHeader).append('\'');
         sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
         sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);

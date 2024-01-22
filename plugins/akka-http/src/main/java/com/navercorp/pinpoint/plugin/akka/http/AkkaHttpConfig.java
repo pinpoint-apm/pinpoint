@@ -33,6 +33,7 @@ public class AkkaHttpConfig {
     private static final String KEY_TRANSFORM_PARAMETERS = "profiler.akka.http.transform.targetparameter";
     private static final String KEY_ENABLE = "profiler.akka.http.enable";
     private static final String KEY_EXCLUDEURL = "profiler.akka.http.excludeurl";
+    private static final String KEY_TRACE_EXCLUDEMETHOD = "profiler.akka.http.trace.excludemethod";
     private static final String KEY_IP_HEADER = "profiler.akka.http.realipheader";
     private static final String KEY_EXCLUDE_HTTP_METHOD = "profiler.akka.http.excludemethod";
     private static final boolean DEFAULT_ENABLE = false;
@@ -42,6 +43,7 @@ public class AkkaHttpConfig {
     private final boolean enable;
     private final String realIpHeader;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final Filter<String> excludeHttpMethodFilter;
     private final String transformTargetName;
     private final List<String> transformParameters;
@@ -56,6 +58,7 @@ public class AkkaHttpConfig {
         final ServerConfig serverConfig = new ServerConfig(config);
         this.realIpHeader = serverConfig.getRealIpHeader(KEY_IP_HEADER);
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter(KEY_EXCLUDEURL);
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter(KEY_TRACE_EXCLUDEMETHOD);
         this.excludeHttpMethodFilter = serverConfig.getExcludeMethodFilter(KEY_EXCLUDE_HTTP_METHOD);
     }
 
@@ -65,6 +68,10 @@ public class AkkaHttpConfig {
 
     public Filter<String> getExcludeUrlFilter() {
         return excludeUrlFilter;
+    }
+
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
     }
 
     public String getRealIpHeader() {
@@ -89,6 +96,7 @@ public class AkkaHttpConfig {
                 "enable=" + enable +
                 ", realIpHeader='" + realIpHeader + '\'' +
                 ", excludeUrlFilter=" + excludeUrlFilter +
+                ", traceExcludeMethodFilter=" + traceExcludeMethodFilter +
                 ", excludeHttpMethodFilter=" + excludeHttpMethodFilter +
                 ", transformTargetName='" + transformTargetName + '\'' +
                 ", transformParameters=" + transformParameters +

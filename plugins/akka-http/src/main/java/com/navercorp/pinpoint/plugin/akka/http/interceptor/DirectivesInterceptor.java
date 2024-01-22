@@ -61,6 +61,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
     private final RequestAdaptor<HttpRequest> requestAdaptor;
     private final Filter<String> excludeHttpMethodFilter;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
 
 
     public DirectivesInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor, final RequestRecorderFactory<HttpRequest> requestRecorderFactory) {
@@ -69,6 +70,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
 
         final AkkaHttpConfig config = new AkkaHttpConfig(traceContext.getProfilerConfig());
         this.excludeUrlFilter = config.getExcludeUrlFilter();
+        this.traceExcludeMethodFilter = config.getTraceExcludeMethodFilter();
         this.excludeHttpMethodFilter = config.getExcludeHttpMethodFilter();
         this.requestAdaptor = new HttpRequestAdaptor(config);
         this.proxyRequestRecorder = requestRecorderFactory.getProxyRequestRecorder(requestAdaptor);
@@ -132,6 +134,15 @@ public class DirectivesInterceptor implements AroundInterceptor {
             // skip request.
             if (isTrace) {
                 logger.trace("filter requestURI:{}", requestUri);
+            }
+            return null;
+        }
+
+        final String methodName = String.valueOf(request.method().name());
+        if (methodName != null && traceExcludeMethodFilter.filter(methodName)) {
+            // skip request.
+            if (isTrace) {
+                logger.trace("filter method:{}", methodName);
             }
             return null;
         }

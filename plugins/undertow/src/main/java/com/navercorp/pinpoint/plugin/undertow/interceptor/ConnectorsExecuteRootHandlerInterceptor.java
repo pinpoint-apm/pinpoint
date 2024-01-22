@@ -66,6 +66,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
 
         ServletRequestListenerBuilder<HttpServerExchange> reqBuilder = new ServletRequestListenerBuilder<>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor);
         reqBuilder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        reqBuilder.setTraceExcludeMethodFilter(config.getTraceExcludeMethodFilter());
         reqBuilder.setParameterRecorder(parameterRecorder);
         reqBuilder.setRequestRecorderFactory(requestRecorderFactory);
 

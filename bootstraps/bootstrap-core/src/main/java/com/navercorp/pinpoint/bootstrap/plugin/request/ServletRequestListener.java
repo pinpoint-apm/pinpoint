@@ -47,6 +47,7 @@ public class ServletRequestListener<REQ> {
     private final RequestAdaptor<REQ> requestAdaptor;
 
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> excludeMethodFilter;
     private final RequestTraceReader<REQ> requestTraceReader;
     private final ServerRequestRecorder<REQ> serverRequestRecorder;
     private final HttpStatusCodeRecorder httpStatusCodeRecorder;
@@ -60,6 +61,7 @@ public class ServletRequestListener<REQ> {
                                   final RequestAdaptor<REQ> requestAdaptor,
                                   final RequestTraceReader<REQ> requestTraceReader,
                                   final Filter<String> excludeUrlFilter,
+                                  final Filter<String> excludeMethodFilter,
                                   final ParameterRecorder<REQ> parameterRecorder,
                                   final ProxyRequestRecorder<REQ> proxyRequestRecorder,
                                   final ServerRequestRecorder<REQ> serverRequestRecorder,
@@ -70,6 +72,7 @@ public class ServletRequestListener<REQ> {
         this.requestTraceReader = Objects.requireNonNull(requestTraceReader, "requestTraceReader");
         this.proxyRequestRecorder = Objects.requireNonNull(proxyRequestRecorder, "proxyRequestRecorder");
         this.excludeUrlFilter = Objects.requireNonNull(excludeUrlFilter, "excludeUrlFilter");
+        this.excludeMethodFilter = Objects.requireNonNull(excludeMethodFilter, "excludeMethodFilter");
         this.parameterRecorder = Objects.requireNonNull(parameterRecorder, "parameterRecorder");
         this.serverRequestRecorder = Objects.requireNonNull(serverRequestRecorder, "serverRequestRecorder");
         this.httpStatusCodeRecorder = Objects.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
@@ -104,6 +107,14 @@ public class ServletRequestListener<REQ> {
         if (this.excludeUrlFilter.filter(requestURI)) {
             if (isTrace) {
                 logger.trace("Filter requestURI={}", requestURI);
+            }
+            return null;
+        }
+
+        final String methodName = requestAdaptor.getMethodName(request);
+        if (this.excludeMethodFilter.filter(methodName)) {
+            if (isTrace) {
+                logger.trace("Filter methodName={}", methodName);
             }
             return null;
         }

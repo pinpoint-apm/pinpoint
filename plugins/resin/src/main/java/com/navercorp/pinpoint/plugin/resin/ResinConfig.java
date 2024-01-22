@@ -16,6 +16,7 @@ public class ResinConfig {
     private final boolean hidePinpointHeader;
     private final boolean traceRequestParam;
     private final Filter<String> excludeUrlFilter;
+    private final Filter<String> traceExcludeMethodFilter;
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
@@ -30,6 +31,7 @@ public class ResinConfig {
         final ServerConfig serverConfig = new ServerConfig(config);
         this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.resin.tracerequestparam");
         this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.resin.excludeurl");
+        this.traceExcludeMethodFilter = serverConfig.getTraceExcludeMethodFilter("profiler.resin.trace.excludemethod");
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.resin.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.resin.realipemptyvalue");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.resin.excludemethod");
@@ -52,6 +54,10 @@ public class ResinConfig {
         return excludeUrlFilter;
     }
 
+    public Filter<String> getTraceExcludeMethodFilter() {
+        return traceExcludeMethodFilter;
+    }
+
     public String getRealIpHeader() {
         return realIpHeader;
     }
@@ -70,16 +76,16 @@ public class ResinConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ResinConfig{");
-        sb.append("enable=").append(enable);
-        sb.append(", bootstrapMains='").append(bootstrapMains).append('\'');
-        sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
-        sb.append(", traceRequestParam=").append(traceRequestParam);
-        sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
-        sb.append(", realIpHeader='").append(realIpHeader).append('\'');
-        sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
-        sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
-        sb.append('}');
-        return sb.toString();
+        return "ResinConfig{" +
+                "enable=" + enable +
+                ", bootstrapMains='" + bootstrapMains + '\'' +
+                ", hidePinpointHeader=" + hidePinpointHeader +
+                ", traceRequestParam=" + traceRequestParam +
+                ", excludeUrlFilter=" + excludeUrlFilter +
+                ", traceExcludeMethodFilter=" + traceExcludeMethodFilter +
+                ", realIpHeader='" + realIpHeader + '\'' +
+                ", realIpEmptyValue='" + realIpEmptyValue + '\'' +
+                ", excludeProfileMethodFilter=" + excludeProfileMethodFilter +
+                '}';
     }
 }

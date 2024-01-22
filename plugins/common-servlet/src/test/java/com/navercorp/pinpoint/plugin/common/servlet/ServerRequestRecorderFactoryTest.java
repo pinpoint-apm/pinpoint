@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
  */
 public class ServerRequestRecorderFactoryTest {
     private static final String RPC_NAME = "rpcName";
+    private static final String METHOD_NAME = "GET";
     private static final String END_POINT = "endPoint";
     private static final String REMOTE_ADDRESS = "remoteAddress";
     private static final String ACCEPTOR_HOST = "acceptorHost";
@@ -56,6 +57,11 @@ public class ServerRequestRecorderFactoryTest {
         @Override
         public String getRpcName() {
             return RPC_NAME;
+        }
+
+        @Override
+        public String getMethodName() {
+            return METHOD_NAME;
         }
 
         @Override

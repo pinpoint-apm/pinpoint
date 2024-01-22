@@ -70,6 +70,11 @@ public class HttpServletRequestAdaptor implements RequestAdaptor<HttpServletRequ
     }
 
     @Override
+    public String getMethodName(HttpServletRequest request) {
+        return request.getMethod();
+    }
+
+    @Override
     public String getEndPoint(HttpServletRequest request) {
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();

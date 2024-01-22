@@ -40,6 +40,13 @@ public interface RequestAdaptor<REQ> {
     String getRpcName(REQ request);
 
     /**
+     * Method name (optional)
+     *
+     * @return
+     */
+    String getMethodName(REQ request);
+
+    /**
      * Server address
      *
      * @return

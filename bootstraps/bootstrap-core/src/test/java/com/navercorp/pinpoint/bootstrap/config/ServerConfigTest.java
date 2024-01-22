@@ -107,4 +107,19 @@ public class ServerConfigTest {
         Assertions.assertTrue(filter.filter("HEAD"));
         Assertions.assertFalse(filter.filter("POST"));
     }
+
+    @Test
+    public void getTraceExcludeMethodFilter() {
+        final String propertyName = "profiler.tomcat.trace.excludemethod";
+        Properties properties = new Properties();
+        properties.setProperty(ServerConfig.PRE_EXCLUDE_METHOD_PROPERTY_NAME, "POST");
+        properties.setProperty(propertyName, "HEAD");
+
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
+        ServerConfig serverConfig = new ServerConfig(profilerConfig);
+
+        Filter<String> filter = serverConfig.getTraceExcludeMethodFilter(propertyName);
+        Assertions.assertTrue(filter.filter("HEAD"));
+        Assertions.assertFalse(filter.filter("POST"));
+    }
 }

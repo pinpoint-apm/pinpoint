@@ -51,6 +51,11 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
     }
 
     @Override
+    public String getMethodName(HttpServerRequest request) {
+        return request.method().name();
+    }
+
+    @Override
     public String getEndPoint(HttpServerRequest request) {
         if (request.localAddress() != null) {
             final int port = request.localAddress().port();
