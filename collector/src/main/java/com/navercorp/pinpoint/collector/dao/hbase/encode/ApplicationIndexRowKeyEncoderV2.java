@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
 import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,17 +35,15 @@ public class ApplicationIndexRowKeyEncoderV2 implements RowKeyEncoder<SpanBo> {
     private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
     private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
     private final AbstractRowKeyDistributor rowKeyDistributor;
-    private final AcceptedTimeService acceptedTimeService;
 
-    public ApplicationIndexRowKeyEncoderV2(AbstractRowKeyDistributor rowKeyDistributor, AcceptedTimeService acceptedTimeService) {
+    public ApplicationIndexRowKeyEncoderV2(AbstractRowKeyDistributor rowKeyDistributor) {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
     }
 
     @Override
     public byte[] encodeRowKey(SpanBo span) {
         // distribute key evenly
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        long acceptedTime = span.getCollectorAcceptTime();
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(span.getElapsed());
         final byte[] appTraceIndexRowKey = newRowKey(span.getApplicationId(), acceptedTime, fuzzyKey);
         return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);

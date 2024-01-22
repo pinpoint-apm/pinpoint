@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -55,17 +54,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
 
-    private final AcceptedTimeService acceptedTimeService;
-
     private final RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder;
 
 
     public HbaseApplicationTraceIndexDao(HbasePutWriter putWriter,
                                          TableNameProvider tableNameProvider,
-                                         @Qualifier("applicationIndexRowKeyEncoder") RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder,
-                                         AcceptedTimeService acceptedTimeService) {
+                                         @Qualifier("applicationIndexRowKeyEncoder") RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder) {
         this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationIndexRowKeyEncoder = Objects.requireNonNull(applicationIndexRowKeyEncoder, "applicationIndexRowKeyEncoder");
         logger.info("ApplicationIndexRowKeyEncoder:{}", applicationIndexRowKeyEncoder);
@@ -84,7 +79,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // Assert applicationName
         CollectorUtils.checkApplicationName(span.getApplicationId());
 
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final long acceptedTime = span.getCollectorAcceptTime();
         final byte[] distributedKey = applicationIndexRowKeyEncoder.encodeRowKey(span);
 
         final Put put = new Put(distributedKey);

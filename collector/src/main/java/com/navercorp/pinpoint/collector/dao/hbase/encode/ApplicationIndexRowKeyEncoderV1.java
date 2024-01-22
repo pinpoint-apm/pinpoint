@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.IdRowKeyEncoder;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 import java.util.Objects;
@@ -30,17 +29,15 @@ public class ApplicationIndexRowKeyEncoderV1 implements RowKeyEncoder<SpanBo> {
 
     private final IdRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
     private final AbstractRowKeyDistributor rowKeyDistributor;
-    private final AcceptedTimeService acceptedTimeService;
 
-    public ApplicationIndexRowKeyEncoderV1(AbstractRowKeyDistributor rowKeyDistributor, AcceptedTimeService acceptedTimeService) {
+    public ApplicationIndexRowKeyEncoderV1(AbstractRowKeyDistributor rowKeyDistributor) {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
     }
 
     @Override
     public byte[] encodeRowKey(SpanBo span) {
         // distribute key evenly
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        long acceptedTime = span.getCollectorAcceptTime();
         final byte[] applicationTraceIndexRowKey = rowKeyEncoder.encodeRowKey(span.getApplicationId(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
     }
