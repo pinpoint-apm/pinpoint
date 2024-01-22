@@ -11,7 +11,8 @@ import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED
 export class LanguageSettingContainerComponent implements OnInit {
     languageList = [
         {key: 'en', display: 'English'},
-        {key: 'ko', display: '한국어'}
+        {key: 'ko', display: '한국어'},
+        {key: 'zh', display: '简体中文'},
     ];
 
     currentLanguage$: Observable<string>;

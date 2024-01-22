@@ -1,9 +1,10 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 
-import { WebAppSettingDataService, 
+import { WebAppSettingDataService,
     TRACKED_EVENT_LIST, UrlRouteManagerService, WindowRefService, AnalyticsService } from 'app/shared/services';
 import { UrlPath } from 'app/shared/models';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface ISNBItem {
     id: string;
@@ -40,6 +41,20 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
     currentItemId: string;
     userId = '';
     meta: ISNBMeta;
+    i18nText: {[key: string]: string} = {
+        FAVORITE_LIST_TITLE: '',
+        CONFIGURATION_TITLE: '',
+        USER_GROUP_TITLE: '',
+        ALARM_TITLE: '',
+        WEBHOOK_TITLE: '',
+        INSTALLATION_TITLE: '',
+        HELP_TITLE: '',
+        EXPERIMENTAL_TITLE: '',
+        ADMINISTRATION_TITLE: '',
+        AGENT_STATISTIC_TITLE: '',
+        AGENT_MANAGEMENT_TITLE: '',
+        GENERAL_TITLE: '',
+    };
 
     constructor(
         private cd: ChangeDetectorRef,
@@ -47,9 +62,11 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         private analyticsService: AnalyticsService,
         private urlRouteManagerService: UrlRouteManagerService,
         private webAppSettingDataService: WebAppSettingDataService,
+        private translateService: TranslateService,
     ) { }
 
     ngOnInit() {
+        this.initI18nText();
         this.minimize = this.webAppSettingDataService.getSideNavBarScale();
         this.webAppSettingDataService.showMetric().subscribe((showMetric: boolean) => {
             this.showMetric = showMetric;
@@ -68,7 +85,7 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
             this.userId = userId || 'dev';
             this.meta = this.generatNavItemMeta();
         });
-        
+
         this.logoPath = this.webAppSettingDataService.getLogoPath(this.minimize);
 
         this.cd.detectChanges();
@@ -78,7 +95,38 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
-
+    private initI18nText(): void {
+        forkJoin(
+            this.translateService.get('MAIN.FAVORITE_APP_LIST'),
+            this.translateService.get('CONFIGURATION.TITLE'),
+            this.translateService.get('CONFIGURATION.USER_GROUP.TITLE'),
+            this.translateService.get('CONFIGURATION.ALARM.TITLE'),
+            this.translateService.get('CONFIGURATION.WEBHOOK.TITLE'),
+            this.translateService.get('CONFIGURATION.INSTALLATION.TITLE'),
+            this.translateService.get('CONFIGURATION.HELP.TITLE'),
+            this.translateService.get('CONFIGURATION.EXPERIMENTAL.TITLE'),
+            this.translateService.get('CONFIGURATION.ADMINISTRATION.TITLE'),
+            this.translateService.get('CONFIGURATION.AGENT_STATISTIC.TITLE'),
+            this.translateService.get('CONFIGURATION.AGENT_MANAGEMENT.TITLE'),
+            this.translateService.get('CONFIGURATION.GENERAL.TITLE')
+        ).subscribe(([favoriteTitle, configurationTitle, userGroupTitle, alarmTitle, webhookTitle,
+                         installationTitle, helpTitle, experimentalTitle,
+                         administrationTitle, agentStatisticTitle, agentManagementTitle,
+                         genralTitle]: string[]) => {
+            this.i18nText.FAVORITE_LIST_TITLE = favoriteTitle;
+            this.i18nText.CONFIGURATION_TITLE = configurationTitle;
+            this.i18nText.USER_GROUP_TITLE = userGroupTitle;
+            this.i18nText.ALARM_TITLE = alarmTitle;
+            this.i18nText.WEBHOOK_TITLE = webhookTitle;
+            this.i18nText.INSTALLATION_TITLE = installationTitle;
+            this.i18nText.HELP_TITLE = helpTitle;
+            this.i18nText.EXPERIMENTAL_TITLE = experimentalTitle;
+            this.i18nText.ADMINISTRATION_TITLE = administrationTitle;
+            this.i18nText.AGENT_STATISTIC_TITLE = agentStatisticTitle;
+            this.i18nText.AGENT_MANAGEMENT_TITLE = agentManagementTitle;
+            this.i18nText.GENERAL_TITLE = genralTitle;
+        });
+    }
     onClickSizeScale(): void {
         this.minimize = !this.minimize;
         this.webAppSettingDataService.setSideNavBarScale(this.minimize);
@@ -150,29 +198,29 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
             bottomItems: [
                 {
                     id: 'configuration',
-                    title: 'Configuration',
+                    title: this.i18nText.CONFIGURATION_TITLE,
                     iconClass: 'fas fa-cog',
                     childItems: [
-                        { title: 'User Group', id: 'userGroup', path: '/config/userGroup', },
-                        { title: 'Alarm', id: 'alarm', path: '/config/alarm', },
-                        { title: 'Webhook', id: 'webhook', path: '/config/webhook', showItem: this.showWebhook, },
-                        { title: 'Installation', id: 'installation', path: '/config/installation', },
+                        { title: this.i18nText.USER_GROUP_TITLE, id: 'userGroup', path: '/config/userGroup', },
+                        { title: this.i18nText.ALARM_TITLE, id: 'alarm', path: '/config/alarm', },
+                        { title: this.i18nText.WEBHOOK_TITLE, id: 'webhook', path: '/config/webhook', showItem: this.showWebhook, },
+                        { title: this.i18nText.INSTALLATION_TITLE, id: 'installation', path: '/config/installation', },
                         // divider
                         { id: 'divider' },
-                        { title: 'Help', id: 'help', path: '/config/help', },
+                        { title: this.i18nText.HELP_TITLE, id: 'help', path: '/config/help', },
                         { title: 'Github', id: 'github', path: '', onClick: () => this.onClickGithubLink()},
                         // divider
                         { id: 'divider' },
-                        { title: 'Experimental', id: 'experimental', path: '/config/experimental', },
+                        { title: this.i18nText.EXPERIMENTAL_TITLE, id: 'experimental', path: '/config/experimental', },
                     ],
                 },
                 {
                     id: 'administration',
-                    title: 'Administration',
+                    title: this.i18nText.ADMINISTRATION_TITLE,
                     iconClass: 'fas fa-user-cog',
                     childItems: [
-                        { title: 'Agent Statistic', id: 'agentStatistic', path: '/config/agentStatistic', onClick: () => ''},
-                        { title: 'Agent management', id: 'agentmanagement', path: '/config/agentManagement', },
+                        { title: this.i18nText.AGENT_STATISTIC_TITLE, id: 'agentStatistic', path: '/config/agentStatistic', onClick: () => ''},
+                        { title: this.i18nText.AGENT_MANAGEMENT_TITLE, id: 'agentmanagement', path: '/config/agentManagement', },
                     ]
                 },
                 {
@@ -180,8 +228,8 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                     title: this.userId,
                     iconClass: 'fas fa-user-circle',
                     childItems: [
-                        { title: 'General', id: 'general', path: '/config/general', },
-                        { title: 'Favorite List', id: 'favoriteList', path: '/config/favorite', },
+                        { title: this.i18nText.GENERAL_TITLE, id: 'general', path: '/config/general', },
+                        { title: this.i18nText.FAVORITE_LIST_TITLE, id: 'favoriteList', path: '/config/favorite', },
                         // divider
                         { id: 'divider' },
                         { id: 'theme' },

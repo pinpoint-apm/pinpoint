@@ -1,14 +1,14 @@
 <div class="l-pinpoint-user-wrapper">
     <div class="l-pinpoint-user-title">
-        <span>Pinpoint User ({{pinpointUserList.length}})</span>
+        <span>{{ i18nLabel.PINPOINT_USER_LABEL }} ({{pinpointUserList.length}})</span>
         <div>
             <button [hidden]="!allowedUserEdit" class="btn btn-sm btn-blue" (click)="onShowAddUser()"><i class="fas fa-plus"></i></button>
-            <button class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button> 
+            <button class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button>
         </div>
     </div>
     <div class="l-pinpoint-user-search">
-        <input type="text" placeholder="{{i18nText.SEARCH_INPUT_GUIDE}}" class="l-search-input" 
-            ppSearchInput 
+        <input type="text" placeholder="{{i18nText.SEARCH_INPUT_GUIDE}}" class="l-search-input"
+            ppSearchInput
             [searchMinLength]="minLength.search"
             [useEnter]="searchUseEnter"
             (outSearch)="onSearch($event)"
@@ -53,7 +53,6 @@
             (outClose)="onCloseErrorMessage()">
         </pp-server-error-message>
     </ng-container>
-    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>
     <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
 </div>
-    

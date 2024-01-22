@@ -1,0 +1,1041 @@
+{
+  "COMMON": {
+    "APPLICATION": "应用程序",
+    "POPUP_BLOCK_MESSAGE": "Popup blocked.<br>Please check your browser settings.",
+    "NO_DATA": "无数据",
+    "FAILED_TO_FETCH_DATA": "无法获取数据",
+    "NO_AGENTS": "没有正在运行的代理。",
+    "MIN_LENGTH": "至少输入 !{0} 个字母",
+    "REQUIRED": "!{0} 必需项",
+    "REQUIRED_SELECT": "选择 !{0}",
+    "MAX_SEARCH_PERIOD": "搜索持续时间不能大于 !{0}天.",
+    "DO_NOT_HAVE_PERMISSION": "没有权限",
+    "SUBMIT": "提交",
+    "REMOVE": "移除",
+    "CANCEL": "取消",
+    "SEARCH_INPUT": "输入查询",
+    "SELECT_YOUR_APP": "选择您的应用程序",
+    "INPUT_APP_NAME_PLACE_HOLDER": "输入应用程序名称",
+    "EMPTY": "列表为空",
+    "EMPTY_ON_SEARCH": "什么也没找到",
+    "CHART_INTERACTION_GUIDE_MESSAGE": "* 拖动鼠标可以放大图表"
+  },
+  "MAIN": {
+    "FAVORITE_APP_LIST": "收藏夹",
+    "APP_LIST": "程序列表",
+    "VISIBILITY_HIDDEN": "页面已被停用<br>您可能需要刷新以重新打开它"
+  },
+  "METRIC": {
+    "HOST_GROUP_LIST": "主机组列表",
+    "SELECT_HOST_GROUP": "选择您的主机组",
+    "INPUT_HOST_GROUP_NAME_PLACE_HOLDER": "输入主机组名称"
+  },
+  "URL_STAT": {
+    "SELECT_URL_INFO": "在下面选择URL信息"
+  },
+  "INSPECTOR": {
+    "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=应用程序Inspector没有开启<br> 如需打开应用程序Inspector, 请跳转}|[LINK]:{href=https://pinpoint-apm.gitbook.io/pinpoint/documents/application-inspector\\target=blank\\style=color:#428bca\\linkText=this link}",
+    "APPLICAITION_NAME_ISSUE": {
+      "ISSUE_MESSAGE": "代理当前注册在 !{1} 由于以下原因:",
+      "ISSUE_CAUSES": [
+        "1. 代理已从 !{0} 移动至 !{1}",
+        "2. 具有相同代理ID的其他代理已注册到 !{1}"
+      ],
+      "ISSUE_SOLUTIONS": [
+        "对于情况1，您应该删除之间的映射 !{0} and !{1}",
+        "对于情况2，重复代理的代理ID必须更改"
+      ]
+    }
+  },
+  "TRANSACTION_LIST": {
+    "SELECT_TRANSACTION": "选择事务",
+    "TRANSACTION_RETRIEVE_ERROR": "事务信息丢失<br>将转到Main"
+  },
+  "SCATTER": {
+  },
+  "CONFIGURATION": {
+    "TITLE": "配置",
+    "ADMINISTRATION": {
+      "TITLE": "管理",
+      "DESC": "* 管理应用和代理"
+    },
+    "AGENT_MANAGEMENT": {
+      "TITLE": "应用管理",
+      "REMOVE_APPLICATION": "删除选定的应用程序",
+      "REMOVE_AGENT": "删除所选代理",
+      "PASSWORD_GUIDE": "如果已设置密码，请输入密码",
+      "REMOVABLE_TITLE": "可移除代理列表"
+    },
+    "AGENT_STATISTIC": {
+      "TITLE": "代理统计",
+      "ZOOM_GUIDE": "您可以通过鼠标放大/缩小图表",
+      "LOAD_GUIDE": "加载代理的统计数据需要很长时间",
+      "LOADING": "加载",
+      "RELOAD": "重载"
+    },
+    "GENERAL": {
+      "TITLE": "通用",
+      "DESC": "* 用户配置存储在浏览器缓存中，未来版本将支持服务器端存储"
+    },
+    "INSPECTOR_MANAGER": {
+      "EMPTY": "选择要在屏幕上显示的图表"
+    },
+    "INSTALLATION": {
+      "TITLE": "接入指引",
+      "DESC": "* 您可以检查应用程序名称和代理ID是否重复",
+      "LENGTH_GUIDE": "您最多可以输入 !{0} 个字符.",
+      "APPLICATION_NAME_PLACEHOLDER": "输入应用程序名称",
+      "AGENT_ID_PLACEHOLDER": "输入AgentID"
+    },
+    "USER_GROUP": {
+      "TITLE": "用户组",
+      "VALIDATION": "只能输入数字、字母和“-”、“_”字符.(4~30)",
+      "MEMBER": "成员"
+    },
+    "PINPOINT_USER": {
+      "TITLE": "用户",
+      "USER_ID_VALIDATION": "你只能输入 numbers, alphabets lowercase, and '-' ,'_' 字符.(4~24)",
+      "NAME_VALIDATION": "你只能输入 numbers, alphabets, Hangeul, and '-', '_', '.' 字符.(1~30)",
+      "DEPARTMENT_VALIDATION": "你只能输入 numbers, alphabets, Hangeul, and '-', '_', '.' 字符.(3~40)",
+      "PHONE_VALIDATION": "输入一个有效的数字",
+      "EMAIL_VALIDATION": "输入一个有效Email"
+    },
+    "COMMON": {
+      "NAME": "姓名",
+      "USER_ID": "用户ID",
+      "DEPARTMENT": "部门",
+      "PHONE": "手机号",
+      "EMAIL": "邮箱",
+      "USER_GROUP": "用户组",
+      "CHECKER": "检查器",
+      "THRESHOLD": "阈值",
+      "TYPE": "类型",
+      "NOTES": "备注"
+    },
+    "ALARM": {
+      "TITLE": "告警",
+      "EMPTY": "没有注册告警",
+      "RULE_NAME": "规则名称",
+      "EDIT_TITLE": "编辑告警",
+      "ADD_TITLE": "添加告警"
+    },
+    "EXPERIMENTAL": {
+      "TITLE": "实验功能",
+      "DESC": "* 你可以试试实验功能"
+    },
+    "WEBHOOK": {
+      "TITLE": "Webhook",
+      "EDIT_TITLE": "编辑 Webhook",
+      "ADD_TITLE": "添加 Webhook",
+      "ALIAS_TITLE": "别名",
+      "URL": "url",
+      "URL_VALIDATION": "请正确输入Url",
+      "ALIAS": "如果为空，则设置为输入的Url",
+      "MAX_LENGTH": "最多可以输入256个字符"
+    },
+    "HELP": {
+      "TITLE": "帮助",
+      "DESC": "* 可以查看平台使用帮助"
+    },
+    "THEME": {
+      "TITLE": "主题"
+    }
+  },
+  "TRANSACTION": {
+    "HAS_RESULTS": "找到 !{0} 个结果"
+  },
+  "SUPPORT": {
+    "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=不支持你的浏览器(!{0}).}|[LINK]:{href=browserNotSupported\\target=blank\\style=text-decoration:underline;font-weight:600\\linkText=Check supported browsers}",
+    "INSTALL_GUIDE": "请安装以下浏览器之一，然后重试"
+  },
+  "HELP_VIEWER": {
+    "NAVBAR": [{
+      "TITLE": "程序列表",
+      "DESC": "显示已安装Pinpoint的应用程序列表",
+      "CATEGORY" : [{
+        "TITLE": "图例",
+        "ITEMS": [{
+          "NAME": "Icon",
+          "DESC": "应用程序类型"
+        }, {
+          "NAME": "Text",
+          "DESC": "应用程序的名称，精确定位代理配置中的-Dpinpoint.applicationName的值"
+        }]
+      }]
+    }, {
+      "TITLE": "Inbound, Outbound",
+      "DESC": "Server Map搜索深度",
+      "CATEGORY" : [{
+        "TITLE": "图例",
+        "ITEMS": [{
+          "NAME": "Inbound",
+          "DESC": "要为进入选定节点的请求呈现的深度数"
+        }, {
+          "NAME": "Outbound",
+          "DESC": "从选定节点发出的请求要渲染的深度数"
+        }]
+      }]
+    }, {
+      "TITLE": "时段选择器",
+      "DESC": "选择搜索数据的时间范围",
+      "CATEGORY": [{
+        "TITLE": "用法",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-clock\\style=font-size:17px}",
+          "DESC": "查询在最近选择的时间段内跟踪的数据<br/>支持5m、10m、3小时自动刷新"
+        },{
+          "NAME": "[ICON]:{className=fa-calendar-alt\\style=font-size:17px}",
+          "DESC": "查询两个选定时间之间的跟踪数据，最长48小时"
+        }]
+      }]
+    }, {
+      "TITLE": "双向搜索",
+      "DESC": "Server Map搜索方法",
+      "CATEGORY" : [{
+        "TITLE": "图例",
+        "ITEMS": [{
+          "NAME": "双向端口",
+          "DESC": "呈现每个节点（在限制范围内）的入站/出站节点，即使它们与所选节点没有直接关系<br>请注意，选中此选项可能会导致服务器映射过于复杂。"
+        }]
+      }]
+    }],
+    "RESPONSE_SUMMARY": [{
+      "TITLE": "响应汇总图表",
+      "DESC": "",
+      "CATEGORY": [{
+        "TITLE": "图例",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px}|[TEXT]:{value=X-Axis}",
+          "DESC": "响应时间"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px}|[TEXT]:{value=Y-Axis}",
+          "DESC": "事务计数"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#34b994}|[TEXT]:{value=1s}",
+          "DESC": "成功的事务数（小于1秒）"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#51afdf}|[TEXT]:{value=3s}",
+          "DESC": "成功的事务数（1~3秒）"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#ffba00}|[TEXT]:{value=5s}",
+          "DESC": "成功的事务数（3~5秒）"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#e67f22}|[TEXT]:{value=Slow}",
+          "DESC": "成功的事务数（大于5秒）"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#e95459}|[TEXT]:{value=Error}",
+          "DESC": "不考虑响应时间的失败事务数"
+        }]
+      }]
+    }],
+    "LOAD": [{
+      "TITLE": "负荷图表",
+      "DESC": "",
+      "CATEGORY": [{
+        "TITLE": "图例",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px}|[TEXT]:{value=X-Axis}",
+          "DESC": "响应时间"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px}|[TEXT]:{value=Y-Axis}",
+          "DESC": "事务计数"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#34b994}|[TEXT]:{value=1s}",
+          "DESC": "成功的事务数（小于1秒）"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#51afdf}|[TEXT]:{value=3s}",
+          "DESC": "成功的事务数（1~3秒）"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#ffba00}|[TEXT]:{value=5s}",
+          "DESC": "成功的事务数（3~5秒）"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#e67f22}|[TEXT]:{value=Slow}",
+          "DESC": "成功的事务数（大于5秒）"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:11px;margin-right:8px;color:#e95459}|[TEXT]:{value=Error}",
+          "DESC": "不考虑响应时间的失败事务数"
+        }]
+      }, {
+        "TITLE": "用法",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "单击图例项目显示/隐藏所选组中的所有事务"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "在图表上拖动会放大到拖动的区域"
+        }]
+      }]
+    }],
+    "SERVER_MAP" : [{
+      "TITLE": "Server Map",
+      "DESC": "显示分布式服务器映射的拓扑视图",
+      "CATEGORY": [{
+        "TITLE": "节点",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "每个节点都是应用程序的一个逻辑单元"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "节点内部的整数值表示分配给该应用程序的服务器实例数。（只有一个这样的实例时不显示）"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "如果在其中一个服务器实例中检测到错误/异常，则会在节点内部显示报警图标"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "当选择节点时，流入应用程序的事务信息显示在屏幕右侧"
+        }]
+      }, {
+        "TITLE": "Arrow",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "每个箭头表示一个事务流"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "该数字显示事务计数。以红色显示超过阈值的错误计数"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "当选择箭头时，通过所选部分的事务信息显示在屏幕右侧"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "在箭头上单击鼠标右键将显示用于筛选的上下文菜单"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "上下文菜单中的筛选器仅显示通过所选部分的事务"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "过滤器向导允许您配置更详细的过滤器"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "[TEXT]:{value=应用过滤器时,}|[ICON]:{className=fa-filter\\style=font-size:15px}|[TEXT]:{value=图标将显示在箭头上.}"
+        }]
+      }, {
+        "TITLE": "Server Map 配置",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "右键单击任何空白区域将显示服务器映射配置菜单"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "合并：将所有可合并节点分组，并将其显示为单个节点"
+        }, {
+          "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+          "DESC": "刷新：初始化服务器地图的视口和缩放级别"
+        }]
+      }]
+    }],
+    "REAL_TIME": [{
+      "TITLE": "活动请求",
+      "DESC": "实时显示每个代理的活动请求计数",
+      "CATEGORY": [{
+        "TITLE": "错误消息",
+        "ITEMS": [{
+          "NAME": "不支持版本",
+          "DESC": "Agent 版本太老. (请升级Agent版本到1.5.0+)"
+        }, {
+          "NAME": "集群选项未设置",
+          "DESC": "选项已被代理禁用. (请配置 profiler.pinpoint.activethread 为 true 在文件profiler.config中)"
+        }, {
+          "NAME": "TIMEOUT",
+          "DESC": "代理连接在接收活动请求计数时超时。如果问题仍然存在，请与管理员联系。"
+        }, {
+          "NAME": "NOT FOUND",
+          "DESC": "找不到代理. (如果Agent运行中，收到此消息, 请设置 profiler.tcpdatasender.command.accept.enable 为 true 在文件 profiler.config中)"
+        }, {
+          "NAME": "CLUSTER CHANNEL CLOSED",
+          "DESC": "代理会话已过期"
+        }, {
+          "NAME": "PINPOINT INTERNAL ERROR",
+          "DESC": "PinPoint内部错误。请与管理员联系"
+        }, {
+          "NAME": "No Active Thread",
+          "DESC": "代理当前没有活动的请求"
+        }, {
+          "NAME": "No Response",
+          "DESC": "Pinpoint Web没有响应。请与管理员联系"
+        }]
+      }]
+    }],
+    "CALL_TREE": [{
+      "TITLE": "调用链",
+      "DESC": "",
+      "CATEGORY": [{
+        "TITLE": "列",
+        "ITEMS": [{
+          "NAME": "间隔",
+          "DESC": "从上一个方法开始到进入此方法之间经过的时间"
+        }, {
+          "NAME": "执行",
+          "DESC": "方法调用从进入到退出的持续时间"
+        }, {
+          "NAME": "执行(%)",
+          "DESC": "[ICON]:{className=fa-circle\\style=font-size:11px;color:#5bc0de;margin-right:4px}|[TEXT]:{value=方法调用的执行时间占事务总执行时间的百分比}"
+        }, {
+          "NAME": "",
+          "DESC": "[ICON]:{className=fa-circle\\style=font-size:11px;color:#4343C8;margin-right:4px}|[TEXT]:{value= 自执行时间的百分比}"
+        }, {
+          "NAME": "自执行",
+          "DESC": "方法调用从进入到退出的持续时间，不包括嵌套方法调用所花费的时间"
+        }]
+      }]
+    }],
+    "SCATTER": [{
+      "TITLE": "响应时间散点图",
+      "DESC": "",
+      "CATEGORY": [{
+        "TITLE": "图例",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:15px;color:#2EB089}",
+          "DESC": "成功事务"
+        }, {
+          "NAME": "[ICON]:{className=fa-circle\\style=font-size:15px;color:#E64A4F}",
+          "DESC": "失败事务"
+        }, {
+          "NAME": "X-Axis",
+          "DESC": "事务时间戳"
+        }, {
+          "NAME": "Y-Axis",
+          "DESC": "响应时间"
+        }]
+      },{
+        "TITLE": "用法",
+        "ITEMS": [{
+          "NAME": "[ICON]:{className=fa-plus\\style=font-size:15px}",
+          "DESC": "拖到散点图上，可以显示所选事务的详细信息"
+        }, {
+          "NAME": "[ICON]:{className=fa-cog\\style=font-size:15px}",
+          "DESC": "设置Y轴的最小/最大值（响应时间）"
+        }, {
+          "NAME": "[ICON]:{className=fa-download\\style=font-size:15px}",
+          "DESC": "将图表下载为图像文件"
+        }, {
+          "NAME": "[ICON]:{className=fa-expand-arrows-alt\\style=font-size:15px}",
+          "DESC": "在新窗口中打开图表"
+        }]
+      }]
+    }],
+    "INSPECTOR": {
+      "AGENT_LIST": [{
+        "TITLE": "Agent 列表",
+        "DESC": "当前应用程序名称注册的代理列表",
+        "CATEGORY": [{
+          "TITLE": "图例",
+          "ITEMS": [{
+            "NAME": "[ICON]:{className=fa-tasks\\style=font-size:15px}",
+            "DESC": "代理所在计算机的主机名"
+          }, {
+            "NAME": "[IMAGE]:{name=icon-down}",
+            "DESC": "查询时代理已关闭"
+          }, {
+            "NAME": "[IMAGE]:{name=icon-disconnect}",
+            "DESC": "查询时代理已断开连接"
+          }, {
+            "NAME": "[IMAGE]:{name=icon-error}",
+            "DESC": "查询时代理状态未知"
+          }, {
+            "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
+            "DESC": "查询时运行的代理没有签名"
+          }]
+        }]
+      }],
+      "AGENT_CHART": {
+        "HEAP": [{
+          "TITLE": "Heap",
+          "DESC": "JVM的堆信息和所需的主要垃圾收集时间",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Max",
+              "DESC": "最大堆大小"
+            }, {
+              "NAME": "Used",
+              "DESC": "使用中的堆大小"
+            }, {
+              "NAME": "Major GC",
+              "DESC": "主要垃圾收集所需的时间（如果发生多次，括号中的主要GC数）"
+            }]
+          }]
+        }],
+        "NON_HEAP": [{
+          "TITLE": "Non-Heap",
+          "DESC": "JVM的非堆信息和所需的主要垃圾收集时间",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Max",
+              "DESC": "最大非堆大小"
+            }, {
+              "NAME": "Used",
+              "DESC": "使用中的非堆大小"
+            }, {
+              "NAME": "Major ",
+              "DESC": "主要垃圾收集所需的时间（如果发生多次，括号中的主要GC数）"
+            }]
+          }]
+        }],
+        "CPU_USAGE": [{
+          "TITLE": "Cpu Usage",
+          "DESC": "JVM/System的CPU使用率-对于多核CPU，显示所有核心的平均CPU使用率",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Java 1.6",
+              "DESC": "只收集JVM的CPU使用情况"
+            }, {
+              "NAME": "Java 1.7+",
+              "DESC": "JVM和系统的CPU使用情况都会被收集"
+            }]
+          }]
+        }],
+        "APDEX_SCORE": [{
+          "TITLE": "Apdex Score",
+          "DESC": "显示代理的Apdex分数的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Apdex Score",
+              "DESC": "Agent's Apdex Score"
+            }]
+          }]
+        }],
+        "TPS": [{
+          "TITLE": "Transactions Per Second",
+          "DESC": "服务器每秒接收的事务数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "抽样续编 Sampled Continuation (S.C)",
+              "DESC": "从另一个代理启动的分析事务"
+            }, {
+              "NAME": "新取样 Sampled New (S.N)",
+              "DESC": "从所选代理启动的分析事务"
+            }, {
+              "NAME": "无样本连续 Unsampled Continuation (U.C)",
+              "DESC": "Unprofiled transactions that started from another agent"
+            }, {
+              "NAME": "新未采样 Unsampled New (U.N)",
+              "DESC": "Unprofiled transactions that started from the selected agent"
+            }, {
+              "NAME": "新跳跃 Skipped New (S.S.N)",
+              "DESC": "Unprofiled transactions that started from the selected agent because of processing limit"
+            }, {
+              "NAME": "Skipped Continuation (S.S.C)",
+              "DESC": "Unprofiled transactions that started from another agent because of processing limit"
+            }, {
+              "NAME": "汇总",
+              "DESC": "全部事务"
+            }]
+          }]
+        }],
+        "ACTIVE_REQUEST": [{
+          "TITLE": "Active Request",
+          "DESC": "代理活动请求状态的快照，按它们为请求提供服务的活动时间进行分类",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "快 (1s)",
+              "DESC": "活动时间小于或等于1s的请求数"
+            }, {
+              "NAME": "常态 (3s)",
+              "DESC": "活动时间小于或等于3秒但长于1秒的请求数"
+            }, {
+              "NAME": "慢 (5s)",
+              "DESC": "活动时间小于或等于5秒但长于3秒的请求数"
+            }, {
+              "NAME": "非常慢 (slow)",
+              "DESC": "活动时间超过5秒的请求数"
+            }]
+          }]
+        }],
+        "RESPONSE_TIME": [{
+          "TITLE": "Response Time",
+          "DESC": "显示代理的响应时间的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Avg",
+              "DESC": "平均响应时间（单位：毫秒）"
+            }, {
+              "NAME": "Max",
+              "DESC": "最长响应时间（单位：毫秒）"
+            }]
+          }]
+        }],
+        "DATA_SOURCE": [{
+          "TITLE": "Data Source",
+          "DESC": "显示代理的数据源的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Active Avg",
+              "DESC": "活动连接的平均数量"
+            }, {
+              "NAME": "Active Max",
+              "DESC": "最大活动连接数"
+            }, {
+              "NAME": "Total Max",
+              "DESC": "可以同时分配的最大连接数"
+            }, {
+              "NAME": "Type",
+              "DESC": "数据库连接池的类型"
+            }]
+          }]
+        }],
+        "OPEN_FILE_DESCRIPTOR": [{
+          "TITLE": "File Descriptor",
+          "DESC": "显示代理的文件描述符的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Open File Descriptor",
+              "DESC": "当前使用的打开文件描述符的数目"
+            }]
+          }]
+        }],
+        "DIRECT_BUFFER_COUNT": [{
+          "TITLE": "Direct Buffer",
+          "DESC": "显示代理的直接缓冲区的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "直接缓冲区计数",
+              "DESC": "直接缓冲区数量"
+            }]
+          }]
+        }],
+        "DIRECT_BUFFER_MEMORY": [{
+          "TITLE": "Direct Buffer Memory",
+          "DESC": "显示代理已使用的直接缓冲区内存的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "使用的直接缓冲存储器",
+              "DESC": "当前使用的直接缓冲存储器"
+            }]
+          }]
+        }],
+        "MAPPED_BUFFER_COUNT": [{
+          "TITLE": "Mapped Buffer",
+          "DESC": "显示代理的映射缓冲区的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "映射缓冲区计数",
+              "DESC": "映射缓冲区的数量"
+            }]
+          }]
+        }],
+        "MAPPED_BUFFER_MEMORY": [{
+          "TITLE": "Mapped Buffer Memory",
+          "DESC": "显示代理已使用的映射缓冲区内存的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "已使用映射缓冲区内存",
+              "DESC": "当前使用的映射缓冲区内存"
+            }]
+          }]
+        }],
+        "TOTAL_THREAD": [{
+          "TITLE": "Total Thread",
+          "DESC": "显示代理的线程总数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "线程总数",
+              "DESC": "线程总数量"
+            }]
+          }]
+        }],
+        "LOADED_CLASS_COUNT": [{
+          "TITLE": "Loaded Class Count",
+          "DESC": "显示代理加载的类计数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "加载的类计数",
+              "DESC": "加载的类的数量"
+            }]
+          }]
+        }],
+        "UNLOADED_CLASS_COUNT": [{
+          "TITLE": "Unloaded Class Count",
+          "DESC": "显示代理的卸载类计数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "卸载的类计数",
+              "DESC": "卸载类的数量"
+            }]
+          }]
+        }]
+      },
+      "APPLICATION_CHART": {
+        "HEAP": [{
+          "TITLE": "Heap",
+          "DESC": "代理JVM使用的堆大小",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "代理JVM使用的最小堆大小"
+            }, {
+              "NAME": "Avg",
+              "DESC": "代理JVM使用的平均堆大小"
+            }, {
+              "NAME": "Max",
+              "DESC": "代理JVM使用的最大堆大小"
+            }]
+          }]
+        }],
+        "NON_HEAP": [{
+          "TITLE": "Non-Heap",
+          "DESC": "代理JVM使用的非堆大小",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "代理JVM使用的最小非堆大小"
+            }, {
+              "NAME": "Avg",
+              "DESC": "代理JVM使用的平均非堆大小"
+            }, {
+              "NAME": "Max",
+              "DESC": "代理JVM使用的最大非堆大小"
+            }]
+          }]
+        }],
+        "JVM_CPU_USAGE": [{
+          "TITLE": "JVM CPU Usage",
+          "DESC": "代理JVM进程使用的CPU-对于多核CPU，显示所有核心的平均CPU使用情况",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "代理JVM进程的CPU最低使用率"
+            }, {
+              "NAME": "Avg",
+              "DESC": "代理JVM进程的平均CPU使用率"
+            }, {
+              "NAME": "Max",
+              "DESC": "代理JVM进程的最大CPU使用量"
+            }]
+          }]
+        }],
+        "SYSTEM_CPU_USAGE": [{
+          "TITLE": "System CPU Usage",
+          "DESC": "每个代理系统的CPU使用率-对于多核CPU，显示所有核心的平均CPU使用率",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "代理的系统CPU最低使用率"
+            }, {
+              "NAME": "Avg",
+              "DESC": "代理的平均系统CPU使用率"
+            }, {
+              "NAME": "Max",
+              "DESC": "代理的最大系统CPU使用量"
+            }]
+          }]
+        }],
+        "APDEX_SCORE": [{
+          "TITLE": "Apdex Score",
+          "DESC": "应用和代理的Apdex评分",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "代理的最小Apdex得分"
+            }, {
+              "NAME": "Avg",
+              "DESC": "应用程序的Apdex分数"
+            }, {
+              "NAME": "Max",
+              "DESC": "代理的最大Apdex得分"
+            }]
+          }]
+        }],
+        "TPS": [{
+          "TITLE": "Transactions Per Second",
+          "DESC": "代理每秒接收的事务数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "代理的最低TPS"
+            }, {
+              "NAME": "Avg",
+              "DESC": "代理的平均TPS"
+            }, {
+              "NAME": "Max",
+              "DESC": "代理的最高TPS"
+            }]
+          }]
+        }],
+        "ACTIVE_REQUEST": [{
+          "TITLE": "Active Request",
+          "DESC": "用户请求提供服务的活动请求数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "用户请求提供服务的代理的最低活动请求计数"
+            }, {
+              "NAME": "Avg",
+              "DESC": "用户请求提供服务的代理的平均活动请求计数"
+            }, {
+              "NAME": "Max",
+              "DESC": "用户请求提供服务的代理的最高活动请求计数"
+            }]
+          }]
+        }],
+        "RESPONSE_TIME": [{
+          "TITLE": "Response Time",
+          "DESC": "代理提供的平均响应时间",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "代理平均响应时间的最低值"
+            }, {
+              "NAME": "Avg",
+              "DESC": "代理平均响应时间的平均值"
+            }, {
+              "NAME": "Max",
+              "DESC": "代理平均响应时间的最高值"
+            }]
+          }]
+        }],
+        "DATA_SOURCE": [{
+          "TITLE": "Data Source",
+          "DESC": "代理数据源的状态",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "代理的最小数据源连接计数"
+            }, {
+              "NAME": "Avg",
+              "DESC": "代理的平均数据源连接计数"
+            }, {
+              "NAME": "Max",
+              "DESC": "代理的最大数据源连接数"
+            }]
+          }]
+        }],
+        "OPEN_FILE_DESCRIPTOR": [{
+          "TITLE": "File Descriptor",
+          "DESC": "代理使用的文件描述符数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "打开的文件描述符的最小数量"
+            }, {
+              "NAME": "Avg",
+              "DESC": "平均打开文件描述符"
+            }, {
+              "NAME": "Max",
+              "DESC": "打开的文件描述符的最大数量"
+            }]
+          }]
+        }],
+        "DIRECT_BUFFER_COUNT": [{
+          "TITLE": "Direct Buffer",
+          "DESC": "代理使用的直接缓冲区数量",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "直接缓冲区的最小数量"
+            }, {
+              "NAME": "Avg",
+              "DESC": "直接缓冲区的平均数量"
+            }, {
+              "NAME": "Max",
+              "DESC": "直接缓冲区的最大数量"
+            }]
+          }]
+        }],
+        "DIRECT_BUFFER_MEMORY": [{
+          "TITLE": "Direct Buffer Memory",
+          "DESC": "代理使用的直接缓冲区内存数量",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "直接缓冲区使用的最小内存"
+            }, {
+              "NAME": "Avg",
+              "DESC": "直接缓冲区使用的平均内存"
+            }, {
+              "NAME": "Max",
+              "DESC": "直接缓冲区使用的最大内存"
+            }]
+          }]
+        }],
+        "MAPPED_BUFFER_COUNT": [{
+          "TITLE": "Mapped Buffer",
+          "DESC": "代理使用的映射缓冲区数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "映射缓冲区的最小数量"
+            }, {
+              "NAME": "Avg",
+              "DESC": "映射缓冲区的平均数量"
+            }, {
+              "NAME": "Max",
+              "DESC": "映射缓冲区的最大数量"
+            }]
+          }]
+        }],
+        "MAPPED_BUFFER_MEMORY": [{
+          "TITLE": "Mapped Buffer Memory",
+          "DESC": "代理使用的映射缓冲区内存数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "映射缓冲区使用的最小内存"
+            }, {
+              "NAME": "Avg",
+              "DESC": "映射缓冲区使用的平均内存"
+            }, {
+              "NAME": "Max",
+              "DESC": "映射缓冲区使用的最大内存"
+            }]
+          }]
+        }],
+        "TOTAL_THREAD":[{
+          "TITLE": "Total Thread",
+          "DESC": "每个代理使用的线程总数",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "每个代理的线程总数的最小值"
+            }, {
+              "NAME": "Avg",
+              "DESC": "每个代理的线程总数的平均值"
+            }, {
+              "NAME": "Max",
+              "DESC": "每个代理的线程总数的最大值"
+            }]
+          }]
+        }],
+        "LOADED_CLASS_COUNT":[{
+          "TITLE": "Loaded Class Count",
+          "DESC": "每个代理加载的类的数量",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "每个代理加载的类计数的最小值"
+            }, {
+              "NAME": "Avg",
+              "DESC": "每个代理加载的类计数的平均值"
+            }, {
+              "NAME": "Max",
+              "DESC": "每个代理加载的类计数的最大值"
+            }]
+          }]
+        }],
+        "UNLOADED_CLASS_COUNT":[{
+          "TITLE": "Unloaded Class Count",
+          "DESC": "每个代理卸载的类的数量",
+          "CATEGORY": [{
+            "TITLE": "图例",
+            "ITEMS": [{
+              "NAME": "Min",
+              "DESC": "每个代理卸载的类计数的最小值"
+            }, {
+              "NAME": "Avg",
+              "DESC": "每个代理卸载类计数的平均值"
+            }, {
+              "NAME": "Max",
+              "DESC": "每个代理卸载的类计数的最大值"
+            }]
+          }]
+        }]
+      }
+    },
+    "ALARM": [{
+      "TITLE": "告警规则类型 Types of Alarm Rule",
+      "DESC": "Pinpoint支持以下类型的告警规则",
+      "CATEGORY": [{
+        "TITLE": "类型 Type",
+        "ITEMS": [{
+          "NAME": "慢请求数量 SLOW COUNT",
+          "DESC": "当发送到应用程序的慢速请求数超过配置的阈值时触发"
+        },{
+          "NAME": "慢请求率 SLOW RATE",
+          "DESC": "当发送到应用程序的慢速请求的百分比（%）超过配置的阈值时触发"
+        },{
+          "NAME": "错误数量 ERROR COUNT",
+          "DESC": "当发送到应用程序的失败请求数超过配置的阈值时触发"
+        },{
+          "NAME": "错误率 ERROR RATE",
+          "DESC": "当发送到应用程序的失败请求的百分比（%）超过配置的阈值时触发"
+        },{
+          "NAME": "请求总数 TOTAL COUNT",
+          "DESC": "当发送到应用程序的所有请求数超过配置的阈值时触发"
+        },{
+          "NAME": "被呼叫方慢请求 SLOW COUNT TO CALLEE",
+          "DESC": "当应用程序发送的慢速请求数超过配置的阈值时触发。您必须在“Notes”字段中指定域或地址（ip，port）：例如，www.naver.com，127.0.0.1:8080"
+        },{
+          "NAME": "被叫方慢请求率 SLOW RATE TO CALLEE",
+          "DESC": "当应用程序发送的慢速请求的百分比（%）超过配置的阈值时触发。您必须在“Notes”字段中指定域或地址（ip，port）：例如，www.naver.com，127.0.0.1:8080"
+        },{
+          "NAME": "被调用方错误计数 ERROR COUNT TO CALLEE",
+          "DESC": "当应用程序发送的失败请求数超过配置的阈值时触发。您必须在“Notes”字段中指定域或地址（ip，port）：例如，www.naver.com，127.0.0.1:8080"
+        },{
+          "NAME": "被调用方错误率 ERROR RATE TO CALLEE",
+          "DESC": "当应用程序发送的失败请求的百分比（%）超过配置的阈值时触发。您必须在“Notes”字段中指定域或地址（ip，port）：例如，www.naver.com，127.0.0.1:8080"
+        },{
+          "NAME": "被调用方总计数 TOTAL COUNT TO CALLEE",
+          "DESC": "当应用程序发送的所有请求数超过配置的阈值时触发。您必须在“Notes”字段中指定域或地址（ip，port）：例如，www.naver.com，127.0.0.1:8080"
+        },{
+          "NAME": "堆使用率 HEAP USAGE RATE",
+          "DESC": "当应用程序的堆使用率（%）超过配置的阈值时触发"
+        },{
+          "NAME": "JVM CPU使用率 JVM CPU USAGE RATE",
+          "DESC": "当应用程序的CPU使用率（%）超过配置的阈值时触发"
+        },{
+          "NAME": "系统CPU使用率 SYSTEM CPU USAGE RATE",
+          "DESC": "当应用程序的CPU使用率（%）超过配置的阈值时发送警报"
+        },{
+          "NAME": "数据源连接使用率 DATASOURCE CONNECTION USAGE RATE",
+          "DESC": "当应用程序的DataSource连接使用率（%）超过配置的阈值时触发"
+        },{
+          "NAME": "死锁发生 DEADLOCK OCCURRENCE",
+          "DESC": "在应用程序中检测到死锁情况时发送警报"
+        },{
+          "NAME": "文件描述符计数 FILE DESCRIPTOR COUNT",
+          "DESC": "当打开的文件描述符数量超过配置的阈值时发送警报"
+        }]
+      }]
+    }],
+    "APDEX_SCORE": [{
+      "TITLE": "Apdex Score",
+      "CATEGORY": [{
+        "ITEMS": [{
+          "DESC": "[ICON]:{className=fa-smile-beam\\style=font-size:15px;color:var(--status-success);\\value=Excellent}|[TEXT]:{value=&nbsp;&nbsp;Excellent}",
+          "NAME": "0.94 ~ 1.00"
+        }, {
+          "DESC": "[ICON]:{className=fa-smile\\style=font-size:15px;color:var(--status-good);}|[TEXT]:{value=&nbsp;&nbsp;Good}",
+          "NAME": "0.85 ~ 0.94"
+        }, {
+          "DESC": "[ICON]:{className=fa-meh\\style=font-size:15px;}|[TEXT]:{value=&nbsp;&nbsp;Fair}",
+          "NAME": "0.7 ~ 0.85"
+        }, {
+          "DESC": "[ICON]:{className=fa-frown\\style=font-size:15px;color:var(--status-warn);}|[TEXT]:{value=&nbsp;&nbsp;Poor}",
+          "NAME": "0.5 ~ 0.7"
+        }, {
+          "DESC": "[ICON]:{className=fa-angry\\style=font-size:15px;color:var(--status-fail);}|[TEXT]:{value=&nbsp;&nbsp;Unacceptable}",
+          "NAME": "< 0.5"
+        }]
+      }]
+    }]
+  }
+}

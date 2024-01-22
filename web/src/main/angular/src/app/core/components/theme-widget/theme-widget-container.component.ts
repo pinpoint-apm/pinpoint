@@ -6,7 +6,8 @@ import {
     ThemeService,
     WebAppSettingDataService
 } from 'app/shared/services';
-
+import { Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 @Component({
     selector: 'pp-theme-widget',
     templateUrl: './theme-widget-container.component.html',
@@ -14,15 +15,18 @@ import {
 })
 export class ThemeWidgetContainerComponent implements OnInit {
     currentTheme: string;
+    themeLabel$: Observable<string>;
 
     constructor(
         private el: ElementRef,
         private analyticsService: AnalyticsService,
         private webAppSettingDataService: WebAppSettingDataService,
         private themeService: ThemeService,
+        private translateService: TranslateService,
     ) {}
 
     ngOnInit() {
+        this.themeLabel$ = this.translateService.get('CONFIGURATION.THEME.TITLE');
         this.currentTheme = this.webAppSettingDataService.getTheme();
     }
 

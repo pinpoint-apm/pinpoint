@@ -1,6 +1,6 @@
 <div class="l-wrapper">
     <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
-    <h1>{{editAlarm ? 'Edit Alarm' : 'Add Alarm'}}</h1>
+    <h1>{{editAlarm ? i18nLabel.EDIT_LABEL : i18nLabel.ADD_LABEL }}</h1>
     <form [formGroup]="alarmForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div class="l-form-grid">
             <div>
@@ -56,7 +56,7 @@
                 <div class="l-form-label">Webhook</div>
                 <div class="l-form-webhook-container" [style.overflow-y]="webhookListScroll">
                     <div class="l-form-webhook-list">
-                        <pp-alarm-rule-webhook-list 
+                        <pp-alarm-rule-webhook-list
                             *ngFor="let webhook of webhookList"
                             [webhook]="webhook"
                             [checkedWebhookList]="checkedWebhookList"
@@ -70,7 +70,7 @@
                             go to <a routerLink="/config/webhook">webhook configuration page</a>.
                         </div>
                     </div>
-                    <pp-loading [showLoading]="showWebhookLoading" [zIndex]="20"></pp-loading>    
+                    <pp-loading [showLoading]="showWebhookLoading" [zIndex]="20"></pp-loading>
                     <pp-film-for-disable *ngIf="disableWebhookList || isWebhookSelectDisable" [zIndex]="9" [marginWidth]="0" [height]="9999"></pp-film-for-disable>
                 </div>
             </div>
@@ -79,6 +79,6 @@
             <div class="l-form-label">{{i18nLabel.NOTES_LABEL}}</div>
             <textarea id="notes" class="l-textarea" formControlName="notes"></textarea>
         </div>
-        <button type="submit" class="btn btn-blue l-create">OK</button>
+        <button type="submit" class="btn btn-blue l-create">{{ i18nLabel.SUBMIT_LABEL }}</button>
     </form>
 </div>

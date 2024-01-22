@@ -6,14 +6,14 @@
         <tr>
             <th>
                 <div class="l-table-title">
-                    <div class="l-title-text">Alarm</div>
+                    <div class="l-title-text">{{ i18nLabel.ALARM_TITLE_LABEL }}</div>
                     <button class="btn btn-blue btn-sm l-add-button fas fa-plus" (click)="onClickAddBtn()" [disabled]="!isApplicationSelected()"></button>
                 </div>
                 <div class="l-alarm-rules-th">
-                    <div>Rule Name</div>
-                    <div>User Group</div>
-                    <div>Threshold</div>
-                    <div>Type</div>
+                    <div>{{ i18nLabel.RULE_NAME_LABEL }}</div>
+                    <div>{{ i18nLabel.USER_GROUP_LABEL }}</div>
+                    <div>{{ i18nLabel.THRESHOLD_LABEL }}</div>
+                    <div>{{ i18nLabel.TYPE_LABEL }}</div>
                     <div></div>
                 </div>
             </th>
