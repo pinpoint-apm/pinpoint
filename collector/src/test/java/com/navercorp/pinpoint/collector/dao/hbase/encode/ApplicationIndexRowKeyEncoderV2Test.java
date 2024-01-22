@@ -18,8 +18,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.server.util.ThreadLocalAcceptedTimeService;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -36,8 +34,7 @@ class ApplicationIndexRowKeyEncoderV2Test {
     @BeforeEach
     void beforeEach() {
         AbstractRowKeyDistributor rowKeyDistributor = applicationTraceIndexDistributor();
-        AcceptedTimeService acceptedTimeService = new ThreadLocalAcceptedTimeService();
-        this.encoder = new ApplicationIndexRowKeyEncoderV2(rowKeyDistributor, acceptedTimeService);
+        this.encoder = new ApplicationIndexRowKeyEncoderV2(rowKeyDistributor);
     }
 
     private AbstractRowKeyDistributor applicationTraceIndexDistributor() {
