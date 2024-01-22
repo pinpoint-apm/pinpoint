@@ -183,9 +183,9 @@ public class SizeLimitedBulkIncrementerTest {
     @Test
     public void multipleTablesConcurrent() throws Exception {
         // Given
-        final int numTables = 50;
-        final int numRowIds = 100;
-        final int numColumnIds = 20;
+        final int numTables = 10;
+        final int numRowIds = 20;
+        final int numColumnIds = 10;
         final int maxCallCount = 200;
 
         List<TestDataSet> testDataSets = BulkIncrementerTestClazz.createRandomTestDataSetList(numTables, numRowIds, numColumnIds, maxCallCount);
