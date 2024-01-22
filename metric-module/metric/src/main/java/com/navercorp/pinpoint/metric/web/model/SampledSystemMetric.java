@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.metric.web.model;
 
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.web.model.chart.Point;
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.Point;
+import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
 
 import java.util.List;
 import java.util.Objects;

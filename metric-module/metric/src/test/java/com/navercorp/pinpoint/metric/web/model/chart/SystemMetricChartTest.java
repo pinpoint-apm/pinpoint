@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.metric.web.model.chart;
 
+import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.metric.common.util.Point;
+import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
+import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
-import com.navercorp.pinpoint.metric.web.util.Range;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
-import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

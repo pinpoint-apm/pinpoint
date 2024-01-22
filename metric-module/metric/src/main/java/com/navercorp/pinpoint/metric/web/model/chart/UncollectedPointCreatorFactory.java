@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.metric.web.model.chart;
 
 
+import com.navercorp.pinpoint.metric.common.util.Point;
+
 /**
  * @author Taejin Koo
  */

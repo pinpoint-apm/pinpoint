@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.inspector.web.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.metric.web.util.Range;
+import com.navercorp.pinpoint.metric.common.model.Range;
+import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -32,16 +32,23 @@ import java.util.concurrent.TimeUnit;
 // TODO : (minwoo) Shouldn't applicationName be added?
 public class InspectorDataSearchKey {
 
+    public static final String UNKNOWN_NAME = "Unknown";
+
     private final String tenantId;
+
+    private final String applicationName;
+
     private final String agentId;
+
     private final String metricDefinitionId;
 
     private final Range range;
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public InspectorDataSearchKey(String tenantId, String agentId, String metricDefinitionId, TimeWindow timeWindow) {
+    public InspectorDataSearchKey(String tenantId, String applicationName, String agentId, String metricDefinitionId, TimeWindow timeWindow) {
         this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.metricDefinitionId = StringPrecondition.requireHasLength(metricDefinitionId, "metricDefinitionId");
 
@@ -73,5 +80,9 @@ public class InspectorDataSearchKey {
 
     public long getLimit() {
         return limit;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
     }
 }

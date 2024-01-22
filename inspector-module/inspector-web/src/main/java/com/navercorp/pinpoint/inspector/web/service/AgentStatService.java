@@ -19,9 +19,7 @@ package com.navercorp.pinpoint.inspector.web.service;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
-
-import java.util.List;
+import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 
 /**
  * @author minwoo.jung

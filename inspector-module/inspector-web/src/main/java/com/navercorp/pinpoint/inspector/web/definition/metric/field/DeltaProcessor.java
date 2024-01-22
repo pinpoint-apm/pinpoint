@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.definition.metric.field;
 
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

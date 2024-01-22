@@ -21,6 +21,9 @@ import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
+import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.mapping.Field;
 import com.navercorp.pinpoint.metric.web.mapping.Metric;
@@ -29,13 +32,11 @@ import com.navercorp.pinpoint.metric.web.model.MetricValue;
 import com.navercorp.pinpoint.metric.web.model.MetricValueGroup;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.util.TagUtils;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
-import com.navercorp.pinpoint.metric.web.util.metric.DoubleUncollectedDataCreator;
-import com.navercorp.pinpoint.metric.web.util.metric.LongUncollectedDataCreator;
-import com.navercorp.pinpoint.metric.web.util.metric.TimeSeriesBuilder;
-import com.navercorp.pinpoint.metric.web.util.metric.UncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.util.LongUncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.util.UncollectedDataCreator;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,7 +84,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         GroupingRule groupingRule = systemMetricBasicGroupManager.findGroupingRule(metricDefinitionId);
         List<MetricValueGroup<?>> metricValueGroupList = groupingMetricValue(metricValueList, groupingRule);
 
-        List<Long> timeStampList = createTimeStampList(timeWindow);
+        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
         String title = systemMetricBasicGroupManager.findMetricTitle(metricDefinitionId);
         String unit = systemMetricBasicGroupManager.findUnit(metricDefinitionId);
         return new SystemMetricData(title, unit, timeStampList, metricValueGroupList);
@@ -270,17 +271,6 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
                     "tagList=" + tagList +
                     '}';
         }
-    }
-
-
-    private List<Long> createTimeStampList(TimeWindow timeWindow) {
-        List<Long> timestampList = new ArrayList<>((int) timeWindow.getWindowRangeCount());
-
-        for (Long timestamp : timeWindow) {
-            timestampList.add(timestamp);
-        }
-
-        return timestampList;
     }
 
     private <T extends Number> MetricValue<T> createSystemMetricValue(TimeWindow timeWindow, MetricTag metricTag,

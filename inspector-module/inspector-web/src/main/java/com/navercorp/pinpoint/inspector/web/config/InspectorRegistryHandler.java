@@ -21,7 +21,8 @@ import com.navercorp.pinpoint.inspector.web.dao.pinot.MultiValueTagTypeHandler;
 import com.navercorp.pinpoint.inspector.web.model.TagInformation;
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
@@ -44,6 +45,7 @@ public class InspectorRegistryHandler implements MyBatisRegistryHandler {
         registryHandler.registerTypeAlias(typeAliasRegistry);
 
         typeAliasRegistry.registerAlias(SystemMetricPoint.class);
+        typeAliasRegistry.registerAlias(AvgMinMaxMetricPoint.class);
         typeAliasRegistry.registerAlias(InspectorQueryParameter.class);
         typeAliasRegistry.registerAlias("DoubleHandler", DoubleTypeHandler.class);
         typeAliasRegistry.registerAlias(TagInformation.class);

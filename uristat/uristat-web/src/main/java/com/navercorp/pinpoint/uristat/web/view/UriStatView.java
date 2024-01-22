@@ -15,9 +15,10 @@
  */
 package com.navercorp.pinpoint.uristat.web.view;
 
+import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.model.UriStatGroup;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
@@ -36,22 +37,12 @@ public class UriStatView implements TimeSeriesView {
         Objects.requireNonNull(uriStats, "uriStats");
         Objects.requireNonNull(chartType, "chartType");
 
-        this.timestampList = createTimeStampList(timeWindow);
+        this.timestampList = TimeUtils.createTimeStampList(timeWindow);
         if (uriStats.isEmpty()) {
             this.uriStats.add(UriStatGroup.EMPTY_URI_STAT_GROUP);
         } else {
             this.uriStats.add(new UriStatGroup(uri, timestampList.size(), timeWindow, uriStats, chartType.getFieldNames()));
         }
-    }
-
-    private List<Long> createTimeStampList(TimeWindow timeWindow) {
-        List<Long> timestampList = new ArrayList<>((int) timeWindow.getWindowRangeCount());
-
-        for (Long timestamp : timeWindow) {
-            timestampList.add(timestamp);
-        }
-
-        return timestampList;
     }
 
     @Override

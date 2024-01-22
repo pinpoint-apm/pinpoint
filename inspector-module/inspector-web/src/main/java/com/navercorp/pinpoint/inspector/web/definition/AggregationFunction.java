@@ -24,6 +24,9 @@ public enum AggregationFunction {
     AVG(1, "avg"),
     SUM(2, "sum"),
     MAX(2, "max"),
+
+    AVG_MIN_MAX(300, "avg_min_max"),
+
     UNKNOWN(999, "unknown");
 
     private final int code;

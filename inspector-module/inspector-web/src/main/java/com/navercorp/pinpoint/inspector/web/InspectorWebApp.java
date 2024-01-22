@@ -50,9 +50,19 @@ import java.io.InputStream;
 public class InspectorWebApp {
 
     @Bean
-    public Mappings inspectorDefinition(@Value(YMLInspectorManager.DEFINITION_YML)
+    public Mappings agentInspectorDefinition(@Value(YMLInspectorManager.AGENT_DEFINITION_YML_PATH)
                                                       Resource inspectorMetric,
                                                       YAMLMapper mapper) throws IOException {
+
+        InputStream stream = inspectorMetric.getInputStream();
+
+        return mapper.readValue(stream, Mappings.class);
+    }
+
+    @Bean
+    public Mappings applicationInspectorDefinition(@Value(YMLInspectorManager.APPLICATION_DEFINITION_YML_PATH)
+                                             Resource inspectorMetric,
+                                             YAMLMapper mapper) throws IOException {
 
         InputStream stream = inspectorMetric.getInputStream();
 
