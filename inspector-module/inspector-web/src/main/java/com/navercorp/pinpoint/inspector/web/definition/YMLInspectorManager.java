@@ -33,11 +33,11 @@ import java.util.stream.Collectors;
 /**
  * @author minwoo.jung
  */
-@Component
 // TODO : (minwoo) It seems that it can be integrated with the metric's com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasic GroupManager.
 public class YMLInspectorManager {
 
-    public static final String DEFINITION_YML = "classpath:/inspector/web/inspector-definition.yml";
+    public static final String AGENT_DEFINITION_YML_PATH = "classpath:/inspector/web/inspector-definition-for-agent.yml";
+    public static final String APPLICATION_DEFINITION_YML_PATH = "classpath:/inspector/web/inspector-definition-for-application.yml";
     private final Map<String, MetricDefinition> definitionIdMap;
     private final Map<String, List<String>> metricIdMap;
     private final Comparator<MetricInfo> metricInfoComparator;

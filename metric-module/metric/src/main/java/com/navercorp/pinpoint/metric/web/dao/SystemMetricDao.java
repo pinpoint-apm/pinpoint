@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.metric.web.dao;
 
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
 
 import java.util.List;
 import java.util.concurrent.Future;

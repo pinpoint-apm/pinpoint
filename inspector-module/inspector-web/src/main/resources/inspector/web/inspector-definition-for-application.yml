@@ -1,0 +1,10 @@
+mappings:
+  - definitionId: "heap"
+    metricName: "jvmGc"
+    title: "Heap Usage"
+    fields:
+      - fieldName: "heapUsed"
+        matchingRule: EXACT_ONE
+        aggregationFunction : AVG_MIN_MAX
+        chartType : "areaSpline"
+        unit : "byte"

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.inspector.web.service;
 
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
+import com.navercorp.pinpoint.inspector.web.definition.Mappings;
+import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricPostProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricPreProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricProcessorManager;
@@ -25,20 +27,20 @@ import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.FieldPostProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.FieldProcessorManager;
-import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.web.model.MetricValue;
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
-import com.navercorp.pinpoint.metric.web.util.metric.DoubleUncollectedDataCreator;
-import com.navercorp.pinpoint.metric.web.util.metric.TimeSeriesBuilder;
-import com.navercorp.pinpoint.metric.web.util.metric.UncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
+import com.navercorp.pinpoint.metric.common.util.TimeUtils;
+import com.navercorp.pinpoint.metric.common.util.UncollectedDataCreator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -61,9 +63,10 @@ public class DefaultAgentStatService implements AgentStatService {
     private final MetricProcessorManager metricProcessorManager;
     private final FieldProcessorManager fieldProcessorManager;
 
-    public DefaultAgentStatService(AgentStatDao agentStatDao, YMLInspectorManager ymlInspectorManager, MetricProcessorManager metricProcessorManager, FieldProcessorManager fieldProcessorManager) {
+    public DefaultAgentStatService(AgentStatDao agentStatDao, @Qualifier("agentInspectorDefinition")Mappings agentInspectorDefinition, MetricProcessorManager metricProcessorManager, FieldProcessorManager fieldProcessorManager) {
         this.agentStatDao = Objects.requireNonNull(agentStatDao, "agentStatDao");
-        this.ymlInspectorManager = Objects.requireNonNull(ymlInspectorManager, "ymlInspectorManager");
+        Objects.requireNonNull(agentInspectorDefinition, "agentInspectorDefinition");
+        this.ymlInspectorManager = new YMLInspectorManager(agentInspectorDefinition);
         this.metricProcessorManager = Objects.requireNonNull(metricProcessorManager, "metricProcessorManager");
         this.fieldProcessorManager = Objects.requireNonNull(fieldProcessorManager, "fieldProcessorManager");
     }
@@ -89,7 +92,7 @@ public class DefaultAgentStatService implements AgentStatService {
         }
 
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(metricDefinition, metricValueList);
-        List<Long> timeStampList = createTimeStampList(timeWindow);
+        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
         return new InspectorMetricData(metricDefinition.getTitle(), timeStampList, processedMetricValueList);
     }
 
@@ -114,7 +117,7 @@ public class DefaultAgentStatService implements AgentStatService {
         }
 
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(newMetricDefinition, metricValueList);
-        List<Long> timeStampList = createTimeStampList(timeWindow);
+        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
         Map<List<Tag>,List<InspectorMetricValue>> metricValueGroups = groupingMetricValue(processedMetricValueList, metricDefinition);
 
         return new InspectorMetricGroupData(metricDefinition.getTitle(), timeStampList, metricValueGroups);
@@ -140,20 +143,9 @@ public class DefaultAgentStatService implements AgentStatService {
 
     }
 
-    //TODO : (minwoo) Duplicate code in systemmetric module.
-    private List<Long> createTimeStampList(TimeWindow timeWindow) {
-        List<Long> timestampList = new ArrayList<>((int) timeWindow.getWindowRangeCount());
-
-        for (Long timestamp : timeWindow) {
-            timestampList.add(timestamp);
-        }
-
-        return timestampList;
-    }
-
     private InspectorMetricValue createInspectorMetricValue(TimeWindow timeWindow, Field field,
-                                                                                   List<SystemMetricPoint<Double>> sampledSystemMetricDataList,
-                                                                                   UncollectedDataCreator<Double> uncollectedDataCreator) {
+                                                            List<SystemMetricPoint<Double>> sampledSystemMetricDataList,
+                                                            UncollectedDataCreator<Double> uncollectedDataCreator) {
 
         FieldPostProcessor postProcessor = fieldProcessorManager.getPostProcessor(field.getPostProcess());
         List<SystemMetricPoint<Double>> postProcessedDataList = postProcessor.postProcess(sampledSystemMetricDataList);

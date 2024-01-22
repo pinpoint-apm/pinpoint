@@ -19,7 +19,8 @@ package com.navercorp.pinpoint.exceptiontrace.web.view;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceGroup;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
+import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
@@ -51,7 +52,7 @@ public class ExceptionTraceView implements TimeSeriesView {
         Objects.requireNonNull(timeWindow, "timeWindow");
         Objects.requireNonNull(exceptionTraceValueViews, "exceptionTraceValueViews");
 
-        List<Long> timestampList = createTimeStampList(timeWindow);
+        List<Long> timestampList = TimeUtils.createTimeStampList(timeWindow);
         List<TimeseriesValueGroupView> timeSeriesValueGroupViews = new ArrayList<>();
         timeSeriesValueGroupViews.add(
                 ExceptionTraceGroup.newGroupFromValueViews(groupName, exceptionTraceValueViews)
@@ -60,16 +61,6 @@ public class ExceptionTraceView implements TimeSeriesView {
         return new ExceptionTraceView(
                 timestampList, timeSeriesValueGroupViews
         );
-    }
-
-    private static List<Long> createTimeStampList(TimeWindow timeWindow) {
-        List<Long> timestampList = new ArrayList<>((int) timeWindow.getWindowRangeCount());
-
-        for (Long timestamp : timeWindow) {
-            timestampList.add(timestamp);
-        }
-
-        return timestampList;
     }
 
     @Override

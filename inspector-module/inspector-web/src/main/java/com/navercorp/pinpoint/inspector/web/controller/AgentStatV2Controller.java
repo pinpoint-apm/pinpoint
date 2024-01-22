@@ -22,11 +22,10 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.service.AgentStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataVeiw;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
-import com.navercorp.pinpoint.metric.web.util.Range;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
-import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.metric.web.view.SystemMetricView;
+import com.navercorp.pinpoint.metric.common.model.Range;
+import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
+import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,13 +41,13 @@ import java.util.Objects;
 @RequestMapping("/getAgentStatV2")
 public class AgentStatV2Controller {
 
-    AgentStatService agentStatChartService;
+    AgentStatService agentStatService;
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(5000L, 200);
     private final TenantProvider tenantProvider;
 
-    public AgentStatV2Controller(AgentStatService agentStatChartService, TenantProvider tenantProvider) {
-        this.agentStatChartService = Objects.requireNonNull(agentStatChartService, "agentStatChartService");
+    public AgentStatV2Controller(AgentStatService agentStatService, TenantProvider tenantProvider) {
+        this.agentStatService = Objects.requireNonNull(agentStatService, "agentStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
@@ -61,9 +60,9 @@ public class AgentStatV2Controller {
             @RequestParam("to") long to) {
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, agentId, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, InspectorDataSearchKey.UNKNOWN_NAME, agentId, metricDefinitionId, timeWindow);
 
-        InspectorMetricData inspectorMetricData =  agentStatChartService.selectAgentStat(inspectorDataSearchKey, timeWindow);
+        InspectorMetricData inspectorMetricData =  agentStatService.selectAgentStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
     }
 
@@ -75,9 +74,9 @@ public class AgentStatV2Controller {
             @RequestParam("to") long to) {
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, agentId, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, InspectorDataSearchKey.UNKNOWN_NAME, agentId, metricDefinitionId, timeWindow);
 
-        InspectorMetricGroupData inspectorMetricGroupData = agentStatChartService.selectAgentStatWithGrouping(inspectorDataSearchKey, timeWindow);
+        InspectorMetricGroupData inspectorMetricGroupData = agentStatService.selectAgentStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataVeiw(inspectorMetricGroupData);
     }
 }
