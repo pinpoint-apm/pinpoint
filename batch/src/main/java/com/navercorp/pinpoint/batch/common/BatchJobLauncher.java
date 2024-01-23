@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.batch.common;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobLocator;
@@ -36,8 +36,11 @@ public class BatchJobLauncher extends JobLaunchSupport {
 
     private final BatchProperties batchProperties;
 
-    public BatchJobLauncher(@Qualifier("jobRegistry") JobLocator locator,
-                            @Qualifier("jobLauncher") JobLauncher launcher, BatchProperties batchProperties) {
+    public BatchJobLauncher(
+            @Qualifier("jobRegistry") JobLocator locator,
+            @Qualifier("jobLauncher") JobLauncher launcher,
+            BatchProperties batchProperties
+    ) {
         super(locator, launcher);
         this.batchProperties = Objects.requireNonNull(batchProperties, "batchProperties");
     }
@@ -59,7 +62,7 @@ public class BatchJobLauncher extends JobLaunchSupport {
         }
     }
 
-    private JobParameters createTimeParameter() {
+    public static JobParameters createTimeParameter() {
         JobParametersBuilder builder = new JobParametersBuilder();
         Date now = new Date();
         builder.addDate("schedule.date", now);
@@ -89,4 +92,13 @@ public class BatchJobLauncher extends JobLaunchSupport {
             logger.debug("Skip cleanupInactiveAgentsJob, because 'enableCleanupInactiveAgentsJob' is disabled.");
         }
     }
+
+    public void cleanupInactiveApplicationsJob() {
+        if (batchProperties.isCleanupInactiveApplicationsJobEnable()) {
+            run("cleanupInactiveApplicationsJob", createTimeParameter());
+        } else {
+            logger.debug("Skip applicationCleanJob, because 'enableCleanupInactiveApplicationsJob' is disabled.");
+        }
+    }
+
 }

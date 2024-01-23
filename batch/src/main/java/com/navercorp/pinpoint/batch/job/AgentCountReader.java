@@ -18,17 +18,16 @@ package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import jakarta.annotation.Nonnull;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemReader;
 
-import jakarta.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
 
 /**
  * @author youngjin.kim2
@@ -48,7 +47,7 @@ public class AgentCountReader implements ItemReader<String>, StepExecutionListen
         List<String> applicationNames = applicationIndexDao.selectAllApplicationNames()
                 .stream()
                 .map(Application::getName)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         this.applicationNameQueue = new ConcurrentLinkedQueue<>(applicationNames);
     }
 

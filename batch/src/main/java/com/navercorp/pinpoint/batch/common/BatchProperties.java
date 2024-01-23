@@ -76,6 +76,12 @@ public class BatchProperties {
     @Value("${job.cleanup.inactive.agents.duration.days:30}")
     private int cleanupInactiveAgentsDurationDays;
 
+    @Value("${job.cleanup.inactive.applications.enable:false}")
+    private boolean cleanupInactiveApplicationsJobEnable;
+
+    @Value("${job.cleanup.inactive.applications.cron}")
+    private String cleanupInactiveApplicationsJobCron;
+
     private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
 
     @PostConstruct
@@ -156,6 +162,14 @@ public class BatchProperties {
         return cleanupInactiveAgentsDurationDays;
     }
 
+    public boolean isCleanupInactiveApplicationsJobEnable() {
+        return cleanupInactiveApplicationsJobEnable;
+    }
+
+    public String getCleanupInactiveApplicationsJobCron() {
+        return cleanupInactiveApplicationsJobCron;
+    }
+
     @Override
     public String toString() {
         return "BatchProperties{" +
@@ -174,6 +188,8 @@ public class BatchProperties {
                 ", uriStatAlarmJobEnable=" + uriStatAlarmJobEnable +
                 ", uriStatAlarmJobCron='" + uriStatAlarmJobCron + '\'' +
                 ", cleanupInactiveAgentsDurationDays=" + cleanupInactiveAgentsDurationDays +
+                ", cleanupInactiveApplicationsJobEnable=" + cleanupInactiveApplicationsJobEnable +
+                ", cleanupInactiveApplicationsJobCron='" + cleanupInactiveApplicationsJobCron + '\'' +
                 '}';
     }
 }
