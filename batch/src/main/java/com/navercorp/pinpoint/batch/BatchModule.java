@@ -18,7 +18,10 @@
 package com.navercorp.pinpoint.batch;
 
 import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
+import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
+import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
 import com.navercorp.pinpoint.batch.configuration.AlarmJobModule;
+import com.navercorp.pinpoint.batch.configuration.CleanupInactiveApplicationsJobConfig;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
@@ -31,10 +34,13 @@ import com.navercorp.pinpoint.web.WebServiceConfig;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
+
+import java.util.List;
 
 @ImportResource({
         "classpath:applicationContext-batch-schedule.xml",
@@ -67,11 +73,20 @@ import org.springframework.context.annotation.ImportResource;
         UriStatAlarmConfiguration.class,
         AlarmSenderConfiguration.class,
         CommonCacheManagerConfiguration.class,
+        CleanupInactiveApplicationsJobConfig.class,
 })
 public class BatchModule {
 
     @Bean
     public TimeSlot timeSlot() {
         return new DefaultTimeSlot();
+    }
+
+    @Bean
+    StartupJobLauncher startupJobLauncher(
+            BatchJobLauncher launcher,
+            @Value("${batch.startup.jobs:#{''}}") List<String> jobs
+    ) {
+        return new StartupJobLauncher(launcher, jobs);
     }
 }
