@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
@@ -89,7 +90,11 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         final PSpanChunk.Builder pSpanChunk = PSpanChunk.newBuilder();
 
         this.spanProcessor.preProcess(spanChunk, pSpanChunk);
-        mapper.map(spanChunk, applicationServiceType, pSpanChunk);
+        if(spanChunk instanceof AsyncSpanChunk) {
+            mapper.map((AsyncSpanChunk) spanChunk, applicationServiceType, pSpanChunk);
+        } else {
+            mapper.map(spanChunk, applicationServiceType, pSpanChunk);
+        }
         this.spanProcessor.postProcess(spanChunk, pSpanChunk);
         return pSpanChunk.build();
     }
