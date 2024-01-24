@@ -40,11 +40,12 @@ public class FieldProcessorManager {
         if (EmptyPostProcessor.INSTANCE.getName().equals(name)) {
             return EmptyPostProcessor.INSTANCE;
         }
-        if (!postProcessorMap.containsKey(name)) {
+        final FieldPostProcessor fieldPostProcessor = postProcessorMap.get(name);
+        if (fieldPostProcessor == null) {
             throw new IllegalArgumentException("postProcessor not found. name:" + name);
         }
 
-        return postProcessorMap.get(name);
+        return fieldPostProcessor;
     }
 
 }

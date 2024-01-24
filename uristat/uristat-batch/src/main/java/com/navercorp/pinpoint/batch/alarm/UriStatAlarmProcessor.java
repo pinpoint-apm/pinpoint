@@ -1,20 +1,20 @@
 package com.navercorp.pinpoint.batch.alarm;
 
+import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmCheckerRegistry;
+import com.navercorp.pinpoint.batch.alarm.collector.UriStatDataCollectorFactory;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmChecker;
 import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers;
-import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmChecker;
 import com.navercorp.pinpoint.pinot.alarm.collector.PinotDataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.UriStatDataCollectorFactory;
 import com.navercorp.pinpoint.pinot.alarm.condition.AlarmCondition;
 import com.navercorp.pinpoint.pinot.alarm.condition.AlarmConditionFactory;
 import com.navercorp.pinpoint.pinot.alarm.service.PinotAlarmService;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
+import jakarta.annotation.Nonnull;
 import org.springframework.batch.item.ItemProcessor;
 
-import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,11 +86,14 @@ public class UriStatAlarmProcessor implements ItemProcessor<PinotAlarmKey, Pinot
         }
 
         public List<PinotAlarmChecker<? extends Number>> buildAlarmCheckers() {
-            for (UriStatAlarmChecker alarmChecker : ruleMap.keySet()) {
+            for (Map.Entry<UriStatAlarmChecker, Map<AlarmCondition, List<PinotAlarmRule>>> entry : ruleMap.entrySet()) {
+                final UriStatAlarmChecker alarmChecker = entry.getKey();
+                final Map<AlarmCondition, List<PinotAlarmRule>> value = entry.getValue();
+
                 PinotDataCollector<? extends Number> dataCollector = uriStatDataCollectorFactory.getDataCollector(alarmChecker);
-                Map<AlarmCondition, List<PinotAlarmRule>> value = ruleMap.get(alarmChecker);
-                for (AlarmCondition alarmCondition : value.keySet()) {
-                    List<PinotAlarmRule> categorizedRules = value.get(alarmCondition);
+                for (Map.Entry<AlarmCondition, List<PinotAlarmRule>> dataEntry : value.entrySet()) {
+                    final AlarmCondition alarmCondition = dataEntry.getKey();
+                    final List<PinotAlarmRule> categorizedRules = dataEntry.getValue();
                     PinotAlarmChecker<? extends Number> checker = checkerRegistry.getCheckerFactory(alarmChecker).createChecker(categorizedRules, dataCollector, alarmCondition);
                     alarmCheckers.add(checker);
                 }

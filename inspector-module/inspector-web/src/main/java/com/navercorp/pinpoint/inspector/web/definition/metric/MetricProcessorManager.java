@@ -43,18 +43,20 @@ public class MetricProcessorManager {
     }
 
     public MetricPostProcessor getPostProcessor(String name) {
-        if (!postProcessorMap.containsKey(name)) {
+        final MetricPostProcessor metricPostProcessor = postProcessorMap.get(name);
+        if (metricPostProcessor == null) {
             throw new IllegalArgumentException("postProcessor not found. name:" + name);
         }
 
-        return postProcessorMap.get(name);
+        return metricPostProcessor;
     }
 
     public MetricPreProcessor getPreProcessor(String name) {
-        if (!preProcessorMap.containsKey(name)) {
+        final MetricPreProcessor metricPreProcessor = preProcessorMap.get(name);
+        if (metricPreProcessor == null) {
             throw new IllegalArgumentException("preProcessor not found. name:" + name);
         }
 
-        return preProcessorMap.get(name);
+        return metricPreProcessor;
     }
 }
