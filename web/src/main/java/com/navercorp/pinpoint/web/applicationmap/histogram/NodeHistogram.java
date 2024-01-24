@@ -144,8 +144,10 @@ public class NodeHistogram {
     public List<HistogramView> createAgentHistogramViewList() {
         Map<String, List<TimeHistogram>> agentTimeHistogramMap = agentTimeHistogram.getTimeHistogramMap();
         List<HistogramView> result = new ArrayList<>();
-        for (String agentId : agentHistogramMap.keySet()) {
-            Histogram agentHistogram = agentHistogramMap.get(agentId);
+        for (Map.Entry<String, Histogram> entry : agentHistogramMap.entrySet()) {
+            String agentId = entry.getKey();
+            Histogram agentHistogram = entry.getValue();
+
             List<TimeHistogram> sortedTimeHistogram = agentTimeHistogramMap.computeIfAbsent(agentId, id -> Collections.emptyList());
 
             HistogramView histogramView = new HistogramView(agentId, agentHistogram, sortedTimeHistogram);
