@@ -58,6 +58,9 @@ public class LinkDataMapProcessors implements LinkDataMapProcessor {
 
         public void addLinkProcessor(LinkDataMapProcessor linkProcessor) {
             Objects.requireNonNull(linkProcessor, "linkProcessor");
+            if (LinkDataMapProcessor.NO_OP == linkProcessor) {
+                return;
+            }
             linkDataMapProcessors.add(linkProcessor);
         }
 
