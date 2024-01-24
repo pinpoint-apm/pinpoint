@@ -34,8 +34,6 @@ public class DefaultExceptionContextFactory implements ExceptionContextFactory {
     public ExceptionContext newExceptionContext(TraceRoot traceRoot) {
         ExceptionMetaDataFactory exceptionMetaDataFactory = new ExceptionMetaDataFactory(traceRoot);
         ExceptionStorage exceptionStorage = exceptionStorageFactory.createStorage(exceptionMetaDataFactory);
-        return new DefaultExceptionContext(
-                exceptionStorage
-        );
+        return new DefaultExceptionContext(exceptionStorage);
     }
 }

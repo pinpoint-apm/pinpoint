@@ -17,8 +17,9 @@ package com.navercorp.pinpoint.profiler.context.provider.exception;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingServiceFactory;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceFactory;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
 
@@ -27,25 +28,29 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-public class ExceptionRecordingServiceProvider implements Provider<ExceptionRecordingService> {
+public class ExceptionRecordingServiceFactoryProvider implements Provider<ExceptionRecordingServiceFactory> {
 
     private final ExceptionTraceSampler exceptionTraceSampler;
     private final ExceptionWrapperFactory exceptionWrapperFactory;
+    private final ExceptionContextFactory exceptionContextFactory;
 
     @Inject
-    public ExceptionRecordingServiceProvider(
+    public ExceptionRecordingServiceFactoryProvider(
             ExceptionTraceSampler exceptionTraceSampler,
-            ExceptionWrapperFactory exceptionWrapperFactory
+            ExceptionWrapperFactory exceptionWrapperFactory,
+            ExceptionContextFactory exceptionContextFactory
     ) {
         this.exceptionTraceSampler = Objects.requireNonNull(exceptionTraceSampler, "exceptionTraceSampler");
         this.exceptionWrapperFactory = Objects.requireNonNull(exceptionWrapperFactory, "exceptionWrapperFactory");
+        this.exceptionContextFactory = Objects.requireNonNull(exceptionContextFactory, "exceptionContextFactory");
     }
 
     @Override
-    public ExceptionRecordingService get() {
-        return new DefaultExceptionRecordingService(
+    public ExceptionRecordingServiceFactory get() {
+        return new DefaultExceptionRecordingServiceFactory(
                 exceptionTraceSampler,
-                exceptionWrapperFactory
+                exceptionWrapperFactory,
+                exceptionContextFactory
         );
     }
 }

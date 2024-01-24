@@ -16,12 +16,13 @@
 package com.navercorp.pinpoint.profiler.context.exception;
 
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 
 /**
  * @author intr3p1d
  */
-public interface ExceptionRecordingService {
+public interface ExceptionRecordingService extends AutoCloseable {
 
-    void recordException(ExceptionContext exceptionContext, SpanEvent spanEvent, Throwable throwable);
+    void recordException(SpanEvent spanEvent, Throwable throwable);
+
+    void close();
 }

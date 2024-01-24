@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception.disabled;
+package com.navercorp.pinpoint.profiler.context.provider.exception;
 
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.navercorp.pinpoint.profiler.context.exception.DisabledExceptionRecordingServiceFactory;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceFactory;
 
 /**
  * @author intr3p1d
  */
-public class DisabledExceptionRecordingService implements ExceptionRecordingService {
+public class DisabledExceptionRecordingServiceFactoryProvider implements Provider<ExceptionRecordingServiceFactory> {
 
-    public static final ExceptionRecordingService INSTANCE = new DisabledExceptionRecordingService();
-
-    @Override
-    public void recordException(SpanEvent spanEvent, Throwable throwable) {
-
+    @Inject
+    public DisabledExceptionRecordingServiceFactoryProvider() {
     }
 
     @Override
-    public void close() {
-
+    public ExceptionRecordingServiceFactory get() {
+        return DisabledExceptionRecordingServiceFactory.INSTANCE;
     }
 }
