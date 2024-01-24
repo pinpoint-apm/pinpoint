@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -32,23 +30,21 @@ import java.util.Objects;
  */
 public class DefaultExceptionRecordingService implements ExceptionRecordingService {
 
-    private final Logger logger = LogManager.getLogger(getClass());
-
-    private final boolean IS_DEBUG = logger.isDebugEnabled();
-
     private final ExceptionTraceSampler exceptionTraceSampler;
     private final ExceptionWrapperFactory exceptionWrapperFactory;
+    private final ExceptionContext exceptionContext;
 
     public DefaultExceptionRecordingService(ExceptionTraceSampler exceptionTraceSampler,
-                                            ExceptionWrapperFactory exceptionWrapperFactory
+                                            ExceptionWrapperFactory exceptionWrapperFactory,
+                                            ExceptionContext exceptionContext
     ) {
-        this.exceptionTraceSampler = exceptionTraceSampler;
-        this.exceptionWrapperFactory = exceptionWrapperFactory;
+        this.exceptionTraceSampler = Objects.requireNonNull(exceptionTraceSampler, "exceptionTraceSampler");
+        this.exceptionWrapperFactory = Objects.requireNonNull(exceptionWrapperFactory, "exceptionWrapperFactory");
+        this.exceptionContext = Objects.requireNonNull(exceptionContext, "exceptionContext");
     }
 
-    public void recordException(ExceptionContext context, Throwable current, long startTime) {
-        Objects.requireNonNull(context);
-
+    public void recordException(Throwable current, long startTime) {
+        final ExceptionContext context = this.exceptionContext;
         ExceptionRecordingState state = context.stateOf(current);
         ExceptionTraceSampler.SamplingState samplingState = getSamplingState(state, context);
         state.checkAndApply(context, current, startTime, samplingState, exceptionWrapperFactory);
@@ -68,7 +64,8 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
         return ExceptionTraceSampler.DISABLED;
     }
 
-    public void recordExceptionIdAnnotation(SpanEvent spanEvent, ExceptionContext context) {
+    public void recordExceptionIdAnnotation(SpanEvent spanEvent) {
+        final ExceptionContext context = this.exceptionContext;
         if (context.hasValidExceptionId()) {
             Annotation<Long> linkId = Annotations.of(AnnotationKey.EXCEPTION_CHAIN_ID.getCode(), context.getExceptionId());
             spanEvent.addAnnotation(linkId);
@@ -77,18 +74,18 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
     @Override
     public void recordException(
-            ExceptionContext exceptionContext,
             SpanEvent spanEvent,
             Throwable throwable
     ) {
         this.recordException(
-                exceptionContext,
                 throwable,
                 spanEvent.getStartTime()
         );
-        this.recordExceptionIdAnnotation(
-                spanEvent,
-                exceptionContext
-        );
+        this.recordExceptionIdAnnotation(spanEvent);
+    }
+
+    @Override
+    public void close() {
+        this.exceptionContext.flush();
     }
 }

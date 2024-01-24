@@ -40,14 +40,16 @@ public class DefaultExceptionRecordingServiceTest {
 
     ExceptionTraceSampler exceptionTraceSampler = new ExceptionTraceSampler(1000);
     ExceptionWrapperFactory exceptionWrapperFactory = new ExceptionWrapperFactory(10, 1048);
-    DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
-            exceptionTraceSampler, exceptionWrapperFactory
-    );
+
 
     List<Throwable> exceptions = new ArrayList<>();
     TestExceptionStorage exceptionStorage = new TestExceptionStorage();
 
     ExceptionContext context = new DefaultExceptionContext(exceptionStorage);
+
+    DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
+            exceptionTraceSampler, exceptionWrapperFactory, context
+            );
 
     long START_TIME = 1;
 
@@ -93,14 +95,14 @@ public class DefaultExceptionRecordingServiceTest {
 
 
     private void record(Throwable throwable) {
-        exceptionRecordingService.recordException(context, throwable, START_TIME);
+        exceptionRecordingService.recordException(throwable, START_TIME);
     }
 
     @Test
     public void testRecordNothing() {
         resetContext();
 
-        exceptionRecordingService.recordException(context, null, 0);
+        exceptionRecordingService.recordException(null, 0);
 
         List<ExceptionWrapper> expected = new ArrayList<>();
         List<ExceptionWrapper> actual = exceptionStorage.getWrappers();
@@ -118,11 +120,11 @@ public class DefaultExceptionRecordingServiceTest {
             level3Error(throwableFunction);
         } catch (Throwable e) {
             expected = exceptionWrapperFactory.newExceptionWrappers(e, START_TIME, context.getExceptionId());
-            exceptionRecordingService.recordException(context, e, START_TIME);
+            exceptionRecordingService.recordException(e, START_TIME);
             actual = exceptionStorage.getWrappers();
             Assertions.assertTrue(actual.isEmpty());
         }
-        exceptionRecordingService.recordException(context, null, START_TIME);
+        exceptionRecordingService.recordException(null, START_TIME);
         actual = exceptionStorage.getWrappers();
         Assertions.assertEquals(expected, actual);
     }
@@ -141,7 +143,7 @@ public class DefaultExceptionRecordingServiceTest {
             notChainedException(throwableFunction);
         } catch (Throwable e) {
             expected1 = exceptionWrapperFactory.newExceptionWrappers(exceptions.get(exceptions.size() - 2), START_TIME, context.getExceptionId());
-            exceptionRecordingService.recordException(context, e, START_TIME);
+            exceptionRecordingService.recordException(e, START_TIME);
             actual1 = exceptionStorage.getWrappers();
             throwable = e;
             Assertions.assertFalse(actual1.isEmpty());
@@ -150,7 +152,7 @@ public class DefaultExceptionRecordingServiceTest {
 
         exceptionStorage.flush();
         expected2 = exceptionWrapperFactory.newExceptionWrappers(throwable, START_TIME, context.getExceptionId());
-        exceptionRecordingService.recordException(context, null, 0);
+        exceptionRecordingService.recordException(null, 0);
         actual2 = exceptionStorage.getWrappers();
         Assertions.assertEquals(expected2, actual2);
     }
@@ -165,12 +167,12 @@ public class DefaultExceptionRecordingServiceTest {
             rethrowGivenException(throwableFunction);
         } catch (Throwable e) {
             expected = exceptionWrapperFactory.newExceptionWrappers(e, START_TIME, context.getExceptionId());
-            exceptionRecordingService.recordException(context, e, START_TIME);
+            exceptionRecordingService.recordException(e, START_TIME);
             actual = exceptionStorage.getWrappers();
             Assertions.assertTrue(actual.isEmpty());
         }
 
-        exceptionRecordingService.recordException(context, null, 0);
+        exceptionRecordingService.recordException(null, 0);
         actual = exceptionStorage.getWrappers();
         Assertions.assertEquals(expected, actual);
     }

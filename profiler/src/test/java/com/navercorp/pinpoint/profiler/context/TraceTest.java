@@ -84,7 +84,7 @@ public class TraceTest {
 
         Storage storage = mock(Storage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionContext, CloseListener.EMPTY);
+        Trace trace = new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
         trace.traceBlockBegin();
 
         // get data form db
@@ -115,7 +115,7 @@ public class TraceTest {
 
         Storage storage = mock(Storage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, exceptionContext, CloseListener.EMPTY);
+        Trace trace = new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
 
         trace.close();
 
