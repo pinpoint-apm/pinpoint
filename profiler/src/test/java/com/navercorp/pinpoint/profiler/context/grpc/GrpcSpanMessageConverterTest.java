@@ -7,6 +7,8 @@ import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
+import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
+import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -83,6 +85,23 @@ class GrpcSpanMessageConverterTest {
         List<SpanEvent> spanEventList = newSpanEvents();
         when(spanChunk.getSpanEventList()).thenReturn(spanEventList);
         return spanChunk;
+    }
+
+    static SpanChunk newAsyncSpanChunk() {
+        AsyncSpanChunk asyncSpanChunk = mock(AsyncSpanChunk.class);
+
+        TraceRoot traceRoot = newTraceRoot();
+        when(asyncSpanChunk.getTraceRoot()).thenReturn(traceRoot);
+
+        List<SpanEvent> spanEventList = newSpanEvents();
+        when(asyncSpanChunk.getSpanEventList()).thenReturn(spanEventList);
+
+        LocalAsyncId localAsyncId = mock(LocalAsyncId.class);
+        when(localAsyncId.getAsyncId()).thenReturn(random.nextInt());
+        when(localAsyncId.getSequence()).thenReturn(random.nextInt());
+
+        when(asyncSpanChunk.getLocalAsyncId()).thenReturn(localAsyncId);
+        return asyncSpanChunk;
     }
 
     static List<SpanEvent> newSpanEvents() {
@@ -241,6 +260,52 @@ class GrpcSpanMessageConverterTest {
 
             assertEquals(spanEvent.getAsyncIdObject().getAsyncId(), pSpanEvent.getAsyncEvent());
         }
+    }
+
+    @Test
+    void testMapAsyncSpanChunk() {
+        SpanChunk spanChunk = newAsyncSpanChunk();
+        PSpanChunk pSpanChunk = converter.buildPSpanChunk(spanChunk);
+
+        assertEquals(SpanVersion.TRACE_V2, pSpanChunk.getVersion());
+        assertEquals(applicationServiceType, pSpanChunk.getApplicationServiceType());
+
+        // skipped in compressed type
+        // assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentId(), pSpanChunk.getTransactionId().getAgentId());
+        assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentStartTime(), pSpanChunk.getTransactionId().getAgentStartTime());
+        assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentStartTime(), pSpanChunk.getTransactionId().getAgentStartTime());
+        assertEquals(spanChunk.getTraceRoot().getTraceId().getTransactionSequence(), pSpanChunk.getTransactionId().getSequence());
+
+        assertEquals(spanChunk.getTraceRoot().getTraceId().getSpanId(), pSpanChunk.getSpanId());
+
+        assertEquals(spanChunk.getSpanEventList().size(), pSpanChunk.getSpanEventList().size());
+        for (int i = 0; i < spanChunk.getSpanEventList().size(); i++) {
+            SpanEvent spanEvent = spanChunk.getSpanEventList().get(i);
+            PSpanEvent pSpanEvent = pSpanChunk.getSpanEvent(i);
+
+            assertEquals(spanEvent.getElapsedTime(), pSpanEvent.getEndElapsed());
+            assertEquals(spanEvent.getSequence(), pSpanEvent.getSequence());
+            assertEquals(spanEvent.getServiceType(), pSpanEvent.getServiceType());
+            assertEquals(spanEvent.getDepth(), pSpanEvent.getDepth());
+            assertEquals(spanEvent.getApiId(), pSpanEvent.getApiId());
+
+            assertEquals(spanEvent.getExceptionInfo().getIntValue(), pSpanEvent.getExceptionInfo().getIntValue());
+            assertEquals(spanEvent.getExceptionInfo().getStringValue(), pSpanEvent.getExceptionInfo().getStringValue().getValue());
+
+            assertEquals(spanEvent.getDepth(), pSpanEvent.getDepth());
+
+            assertEquals(spanEvent.getEndPoint(), pSpanEvent.getNextEvent().getMessageEvent().getEndPoint());
+            assertEquals(spanEvent.getNextSpanId(), pSpanEvent.getNextEvent().getMessageEvent().getNextSpanId());
+            assertEquals(spanEvent.getDestinationId(), pSpanEvent.getNextEvent().getMessageEvent().getDestinationId());
+
+            assertEquals(spanEvent.getAsyncIdObject().getAsyncId(), pSpanEvent.getAsyncEvent());
+        }
+
+        // check AsyncSpanChunk
+        AsyncSpanChunk asyncSpanChunk = (AsyncSpanChunk) spanChunk;
+
+        assertEquals(asyncSpanChunk.getLocalAsyncId().getAsyncId(), pSpanChunk.getLocalAsyncId().getAsyncId());
+        assertEquals(asyncSpanChunk.getLocalAsyncId().getSequence(), pSpanChunk.getLocalAsyncId().getSequence());
     }
 
 }
