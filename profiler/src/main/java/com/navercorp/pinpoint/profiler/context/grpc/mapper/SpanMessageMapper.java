@@ -91,6 +91,14 @@ public interface SpanMessageMapper {
     })
     void map(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
 
+    default void map(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder) {
+        if (spanChunk instanceof AsyncSpanChunk) {
+            toAsyncSpanChunk((AsyncSpanChunk) spanChunk, applicationServiceType, builder);
+        } else {
+            toPSpanChunk(spanChunk, applicationServiceType, builder);
+        }
+    }
+
     @Mappings({
             @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion"),
             @Mapping(source = "applicationServiceType", target = "applicationServiceType"),
@@ -101,13 +109,13 @@ public interface SpanMessageMapper {
 
             @Mapping(source = "spanChunk.spanEventList", target = "spanEventList"),
     })
-    void map(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
+    void toPSpanChunk(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
 
     @InheritConfiguration
     @Mappings({
             @Mapping(source = "asyncSpanChunk.localAsyncId", target = "localAsyncId"),
     })
-    void map(AsyncSpanChunk asyncSpanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
+    void toAsyncSpanChunk(AsyncSpanChunk asyncSpanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
 
     @Mappings({
     })
@@ -121,7 +129,7 @@ public interface SpanMessageMapper {
 
     @Mappings({
             @Mapping(source = "elapsedTime", target = "endElapsed"),
-            @Mapping(source = "depth", target = "depth", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class ),
+            @Mapping(source = "depth", target = "depth", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class),
             @Mapping(source = ".", target = "nextEvent"),
             @Mapping(source = "asyncIdObject.asyncId", target = "asyncEvent"),
             @Mapping(source = "annotations", target = "annotationList"),

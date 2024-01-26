@@ -90,11 +90,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         final PSpanChunk.Builder pSpanChunk = PSpanChunk.newBuilder();
 
         this.spanProcessor.preProcess(spanChunk, pSpanChunk);
-        if(spanChunk instanceof AsyncSpanChunk) {
-            mapper.map((AsyncSpanChunk) spanChunk, applicationServiceType, pSpanChunk);
-        } else {
-            mapper.map(spanChunk, applicationServiceType, pSpanChunk);
-        }
+        mapper.map(spanChunk, applicationServiceType, pSpanChunk);
         this.spanProcessor.postProcess(spanChunk, pSpanChunk);
         return pSpanChunk.build();
     }
