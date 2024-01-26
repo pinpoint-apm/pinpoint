@@ -24,25 +24,18 @@ import java.util.Objects;
 /**
  * @author minwoo-jung
  */
-public class AvgMinMaxMetricPoint <Y extends Number> implements Point {
+public class MinMaxMetricPoint <Y extends Number> implements Point {
 
     private final long xValue;
-
-    private final Y avgValue;
 
     private final Y minValue;
 
     private final Y maxValue;
 
-    public AvgMinMaxMetricPoint(long xValue, Y avgValue, Y minValue, Y maxValue) {
+    public MinMaxMetricPoint(long xValue, Y minValue, Y maxValue) {
         this.xValue = xValue;
-        this.avgValue = avgValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
-    }
-
-    public Y getAvgValue() {
-        return avgValue;
     }
 
     public Y getMinValue() {
@@ -57,20 +50,19 @@ public class AvgMinMaxMetricPoint <Y extends Number> implements Point {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AvgMinMaxMetricPoint<?> that = (AvgMinMaxMetricPoint<?>) o;
-        return xValue == that.xValue && Objects.equals(avgValue, that.avgValue) && Objects.equals(minValue, that.minValue) && Objects.equals(maxValue, that.maxValue);
+        MinMaxMetricPoint<?> that = (MinMaxMetricPoint<?>) o;
+        return xValue == that.xValue && Objects.equals(minValue, that.minValue) && Objects.equals(maxValue, that.maxValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(xValue, avgValue, minValue, maxValue);
+        return Objects.hash(xValue, minValue, maxValue);
     }
 
     @Override
     public String toString() {
-        return "AvgMinMaxMetricPoint{" +
+        return "MinMaxMetricPoint{" +
                 "xValue=" + xValue +
-                ", avgValue=" + avgValue +
                 ", minValue=" + minValue +
                 ", maxValue=" + maxValue +
                 '}';

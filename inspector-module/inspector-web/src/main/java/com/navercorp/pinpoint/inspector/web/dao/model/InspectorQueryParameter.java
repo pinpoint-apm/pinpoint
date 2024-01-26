@@ -95,4 +95,19 @@ public class InspectorQueryParameter {
     public String getApplicationName() {
         return applicationName;
     }
+
+    @Override
+    public String toString() {
+        return "InspectorQueryParameter{" +
+                "tenantId='" + tenantId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", metricName='" + metricName + '\'' +
+                ", fieldName='" + fieldName + '\'' +
+                ", tagList=" + tagList +
+                ", range=" + range +
+                ", timePrecision=" + timePrecision +
+                ", limit=" + limit +
+                '}';
+    }
 }

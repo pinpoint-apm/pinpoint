@@ -20,6 +20,9 @@
 package com.navercorp.pinpoint.metric.common.util;
 
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 /**
  * @author minwoo.jung
@@ -36,5 +39,15 @@ public class LongUncollectedDataCreator implements UncollectedDataCreator<Long> 
     @Override
     public AvgMinMaxMetricPoint<Long> createUnCollectedAvgMinMaxMetricPoint(long xVal) {
         return new AvgMinMaxMetricPoint<>(xVal, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
+    }
+
+    @Override
+    public MinMaxMetricPoint<Long> createUnCollectedMinMaxMetricPoint(long xVal) {
+        return new MinMaxMetricPoint<>(xVal, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
+    }
+
+    @Override
+    public AvgMinMetricPoint<Long> createUnCollectedAvgMinMetricPoint(long xVal) {
+        return new AvgMinMetricPoint<>(xVal, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
     }
 }

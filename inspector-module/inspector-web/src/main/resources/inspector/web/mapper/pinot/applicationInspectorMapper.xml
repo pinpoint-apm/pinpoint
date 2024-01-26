@@ -22,7 +22,7 @@
 
 <mapper namespace="com.navercorp.pinpoint.inspector.web.dao.pinot.PinotApplicationStatDao">
 
-    <resultMap id="applicationInspectorMetricPointResultMap" type="AvgMinMaxMetricPoint">
+    <resultMap id="avgMinMaxResultMap" type="AvgMinMaxMetricPoint">
         <constructor>
             <arg column="aggregatedTime" javaType="_long"/>
             <arg column="avgValue" javaType="Number" typeHandler="DoubleHandler"/>
@@ -31,7 +31,30 @@
         </constructor>
     </resultMap>
 
-    <select id="selectInspectorAvgMinMaxData" parameterType="inspectorQueryParameter" resultMap="applicationInspectorMetricPointResultMap" >
+    <resultMap id="minMaxResultMap" type="MinMaxMetricPoint">
+        <constructor>
+            <arg column="aggregatedTime" javaType="_long"/>
+            <arg column="minValue" javaType="Number" typeHandler="DoubleHandler"/>
+            <arg column="maxValue" javaType="Number" typeHandler="DoubleHandler"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="avgMinResultMap" type="AvgMinMetricPoint">
+        <constructor>
+            <arg column="aggregatedTime" javaType="_long"/>
+            <arg column="avgValue" javaType="Number" typeHandler="DoubleHandler"/>
+            <arg column="minValue" javaType="Number" typeHandler="DoubleHandler"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="singleResultMap" type="SystemMetricPoint">
+        <constructor>
+            <arg column="aggregatedTime" javaType="_long"/>
+            <arg column="fValue" javaType="Number" typeHandler="DoubleHandler"/>
+        </constructor>
+    </resultMap>
+
+    <select id="selectInspectorAvgMinMaxData" parameterType="inspectorQueryParameter" resultMap="avgMinMaxResultMap" >
         SELECT
         AVG(fieldValue) AS avgValue,
         MIN(fieldValue) AS minValue,
@@ -53,5 +76,86 @@
         LIMIT ${limit}
     </select>
 
+    <select id="selectInspectorMinMaxData" parameterType="inspectorQueryParameter" resultMap="minMaxResultMap" >
+        SELECT
+        MIN(fieldValue) AS minValue,
+        MAX(fieldValue) AS maxValue,
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStat
+        WHERE
+        <!--  tenantId = #{tenantId}
+              AND serviceName = #{serviceName} -->
+        applicationName = #{applicationName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY aggregatedTime
+        ORDER BY aggregatedTime asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectInspectorAvgMinData" parameterType="inspectorQueryParameter" resultMap="avgMinResultMap" >
+        SELECT
+        AVG(fieldValue) AS avgValue,
+        MIN(fieldValue) AS minValue,
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStat
+        WHERE
+        <!--  tenantId = #{tenantId}
+              AND serviceName = #{serviceName} -->
+        applicationName = #{applicationName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY aggregatedTime
+        ORDER BY aggregatedTime asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectInspectorSumData" parameterType="inspectorQueryParameter" resultMap="singleResultMap" >
+        SELECT
+        SUM(fieldValue) as fValue,
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStat
+        WHERE
+        <!--  tenantId = #{tenantId}
+              AND serviceName = #{serviceName} -->
+        applicationName = #{applicationName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY aggregatedTime
+        ORDER BY aggregatedTime asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectInspectorMaxData" parameterType="inspectorQueryParameter" resultMap="singleResultMap" >
+        SELECT
+        MAX(fieldValue) as fValue,
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStat
+        WHERE
+        <!--  tenantId = #{tenantId}
+              AND serviceName = #{serviceName} -->
+        applicationName = #{applicationName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY aggregatedTime
+        ORDER BY aggregatedTime asc
+        LIMIT ${limit}
+    </select>
 
 </mapper>

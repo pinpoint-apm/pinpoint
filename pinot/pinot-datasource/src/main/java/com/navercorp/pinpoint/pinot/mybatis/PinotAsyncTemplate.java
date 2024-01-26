@@ -79,9 +79,8 @@ public class PinotAsyncTemplate {
             ParameterHandler parameterHandler = configuration.newParameterHandler(mappedStatement, parameter, boundSql);
             bindParameter(pinotStatement, parameterHandler);
 
-            //TODO : (minwoo) It would be nice to output the parameters as well.
             if (logger.isDebugEnabled()) {
-                logger.debug("[pinot statement info] statement:{} \n\t\t\t\t ", boundSql.getSql());
+                logger.debug("[pinot sql statement info]\n statement : \n {} \n\t\t\t\t \n parameter object : {} ", boundSql.getSql(), parameter);
             }
 
             Executor executor = configuration.newExecutor(transactionFactory.newTransaction(connection));
@@ -149,6 +148,12 @@ public class PinotAsyncTemplate {
     }
 
     private ResultSet toResultSet(ResultSetGroup resultSetGroup) {
+        if (!resultSetGroup.getExceptions().isEmpty()) {
+            for (Exception exception : resultSetGroup.getExceptions()) {
+                logger.error(" exception occurred during the execution of the query. :{}", exception.getMessage(), exception);
+            }
+        }
+
         if (resultSetGroup == null) {
 //            return null or empty??
             return PinotResultSet.empty();

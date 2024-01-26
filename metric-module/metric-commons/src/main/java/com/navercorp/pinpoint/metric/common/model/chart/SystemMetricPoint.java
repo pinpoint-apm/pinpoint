@@ -17,14 +17,14 @@
  *
  */
 
-package com.navercorp.pinpoint.metric.common.util;
+package com.navercorp.pinpoint.metric.common.model.chart;
 
 import java.util.Objects;
 
 /**
  * @author Hyunjoon Cho
  */
-public class SystemMetricPoint<Y extends Number> implements Point {
+public class SystemMetricPoint <Y extends Number> implements Point {
 
     private final long xVal;
     private final Y yVal;

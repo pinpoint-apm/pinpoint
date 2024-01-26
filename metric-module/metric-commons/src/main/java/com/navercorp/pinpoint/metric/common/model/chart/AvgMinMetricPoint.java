@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * @author minwoo-jung
  */
-public class AvgMinMaxMetricPoint <Y extends Number> implements Point {
+public class AvgMinMetricPoint <Y extends Number> implements Point {
 
     private final long xValue;
 
@@ -32,13 +32,10 @@ public class AvgMinMaxMetricPoint <Y extends Number> implements Point {
 
     private final Y minValue;
 
-    private final Y maxValue;
-
-    public AvgMinMaxMetricPoint(long xValue, Y avgValue, Y minValue, Y maxValue) {
+    public AvgMinMetricPoint(long xValue, Y avgValue, Y minValue) {
         this.xValue = xValue;
         this.avgValue = avgValue;
         this.minValue = minValue;
-        this.maxValue = maxValue;
     }
 
     public Y getAvgValue() {
@@ -49,35 +46,21 @@ public class AvgMinMaxMetricPoint <Y extends Number> implements Point {
         return minValue;
     }
 
-    public Y getMaxValue() {
-        return maxValue;
+    @Override
+    public long getXVal() {
+        return xValue;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AvgMinMaxMetricPoint<?> that = (AvgMinMaxMetricPoint<?>) o;
-        return xValue == that.xValue && Objects.equals(avgValue, that.avgValue) && Objects.equals(minValue, that.minValue) && Objects.equals(maxValue, that.maxValue);
+        AvgMinMetricPoint<?> that = (AvgMinMetricPoint<?>) o;
+        return xValue == that.xValue && Objects.equals(avgValue, that.avgValue) && Objects.equals(minValue, that.minValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(xValue, avgValue, minValue, maxValue);
-    }
-
-    @Override
-    public String toString() {
-        return "AvgMinMaxMetricPoint{" +
-                "xValue=" + xValue +
-                ", avgValue=" + avgValue +
-                ", minValue=" + minValue +
-                ", maxValue=" + maxValue +
-                '}';
-    }
-
-    @Override
-    public long getXVal() {
-        return this.xValue;
+        return Objects.hash(xValue, avgValue, minValue);
     }
 }

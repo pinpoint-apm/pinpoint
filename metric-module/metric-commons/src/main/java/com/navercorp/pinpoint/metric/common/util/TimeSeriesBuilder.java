@@ -21,6 +21,9 @@ package com.navercorp.pinpoint.metric.common.util;
 
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,18 +42,70 @@ public class TimeSeriesBuilder<T extends Number> {
         this.uncollectedDataCreator = Objects.requireNonNull(uncollectedDataCreator, "uncollectedDataCreator");
     }
 
-    public List<AvgMinMaxMetricPoint<T>> buildForAvgMinMaxMetricPointList(List<AvgMinMaxMetricPoint<T>> avgMinMaxMetricDataList) {
-        List<AvgMinMaxMetricPoint<T>> filledSystemMetricPointList = createInitialAvgMinMaxMetricPoint();
 
-        for (AvgMinMaxMetricPoint<T> avgMinMaxMetricPoint : avgMinMaxMetricDataList) {
-            int timeslotIndex = this.timeWindow.getWindowIndex(avgMinMaxMetricPoint.getXValue());
+    // TODO: (minwoo) Remove method duplication
+    public List<MinMaxMetricPoint<T>> buildForMinMaxMetricPointList(List<MinMaxMetricPoint<T>> minMaxMetricDataList) {
+        List<MinMaxMetricPoint<T>> filledMinMaxMetricPointList = createInitialMinMaxMetricPoint();
+
+        for (MinMaxMetricPoint<T> minMaxMetricPoint : minMaxMetricDataList) {
+            int timeslotIndex = this.timeWindow.getWindowIndex(minMaxMetricPoint.getXVal());
             if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
                 continue;
             }
-            filledSystemMetricPointList.set(timeslotIndex, avgMinMaxMetricPoint);
+            filledMinMaxMetricPointList.set(timeslotIndex, minMaxMetricPoint);
         }
 
-        return filledSystemMetricPointList;
+        return filledMinMaxMetricPointList;
+    }
+
+    public List<AvgMinMetricPoint<T>> buildForAvgMinMetricPointList(List<AvgMinMetricPoint<T>> avgMinMetricDataList) {
+        List<AvgMinMetricPoint<T>> filledAvgMinMetricPointList = createInitialAvgMinMetricPoint();
+
+        for (AvgMinMetricPoint<T> avgMinMetricPoint : avgMinMetricDataList) {
+            int timeslotIndex = this.timeWindow.getWindowIndex(avgMinMetricPoint.getXVal());
+            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+                continue;
+            }
+            filledAvgMinMetricPointList.set(timeslotIndex, avgMinMetricPoint);
+        }
+
+        return filledAvgMinMetricPointList;
+    }
+
+    private List<AvgMinMetricPoint<T>> createInitialAvgMinMetricPoint() {
+        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        List<AvgMinMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
+
+        for (long timestamp : this.timeWindow) {
+            pointList.add(uncollectedDataCreator.createUnCollectedAvgMinMetricPoint(timestamp));
+        }
+
+        return pointList;
+    }
+
+    private List<MinMaxMetricPoint<T>> createInitialMinMaxMetricPoint() {
+        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        List<MinMaxMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
+
+        for (long timestamp : this.timeWindow) {
+            pointList.add(uncollectedDataCreator.createUnCollectedMinMaxMetricPoint(timestamp));
+        }
+
+        return pointList;
+    }
+
+    public List<AvgMinMaxMetricPoint<T>> buildForAvgMinMaxMetricPointList(List<AvgMinMaxMetricPoint<T>> avgMinMaxMetricDataList) {
+        List<AvgMinMaxMetricPoint<T>> filledAvgMinMaxMetricPointList = createInitialAvgMinMaxMetricPoint();
+
+        for (AvgMinMaxMetricPoint<T> avgMinMaxMetricPoint : avgMinMaxMetricDataList) {
+            int timeslotIndex = this.timeWindow.getWindowIndex(avgMinMaxMetricPoint.getXVal());
+            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+                continue;
+            }
+            filledAvgMinMaxMetricPointList.set(timeslotIndex, avgMinMaxMetricPoint);
+        }
+
+        return filledAvgMinMaxMetricPointList;
     }
 
     private List<AvgMinMaxMetricPoint<T>> createInitialAvgMinMaxMetricPoint() {
@@ -88,4 +143,5 @@ public class TimeSeriesBuilder<T extends Number> {
 
         return pointList;
     }
+
 }

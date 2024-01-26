@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.metric.web.model.chart;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.metric.common.util.Point;
+import com.navercorp.pinpoint.metric.common.model.chart.Point;
 
 
 import java.util.List;
