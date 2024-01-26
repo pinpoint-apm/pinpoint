@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.metric.web.model.chart;
 
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
-import com.navercorp.pinpoint.metric.common.util.Point;
+import com.navercorp.pinpoint.metric.common.model.chart.Point;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;

@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricTagsSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
-import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleToLongTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.LongTypeHandler;

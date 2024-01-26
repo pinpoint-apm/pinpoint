@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class AvgUsingIntervalPostProcessor implements MetricPostProcessor {
 
     private static final int NUM_DECIMAL_PLACES = 1;
-    private static final String COLLECT_INTERVAL_FIELD = "collectInterval";
+    protected static final String COLLECT_INTERVAL_FIELD = "collectInterval";
 
     @Override
     public String getName() {
@@ -74,16 +74,16 @@ public class AvgUsingIntervalPostProcessor implements MetricPostProcessor {
         }
     }
 
-    private List<Double> calculateAvg(InspectorMetricValue collectInterval, InspectorMetricValue metricCount) {
+    protected List<Double> calculateAvg(InspectorMetricValue collectInterval, InspectorMetricValue metricCount) {
         List<Double> valueList = metricCount.getValueList();
         List<Double> commitIntervalList = collectInterval.getValueList();
         List<Double> avgList = new ArrayList<>(valueList.size());
         for (int i = 0; i < valueList.size(); i++) {
-            if (commitIntervalList.get(i) < 0 || collectInterval.getValueList().get(i) < 0 ) {
+            if (commitIntervalList.get(i) < 0) {
                 avgList.add(i, -1.0);
                 continue;
             }
-            avgList.add(calculateTps(valueList.get(i), collectInterval.getValueList().get(i)));
+            avgList.add(calculateTps(valueList.get(i), commitIntervalList.get(i)));
         }
 
         return avgList;
@@ -99,7 +99,7 @@ public class AvgUsingIntervalPostProcessor implements MetricPostProcessor {
                 .collect(Collectors.toList());
     }
 
-    private InspectorMetricValue findCollectInterval(List<InspectorMetricValue> metricValueList) {
+    protected InspectorMetricValue findCollectInterval(List<InspectorMetricValue> metricValueList) {
         return metricValueList.stream()
                 .filter(metricValue -> metricValue.getFieldName().equals(COLLECT_INTERVAL_FIELD))
                 .findFirst()

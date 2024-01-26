@@ -16,7 +16,7 @@
  *
  *
  */
-package com.navercorp.pinpoint.metric.common.util;
+package com.navercorp.pinpoint.metric.common.model.chart;
 
 /**
  * @author minwoo.jung

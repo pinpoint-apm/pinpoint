@@ -20,7 +20,9 @@
 package com.navercorp.pinpoint.metric.common.util;
 
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
-import com.navercorp.pinpoint.metric.common.util.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 /**
  * @author minwoo.jung
@@ -29,4 +31,8 @@ public interface UncollectedDataCreator<T extends Number> {
     SystemMetricPoint<T> createUnCollectedPoint(long xVal);
 
     AvgMinMaxMetricPoint<T> createUnCollectedAvgMinMaxMetricPoint(long xVal);
+
+    MinMaxMetricPoint<T> createUnCollectedMinMaxMetricPoint(long xVal);
+
+    AvgMinMetricPoint<T> createUnCollectedAvgMinMetricPoint(long xVal);
 }

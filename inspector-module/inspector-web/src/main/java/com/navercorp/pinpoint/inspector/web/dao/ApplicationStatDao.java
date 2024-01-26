@@ -22,6 +22,10 @@ package com.navercorp.pinpoint.inspector.web.dao;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.Point;
+import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 import java.util.List;
 import java.util.concurrent.Future;
@@ -30,5 +34,13 @@ import java.util.concurrent.Future;
  * @author minwoo-jung
  */
 public interface ApplicationStatDao {
-    Future<List<AvgMinMaxMetricPoint<Double>>> selectAgentStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    Future<List<AvgMinMaxMetricPoint<Double>>>  selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+
+    Future<List<MinMaxMetricPoint<Double>>>  selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+
+    Future<List<SystemMetricPoint<Double>>>  selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+
+    Future<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+
+    Future<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 }

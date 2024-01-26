@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import org.apache.commons.math3.util.Precision;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,7 +76,15 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
                     AgentStat verySlowCount = new AgentStat("defaultTenantId", "applicationName", activeTraceBo.getAgentId(),
                             AgentStatType.ACTIVE_TRACE.getChartType(), AgentStatField.ACTIVE_TRACE_VERY_SLOW_COUNT.getFieldName(),
                             activeTraceBo.getActiveTraceHistogram().getVerySlowCount(), activeTraceBo.getTimestamp());
-                    return Stream.of(fastCount, normalCount, slowCount, verySlowCount);
+
+                    double calculatedTotalCount = activeTraceBo.getActiveTraceHistogram().getFastCount() +
+                                                    activeTraceBo.getActiveTraceHistogram().getNormalCount() +
+                                                    activeTraceBo.getActiveTraceHistogram().getSlowCount() +
+                                                    activeTraceBo.getActiveTraceHistogram().getVerySlowCount();
+                    AgentStat totalCount = new AgentStat("defaultTenantId", "applicationName", activeTraceBo.getAgentId(),
+                            AgentStatType.ACTIVE_TRACE.getChartType(), AgentStatField.ACTIVE_TRACE_TOTAL_COUNT.getFieldName(),
+                            calculatedTotalCount, activeTraceBo.getTimestamp());
+                    return Stream.of(fastCount, normalCount, slowCount, verySlowCount, totalCount);
                 })
                 .collect(Collectors.toList());
 
@@ -179,9 +188,21 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
                                     AgentStatType.TRANSACTION.getChartType(), AgentStatField.TRANSACTION_SKIPPED_CONTINUATION_COUNT.getFieldName(),
                                     transactionBo.getSkippedContinuationCount(), transactionBo.getTimestamp());
 
+                            double calculatedTotal = transactionBo.getSampledNewCount() + transactionBo.getSampledContinuationCount() +
+                                                    transactionBo.getUnsampledNewCount() + transactionBo.getUnsampledContinuationCount() +
+                                                    transactionBo.getSkippedNewSkipCount() + transactionBo.getSkippedContinuationCount();
+                            AgentStat totalCount = new AgentStat("defaultTenantId", "applicationName", transactionBo.getAgentId(),
+                                AgentStatType.TRANSACTION.getChartType(), AgentStatField.TRANSACTION_TOTAL_COUNT.getFieldName(),
+                                    calculatedTotal, transactionBo.getTimestamp());
+
+                            double calculatedTotalCountPerMs = Precision.round(calculatedTotal / (transactionBo.getCollectInterval() / 1000D), 1);
+                            AgentStat totalCountPerMs = new AgentStat("defaultTenantId", "applicationName", transactionBo.getAgentId(),
+                                    AgentStatType.TRANSACTION.getChartType(), AgentStatField.TRANSACTION_TOTAL_COUNT_PER_MS.getFieldName(),
+                                    calculatedTotalCountPerMs, transactionBo.getTimestamp());
+
                             return Stream.of(collectInterval, sampledNewCount,
                                     sampledContinuationCount, unsampledNewCount,
-                                    unsampledContinuationCount, skippedNewSkipCount, skippedContinuationCount);
+                                    unsampledContinuationCount, skippedNewSkipCount, skippedContinuationCount, totalCount, totalCountPerMs);
                         }
                 )
                 .collect(Collectors.toList());

@@ -156,9 +156,9 @@ mappings:
         unit : "count"
   - definitionId: "directCount"
     metricName: "directBuffer"
-    title: "Direct Buffer"
+    title: "Direct Buffer Count"
     fields:
-      - fieldName: "directMemoryCount"
+      - fieldName: "directCount"
         matchingRule: EXACT_ONE
         aggregationFunction : AVG
         chartType : "spline"
