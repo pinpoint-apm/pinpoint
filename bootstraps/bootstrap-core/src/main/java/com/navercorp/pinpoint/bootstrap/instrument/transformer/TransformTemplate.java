@@ -98,4 +98,11 @@ public class TransformTemplate implements TransformOperations {
         final String transformCallbackName = transformCallbackClass.getName();
         this.instrumentContext.addClassFileTransformer(matcher, transformCallbackName, parameters, parameterTypes);
     }
+
+    @Override
+    public void transform(String className, Class<? extends TransformCallback> transformCallbackClass, TransformCallbackParameters params) {
+        Object[] parameters = params.getParamValues();
+        Class<?>[] parameterTypes = params.getParamTypes();
+        this.transform(className, transformCallbackClass, parameters, parameterTypes);
+    }
 }

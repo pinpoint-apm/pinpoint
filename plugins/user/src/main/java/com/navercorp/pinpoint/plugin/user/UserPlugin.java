@@ -15,15 +15,13 @@
  */
 package com.navercorp.pinpoint.plugin.user;
 
-import java.security.ProtectionDomain;
-import java.util.*;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -32,6 +30,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.user.interceptor.MQExternalClientHandlerInterceptor;
 import com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor;
+
+import java.security.ProtectionDomain;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author jaehong.kim
@@ -113,7 +118,10 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void transform(String className, Class<? extends TransformCallback> transformCallbackClass, String[] methodNameArray) {
-        transformTemplate.transform(className, transformCallbackClass, new Object[] {methodNameArray}, new Class[]{String[].class});
+        transformTemplate.transform(className, transformCallbackClass,
+                TransformCallbackParametersBuilder.newBuilder()
+                        .addStringArray(methodNameArray)
+                        .toParameters());
     }
 
     public static class MessageQueueClientHandlerMethodsTransformer implements TransformCallback {

@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInte
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -141,7 +142,11 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
         if (config.isUriStatEnable()) {
             logger.info("Adding Uri Stat.");
-            transformTemplate.transform("io.vertx.ext.web.impl.RouteState", RoutingStateTransform.class, new Object[]{config.isUriStatUseUserInput(), config.isUriStatCollectMethod()}, new Class[]{Boolean.class, Boolean.class});
+            transformTemplate.transform("io.vertx.ext.web.impl.RouteState", RoutingStateTransform.class,
+                    TransformCallbackParametersBuilder.newBuilder()
+                            .addBoolean(config.isUriStatUseUserInput())
+                            .addBoolean(config.isUriStatCollectMethod())
+                            .toParameters());
         }
     }
 
@@ -255,7 +260,10 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
 
     private void addRequestHandlerMethod(final String className, final String methodName) {
-        transformTemplate.transform(className, RequestHandlerMethodTransform.class, new Object[]{methodName}, new Class[]{String.class});
+        transformTemplate.transform(className, RequestHandlerMethodTransform.class,
+                TransformCallbackParametersBuilder.newBuilder()
+                        .addString(methodName)
+                        .toParameters());
     }
 
     public static class RequestHandlerMethodTransform implements TransformCallback {

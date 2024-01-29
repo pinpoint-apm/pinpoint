@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -184,13 +186,16 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addAbstractRedisCommands(final String className, Class<? extends TransformCallback> transformCallback, boolean getter) {
-        transformTemplate.transform(className, transformCallback, new Object[]{getter}, new Class[]{boolean.class});
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addBoolean(getter)
+                .toParameters();
+        transformTemplate.transform(className, transformCallback, parameters);
     }
 
     public static class AbstractRedisCommandsTransform implements TransformCallback {
         private final boolean getter;
 
-        public AbstractRedisCommandsTransform(boolean getter) {
+        public AbstractRedisCommandsTransform(Boolean getter) {
             this.getter = getter;
         }
 

@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
@@ -111,7 +113,10 @@ public class RxJavaPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void transform(String className, Class<? extends TransformCallback> transformCallbackClass, String... constructorParameter) {
-        transformTemplate.transform(className, transformCallbackClass, new Object[]{constructorParameter}, new Class[]{String[].class});
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addStringArray(constructorParameter)
+                .toParameters();
+        transformTemplate.transform(className, transformCallbackClass, parameters);
     }
 
     // Single
@@ -238,7 +243,10 @@ public class RxJavaPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void transform(String className, Class<? extends TransformCallback> transformCallbackClass, ServiceType serviceType) {
-        transformTemplate.transform(className, transformCallbackClass, new Object[]{serviceType}, new Class[]{ServiceType.class});
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addServiceType(serviceType)
+                .toParameters();
+        transformTemplate.transform(className, transformCallbackClass, parameters);
     }
 
     public static class EventLoopsScheduler implements TransformCallback {

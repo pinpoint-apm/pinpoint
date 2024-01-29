@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
@@ -50,15 +51,24 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             return;
         }
 
-        transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class, new Object[]{config.isUriStatEnable(), config.isUriStatUseUserInput()}, new Class[]{Boolean.class, Boolean.class});
+        transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class, TransformCallbackParametersBuilder.newBuilder()
+                .addBoolean(config.isUriStatEnable())
+                .addBoolean(config.isUriStatUseUserInput())
+                .toParameters());
 
         // Async
         transformTemplate.transform("org.springframework.web.method.support.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
 
         // uri stat
         if (config.isUriStatEnable()) {
-            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class, new Object[]{config.isUriStatCollectMethod()}, new Class[]{Boolean.class});
-            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class, new Object[]{config.isUriStatCollectMethod()}, new Class[]{Boolean.class});
+            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class,
+                    TransformCallbackParametersBuilder.newBuilder()
+                        .addBoolean(config.isUriStatCollectMethod())
+                        .toParameters());
+            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class,
+                    TransformCallbackParametersBuilder.newBuilder()
+                            .addBoolean(config.isUriStatCollectMethod())
+                            .toParameters());
         }
 
     }
