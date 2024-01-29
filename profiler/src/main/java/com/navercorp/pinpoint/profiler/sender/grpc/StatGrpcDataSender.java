@@ -155,9 +155,11 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
 
         if (taskFailState.isFailure()) {
             logger.warn("stat task fail state, scheduling reconnection");
-            if (currentStreamTask == null || currentStreamTask.callOnError(new Exception("no stream job started"))) {
-                reconnector.reconnect();
+            if (currentStreamTask != null) {
+                currentStreamTask.cancelJob(true);
             }
+            reconnector.reconnect();
+
             taskFailState.success();
             logger.info("reconnection scheduled");
         }

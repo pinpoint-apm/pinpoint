@@ -27,7 +27,7 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
     private final BlockingQueue<M> queue;
     private final MessageDispatcher<M, ReqT> dispatcher;
     private final StreamState failState;
-    private boolean jobStarted = false;
+    private Future<?> jobStarted = null;
 
     private volatile ClientCallStreamObserver<ReqT> stream;
     private volatile CountDownLatch latch;
@@ -51,10 +51,10 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
         StreamJob<ReqT> job = new StreamJob<ReqT>() {
             @Override
             public Future<?> start(final ClientCallStreamObserver<ReqT> requestStream) {
-                jobStarted = true;
                 Runnable runnable = DefaultStreamTask.this.newRunnable(requestStream, latch);
                 StreamExecutor<ReqT> streamExecutor = streamExecutorFactory.newStreamExecutor();
-                return streamExecutor.execute(runnable);
+                jobStarted = streamExecutor.execute(runnable);
+                return jobStarted;
             }
 
             @Override
@@ -150,19 +150,17 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
     }
 
     @Override
-    public boolean callOnError(Throwable t) {
-        logger.info("call onError {}", this.streamId);
-        final ClientCallStreamObserver<ReqT> copy = this.stream;
-        if (copy != null) {
-            copy.onError(t);
-            return true;
+    public boolean cancelJob(boolean mayInterruptIfRunning) {
+        logger.info("cancel job {}", this.streamId);
+        if (jobStarted != null) {
+            return jobStarted.cancel(mayInterruptIfRunning);
         }
         return false;
     }
 
     @Override
     public boolean isJobStarted() {
-        return jobStarted;
+        return jobStarted != null;
     }
 
     @Override

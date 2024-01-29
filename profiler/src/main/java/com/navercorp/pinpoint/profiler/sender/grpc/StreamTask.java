@@ -6,7 +6,7 @@ public interface StreamTask<M, ReqT> {
 
     void stop();
 
-    boolean callOnError(Throwable t);
+    boolean cancelJob(boolean mayInterruptIfRunning);
 
     boolean isJobStarted();
 }
