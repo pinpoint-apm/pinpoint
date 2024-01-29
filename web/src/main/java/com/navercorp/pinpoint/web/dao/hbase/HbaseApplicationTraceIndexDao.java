@@ -108,6 +108,22 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     }
 
     @Override
+    public boolean hasTraceIndex(String applicationName, Range range, boolean backwardDirection) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
+        logger.debug("hasTraceIndex {}", range);
+        Scan scan = createScan(applicationName, range, backwardDirection, 1);
+
+        LastRowAccessor lastRowAccessor = new LastRowAccessor();
+        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
+        List<List<TransactionId>> traceIndexList = hbaseOperations.findParallel(applicationTraceIndexTableName,
+                scan, traceIdRowKeyDistributor, 1, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
+
+        List<TransactionId> transactionIdSum = ListListUtils.toList(traceIndexList);
+        return !transactionIdSum.isEmpty();
+    }
+
+    @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
@@ -115,7 +131,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
         logger.debug("scanTraceIndex {}", range);
-        Scan scan = createScan(applicationName, range, scanBackward);
+        Scan scan = createScan(applicationName, range, scanBackward, -1);
 
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
@@ -185,9 +201,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     }
 
 
-    private Scan createScan(String applicationName, Range range, boolean scanBackward) {
+    private Scan createScan(String applicationName, Range range, boolean scanBackward, int limit) {
         Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
+        applyLimitForScan(scan, limit);
 
         byte[] traceIndexStartKey = rowKeyEncoder.encodeRowKey(applicationName, range.getFrom());
         byte[] traceIndexEndKey = rowKeyEncoder.encodeRowKey(applicationName, range.getTo());
@@ -210,6 +227,14 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         return scan;
     }
 
+    private void applyLimitForScan(Scan scan, int limit) {
+        if (limit == 1) {
+            scan.setOneRowLimit();
+        } else if (limit > 1) {
+            scan.setLimit(limit);
+        }
+    }
+
     @Override
     public LimitedScanResult<List<Dot>> scanTraceScatterData(String applicationName, Range range, int limit, boolean scanBackward) {
         Objects.requireNonNull(applicationName, "applicationName");
@@ -220,7 +245,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
 
-        Scan scan = createScan(applicationName, range, scanBackward);
+        Scan scan = createScan(applicationName, range, scanBackward, -1);
 
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
         List<List<Dot>> listList = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
@@ -353,7 +378,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     }
 
     private Scan newFuzzyScanner(String applicationName, DragArea dragArea, Range range) {
-        final Scan scan = createScan(applicationName, range, true);
+        final Scan scan = createScan(applicationName, range, true, -1);
         if (scatterChartProperties.isEnableFuzzyRowFilter()) {
             Filter filter = newFuzzyFilter(dragArea);
             scan.setFilter(filter);
