@@ -182,9 +182,11 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
 
         if (taskFailState.isFailure()) {
             logger.warn("span task fail state, scheduling reconnection");
-            if (currentStreamTask == null || !currentStreamTask.callOnError(new Exception("no stream job started"))) {
-                reconnector.reconnect();
+            if (currentStreamTask != null) {
+                currentStreamTask.cancelJob(true);
             }
+            reconnector.reconnect();
+
             taskFailState.success();
             logger.info("reconnection scheduled");
         }
