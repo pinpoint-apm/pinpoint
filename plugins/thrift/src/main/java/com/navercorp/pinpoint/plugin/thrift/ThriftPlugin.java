@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -402,9 +403,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                      final String[]... parameterTypeGroups) {
         final String targetClassName = tTransportClassName;
         transformTemplate.transform(targetClassName, BaseTTransportTransform.class,
-                new Object[]{tTransportInterceptorFqcn, parameterTypeGroups},
-                new Class[]{String.class, String[][].class}
-        );
+                TransformCallbackParametersBuilder.newBuilder()
+                        .addString(tTransportInterceptorFqcn)
+                        .addStringArrayArray(parameterTypeGroups)
+                        .toParameters());
     }
 
     public static class BaseTTransportTransform implements TransformCallback {

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -62,7 +63,11 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
 
         logger.info("{} version range=[5.0.0.RELEASE, 5.2.1.RELEASE], config:{}", this.getClass().getSimpleName(), config);
         // Server
-        transformTemplate.transform("org.springframework.web.reactive.DispatcherHandler", DispatchHandlerTransform.class, new Object[]{config.isUriStatEnable(), config.isUriStatUseUserInput()}, new Class[]{Boolean.class, Boolean.class});
+        transformTemplate.transform("org.springframework.web.reactive.DispatcherHandler", DispatchHandlerTransform.class,
+                TransformCallbackParametersBuilder.newBuilder()
+                        .addBoolean(config.isUriStatEnable())
+                        .addBoolean(config.isUriStatUseUserInput())
+                        .toParameters());
         final Matcher invokeMatcher = Matchers.newLambdaExpressionMatcher("org.springframework.web.reactive.DispatcherHandler", "java.util.function.Function");
         transformTemplate.transform(invokeMatcher, DispatchHandlerInvokeHandlerTransform.class);
 
@@ -79,8 +84,14 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
 
         // uri stat
         if (config.isUriStatEnable()) {
-            transformTemplate.transform("org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class, new Object[]{config.isUriStatCollectMethod()}, new Class[]{Boolean.class});
-            transformTemplate.transform("org.springframework.web.reactive.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class, new Object[]{config.isUriStatCollectMethod()}, new Class[]{Boolean.class});
+            transformTemplate.transform("org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class,
+                    TransformCallbackParametersBuilder.newBuilder()
+                            .addBoolean(config.isUriStatCollectMethod())
+                            .toParameters());
+            transformTemplate.transform("org.springframework.web.reactive.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class,
+                    TransformCallbackParametersBuilder.newBuilder()
+                            .addBoolean(config.isUriStatCollectMethod())
+                            .toParameters());
         }
     }
 

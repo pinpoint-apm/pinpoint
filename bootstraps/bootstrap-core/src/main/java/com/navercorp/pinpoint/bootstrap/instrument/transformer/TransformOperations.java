@@ -32,6 +32,9 @@ public interface TransformOperations {
 
 //    void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters);
 
+    @Deprecated
     void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters, Class<?>[] parameterTypes);
+
+    void transform(String className, Class<? extends TransformCallback> transformCallbackClass, TransformCallbackParameters params);
 
 }
