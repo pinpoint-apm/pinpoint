@@ -22,12 +22,12 @@ import java.util.List;
 /**
  * @author youngjin.kim2
  */
-public interface ApplicationService {
+public interface BatchApplicationService {
 
-    List<String> getApplicationNames();
+    List<String> getAll();
 
-    boolean isApplicationEmpty(String applicationName, Duration duration);
+    boolean isActive(String applicationName, Duration duration);
 
-    void removeApplication(String applicationName);
+    void remove(String applicationName);
 
 }

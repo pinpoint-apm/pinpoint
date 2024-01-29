@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.batch.service.ApplicationService;
+import com.navercorp.pinpoint.batch.service.BatchApplicationService;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +26,7 @@ import org.springframework.batch.item.ItemStreamReader;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author youngjin.kim2
@@ -35,20 +36,22 @@ public class ApplicationReader implements ItemStreamReader<String> {
     private static final Logger logger = LogManager.getLogger(ApplicationReader.class);
     private static final String CURRENT_INDEX = "current.index";
 
-    private final ApplicationService applicationService;
+    private final BatchApplicationService applicationService;
 
     private List<String> applicationNames;
-    int currentIndex = 0;
 
-    public ApplicationReader(ApplicationService applicationService) {
+    private final AtomicInteger currentIndexAtom = new AtomicInteger(0);
+
+    public ApplicationReader(BatchApplicationService applicationService) {
         this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
     }
 
     @Override
     public String read() {
+        int currentIndex = currentIndexAtom.getAndIncrement();
         if (currentIndex < applicationNames.size()) {
             logger.info("Reading application: {} / {}", currentIndex, applicationNames.size());
-            return applicationNames.get(currentIndex++);
+            return applicationNames.get(currentIndex);
         } else {
             return null;
         }
@@ -60,17 +63,18 @@ public class ApplicationReader implements ItemStreamReader<String> {
         this.applicationNames = getAllApplications();
         logger.info("Application reader has {} applications", applicationNames.size());
         if (executionContext.containsKey(CURRENT_INDEX)) {
-            this.currentIndex = executionContext.getInt(CURRENT_INDEX);
-            logger.info("Application reader starts from index {}", currentIndex);
+            int loadedIndex = executionContext.getInt(CURRENT_INDEX);
+            this.currentIndexAtom.set(loadedIndex);
+            logger.info("Application reader starts from index {}", loadedIndex);
         } else {
-            this.currentIndex = 0;
+            this.currentIndexAtom.set(0);
             logger.info("Application reader starts from beginning");
         }
     }
 
     @Override
     public void update(@Nonnull ExecutionContext executionContext) throws ItemStreamException {
-        executionContext.putInt(CURRENT_INDEX, this.currentIndex);
+        executionContext.putInt(CURRENT_INDEX, this.currentIndexAtom.get());
     }
 
     @Override
@@ -79,7 +83,7 @@ public class ApplicationReader implements ItemStreamReader<String> {
     }
 
     private List<String> getAllApplications() {
-        return this.applicationService.getApplicationNames()
+        return this.applicationService.getAll()
                 .stream()
                 .sorted()
                 .toList();

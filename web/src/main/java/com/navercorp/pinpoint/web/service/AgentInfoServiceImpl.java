@@ -89,7 +89,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private final HyperLinkFactory hyperLinkFactory;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
-                                AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
+                                AgentWarningStatService agentWarningStatService,
+                                ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao,
                                 AgentStatDao<JvmGcBo> jvmGcDao,
@@ -101,7 +102,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
-
     }
 
     @Override
@@ -389,14 +389,18 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public boolean isActiveAgent(String agentId, Range range) {
         Objects.requireNonNull(agentId, "agentId");
+        return isActiveAgentByGcStat(agentId, range) ||
+                isActiveAgentByPing(agentId, range);
+    }
 
-        boolean dataExists = this.jvmGcDao.agentStatExists(agentId, range);
-        if (dataExists) {
-            return true;
-        }
+    private boolean isActiveAgentByGcStat(String agentId, Range range) {
+        return this.jvmGcDao.agentStatExists(agentId, range);
+    }
 
-        List<AgentEvent> agentEvents = this.agentEventService.getAgentEvents(agentId, range);
-        return agentEvents.stream().anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
+    private boolean isActiveAgentByPing(String agentId, Range range) {
+        return this.agentEventService.getAgentEvents(agentId, range)
+                .stream()
+                .anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
     }
 
     @Override

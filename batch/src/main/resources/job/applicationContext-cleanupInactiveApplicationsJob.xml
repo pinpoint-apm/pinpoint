@@ -22,12 +22,12 @@
 
     <batch:job id="cleanupInactiveApplicationsJob">
         <batch:step id="cleanupInactiveApplicationsStep">
-            <batch:tasklet>
+            <batch:tasklet task-executor="cleanExecutor">
                 <batch:chunk
                         reader="applicationReader"
-                        processor="applicationEmptyFilter"
-                        writer="${job.cleanup.inactive.applications.writer:emptyItemWriter}"
-                        commit-interval="1"
+                        processor="applicationCleaningProcessor"
+                        writer="cleanTargetListWriter"
+                        commit-interval="100"
                         retry-limit="10"
                 >
                     <batch:retryable-exception-classes>
@@ -41,18 +41,41 @@
         </batch:listeners>
     </batch:job>
 
+    <bean id="cleanExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="queueCapacity" value="${job.cleanup.inactive.applications.worker.queueSize:1024}" />
+        <property name="waitForTasksToCompleteOnShutdown" value="false" />
+        <property name="maxPoolSize" value="${job.cleanup.inactive.applications.worker.maxSize:2}" />
+        <property name="corePoolSize" value="${job.cleanup.inactive.applications.worker.coreSize:2}" />
+    </bean>
+
     <bean id="applicationReader" class="com.navercorp.pinpoint.batch.job.ApplicationReader">
-        <constructor-arg name="applicationService" ref="applicationService" />
+        <constructor-arg name="applicationService" ref="batchApplicationService" />
     </bean>
-    <bean id="applicationEmptyFilter" class="com.navercorp.pinpoint.batch.job.ApplicationEmptyFilter">
-        <constructor-arg name="applicationService" ref="applicationService" />
-        <constructor-arg name="emptyDurationThreshold" value="${job.cleanup.inactive.applications.emptydurationthreshold:P14D}" />
+    <bean id="applicationCleaningProcessor" class="com.navercorp.pinpoint.batch.job.ApplicationCleaningProcessor">
+        <constructor-arg name="agentService" ref="batchAgentService" />
+        <constructor-arg name="applicationService" ref="batchApplicationService" />
+        <constructor-arg name="emptyDurationThreshold" value="${job.cleanup.inactive.applications.emptydurationthreshold:P35D}" />
     </bean>
-    <bean id="applicationRemover" class="com.navercorp.pinpoint.batch.job.ApplicationRemover">
-        <constructor-arg name="applicationService" ref="applicationService" />
+
+    <bean id="cleanTargetListWriter" class="com.navercorp.pinpoint.batch.job.ItemListWriter">
+        <constructor-arg name="delegate" ref="${job.cleanup.inactive.applications.writer:emptyItemWriter}" />
     </bean>
+
     <bean id="emptyItemWriter" class="com.navercorp.pinpoint.batch.job.EmptyItemWriter" />
 
-    <bean id="applicationService" class="com.navercorp.pinpoint.batch.service.ApplicationServiceImpl" />
+    <bean id="cleanTargetWriter" class="com.navercorp.pinpoint.batch.job.CleanTargetWriter">
+        <constructor-arg name="applicationRemover" ref="applicationRemover" />
+        <constructor-arg name="agentRemover" ref="agentRemover" />
+    </bean>
+
+    <bean id="applicationRemover" class="com.navercorp.pinpoint.batch.job.ApplicationRemover">
+        <constructor-arg name="applicationService" ref="batchApplicationService" />
+    </bean>
+    <bean id="agentRemover" class="com.navercorp.pinpoint.batch.job.AgentRemover">
+        <constructor-arg name="agentService" ref="batchAgentService" />
+    </bean>
+
+    <bean id="batchApplicationService" class="com.navercorp.pinpoint.batch.service.BatchApplicationServiceImpl" />
+    <bean id="batchAgentService" class="com.navercorp.pinpoint.batch.service.BatchAgentServiceImpl" />
 
 </beans>

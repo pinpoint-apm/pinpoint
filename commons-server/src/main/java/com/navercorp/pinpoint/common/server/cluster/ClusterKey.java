@@ -19,6 +19,14 @@ public class ClusterKey {
         return new ClusterKey(tokens[0], tokens[1], Long.parseLong(tokens[2]));
     }
 
+    public static String compose(String applicationName, String agentId, long startTimestamp) {
+        return applicationName +
+                DELIMITER +
+                agentId +
+                DELIMITER +
+                startTimestamp;
+    }
+
     public ClusterKey(String applicationName, String agentId, long startTimestamp) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
