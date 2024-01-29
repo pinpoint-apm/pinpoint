@@ -41,6 +41,15 @@ public class CollectorProperties {
     @Value("${collector.metric.jmx.domain:pinpoint.collector.metrics}")
     private String metricJmxDomainName;
 
+    @Value("${collector.span.sampling.enable:false}")
+    private boolean spanSamplingEnable;
+    @Value("${collector.span.sampling.type:MOD}")
+    private String spanSamplingType;
+    @Value("${collector.span.sampling.mod.sampling-rate:1}")
+    private long spanSamplingRate;
+    @Value("${collector.span.sampling.percent.sampling-rate:100}")
+    private String spanSamplingPercent;
+
     @Value("${collector.stat.uri:false}")
     private boolean uriStatEnable;
     @Value("${collector.statistics.agent-state.enable:false}")
@@ -72,6 +81,38 @@ public class CollectorProperties {
         this.metricJmxDomainName = metricJmxDomainName;
     }
 
+    public boolean isSpanSamplingEnable() {
+        return spanSamplingEnable;
+    }
+
+    public void setSpanSamplingEnable(boolean spanSamplingEnable) {
+        this.spanSamplingEnable = spanSamplingEnable;
+    }
+
+    public String getSpanSamplingType() {
+        return spanSamplingType;
+    }
+
+    public void setSpanSamplingType(String spanSamplingType) {
+        this.spanSamplingType = spanSamplingType;
+    }
+
+    public void setSpanSamplingRate(int spanSamplingRate) {
+        this.spanSamplingRate = spanSamplingRate;
+    }
+
+    public long getSpanSamplingRate() {
+        return spanSamplingRate;
+    }
+
+    public String getSpanSamplingPercent() {
+        return spanSamplingPercent;
+    }
+
+    public void setSpanSamplingPercent(String spanSamplingPercent) {
+        this.spanSamplingPercent = spanSamplingPercent;
+    }
+
     public boolean isUriStatEnable() {
         return uriStatEnable;
     }
@@ -101,6 +142,8 @@ public class CollectorProperties {
         sb.append(", l4IpList=").append(Arrays.toString(l4IpList));
         sb.append(", metricJmxEnable=").append(metricJmxEnable);
         sb.append(", metricJmxDomainName='").append(metricJmxDomainName).append('\'');
+        sb.append(", spanSamplingEnable=").append(spanSamplingEnable);
+        sb.append(", spanSamplingType=").append(spanSamplingType);
         sb.append(", uriStatEnable=").append(uriStatEnable);
         sb.append(", statisticsAgentStateEnable=").append(statisticsAgentStateEnable);
         sb.append('}');

@@ -18,7 +18,11 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.collector.sampler.Sampler;
+import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
 import com.navercorp.pinpoint.collector.service.TraceService;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
@@ -48,6 +52,7 @@ import java.util.Objects;
 public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final Logger logger = LogManager.getLogger(getClass());
+    private final ThrottledLogger tLogger = ThrottledLogger.getLogger(logger, 1000);
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceService[] traceServices;
@@ -56,10 +61,13 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final AcceptedTimeService acceptedTimeService;
 
-    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, AcceptedTimeService acceptedTimeService) {
+    private final Sampler<BasicSpan> sampler;
+
+    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, AcceptedTimeService acceptedTimeService, SpanSamplerFactory spanSamplerFactory) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
+        this.sampler = spanSamplerFactory.createBasicSpanSampler();
 
         logger.info("TraceServices {}", Arrays.toString(traceServices));
     }
@@ -83,6 +91,14 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
         final Header header = ServerContext.getAgentInfo();
         final BindAttribute attribute = BindAttribute.of(header, acceptedTimeService.getAcceptedTime());
         final SpanBo spanBo = spanFactory.buildSpanBo(span, attribute);
+        if (!sampler.isSampling(spanBo)) {
+            if (isDebug) {
+                logger.debug("unsampled PSpan={}", createSimpleSpanLog(span));
+            } else {
+                tLogger.info("unsampled PSpan={}", createSimpleSpanLog(span));
+            }
+            return;
+        }
         for (TraceService traceService : traceServices) {
             try {
                 traceService.insertSpan(spanBo);
