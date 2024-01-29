@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.collector.sampler.SimpleSpanSamplerFactory;
+import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
@@ -58,5 +60,9 @@ public class CollectorConfiguration {
         return factory;
     }
 
+    @Bean
+    public SpanSamplerFactory spanSamplerFactory(CollectorProperties collectorProperties) {
+        return new SimpleSpanSamplerFactory(collectorProperties);
+    }
 
 }
