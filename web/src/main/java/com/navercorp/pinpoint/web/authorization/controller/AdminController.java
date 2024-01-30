@@ -79,6 +79,7 @@ public class AdminController {
     }
 
     @RequestMapping(value = "/removeInactiveAgents")
+    @Deprecated
     public String removeInactiveAgents(
             @RequestParam(value = "durationDays", defaultValue = "30") @PositiveOrZero int durationDays
     ) {

@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -16,12 +15,8 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,8 +30,6 @@ public class AdminServiceImplTest {
     final String APPLICATION_NAME1 = "TEST_APP1";
     final String APPLICATION_NAME2 = "TEST_APP2";
     final String APPLICATION_NAME3 = "TEST_APP3";
-
-    final int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
 
     AdminService adminService;
 
@@ -89,61 +82,6 @@ public class AdminServiceImplTest {
 
         // then
         verify(applicationIndexDao).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
-    }
-
-    @Test
-    public void whenMinDurationDaysForInActivityIsLessThanDurationDaysDoThrowIllegalArgumentException() {
-        assertThatThrownBy(() -> adminService.removeInactiveAgents(29))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
-
-
-        adminService.removeInactiveAgents(30);
-        adminService.removeInactiveAgents(31);
-
-    }
-
-    @Test
-    public void whenAgentStatExistsWithInDurationDaysDoNotRemoveInactiveAgents() {
-        // given
-        int durationDays = 31;
-
-        //// mocking
-        when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME1))).thenReturn(List.of(AGENT_ID1));
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(List.of(new Application(APPLICATION_NAME1, ServiceType.TEST)));
-        when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(true);
-
-        // when
-        adminService.removeInactiveAgents(durationDays);
-
-        verify(applicationIndexDao, never()).deleteAgentIds(any());
-    }
-
-    @Test
-    public void whenAgentStatExistsOutOfDurationDaysDoRemoveInactiveAgents() {
-        // given
-        int durationDays = 31;
-
-        //// mocking
-        when(applicationIndexDao.selectAgentIds(anyString())).thenReturn(List.of(AGENT_ID1, AGENT_ID2, AGENT_ID3));
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(List.of(new Application(APPLICATION_NAME1, ServiceType.TEST)));
-        doAnswer(invocation -> {
-            Map<String, List<String>> inactiveAgentMap = invocation.getArgument(0);
-            List<String> inactiveAgents = inactiveAgentMap.get(APPLICATION_NAME1);
-
-            assertThat(inactiveAgents)
-                    .hasSize(2)
-                    .containsExactly(AGENT_ID1, AGENT_ID2);
-
-            return inactiveAgents;
-        }).when(applicationIndexDao).deleteAgentIds(any());
-
-        when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(false);
-        when(agentInfoService.isActiveAgent(eq(AGENT_ID2), any(Range.class))).thenReturn(false);
-        when(agentInfoService.isActiveAgent(eq(AGENT_ID3), any(Range.class))).thenReturn(true);
-
-        // when
-        adminService.removeInactiveAgents(durationDays);
     }
 
     @Test

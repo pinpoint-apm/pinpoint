@@ -28,10 +28,10 @@ import java.util.List;
  */
 public class CleanTargetWriter implements ItemWriter<CleanTarget> {
 
-    private final ApplicationRemover applicationRemover;
-    private final AgentRemover agentRemover;
+    private final ItemWriter<String> applicationRemover;
+    private final ItemWriter<String> agentRemover;
 
-    public CleanTargetWriter(ApplicationRemover applicationRemover, AgentRemover agentRemover) {
+    public CleanTargetWriter(ItemWriter<String> applicationRemover, ItemWriter<String> agentRemover) {
         this.applicationRemover = applicationRemover;
         this.agentRemover = agentRemover;
     }
