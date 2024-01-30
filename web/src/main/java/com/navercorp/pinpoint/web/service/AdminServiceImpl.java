@@ -62,6 +62,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Deprecated
     public void removeInactiveAgents(int durationDays) {
         if (durationDays < MIN_DURATION_DAYS_FOR_INACTIVITY) {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
@@ -83,28 +84,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public int removeInactiveAgentInApplication(String applicationName, int durationDays) {
-        int retry = 3;
-
-        while (retry-- > 0) {
-            try {
-                return removeInactiveAgentInApplication0(applicationName, durationDays);
-            } catch (Exception e) {
-                logger.error("Backoff to remove inactive agents in application {}", applicationName, e);
-                waitOneMinute();
-            }
-        }
-        logger.error("Failed to remove inactive agents in application {}", applicationName);
-
-        return 0;
-    }
-
-    private void waitOneMinute() {
         try {
-            Thread.sleep(60000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Interrupted while waiting for retry", e);
+            return removeInactiveAgentInApplication0(applicationName, durationDays);
+        } catch (Exception e) {
+            logger.error("Backoff to remove inactive agents in application {}", applicationName, e);
         }
+        return 0;
     }
 
     private int removeInactiveAgentInApplication0(String applicationName, int durationDays) {

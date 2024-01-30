@@ -34,8 +34,10 @@ public interface AdminService {
 
     void removeAgentId(String applicationName, String agentId);
 
+    @Deprecated
     void removeInactiveAgents(int durationDays);
 
+    @Deprecated
     int removeInactiveAgentInApplication(String applicationName, int durationDays);
 
     Map<String, List<Application>> getAgentIdMap();
