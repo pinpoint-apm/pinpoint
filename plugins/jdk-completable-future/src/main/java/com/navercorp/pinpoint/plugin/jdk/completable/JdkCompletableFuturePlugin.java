@@ -63,8 +63,6 @@ public class JdkCompletableFuturePlugin implements ProfilerPlugin, TransformTemp
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
-
-
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("complete", "join", "cancel", "get"))) {
                 method.addInterceptor(CompletableFutureMethodInterceptor.class);
             }

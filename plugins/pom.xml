@@ -55,6 +55,7 @@
         <module>hikaricp</module>
         <module>oracle-jdbc</module>
         <module>jdk-http</module>
+        <module>jdk-httpclient</module>
         <module>json-lib</module>
         <module>redis</module>
         <module>redis-lettuce</module>
