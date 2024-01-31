@@ -18,14 +18,7 @@
 package com.navercorp.pinpoint.common.hbase.async;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.RemovalCause;
-import com.github.benmanes.caffeine.cache.RemovalListener;
-import com.navercorp.pinpoint.common.util.IOUtils;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -33,7 +26,6 @@ import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.Closeable;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -112,39 +104,27 @@ public class HbaseAsyncCacheConfiguration {
 
     @Bean
     public CacheManager hbaseAsyncTableManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(600, TimeUnit.SECONDS)
-                .initialCapacity(200)
-                .maximumSize(1000));
+        Caffeine<Object, Object> builder = newCacheBuilder();
 
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCaffeine(builder);
         return cacheManager;
     }
 
     @Bean
     public CacheManager hbaseAsyncBufferedMutatorManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        Caffeine<Object, Object> asyncBufferedMutator = Caffeine.newBuilder()
-                .expireAfterWrite(5, TimeUnit.MINUTES)
-                .initialCapacity(200)
-                .maximumSize(1000)
-                .removalListener(new RemovalListener<Object, Object>() {
-                    private final Logger logger = LogManager.getLogger("com.navercorp.pinpoint.common.hbase.async.RemovalListener");
-                    @Override
-                    public void onRemoval(@Nullable Object key, @Nullable Object value, @NonNull RemovalCause cause) {
-                        if (cause.wasEvicted()) {
-                            if (value != null) {
-                                if (value instanceof Closeable closeable) {
-                                    IOUtils.closeQuietly(closeable);
-                                    logger.debug("{} AsyncBufferedMutator close", key);
-                                }
-                            }
-                        }
-                    }
-                });
-        cacheManager.setCaffeine(asyncBufferedMutator);
+        Caffeine<Object, Object> builder = newCacheBuilder();
 
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCaffeine(builder);
         return cacheManager;
+    }
+
+    private Caffeine<Object, Object> newCacheBuilder() {
+        return Caffeine.newBuilder()
+                .expireAfterWrite(60, TimeUnit.SECONDS)
+                .initialCapacity(200)
+                .maximumSize(1000);
     }
 
 }
