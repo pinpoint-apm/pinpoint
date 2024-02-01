@@ -1,0 +1,15 @@
+serviceTypes:
+  - code: 9065
+    name: 'JDK_HTTP_CLIENT'
+    desc: 'JDK_HTTP_CLIENT'
+    property:
+      recordStatistics: true
+    matcher:
+      type: 'exact'
+      code: 40 # http.url
+  - code: 9066
+    name: 'JDK_HTTP_CLIENT_INTERNAL'
+    desc: 'JDK_HTTP_CLIENT'
+    matcher:
+      type: 'exact'
+      code: 48 # http.internal.display
