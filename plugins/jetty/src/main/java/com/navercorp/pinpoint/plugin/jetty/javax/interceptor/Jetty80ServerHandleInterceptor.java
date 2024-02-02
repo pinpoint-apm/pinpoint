@@ -14,38 +14,36 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jetty.interceptor;
+package com.navercorp.pinpoint.plugin.jetty.javax.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
-import org.eclipse.jetty.server.AbstractHttpConnection;
+import org.eclipse.jetty.server.HttpConnection;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 
 /**
  * @author Taejin Koo
  * @author jaehong.kim
  * <p>
- * jetty-8.1, jetty-8.2
+ * jetty-8.0
  */
-public class Jetty8xServerHandleInterceptor extends AbstractServerHandleInterceptor {
+public class Jetty80ServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
-    public Jetty8xServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory requestRecorderFactory) {
+    public Jetty80ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory requestRecorderFactory) {
         super(traceContext, descriptor, requestRecorderFactory);
     }
 
     @Override
     HttpServletRequest toHttpServletRequest(Object[] args) {
-        AbstractHttpConnection connection = getArgument(args);
+        HttpConnection connection = getArgument(args);
         if (connection != null) {
             try {
                 return connection.getRequest();
             } catch (Throwable ignored) {
-                // ignore
             }
         }
         return null;
@@ -53,18 +51,18 @@ public class Jetty8xServerHandleInterceptor extends AbstractServerHandleIntercep
 
     @Override
     HttpServletResponse toHttpServletResponse(Object[] args) {
-        AbstractHttpConnection connection = getArgument(args);
+        HttpConnection connection = getArgument(args);
         if (connection != null) {
             try {
                 return connection.getResponse();
             } catch (Throwable ignored) {
-                // ignore
             }
         }
         return null;
+
     }
 
-    private AbstractHttpConnection getArgument(Object[] args) {
-        return ArrayArgumentUtils.getArgument(args, 0, AbstractHttpConnection.class);
+    private HttpConnection getArgument(Object[] args) {
+        return ArrayArgumentUtils.getArgument(args, 0, HttpConnection.class);
     }
 }

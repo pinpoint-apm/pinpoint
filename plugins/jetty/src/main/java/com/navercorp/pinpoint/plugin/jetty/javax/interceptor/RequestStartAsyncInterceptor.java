@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jetty.interceptor;
+package com.navercorp.pinpoint.plugin.jetty.javax.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.plugin.jetty.JettyAsyncListener;
+import com.navercorp.pinpoint.plugin.jetty.javax.JettyAsyncListener;
 import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 
 import javax.servlet.AsyncContext;
