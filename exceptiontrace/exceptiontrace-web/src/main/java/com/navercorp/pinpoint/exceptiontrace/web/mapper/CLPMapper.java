@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author intr3p1d
@@ -22,12 +23,20 @@ package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 public class CLPMapper {
 
     // Special placeholder characters for CLP-encoded log type.
-    private final static char DICTIONARY_VARIABLE_VALUE = '\u0011';
-    private final static char NON_DICTIONARY_VALUE = '\u0012';
+    public final static char DICTIONARY_VARIABLE_VALUE = '\u0011';
+    public final static char NON_DICTIONARY_VALUE = '\u0012';
+
+    public final static String DICTIONARY_REPLACEMENT = "▨▨▨";
+    public final static String NON_DICTIONARY_REPLACEMENT = "▧▧▧";
+
+    static String makeReadableString(String encodedLogType) {
+        byte[] encodedLogTypeBytes = encodedLogType.getBytes(StandardCharsets.ISO_8859_1);
+        return new String(encodedLogTypeBytes, StandardCharsets.UTF_8);
+    }
 
     static String replacePlaceHolders(String encodedLogType) {
         return encodedLogType
-                .replaceAll(String.valueOf(DICTIONARY_VARIABLE_VALUE), "▨▨▨")
-                .replaceAll(String.valueOf(NON_DICTIONARY_VALUE), "▧▧▧");
+                .replaceAll(String.valueOf(DICTIONARY_VARIABLE_VALUE), DICTIONARY_REPLACEMENT)
+                .replaceAll(String.valueOf(NON_DICTIONARY_VALUE), NON_DICTIONARY_REPLACEMENT);
     }
 }

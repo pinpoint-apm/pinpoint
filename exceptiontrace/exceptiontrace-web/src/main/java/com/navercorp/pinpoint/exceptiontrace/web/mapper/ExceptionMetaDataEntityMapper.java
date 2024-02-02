@@ -30,6 +30,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
+import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
 
 /**
@@ -75,7 +76,9 @@ public interface ExceptionMetaDataEntityMapper {
     @Named("selectErrorMessage")
     default String selectErrorMessage(GroupedFieldNameEntity entity) {
         if (entity.getErrorMessage_logtype() != null) {
-            return replacePlaceHolders(entity.getErrorMessage_logtype());
+            return replacePlaceHolders(
+                    makeReadableString(entity.getErrorMessage_logtype())
+            );
         }
         return entity.getErrorMessage();
     }
