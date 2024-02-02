@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.spring.boot.SpringBootConstants;
 
 import java.net.URL;
@@ -44,8 +45,15 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
 
+    private final int classLoaderIndex;
+
     public LauncherLaunchInterceptor(TraceContext traceContext) {
+        this(traceContext, 2);
+    }
+
+    public LauncherLaunchInterceptor(TraceContext traceContext, int classLoaderIndex) {
         this.traceContext = traceContext;
+        this.classLoaderIndex = classLoaderIndex;
     }
 
     @Override
@@ -57,7 +65,7 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
             return;
         }
         String serviceName = createServiceName(target);
-        URLClassLoader classLoader = (URLClassLoader) args[2];
+        URLClassLoader classLoader = ArrayArgumentUtils.getArgument(args, classLoaderIndex, URLClassLoader.class);
         URL[] urls = classLoader.getURLs();
         List<String> loadedJarNames = new ArrayList<String>(extractLibJarNamesFromURLs(urls));
         ServerMetaDataHolder holder = this.traceContext.getServerMetaDataHolder();
@@ -83,7 +91,8 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
         if (args.length < 3) {
             return false;
         }
-        if (!(args[2] instanceof URLClassLoader)) {
+        URLClassLoader classLoader = ArrayArgumentUtils.getArgument(args, classLoaderIndex, URLClassLoader.class);
+        if (classLoader == null) {
             return false;
         }
         return true;
