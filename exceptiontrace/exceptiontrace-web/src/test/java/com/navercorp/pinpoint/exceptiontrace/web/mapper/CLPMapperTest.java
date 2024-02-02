@@ -4,7 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
+import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -25,5 +29,29 @@ class CLPMapperTest {
         assertNotEquals(example, replaced);
         assertFalse(replaced.contains("\u0011"));
         assertFalse(replaced.contains("\u0012"));
+    }
+
+    @Test
+    public void testMakeReadable1() throws IOException {
+        String rawExample = "getAgentsList.from: \u0011 ì\u009D´ì\u0083\u0081ì\u009D´ì\u0096´ì\u0095¼ í\u0095©ë\u008B\u0088ë\u008B¤";
+        String example = "getAgentsList.from: \u0011 이상이어야 합니다";
+
+        assertEquals(example, makeReadableString(rawExample));
+    }
+
+    @Test
+    public void testMakeReadable2() {
+        String rawExample = "\\n not found: limit=\u0011 content=â\u0080¦";
+        String example = "\\n not found: limit=\u0011 content=…";
+
+        assertEquals(example, makeReadableString(rawExample));
+    }
+
+    @Test
+    public void testMakeReadable3() {
+        String rawExample = "Request processing failed: jakarta.validation.ConstraintViolationException";
+        String example = "Request processing failed: jakarta.validation.ConstraintViolationException";
+
+        assertEquals(example, makeReadableString(rawExample));
     }
 }

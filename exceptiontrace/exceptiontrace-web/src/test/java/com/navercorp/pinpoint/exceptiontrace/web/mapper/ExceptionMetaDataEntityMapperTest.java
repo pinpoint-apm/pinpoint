@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapp
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author intr3p1d
@@ -54,21 +57,21 @@ class ExceptionMetaDataEntityMapperTest {
         ExceptionMetaDataEntity expected = newExceptionMetaDataEntity(throwable);
         ExceptionMetaData actual = mapper.toModel(expected);
 
-        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp());
-        Assertions.assertEquals(expected.getTransactionId(), actual.getTransactionId());
-        Assertions.assertEquals(expected.getSpanId(), actual.getSpanId());
-        Assertions.assertEquals(expected.getExceptionId(), actual.getExceptionId());
+        assertEquals(expected.getTimestamp(), actual.getTimestamp());
+        assertEquals(expected.getTransactionId(), actual.getTransactionId());
+        assertEquals(expected.getSpanId(), actual.getSpanId());
+        assertEquals(expected.getExceptionId(), actual.getExceptionId());
 
-        Assertions.assertEquals(expected.getApplicationServiceType(), actual.getApplicationServiceType());
-        Assertions.assertEquals(expected.getApplicationName(), actual.getApplicationName());
-        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId());
-        Assertions.assertEquals(expected.getUriTemplate(), actual.getUriTemplate());
+        assertEquals(expected.getApplicationServiceType(), actual.getApplicationServiceType());
+        assertEquals(expected.getApplicationName(), actual.getApplicationName());
+        assertEquals(expected.getAgentId(), actual.getAgentId());
+        assertEquals(expected.getUriTemplate(), actual.getUriTemplate());
 
-        Assertions.assertEquals(expected.getErrorClassName(), actual.getErrorClassName());
-        Assertions.assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
-        Assertions.assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
+        assertEquals(expected.getErrorClassName(), actual.getErrorClassName());
+        assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
+        assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
 
-        Assertions.assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
+        assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
 
 
         int size = throwable.getStackTrace().length;
@@ -86,10 +89,10 @@ class ExceptionMetaDataEntityMapperTest {
         List<StackTraceElementWrapper> actualStackTrace = actual.getStackTrace();
 
         for (int i = 0; i < size; i++) {
-            Assertions.assertEquals(classNameIter.get(i), actualStackTrace.get(i).getClassName());
-            Assertions.assertEquals(fileNameIter.get(i), actualStackTrace.get(i).getFileName());
-            Assertions.assertEquals(lineNumberIter.get(i), actualStackTrace.get(i).getLineNumber());
-            Assertions.assertEquals(methodNameIter.get(i), actualStackTrace.get(i).getMethodName());
+            assertEquals(classNameIter.get(i), actualStackTrace.get(i).getClassName());
+            assertEquals(fileNameIter.get(i), actualStackTrace.get(i).getFileName());
+            assertEquals(lineNumberIter.get(i), actualStackTrace.get(i).getLineNumber());
+            assertEquals(methodNameIter.get(i), actualStackTrace.get(i).getMethodName());
         }
     }
 
@@ -100,21 +103,21 @@ class ExceptionMetaDataEntityMapperTest {
         ExceptionMetaDataEntity expected = newExceptionMetaDataEntity(throwable);
         ExceptionMetaDataView actual = mapper.toView(expected);
 
-        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp());
-        Assertions.assertEquals(expected.getTransactionId(), actual.getTransactionId());
-        Assertions.assertEquals(Long.toString(expected.getSpanId()), actual.getSpanId());
-        Assertions.assertEquals(Long.toString(expected.getExceptionId()), actual.getExceptionId());
+        assertEquals(expected.getTimestamp(), actual.getTimestamp());
+        assertEquals(expected.getTransactionId(), actual.getTransactionId());
+        assertEquals(Long.toString(expected.getSpanId()), actual.getSpanId());
+        assertEquals(Long.toString(expected.getExceptionId()), actual.getExceptionId());
 
-        Assertions.assertEquals(expected.getApplicationServiceType(), actual.getApplicationServiceType());
-        Assertions.assertEquals(expected.getApplicationName(), actual.getApplicationName());
-        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId());
-        Assertions.assertEquals(expected.getUriTemplate(), actual.getUriTemplate());
+        assertEquals(expected.getApplicationServiceType(), actual.getApplicationServiceType());
+        assertEquals(expected.getApplicationName(), actual.getApplicationName());
+        assertEquals(expected.getAgentId(), actual.getAgentId());
+        assertEquals(expected.getUriTemplate(), actual.getUriTemplate());
 
-        Assertions.assertEquals(expected.getErrorClassName(), actual.getErrorClassName());
-        Assertions.assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
-        Assertions.assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
+        assertEquals(expected.getErrorClassName(), actual.getErrorClassName());
+        assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
+        assertEquals(expected.getExceptionDepth(), actual.getExceptionDepth());
 
-        Assertions.assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
+        assertEquals(expected.getStackTraceHash(), actual.getStackTraceHash());
 
 
         int size = throwable.getStackTrace().length;
@@ -132,10 +135,10 @@ class ExceptionMetaDataEntityMapperTest {
         List<StackTraceElementWrapper> actualStackTrace = actual.getStackTrace();
 
         for (int i = 0; i < size; i++) {
-            Assertions.assertEquals(classNameIter.get(i), actualStackTrace.get(i).getClassName());
-            Assertions.assertEquals(fileNameIter.get(i), actualStackTrace.get(i).getFileName());
-            Assertions.assertEquals(lineNumberIter.get(i), actualStackTrace.get(i).getLineNumber());
-            Assertions.assertEquals(methodNameIter.get(i), actualStackTrace.get(i).getMethodName());
+            assertEquals(classNameIter.get(i), actualStackTrace.get(i).getClassName());
+            assertEquals(fileNameIter.get(i), actualStackTrace.get(i).getFileName());
+            assertEquals(lineNumberIter.get(i), actualStackTrace.get(i).getLineNumber());
+            assertEquals(methodNameIter.get(i), actualStackTrace.get(i).getMethodName());
         }
     }
 
@@ -179,10 +182,10 @@ class ExceptionMetaDataEntityMapperTest {
 
         ExceptionTraceValueView actual = mapper.entityToExceptionTraceValueView(expected);
 
-        Assertions.assertEquals(expected.getUriTemplate(), actual.getGroupedFieldName().getUriTemplate());
-        Assertions.assertEquals(expected.getErrorClassName(), actual.getGroupedFieldName().getErrorClassName());
-        Assertions.assertEquals(expected.getErrorMessage(), actual.getGroupedFieldName().getErrorMessage());
-        Assertions.assertEquals(expected.getStackTraceHash(), actual.getGroupedFieldName().getStackTraceHash());
+        assertEquals(expected.getUriTemplate(), actual.getGroupedFieldName().getUriTemplate());
+        assertEquals(expected.getErrorClassName(), actual.getGroupedFieldName().getErrorClassName());
+        assertEquals(expected.getErrorMessage(), actual.getGroupedFieldName().getErrorMessage());
+        assertEquals(expected.getStackTraceHash(), actual.getGroupedFieldName().getStackTraceHash());
 
         Assertions.assertNotNull(actual.getValues());
         Assertions.assertFalse(actual.getValues().isEmpty());
@@ -207,16 +210,16 @@ class ExceptionMetaDataEntityMapperTest {
 
         ExceptionTraceSummary actual = mapper.entityToExceptionTraceSummary(expected);
 
-        Assertions.assertEquals(expected.getMostRecentErrorClass(), actual.getMostRecentErrorClass());
-        Assertions.assertEquals(expected.getMostRecentErrorMessage(), actual.getMostRecentErrorMessage());
-        Assertions.assertEquals(expected.getCount(), actual.getCount());
-        Assertions.assertEquals(expected.getFirstOccurred(), actual.getFirstOccurred());
-        Assertions.assertEquals(expected.getLastOccurred(), actual.getLastOccurred());
+        assertEquals(expected.getMostRecentErrorClass(), actual.getMostRecentErrorClass());
+        assertEquals(expected.getMostRecentErrorMessage(), actual.getMostRecentErrorMessage());
+        assertEquals(expected.getCount(), actual.getCount());
+        assertEquals(expected.getFirstOccurred(), actual.getFirstOccurred());
+        assertEquals(expected.getLastOccurred(), actual.getLastOccurred());
 
-        Assertions.assertEquals(expected.getUriTemplate(), actual.getGroupedFieldName().getUriTemplate());
-        Assertions.assertEquals(expected.getErrorClassName(), actual.getGroupedFieldName().getErrorClassName());
-        Assertions.assertEquals(expected.getErrorMessage(), actual.getGroupedFieldName().getErrorMessage());
-        Assertions.assertEquals(expected.getStackTraceHash(), actual.getGroupedFieldName().getStackTraceHash());
+        assertEquals(expected.getUriTemplate(), actual.getGroupedFieldName().getUriTemplate());
+        assertEquals(expected.getErrorClassName(), actual.getGroupedFieldName().getErrorClassName());
+        assertEquals(expected.getErrorMessage(), actual.getGroupedFieldName().getErrorMessage());
+        assertEquals(expected.getStackTraceHash(), actual.getGroupedFieldName().getStackTraceHash());
     }
 
     private ExceptionTraceSummaryEntity newExceptionTraceSummaryEntity() {
@@ -235,4 +238,15 @@ class ExceptionMetaDataEntityMapperTest {
         return entity;
     }
 
+    @Test
+    public void testSelectErrorMessage(){
+        GroupedFieldNameEntity entity = new GroupedFieldNameEntity();
+        entity.setErrorMessage_logtype("getAgentsList.from: \u0011 ì\u009D´ì\u0083\u0081ì\u009D´ì\u0096´ì\u0095¼ í\u0095©ë\u008B\u0088ë\u008B¤");
+
+        String result = mapper.selectErrorMessage(entity);
+        assertEquals(
+                "getAgentsList.from: "+ CLPMapper.DICTIONARY_REPLACEMENT +" 이상이어야 합니다"
+                ,result
+        );
+    }
 }
