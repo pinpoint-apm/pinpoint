@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.VarArgs;
 import com.navercorp.pinpoint.plugin.spring.boot.interceptor.LauncherLaunchInterceptor;
 
 import java.security.ProtectionDomain;
@@ -71,6 +72,7 @@ public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private void addLauncherEditor() {
         transformTemplate.transform("org.springframework.boot.loader.Launcher", LauncherTransform.class);
+        transformTemplate.transform("org.springframework.boot.loader.launch.Launcher", LauncherTransform.class);
     }
 
     public static class LauncherTransform implements TransformCallback {
@@ -83,9 +85,14 @@ public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware 
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod method = target.getDeclaredMethod("launch", "java.lang.String[]", "java.lang.String", "java.lang.ClassLoader");
             if (method != null) {
-                method.addInterceptor(LauncherLaunchInterceptor.class);
+                method.addInterceptor(LauncherLaunchInterceptor.class, VarArgs.va(2));
+            } else {
+                // >= '3.2.0'
+                method = target.getDeclaredMethod("launch", "java.lang.ClassLoader", "java.lang.String", "java.lang.String[]");
+                if (method != null) {
+                    method.addInterceptor(LauncherLaunchInterceptor.class, VarArgs.va(0));
+                }
             }
-
             return target.toBytecode();
         }
 
