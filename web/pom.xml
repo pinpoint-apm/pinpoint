@@ -32,7 +32,7 @@
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
 
-        <pinpoint.web.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.web.executable.name>
+        <pinpoint.web.executable.name>${project.artifactId}-${project.version}</pinpoint.web.executable.name>
     </properties>
 
     <dependencies>

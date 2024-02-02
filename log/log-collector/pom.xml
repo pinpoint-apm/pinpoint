@@ -20,9 +20,7 @@
         <!-- for development option -->
         <skip.agent.distribution>false</skip.agent.distribution>
 
-        <pinpoint.log.collector.executable.name>
-            ${project.artifactId}-boot-${project.version}
-        </pinpoint.log.collector.executable.name>
+        <pinpoint.log.collector.executable.name>${project.artifactId}-${project.version}</pinpoint.log.collector.executable.name>
     </properties>
 
     <dependencies>

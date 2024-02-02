@@ -34,7 +34,7 @@
 
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
 
-        <pinpoint.collector.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.collector.executable.name>
+        <pinpoint.collector.executable.name>${project.artifactId}-${project.version}</pinpoint.collector.executable.name>
     </properties>
 
     <dependencies>
