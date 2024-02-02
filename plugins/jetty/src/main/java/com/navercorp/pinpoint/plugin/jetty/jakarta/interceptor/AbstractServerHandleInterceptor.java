@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jetty.interceptor;
+package com.navercorp.pinpoint.plugin.jetty.jakarta.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -31,15 +31,16 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBui
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
-import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
-import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletResponseAdaptor;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.HttpServletResponseAdaptor;
+import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.jetty.JettyConfiguration;
 import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 
 /**
  * @author Chaein Jung

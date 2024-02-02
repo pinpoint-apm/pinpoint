@@ -21,15 +21,15 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty80ServerHandleInterceptor;
-import com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8xServerHandleInterceptor;
-import com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty9xServerHandleInterceptor;
-import com.navercorp.pinpoint.plugin.jetty.interceptor.RequestStartAsyncInterceptor;
+import com.navercorp.pinpoint.plugin.jetty.javax.interceptor.Jetty80ServerHandleInterceptor;
+import com.navercorp.pinpoint.plugin.jetty.javax.interceptor.Jetty8xServerHandleInterceptor;
+import com.navercorp.pinpoint.plugin.jetty.javax.interceptor.RequestStartAsyncInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -99,6 +99,10 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
             if (startAsyncMethodEditor != null) {
                 startAsyncMethodEditor.addInterceptor(RequestStartAsyncInterceptor.class);
             }
+            final InstrumentMethod startAsyncMethodEditorJakarta = target.getDeclaredMethod("startAsync", "jakarta.servlet.ServletRequest", "jakarta.servlet.ServletResponse");
+            if (startAsyncMethodEditorJakarta != null) {
+                startAsyncMethodEditorJakarta.addInterceptor(com.navercorp.pinpoint.plugin.jetty.jakarta.interceptor.RequestStartAsyncInterceptor.class);
+            }
             return target.toBytecode();
         }
     }
@@ -111,10 +115,10 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            // 9.x
+            // > 9.x
             final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpChannel");
             if (handleMethodEditorBuilder != null) {
-                handleMethodEditorBuilder.addInterceptor(Jetty9xServerHandleInterceptor.class);
+                handleMethodEditorBuilder.addInterceptor(getStandardHostValveInvokeInterceptor(classLoader));
                 return target.toBytecode();
             }
             // 8.0
@@ -132,6 +136,24 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
+
+        private static Class<? extends Interceptor> getStandardHostValveInvokeInterceptor(ClassLoader classLoader) {
+            // >= 11.x
+            if (hasClass("jakarta.servlet.http.HttpServletRequest", classLoader)) {
+                return com.navercorp.pinpoint.plugin.jetty.jakarta.interceptor.Jetty11xServerHandleInterceptor.class;
+            } else {
+                return com.navercorp.pinpoint.plugin.jetty.javax.interceptor.Jetty9xServerHandleInterceptor.class;
+            }
+        }
+    }
+
+    private static boolean hasClass(String className, ClassLoader classLoader) {
+        try {
+            Class.forName(className, false, classLoader);
+            return true;
+        } catch (ClassNotFoundException ignored) {
+        }
+        return false;
     }
 
     @Override
