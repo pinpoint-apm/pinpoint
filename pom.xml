@@ -91,6 +91,7 @@
         <module>agent-plugins</module>
         <module>bootstraps</module>
         <module>collector</module>
+        <module>collector-starter</module>
         <module>commons</module>
         <module>commons-buffer</module>
         <module>commons-config</module>
@@ -114,6 +115,7 @@
         <module>grpc</module>
         <module>test</module>
         <module>web</module>
+        <module>web-starter</module>
         <module>webhook</module>
         <module>web-frontend</module>
         <module>hbase</module>
@@ -501,7 +503,17 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-collector-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-web-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

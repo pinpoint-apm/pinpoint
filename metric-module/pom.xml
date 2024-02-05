@@ -34,8 +34,6 @@
 
     <modules>
         <module>metric</module>
-        <module>collector-starter</module>
-        <module>web-starter</module>
         <module>metric-commons</module>
     </modules>
 
