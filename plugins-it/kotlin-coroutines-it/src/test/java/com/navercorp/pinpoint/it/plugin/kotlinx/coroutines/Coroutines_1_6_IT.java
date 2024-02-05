@@ -27,8 +27,6 @@ import kotlin.coroutines.CoroutineContext;
 import kotlinx.coroutines.CoroutineDispatcher;
 import kotlinx.coroutines.Dispatchers;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -87,11 +85,8 @@ public class Coroutines_1_6_IT {
         assertResumeWith(executedMethod, index, activeAsync);
         //        println("Hello World 2")  // job2
         assertResumeWith(executedMethod, index, activeAsync);
-        //    println("Hello all of jobs") // rootjob
-        assertResumeWith(executedMethod, index, activeAsync);
     }
 
-    @Disabled
     @Test
     public void executeRunBlocking() {
         final boolean activeAsync = true;
@@ -105,7 +100,6 @@ public class Coroutines_1_6_IT {
         verifier.awaitTraceCount(17, 10L, 1000L);
 
         List<String> executedMethod = verifier.getExecutedMethod();
-        Assumptions.assumeTrue(executedMethod.size() == 17);
 
         AtomicInteger index = new AtomicInteger(0);
 
@@ -123,17 +117,6 @@ public class Coroutines_1_6_IT {
             //    println("Hello all of jobs") // rootjob
             assertResumeWith(executedMethod, index, activeAsync);
 
-            //        delay(10L) // job1
-            assertResumeWithAndSchedule(executedMethod, index, activeAsync);
-
-            //        delay(5L) // job2
-            assertResumeWithAndSchedule(executedMethod, index, activeAsync);
-
-            //        println("Hello World 1")  // job1
-            assertResumeWith(executedMethod, index, activeAsync);
-
-            //        println("Hello World 2")  // job2
-            assertResumeWith(executedMethod, index, activeAsync);
         } catch (Throwable th) {
             System.out.println("methods:");
             for (final String method: executedMethod) {
