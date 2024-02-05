@@ -42,8 +42,8 @@ import java.util.Arrays;
         RedisReactiveAutoConfiguration.class,
         ApplicationRunnerAutoConfiguration.class,
 })
-public class MultiApplication {
-    private static final ServerBootLogger logger = ServerBootLogger.getLogger(MultiApplication.class);
+public class PinpointCollectorStarter {
+    private static final ServerBootLogger logger = ServerBootLogger.getLogger(PinpointCollectorStarter.class);
 
     public static final String EXTERNAL_PROPERTY_SOURCE_NAME = "CollectorExternalEnvironment";
     public static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.collector.config.location";
@@ -53,7 +53,7 @@ public class MultiApplication {
 
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
 
-        builder.sources(MultiApplication.class, ShellBlockerConfig.class);
+        builder.sources(PinpointCollectorStarter.class, ShellBlockerConfig.class);
         builder.listeners(new ProfileResolveListener());
 
 

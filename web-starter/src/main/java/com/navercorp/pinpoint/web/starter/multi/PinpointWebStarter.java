@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.starter.multi;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
+import com.navercorp.pinpoint.exceptiontrace.web.ExceptionTraceWebConfig;
 import com.navercorp.pinpoint.inspector.web.InspectorWebApp;
 import com.navercorp.pinpoint.log.web.LogWebModule;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
-import com.navercorp.pinpoint.exceptiontrace.web.ExceptionTraceWebConfig;
 import com.navercorp.pinpoint.metric.web.MetricWebApp;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.web.UriStatWebConfig;
@@ -55,13 +55,13 @@ import org.springframework.context.annotation.Import;
         MainDataSourcePropertySource.class,
         RedisPropertySources.class,
 })
-public class MetricAndWebApp {
+public class PinpointWebStarter {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
 
     public static void main(String[] args) {
         try {
             WebStarter starter = new WebStarter(
-                    MetricAndWebApp.class,
+                    PinpointWebStarter.class,
                     PinpointBasicLoginConfig.class,
                     AuthorizationConfig.class,
                     MetricWebApp.class,
