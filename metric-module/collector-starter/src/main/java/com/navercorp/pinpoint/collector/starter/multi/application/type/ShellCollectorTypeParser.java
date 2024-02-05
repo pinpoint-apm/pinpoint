@@ -66,7 +66,7 @@ public class ShellCollectorTypeParser implements CollectorTypeParser {
 
     private static ApplicationArguments wrapArgs(String[] args) {
         if (args == null || args.length == 0) {
-            return new DefaultApplicationArguments("help");
+            return new DefaultApplicationArguments("run");
         }
         return new DefaultApplicationArguments(args);
     }
