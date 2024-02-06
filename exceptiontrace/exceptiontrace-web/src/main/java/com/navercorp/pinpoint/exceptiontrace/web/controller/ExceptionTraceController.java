@@ -182,7 +182,8 @@ public class ExceptionTraceController {
     public List<String> getGroups() {
         if (errorMessageClpEnabled) {
             return Arrays.stream(new GroupByAttributes[]{
-                            GroupByAttributes.URI_TEMPLATE, GroupByAttributes.ERROR
+                            GroupByAttributes.ERROR_MESSAGE_LOG_TYPE, GroupByAttributes.ERROR_CLASS_NAME,
+                            GroupByAttributes.STACK_TRACE, GroupByAttributes.URI_TEMPLATE
                     }).map(GroupByAttributes::getName)
                     .collect(Collectors.toList());
         }
