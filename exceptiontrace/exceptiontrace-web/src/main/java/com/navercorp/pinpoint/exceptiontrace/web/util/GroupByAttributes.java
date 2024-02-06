@@ -26,12 +26,9 @@ import java.util.Arrays;
 public enum GroupByAttributes {
     URI_TEMPLATE("path", PinotColumns.URI_TEMPLATE),
     ERROR_MESSAGE("errorMessage", PinotColumns.ERROR_MESSAGE),
+    ERROR_MESSAGE_LOG_TYPE("errorMessage_logtype", PinotColumns.ERROR_MESSAGE_LOG_TYPE),
     ERROR_CLASS_NAME("errorClassName", PinotColumns.ERROR_CLASS_NAME),
-    STACK_TRACE("stackTrace", PinotColumns.STACK_TRACE_HASH),
-    ERROR(
-            "error",
-            PinotColumns.ERROR_CLASS_NAME, PinotColumns.ERROR_MESSAGE_LOG_TYPE, PinotColumns.STACK_TRACE_HASH
-    );
+    STACK_TRACE("stackTrace", PinotColumns.STACK_TRACE_HASH);
 
     private static final EnumGetter<GroupByAttributes> GETTER = new EnumGetter<>(GroupByAttributes.class);
     private final String name;
