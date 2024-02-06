@@ -12,6 +12,7 @@
 
     <resultMap id="tagInfoMap" type="TagInformation">
         <constructor>
+            <arg column="applicationName" javaType="string"/>
             <arg column="agentId" javaType="string"/>
             <arg column="metricName" javaType="string"/>
             <arg column="fieldName" javaType="string"/>
@@ -94,7 +95,7 @@
     </select>
 
     <select id="selectTagInfoContainedSpecificTag" parameterType="inspectorQueryParameter" resultMap="tagInfoMap">
-        SELECT agentId, metricName, fieldName, tags
+        SELECT applicationName, agentId, metricName, fieldName, tags
         FROM inspectorStat
         WHERE
             agentId = #{agentId}

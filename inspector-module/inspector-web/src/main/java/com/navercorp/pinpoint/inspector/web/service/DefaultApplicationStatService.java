@@ -6,12 +6,15 @@ import com.navercorp.pinpoint.inspector.web.definition.Mappings;
 import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricPostProcessor;
+import com.navercorp.pinpoint.inspector.web.definition.metric.MetricPreProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricProcessorManager;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.FieldPostProcessor;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
+import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -83,6 +87,59 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(metricDefinition, metricValueList);
         List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
         return new InspectorMetricData(metricDefinition.getTitle(), timeStampList, processedMetricValueList);
+    }
+
+    @Override
+    public InspectorMetricGroupData selectApplicationStatWithGrouping(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow) {
+        MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
+        MetricDefinition newMetricDefinition = preProcess(inspectorDataSearchKey, metricDefinition);
+
+        List<QueryResult> queryResults =  selectAll(inspectorDataSearchKey, newMetricDefinition);
+
+        List<InspectorMetricValue> metricValueList = new ArrayList<>(newMetricDefinition.getFields().size());
+
+        try {
+            for (QueryResult result : queryResults) {
+                Class resultType = result.getResultType();
+                if (resultType.equals(AvgMinMaxMetricPoint.class)) {
+                    List<AvgMinMaxMetricPoint<Double>> doubleList = (List<AvgMinMaxMetricPoint<Double>>) result.getFuture().get();
+                    metricValueList.addAll(splitAvgMinMax(timeWindow, result.getField(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                } else if (resultType.equals(AvgMinMetricPoint.class)) {
+                    List<AvgMinMetricPoint<Double>> doubleList = (List<AvgMinMetricPoint<Double>>) result.getFuture().get();
+                    metricValueList.addAll(splitAvgMin(timeWindow, result.getField(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                }else if (resultType.equals(MinMaxMetricPoint.class)) {
+                    List<MinMaxMetricPoint<Double>> doubleList = (List<MinMaxMetricPoint<Double>>) result.getFuture().get();
+                    metricValueList.addAll(splitMinMax(timeWindow, result.getField(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                } else if (resultType.equals(SystemMetricPoint.class)) {
+                    List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) result.getFuture().get();
+                    metricValueList.add(createInspectorMetricValue(timeWindow, result.getField(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                } else {
+                    throw new RuntimeException("not support result type : " + result.getResultType());
+                }
+            }
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+
+        List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(newMetricDefinition, metricValueList);
+        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
+        Map<List<Tag>,List<InspectorMetricValue>> metricValueGroups = groupingMetricValue(processedMetricValueList, metricDefinition);
+
+        return new InspectorMetricGroupData(metricDefinition.getTitle(), timeStampList, metricValueGroups);
+    }
+
+    private Map<List<Tag>,List<InspectorMetricValue>> groupingMetricValue(List<InspectorMetricValue> processedMetricValueList, MetricDefinition metricDefinition) {
+        switch (metricDefinition.getGroupingRule()) {
+            case TAG:
+                return processedMetricValueList.stream().collect(Collectors.groupingBy(InspectorMetricValue::getTagList));
+            default:
+                throw new UnsupportedOperationException("not supported grouping rule : " + metricDefinition.getGroupingRule());
+        }
+    }
+
+    private MetricDefinition preProcess(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
+        MetricPreProcessor metricPreProcessor = metricProcessorManager.getPreProcessor(metricDefinition.getPreProcess());
+        return metricPreProcessor.preProcess(inspectorDataSearchKey, metricDefinition);
     }
 
     private List<InspectorMetricValue> postprocessMetricData(MetricDefinition metricDefinition, List<InspectorMetricValue> metricValueList) {

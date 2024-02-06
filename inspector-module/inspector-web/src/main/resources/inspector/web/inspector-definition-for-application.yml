@@ -150,3 +150,20 @@ mappings:
         aggregationFunction: AVG_MIN_MAX
         chartType : "spline"
         unit : "count"
+  - definitionId: "dataSource"
+    metricName: "dataSource"
+    title: "Data Source"
+    grouping: "TAG"
+    preProcess: "usingDataSourceTagForApplication"
+    fields:
+      - fieldName: "activeConnectionSize"
+        fieldAlias: "activeAvg"
+        matchingRule: ALL
+        aggregationFunction: AVG_MIN
+        chartType: "spline"
+        unit: "count"
+      - fieldName: "activeConnectionSize"
+        fieldAlias: "activeMax"
+        matchingRule: ALL
+        aggregationFunction: MAX
+        unit: "count"

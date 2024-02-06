@@ -3,7 +3,9 @@ package com.navercorp.pinpoint.inspector.web.controller;
 
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
+import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.service.ApplicationStatService;
+import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataVeiw;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
@@ -43,5 +45,21 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
 
         InspectorMetricData inspectorMetricData =  applicationStatService.selectApplicationStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
+    }
+
+    @GetMapping(value = "/chartList")
+    public InspectorMetricGroupDataVeiw getApplicationStatChartList(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("metricDefinitionId") String metricDefinitionId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        String tenantId = tenantProvider.getTenantId();
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
+
+        InspectorMetricGroupData inspectorMetricGroupData =  applicationStatService.selectApplicationStatWithGrouping(inspectorDataSearchKey, timeWindow);
+        return new InspectorMetricGroupDataVeiw(inspectorMetricGroupData);
+
+
     }
 }
