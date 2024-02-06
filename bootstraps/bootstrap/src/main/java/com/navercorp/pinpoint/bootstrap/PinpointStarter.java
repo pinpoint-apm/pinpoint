@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.banner.PinpointBanner;
 import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
@@ -109,6 +110,10 @@ class PinpointStarter {
             logger.warn("applicationName is null");
             return false;
         }
+        final String serviceId = agentIds.getServiceId();
+        if (serviceId == null) {
+            logger.warn("serviceId is null (optional). fallback to '" + PinpointConstants.DEFAULT_SERVICE_ID + "'");
+        }
 
         final ContainerResolver containerResolver = new ContainerResolver();
         final boolean isContainer = containerResolver.isContainer();
@@ -144,7 +149,7 @@ class PinpointStarter {
 
             final List<Path> pluginJars = agentDirectory.getPlugins();
             final String agentName = agentIds.getAgentName();
-            AgentOption option = createAgentOption(agentId, agentName, applicationName, isContainer,
+            AgentOption option = createAgentOption(agentId, agentName, applicationName, serviceId, isContainer,
                     profilerConfig,
                     instrumentation,
                     pluginJars,
@@ -258,14 +263,15 @@ class PinpointStarter {
 
     }
 
-    private AgentOption createAgentOption(String agentId, String agentName, String applicationName, boolean isContainer,
+    private AgentOption createAgentOption(String agentId, String agentName, String applicationName, String serviceId,
+                                          boolean isContainer,
                                           ProfilerConfig profilerConfig,
                                           Instrumentation instrumentation,
                                           List<Path> pluginJars,
                                           List<Path> bootstrapJarPaths) {
         List<String> pluginJarStrPath = toPathList(pluginJars);
         List<String> bootstrapJarPathStrPath = toPathList(bootstrapJarPaths);
-        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, isContainer, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
+        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, serviceId, isContainer, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
     }
 
     private List<String> toPathList(List<Path> paths) {

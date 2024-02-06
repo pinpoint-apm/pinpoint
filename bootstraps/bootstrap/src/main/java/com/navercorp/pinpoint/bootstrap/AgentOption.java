@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+
 import java.lang.instrument.Instrumentation;
 import java.util.List;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
  * @author emeroad
@@ -33,6 +33,8 @@ public interface AgentOption {
     String getAgentName();
 
     String getApplicationName();
+
+    String getServiceId();
 
     boolean isContainer();
 

@@ -10,9 +10,11 @@ public class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper 
     private final ServerCall<ReqT, RespT> serverCall;
     private final String agentId;
     private final String applicationName;
+    private final String serviceId;
 
-    public DefaultServerCallWrapper(ServerCall<ReqT, RespT> serverCall, String applicationName, String agentId) {
+    public DefaultServerCallWrapper(ServerCall<ReqT, RespT> serverCall, String serviceId, String applicationName, String agentId) {
         this.serverCall = Objects.requireNonNull(serverCall, "serverCall");
+        this.serviceId = serviceId;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
     }
@@ -30,6 +32,11 @@ public class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper 
     @Override
     public String getApplicationName() {
         return applicationName;
+    }
+
+    @Override
+    public String getServiceId() {
+        return serviceId;
     }
 
     @Override

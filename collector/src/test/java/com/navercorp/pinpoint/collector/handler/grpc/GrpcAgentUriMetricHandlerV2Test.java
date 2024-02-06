@@ -95,7 +95,8 @@ public class GrpcAgentUriMetricHandlerV2Test {
     public void handleTest() {
         AgentUriStatService mockAgentUriStatService = mock(AgentUriStatService.class);
 
-        attachContext(new Header("name", "agentId", "agentName", "applicationName", ServiceType.UNKNOWN.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
+        attachContext(new Header("name", "agentId", "agentName", "applicationName", "serviceId",
+                ServiceType.UNKNOWN.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
 
         PAgentUriStat pAgentUriStat = createPAgentUriStat();
 

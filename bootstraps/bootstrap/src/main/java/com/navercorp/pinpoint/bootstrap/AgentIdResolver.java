@@ -30,16 +30,19 @@ public class AgentIdResolver {
     public static final String APPLICATION_NAME = "applicationName";
     public static final String AGENT_ID = "agentId";
     public static final String AGENT_NAME = "agentName";
+    public static final String SERVICE_ID = "serviceId";
 
     public static final String SYSTEM_PROPERTY_PREFIX = "pinpoint.";
     public static final String APPLICATION_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "applicationName";
     public static final String AGENT_ID_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentId";
     public static final String AGENT_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentName";
+    public static final String SERVICE_ID_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "serviceId";
 
     public static final String ENV_PROPERTY_PREFIX = "PINPOINT_";
     public static final String APPLICATION_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "APPLICATION_NAME";
     public static final String AGENT_ID_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_ID";
     public static final String AGENT_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_NAME";
+    public static final String SERVICE_ID_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "SERVICE_ID";
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
@@ -70,7 +73,12 @@ public class AgentIdResolver {
             logger.info("No AgentName(-Dpinpoint.agentName) provided, it's optional!");
         }
 
-        return new AgentIds(agentId, agentName, applicationName);
+        final String serviceId = getServiceId();
+        if (StringUtils.isEmpty(serviceId)) {
+            logger.info("Failed to resolve ServiceId(-Dpinpoint.serviceId)");
+        }
+
+        return new AgentIds(agentId, agentName, applicationName, serviceId);
     }
 
     private String newRandomAgentId() {
@@ -115,6 +123,21 @@ public class AgentIdResolver {
             if (idValidator.validateApplicationName(agentProperty.getType(), applicationName)) {
                 logger.info(agentProperty.getType() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
                 source = applicationName;
+            }
+        }
+        return source;
+    }
+
+    private String getServiceId() {
+        String source = "";
+        for (AgentProperties agentProperty : agentPropertyList) {
+            final String serviceId = agentProperty.getServiceId();
+            if (StringUtils.isEmpty(serviceId)) {
+                continue;
+            }
+            if (idValidator.validateServiceId(agentProperty.getType(), serviceId)) {
+                logger.info(agentProperty.getType() + " " + agentProperty.getServiceIdKey() + "=" + serviceId);
+                source = serviceId;
             }
         }
         return source;

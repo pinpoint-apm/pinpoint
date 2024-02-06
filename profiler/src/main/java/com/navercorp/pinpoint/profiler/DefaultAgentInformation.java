@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import java.util.Objects;
 
 /**
@@ -28,6 +29,7 @@ public class DefaultAgentInformation implements AgentInformation {
     private final String agentId;
     private final String agentName;
     private final String applicationName;
+    private final String serviceId;
     private final boolean isContainer;
     private final long startTime;
     private final int pid;
@@ -41,6 +43,7 @@ public class DefaultAgentInformation implements AgentInformation {
             String agentId,
             String agentName,
             String applicationName,
+            String serviceId,
             boolean isContainer,
             long startTime,
             int pid,
@@ -52,6 +55,7 @@ public class DefaultAgentInformation implements AgentInformation {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.serviceId = Objects.requireNonNull(serviceId, "serviceId");
         this.isContainer = isContainer;
         this.startTime = startTime;
         this.pid = pid;
@@ -75,6 +79,11 @@ public class DefaultAgentInformation implements AgentInformation {
     @Override
     public String getApplicationName() {
         return applicationName;
+    }
+
+    @Override
+    public String getServiceId() {
+        return serviceId;
     }
 
     @Override

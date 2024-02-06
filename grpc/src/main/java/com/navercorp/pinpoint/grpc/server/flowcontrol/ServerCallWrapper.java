@@ -8,6 +8,8 @@ public interface ServerCallWrapper {
 
     String getApplicationName();
 
+    String getServiceId();
+
     void request(int numMessages);
 
     void cancel(Status status, Metadata trailers);

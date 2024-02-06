@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright 2024 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.collector.dao.ServiceIndexDao">
+
+    <select id="selectAllServices" resultType="ServiceIndex">
+        SELECT id, name FROM service
+    </select>
+
+    <select id="selectAllApplications" resultType="ApplicationIndex">
+        SELECT id, name FROM application
+    </select>
+
+    <select id="selectAllServiceHasApplications" resultType="ServiceHasApplication">
+        SELECT service_id, application_id name FROM service_has_application
+    </select>
+
+    <select id="selectApplicationIdByServiceIdAndApplicationName" parameterType="ServiceIdAndApplicationName" resultType="Long">
+        SELECT a.id FROM service_has_application sa
+            LEFT JOIN application a ON sa.application_id = a.id
+            WHERE sa.service_id = #{serviceId} AND a.name = #{applicationName}
+    </select>
+
+    <select id="selectApplicationIdByServiceIdAndApplicationNameForUpdate" parameterType="ServiceIdAndApplicationName" resultType="Long">
+        SELECT a.id FROM service_has_application sa
+            LEFT JOIN application a ON sa.application_id = a.id
+            WHERE sa.service_id = #{serviceId} AND a.name = #{applicationName}
+            FOR UPDATE
+    </select>
+
+    <select id="selectServiceIdByName" parameterType="String" resultType="Long">
+        SELECT id FROM service WHERE name = #{value}
+            FOR UPDATE
+    </select>
+
+    <insert id="insertService" parameterType="ServiceIndex" useGeneratedKeys="true" keyProperty="serviceId">
+        INSERT INTO service (name) VALUES (#{name})
+    </insert>
+
+    <insert id="insertApplication" parameterType="ApplicationIndex" useGeneratedKeys="true" keyProperty="applicationId">
+        INSERT INTO application (name) VALUES (#{name})
+    </insert>
+
+    <insert id="insertAgent" parameterType="AgentIndex">
+        INSERT INTO agent (id, name) VALUES (#{agentId}, #{agentName})
+            ON DUPLICATE KEY UPDATE name = #{agentName}
+    </insert>
+
+    <insert id="insertServiceHasApplication" parameterType="ServiceHasApplication">
+        INSERT INTO service_has_application (service_id, application_id) VALUES (#{serviceId}, #{applicationId})
+    </insert>
+
+    <insert id="insertApplicationHasAgent" parameterType="ApplicationHasAgent">
+        INSERT IGNORE INTO application_has_agent (application_id, agent_id) VALUES (#{applicationId}, #{agentId})
+    </insert>
+
+</mapper>

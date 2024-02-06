@@ -35,7 +35,8 @@ import org.springframework.context.annotation.PropertySource;
         SchedulerConfiguration.class,
 })
 @ComponentScan({
-        "com.navercorp.pinpoint.collector.dao.hbase"
+        "com.navercorp.pinpoint.collector.dao.hbase",
+        "com.navercorp.pinpoint.collector.dao.mysql",
 })
 @PropertySource(name = "CollectorHbaseModule", value = {
         "classpath:hbase-root.properties",

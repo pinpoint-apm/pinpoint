@@ -49,6 +49,7 @@ public class AgentGrpcDataSenderTestMain {
     private static final String AGENT_ID = "mockAgentId";
     private static final String AGENT_NAME = "mockAgentName";
     private static final String APPLICATION_NAME = "mockApplicationName";
+    private static final String SERVICE_ID = "mockServiceId";
     private static final long START_TIME = System.currentTimeMillis();
     private static final int SERVICE_TYPE = ServiceType.UNDEFINED.getCode();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
@@ -58,7 +59,7 @@ public class AgentGrpcDataSenderTestMain {
     public void request() throws Exception {
         MetaDataMapper mapper = new MetaDataMapperImpl();
         MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter(mapper);
-        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
+        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_ID, SERVICE_TYPE, START_TIME);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);
@@ -82,7 +83,7 @@ public class AgentGrpcDataSenderTestMain {
     }
 
     private AgentInfo newAgentInfo() {
-        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
+        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_ID, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
         JvmInformation jvmInformation = new JvmInformation("1.0", JvmGcType.G1);
         ServerMetaData serverInfo = new DefaultServerMetaData("serverInfo", Collections.emptyList(), Collections.emptyMap(), Collections.emptyList());
         return new AgentInfo(agentInformation, serverInfo, jvmInformation);

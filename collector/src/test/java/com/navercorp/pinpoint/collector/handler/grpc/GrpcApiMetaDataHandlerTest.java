@@ -34,7 +34,8 @@ public class GrpcApiMetaDataHandlerTest {
                 .setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/routes/index.js")
                 .build();
 
-        Header header = new Header("name", "express-node-sample-id", "agentName", "applicationName", 0, 1668495162817L, 0, Collections.emptyList());
+        Header header = new Header("name", "express-node-sample-id", "agentName", "applicationName", "serviceId",
+                0, 1668495162817L, 0, Collections.emptyList());
         Context headerContext = Context.current().withValue(ServerContext.AGENT_INFO_KEY, header);
         headerContext.run(new Runnable() {
             @Override

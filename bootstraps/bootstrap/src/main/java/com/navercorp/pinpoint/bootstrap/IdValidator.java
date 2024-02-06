@@ -34,6 +34,8 @@ public class IdValidator {
 
     private static final int MAX_NAME_LENGTH = PinpointConstants.AGENT_NAME_MAX_LEN;
 
+    private static final int MAX_SERVICE_ID_LENGTH = PinpointConstants.SERVICE_ID_MAX_LEN;
+
     private final int maxSize;
 
     public IdValidator(int maxSize) {
@@ -60,6 +62,11 @@ public class IdValidator {
             return false;
         }
         return validate0(type + " agentName", agentName, MAX_NAME_LENGTH);
+    }
+
+    public boolean validateServiceId(AgentIdSourceType type, String serviceId) {
+        Objects.requireNonNull(serviceId, "serviceId");
+        return validate0(type + " serviceId", serviceId, MAX_SERVICE_ID_LENGTH);
     }
 
     private boolean validate0(String keyName, String keyValue) {

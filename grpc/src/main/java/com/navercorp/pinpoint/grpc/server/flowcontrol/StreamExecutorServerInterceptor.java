@@ -108,8 +108,9 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
     }
 
     private <ReqT, RespT> ServerCallWrapper newServerCallWrapper(ServerCall<ReqT, RespT> call, Metadata headers) {
-        final String agentId = headers.get(Header.AGENT_ID_KEY);
+        final String serviceId = headers.get(Header.SERVICE_ID_KEY);
         final String applicationName = headers.get(Header.APPLICATION_NAME_KEY);
-        return new DefaultServerCallWrapper<>(call, applicationName, agentId);
+        final String agentId = headers.get(Header.AGENT_ID_KEY);
+        return new DefaultServerCallWrapper<>(call, serviceId, applicationName, agentId);
     }
 }

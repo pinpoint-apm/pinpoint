@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Metadata;
+import io.grpc.Metadata.Key;
 import io.grpc.Status;
 
 import java.util.ArrayList;
@@ -55,14 +56,15 @@ public class AgentHeaderReader implements HeaderReader<Header> {
     @Override
     public Header extract(Metadata headers) {
         final String agentId = getId(headers, Header.AGENT_ID_KEY);
-        final String agentName = getAgentName(headers, Header.AGENT_NAME_KEY);
+        final String agentName = getAgentName(headers);
         final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY);
+        final String serviceId = getServiceId(headers);
         final long startTime = getTime(headers, Header.AGENT_START_TIME_KEY);
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
         final Map<String, Object> properties = metadataConverter.apply(headers);
-        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, properties);
+        return new Header(name, agentId, agentName, applicationName, serviceId, serviceType, startTime, socketId, supportCommandCodeList, properties);
     }
 
     public static Map<String, Object> emptyProperties(Metadata headers) {
@@ -90,10 +92,18 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         return validateId(id, idKey);
     }
 
-    protected String getAgentName(Metadata headers, Metadata.Key<String> idKey) {
+    protected String getServiceId(Metadata headers) {
+        return validateAndGetId(headers, Header.SERVICE_ID_KEY, PinpointConstants.SERVICE_ID_MAX_LEN);
+    }
+
+    protected String getAgentName(Metadata headers) {
+        return validateAndGetId(headers, Header.AGENT_NAME_KEY, PinpointConstants.AGENT_NAME_MAX_LEN);
+    }
+
+    private static String validateAndGetId(Metadata headers, Key<String> idKey, int serviceIdMaxLen) {
         final String name = headers.get(idKey);
         if (!StringUtils.isEmpty(name)) {
-            final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(name, PinpointConstants.AGENT_NAME_MAX_LEN);
+            final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(name, serviceIdMaxLen);
             if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
                 throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name()).asRuntimeException();
             }

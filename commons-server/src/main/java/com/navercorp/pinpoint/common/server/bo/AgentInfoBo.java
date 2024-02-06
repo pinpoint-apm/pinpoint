@@ -32,6 +32,7 @@ public class AgentInfoBo {
     @NotBlank private final String agentId;
     private final String agentName;
     @NotBlank private final String applicationName;
+    @NotBlank private final String serviceId;
     private final short serviceTypeCode;
     private final int pid;
     private final String vmVersion;
@@ -55,6 +56,7 @@ public class AgentInfoBo {
         this.agentId = builder.agentId;
         this.agentName = builder.agentName;
         this.applicationName = builder.applicationName;
+        this.serviceId = builder.serviceId;
         this.serviceTypeCode = builder.serviceTypeCode;
         this.pid = builder.pid;
         this.vmVersion = builder.vmVersion;
@@ -89,6 +91,10 @@ public class AgentInfoBo {
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public String getServiceId() {
+        return serviceId;
     }
 
     public long getStartTime() {
@@ -172,11 +178,8 @@ public class AgentInfoBo {
             return false;
         AgentInfoBo other = (AgentInfoBo) obj;
         if (agentId == null) {
-            if (other.agentId != null)
-                return false;
-        } else if (!agentId.equals(other.agentId))
-            return false;
-        return true;
+            return other.agentId == null;
+        } else return agentId.equals(other.agentId);
     }
 
     @Override
@@ -188,6 +191,7 @@ public class AgentInfoBo {
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
+                ", serviceId='" + serviceId + '\'' +
                 ", serviceTypeCode=" + serviceTypeCode +
                 ", pid=" + pid +
                 ", vmVersion='" + vmVersion + '\'' +
@@ -208,6 +212,7 @@ public class AgentInfoBo {
         private String agentId;
         private String agentName;
         private String applicationName;
+        private String serviceId;
         private short serviceTypeCode;
         private int pid;
         private String vmVersion;
@@ -248,6 +253,10 @@ public class AgentInfoBo {
 
         public void setApplicationName(String applicationName) {
             this.applicationName = applicationName;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         public void setServiceTypeCode(short serviceTypeCode) {
@@ -307,6 +316,8 @@ public class AgentInfoBo {
                 this.agentName = "";
             if (this.applicationName == null)
                 this.applicationName = "";
+            if (this.serviceId == null)
+                this.serviceId = "";
             if (this.vmVersion == null)
                 this.vmVersion = "";
             if (this.agentVersion == null) {

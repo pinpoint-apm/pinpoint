@@ -27,4 +27,8 @@ public final class PinpointConstants {
 
     public static final int AGENT_NAME_MAX_LEN = 255;
 
+    public static final int SERVICE_ID_MAX_LEN = 255;
+
+    public static final String DEFAULT_SERVICE_ID = "default";
+
 }

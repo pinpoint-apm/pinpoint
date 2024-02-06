@@ -327,6 +327,7 @@ public class GrpcCommandServiceTest {
                                 "agent-id",
                                 "agent-name",
                                 "application-name",
+                                "service-id",
                                 ServiceType.TEST.getCode(),
                                 1234,
                                 0,

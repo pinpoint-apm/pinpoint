@@ -32,6 +32,7 @@ public class DefaultAgentOption implements AgentOption {
     private final String agentId;
     private final String agentName;
     private final String applicationName;
+    private final String serviceId;
     private final boolean isContainer;
 
     private final ProfilerConfig profilerConfig;
@@ -39,12 +40,13 @@ public class DefaultAgentOption implements AgentOption {
     private final List<String> bootstrapJarPaths;
 
     public DefaultAgentOption(final Instrumentation instrumentation,
-                              String agentId, String agentName, String applicationName, final boolean isContainer,
+                              String agentId, String agentName, String applicationName, String serviceId, final boolean isContainer,
                               final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.serviceId = Objects.requireNonNull(serviceId, "serviceId");
         this.isContainer = isContainer;
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.pluginJars = Objects.requireNonNull(pluginJars, "pluginJars");
@@ -69,6 +71,11 @@ public class DefaultAgentOption implements AgentOption {
     @Override
     public String getApplicationName() {
         return applicationName;
+    }
+
+    @Override
+    public String getServiceId() {
+        return serviceId;
     }
 
     @Override

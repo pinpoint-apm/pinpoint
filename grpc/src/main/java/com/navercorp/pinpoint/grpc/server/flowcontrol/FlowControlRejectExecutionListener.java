@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import io.grpc.Metadata;
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.Future;
@@ -102,7 +102,8 @@ public class FlowControlRejectExecutionListener implements RejectedExecutionList
 
 
     private void idleTimeout() {
-        logger.info("stream idle timeout applicationName:{} agentId:{} {}", this.name, serverCall.getApplicationName(), serverCall.getAgentId());
+        logger.info("stream idle timeout serviceId: {}, applicationName:{} agentId:{} {}",
+                this.name, serverCall.getServiceId(), serverCall.getApplicationName(), serverCall.getAgentId());
         serverCall.cancel(STREAM_IDLE_TIMEOUT, new Metadata());
     }
 

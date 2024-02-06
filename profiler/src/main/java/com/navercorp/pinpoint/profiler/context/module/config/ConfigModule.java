@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.context.module.Container;
 import com.navercorp.pinpoint.profiler.context.module.PluginJarPaths;
 import com.navercorp.pinpoint.profiler.context.module.PluginJars;
+import com.navercorp.pinpoint.profiler.context.module.ServiceId;
 import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultMonitorConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
@@ -130,7 +131,12 @@ public class ConfigModule extends AbstractModule {
 
         bindBootstrapCoreInformation();
 
-        bindAgentInformation(agentOption.getAgentId(), agentOption.getAgentName(), agentOption.getApplicationName(), agentOption.isContainer());
+        bindAgentInformation(
+                agentOption.getAgentId(),
+                agentOption.getAgentName(),
+                agentOption.getApplicationName(),
+                agentOption.getServiceId(),
+                agentOption.isContainer());
 
         bindShutdownHook(contextConfig);
     }
@@ -154,11 +160,12 @@ public class ConfigModule extends AbstractModule {
         bindConstant().annotatedWith(DeadlockMonitorInterval.class).to(contextConfig.getDeadlockMonitorInterval());
     }
 
-    private void bindAgentInformation(String agentId, String agentName, String applicationName, boolean isContainer) {
+    private void bindAgentInformation(String agentId, String agentName, String applicationName, String serviceId, boolean isContainer) {
 
         bind(String.class).annotatedWith(AgentId.class).toInstance(agentId);
         bind(String.class).annotatedWith(AgentName.class).toInstance(agentName);
         bind(String.class).annotatedWith(ApplicationName.class).toInstance(applicationName);
+        bind(String.class).annotatedWith(ServiceId.class).toInstance(serviceId);
         bind(Boolean.class).annotatedWith(Container.class).toInstance(isContainer);
         bind(Long.class).annotatedWith(AgentStartTime.class).toProvider(AgentStartTimeProvider.class).in(Scopes.SINGLETON);
         bind(ServiceType.class).annotatedWith(ConfiguredApplicationType.class).toProvider(ConfiguredApplicationTypeProvider.class).in(Scopes.SINGLETON);
