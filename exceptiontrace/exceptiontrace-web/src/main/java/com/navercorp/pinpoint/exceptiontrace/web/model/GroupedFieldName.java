@@ -36,9 +36,12 @@ public class GroupedFieldName {
     }
 
     public String inAString() {
-        return Stream.of(uriTemplate, errorClassName, errorMessage, stackTraceHash)
-                .filter(StringUtils::hasLength)
-                .collect(Collectors.joining(", "));
+        return StringUtils.abbreviate(
+                Stream.of(uriTemplate, errorClassName, errorMessage, stackTraceHash)
+                        .filter(StringUtils::hasLength)
+                        .collect(Collectors.joining(", ")),
+                50
+        );
     }
 
     public String getUriTemplate() {
