@@ -54,6 +54,16 @@
         </constructor>
     </resultMap>
 
+    <resultMap id="tagInfoMap" type="TagInformation">
+        <constructor>
+            <arg column="applicationName" javaType="string"/>
+            <arg column="agentId" javaType="string"/>
+            <arg column="metricName" javaType="string"/>
+            <arg column="fieldName" javaType="string"/>
+            <arg column="tags" javaType="list" typeHandler="MultiValueTagTypeHandler"/>
+        </constructor>
+    </resultMap>
+
     <select id="selectInspectorAvgMinMaxData" parameterType="inspectorQueryParameter" resultMap="avgMinMaxResultMap" >
         SELECT
         AVG(fieldValue) AS avgValue,
@@ -156,6 +166,30 @@
         GROUP BY aggregatedTime
         ORDER BY aggregatedTime asc
         LIMIT ${limit}
+    </select>
+
+    <select id="selectTagInfo" parameterType="inspectorQueryParameter" resultType="Tag">
+        SELECT DISTINCT(tags)
+        FROM inspectorStat
+        WHERE
+            applicationName = #{applicationName}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+    </select>
+
+    <select id="selectTagInfoContainedSpecificTag" parameterType="inspectorQueryParameter" resultMap="tagInfoMap">
+        SELECT applicationName, agentId, metricName, fieldName, tags
+        FROM inspectorStat
+        WHERE
+            applicationName = #{applicationName}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            <foreach collection="tagList" item="tag" separator=" ">
+                AND tags = #{tag}
+            </foreach>
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+        LIMIT 1
     </select>
 
 </mapper>

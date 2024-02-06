@@ -212,7 +212,7 @@ mappings:
     metricName: "dataSource"
     title: "Data Source"
     grouping: "TAG"
-    preProcess: "usingDataSourceTag"
+    preProcess: "usingDataSourceTagForAgent"
     fields:
       - fieldName: "activeConnectionSize"
         fieldAlias: "activeAvg"

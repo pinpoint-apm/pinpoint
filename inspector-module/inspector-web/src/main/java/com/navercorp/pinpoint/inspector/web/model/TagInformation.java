@@ -24,16 +24,23 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class TagInformation {
+
+    private final String applicationName;
     private final String agentId;
     private final String metricName;
     private final String fieldName;
     private final List<Tag> tags;
 
-    public TagInformation(String agentId, String metricName, String fieldName, List<Tag> tags) {
+    public TagInformation(String applicationName, String agentId, String metricName, String fieldName, List<Tag> tags) {
+        this.applicationName = applicationName;
         this.agentId = agentId;
         this.metricName = metricName;
         this.fieldName = fieldName;
         this.tags = tags;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
     }
 
     public String getAgentId() {
