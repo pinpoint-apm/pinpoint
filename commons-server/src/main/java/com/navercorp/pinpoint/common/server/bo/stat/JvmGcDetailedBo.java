@@ -24,6 +24,7 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     public static final long UNCOLLECTED_VALUE = -1;
     public static final double UNCOLLECTED_PERCENTAGE = -1;
 
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
     private long timestamp;
@@ -69,6 +70,16 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.JVM_GC_DETAILED;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return this.applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public long getGcNewCount() {

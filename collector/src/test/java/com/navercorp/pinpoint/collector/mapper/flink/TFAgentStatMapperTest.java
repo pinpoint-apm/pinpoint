@@ -47,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class TFAgentStatMapperTest {
 
+    public static final String TEST_APPLICATION = "test_application";
     public static final String TEST_AGENT = "test_agent";
     public static final long startTimestamp = 1496370596375L;
     public static final long collectTime1st = startTimestamp + 5000;
@@ -167,7 +168,7 @@ public class TFAgentStatMapperTest {
     }
 
     private AgentStatBo createDataSourceListBoList() {
-        AgentStatBo.Builder builder = AgentStatBo.newBuilder(TEST_AGENT, startTimestamp);
+        AgentStatBo.Builder builder = AgentStatBo.newBuilder(TEST_APPLICATION, TEST_AGENT, startTimestamp);
 
 
         DataSourceBo dataSourceBo1_1 = new DataSourceBo();
@@ -415,7 +416,7 @@ public class TFAgentStatMapperTest {
     }
 
     private AgentStatBo.Builder newBuilder() {
-        return AgentStatBo.newBuilder(TEST_AGENT, startTimestamp);
+        return AgentStatBo.newBuilder(TEST_APPLICATION, TEST_AGENT, startTimestamp);
     }
 
     @Test

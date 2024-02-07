@@ -20,12 +20,14 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
+import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -36,15 +38,17 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     private final Logger logger = LogManager.getLogger(DefaultAgentStatDao.class.getName());
 
     private final Function<AgentStatBo, List<T>> dataPointFunction;
-    private final Function<List<T>, List<AgentStat>> convertToKafkaModelFunction;
+    private final BiFunction<List<T>, String, List<AgentStat>> convertToKafkaModelFunction;
     private final KafkaTemplate kafkaAgentStatTemplate;
     private final String topic;
+    private final TenantProvider tenantProvider;
 
-    public DefaultAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, KafkaTemplate kafkaAgentStatTemplate, Function<List<T>, List<AgentStat>> convertToKafkaModelFunction, String topic) {
+    public DefaultAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, KafkaTemplate kafkaAgentStatTemplate, BiFunction<List<T>, String, List<AgentStat>> convertToKafkaModelFunction, String topic, TenantProvider tenantProvider) {
         this.dataPointFunction = Objects.requireNonNull(dataPointFunction, "dataPointFunction");
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
         this.convertToKafkaModelFunction = convertToKafkaModelFunction;
         this.topic = topic;
+        this.tenantProvider = tenantProvider;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     }
 
     private List<AgentStat> convertDataToKafkaModel(List<T> AgentStatDataPointList) {
-        List<AgentStat> agentStatList = convertToKafkaModelFunction.apply(AgentStatDataPointList);
+        List<AgentStat> agentStatList = convertToKafkaModelFunction.apply(AgentStatDataPointList, tenantProvider.getTenantId());
         return agentStatList;
     }
 

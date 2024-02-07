@@ -30,6 +30,9 @@ import java.util.Objects;
  */
 public class AgentStatBo {
 
+
+
+    @NotBlank private final String applicationName;
     @NotBlank private final String agentId;
     @PositiveOrZero private final long startTimestamp;
 
@@ -48,6 +51,7 @@ public class AgentStatBo {
 
 
     public AgentStatBo(Builder builder) {
+        this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.startTimestamp = builder.startTimestamp;
         this.jvmGcBos = FilterUtils.filter(builder.statList, JvmGcBo.class);
@@ -67,6 +71,10 @@ public class AgentStatBo {
 
     public long getStartTimestamp() {
         return startTimestamp;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
     }
 
     public String getAgentId() {
@@ -122,17 +130,20 @@ public class AgentStatBo {
         return loadedClassBos;
     }
 
-    public static Builder newBuilder(String agentId, long startTimestamp) {
-        return new Builder(agentId, startTimestamp);
+    public static Builder newBuilder(String applicationName, String agentId, long startTimestamp) {
+        return new Builder(applicationName, agentId, startTimestamp);
     }
 
     public static class Builder {
+
+        private final String applicationName;
         private final String agentId;
         private final long startTimestamp;
 
         private final List<AgentStatDataPoint> statList = new ArrayList<>();
 
-        public Builder(String agentId, long startTimestamp) {
+        public Builder(String applicationName, String agentId, long startTimestamp) {
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
             this.agentId = Objects.requireNonNull(agentId, "agentId");
             this.startTimestamp = startTimestamp;
         }
@@ -149,6 +160,7 @@ public class AgentStatBo {
             }
 
             private void setBaseData(AgentStatDataPoint agentStatDataPoint) {
+                agentStatDataPoint.setApplicationName(applicationName);
                 agentStatDataPoint.setAgentId(agentId);
                 agentStatDataPoint.setStartTimestamp(startTimestamp);
                 agentStatDataPoint.setTimestamp(this.timestamp);

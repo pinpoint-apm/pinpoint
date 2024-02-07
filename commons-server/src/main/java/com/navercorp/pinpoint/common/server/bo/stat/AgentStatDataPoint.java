@@ -27,4 +27,6 @@ public interface AgentStatDataPoint {
     long getTimestamp();
     void setTimestamp(long timestamp);
     AgentStatType getAgentStatType();
+    String getApplicationName();
+    void setApplicationName(String applicationName);
 }

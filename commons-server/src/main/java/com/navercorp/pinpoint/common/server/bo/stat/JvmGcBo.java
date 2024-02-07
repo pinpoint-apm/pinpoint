@@ -25,6 +25,7 @@ public class JvmGcBo implements AgentStatDataPoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
     private long timestamp;
@@ -69,6 +70,16 @@ public class JvmGcBo implements AgentStatDataPoint {
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.JVM_GC;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return this.applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public JvmGcType getGcType() {

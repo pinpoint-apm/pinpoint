@@ -27,6 +27,7 @@ public class DataSourceBo implements AgentStatDataPoint {
     public static final String UNCOLLECTED_STRING_VALUE = "";
     public static final ServiceType UNCOLLECTED_SERVICE_TYPE_VALUE = ServiceType.UNKNOWN;
 
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
     private long timestamp;
@@ -71,6 +72,16 @@ public class DataSourceBo implements AgentStatDataPoint {
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.DATASOURCE;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return this.applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public int getId() {

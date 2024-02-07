@@ -41,10 +41,11 @@ public class GrpcAgentStatBatchMapper {
         if (agentStatBatch == null) {
             return null;
         }
+        final String applicationName = header.getApplicationName();
         final String agentId = header.getAgentId();
         final long startTimestamp = header.getAgentStartTime();
 
-        final AgentStatBo.Builder builder = new AgentStatBo.Builder(agentId, startTimestamp);
+        final AgentStatBo.Builder builder = new AgentStatBo.Builder(applicationName, agentId, startTimestamp);
         for (PAgentStat agentStat : agentStatBatch.getAgentStatList()) {
             this.mapper.map(agentStat, builder);
         }

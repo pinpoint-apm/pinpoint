@@ -23,11 +23,13 @@ public class CpuLoadBo implements AgentStatDataPoint {
 
     public static final double UNCOLLECTED_VALUE = -1;
 
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
     private long timestamp;
     private double jvmCpuLoad = UNCOLLECTED_VALUE;
     private double systemCpuLoad = UNCOLLECTED_VALUE;
+
 
     @Override
     public String getAgentId() {
@@ -62,6 +64,16 @@ public class CpuLoadBo implements AgentStatDataPoint {
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.CPU_LOAD;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return this.applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public double getJvmCpuLoad() {
