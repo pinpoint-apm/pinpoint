@@ -24,6 +24,7 @@ public class DeadlockThreadCountBo implements AgentWarningStatDataPoint {
 
     public static final int UNCOLLECTED_INT_VALUE = -1;
 
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
     private long timestamp;
@@ -62,6 +63,16 @@ public class DeadlockThreadCountBo implements AgentWarningStatDataPoint {
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.DEADLOCK;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return this.applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public int getDeadlockedThreadCount() {

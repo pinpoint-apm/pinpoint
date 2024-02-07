@@ -45,11 +45,13 @@ public class GrpcAgentStatMapper {
         }
 
         final Header agentInfo = ServerContext.getAgentInfo();
+        final String applicationName = agentInfo.getApplicationName();
         final String agentId = agentInfo.getAgentId();
         final long startTimestamp = agentInfo.getAgentStartTime();
 
 
-        final AgentStatBo.Builder builder = AgentStatBo.newBuilder(agentId, startTimestamp);
+
+        final AgentStatBo.Builder builder = AgentStatBo.newBuilder(applicationName, agentId, startTimestamp);
 
         this.map(agentStat, builder);
 

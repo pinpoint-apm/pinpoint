@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 public class LoadedClassBo implements AgentStatDataPoint {
     public static final long UNCOLLECTED_VALUE = -1L;
 
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
     private long timestamp;
@@ -59,6 +60,16 @@ public class LoadedClassBo implements AgentStatDataPoint {
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.LOADED_CLASS;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return this.applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public long getLoadedClassCount() {

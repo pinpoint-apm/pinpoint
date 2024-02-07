@@ -24,6 +24,7 @@ public class ActiveTraceBo implements AgentStatDataPoint {
 
     public static final int UNCOLLECTED_ACTIVE_TRACE_COUNT = -1;
 
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
     private long timestamp;
@@ -126,5 +127,15 @@ public class ActiveTraceBo implements AgentStatDataPoint {
                 ", histogramSchemaType=" + histogramSchemaType +
                 ", activeTraceHistogram=" + activeTraceHistogram +
                 '}';
+    }
+
+    @Override
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }

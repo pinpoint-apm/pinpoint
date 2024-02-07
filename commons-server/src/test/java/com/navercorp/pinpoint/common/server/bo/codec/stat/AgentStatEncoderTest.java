@@ -126,6 +126,7 @@ public class AgentStatEncoderTest {
 
     private static class TestAgentStat implements AgentStatDataPoint {
 
+        private String applicationName;
         private String agentId;
         private long startTimestamp;
         private long timestamp;
@@ -172,6 +173,16 @@ public class AgentStatEncoderTest {
         @Override
         public AgentStatType getAgentStatType() {
             return AgentStatType.UNKNOWN;
+        }
+
+        @Override
+        public String getApplicationName() {
+            return this.applicationName;
+        }
+
+        @Override
+        public void setApplicationName(String applicationName) {
+            this.applicationName = applicationName;
         }
 
         @Override

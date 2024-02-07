@@ -26,6 +26,7 @@ public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
 
     private final List<DataSourceBo> dataSourceBoList = new ArrayList<>();
 
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
     private long timestamp;
@@ -63,6 +64,16 @@ public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.DATASOURCE;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return this.applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     @Override

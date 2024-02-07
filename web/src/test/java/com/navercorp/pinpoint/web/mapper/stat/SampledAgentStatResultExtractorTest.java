@@ -166,6 +166,8 @@ public class SampledAgentStatResultExtractorTest {
     }
 
     private static class TestAgentStatDataPoint implements AgentStatDataPoint {
+
+        private String applicationName;
         private String agentId;
         private long startTimestamp;
         private long timestamp;
@@ -204,6 +206,16 @@ public class SampledAgentStatResultExtractorTest {
         @Override
         public AgentStatType getAgentStatType() {
             return AgentStatType.UNKNOWN;
+        }
+
+        @Override
+        public String getApplicationName() {
+            return applicationName;
+        }
+
+        @Override
+        public void setApplicationName(String applicationName) {
+            this.applicationName = applicationName;
         }
 
         public int getValue() {
