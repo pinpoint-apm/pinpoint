@@ -5,8 +5,4 @@ public interface StreamTask<M, ReqT> {
     void start();
 
     void stop();
-
-    boolean cancelJob(boolean mayInterruptIfRunning);
-
-    boolean isJobStarted();
 }

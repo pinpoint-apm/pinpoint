@@ -48,7 +48,6 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
 
     private final Reconnector reconnector;
     private final StreamState failState;
-    private final StreamState taskFailState;
     private final StreamExecutorFactory<PStatMessage> streamExecutorFactory;
 
 
@@ -111,7 +110,6 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
         };
         this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
         this.failState = new SimpleStreamState(100, 5000);
-        this.taskFailState = new SimpleStreamState(10, 150000);
         this.streamExecutorFactory = new StreamExecutorFactory<>(executor);
 
         ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
@@ -137,31 +135,6 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
             currentStreamTask = streamTask;
         } catch (Throwable th) {
             logger.error("Unexpected error", th);
-        }
-    }
-
-    @Override
-    public boolean send(MetricType data) {
-        streamTaskCheck();
-        return super.send(data);
-    }
-
-    private void streamTaskCheck() {
-        if (currentStreamTask != null && currentStreamTask.isJobStarted()) {
-            taskFailState.success();
-            return;
-        }
-        taskFailState.fail();
-
-        if (taskFailState.isFailure()) {
-            logger.warn("stat task fail state, scheduling reconnection");
-            if (currentStreamTask != null) {
-                currentStreamTask.cancelJob(true);
-            }
-            reconnector.reconnect();
-
-            taskFailState.success();
-            logger.info("reconnection scheduled");
         }
     }
 

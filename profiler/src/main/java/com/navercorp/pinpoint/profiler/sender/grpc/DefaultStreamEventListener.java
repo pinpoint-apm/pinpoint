@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamJob;
 import io.grpc.stub.ClientCallStreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 public class DefaultStreamEventListener<ReqT> implements StreamEventListener<ReqT> {
@@ -14,8 +14,6 @@ public class DefaultStreamEventListener<ReqT> implements StreamEventListener<Req
     private final Reconnector reconnector;
     private final StreamJob<ReqT> streamJob;
     private volatile Future<?> handle;
-    private boolean aborted;
-    private boolean completed;
 
     public DefaultStreamEventListener(Reconnector reconnector, StreamJob<ReqT> streamJob) {
         this.reconnector = Objects.requireNonNull(reconnector, "reconnector");
@@ -24,14 +22,6 @@ public class DefaultStreamEventListener<ReqT> implements StreamEventListener<Req
 
     @Override
     public void start(final ClientCallStreamObserver<ReqT> requestStream) {
-        if (aborted) {
-            logger.info("stream terminated");
-            return;
-        }
-        if (completed) {
-            logger.info("stream completed");
-            return;
-        }
         this.handle = streamJob.start(requestStream);
         reconnector.reset();
     }
@@ -44,7 +34,6 @@ public class DefaultStreamEventListener<ReqT> implements StreamEventListener<Req
             handle.cancel(true);
         }
         reconnector.reconnect();
-        aborted = true;
     }
 
     @Override
@@ -54,7 +43,6 @@ public class DefaultStreamEventListener<ReqT> implements StreamEventListener<Req
             handle.cancel(true);
         }
         reconnector.reconnect();
-        completed = true;
     }
 
     @Override

@@ -27,7 +27,6 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
     private final BlockingQueue<M> queue;
     private final MessageDispatcher<M, ReqT> dispatcher;
     private final StreamState failState;
-    private Future<?> jobStarted = null;
 
     private volatile ClientCallStreamObserver<ReqT> stream;
     private volatile CountDownLatch latch;
@@ -53,8 +52,7 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
             public Future<?> start(final ClientCallStreamObserver<ReqT> requestStream) {
                 Runnable runnable = DefaultStreamTask.this.newRunnable(requestStream, latch);
                 StreamExecutor<ReqT> streamExecutor = streamExecutorFactory.newStreamExecutor();
-                jobStarted = streamExecutor.execute(runnable);
-                return jobStarted;
+                return streamExecutor.execute(runnable);
             }
 
             @Override
@@ -147,20 +145,6 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
 
     public boolean isStop() {
         return stop;
-    }
-
-    @Override
-    public boolean cancelJob(boolean mayInterruptIfRunning) {
-        logger.info("cancel job {}", this.streamId);
-        if (jobStarted != null) {
-            return jobStarted.cancel(mayInterruptIfRunning);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isJobStarted() {
-        return jobStarted != null;
     }
 
     @Override
