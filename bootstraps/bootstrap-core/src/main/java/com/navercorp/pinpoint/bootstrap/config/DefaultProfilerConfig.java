@@ -51,8 +51,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.GRPC;
 
-    @Value("${profiler.enable:true}")
-    private boolean profileEnable = false;
+    @Value("${pinpoint.disable:false}")
+    private String pinpointDisable = "false";
 
     @Value("${profiler.logdir.maxbackupsize}")
     private int logDirMaxBackupSize = 5;
@@ -114,11 +114,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.transportModule = TransportModule.parse(transportModule, DEFAULT_TRANSPORT_MODULE);
     }
 
-
-
     @Override
-    public boolean isProfileEnable() {
-        return profileEnable;
+    public String getPinpointDisable() {
+        return pinpointDisable;
     }
 
     @Override
@@ -275,7 +273,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public String toString() {
-        return "DefaultProfilerConfig{" + "profileEnable='" + profileEnable + '\'' +
+        return "DefaultProfilerConfig{" + "pinpointDisable='" + pinpointDisable + '\'' +
                 ", activeProfile=" + activeProfile +
                 ", logDirMaxBackupSize=" + logDirMaxBackupSize +
                 ", staticResourceCleanup=" + staticResourceCleanup +
