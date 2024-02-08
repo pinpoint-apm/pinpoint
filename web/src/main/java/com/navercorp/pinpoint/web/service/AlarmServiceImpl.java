@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,7 +67,14 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     @Transactional(readOnly = true)
     public List<Rule> selectRuleByApplicationId(String applicationId) {
-        return alarmDao.selectRuleByApplicationId(applicationId);
+        List<Rule> rules = alarmDao.selectRuleByApplicationId(applicationId);
+        List<Rule> result = new ArrayList<>(rules.size());
+        for (Rule rule : rules) {
+            if (rule.getApplicationId().equals(applicationId)) {
+                result.add(rule);
+            }
+        }
+        return result;
     }
 
     @Override

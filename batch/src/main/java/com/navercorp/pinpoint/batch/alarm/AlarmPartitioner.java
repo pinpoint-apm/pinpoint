@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.common.DefaultDivider;
 import com.navercorp.pinpoint.batch.common.Divider;
+import jakarta.annotation.Nonnull;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,6 +40,7 @@ public class AlarmPartitioner implements Partitioner {
     }
 
     @Override
+    @Nonnull
     public Map<String, ExecutionContext> partition(int gridSize) {
         return divider.divide(PARTITION_NAME_PREFIX, BATCH_NAME);
     }
