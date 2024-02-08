@@ -50,7 +50,6 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
 
     private final Reconnector reconnector;
     private final StreamState failState;
-    private final StreamState taskFailState;
     private final StreamExecutorFactory<PSpanMessage> streamExecutorFactory;
     private final String id = "SpanStream";
 
@@ -109,7 +108,6 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
         };
         this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
         this.failState = Objects.requireNonNull(failState, "failState");
-        this.taskFailState = new SimpleStreamState(executorQueueSize / 5, 60000);
         this.streamExecutorFactory = new StreamExecutorFactory<>(executor);
 
         ClientStreamingProvider<PSpanMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PSpanMessage, Empty>() {
@@ -164,31 +162,6 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
             this.currentStreamTask = streamTask;
         } catch (Throwable th) {
             logger.error("startStream error", th);
-        }
-    }
-
-    @Override
-    public boolean send(SpanType data) {
-        streamTaskCheck();
-        return super.send(data);
-    }
-
-    private void streamTaskCheck() {
-        if (currentStreamTask != null && currentStreamTask.isJobStarted()) {
-            taskFailState.success();
-            return;
-        }
-        taskFailState.fail();
-
-        if (taskFailState.isFailure()) {
-            logger.warn("span task fail state, scheduling reconnection");
-            if (currentStreamTask != null) {
-                currentStreamTask.cancelJob(true);
-            }
-            reconnector.reconnect();
-
-            taskFailState.success();
-            logger.info("reconnection scheduled");
         }
     }
 
