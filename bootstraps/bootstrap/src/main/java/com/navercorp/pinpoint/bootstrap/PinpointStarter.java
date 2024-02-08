@@ -48,7 +48,6 @@ import java.util.Set;
 
 /**
  * @author Jongho Moon
- *
  */
 class PinpointStarter {
 
@@ -118,6 +117,10 @@ class PinpointStarter {
             final Properties properties = loadProperties();
 
             ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
+            if (!profilerConfig.getPinpointDisable().equalsIgnoreCase("false")) {
+                this.logger.warn("value of disable property is not false, pinpoint.disable=" + profilerConfig.getPinpointDisable());
+                return false;
+            }
 
             // set the path of log file as a system property
             saveAgentIdForLog(agentIds);
@@ -328,7 +331,7 @@ class PinpointStarter {
         // pinpoint module first
         for (Path path : releaseLib) {
             Path fileName = path.getFileName();
-            if(fileName != null) {
+            if (fileName != null) {
                 if (fileName.startsWith(PINPOINT_PREFIX)) {
                     orderList.add(path);
                 }
@@ -336,7 +339,7 @@ class PinpointStarter {
         }
         for (Path path : releaseLib) {
             Path fileName = path.getFileName();
-            if(fileName != null) {
+            if (fileName != null) {
                 if (!fileName.startsWith(PINPOINT_PREFIX)) {
                     orderList.add(path);
                 }

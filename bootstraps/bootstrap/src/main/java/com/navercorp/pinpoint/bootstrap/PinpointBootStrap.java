@@ -61,9 +61,10 @@ public class PinpointBootStrap {
     }
 
     private static boolean disabled() {
-        final String env = System.getenv("PINPOINT_DISABLE");
         final String prop = System.getProperty("pinpoint.disable");
-        return env != null || prop != null;
+        final String disable = prop != null ? prop : System.getenv("PINPOINT_DISABLE");
+
+        return (disable != null) && !disable.equalsIgnoreCase("false");
     }
 
     private final String agentArgs;
@@ -115,7 +116,6 @@ public class PinpointBootStrap {
     }
 
 
-
     private ModuleBootLoader loadModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
         if (!ModuleUtils.isModuleSupported()) {
             return null;
@@ -131,7 +131,7 @@ public class PinpointBootStrap {
         try {
             AgentDirectory agentDir = classPathResolver.resolve();
             return agentDir;
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.warn("AgentDir resolve fail Caused by:" + e.getMessage(), e);
             return null;
         }
@@ -141,7 +141,7 @@ public class PinpointBootStrap {
     private ClassLoader getParentClassLoader() {
         final ClassLoader classLoader = getPinpointBootStrapClassLoader();
         if (classLoader == Object.class.getClassLoader()) {
-            logger.info("parentClassLoader:BootStrapClassLoader:" + classLoader );
+            logger.info("parentClassLoader:BootStrapClassLoader:" + classLoader);
         } else {
             logger.info("parentClassLoader:" + classLoader);
         }
@@ -169,7 +169,6 @@ public class PinpointBootStrap {
             instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
         }
     }
-
 
 
     private static void logPinpointAgentLoadFail() {

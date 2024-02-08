@@ -36,8 +36,7 @@ public interface ProfilerConfig {
 
     TransportModule getTransportModule();
 
-
-    boolean isProfileEnable();
+    String getPinpointDisable();
 
     int getJdbcSqlCacheSize();
 
