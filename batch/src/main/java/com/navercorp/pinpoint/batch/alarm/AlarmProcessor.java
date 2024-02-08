@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
+import com.google.common.base.Suppliers;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
@@ -28,18 +29,16 @@ import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
+import jakarta.annotation.Nonnull;
 import org.springframework.batch.item.ItemProcessor;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 /**
  * @author minwoo.jung
@@ -72,6 +71,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
         this.checkerRegistry = Objects.requireNonNull(checkerRegistry, "checkerRegistry");
     }
 
+    @Override
     public AppAlarmChecker process(@Nonnull Application application) {
         List<AlarmChecker<?>> checkers = getAlarmCheckers(application);
         if (CollectionUtils.isEmpty(checkers)) {
@@ -86,58 +86,45 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
 
     private List<AlarmChecker<?>> getAlarmCheckers(Application application) {
         List<Rule> rules = alarmService.selectRuleByApplicationId(application.getName());
-        List<AlarmChecker<?>> checkers = new ArrayList<>(rules.size());
 
         long now = System.currentTimeMillis();
-        List<String> agentIds = prepareActiveAgentIds(application, rules, now);
+        Supplier<List<String>> agentIds = getAgentIdsSupplier(application, now);
 
-        RuleTransformer transformer = new RuleTransformer(application, agentIds, now, dataCollectorFactory, checkerRegistry);
+        AlarmCheckerFactory alarmCheckerFactory = new AlarmCheckerFactory(
+                application, agentIds, now, dataCollectorFactory, checkerRegistry);
+
+        List<AlarmChecker<?>> checkers = new ArrayList<>(rules.size());
         for (Rule rule: rules) {
-            checkers.add(transformer.apply(rule));
+            checkers.add(alarmCheckerFactory.create(rule));
         }
-
         return checkers;
     }
 
-    @Nullable
-    private List<String> prepareActiveAgentIds(Application application, List<Rule> rules, long now) {
-        Range activeRange = Range.between(now - activeDuration, now);
-        List<String> agentIds = null;
-        if (isRequireAgentList(rules)) {
-            agentIds = fetchActiveAgents(application.getName(), activeRange);
-        }
-        return agentIds;
-    }
-
-    private static boolean isRequireAgentList(List<Rule> rules) {
-        return rules.stream()
-                .anyMatch(rule ->
-                        CheckerCategory.getValue(rule.getCheckerName())
-                            .getDataCollectorCategory()
-                            .isRequireAgentList()
-                );
+    private Supplier<List<String>> getAgentIdsSupplier(Application application, long now) {
+        Range range = Range.between(now - activeDuration, now);
+        return Suppliers.memoize(() -> fetchActiveAgents(application.getName(), range));
     }
 
     private List<String> fetchActiveAgents(String applicationId, Range activeRange) {
         return applicationIndexDao.selectAgentIds(applicationId)
                 .stream()
                 .filter(id -> agentInfoService.isActiveAgent(id, activeRange))
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
-    private static class RuleTransformer implements Function<Rule, AlarmChecker<?>> {
+    private static class AlarmCheckerFactory {
 
         private final long timeSlotEndTime;
         private final Map<DataCollectorCategory, DataCollector> collectorMap = new HashMap<>();
 
         private final Application application;
-        private final List<String> agentIds;
+        private final Supplier<List<String>> agentIds;
         private final DataCollectorFactory dataCollectorFactory;
         private final CheckerRegistry checkerRegistry;
 
-        public RuleTransformer(
+        public AlarmCheckerFactory(
                 Application application,
-                List<String> agentIds,
+                Supplier<List<String>> agentIds,
                 long timeSlotEndTime,
                 DataCollectorFactory dataCollectorFactory,
                 CheckerRegistry checkerRegistry) {
@@ -148,8 +135,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
             this.checkerRegistry = Objects.requireNonNull(checkerRegistry, "checkerRegistry");
         }
 
-        @Override
-        public AlarmChecker<?> apply(Rule rule) {
+        public AlarmChecker<?> create(Rule rule) {
             CheckerCategory checkerCategory = CheckerCategory.getValue(rule.getCheckerName());
 
             DataCollector collector = collectorMap.computeIfAbsent(

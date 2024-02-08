@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author minwoo.jung
@@ -79,24 +80,21 @@ public class DataCollectorFactory {
         this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
     }
 
-    public DataCollector createDataCollector(CheckerCategory checker, Application application, List<String> agentIds, long timeSlotEndTime) {
+    public DataCollector createDataCollector(CheckerCategory checker, Application application, Supplier<List<String>> agentIds, long timeSlotEndTime) {
         return switch (checker.getDataCollectorCategory()) {
             case RESPONSE_TIME ->
                     new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case AGENT_STAT ->
-                    new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+                    new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case AGENT_EVENT ->
-                    new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, agentEventDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+                    new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, agentEventDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case CALLER_STAT ->
                     new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case DATA_SOURCE_STAT ->
-                    new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, dataSourceDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+                    new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, dataSourceDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case FILE_DESCRIPTOR ->
-                    new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, fileDescriptorDao, agentIds, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-            default ->
-                    throw new IllegalArgumentException("unable to create DataCollector : " + checker.getName());
+                    new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, fileDescriptorDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         };
-
 
     }
 

@@ -17,16 +17,42 @@ package com.navercorp.pinpoint.batch.alarm.vo;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author youngjin.kim2
  */
 public class AppAlarmChecker {
+
+    private final String applicationId;
     private final List<AlarmChecker<?>> children;
 
     public AppAlarmChecker(List<AlarmChecker<?>> children) {
-        this.children = children;
+        this.children = haveSameApplication(children);
+        this.applicationId = this.children.get(0).getRule().getApplicationId();
+    }
+
+    private List<AlarmChecker<?>> haveSameApplication(List<AlarmChecker<?>> children) {
+        if (children == null || children.isEmpty()) {
+            throw new IllegalArgumentException("children should not be empty");
+        }
+
+        final String applicationName = children.get(0).getRule().getApplicationId();
+        for (AlarmChecker<?> child : children) {
+            if (!applicationName.equals(child.getRule().getApplicationId())) {
+                throw new IllegalArgumentException("All children should have the same application: " + applicationName + " != " + child.getRule().getApplicationId());
+            }
+        }
+        return children;
+    }
+
+    public String getApplicationId() {
+        return this.applicationId;
+    }
+
+    public List<AlarmChecker<?>> getChildren() {
+        return this.children;
     }
 
     public void check() {
@@ -35,7 +61,11 @@ public class AppAlarmChecker {
         }
     }
 
-    public List<AlarmChecker<?>> getChildren() {
-        return children;
+    public static List<AlarmChecker<?>> flatten(List<? extends AppAlarmChecker> appAlarmCheckers) {
+        List<AlarmChecker<?>> checkers = new ArrayList<>();
+        for (AppAlarmChecker appAlarmChecker : appAlarmCheckers) {
+            checkers.addAll(appAlarmChecker.getChildren());
+        }
+        return checkers;
     }
 }
