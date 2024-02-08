@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,13 @@ public class GrpcTransportConfig {
 
     private static final int DEFAULT_METADATA_RETRY_MAX_COUNT = 3;
     private static final int DEFAULT_METADATA_RETRY_DELAY_MILLIS = 1000;
+
+    private static final boolean DEFAULT_METADATA_RETRY_ENABLE = false;
+    private static final long DEFAULT_METADATA_RETRY_BUFFER_SIZE = 1L << 24;  // 16M
+    private static final long DEFAULT_METADATA_PER_RPC_BUFFER_LIMIT = 1L << 20; // 1M
+    private static final int DEFAULT_METADATA_MAX_ATTEMPTS = 3;
+    private static final long DEFAULT_METADATA_HEDGING_DELAY_MILLIS = 1000;
+
     public static final boolean DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE = true;
 
     private static final boolean DEFAULT_ENABLE_SPAN_STATS_LOGGING = false;
@@ -109,7 +116,17 @@ public class GrpcTransportConfig {
     private int metadataRetryMaxCount = DEFAULT_METADATA_RETRY_MAX_COUNT;
     @Value("${profiler.transport.grpc.metadata.sender.retry.delay.millis}")
     private int metadataRetryDelayMillis = DEFAULT_METADATA_RETRY_DELAY_MILLIS;
-
+    //grpc client retry
+    @Value("${profiler.transport.grpc.metadata.sender.retry.enable}")
+    private boolean metadataRetryEnable = DEFAULT_METADATA_RETRY_ENABLE;
+    @Value("${profiler.transport.grpc.metadata.sender.retry.buffer.size}")
+    private long metadataRetryBufferSize = DEFAULT_METADATA_RETRY_BUFFER_SIZE;
+    @Value("${profiler.transport.grpc.metadata.sender.retry.per.rpc.buffer.limit}")
+    private long metadataPerRpcBufferLimit = DEFAULT_METADATA_PER_RPC_BUFFER_LIMIT;
+    @Value("${profiler.transport.grpc.metadata.sender.max.attempts}")
+    private int metadataMaxAttempts = DEFAULT_METADATA_MAX_ATTEMPTS;
+    @Value("${profiler.transport.grpc.metadata.sender.hedging.delay.millis}")
+    private long metadataHedgingDelayMillis = DEFAULT_METADATA_HEDGING_DELAY_MILLIS;
 
     @Value("${profiler.transport.grpc.stat.collector.ip}")
     private String statCollectorIp = DEFAULT_IP;
@@ -304,9 +321,11 @@ public class GrpcTransportConfig {
     public long getSpanNotReadyTimeoutMillis() {
         return spanNotReadyTimeoutMillis;
     }
+
     public long getSpanRpcMaxAgeMillis() {
         return spanRpcMaxAgeMillis;
     }
+
     public long getRenewTransportPeriodMillis() {
         return renewTransportPeriodMillis;
     }
@@ -369,6 +388,26 @@ public class GrpcTransportConfig {
 
     public int getMetadataRetryDelayMillis() {
         return metadataRetryDelayMillis;
+    }
+
+    public boolean isMetadataRetryEnable() {
+        return metadataRetryEnable;
+    }
+
+    public long getMetadataRetryBufferSize() {
+        return metadataRetryBufferSize;
+    }
+
+    public long getMetadataPerRpcBufferLimit() {
+        return metadataPerRpcBufferLimit;
+    }
+
+    public int getMetadataMaxAttempts() {
+        return metadataMaxAttempts;
+    }
+
+    public long getMetadataHedgingDelayMillis() {
+        return metadataHedgingDelayMillis;
     }
 
     public boolean isSpanEnableStatLogging() {

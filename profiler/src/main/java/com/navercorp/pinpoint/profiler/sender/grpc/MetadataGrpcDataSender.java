@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,11 @@ import java.util.function.BiConsumer;
  * @author jaehong.kim
  */
 public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T, ResponseMessage> {
+    //
     private final MetadataGrpc.MetadataStub metadataStub;
     private final int maxAttempts;
     private final int retryDelayMillis;
+    private final boolean clientRetryEnable;
 
     private final Timer retryTimer;
     private static final long MAX_PENDING_TIMEOUTS = 1024 * 4;
@@ -56,7 +58,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
 
     public MetadataGrpcDataSender(String host, int port, int executorQueueSize,
                                   MessageConverter<T, GeneratedMessageV3> messageConverter,
-                                  ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis) {
+                                  ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis, boolean clientRetryEnable) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.maxAttempts = getMaxAttempts(retryMaxCount);
@@ -76,6 +78,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
                 MetadataGrpcDataSender.this.scheduleNextRetry(request, remainingRetryCount);
             }
         };
+        this.clientRetryEnable = clientRetryEnable;
     }
 
     private int getMaxAttempts(int retryMaxCount) {
@@ -101,13 +104,47 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
         throw new UnsupportedOperationException("unsupported operation request(data, listener)");
     }
 
+    //send with retry
     @Override
     public boolean send(T data) {
-        throw new UnsupportedOperationException("unsupported operation send(data)");
+        try {
+            final GeneratedMessageV3 message = messageConverter.toMessage(data);
+
+            if (message instanceof PSqlMetaData) {
+                final PSqlMetaData sqlMetaData = (PSqlMetaData) message;
+                this.metadataStub.requestSqlMetaData(sqlMetaData, newLogStreamObserver());
+            } else if (message instanceof PSqlUidMetaData) {
+                final PSqlUidMetaData sqlUidMetaData = (PSqlUidMetaData) message;
+                this.metadataStub.requestSqlUidMetaData(sqlUidMetaData, newLogStreamObserver());
+            } else if (message instanceof PApiMetaData) {
+                final PApiMetaData apiMetaData = (PApiMetaData) message;
+                this.metadataStub.requestApiMetaData(apiMetaData, newLogStreamObserver());
+            } else if (message instanceof PStringMetaData) {
+                final PStringMetaData stringMetaData = (PStringMetaData) message;
+                this.metadataStub.requestStringMetaData(stringMetaData, newLogStreamObserver());
+            } else if (message instanceof PExceptionMetaData) {
+                final PExceptionMetaData exceptionMetaData = (PExceptionMetaData) message;
+                this.metadataStub.requestExceptionMetaData(exceptionMetaData, newLogStreamObserver());
+            } else {
+                logger.warn("Unsupported message {}", MessageFormatUtils.debugLog(message));
+            }
+        } catch (Exception e) {
+            logger.info("Failed to send metadata={}", data, e);
+            return false;
+        }
+        return true;
+    }
+
+    private StreamObserver<PResult> newLogStreamObserver() {
+        return new LogResponseStreamObserver<>(logger);
     }
 
     @Override
     public boolean request(final T data) {
+        if (clientRetryEnable) {
+            return this.send(data);
+        }
+
         final Runnable convertAndRun = new Runnable() {
             @Override
             public void run() {
@@ -200,7 +237,6 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
             logger.debug("retry fail {}", e.getCause(), e);
         }
     }
-
 
 
     @Override
