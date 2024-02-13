@@ -41,7 +41,7 @@ public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
             }
         }
 
-        return TrueSampler.INSTANCE;
+        return TrueSampler.instance();
     }
 
     private Function<BasicSpan, Number> createBasicFunction() {
@@ -52,9 +52,9 @@ public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
                                                        Function<BasicSpan, Number> function) {
         long spanSamplerPercentage = PercentRateSampler.parseSamplingRateString(spanSamplerPercentageStr);
         if (spanSamplerPercentage == 0) {
-            return FalseSampler.INSTANCE;
+            return FalseSampler.instance();
         } else if (spanSamplerPercentage == PercentRateSampler.MAX) {
-            return TrueSampler.INSTANCE;
+            return TrueSampler.instance();
         }
         return new PercentRateSampler<>(spanSamplerPercentage, function);
     }
@@ -62,7 +62,7 @@ public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
     private Sampler<BasicSpan> createModSampler(long spanModSamplerRate,
                                                 Function<BasicSpan, Number> function) {
         if (spanModSamplerRate == 1) {
-            return TrueSampler.INSTANCE;
+            return TrueSampler.instance();
         }
         return new ModSampler<>(spanModSamplerRate, function);
     }
