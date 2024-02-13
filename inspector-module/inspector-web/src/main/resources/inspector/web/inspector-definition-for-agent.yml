@@ -34,6 +34,11 @@ mappings:
         aggregationFunction : AVG
         chartType : "areaSpline"
         unit : "byte"
+      - fieldName: "nonHeapMax"
+        matchingRule: EXACT_ONE
+        aggregationFunction: AVG
+        chartType: "areaSpline"
+        unit: "byte"
       - fieldName: "gcOldCount"
         matchingRule: EXACT_ONE
         aggregationFunction : MAX
@@ -226,6 +231,7 @@ mappings:
         aggregationFunction: MAX
         unit : "count"
       - fieldName: "maxConnectionSize"
+        fieldAlias: "totalMax"
         matchingRule: ALL
         aggregationFunction: MAX
         unit : "count"

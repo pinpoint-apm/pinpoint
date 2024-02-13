@@ -157,7 +157,7 @@ public class DefaultApplicationStatService implements ApplicationStatService {
                 .map(SystemMetricPoint::getYVal)
                 .collect(Collectors.toList());
 
-        return new InspectorMetricValue(field.getFieldName(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
+        return new InspectorMetricValue(field.getFieldAlias(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
     }
 
     private List<InspectorMetricValue> splitMinMax(TimeWindow timeWindow, Field field, List<MinMaxMetricPoint<Double>> doubleList, UncollectedDataCreator<Double> uncollectedDataCreator) {

@@ -163,7 +163,7 @@ mappings:
         chartType: "spline"
         unit: "count"
       - fieldName: "activeConnectionSize"
-        fieldAlias: "activeMax"
+        fieldAlias: "MAX"
         matchingRule: ALL
         aggregationFunction: MAX
         unit: "count"
