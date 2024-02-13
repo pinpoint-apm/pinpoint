@@ -157,7 +157,7 @@ public class DefaultAgentStatService implements AgentStatService {
                 .map(SystemMetricPoint::getYVal)
                 .collect(Collectors.toList());
 
-        return new InspectorMetricValue(field.getFieldName(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
+        return new InspectorMetricValue(field.getFieldAlias(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
     }
 
     private List<QueryResult> selectAll(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
