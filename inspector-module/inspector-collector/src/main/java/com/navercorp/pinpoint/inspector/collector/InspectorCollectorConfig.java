@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.inspector.collector;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorKafkaConfiguration;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorPropertySources;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
@@ -31,5 +32,6 @@ import org.springframework.context.annotation.Import;
 @Import({
             InspectorPropertySources.class,
             InspectorKafkaConfiguration.class})
-public class InspectorCollectorApp {
+@ConditionalOnProperty(name = "pinpoint.modules.collector.inspector.enabled", havingValue = "true")
+public class InspectorCollectorConfig {
 }

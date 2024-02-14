@@ -16,7 +16,7 @@ mappings:
       - fieldName: "gcOldCount"
         matchingRule: EXACT_ONE
         aggregationFunction : MAX
-        chartType : "bar"
+        chartType : "tooltip"
         unit : "count"
         postProcess : "delta"
       - fieldName: "gcOldTime"
@@ -42,7 +42,7 @@ mappings:
       - fieldName: "gcOldCount"
         matchingRule: EXACT_ONE
         aggregationFunction : MAX
-        chartType : "bar"
+        chartType : "tooltip"
         unit : "count"
         postProcess : "delta"
       - fieldName: "gcOldTime"

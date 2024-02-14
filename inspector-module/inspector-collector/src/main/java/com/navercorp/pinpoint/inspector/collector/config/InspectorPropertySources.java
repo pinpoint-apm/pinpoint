@@ -27,5 +27,5 @@ import org.springframework.context.annotation.PropertySources;
         @PropertySource(name = "InspectorPropertySources-KAFKA", value = { InspectorPropertySources.KAFKA_TOPIC}),
 })
 public class InspectorPropertySources {
-    public static final String KAFKA_TOPIC = "classpath:inspector/collector/kafka-topic.properties";
+    public static final String KAFKA_TOPIC = "classpath:inspector/collector/kafka-topic-inspector.properties";
 }

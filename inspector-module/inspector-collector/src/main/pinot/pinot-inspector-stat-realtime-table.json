@@ -5,13 +5,13 @@
     "timeColumnName": "eventTime",
     "timeType": "MILLISECONDS",
     "schemaName": "inspectorStat",
-    "replicasPerPartition": "1",
+    "replicasPerPartition": "3",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "56"
+    "retentionTimeValue": "7"
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["tenantId", "serviceName", "applicationName", "agentId", "metricName", "fieldName"],
+    "sortedColumn": ["applicationName"],
     "bloomFilterColumns": ["tenantId", "serviceName", "applicationName", "agentId", "metricName", "fieldName"],
     "noDictionaryColumns": ["fieldValue", "eventTime"],
     "loadMode": "MMAP",
@@ -31,5 +31,15 @@
   },
   "metadata": {
     "customConfigs": {}
+  },
+  "task": {
+    "taskTypeConfigsMap": {
+      "RealtimeToOfflineSegmentsTask": {
+        "bucketTimePeriod": "4h",
+        "bufferTimePeriod": "12h",
+        "schedule": "0 0 * * * ?",
+        "maxNumRecordsPerSegment": "6000000"
+      }
+    }
   }
 }

@@ -22,11 +22,11 @@ import com.navercorp.pinpoint.inspector.web.config.InspectorWebPinotDaoConfigura
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
 import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
@@ -46,8 +46,8 @@ import java.io.InputStream;
         InspectorWebPinotDaoConfiguration.class,
         YamlConfiguration.class
 })
-@Profile("inspector")
-public class InspectorWebApp {
+@ConditionalOnProperty(name = "pinpoint.modules.web.inspector.enabled", havingValue = "true")
+public class InspectorWebConfig {
 
     @Bean
     public Mappings agentInspectorDefinition(@Value(YMLInspectorManager.AGENT_DEFINITION_YML_PATH)

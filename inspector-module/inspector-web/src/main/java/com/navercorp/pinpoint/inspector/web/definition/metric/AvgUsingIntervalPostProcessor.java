@@ -64,7 +64,7 @@ public class AvgUsingIntervalPostProcessor implements MetricPostProcessor {
             totalValueList.add(total);
         }
 
-        processedMetricValueList.add(new InspectorMetricValue("totalCount", Collections.emptyList(), "areaSplineChart", "count", totalValueList));
+        processedMetricValueList.add(new InspectorMetricValue("totalCount", Collections.emptyList(), "tooltip", "count", totalValueList));
     }
 
     private void calculateAvg(InspectorMetricValue collectInterval, List<InspectorMetricValue> metricCountList, List<InspectorMetricValue> processedMetricValueList) {
