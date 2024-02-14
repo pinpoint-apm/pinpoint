@@ -6,7 +6,7 @@ mappings:
       - fieldName: "heapUsed"
         matchingRule: EXACT_ONE
         aggregationFunction : AVG_MIN_MAX
-        chartType : "areaSpline"
+        chartType : "spline"
         unit : "byte"
   - definitionId: "nonHeap"
     metricName: "jvmGc"
@@ -15,7 +15,7 @@ mappings:
       - fieldName: "nonHeapUsed"
         matchingRule: EXACT_ONE
         aggregationFunction : AVG_MIN_MAX
-        chartType : "areaSpline"
+        chartType : "spline"
         unit : "byte"
   - definitionId: "jvmCpu"
     metricName: "cpuLoad"
@@ -24,7 +24,7 @@ mappings:
       - fieldName: "jvm"
         matchingRule: EXACT_ONE
         aggregationFunction : AVG_MIN_MAX
-        chartType : "areaSpline"
+        chartType : "spline"
         unit : "percent"
   - definitionId: "systemCpu"
     metricName: "cpuLoad"
@@ -38,22 +38,22 @@ mappings:
   - definitionId: "transaction"
     metricName: "transaction"
     title: "Transactions Per Second"
-    postProcess: "AvgUsingIntervalForTotalCount"
+    postProcess: "AvgUsingCollectIntervalForTotalCount"
     fields:
       - fieldName: "totalCount"
         matchingRule: EXACT_ONE
         aggregationFunction : SUM
-        chartType : "areaSpline"
+        chartType : "spline"
         unit : "count"
       - fieldName: "collectInterval"
         matchingRule: EXACT_ONE
         aggregationFunction: SUM
-        chartType: "areaSpline"
+        chartType: "spline"
         unit: "count"
       - fieldName: "totalCountPerMs"
         matchingRule: EXACT_ONE
         aggregationFunction: MIN_MAX
-        chartType: "areaSpline"
+        chartType: "spline"
         unit: "count"
   - definitionId: "activeTrace"
     metricName: "activeTrace"
@@ -62,7 +62,7 @@ mappings:
       - fieldName: "totalCount"
         matchingRule: EXACT_ONE
         aggregationFunction: AVG_MIN_MAX
-        chartType: "areaSpline"
+        chartType: "spline"
         unit: "count"
   - definitionId: "responseTime"
     metricName: "responseTime"
@@ -71,7 +71,7 @@ mappings:
       - fieldName: "avg"
         matchingRule: EXACT_ONE
         aggregationFunction: AVG_MIN
-        chartType: "areaSpline"
+        chartType: "spline"
         unit: "time"
       - fieldName: "max"
         matchingRule: EXACT_ONE

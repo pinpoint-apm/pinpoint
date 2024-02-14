@@ -36,7 +36,7 @@ public class AvgUsingIntervalForTotalCountPostProcessor extends AvgUsingInterval
 
     @Override
     public String getName() {
-        return "AvgUsingIntervalForTotalCount";
+        return "AvgUsingCollectIntervalForTotalCount";
     }
 
     @Override
@@ -63,7 +63,7 @@ public class AvgUsingIntervalForTotalCountPostProcessor extends AvgUsingInterval
         InspectorMetricValue collectInterval = findCollectInterval(metricValueList);
         InspectorMetricValue totalCount = extractTotalCount(metricValueList);
         List<Double> valueList = calculateAvg(collectInterval, totalCount);
-        return new InspectorMetricValue("AVG", totalCount.getTagList(), "areaSplineChart", totalCount.getUnit(), valueList);
+        return new InspectorMetricValue("AVG", totalCount.getTagList(), "spline", totalCount.getUnit(), valueList);
     }
 
     private InspectorMetricValue extractTotalCount(List<InspectorMetricValue> metricValueList) {
