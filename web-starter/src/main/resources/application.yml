@@ -23,7 +23,7 @@ pinpoint:
     web:
       exceptiontrace:
         enabled: true
-      insepctor:
-        eanbled: true
+      inspector:
+        enabled: true
     realtime:
       enabled: true

@@ -13,7 +13,7 @@ pinpoint:
     collector:
       exceptiontrace:
         enabled: true
-      insepctor:
+      inspector:
         enabled: true
     realtime:
       enabled: true
