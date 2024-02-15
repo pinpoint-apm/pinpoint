@@ -322,6 +322,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
 
                             for (DataSourceBo dataSourceBo : dataSourceListBo.getList()) {
                                 List<Tag> tags = List.of(
+                                    new Tag("id", String.valueOf(dataSourceBo.getId())),
                                     new Tag("serviceTypeCode", String.valueOf(dataSourceBo.getServiceTypeCode())),
                                     new Tag("databaseName", dataSourceBo.getDatabaseName()),
                                     new Tag("jdbcUrl", dataSourceBo.getJdbcUrl())
