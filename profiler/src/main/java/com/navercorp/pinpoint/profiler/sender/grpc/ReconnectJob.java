@@ -22,8 +22,8 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
  */
 public interface ReconnectJob extends Runnable {
 
-    void resetBackoffNanos();
+    void resetInterval();
 
-    long nextBackoffNanos();
+    long nextInterval();
 
 }

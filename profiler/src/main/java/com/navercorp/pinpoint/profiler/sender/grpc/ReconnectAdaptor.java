@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import java.util.Objects;
-
 import java.util.concurrent.Executor;
 
 /**
@@ -35,7 +34,7 @@ public class ReconnectAdaptor implements Reconnector {
 
     @Override
     public void reset() {
-        reconnectJob.resetBackoffNanos();
+        reconnectJob.resetInterval();
     }
 
     @Override

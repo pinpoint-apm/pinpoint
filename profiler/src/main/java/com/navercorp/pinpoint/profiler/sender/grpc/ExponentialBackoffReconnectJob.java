@@ -16,52 +16,56 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import io.github.resilience4j.core.IntervalFunction;
+
 import java.util.Objects;
-
-import com.navercorp.pinpoint.common.util.Assert;
-import io.grpc.internal.ExponentialBackoffPolicy;
-
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ExponentialBackoffReconnectJob implements ReconnectJob {
 
-    private final long maxBackOffNanos;
+    private static final AtomicIntegerFieldUpdater<ExponentialBackoffReconnectJob> ATTEMPT_UPDATER
+            = AtomicIntegerFieldUpdater.newUpdater(ExponentialBackoffReconnectJob.class, "attempt");
+    private volatile int attempt = 0;
 
-    private volatile ExponentialBackoffPolicy exponentialBackoffPolicy = new ExponentialBackoffPolicy();
+    private final IntervalFunction intervalFunction;
     private final Runnable runnable;
+    private volatile long lastInterval; // for logging
 
     public ExponentialBackoffReconnectJob(Runnable runnable) {
-        this(runnable, TimeUnit.SECONDS.toNanos(30));
+        this(runnable, TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(30));
     }
 
-    public ExponentialBackoffReconnectJob(Runnable runnable, long maxBackOffNanos) {
+    public ExponentialBackoffReconnectJob(Runnable runnable, long initialIntervalMillis, long maxIntervalMillis) {
         this.runnable = Objects.requireNonNull(runnable, "runnable");
-
-        Assert.isTrue(maxBackOffNanos > 0, "maxBackOffNanos > 0");
-        this.maxBackOffNanos = getMaxBackOffNanos(maxBackOffNanos);
+        this.intervalFunction = IntervalFunction.ofExponentialRandomBackoff(initialIntervalMillis, 1.2, 0.3, maxIntervalMillis);
+        this.lastInterval = initialIntervalMillis;
     }
 
-    private long getMaxBackOffNanos(long maxBackOffNanos) {
-        if (TimeUnit.SECONDS.toNanos(3) > maxBackOffNanos) {
-            return TimeUnit.SECONDS.toNanos(3);
-        } else {
-            return maxBackOffNanos;
-        }
+
+    @Override
+    public final void resetInterval() {
+        ATTEMPT_UPDATER.set(this, 0);
     }
 
     @Override
-    public final void resetBackoffNanos() {
-        exponentialBackoffPolicy = new ExponentialBackoffPolicy();
+    public long nextInterval() {
+        final int attempt = ATTEMPT_UPDATER.incrementAndGet(this);
+        final long interval = intervalFunction.apply(attempt);
+        this.lastInterval = interval;
+        return interval;
+    }
+
+    @VisibleForTesting
+    int getAttempt() {
+        return this.attempt;
     }
 
     @Override
-    public long nextBackoffNanos() {
-        return Math.min(exponentialBackoffPolicy.nextBackoffNanos(), maxBackOffNanos);
-    }
-
     public void run() {
         this.runnable.run();
     }
@@ -69,8 +73,8 @@ public class ExponentialBackoffReconnectJob implements ReconnectJob {
     @Override
     public String toString() {
         return "ExponentialBackoffReconnectJob{" +
-                "maxBackOffNanos=" + maxBackOffNanos +
-                ", exponentialBackoffPolicy=" + exponentialBackoffPolicy +
+                "attempt=" + attempt +
+                ", lastInterval=" + lastInterval + "ms" +
                 ", runnable=" + runnable +
                 '}';
     }

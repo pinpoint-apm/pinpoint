@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import java.util.Objects;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,8 +50,9 @@ public class ReconnectExecutor {
         }
         if (command instanceof ReconnectJob) {
             ReconnectJob reconnectJob = (ReconnectJob) command;
+            logger.info("execute reconnectJob({})", reconnectJob);
             try {
-                scheduledExecutorService.schedule(reconnectJob, reconnectJob.nextBackoffNanos(), TimeUnit.NANOSECONDS);
+                scheduledExecutorService.schedule(reconnectJob, reconnectJob.nextInterval(), TimeUnit.MILLISECONDS);
             } catch (RejectedExecutionException e) {
                 final long failCount = rejectedCounter.incrementAndGet();
                 logger.info("{} reconnectJob scheduled fail {}", command, failCount);
