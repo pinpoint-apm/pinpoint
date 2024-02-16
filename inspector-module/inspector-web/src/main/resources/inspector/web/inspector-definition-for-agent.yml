@@ -235,3 +235,12 @@ mappings:
         matchingRule: ALL
         aggregationFunction: MAX
         unit : "count"
+  - definitionId: "apdex"
+    metricName: "apdex"
+    title: "Apdex Score"
+    fields:
+      - fieldName: "Apdex Score"
+        matchingRule: EXACT_ONE
+        aggregationFunction : AVG
+        chartType : "spline"
+        unit : "count"
