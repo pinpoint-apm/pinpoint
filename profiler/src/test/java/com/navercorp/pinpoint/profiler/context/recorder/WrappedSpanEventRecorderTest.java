@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -63,7 +63,7 @@ public class WrappedSpanEventRecorderTest {
     private SqlMetaDataService sqlMetaDataService;
 
     @Mock
-    private ExceptionRecordingService exceptionRecordingService;
+    private ExceptionRecorder exceptionRecorder;
 
     @Mock
     private SqlCountService sqlCountService;
@@ -72,7 +72,7 @@ public class WrappedSpanEventRecorderTest {
 
     @BeforeEach
     void setUp() {
-        sut = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService, sqlCountService);
+        sut = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
     }
 
     @Test

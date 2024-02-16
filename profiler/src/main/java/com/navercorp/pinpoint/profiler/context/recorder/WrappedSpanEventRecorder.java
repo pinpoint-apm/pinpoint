@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -60,9 +60,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                                     StringMetaDataService stringMetaDataService,
                                     SqlMetaDataService sqlMetaDataService,
                                     IgnoreErrorHandler ignoreErrorHandler,
-                                    ExceptionRecordingService exceptionRecordingService,
+                                    ExceptionRecorder exceptionRecorder,
                                     SqlCountService sqlCountService) {
-        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecordingService, sqlCountService);
+        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecorder, sqlCountService);
     }
 
     public WrappedSpanEventRecorder(TraceRoot traceRoot,
@@ -71,9 +71,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                                     final StringMetaDataService stringMetaDataService,
                                     final SqlMetaDataService sqlMetaCacheService,
                                     final IgnoreErrorHandler errorHandler,
-                                    final ExceptionRecordingService exceptionRecordingService,
+                                    final ExceptionRecorder exceptionRecorder,
                                     final SqlCountService sqlCountService) {
-        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecordingService);
+        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecorder);
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");
@@ -174,7 +174,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     void recordDetailedException(Throwable throwable) {
-        this.exceptionRecordingService.recordException(spanEvent, throwable);
+        this.exceptionRecorder.recordException(spanEvent, throwable);
     }
 
     @Override
@@ -240,6 +240,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     @Override
     public void close() {
-        exceptionRecordingService.close();
+        exceptionRecorder.close();
     }
 }

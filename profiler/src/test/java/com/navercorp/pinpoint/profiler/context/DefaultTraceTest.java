@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
-import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
@@ -61,7 +61,7 @@ public class DefaultTraceTest {
     @Mock
     private AsyncContextFactory asyncContextFactory;
     @Mock
-    private DefaultExceptionRecordingService exceptionRecordingService;
+    private DefaultExceptionRecorder exceptionRecorder;
     @Mock
     private SqlCountService sqlCountService;
 
@@ -162,8 +162,8 @@ public class DefaultTraceTest {
 
         final Span span = spanFactory.newSpan(traceRoot);
 
-        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService, sqlCountService);
+        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
+        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
 
         return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
     }

@@ -2,14 +2,14 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceFactory;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorageFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 import com.navercorp.pinpoint.profiler.context.provider.exception.ExceptionContextFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.exception.ExceptionRecordingServiceFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.exception.ExceptionRecorderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.exception.ExceptionStorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.exception.ExceptionTraceSamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.exception.ExceptionWrapperFactoryProvider;
@@ -32,14 +32,14 @@ public class ExceptionTraceModule extends PrivateModule {
         logger.info("configure {}", this.getClass().getSimpleName());
         bind(ExceptionTraceConfig.class).toInstance(exceptionTraceConfig);
 
-        bind(ExceptionTraceSampler.class).toProvider(ExceptionTraceSamplerProvider.class).in(Scopes.SINGLETON);
+        bind(ExceptionChainSampler.class).toProvider(ExceptionTraceSamplerProvider.class).in(Scopes.SINGLETON);
         bind(ExceptionWrapperFactory.class).toProvider(ExceptionWrapperFactoryProvider.class).in(Scopes.SINGLETON);
         bind(ExceptionStorageFactory.class).toProvider(ExceptionStorageFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(ExceptionContextFactory.class).toProvider(ExceptionContextFactoryProvider.class).in(Scopes.SINGLETON);
         expose(ExceptionContextFactory.class);
 
-        bind(ExceptionRecordingServiceFactory.class).toProvider(ExceptionRecordingServiceFactoryProvider.class).in(Scopes.SINGLETON);
-        expose(ExceptionRecordingServiceFactory.class);
+        bind(ExceptionRecorderFactory.class).toProvider(ExceptionRecorderFactoryProvider.class).in(Scopes.SINGLETON);
+        expose(ExceptionRecorderFactory.class);
     }
 }

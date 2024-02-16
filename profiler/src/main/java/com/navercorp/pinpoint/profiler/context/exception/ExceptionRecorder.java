@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception.disabled;
+package com.navercorp.pinpoint.profiler.context.exception;
 
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
 
 /**
  * @author intr3p1d
  */
-public class DisabledExceptionRecordingService implements ExceptionRecordingService {
+public interface ExceptionRecorder extends AutoCloseable {
 
-    public static final ExceptionRecordingService INSTANCE = new DisabledExceptionRecordingService();
+    void recordException(SpanEvent spanEvent, Throwable throwable);
 
-    @Override
-    public void recordException(SpanEvent spanEvent, Throwable throwable) {
-
-    }
-
-    @Override
-    public void close() {
-
-    }
+    void close();
 }

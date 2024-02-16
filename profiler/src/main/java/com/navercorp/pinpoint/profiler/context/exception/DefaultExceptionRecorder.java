@@ -21,24 +21,26 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 
 import java.util.Objects;
+
+import static com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingState.flush;
 
 /**
  * @author intr3p1d
  */
-public class DefaultExceptionRecordingService implements ExceptionRecordingService {
+public class DefaultExceptionRecorder implements ExceptionRecorder {
 
-    private final ExceptionTraceSampler exceptionTraceSampler;
+    private final ExceptionChainSampler exceptionChainSampler;
     private final ExceptionWrapperFactory exceptionWrapperFactory;
     private final ExceptionContext exceptionContext;
 
-    public DefaultExceptionRecordingService(ExceptionTraceSampler exceptionTraceSampler,
-                                            ExceptionWrapperFactory exceptionWrapperFactory,
-                                            ExceptionContext exceptionContext
+    public DefaultExceptionRecorder(ExceptionChainSampler exceptionChainSampler,
+                                    ExceptionWrapperFactory exceptionWrapperFactory,
+                                    ExceptionContext exceptionContext
     ) {
-        this.exceptionTraceSampler = Objects.requireNonNull(exceptionTraceSampler, "exceptionTraceSampler");
+        this.exceptionChainSampler = Objects.requireNonNull(exceptionChainSampler, "exceptionTraceSampler");
         this.exceptionWrapperFactory = Objects.requireNonNull(exceptionWrapperFactory, "exceptionWrapperFactory");
         this.exceptionContext = Objects.requireNonNull(exceptionContext, "exceptionContext");
     }
@@ -46,29 +48,25 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
     public void recordException(Throwable current, long startTime) {
         final ExceptionContext context = this.exceptionContext;
         ExceptionRecordingState state = context.stateOf(current);
-        ExceptionTraceSampler.SamplingState samplingState = getSamplingState(state, context);
-        state.checkAndApply(context, current, startTime, samplingState, exceptionWrapperFactory);
+        ExceptionChainSampler.SamplingState samplingState = getSamplingState(state, context);
+        state.pushThenUpdate(context, current, startTime, samplingState, exceptionWrapperFactory);
     }
 
-    private ExceptionTraceSampler.SamplingState getSamplingState(
+    private ExceptionChainSampler.SamplingState getSamplingState(
             ExceptionRecordingState state,
             ExceptionContext context
     ) {
-        if (state.needsNewExceptionId()) {
-            return exceptionTraceSampler.isSampled();
-        } else if (state.chainContinued()) {
-            return exceptionTraceSampler.continuingSampled(context.getSamplingState());
-        } else if (state.notNeedExceptionId()) {
-            return ExceptionTraceSampler.DISABLED;
+        if (state.needsNewChainId()) {
+            return exceptionChainSampler.isNewSampled();
         }
-        return ExceptionTraceSampler.DISABLED;
+        return context.getSamplingState();
     }
 
     public void recordExceptionIdAnnotation(SpanEvent spanEvent) {
         final ExceptionContext context = this.exceptionContext;
         if (context.hasValidExceptionId()) {
-            Annotation<Long> linkId = Annotations.of(AnnotationKey.EXCEPTION_CHAIN_ID.getCode(), context.getExceptionId());
-            spanEvent.addAnnotation(linkId);
+            Annotation<Long> chainId = Annotations.of(AnnotationKey.EXCEPTION_CHAIN_ID.getCode(), context.getExceptionId());
+            spanEvent.addAnnotation(chainId);
         }
     }
 
@@ -86,6 +84,9 @@ public class DefaultExceptionRecordingService implements ExceptionRecordingServi
 
     @Override
     public void close() {
+        flush(
+                exceptionContext, exceptionContext.getSamplingState(), exceptionWrapperFactory
+        );
         this.exceptionContext.flush();
     }
 }

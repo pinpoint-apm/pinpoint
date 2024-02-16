@@ -17,11 +17,11 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingServiceFactory;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 import com.navercorp.pinpoint.profiler.context.provider.exception.DisabledExceptionContextFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.exception.DisabledExceptionRecordingServiceFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.exception.DisabledExceptionRecorderFactoryProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,7 +47,7 @@ public class DisabledExceptionTraceModule extends PrivateModule {
         bind(ExceptionContextFactory.class).toProvider(DisabledExceptionContextFactoryProvider.class).in(Scopes.SINGLETON);
         expose(ExceptionContextFactory.class);
 
-        bind(ExceptionRecordingServiceFactory.class).toProvider(DisabledExceptionRecordingServiceFactoryProvider.class).in(Scopes.SINGLETON);
-        expose(ExceptionRecordingServiceFactory.class);
+        bind(ExceptionRecorderFactory.class).toProvider(DisabledExceptionRecorderFactoryProvider.class).in(Scopes.SINGLETON);
+        expose(ExceptionRecorderFactory.class);
     }
 }

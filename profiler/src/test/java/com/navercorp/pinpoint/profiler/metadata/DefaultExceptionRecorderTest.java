@@ -15,12 +15,13 @@
  */
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecordingService;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.exception.model.DefaultExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,11 +35,11 @@ import java.util.function.Function;
 /**
  * @author intr3p1d
  */
-public class DefaultExceptionRecordingServiceTest {
+public class DefaultExceptionRecorderTest {
 
-    private final static Logger logger = LogManager.getLogger(DefaultExceptionRecordingServiceTest.class);
+    private final static Logger logger = LogManager.getLogger(DefaultExceptionRecorderTest.class);
 
-    ExceptionTraceSampler exceptionTraceSampler = new ExceptionTraceSampler(1000);
+    ExceptionChainSampler exceptionChainSampler = new ExceptionChainSampler(1000);
     ExceptionWrapperFactory exceptionWrapperFactory = new ExceptionWrapperFactory(10, 1048);
 
 
@@ -47,11 +48,13 @@ public class DefaultExceptionRecordingServiceTest {
 
     ExceptionContext context = new DefaultExceptionContext(exceptionStorage);
 
-    DefaultExceptionRecordingService exceptionRecordingService = new DefaultExceptionRecordingService(
-            exceptionTraceSampler, exceptionWrapperFactory, context
-            );
+    DefaultExceptionRecorder exceptionRecorder = new DefaultExceptionRecorder(
+            exceptionChainSampler, exceptionWrapperFactory, context
+    );
 
     long START_TIME = 1;
+
+    public List<ExceptionWrapper> outputStream = new ArrayList<>();
 
     class TestExceptionStorage implements ExceptionStorage {
 
@@ -68,7 +71,11 @@ public class DefaultExceptionRecordingServiceTest {
 
         @Override
         public void flush() {
-            this.wrappers.clear();
+            final List<ExceptionWrapper> copy = new ArrayList<>(wrappers);
+            if (CollectionUtils.hasLength(copy)) {
+                outputStream.addAll(copy);
+            }
+            wrappers.clear();
         }
 
         @Override
@@ -82,11 +89,12 @@ public class DefaultExceptionRecordingServiceTest {
 
     private void resetContext() {
         exceptionStorage.flush();
+        outputStream.clear();
         exceptions.clear();
         context = new DefaultExceptionContext(exceptionStorage);
     }
 
-    private Function<Throwable, Throwable> throwableFunction = (Throwable th) -> {
+    private final Function<Throwable, Throwable> throwableFunction = (Throwable th) -> {
         record(th);
         exceptions.add(th);
         logger.info(th);
@@ -95,17 +103,24 @@ public class DefaultExceptionRecordingServiceTest {
 
 
     private void record(Throwable throwable) {
-        exceptionRecordingService.recordException(throwable, START_TIME);
+        exceptionRecorder.recordException(throwable, START_TIME);
+    }
+
+    private List<ExceptionWrapper> newExceptionWrappers(Throwable throwable, long startTime, long exceptionId) {
+        List<ExceptionWrapper> wrappers = new ArrayList<>();
+        exceptionWrapperFactory.addAllExceptionWrappers(wrappers, throwable, null, startTime, exceptionId, 0);
+        return wrappers;
     }
 
     @Test
     public void testRecordNothing() {
         resetContext();
 
-        exceptionRecordingService.recordException(null, 0);
+        exceptionRecorder.recordException(null, 0);
+        exceptionRecorder.close();
 
         List<ExceptionWrapper> expected = new ArrayList<>();
-        List<ExceptionWrapper> actual = exceptionStorage.getWrappers();
+        List<ExceptionWrapper> actual = outputStream;
 
         Assertions.assertEquals(expected, actual);
     }
@@ -119,13 +134,13 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             level3Error(throwableFunction);
         } catch (Throwable e) {
-            expected = exceptionWrapperFactory.newExceptionWrappers(e, START_TIME, context.getExceptionId());
-            exceptionRecordingService.recordException(e, START_TIME);
+            expected = newExceptionWrappers(e, START_TIME, 1);
+            exceptionRecorder.recordException(e, START_TIME);
             actual = exceptionStorage.getWrappers();
             Assertions.assertTrue(actual.isEmpty());
         }
-        exceptionRecordingService.recordException(null, START_TIME);
-        actual = exceptionStorage.getWrappers();
+        exceptionRecorder.close();
+        actual = outputStream;
         Assertions.assertEquals(expected, actual);
     }
 
@@ -142,18 +157,20 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             notChainedException(throwableFunction);
         } catch (Throwable e) {
-            expected1 = exceptionWrapperFactory.newExceptionWrappers(exceptions.get(exceptions.size() - 2), START_TIME, context.getExceptionId());
-            exceptionRecordingService.recordException(e, START_TIME);
-            actual1 = exceptionStorage.getWrappers();
+            expected1 = newExceptionWrappers(exceptions.get(exceptions.size() - 2), START_TIME, 1);
+            exceptionRecorder.recordException(e, START_TIME);
+            actual1 = new ArrayList<>(exceptionStorage.getWrappers());
             throwable = e;
             Assertions.assertFalse(actual1.isEmpty());
             Assertions.assertEquals(expected1, actual1);
         }
 
+
         exceptionStorage.flush();
-        expected2 = exceptionWrapperFactory.newExceptionWrappers(throwable, START_TIME, context.getExceptionId());
-        exceptionRecordingService.recordException(null, 0);
-        actual2 = exceptionStorage.getWrappers();
+        outputStream.clear();
+        expected2 = newExceptionWrappers(throwable, START_TIME, 2);
+        exceptionRecorder.close();
+        actual2 = outputStream;
         Assertions.assertEquals(expected2, actual2);
     }
 
@@ -166,14 +183,14 @@ public class DefaultExceptionRecordingServiceTest {
         try {
             rethrowGivenException(throwableFunction);
         } catch (Throwable e) {
-            expected = exceptionWrapperFactory.newExceptionWrappers(e, START_TIME, context.getExceptionId());
-            exceptionRecordingService.recordException(e, START_TIME);
+            expected = newExceptionWrappers(e, START_TIME, 1);
+            exceptionRecorder.recordException(e, START_TIME);
             actual = exceptionStorage.getWrappers();
             Assertions.assertTrue(actual.isEmpty());
         }
 
-        exceptionRecordingService.recordException(null, 0);
-        actual = exceptionStorage.getWrappers();
+        exceptionRecorder.close();
+        actual = outputStream;
         Assertions.assertEquals(expected, actual);
     }
 

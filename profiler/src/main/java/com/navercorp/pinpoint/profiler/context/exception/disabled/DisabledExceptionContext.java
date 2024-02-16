@@ -17,8 +17,9 @@ package com.navercorp.pinpoint.profiler.context.exception.disabled;
 
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingState;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
+import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextValue;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 
 import java.util.List;
 
@@ -40,8 +41,7 @@ public class DisabledExceptionContext implements ExceptionContext {
     }
 
     @Override
-    public void setWrapped(Throwable throwable) {
-
+    public void update(Throwable throwable, long startTime, ExceptionChainSampler.SamplingState samplingState) {
     }
 
     @Override
@@ -50,13 +50,7 @@ public class DisabledExceptionContext implements ExceptionContext {
     }
 
     @Override
-    public void chainStart(long startTime, ExceptionTraceSampler.SamplingState samplingState) {
-
-    }
-
-    @Override
-    public void reset() {
-
+    public void cleanContext() {
     }
 
     @Override
@@ -65,7 +59,12 @@ public class DisabledExceptionContext implements ExceptionContext {
     }
 
     @Override
-    public ExceptionTraceSampler.SamplingState getSamplingState() {
+    public ExceptionContextValue getContextValue() {
+        return null;
+    }
+
+    @Override
+    public ExceptionChainSampler.SamplingState getSamplingState() {
         return null;
     }
 

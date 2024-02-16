@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,21 +34,54 @@ public class ExceptionWrapperFactory {
         if (context == null) {
             return null;
         }
-        return newExceptionWrappers(context.getPrevious(), context.getStartTime(), context.getExceptionId());
+        return traverseAndWrap(
+                context.getContextValue(), context.getExceptionId()
+        );
     }
 
-    public List<ExceptionWrapper> newExceptionWrappers(Throwable throwable, long startTime, long exceptionId) {
-        if (throwable == null) {
-            return Collections.emptyList();
-        }
+    private List<ExceptionWrapper> traverseAndWrap(ExceptionContextValue topExceptionContextValue, long exceptionId) {
         List<ExceptionWrapper> exceptionWrappers = new ArrayList<>();
-        Throwable curr = throwable;
         int depth = 0;
-        while (curr != null && (maxDepth == 0 || depth < maxDepth)) {
-            exceptionWrappers.add(ExceptionWrapper.newException(curr, startTime, exceptionId, depth, maxErrorMessageLength));
+
+        for (ExceptionContextValue curr = topExceptionContextValue;
+             curr.getPrevious() != null;
+             curr = curr.getPrevious()) {
+            int newDepth = addAllExceptionWrappers(
+                    exceptionWrappers,
+                    curr.getThrowable(), curr.getPrevious().getThrowable(),
+                    curr.getStartTime(), exceptionId,
+                    depth
+            );
+            depth = newDepth;
+        }
+
+        return exceptionWrappers;
+    }
+
+    public int addAllExceptionWrappers(
+            List<ExceptionWrapper> exceptionWrappers,
+            Throwable current, Throwable next,
+            long startTime, long exceptionId,
+            int depthOffset
+    ) {
+        if (current == null) {
+            return depthOffset;
+        }
+        Throwable curr = current;
+        int depth = depthOffset;
+        while (
+                curr != null
+                        && (maxDepth == 0 || depth < maxDepth)
+                        && curr != next
+        ) {
+            exceptionWrappers.add(
+                    ExceptionWrapper.newException(
+                            curr, startTime, exceptionId, depth, maxErrorMessageLength
+                    )
+            );
             curr = curr.getCause();
             depth++;
         }
-        return exceptionWrappers;
+        return depth;
     }
 }

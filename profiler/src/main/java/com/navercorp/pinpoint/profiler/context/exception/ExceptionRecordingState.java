@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.exception;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,131 +27,61 @@ import java.util.Objects;
  * @author intr3p1d
  */
 public enum ExceptionRecordingState {
+
+    NEW {
+        @Override
+        public List<ExceptionWrapper> toWrappers(
+                ExceptionContext context, ExceptionWrapperFactory factory
+        ) {
+            return factory.newExceptionWrappers(context);
+        }
+
+        @Override
+        public void cleanUp(ExceptionContext context) {
+            context.cleanContext();
+        }
+    },
+    CONTINUED {
+        @Override
+        public List<ExceptionWrapper> toWrappers(ExceptionContext context, ExceptionWrapperFactory factory) {
+            return null;
+        }
+
+        @Override
+        public void cleanUp(ExceptionContext context) {
+            // do nothing
+        }
+    },
     CLEAN {
         @Override
-        public List<ExceptionWrapper> getExceptions(
-                ExceptionContext context,
-                ExceptionWrapperFactory factory) {
+        public List<ExceptionWrapper> toWrappers(
+                ExceptionContext context, ExceptionWrapperFactory factory
+        ) {
+            return null;
+        }
+
+        @Override
+        public void cleanUp(ExceptionContext context) {
             // do nothing
-            return null;
-        }
-
-        @Override
-        public void update(
-                ExceptionContext context,
-                Throwable current,
-                long currentStartTime,
-                ExceptionTraceSampler.SamplingState samplingState
-        ) {
-            // do nothing
-        }
-    },
-    STARTED {
-        @Override
-        public List<ExceptionWrapper> getExceptions(
-                ExceptionContext context,
-                ExceptionWrapperFactory factory) {
-            Objects.requireNonNull(context);
-            return null;
-        }
-
-        @Override
-        public void update(
-                ExceptionContext context,
-                Throwable current,
-                long currentStartTime,
-                ExceptionTraceSampler.SamplingState samplingState
-        ) {
-            Objects.requireNonNull(context);
-            context.setWrapped(current);
-            context.chainStart(currentStartTime, samplingState);
-        }
-    },
-    STACKING {
-        @Override
-        public List<ExceptionWrapper> getExceptions(
-                ExceptionContext context,
-                ExceptionWrapperFactory factory) {
-            Objects.requireNonNull(context);
-            return null;
-        }
-
-        @Override
-        public void update(
-                ExceptionContext context,
-                Throwable current,
-                long currentStartTime,
-                ExceptionTraceSampler.SamplingState samplingState
-        ) {
-            Objects.requireNonNull(context);
-            context.setWrapped(current);
-        }
-    },
-    FLUSH_AND_START {
-        @Override
-        public List<ExceptionWrapper> getExceptions(
-                ExceptionContext context,
-                ExceptionWrapperFactory factory) {
-            Objects.requireNonNull(context);
-            Objects.requireNonNull(factory);
-            return factory.newExceptionWrappers(
-                    context
-            );
-        }
-
-        @Override
-        public void update(
-                ExceptionContext context,
-                Throwable current,
-                long currentStartTime,
-                ExceptionTraceSampler.SamplingState samplingState
-        ) {
-            Objects.requireNonNull(context);
-            context.setWrapped(current);
-            context.chainStart(currentStartTime, samplingState);
-        }
-    },
-    FLUSH {
-        @Override
-        public List<ExceptionWrapper> getExceptions(
-                ExceptionContext context,
-                ExceptionWrapperFactory factory) {
-            Objects.requireNonNull(context);
-            Objects.requireNonNull(factory);
-            return factory.newExceptionWrappers(
-                    context
-            );
-        }
-
-        @Override
-        public void update(
-                ExceptionContext context,
-                Throwable current,
-                long currentStartTime,
-                ExceptionTraceSampler.SamplingState samplingState
-        ) {
-            Objects.requireNonNull(context);
-            context.reset();
         }
     };
 
     public static ExceptionRecordingState stateOf(Throwable previous, Throwable current) {
-        if (previous == null) {
-            if (current == null) {
-                return CLEAN;
-            }
-            return STARTED;
+        if (current == null) {
+            return CLEAN;
         } else {
-            if (current == null) {
-                return FLUSH;
-            } else if (isExceptionChainContinuing(previous, current)) {
-                return STACKING;
+            if (isChaining(previous, current)) {
+                return CONTINUED;
             }
-            return FLUSH_AND_START;
+            return NEW;
         }
     }
 
-    private static boolean isExceptionChainContinuing(Throwable previous, Throwable current) {
+    private static boolean isChaining(Throwable previous, Throwable current) {
+        if (previous == null && current == null) {
+            return false;
+        }
+
         Throwable throwable = current;
         while (throwable != null) {
             if (throwable == previous) {
@@ -162,47 +92,65 @@ public enum ExceptionRecordingState {
         return false;
     }
 
-    public void checkAndApply(
+    public static void flush(
             ExceptionContext context,
-            Throwable current,
-            long currentStartTime,
-            ExceptionTraceSampler.SamplingState samplingState,
+            ExceptionChainSampler.SamplingState samplingState,
             ExceptionWrapperFactory factory
     ) {
         if (samplingState.isSampling()) {
-            final List<ExceptionWrapper> wrappers = this.getExceptions(
+            final List<ExceptionWrapper> wrappers = factory.newExceptionWrappers(context);
+            if (wrappers != null) {
+                context.store(wrappers);
+            }
+        }
+    }
+
+    public boolean needsNewChainId() {
+        return this == NEW;
+    }
+
+    public void pushThenUpdate(
+            ExceptionContext context,
+            Throwable current,
+            long currentStartTime,
+            ExceptionChainSampler.SamplingState samplingState,
+            ExceptionWrapperFactory factory
+    ) {
+        this.push(context, samplingState, factory);
+        this.cleanUp(context);
+        this.update(context, current, currentStartTime, samplingState);
+    }
+
+
+    private void push(
+            ExceptionContext context,
+            ExceptionChainSampler.SamplingState samplingState,
+            ExceptionWrapperFactory factory
+    ) {
+        if (samplingState.isSampling()) {
+            final List<ExceptionWrapper> wrappers = this.toWrappers(
                     context, factory
             );
             if (wrappers != null) {
                 context.store(wrappers);
             }
         }
-        this.update(
-                context, current, currentStartTime, samplingState
-        );
     }
 
-    public abstract List<ExceptionWrapper> getExceptions(
+
+    public void update(
+            ExceptionContext context,
+            Throwable current,
+            long currentStartTime,
+            ExceptionChainSampler.SamplingState samplingState
+    ) {
+        context.update(current, currentStartTime, samplingState);
+    }
+
+    public abstract List<ExceptionWrapper> toWrappers(
             ExceptionContext context,
             ExceptionWrapperFactory factory
     );
 
-    public abstract void update(
-            ExceptionContext context,
-            Throwable current,
-            long currentStartTime,
-            ExceptionTraceSampler.SamplingState samplingState
-    );
-
-    public boolean needsNewExceptionId() {
-        return this == FLUSH_AND_START || this == STARTED;
-    }
-
-    public boolean chainContinued() {
-        return this == STACKING || this == FLUSH;
-    }
-
-    public boolean notNeedExceptionId() {
-        return this == STARTED;
-    }
+    public abstract void cleanUp(ExceptionContext context);
 }

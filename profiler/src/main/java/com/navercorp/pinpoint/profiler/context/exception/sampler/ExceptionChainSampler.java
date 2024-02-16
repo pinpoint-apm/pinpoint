@@ -23,13 +23,13 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceSampler {
+public class ExceptionChainSampler {
 
     public static final long INITIAL_EXCEPTION_ID = 1L;
 
     private final RateLimiter rateLimiter;
 
-    private final AtomicLong errorId = new AtomicLong(INITIAL_EXCEPTION_ID);
+    private final AtomicLong exceptionChainId = new AtomicLong(INITIAL_EXCEPTION_ID);
 
 
     public final static SamplingState DISABLED = new SamplingState() {
@@ -44,11 +44,11 @@ public class ExceptionTraceSampler {
         }
     };
 
-    public ExceptionTraceSampler(final double maxNewThroughput) {
+    public ExceptionChainSampler(final double maxNewThroughput) {
         this.rateLimiter = RateLimiter.create(maxNewThroughput);
     }
 
-    public SamplingState isSampled() {
+    public SamplingState isNewSampled() {
         if (rateLimiter.tryAcquire()) {
             long errorId = nextErrorId();
             return newState(errorId);
@@ -57,11 +57,7 @@ public class ExceptionTraceSampler {
     }
 
     private long nextErrorId() {
-        return this.errorId.getAndIncrement();
-    }
-
-    public SamplingState continuingSampled(SamplingState samplingState) {
-        return samplingState;
+        return this.exceptionChainId.getAndIncrement();
     }
 
     private SamplingState newState(long id) {

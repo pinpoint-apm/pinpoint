@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingState;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 import com.navercorp.pinpoint.profiler.context.exception.storage.ExceptionStorage;
 
 import java.util.List;
@@ -27,14 +27,14 @@ import java.util.List;
 public class DefaultExceptionContext implements ExceptionContext {
 
     private static final long EMPTY_EXCEPTION_ID = Long.MIN_VALUE;
-    private ExceptionTraceSampler.SamplingState samplingState = ExceptionTraceSampler.DISABLED;
+    private ExceptionChainSampler.SamplingState samplingState = ExceptionChainSampler.DISABLED;
 
     private final ExceptionStorage storage;
-    private final ExceptionContextValue contextValue;
+    private ExceptionContextValue topContextValue;
 
     public DefaultExceptionContext(ExceptionStorage storage) {
         this.storage = storage;
-        this.contextValue = new ExceptionContextValue();
+        this.topContextValue = new ExceptionContextValue();
     }
 
     @Override
@@ -49,31 +49,33 @@ public class DefaultExceptionContext implements ExceptionContext {
 
 
     @Override
-    public void setWrapped(Throwable throwable) {
-        contextValue.setPrevious(throwable);
+    public void update(Throwable throwable, long startTime, ExceptionChainSampler.SamplingState samplingState) {
+        this.samplingState = samplingState;
+
+        if (throwable != null) {
+            this.topContextValue = topContextValue.newChild(throwable, startTime);
+        }
+    }
+
+    @Override
+    public void cleanContext() {
+        this.topContextValue = new ExceptionContextValue();
     }
 
     @Override
     public ExceptionRecordingState stateOf(Throwable throwable) {
-        return ExceptionRecordingState.stateOf(contextValue.getPrevious(), throwable);
-    }
-
-    @Override
-    public void chainStart(long startTime, ExceptionTraceSampler.SamplingState samplingState) {
-        contextValue.setStartTime(startTime);
-        setSamplingState(samplingState);
-    }
-
-    @Override
-    public void reset() {
-        contextValue.setPrevious(null);
-        setSamplingState(ExceptionTraceSampler.DISABLED);
-        contextValue.setStartTime(0);
+        return ExceptionRecordingState.stateOf(topContextValue.getThrowable(), throwable);
     }
 
     @Override
     public boolean hasValidExceptionId() {
         return this.samplingState != null && this.samplingState.isSampling();
+    }
+
+
+    @Override
+    public ExceptionContextValue getContextValue() {
+        return topContextValue;
     }
 
     @Override
@@ -87,20 +89,20 @@ public class DefaultExceptionContext implements ExceptionContext {
 
     @Override
     public long getStartTime() {
-        return this.contextValue.getStartTime();
+        return this.topContextValue.getStartTime();
     }
 
     @Override
     public Throwable getPrevious() {
-        return this.contextValue.getPrevious();
+        return this.topContextValue.getThrowable();
     }
 
     @Override
-    public ExceptionTraceSampler.SamplingState getSamplingState() {
+    public ExceptionChainSampler.SamplingState getSamplingState() {
         return this.samplingState;
     }
 
-    public void setSamplingState(ExceptionTraceSampler.SamplingState samplingState) {
+    public void setSamplingState(ExceptionChainSampler.SamplingState samplingState) {
         this.samplingState = samplingState;
     }
 }
