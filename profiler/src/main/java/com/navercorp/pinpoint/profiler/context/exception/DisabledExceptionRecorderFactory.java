@@ -17,18 +17,18 @@
 
 package com.navercorp.pinpoint.profiler.context.exception;
 
-import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
-public class DisabledExceptionRecordingServiceFactory implements ExceptionRecordingServiceFactory {
+public class DisabledExceptionRecorderFactory implements ExceptionRecorderFactory {
 
-    public static final ExceptionRecordingServiceFactory INSTANCE = new DisabledExceptionRecordingServiceFactory();
+    public static final ExceptionRecorderFactory INSTANCE = new DisabledExceptionRecorderFactory();
 
-    public DisabledExceptionRecordingServiceFactory() {
+    public DisabledExceptionRecorderFactory() {
     }
 
     @Override
-    public ExceptionRecordingService newService(TraceRoot traceRoot) {
-        return DisabledExceptionRecordingService.INSTANCE;
+    public ExceptionRecorder newService(TraceRoot traceRoot) {
+        return DisabledExceptionRecorder.INSTANCE;
     }
 }

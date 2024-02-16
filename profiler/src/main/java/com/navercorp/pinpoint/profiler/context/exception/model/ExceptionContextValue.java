@@ -21,15 +21,33 @@ package com.navercorp.pinpoint.profiler.context.exception.model;
 public class ExceptionContextValue {
 
     private static final Throwable INITIAL_EXCEPTION = null;
-    private Throwable previous = INITIAL_EXCEPTION;
+
+    private ExceptionContextValue previous = null;
+    private Throwable throwable = INITIAL_EXCEPTION;
     private long startTime = 0;
 
-    public Throwable getPrevious() {
+    public ExceptionContextValue newChild(Throwable previous, long startTime) {
+        ExceptionContextValue child = new ExceptionContextValue();
+        child.setPrevious(this);
+        child.setThrowable(previous);
+        child.setStartTime(startTime);
+        return child;
+    }
+
+    public ExceptionContextValue getPrevious() {
         return previous;
     }
 
-    public void setPrevious(Throwable previous) {
+    public void setPrevious(ExceptionContextValue previous) {
         this.previous = previous;
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    public void setThrowable(Throwable throwable) {
+        this.throwable = throwable;
     }
 
     public long getStartTime() {

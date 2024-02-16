@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.profiler.context.provider.exception;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
 
 import java.util.Objects;
@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceSamplerProvider implements Provider<ExceptionTraceSampler> {
+public class ExceptionTraceSamplerProvider implements Provider<ExceptionChainSampler> {
     private final ExceptionTraceConfig exceptionTraceConfig;
 
     @Inject
@@ -34,7 +34,7 @@ public class ExceptionTraceSamplerProvider implements Provider<ExceptionTraceSam
     }
 
     @Override
-    public ExceptionTraceSampler get() {
-        return new ExceptionTraceSampler(exceptionTraceConfig.getExceptionTraceNewThroughput());
+    public ExceptionChainSampler get() {
+        return new ExceptionChainSampler(exceptionTraceConfig.getExceptionTraceNewThroughput());
     }
 }

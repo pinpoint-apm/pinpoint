@@ -14,6 +14,7 @@ import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,8 +51,10 @@ class GrpcExceptionMetaDataConverterTest {
 
     @Test
     void testMapExceptionMetaData() {
+        List<ExceptionWrapper> wrappers = new ArrayList<>();
+        wrapperFactory.addAllExceptionWrappers(wrappers, new RuntimeException(), null, 1, 1, 1);
         ExceptionMetaData exceptionMetaData = exceptionMetaDataFactory.newExceptionMetaData(
-                wrapperFactory.newExceptionWrappers(new RuntimeException(), 0, 0)
+                wrappers
         );
         PExceptionMetaData pExceptionMetaData = (PExceptionMetaData) grpcExceptionMetaDataConverter.toMessage(exceptionMetaData);
 

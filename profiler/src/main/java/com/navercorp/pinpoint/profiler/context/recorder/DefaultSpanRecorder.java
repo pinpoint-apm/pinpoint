@@ -21,14 +21,12 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Set;
 
 /**
  * @author jaehong.kim
@@ -43,8 +41,8 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
                                final IgnoreErrorHandler errorHandler,
-                               final ExceptionRecordingService exceptionRecordingService) {
-        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecordingService);
+                               final ExceptionRecorder exceptionRecorder) {
+        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
         this.span = span;
     }
 

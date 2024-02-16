@@ -13,14 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.context.exception;
+package com.navercorp.pinpoint.profiler.context.provider.exception;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.navercorp.pinpoint.profiler.context.exception.DisabledExceptionRecorderFactory;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorderFactory;
 
 /**
  * @author intr3p1d
  */
-public interface ExceptionRecordingServiceFactory {
+public class DisabledExceptionRecorderFactoryProvider implements Provider<ExceptionRecorderFactory> {
 
-    ExceptionRecordingService newService(TraceRoot traceRoot);
+    @Inject
+    public DisabledExceptionRecorderFactoryProvider() {
+    }
+
+    @Override
+    public ExceptionRecorderFactory get() {
+        return DisabledExceptionRecorderFactory.INSTANCE;
+    }
 }

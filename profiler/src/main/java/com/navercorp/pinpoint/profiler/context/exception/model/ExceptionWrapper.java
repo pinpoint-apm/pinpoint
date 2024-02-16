@@ -98,19 +98,23 @@ public class ExceptionWrapper {
 
         ExceptionWrapper that = (ExceptionWrapper) o;
 
-        if (!Objects.equals(exceptionClassName, that.exceptionClassName))
-            return false;
-        if (!Objects.equals(exceptionMessage, that.exceptionMessage))
-            return false;
+        if (startTime != that.startTime) return false;
+        if (exceptionId != that.exceptionId) return false;
+        if (exceptionDepth != that.exceptionDepth) return false;
+        if (!exceptionClassName.equals(that.exceptionClassName)) return false;
+        if (!exceptionMessage.equals(that.exceptionMessage)) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         return Arrays.equals(stackTraceElements, that.stackTraceElements);
     }
 
     @Override
     public int hashCode() {
-        int result = exceptionClassName != null ? exceptionClassName.hashCode() : 0;
-        result = 31 * result + (exceptionMessage != null ? exceptionMessage.hashCode() : 0);
+        int result = exceptionClassName.hashCode();
+        result = 31 * result + exceptionMessage.hashCode();
         result = 31 * result + Arrays.hashCode(stackTraceElements);
+        result = 31 * result + (int) (startTime ^ (startTime >>> 32));
+        result = 31 * result + (int) (exceptionId ^ (exceptionId >>> 32));
+        result = 31 * result + exceptionDepth;
         return result;
     }
 
@@ -120,6 +124,9 @@ public class ExceptionWrapper {
                 "exceptionClassName='" + exceptionClassName + '\'' +
                 ", exceptionMessage='" + exceptionMessage + '\'' +
                 ", stackTraceElements=" + Arrays.toString(stackTraceElements) +
+                ", startTime=" + startTime +
+                ", exceptionId=" + exceptionId +
+                ", exceptionDepth=" + exceptionDepth +
                 '}';
     }
 }

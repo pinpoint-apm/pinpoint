@@ -20,30 +20,30 @@ package com.navercorp.pinpoint.profiler.context.exception;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContextFactory;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
-import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionTraceSampler;
+import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.Objects;
 
-public class DefaultExceptionRecordingServiceFactory implements ExceptionRecordingServiceFactory {
+public class DefaultExceptionRecorderFactory implements ExceptionRecorderFactory {
 
-    private final ExceptionTraceSampler exceptionTraceSampler;
+    private final ExceptionChainSampler exceptionChainSampler;
     private final ExceptionWrapperFactory exceptionWrapperFactory;
     private final ExceptionContextFactory exceptionContextFactory;
 
-    public DefaultExceptionRecordingServiceFactory(ExceptionTraceSampler exceptionTraceSampler,
-                                                   ExceptionWrapperFactory exceptionWrapperFactory,
-                                                   ExceptionContextFactory exceptionContextFactory) {
-        this.exceptionTraceSampler = Objects.requireNonNull(exceptionTraceSampler, "exceptionTraceSampler");
+    public DefaultExceptionRecorderFactory(ExceptionChainSampler exceptionChainSampler,
+                                           ExceptionWrapperFactory exceptionWrapperFactory,
+                                           ExceptionContextFactory exceptionContextFactory) {
+        this.exceptionChainSampler = Objects.requireNonNull(exceptionChainSampler, "exceptionTraceSampler");
         this.exceptionWrapperFactory = Objects.requireNonNull(exceptionWrapperFactory, "exceptionWrapperFactory");
         this.exceptionContextFactory = Objects.requireNonNull(exceptionContextFactory, "exceptionContextFactory");
 
     }
 
     @Override
-    public ExceptionRecordingService newService(TraceRoot traceRoot) {
+    public ExceptionRecorder newService(TraceRoot traceRoot) {
         Objects.requireNonNull(traceRoot, "traceRoot");
         ExceptionContext exceptionContext = this.exceptionContextFactory.newExceptionContext(traceRoot);
-        return new DefaultExceptionRecordingService(exceptionTraceSampler, exceptionWrapperFactory, exceptionContext);
+        return new DefaultExceptionRecorder(exceptionChainSampler, exceptionWrapperFactory, exceptionContext);
     }
 }

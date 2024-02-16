@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
-import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecordingService;
+import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -32,9 +32,9 @@ public class ChildTraceSpanEventRecorder extends WrappedSpanEventRecorder {
                                        StringMetaDataService stringMetaDataService,
                                        SqlMetaDataService sqlMetaDataService,
                                        IgnoreErrorHandler ignoreErrorHandler,
-                                       ExceptionRecordingService exceptionRecordingService,
+                                       ExceptionRecorder exceptionRecorder,
                                        SqlCountService sqlCountService) {
-        super(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecordingService, sqlCountService);
+        super(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecorder, sqlCountService);
     }
 
     @Override
