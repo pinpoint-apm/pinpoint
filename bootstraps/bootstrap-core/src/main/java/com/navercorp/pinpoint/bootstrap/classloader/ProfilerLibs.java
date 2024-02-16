@@ -80,7 +80,9 @@ public class ProfilerLibs {
                 "jakarta.annotation",
                 "jakarta.inject",
                 "org.codehaus.mojo.animal_sniffer",
-                "org.checkerframework"
+                "org.checkerframework",
+
+                "io.github.resilience4j"
         };
 
         PINPOINT_PROFILER_CLASS = Collections.unmodifiableList(Arrays.asList(lib));

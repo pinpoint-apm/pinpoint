@@ -28,7 +28,7 @@
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-reactor</artifactId>
-            <version>1.7.1</version>
+            <version>${resilience4j-jdk8.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
