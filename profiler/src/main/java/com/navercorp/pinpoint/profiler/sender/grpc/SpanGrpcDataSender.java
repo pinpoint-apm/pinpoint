@@ -26,17 +26,18 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.SpanType;
+import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.ClientStreamingProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.DefaultStreamTask;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamExecutorFactory;
 import com.navercorp.pinpoint.profiler.util.NamedRunnable;
+import io.github.resilience4j.core.IntervalFunction;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.ClientCallStreamObserver;
 
+import java.util.Date;
 import java.util.Objects;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
@@ -57,9 +58,8 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
 
     private final ClientStreamingService<PSpanMessage, Empty> clientStreamService;
 
-    private final long maxRpcAgeMillis;
+    private final IntervalFunction interval;
     private final AtomicLong rpcExpiredAt;
-    private final Random random = new Random();
 
     public final MessageDispatcher<SpanType, PSpanMessage> dispatcher = new MessageDispatcher<SpanType, PSpanMessage>() {
         @Override
@@ -96,8 +96,8 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
                               long maxRpcAgeMillis) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
-        this.maxRpcAgeMillis = maxRpcAgeMillis;
-        this.rpcExpiredAt = new AtomicLong(System.currentTimeMillis() + jitter(maxRpcAgeMillis));
+        this.interval = newIntervalFunction(maxRpcAgeMillis);
+        this.rpcExpiredAt = new AtomicLong(System.currentTimeMillis());
 
         this.reconnectExecutor = Objects.requireNonNull(reconnectExecutor, "reconnectExecutor");
         final Runnable reconnectJob = new NamedRunnable(this.id) {
@@ -123,31 +123,37 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
             }
 
         };
-        this.clientStreamService = new ClientStreamingService<PSpanMessage, Empty>(clientStreamProvider, reconnector);
+        this.clientStreamService = new ClientStreamingService<>(clientStreamProvider, reconnector);
         reconnectJob.run();
     }
 
+    private IntervalFunction newIntervalFunction(long maxRpcAgeMillis) {
+        if (maxRpcAgeMillis >= GrpcTransportConfig.DEFAULT_RENEW_TRANSPORT_PERIOD_MILLIS_DISABLE) {
+            return null;
+        }
+        return IntervalFunction.ofRandomized(maxRpcAgeMillis, 0.1);
+    }
+
     private void attemptRenew() {
-        if (maxRpcAgeMillis >= TimeUnit.DAYS.toMillis(365)) {
+        if (interval == null) {
             return;
         }
 
         final long rpcExpiredAtValue = rpcExpiredAt.get();
         final long now = System.currentTimeMillis();
         if (now > rpcExpiredAtValue) {
-            final long nextRpcExpiredAt = now + jitter(maxRpcAgeMillis);
+            final long nextRpcExpiredAt = now + interval.apply(1);
             if (rpcExpiredAt.compareAndSet(rpcExpiredAtValue, nextRpcExpiredAt)) {
+                if (isDebug) {
+                    logger.debug("renewStream nextRpcExpiredAt:{}", new Date(nextRpcExpiredAt));
+                }
                 renewStream();
             }
         }
     }
 
-    private long jitter(long x) {
-        final double m = 0.8 + random.nextDouble() * 0.4;
-        return (long) (m * (double) x);
-    }
-
     private void renewStream() {
+        logger.debug("renewStream {}", name);
         if (this.currentStreamTask != null) {
             logger.info("Aborting Span RPC to renew");
             this.currentStreamTask.stop();

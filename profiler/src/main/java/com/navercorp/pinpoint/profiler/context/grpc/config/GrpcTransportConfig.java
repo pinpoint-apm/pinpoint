@@ -61,7 +61,9 @@ public class GrpcTransportConfig {
     private static final long DEFAULT_DISCARD_COUNT_FOR_RECONNECT = 1000;
     private static final long DEFAULT_NOT_READY_TIMEOUT_MILLIS = 5 * 60 * 1000;
     private static final long DEFAULT_RPC_MAX_AGE_MILLIS = 3153600000000L; // Disabled
-    private static final long DEFAULT_RENEW_TRANSPORT_PERIOD_MILLIS = 3153600000000L; // Disabled
+
+    public final static long DEFAULT_RENEW_TRANSPORT_PERIOD_MILLIS_DISABLE = 3153600000000L;
+    private static final long DEFAULT_RENEW_TRANSPORT_PERIOD_MILLIS = DEFAULT_RENEW_TRANSPORT_PERIOD_MILLIS_DISABLE; // Disabled
 
     private static final int DEFAULT_METADATA_RETRY_MAX_COUNT = 3;
     private static final int DEFAULT_METADATA_RETRY_DELAY_MILLIS = 1000;
