@@ -82,7 +82,7 @@ public class AgentIdResolver {
     }
 
     private String newRandomAgentId() {
-        UUID agentUUID = UUID.randomUUID();
+        UUID agentUUID = AgentUuidUtils.generateUUIDv7();
         return AgentUuidUtils.encode(agentUUID);
     }
 

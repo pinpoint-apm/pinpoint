@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import com.navercorp.pinpoint.common.uuid.TimeBasedEpochGenerator;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
@@ -26,6 +28,7 @@ import java.util.UUID;
  */
 public class AgentUuidUtils {
 
+    private static final TimeBasedEpochGenerator UUID_V7_GENERATOR = new TimeBasedEpochGenerator(null);
     private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
 
     /**
@@ -91,6 +94,10 @@ public class AgentUuidUtils {
         long mostSigBits = BytesUtils.bytesToLong(decoded, 0);
         long leastSigBits = BytesUtils.bytesToLong(decoded, BytesUtils.LONG_BYTE_LENGTH);
         return new UUID(mostSigBits, leastSigBits);
+    }
+
+    public static UUID generateUUIDv7() {
+        return UUID_V7_GENERATOR.generate();
     }
 
 }
