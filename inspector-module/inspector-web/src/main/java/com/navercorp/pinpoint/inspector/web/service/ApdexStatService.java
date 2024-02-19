@@ -27,4 +27,6 @@ import com.navercorp.pinpoint.metric.common.model.TimeWindow;
  */
 public interface ApdexStatService {
     InspectorMetricData selectAgentStat(String applicationName, String serviceTypeName, String metricDefinitionId, String agentId, long from, long to);
+
+    InspectorMetricData selectApplicationStat(String applicationName, String serviceTypeName, String metricDefinitionId, long from, long to);
 }

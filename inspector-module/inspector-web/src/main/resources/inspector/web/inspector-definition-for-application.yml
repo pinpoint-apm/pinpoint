@@ -167,3 +167,12 @@ mappings:
         matchingRule: ALL
         aggregationFunction: MAX
         unit: "count"
+  - definitionId: "apdex"
+    metricName: "apdex"
+    title: "Apdex Score"
+    fields:
+      - fieldName: "apdex"
+        matchingRule: EXACT_ONE
+        aggregationFunction : AVG_MIN_MAX
+        chartType : "spline"
+        unit : "count"
