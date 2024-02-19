@@ -4,6 +4,7 @@ package com.navercorp.pinpoint.inspector.web.controller;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
+import com.navercorp.pinpoint.inspector.web.service.ApdexStatService;
 import com.navercorp.pinpoint.inspector.web.service.ApplicationStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataVeiw;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
@@ -12,6 +13,7 @@ import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,8 +30,11 @@ public class ApplicationStatV2Controller {
     private final TenantProvider tenantProvider;
     private final ApplicationStatService applicationStatService;
 
-public ApplicationStatV2Controller(ApplicationStatService applicationStatService, TenantProvider tenantProvider) {
+    private final ApdexStatService apdexStatService;
+
+public ApplicationStatV2Controller(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService) {
         this.applicationStatService = Objects.requireNonNull(applicationStatService, "applicationStatService");
+        this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
@@ -47,6 +52,17 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
         return new InspectorMetricView(inspectorMetricData);
     }
 
+    @GetMapping(value = "/chart", params = "metricDefinitionId=apdex")
+    public InspectorMetricView getApdexStatChart(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
+            @RequestParam("metricDefinitionId") String metricDefinitionId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        InspectorMetricData inspectorMetricData = apdexStatService.selectApplicationStat(applicationName, serviceTypeName, metricDefinitionId, from, to);
+        return new InspectorMetricView(inspectorMetricData);
+    }
+
     @GetMapping(value = "/chartList")
     public InspectorMetricGroupDataVeiw getApplicationStatChartList(
             @RequestParam("applicationName") String applicationName,
@@ -59,7 +75,5 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
 
         InspectorMetricGroupData inspectorMetricGroupData =  applicationStatService.selectApplicationStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataVeiw(inspectorMetricGroupData);
-
-
     }
 }
