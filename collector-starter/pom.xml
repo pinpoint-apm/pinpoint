@@ -68,6 +68,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-exceptiontrace-collector</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-otlpmetric-collector</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

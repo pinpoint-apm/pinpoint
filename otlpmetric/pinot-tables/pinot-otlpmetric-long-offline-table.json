@@ -1,0 +1,30 @@
+{
+  "tableName": "otlpMetricLong",
+  "tableType": "OFFLINE",
+  "segmentsConfig": {
+    "timeType": "MILLISECONDS",
+    "schemaName": "otlpMetricLong",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "56",
+    "replication": "3",
+    "timeColumnName": "eventTime",
+    "minimizeDataMovement": false
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "sortedColumn": ["applicationId"],
+    "bloomFilterColumns": ["serviceId", "applicationId", "agentId", "metricGroupName", "metricName", "fieldName"],
+    "noDictionaryColumns": ["value", "eventTime"],
+    "loadMode": "MMAP",
+    "nullHandlingEnabled": true
+  },
+  "metadata": {
+    "customConfigs": {}
+  },
+  "ingestionConfig": {
+    "batchIngestionConfig": {
+      "segmentIngestionType": "APPEND",
+      "segmentIngestionFrequency": "DAILY"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schemaName": "otlpMetricMetadata",
+  "dimensionFieldSpecs": [
+    {
+      "name": "serviceId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "applicationId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "agentId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "metricGroupName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "metricName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "fieldName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "unit",
+      "dataType": "STRING"
+    },
+    {
+      "name": "description",
+      "dataType": "STRING"
+    },
+    {
+      "name": "metricType",
+      "dataType": "INT"
+    },
+    {
+      "name": "dataType",
+      "dataType": "INT"
+    },
+    {
+      "name": "aggreFunc",
+      "dataType": "INT"
+    },
+    {
+      "name": "aggreTemporality",
+      "dataType": "INT"
+    },
+    {
+      "name": "rawTags",
+      "dataType": "STRING"
+    },
+    {
+      "name": "version",
+      "dataType": "STRING"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "saveTime",
+      "dataType": "TIMESTAMP",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    },
+    {
+      "name": "startTime",
+      "dataType": "TIMESTAMP",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ],
+  "primaryKeyColumns": [
+    "serviceId", "applicationId", "agentId", "metricGroupName", "metricName", "fieldName", "rawTags", "version"
+  ]
+}

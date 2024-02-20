@@ -39,4 +39,16 @@ public interface MonitorConfig {
 
     int getCompletedUriStatDataLimitSize();
 
+    boolean isMicrometerEnable();
+
+    String getMicrometerUrl();
+
+    String getMicrometerStep();
+
+    String getMicrometerBatchSize();
+
+    String getApplicationName();
+
+    String getAgentId();
+
 }
