@@ -52,7 +52,7 @@ public class ClientResponseFunctionInterceptor extends SpanEventSimpleAroundInte
 
         if (args[0] instanceof ClientHttpResponse) {
             ClientHttpResponse response = (ClientHttpResponse) args[0];
-            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.getRawStatusCode());
+            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.getStatusCode().value());
             this.responseHeaderRecorder.recordHeader(recorder, response);
         }
     }
