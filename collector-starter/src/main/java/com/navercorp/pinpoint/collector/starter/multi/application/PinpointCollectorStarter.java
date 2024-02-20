@@ -17,6 +17,7 @@ import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorCo
 import com.navercorp.pinpoint.inspector.collector.InspectorCollectorConfig;
 import com.navercorp.pinpoint.log.collector.LogCollectorModule;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
+import com.navercorp.pinpoint.otlp.collector.OtlpMetricCollectorConfig;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
@@ -79,7 +80,9 @@ public class PinpointCollectorStarter {
 
         if (types.hasType(CollectorType.METRIC)) {
             logger.info(String.format("Start %s collector", CollectorType.METRIC));
-            SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, 15200, MetricCollectorApp.class);
+            SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, 15200,
+                    MetricCollectorApp.class,
+                    OtlpMetricCollectorConfig.class);
             metricAppBuilder.listeners(new AdditionalProfileListener("metric"));
             metricAppBuilder.build().run(args);
         }

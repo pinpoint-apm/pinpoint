@@ -124,6 +124,7 @@
         <module>channel</module>
         <module>exceptiontrace</module>
         <module>web-angular</module>
+        <module>otlpmetric</module>
 
     </modules>
 
@@ -568,6 +569,21 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-log-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-otlpmetric-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-otlpmetric-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-otlpmetric-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

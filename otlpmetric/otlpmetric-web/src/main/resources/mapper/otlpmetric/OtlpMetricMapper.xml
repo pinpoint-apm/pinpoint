@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.navercorp.pinpoint.otlp.web.dao.PinotOtlpMetricDao">
+
+
+    <select id="getMetricGroups" resultType="string" parameterType="OtlpMetricGroupsQueryParam">
+        SELECT
+            DISTINCT (metricGroupName)
+        FROM otlpMetricMetadata
+        WHERE serviceId= #{serviceId}
+          AND applicationId= #{applicationId}
+          <if test="agentId != null">
+          AND agentId = #{agentId}
+          </if>
+    </select>
+
+    <select id="getMetricNames" resultType="string" parameterType="OtlpMetricNamesQueryParam">
+        SELECT
+            DISTINCT (metricName)
+        FROM otlpMetricMetadata
+        WHERE serviceId = #{serviceId}
+            AND applicationId = #{applicationId}
+            <if test="agentId != null">
+            AND agentId = #{agentId}
+            </if>
+        AND metricGroupName = #{metricGroupName}
+    </select>
+
+    <select id="getTags" resultType="string" parameterType="OtlpMetricDetailsQueryParam">
+        SELECT
+            DISTINCT (rawTags)
+        FROM otlpMetricMetadata
+        WHERE serviceId = #{serviceId}
+            AND applicationId = #{applicationId}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+            AND metricGroupName = #{metricGroupName}
+            AND metricName = #{metricName}
+    </select>
+
+    <select id="getFields" resultType="FieldAttribute" parameterType="OtlpMetricDetailsQueryParam">
+        SELECT
+            DISTINCT (fieldName),
+            metricType,
+            dataType,
+            aggreFunc,
+            aggreTemporality AS aggregationTemporality,
+            description,
+            unit,
+            version
+        FROM otlpMetricMetadata
+        WHERE serviceId = #{serviceId}
+            AND applicationId = #{applicationId}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+            AND metricGroupName = #{metricGroupName}
+            AND metricName = #{metricName}
+            AND rawTags = #{rawTags}
+    </select>
+
+    <select id="getDoubleSummary" resultType="string" parameterType="OtlpMetricChartQueryParameter">
+        SELECT
+        <if test="aggreFunc == 0">
+            AVG(value) as value
+        </if>
+        <if test="aggreFunc == 1">
+            SUM(value) as value
+        </if>
+        <if test="aggreFunc == 2">
+            MIN(value) as value
+        </if>
+        <if test="aggreFunc == 3">
+            MAX(value) as value
+        </if>
+        <if test="aggreFunc == 4">
+            LASTWITHTIME(value, eventTime, 'long') as value
+        </if>
+        FROM otlpMetricDouble
+        WHERE serviceId = #{serviceId}
+        AND applicationId = #{applicationId}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        AND metricGroupName = #{metricGroupName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tags" item="tag" separator=" ">
+        AND tags = #{tag}
+        </foreach>
+        AND version = #{version}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY fieldName
+        LIMIT #{limit}
+    </select>
+
+    <select id="getLongSummary" resultType="string" parameterType="OtlpMetricChartQueryParameter">
+        SELECT
+        <if test="aggreFunc == 0">
+        AVG(value) as value
+        </if>
+        <if test="aggreFunc == 1">
+        SUM(value) as value
+        </if>
+        <if test="aggreFunc == 2">
+        MIN(value) as value
+        </if>
+        <if test="aggreFunc == 3">
+        MAX(value) as value
+        </if>
+        <if test="aggreFunc == 4">
+        LASTWITHTIME(value, eventTime, 'long') as value
+        </if>
+        FROM otlpMetricLong
+        WHERE serviceId = #{serviceId}
+        AND applicationId = #{applicationId}
+        <if test="agentId != null">
+        AND agentId = #{agentId}
+        </if>
+        AND metricGroupName = #{metricGroupName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tags" item="tag" separator=" ">
+        AND tags = #{tag}
+        </foreach>        AND version = #{version}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY fieldName
+        LIMIT #{limit}
+    </select>
+
+    <select id="getLongChartData" resultType="OtlpMetricChartResult" parameterType="OtlpMetricChartQueryParameter">
+        SELECT
+            DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
+            version,
+        <if test="aggreFunc == 0">
+            AVG(value) as value
+        </if>
+        <if test="aggreFunc == 1">
+            SUM(value) as value
+        </if>
+        <if test="aggreFunc == 2">
+            MIN(value) as value
+        </if>
+        <if test="aggreFunc == 3">
+            MAX(value) as value
+        </if>
+        <if test="aggreFunc == 4">
+            LASTWITHTIME(value, eventTime, 'long') as value
+        </if>
+        FROM otlpMetricLong
+        WHERE serviceId = #{serviceId}
+        AND applicationId = #{applicationId}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        AND metricGroupName = #{metricGroupName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tags" item="tag" separator=" ">
+        AND tags = #{tag}
+        </foreach>        AND version = #{version}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY eventTime, version
+        ORDER BY eventTime asc
+        LIMIT #{limit}
+    </select>
+
+    <select id="getDoubleChartData" resultType="OtlpMetricChartResult" parameterType="OtlpMetricChartQueryParameter">
+        SELECT
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
+        version,
+        <if test="aggreFunc == 0">
+        AVG(value) as value
+        </if>
+        <if test="aggreFunc == 1">
+        SUM(value) as value
+        </if>
+        <if test="aggreFunc == 2">
+        MIN(value) as value
+        </if>
+        <if test="aggreFunc == 3">
+        MAX(value) as value
+        </if>
+        <if test="aggreFunc == 4">
+        LASTWITHTIME(value, eventTime, 'double') as value
+        </if>
+        FROM otlpMetricDouble
+        WHERE serviceId = #{serviceId}
+        AND applicationId = #{applicationId}
+        <if test="agentId != null">
+        AND agentId = #{agentId}
+        </if>
+        AND metricGroupName = #{metricGroupName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tags" item="tag" separator=" ">
+        AND tags = #{tag}
+        </foreach>
+        AND version = #{version}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY eventTime, version
+        ORDER BY eventTime asc
+        LIMIT #{limit}
+    </select>
+
+</mapper>

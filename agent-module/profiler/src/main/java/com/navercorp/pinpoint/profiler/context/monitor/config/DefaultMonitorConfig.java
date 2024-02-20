@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.monitor.config;
 
 import com.navercorp.pinpoint.common.config.Value;
-
+import com.navercorp.pinpoint.common.util.StringUtils;
 public class DefaultMonitorConfig implements MonitorConfig {
 
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
@@ -48,6 +48,50 @@ public class DefaultMonitorConfig implements MonitorConfig {
     private int profileJvmStatBatchSendCount = DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
     @Value("${profiler.jvm.stat.collect.detailed.metrics}")
     private boolean profilerJvmStatCollectDetailedMetrics = false;
+
+    @Value("${profiler.micrometer.otlp.enabled}")
+    private boolean micrometerEnable = false;
+
+    @Value("${profiler.micrometer.otlp.url}")
+    private String micrometerUrl;
+
+    @Value("${profiler.micrometer.otlp.step}")
+    private String micrometerStep;
+
+    @Value("${profiler.micrometer.otlp.batchSize}")
+    private String micrometerBatchSize;
+
+    @Value("${pinpoint.applicationName}")
+    private String applicationName;
+
+    @Value("${pinpoint.agentId}")
+    private String agentId;
+
+    public DefaultMonitorConfig() {
+        if (StringUtils.isEmpty(agentId)) {
+            agentId = System.getProperty("pinpoint.agentId");
+        }
+        if (StringUtils.isEmpty(applicationName)) {
+            applicationName = System.getProperty("pinpoint.applicationName");
+        }
+    }
+
+    @Override
+    public boolean isMicrometerEnable() { return micrometerEnable; }
+
+    @Override
+    public String getMicrometerUrl() { return micrometerUrl; }
+
+    @Override
+    public String getMicrometerStep() { return micrometerStep; }
+
+    @Override
+    public String getMicrometerBatchSize() { return micrometerBatchSize; }
+
+    @Override
+    public String getApplicationName() { return applicationName; }
+
+    public String getAgentId() { return agentId;}
 
     @Override
     public int getProfileJvmStatCollectIntervalMs() {
@@ -118,6 +162,12 @@ public class DefaultMonitorConfig implements MonitorConfig {
                 ", profileJvmStatCollectIntervalMs=" + profileJvmStatCollectIntervalMs +
                 ", profileJvmStatBatchSendCount=" + profileJvmStatBatchSendCount +
                 ", profilerJvmStatCollectDetailedMetrics=" + profilerJvmStatCollectDetailedMetrics +
+                ", micrometerEnable=" + micrometerEnable +
+                ", micrometerUrl=" + micrometerUrl +
+                ", micrometerStep=" + micrometerStep +
+                ", micrometerBatchSize=" + micrometerBatchSize +
+                ", micrometerHostName=" + agentId +
+                ", micrometerHostGroupName=" + applicationName +
                 '}';
     }
 }

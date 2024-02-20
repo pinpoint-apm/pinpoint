@@ -1,0 +1,62 @@
+{
+  "schemaName": "otlpMetricLong",
+  "dimensionFieldSpecs": [
+    {
+      "name": "serviceId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "applicationId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "agentId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "metricGroupName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "metricName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "fieldName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "flag",
+      "dataType": "INT"
+    },
+    {
+      "name": "tags",
+      "dataType": "STRING",
+      "singleValueField": false
+    },
+    {
+      "name": "version",
+      "dataType": "STRING"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "value",
+      "dataType": "LONG"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "eventTime",
+      "dataType": "TIMESTAMP",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    },
+    {
+      "name": "startTime",
+      "dataType": "TIMESTAMP",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

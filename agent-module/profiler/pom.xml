@@ -167,10 +167,13 @@
                 </exclusion>
             </exclusions>
         </dependency>-->
-
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-otlp</artifactId>
         </dependency>
     </dependencies>
 
