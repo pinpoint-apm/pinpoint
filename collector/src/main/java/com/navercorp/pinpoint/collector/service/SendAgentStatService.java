@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -31,6 +32,7 @@ import java.util.Objects;
  */
 @Service("sendAgentStatService")
 @Validated
+@ConditionalOnProperty(value = "pinpoint.modules.collector.inspector.hbase.enabled", havingValue = "true")
 public class SendAgentStatService implements AgentStatService {
     private final boolean flinkClusterEnable;
     private final SendDataToFlinkService flinkService;
