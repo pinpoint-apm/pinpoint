@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,6 +31,7 @@ import java.util.Objects;
  */
 @Service("hBaseAgentStatService")
 @Validated
+@ConditionalOnProperty(value = "pinpoint.modules.collector.inspector.hbase.enabled", havingValue = "true")
 public class HBaseAgentStatService implements AgentStatService {
 
     private final Logger logger = LogManager.getLogger(HBaseAgentStatService.class);

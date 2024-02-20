@@ -15,5 +15,7 @@ pinpoint:
         enabled: true
       inspector:
         enabled: true
+        hbase:
+          enabled: true
     realtime:
       enabled: true
