@@ -201,7 +201,8 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
 
             final InstrumentMethod logResponseMethod = target.getDeclaredMethod("logResponse", "org.springframework.http.client.reactive.ClientHttpResponse", "java.lang.String");
             if (logResponseMethod != null) {
-                logResponseMethod.addInterceptor(ClientResponseFunctionInterceptor.class);
+                final int springVersion = SpringVersion.getVersion(loader);
+                logResponseMethod.addInterceptor(ClientResponseFunctionInterceptor.class, va(springVersion));
             }
 
             return target.toBytecode();
@@ -226,6 +227,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
 
     public static class AbstractHandlerMethodMappingTransform implements TransformCallback {
         private final Boolean uriStatCollectMethod;
+
         public AbstractHandlerMethodMappingTransform(Boolean uriStatCollectMethod) {
             this.uriStatCollectMethod = uriStatCollectMethod;
         }
