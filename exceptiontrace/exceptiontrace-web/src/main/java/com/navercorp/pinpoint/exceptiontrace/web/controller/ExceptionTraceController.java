@@ -62,8 +62,6 @@ public class ExceptionTraceController {
     private final ExceptionTraceService exceptionTraceService;
     private final TenantProvider tenantProvider;
 
-    @Value("${pinpoint.modules.web.exceptiontrace.errormessage.clp.enabled:false}")
-    private boolean errorMessageClpEnabled;
     @Value("${pinpoint.modules.web.exceptiontrace.table:exceptionTrace}")
     private String tableName;
 
@@ -81,7 +79,6 @@ public class ExceptionTraceController {
             @RequestParam("exceptionId") long exceptionId
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
-                .setErrorMessageClpEnabled(errorMessageClpEnabled)
                 .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
@@ -103,12 +100,12 @@ public class ExceptionTraceController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
 
+            @RequestParam(value = "query", required = false) List<String> tags,
             @RequestParam("orderBy") String orderBy,
             @RequestParam("isDesc") boolean isDesc,
             @RequestParam("count") int count
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
-                .setErrorMessageClpEnabled(errorMessageClpEnabled)
                 .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
@@ -134,7 +131,6 @@ public class ExceptionTraceController {
             @RequestParam("groupBy") List<String> groupByList
     ) {
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
-                .setErrorMessageClpEnabled(errorMessageClpEnabled)
                 .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
@@ -161,7 +157,6 @@ public class ExceptionTraceController {
 
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
-                .setErrorMessageClpEnabled(errorMessageClpEnabled)
                 .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
@@ -180,15 +175,8 @@ public class ExceptionTraceController {
 
     @GetMapping("/groups")
     public List<String> getGroups() {
-        if (errorMessageClpEnabled) {
-            return Arrays.stream(new GroupByAttributes[]{
-                            GroupByAttributes.ERROR_MESSAGE_LOG_TYPE, GroupByAttributes.ERROR_CLASS_NAME,
-                            GroupByAttributes.STACK_TRACE, GroupByAttributes.URI_TEMPLATE
-                    }).map(GroupByAttributes::getName)
-                    .collect(Collectors.toList());
-        }
         return Arrays.stream(new GroupByAttributes[]{
-                        GroupByAttributes.ERROR_MESSAGE, GroupByAttributes.ERROR_CLASS_NAME,
+                        GroupByAttributes.ERROR_MESSAGE_LOG_TYPE, GroupByAttributes.ERROR_CLASS_NAME,
                         GroupByAttributes.STACK_TRACE, GroupByAttributes.URI_TEMPLATE
                 }).map(GroupByAttributes::getName)
                 .collect(Collectors.toList());
