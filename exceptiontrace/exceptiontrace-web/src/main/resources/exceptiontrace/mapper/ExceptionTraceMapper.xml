@@ -44,15 +44,8 @@
     </sql>
 
     <sql id="getErrorMessage">
-        <choose>
-            <when test="errorMessageClpEnabled">
-                CLPDECODE
-                (errorMessage_logtype, errorMessage_dictionaryVars, errorMessage_encodedVars)
-            </when>
-            <otherwise>
-                errorMessage
-            </otherwise>
-        </choose>
+        CLPDECODE
+        (errorMessage_logtype, errorMessage_dictionaryVars, errorMessage_encodedVars)
     </sql>
 
     <sql id="fullExceptionColumns">

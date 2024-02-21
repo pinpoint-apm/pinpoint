@@ -25,7 +25,6 @@ import java.util.Arrays;
  */
 public enum GroupByAttributes {
     URI_TEMPLATE("path", PinotColumns.URI_TEMPLATE),
-    ERROR_MESSAGE("errorMessage", PinotColumns.ERROR_MESSAGE),
     ERROR_MESSAGE_LOG_TYPE("errorMessage_logtype", PinotColumns.ERROR_MESSAGE_LOG_TYPE),
     ERROR_CLASS_NAME("errorClassName", PinotColumns.ERROR_CLASS_NAME),
     STACK_TRACE("stackTrace", PinotColumns.STACK_TRACE_HASH);
