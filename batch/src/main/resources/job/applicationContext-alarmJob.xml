@@ -21,7 +21,7 @@
 
     <batch:step id="alarmStep">
         <batch:tasklet task-executor="alarmExecutor" throttle-limit="${alarm.worker.maxSize:2}">
-            <batch:chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/>
+            <batch:chunk reader="alarmReader" processor="alarmProcessor" writer="alarmWriter" commit-interval="1"/>
         </batch:tasklet>
     </batch:step>
 
@@ -33,9 +33,9 @@
     </bean>
 
     <bean id="alarmPartitioner" class="com.navercorp.pinpoint.batch.alarm.AlarmPartitioner"/>
-    <bean id="reader" class="com.navercorp.pinpoint.batch.alarm.AlarmReader" scope="step"/>
-    <bean id="processor" class="com.navercorp.pinpoint.batch.alarm.AlarmProcessor" scope="step"/>
-    <bean id="writer" class="com.navercorp.pinpoint.batch.alarm.AlarmWriter" scope="step"/>
+    <bean id="alarmReader" class="com.navercorp.pinpoint.batch.alarm.AlarmReader" />
+    <bean id="alarmProcessor" class="com.navercorp.pinpoint.batch.alarm.AlarmProcessor" />
+    <bean id="alarmWriter" class="com.navercorp.pinpoint.batch.alarm.AlarmWriter" />
 
     <task:executor id="alarmPoolTaskExecutorForPartition" pool-size="1"/>
 

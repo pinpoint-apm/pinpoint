@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.google.common.base.Suppliers;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
@@ -32,6 +34,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
 import org.springframework.batch.item.ItemProcessor;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,14 +51,12 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
     private static final long activeDuration = TimeUnit.MINUTES.toMillis(5);
 
     private final AlarmService alarmService;
-
     private final DataCollectorFactory dataCollectorFactory;
-
     private final ApplicationIndexDao applicationIndexDao;
-
     private final AgentInfoService agentInfoService;
-
     private final CheckerRegistry checkerRegistry;
+
+    private final Cache<String, List<Rule>> ruleCache;
 
     public AlarmProcessor(
             DataCollectorFactory dataCollectorFactory,
@@ -69,6 +70,15 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.checkerRegistry = Objects.requireNonNull(checkerRegistry, "checkerRegistry");
+        this.ruleCache = buildCache();
+    }
+
+    private static <K, V> Cache<K, V> buildCache() {
+        return CacheBuilder.newBuilder()
+                .expireAfterWrite(Duration.ofHours(1))
+                .maximumSize(65535)
+                .initialCapacity(1024)
+                .build();
     }
 
     @Override
@@ -85,7 +95,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
     }
 
     private List<AlarmChecker<?>> getAlarmCheckers(Application application) {
-        List<Rule> rules = alarmService.selectRuleByApplicationId(application.getName());
+        List<Rule> rules = getRulesByApplicationName(application.getName());
 
         long now = System.currentTimeMillis();
         Supplier<List<String>> agentIds = getAgentIdsSupplier(application, now);
@@ -98,6 +108,21 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
             checkers.add(alarmCheckerFactory.create(rule));
         }
         return checkers;
+    }
+
+    private List<Rule> getRulesByApplicationName(String applicationName) {
+        try {
+            List<Rule> rules = alarmService.selectRuleByApplicationId(applicationName);
+            this.ruleCache.put(applicationName, rules);
+            return rules;
+        } catch (Exception e) {
+            List<Rule> cached = this.ruleCache.getIfPresent(applicationName);
+            if (cached != null) {
+                return cached;
+            } else {
+                throw e;
+            }
+        }
     }
 
     private Supplier<List<String>> getAgentIdsSupplier(Application application, long now) {

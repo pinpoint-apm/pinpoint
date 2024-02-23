@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -36,6 +38,8 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionListener {
+
+    private static final Logger logger = LogManager.getLogger(AlarmWriter.class);
 
     private final AlarmMessageSender alarmMessageSender;
     private final AlarmService alarmService;
@@ -75,7 +79,7 @@ public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionLi
 
     private void execute(AppAlarmChecker checkers) {
         String applicationId = checkers.getApplicationId();
-        Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(applicationId);
+        Map<String, CheckerResult> beforeCheckerResults = getPreviousCheckerResults(applicationId);
 
         for (AlarmChecker<?> checker : checkers.getChildren()) {
             Rule rule = checker.getRule();
@@ -91,7 +95,24 @@ public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionLi
                 sendAlarmMessage(beforeCheckerResult, checker);
             }
 
-            alarmService.updateBeforeCheckerResult(beforeCheckerResult, checker);
+            updateCheckerResults(beforeCheckerResult, checker);
+        }
+    }
+
+    private Map<String, CheckerResult> getPreviousCheckerResults(String applicationId) {
+        try {
+            return alarmService.selectBeforeCheckerResults(applicationId);
+        } catch (Exception e) {
+            logger.error("Failed to select previous checker results");
+            return Map.of();
+        }
+    }
+
+    private void updateCheckerResults(CheckerResult prevCheckerResults, AlarmChecker<?> checker) {
+        try {
+            alarmService.updateBeforeCheckerResult(prevCheckerResults, checker);
+        } catch (Exception e) {
+            logger.error("Failed to update before checker result: ruleId={}", prevCheckerResults.getRuleId());
         }
     }
 
