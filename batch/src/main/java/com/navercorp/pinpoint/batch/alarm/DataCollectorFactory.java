@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Component;
@@ -50,7 +50,7 @@ public class DataCollectorFactory {
 
     public final static long SLOT_INTERVAL_THREE_MIN = 180000;
 
-    private final HbaseMapResponseTimeDao hbaseMapResponseTimeDao;
+    private final MapResponseDao mapResponseDao;
 
     private final AgentStatDao<JvmGcBo> jvmGcDao;
 
@@ -62,34 +62,34 @@ public class DataCollectorFactory {
 
     private final AgentEventDao agentEventDao;
 
-    private final HbaseMapStatisticsCallerDao mapStatisticsCallerDao;
+    private final MapStatisticsCallerDao callerDao;
 
-    public DataCollectorFactory(HbaseMapResponseTimeDao hbaseMapResponseTimeDao,
+    public DataCollectorFactory(MapResponseDao mapResponseDao,
                                 AgentStatDao<JvmGcBo> jvmGcDao,
                                 AgentStatDao<CpuLoadBo> cpuLoadDao,
                                 AgentStatDao<DataSourceListBo> dataSourceDao,
                                 AgentStatDao<FileDescriptorBo> fileDescriptorDao,
                                 AgentEventDao agentEventDao,
-                                HbaseMapStatisticsCallerDao mapStatisticsCallerDao) {
-        this.hbaseMapResponseTimeDao = Objects.requireNonNull(hbaseMapResponseTimeDao, "hbaseMapResponseTimeDao");
+                                MapStatisticsCallerDao callerDao) {
+        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
         this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");
         this.dataSourceDao = Objects.requireNonNull(dataSourceDao, "dataSourceDao");
         this.fileDescriptorDao = Objects.requireNonNull(fileDescriptorDao, "fileDescriptorDao");
         this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
-        this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
+        this.callerDao = Objects.requireNonNull(callerDao, "callerDao");
     }
 
     public DataCollector createDataCollector(CheckerCategory checker, Application application, Supplier<List<String>> agentIds, long timeSlotEndTime) {
         return switch (checker.getDataCollectorCategory()) {
             case RESPONSE_TIME ->
-                    new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+                    new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mapResponseDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case AGENT_STAT ->
                     new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case AGENT_EVENT ->
                     new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, agentEventDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case CALLER_STAT ->
-                    new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+                    new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, callerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case DATA_SOURCE_STAT ->
                     new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, dataSourceDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case FILE_DESCRIPTOR ->
