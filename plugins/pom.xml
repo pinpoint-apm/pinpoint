@@ -115,6 +115,7 @@
         <module>spring-tx</module>
         <module>resilience4j</module>
         <module>clickhouse-jdbc</module>
+        <module>spring-cloud-sleuth</module>
     </modules>
 
 

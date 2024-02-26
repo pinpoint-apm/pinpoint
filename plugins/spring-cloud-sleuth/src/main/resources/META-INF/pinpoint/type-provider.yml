@@ -1,0 +1,5 @@
+serviceTypes:
+    - code: 5055
+      name: 'SPRING_CLOUD_SLEUTH'
+
+
