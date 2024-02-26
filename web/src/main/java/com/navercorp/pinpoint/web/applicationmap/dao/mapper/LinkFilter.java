@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
- * 
- * @author netspider
- * 
+ * @author emeroad
  */
-public interface MapStatisticsCallerDao {
-   LinkDataMap selectCaller(Application callerApplication, Range range, boolean timeAggregated);
+public interface LinkFilter {
+    boolean filter(Application foundApplication);
 
+    static boolean skip(Application foundApplication) {
+        return false;
+    }
 }

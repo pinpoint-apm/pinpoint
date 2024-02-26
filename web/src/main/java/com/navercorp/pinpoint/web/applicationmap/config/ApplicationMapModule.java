@@ -41,6 +41,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.validation.annotation.Validated;
@@ -53,10 +54,11 @@ import java.util.function.Supplier;
 @Configuration
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.web.applicationmap.service",
-        "com.navercorp.pinpoint.web.applicationmap.controller",
+        "com.navercorp.pinpoint.web.applicationmap.controller"
 })
+@Import(MapHbaseConfiguration.class)
 public class ApplicationMapModule {
-    private final Logger logger = LogManager.getLogger(ApplicationMapModule.class);
+    private static final Logger logger = LogManager.getLogger(ApplicationMapModule.class);
 
     public ApplicationMapModule() {
         logger.info("Install {}", ApplicationMapModule.class.getSimpleName());

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;

@@ -18,9 +18,9 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCalleeDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
 
