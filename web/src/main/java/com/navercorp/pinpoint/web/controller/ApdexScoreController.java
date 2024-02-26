@@ -57,6 +57,34 @@ public class ApdexScoreController {
         return apdexScoreService.selectApdexScoreData(application, range);
     }
 
+    @GetMapping(value = "/getApdexScore", params = {"agentId"})
+    public ApdexScore getApdexScore(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("agentId") @NotBlank String agentId,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
+        final Range range = Range.between(from, to);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        return apdexScoreService.selectApdexScoreData(application, agentId, range);
+    }
+
+    @GetMapping(value = "/getApdexScore", params = {"agentId", "serviceTypeName"})
+    public ApdexScore getApdexScore(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
+            @RequestParam("agentId") @NotBlank String agentId,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
+        final Range range = Range.between(from, to);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+
+        return apdexScoreService.selectApdexScoreData(application, agentId, range);
+    }
+
     @GetMapping(value = "/getApplicationStat/apdexScore/chart")
     public StatChart<?> getApplicationApdexScoreChart(
             @RequestParam("applicationId") @NotBlank String applicationId,
