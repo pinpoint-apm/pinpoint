@@ -10,6 +10,8 @@ public interface ApdexScoreService {
 
     ApdexScore selectApdexScoreData(Application application, Range range);
 
+    ApdexScore selectApdexScoreData(Application application, String agentId, Range range);
+
     StatChart selectApplicationChart(Application application, Range range, TimeWindow timeWindow);
 
     StatChart selectAgentChart(Application application, Range range, TimeWindow timeWindow, String agentId);
