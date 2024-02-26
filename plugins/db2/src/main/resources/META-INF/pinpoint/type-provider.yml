@@ -1,0 +1,24 @@
+serviceTypes:
+  - code: 2902
+    name: 'DB2_JDBC'
+    property:
+      terminal: true
+      includeDestinationId: true
+  - code: 2903
+    name: 'DB2_JDBC_QUERY'
+    desc: 'DB2SERVER'
+    property:
+      terminal: true
+      includeDestinationId: true
+      recordStatistics: true
+
+
+annotationKeys:
+    - code: 10998
+      name: 'MyValue'
+    - code: 10995
+      name: 'MY_ARGUMENT'
+    - code: 10996
+      name: 'MY_PROCEDURE'
+    - code: 10997
+      name: 'MY_RESULT'
