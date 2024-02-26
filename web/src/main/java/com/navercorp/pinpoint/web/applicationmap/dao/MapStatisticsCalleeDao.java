@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.applicationmap.dao;
 
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
-
-import java.util.List;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.vo.Application;
 
 /**
- * 
+ *
+ * @author emeroad
  * @author netspider
  * 
  */
-public interface MapResponseDao {
-    List<ResponseTime> selectResponseTime(Application application, Range range);
+public interface MapStatisticsCalleeDao {
+    LinkDataMap selectCallee(Application calleeApplication, Range range, boolean timeAggregated);
 
 }

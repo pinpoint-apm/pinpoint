@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.batch.alarm.collector;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.HashMap;

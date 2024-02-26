@@ -91,7 +91,7 @@ public class HbaseClientConfiguration {
     }
 
     @Bean
-    public FactoryBean<AsyncConnection> hbaseAsyncConnectionFactory(Configuration configuration, User user) {
+    public FactoryBean<AsyncConnection> hbaseAsyncConnection(Configuration configuration, User user) {
         return new AsyncConnectionFactoryBean(configuration, user);
     }
 

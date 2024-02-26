@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.CommonsHbaseConfiguration;
 import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguration;
+import com.navercorp.pinpoint.web.applicationmap.config.MapHbaseConfiguration;
 import com.navercorp.pinpoint.web.dao.hbase.config.AgentStatDaoConfiguration;
 import com.navercorp.pinpoint.web.dao.hbase.config.AgentStatOperationConfiguration;
 import com.navercorp.pinpoint.web.dao.hbase.config.ApplicationMetricConfiguration;
@@ -31,6 +32,7 @@ import org.springframework.context.annotation.PropertySource;
 
         HbaseClientConfiguration.class,
         HbaseTemplateConfiguration.class,
+        MapHbaseConfiguration.class
 })
 @ComponentScan(
         basePackages = {

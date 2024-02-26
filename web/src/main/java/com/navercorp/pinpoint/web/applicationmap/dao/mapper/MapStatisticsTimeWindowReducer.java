@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.hbase.RowReducer;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;

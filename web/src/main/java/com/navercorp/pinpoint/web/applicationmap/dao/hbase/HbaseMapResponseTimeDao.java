@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -62,7 +62,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    public HbaseMapResponseTimeDao(HbaseOperations hbaseOperations,
+    public HbaseMapResponseTimeDao(@Qualifier("mapHbaseTemplate") HbaseOperations hbaseOperations,
                                    TableNameProvider tableNameProvider,
                                    @Qualifier("responseTimeMapper") RowMapper<ResponseTime> responseTimeMapper,
                                    RangeFactory rangeFactory,

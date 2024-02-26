@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCalleeDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.MapStatisticsTimeWindowReducer;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMapUtils;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.web.mapper.MapStatisticsTimeWindowReducer;
 import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
@@ -69,7 +69,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
     public HbaseMapStatisticsCalleeDao(
-            HbaseOperations hbaseTemplate,
+            @Qualifier("mapHbaseTemplate") HbaseOperations hbaseTemplate,
             TableNameProvider tableNameProvider,
             @Qualifier("mapStatisticsCalleeMapper") RowMapper<LinkDataMap> mapStatisticsCalleeMapper,
             @Qualifier("mapStatisticsCalleeTimeAggregatedMapper") RowMapper<LinkDataMap> mapStatisticsCalleeTimeAggregatedMapper,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -42,7 +42,8 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 /**
- * 
+ *
+ * @author emeroad
  * @author netspider
  * 
  */

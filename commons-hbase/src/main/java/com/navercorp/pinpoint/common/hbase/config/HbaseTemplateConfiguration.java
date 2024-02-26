@@ -44,6 +44,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 
 import java.util.Optional;
 
@@ -63,7 +64,7 @@ public class HbaseTemplateConfiguration {
     }
 
     @Bean
-    public AsyncTableFactory hbaseAsyncTableFactory(AsyncConnection connection, AsyncTableCustomizer customizer) {
+    public AsyncTableFactory hbaseAsyncTableFactory(@Qualifier("hbaseAsyncConnection") AsyncConnection connection, AsyncTableCustomizer customizer) {
         return new HbaseAsyncTableFactory(connection, customizer);
     }
 
@@ -76,6 +77,7 @@ public class HbaseTemplateConfiguration {
     }
 
     @Bean
+    @Primary
     public HbaseTemplate hbaseTemplate(@Qualifier("hbaseConfiguration") Configuration configurable,
                                        @Qualifier("hbaseTableFactory") TableFactory tableFactory,
                                        @Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
