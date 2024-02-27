@@ -1,6 +1,8 @@
 # Maven
 deploy/
 target/
+# gradle
+build/
 
 # Eclipse
 .classpath
@@ -34,3 +36,8 @@ dist/
 # logs
 logs/
 manager-logs/
+
+### Gradle ###
+.gradle
+**/build/
+.mvn/.gradle-enterprise/
