@@ -27,7 +27,7 @@ public enum OrderByAttributes {
     ERROR_CLASS_NAME("errorClassName", PinotColumns.ERROR_CLASS_NAME),
     ERROR_MESSAGE("errorMessage", PinotColumns.ERROR_MESSAGE),
     TIMESTAMP("timestamp", PinotColumns.TIMESTAMP),
-    URI_TEMPLATE("uriTemplate", PinotColumns.URI_TEMPLATE);
+    URI_TEMPLATE("path", PinotColumns.URI_TEMPLATE);
 
     private static final EnumGetter<OrderByAttributes> GETTER = new EnumGetter<>(OrderByAttributes.class);
 
