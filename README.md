@@ -14,7 +14,7 @@ The current stable version is [v2.5.3](https://github.com/pinpoint-apm/pinpoint/
 
 ## Live Demo
 
-Take a quick look at Pinpoint with our [demo](http://223.130.142.103:8080//main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false)!
+Take a quick look at Pinpoint with our [demo](http://223.130.142.103:8080/main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false)!
 
 ## PHP, PYTHON
 
