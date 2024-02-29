@@ -88,6 +88,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-pinot-datasource</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-inspector-commons</artifactId>
+        </dependency>
 
         <!-- test -->
         <dependency>

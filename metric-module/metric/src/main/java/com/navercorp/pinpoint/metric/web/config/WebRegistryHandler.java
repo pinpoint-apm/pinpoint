@@ -13,7 +13,7 @@ import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleToLongTypeHan
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.LongTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.TagListTypeHandler;
-import com.navercorp.pinpoint.metric.web.mybatis.typehandler.TagTypeHandler;
+import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;

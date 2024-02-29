@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.inspector.web.dao;
 
+import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
-import com.navercorp.pinpoint.inspector.web.model.TagInformation;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 

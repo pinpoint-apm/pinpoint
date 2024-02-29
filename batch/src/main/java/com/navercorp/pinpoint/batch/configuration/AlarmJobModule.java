@@ -32,7 +32,8 @@ import org.springframework.context.annotation.ImportResource;
         "com.navercorp.pinpoint.batch.alarm"
 })
 @Import({
-        AlarmCheckerConfiguration.class
+        AlarmCheckerConfiguration.class,
+        BatchPinotDaoConfiguration.class
 })
 @Configuration
 public class AlarmJobModule {

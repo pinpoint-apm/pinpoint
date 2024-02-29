@@ -7,4 +7,7 @@ public enum DataCollectorCategory {
     DATA_SOURCE_STAT,
     CALLER_STAT,
     FILE_DESCRIPTOR,
+    HEAP_USAGE_RATE,
+    JVM_CPU_USAGE_RATE,
+    SYSTEM_CPU_USAGE_RATE
 }

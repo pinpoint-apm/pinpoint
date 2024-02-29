@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.batch.alarm.dao.pinot.PinotAlarmDao">
+
+    <resultMap id="tagInfoMap" type="TagInformation">
+        <constructor>
+            <arg column="applicationName" javaType="string"/>
+            <arg column="agentId" javaType="string"/>
+            <arg column="metricName" javaType="string"/>
+            <arg column="fieldName" javaType="string"/>
+            <arg column="tags" javaType="list" typeHandler="MultiValueTagTypeHandler"/>
+        </constructor>
+    </resultMap>
+
+    <select id="selectSumGroupByField" parameterType="BatchQueryParameter" resultType="AgentFieldUsage">
+        SELECT agentId, fieldName, SUM(fieldValue) AS sumValue
+        FROM inspectorStat
+        WHERE
+            applicationName = #{applicationName}
+            AND metricName = #{metricName}
+            AND fieldName IN
+                <foreach collection="fieldList" item="fieldName" separator="," open="(" close=")">
+                    #{fieldName}
+                </foreach>
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY agentId, fieldName
+    </select>
+
+
+    <select id="selectAvgGroupByField" parameterType="BatchQueryParameter" resultType="AgentFieldUsage">
+        SELECT 'agentId', fieldName, AVG(fieldValue) AS sumValue
+        FROM inspectorStat
+        WHERE
+        applicationName = #{applicationName}
+        AND agentId = #{agentId}
+        AND metricName = #{metricName}
+        AND fieldName IN
+        <foreach collection="fieldList" item="fieldName" separator="," open="(" close=")">
+            #{fieldName}
+        </foreach>
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        GROUP BY fieldName
+    </select>
+
+
+    <select id="selectSumCount" parameterType="BatchQueryParameter" resultType="AgentUsageCount">
+        SELECT agentId, SUM(fieldValue) AS sumValue, COUNT(*) AS countValue
+        FROM inspectorStat
+        WHERE
+            applicationName = #{applicationName}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY agentId
+    </select>
+
+    <select id="selectAvg" parameterType="BatchQueryParameter" resultType="AgentUsage">
+        SELECT agentId, AVG(fieldValue) AS avgValue
+        FROM inspectorStat
+        WHERE
+            applicationName = #{applicationName}
+          AND metricName = #{metricName}
+          AND fieldName = #{fieldName}
+          AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY agentId
+    </select>
+
+    <select id="selectTagInfo" parameterType="BatchQueryParameter" resultType="Tag">
+        SELECT DISTINCT(tags)
+        FROM inspectorStat
+        WHERE
+            applicationName = #{applicationName}
+            AND agentId = #{agentId}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+    </select>
+
+    <select id="selectTagInfoContainedSpecificTag" parameterType="BatchQueryParameter" resultMap="tagInfoMap">
+        SELECT applicationName, agentId, metricName, fieldName, tags
+        FROM inspectorStat
+        WHERE
+            applicationName = #{applicationName}
+            AND agentId = #{agentId}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            <foreach collection="tagList" item="tag" separator=" ">
+                AND tags = #{tag}
+            </foreach>
+        LIMIT 1
+    </select>
+</mapper>
