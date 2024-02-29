@@ -33,7 +33,6 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.Function;
 
 public class PinotAsyncTemplate {
@@ -57,15 +56,15 @@ public class PinotAsyncTemplate {
         this.exceptionTranslator = new MyBatisExceptionTranslator(dataSource, true);
     }
 
-    public <E> Future<List<E>> selectList(String statement) {
+    public <E> CompletableFuture<List<E>> selectList(String statement) {
         return this.selectList(statement, null, RowBounds.DEFAULT);
     }
 
-    public <E> Future<List<E>> selectList(String statement, Object parameter) {
+    public <E> CompletableFuture<List<E>> selectList(String statement, Object parameter) {
         return this.selectList(statement, parameter, RowBounds.DEFAULT);
     }
 
-    private <E> Future<List<E>> selectList(String statement, Object parameter, RowBounds rowBounds) {
+    private <E> CompletableFuture<List<E>> selectList(String statement, Object parameter, RowBounds rowBounds) {
         WrappedPinotConnection connection = null;
         try {
             connection = (WrappedPinotConnection) dataSource.getConnection();
@@ -120,10 +119,10 @@ public class PinotAsyncTemplate {
         return fetchSize;
     }
 
-    private <E> Future<List<E>> executeAsync(java.sql.Connection connection, PreparedStatement preparedStatement,
+    private <E> CompletableFuture<List<E>> executeAsync(java.sql.Connection connection, PreparedStatement preparedStatement,
                                              StatementHandler handler) {
-        Future<ResultSetGroup> resultSetGroupFuture = preparedStatement.executeAsync();
-        Future<List<E>> transformFuture = new TransformFuture<>(resultSetGroupFuture, new Function<ResultSetGroup, List<E>> () {
+        CompletableFuture<ResultSetGroup> resultSetGroupFuture = preparedStatement.executeAsync();
+        return resultSetGroupFuture.thenApply(new Function<ResultSetGroup, List<E>>() {
             @Override
             public List<E> apply(ResultSetGroup resultSetGroup) {
                 try (ResultSet resultSet = toResultSet(resultSetGroup);) {
@@ -134,7 +133,6 @@ public class PinotAsyncTemplate {
                 }
             }
         });
-        return transformFuture;
     }
 
     private RuntimeException translateException(Throwable th) {

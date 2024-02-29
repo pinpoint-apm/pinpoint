@@ -22,8 +22,12 @@ import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.util.LongUncollectedDataCreator;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
 import com.navercorp.pinpoint.metric.common.util.TimeUtils;
+import com.navercorp.pinpoint.metric.common.util.UncollectedDataCreator;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.mapping.Field;
 import com.navercorp.pinpoint.metric.web.mapping.Metric;
@@ -32,11 +36,7 @@ import com.navercorp.pinpoint.metric.web.model.MetricValue;
 import com.navercorp.pinpoint.metric.web.model.MetricValueGroup;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.util.TagUtils;
-import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
-import com.navercorp.pinpoint.metric.common.util.LongUncollectedDataCreator;
-import com.navercorp.pinpoint.metric.common.util.UncollectedDataCreator;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -99,7 +99,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         List<MetricValue<?>> metricValueList = new ArrayList<>(elementOfBasicGroupList.getFields().size());
         try {
             for (QueryResult<Number> result : queryResults) {
-                Future<List<SystemMetricPoint<Number>>> future = result.getFuture();
+                CompletableFuture<List<SystemMetricPoint<Number>>> future = result.getFuture();
                 MetricDataType type = result.getType();
                 List<SystemMetricPoint<Number>> systemMetricPoints = future.get();
                 if (type == MetricDataType.LONG) {
@@ -131,7 +131,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
             for (MetricTag metricTag : metricTagList) {
                 if (MetricDataType.DOUBLE == metricDataType) {
-                    Future<List<SystemMetricPoint<Double>>> doubleFuture = systemMetricDoubleDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
+                    CompletableFuture<List<SystemMetricPoint<Double>>> doubleFuture = systemMetricDoubleDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
                     invokeList.add(new QueryResult<>(metricDataType, doubleFuture, metricTag));
                 } else {
                     throw new RuntimeException("No Such Metric");
@@ -143,10 +143,10 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
     private static class QueryResult<T extends Number> {
         private final MetricDataType type;
-        private final Future<List<SystemMetricPoint<T>>> future;
+        private final CompletableFuture<List<SystemMetricPoint<T>>> future;
         private final MetricTag tag;
 
-        public QueryResult(MetricDataType type, Future<List<SystemMetricPoint<T>>> future, MetricTag tag) {
+        public QueryResult(MetricDataType type, CompletableFuture<List<SystemMetricPoint<T>>> future, MetricTag tag) {
             this.type = Objects.requireNonNull(type, "type");
             this.future = Objects.requireNonNull(future, "future");
             this.tag = Objects.requireNonNull(tag, "tag");
@@ -156,7 +156,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
             return type;
         }
 
-        public Future<List<SystemMetricPoint<T>>> getFuture() {
+        public CompletableFuture<List<SystemMetricPoint<T>>> getFuture() {
             return future;
         }
 

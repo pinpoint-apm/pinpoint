@@ -29,21 +29,21 @@ import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author minwoo-jung
  */
 public interface ApplicationStatDao {
-    Future<List<AvgMinMaxMetricPoint<Double>>>  selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<AvgMinMaxMetricPoint<Double>>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    Future<List<MinMaxMetricPoint<Double>>>  selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<MinMaxMetricPoint<Double>>>  selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    Future<List<SystemMetricPoint<Double>>>  selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<SystemMetricPoint<Double>>>  selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    Future<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    Future<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
     List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 

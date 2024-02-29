@@ -22,20 +22,19 @@ import com.navercorp.pinpoint.inspector.web.model.TagInformation;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
-
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 
 /**
  * @author minwoo.jung
  */
 public interface AgentStatDao {
-    Future<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    Future<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    Future<List<SystemMetricPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
     List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 

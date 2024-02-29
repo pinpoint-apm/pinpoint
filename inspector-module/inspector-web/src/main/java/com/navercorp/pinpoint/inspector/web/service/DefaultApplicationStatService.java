@@ -9,7 +9,6 @@ import com.navercorp.pinpoint.inspector.web.definition.metric.MetricPostProcesso
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricPreProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricProcessorManager;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
-import com.navercorp.pinpoint.inspector.web.definition.metric.field.FieldPostProcessor;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
@@ -35,7 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -222,7 +221,7 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         List<QueryResult> invokeList = new ArrayList<>();
 
         for (Field field : metricDefinition.getFields()) {
-            Future<? extends List<? extends Point>> doubleFuture = null;
+            CompletableFuture<? extends List<? extends Point>> doubleFuture = null;
             Class resultType = null;
 
             if (AggregationFunction.AVG_MIN_MAX.equals(field.getAggregationFunction())) {
@@ -252,17 +251,17 @@ public class DefaultApplicationStatService implements ApplicationStatService {
 
     // TODO : (minwoo) It seems that this can also be integrated into one with the com.navercorp.pinpoint.inspector.web.service.DefaultAgentStatService.QueryResult.
     private static class QueryResult {
-        private final Future<? extends List<? extends Point>> future;
+        private final CompletableFuture<? extends List<? extends Point>> future;
         private final Class resultType;
         private final Field field;
 
-        public QueryResult(Future<? extends List<? extends Point>> future, Field field, Class resultType) {
+        public QueryResult(CompletableFuture<? extends List<? extends Point>> future, Field field, Class resultType) {
             this.future = Objects.requireNonNull(future, "future");
             this.resultType = Objects.requireNonNull(resultType, "resultType");
             this.field = Objects.requireNonNull(field, "field");
         }
 
-        public Future<? extends List<? extends Point>> getFuture() {
+        public CompletableFuture<? extends List<? extends Point>> getFuture() {
             return future;
         }
 

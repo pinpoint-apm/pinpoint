@@ -31,7 +31,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author minwoo.jung
@@ -51,19 +51,19 @@ public class PinotAgentStatDao implements AgentStatDao {
     }
 
     @Override
-    public Future<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgData", inspectorQueryParameter);
     }
 
     @Override
-    public Future<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxData", inspectorQueryParameter);
     }
 
     @Override
-    public Future<List<SystemMetricPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumData", inspectorQueryParameter);
     }

@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.inspector.web.service;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
+import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricPostProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricPreProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.MetricProcessorManager;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
-import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.FieldPostProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.FieldProcessorManager;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
@@ -47,7 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -81,7 +81,7 @@ public class DefaultAgentStatService implements AgentStatService {
 
         try {
             for (QueryResult result : queryResults) {
-                Future<List<SystemMetricPoint<Double>>> future = result.getFuture();
+                CompletableFuture<List<SystemMetricPoint<Double>>> future = result.getFuture();
                 List<SystemMetricPoint<Double>> doubleList = future.get();
 
                 InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.getField(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
@@ -106,7 +106,7 @@ public class DefaultAgentStatService implements AgentStatService {
 
         try {
             for (QueryResult result : queryResults) {
-                Future<List<SystemMetricPoint<Double>>> future = result.getFuture();
+                CompletableFuture<List<SystemMetricPoint<Double>>> future = result.getFuture();
                 List<SystemMetricPoint<Double>> doubleList = future.get();
 
                 InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.getField(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
@@ -165,7 +165,7 @@ public class DefaultAgentStatService implements AgentStatService {
 
         for (Field field : metricDefinition.getFields()) {
             //TODO : (minwoo) Consolidate dao calls into one
-            Future<List<SystemMetricPoint<Double>>> doubleFuture = null;
+            CompletableFuture<List<SystemMetricPoint<Double>>> doubleFuture = null;
             if (AggregationFunction.AVG.equals(field.getAggregationFunction())) {
                 doubleFuture = agentStatDao.selectAgentStatAvg(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
             } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
@@ -183,15 +183,15 @@ public class DefaultAgentStatService implements AgentStatService {
 
     //TODO : (minwoo) It seems that this can also be integrated into one with the metric side.
     private static class QueryResult {
-        private final Future<List<SystemMetricPoint<Double>>> future;
+        private final CompletableFuture<List<SystemMetricPoint<Double>>> future;
         private final Field field;
 
-        public QueryResult(Future<List<SystemMetricPoint<Double>>> future, Field field) {
+        public QueryResult(CompletableFuture<List<SystemMetricPoint<Double>>> future, Field field) {
             this.future = Objects.requireNonNull(future, "future");
             this.field = Objects.requireNonNull(field, "field");
         }
 
-        public Future<List<SystemMetricPoint<Double>>> getFuture() {
+        public CompletableFuture<List<SystemMetricPoint<Double>>> getFuture() {
             return future;
         }
 
