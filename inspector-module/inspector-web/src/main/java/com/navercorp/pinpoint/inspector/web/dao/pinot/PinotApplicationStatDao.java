@@ -37,7 +37,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author minwoo-jung
@@ -55,31 +55,31 @@ public class PinotApplicationStatDao implements ApplicationStatDao {
     }
 
     @Override
-    public Future<List<AvgMinMaxMetricPoint<Double>>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<AvgMinMaxMetricPoint<Double>>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgMinMaxData", inspectorQueryParameter);
     }
 
     @Override
-    public Future<List<MinMaxMetricPoint<Double>>> selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<MinMaxMetricPoint<Double>>> selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMinMaxData", inspectorQueryParameter);
     }
 
     @Override
-    public Future<List<SystemMetricPoint<Double>>> selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<SystemMetricPoint<Double>>> selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumData", inspectorQueryParameter);
     }
 
     @Override
-    public Future<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgMinData", inspectorQueryParameter);
     }
 
     @Override
-    public Future<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxData", inspectorQueryParameter);
     }

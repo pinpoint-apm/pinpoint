@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.metric.web.dao.pinot;
 
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
+import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Hyunjoon Cho
@@ -50,7 +50,7 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
     }
 
     @Override
-    public Future<List<SystemMetricPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
+    public CompletableFuture<List<SystemMetricPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
         SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
         return asyncTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
     }
