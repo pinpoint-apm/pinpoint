@@ -44,4 +44,6 @@
         <constructor-arg ref="batchAlarmDao"/>
     </bean>
 
+    <bean id="alarmDao" class="com.navercorp.pinpoint.batch.alarm.dao.pinot.PinotAlarmDao"/>
+
 </beans>

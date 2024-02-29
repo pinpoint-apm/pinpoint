@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
+import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
@@ -33,7 +34,7 @@ public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListVal
     private static final String SMS_MESSAGE_FORMAT = "[PINPOINT Alarm - %s] DataSource %s connection pool usage %s%s (Threshold : %s%s, Raw : %s/%s)";
     private static final String EMAIL_MESSAGE_FORMAT = " Value of agent(%s) has %s%s(DataSource %s connection pool usage) during the past 5 mins.(Threshold : %s%s, Raw : %s/%s)";
 
-    public DataSourceConnectionUsageRateChecker(DataSourceDataCollector dataSourceDataCollector, Rule rule) {
+    public DataSourceConnectionUsageRateChecker(DataCollector dataSourceDataCollector, Rule rule) {
         super(rule, "%", dataSourceDataCollector);
     }
 

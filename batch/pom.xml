@@ -78,6 +78,14 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-batch-alarmsender</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-metric-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-inspector-commons</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.thrift</groupId>

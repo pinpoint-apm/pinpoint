@@ -13,9 +13,9 @@
     <packaging>pom</packaging>
 
     <modules>
-<!--        <module>inspector-common</module>-->
         <module>inspector-collector</module>
         <module>inspector-web</module>
+        <module>inspector-commons</module>
     </modules>
 
 </project>

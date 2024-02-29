@@ -19,10 +19,15 @@ package com.navercorp.pinpoint.batch.alarm;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.DataSourceDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.HeapDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.JvmCpuDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.SystemCpuDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.FileDescriptorDataCollector;
+import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
+import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
@@ -64,13 +69,19 @@ public class DataCollectorFactory {
 
     private final MapStatisticsCallerDao callerDao;
 
+    private final AlarmDao alarmDao;
+
+    private final int collectorVersion;
+
     public DataCollectorFactory(MapResponseDao mapResponseDao,
                                 AgentStatDao<JvmGcBo> jvmGcDao,
                                 AgentStatDao<CpuLoadBo> cpuLoadDao,
                                 AgentStatDao<DataSourceListBo> dataSourceDao,
                                 AgentStatDao<FileDescriptorBo> fileDescriptorDao,
                                 AgentEventDao agentEventDao,
-                                MapStatisticsCallerDao callerDao) {
+                                MapStatisticsCallerDao callerDao,
+                                AlarmDao alarmDao,
+                                BatchProperties batchProperties) {
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
         this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");
@@ -78,9 +89,37 @@ public class DataCollectorFactory {
         this.fileDescriptorDao = Objects.requireNonNull(fileDescriptorDao, "fileDescriptorDao");
         this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
         this.callerDao = Objects.requireNonNull(callerDao, "callerDao");
+        this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
+        this.collectorVersion = batchProperties.getCollectorVersion();
     }
 
     public DataCollector createDataCollector(CheckerCategory checker, Application application, Supplier<List<String>> agentIds, long timeSlotEndTime) {
+        if (collectorVersion == 1) {
+            return createDataCollectorV1(checker, application, agentIds, timeSlotEndTime);
+        } else {
+            return createDataCollectorV2(checker, application, agentIds, timeSlotEndTime);
+        }
+
+    }
+
+    private DataCollector createDataCollectorV1(CheckerCategory checker, Application application, Supplier<List<String>> agentIds, long timeSlotEndTime) {
+        return switch (checker.getDataCollectorCategory()) {
+            case RESPONSE_TIME ->
+                    new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mapResponseDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case AGENT_STAT, HEAP_USAGE_RATE, JVM_CPU_USAGE_RATE, SYSTEM_CPU_USAGE_RATE ->
+                    new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case AGENT_EVENT ->
+                    new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, agentEventDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case CALLER_STAT ->
+                    new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, callerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case DATA_SOURCE_STAT ->
+                    new com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, dataSourceDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case FILE_DESCRIPTOR ->
+                    new com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, fileDescriptorDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+        };
+    }
+
+    private DataCollector createDataCollectorV2(CheckerCategory checker, Application application, Supplier<List<String>> agentIds, long timeSlotEndTime) {
         return switch (checker.getDataCollectorCategory()) {
             case RESPONSE_TIME ->
                     new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mapResponseDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
@@ -91,11 +130,16 @@ public class DataCollectorFactory {
             case CALLER_STAT ->
                     new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, callerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case DATA_SOURCE_STAT ->
-                    new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, dataSourceDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+                    new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, alarmDao, application, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case FILE_DESCRIPTOR ->
-                    new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, fileDescriptorDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+                    new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, alarmDao, application, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case HEAP_USAGE_RATE ->
+                    new HeapDataCollector(DataCollectorCategory.HEAP_USAGE_RATE, alarmDao, application, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case JVM_CPU_USAGE_RATE ->
+                    new JvmCpuDataCollector(DataCollectorCategory.JVM_CPU_USAGE_RATE, alarmDao, application, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case SYSTEM_CPU_USAGE_RATE ->
+                    new SystemCpuDataCollector(DataCollectorCategory.SYSTEM_CPU_USAGE_RATE, alarmDao, application, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         };
-
     }
 
 }

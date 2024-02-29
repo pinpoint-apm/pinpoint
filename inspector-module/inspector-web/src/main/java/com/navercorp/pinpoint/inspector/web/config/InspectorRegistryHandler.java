@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.inspector.web.config;
 
+import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameter;
-import com.navercorp.pinpoint.inspector.web.dao.pinot.MultiValueTagTypeHandler;
-import com.navercorp.pinpoint.inspector.web.model.TagInformation;
+import com.navercorp.pinpoint.common.dao.pinot.MultiValueTagTypeHandler;
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
-import com.navercorp.pinpoint.metric.web.mybatis.typehandler.TagTypeHandler;
+import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;

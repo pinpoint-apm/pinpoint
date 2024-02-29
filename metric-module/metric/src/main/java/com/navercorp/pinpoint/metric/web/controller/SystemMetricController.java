@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricHostInfoService;
 import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
-import com.navercorp.pinpoint.metric.web.util.TagUtils;
+import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.metric.web.view.SystemMetricView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.springframework.web.bind.annotation.GetMapping;
