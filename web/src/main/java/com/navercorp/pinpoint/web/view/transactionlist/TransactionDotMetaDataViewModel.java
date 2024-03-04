@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.web.view.transactionlist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class TransactionDotMetaDataViewModel {
 
         @Override
         public String getTraceId() {
-            return TransactionIdUtils.formatString(dotMetaData.getDot().getTransactionId());
+            return dotMetaData.getDot().getTransactionId().toString();
         }
 
         @Override

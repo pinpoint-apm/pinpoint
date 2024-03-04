@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.web.view.transactionlist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ public class TransactionMetaDataViewModel {
 
         @Override
         public String getTraceId() {
-            return TransactionIdUtils.formatString(span.getTransactionId());
+            return span.getTransactionId().toString();
         }
 
         @Override

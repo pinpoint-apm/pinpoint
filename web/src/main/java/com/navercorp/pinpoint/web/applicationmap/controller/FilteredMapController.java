@@ -134,14 +134,14 @@ public class FilteredMapController {
         final LimitedScanResult<List<TransactionId>> limitedScanResult =
                 filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
-        final long lastScanTime = limitedScanResult.getLimitedTime();
+        final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
         final Range originalRange = Range.between(from, originTo);
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, to);
         logger.debug("originalRange: {}, scannerRange: {}", originalRange, scannerRange);
         final FilteredMapServiceOption option = new FilteredMapServiceOption
-                .Builder(limitedScanResult.getScanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
+                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(option);
@@ -220,14 +220,14 @@ public class FilteredMapController {
         final Range range = Range.between(from, to);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
-        final long lastScanTime = limitedScanResult.getLimitedTime();
+        final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
         final Range originalRange = Range.between(from, originTo);
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, to);
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
         final FilteredMapServiceOption option = new FilteredMapServiceOption
-                .Builder(limitedScanResult.getScanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
+                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterDataV3(option);

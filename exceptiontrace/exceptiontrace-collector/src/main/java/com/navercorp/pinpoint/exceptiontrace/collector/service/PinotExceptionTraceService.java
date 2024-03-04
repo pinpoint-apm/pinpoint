@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.exceptiontrace.collector.service;
 
 import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionWrapperBo;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
@@ -78,7 +76,7 @@ public class PinotExceptionTraceService implements ExceptionMetaDataService {
                     ExceptionMetaData.valueOf(
                             tenantId,
                             e.getStartTime(),
-                            transactionIdToString(exceptionMetaDataBo.getTransactionId()),
+                            exceptionMetaDataBo.getTransactionId().toString(),
                             exceptionMetaDataBo.getSpanId(),
                             e.getExceptionId(),
                             serviceType.getName(),
@@ -99,10 +97,6 @@ public class PinotExceptionTraceService implements ExceptionMetaDataService {
         return wrapperBos.stream().map(
                 (StackTraceElementWrapperBo s) -> new StackTraceElementWrapper(s.getClassName(), s.getFileName(), s.getLineNumber(), s.getMethodName())
         ).collect(Collectors.toList());
-    }
-
-    private static String transactionIdToString(TransactionId transactionId) {
-        return TransactionIdUtils.formatString(transactionId);
     }
 
 }

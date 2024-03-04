@@ -47,18 +47,15 @@ public final class TransactionIdUtils {
     public static String formatString(String agentId, long agentStartTime, long transactionSequence) {
         Objects.requireNonNull(agentId, "agentId");
 
-        StringBuilder sb = new StringBuilder(64);
-        sb.append(agentId);
-        sb.append(TRANSACTION_ID_DELIMITER);
-        sb.append(agentStartTime);
-        sb.append(TRANSACTION_ID_DELIMITER);
-        sb.append(transactionSequence);
-        return sb.toString();
+        return agentId +
+                TRANSACTION_ID_DELIMITER +
+                agentStartTime +
+                TRANSACTION_ID_DELIMITER +
+                transactionSequence;
     }
 
     public static byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
-        final byte[] buffer = writeTransactionId(agentId, agentStartTime, transactionSequence);
-        return buffer;
+        return writeTransactionId(agentId, agentStartTime, transactionSequence);
     }
 
     public static ByteBuffer formatByteBuffer(String agentId, long agentStartTime, long transactionSequence) {

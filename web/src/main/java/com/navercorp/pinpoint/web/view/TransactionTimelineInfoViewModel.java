@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 public class TransactionTimelineInfoViewModel {
@@ -33,7 +32,7 @@ public class TransactionTimelineInfoViewModel {
 
     @JsonProperty("transactionId")
     public String getTransactionId() {
-        return TransactionIdUtils.formatString(transactionId);
+        return transactionId.toString();
     }
 
     @JsonProperty("agentId")

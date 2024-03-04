@@ -42,8 +42,7 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
 
     @Override
     public TraceId newTraceId(long localTransactionId) {
-        final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, localTransactionId);
-        return traceId;
+        return new DefaultTraceId(agentId, agentStartTime, localTransactionId);
     }
 
     public TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags) {

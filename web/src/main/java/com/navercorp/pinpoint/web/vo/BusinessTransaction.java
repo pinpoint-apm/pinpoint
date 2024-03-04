@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 
 /**
  * @author emeroad
@@ -32,22 +31,28 @@ public class BusinessTransaction {
 
     private int calls = 0;
     private int error = 0;
-    private long totalTime = 0;
-    private long maxTime = 0;
-    private long minTime = 0;
+    private long totalTime;
+    private long maxTime;
+    private long minTime;
 
     public BusinessTransaction(SpanBo span) {
         Objects.requireNonNull(span, "span");
 
         this.rpc = span.getRpc();
-
         long elapsed = span.getElapsed();
-        totalTime = maxTime = minTime = elapsed;
+        this.totalTime = elapsed;
+        this.maxTime = elapsed;
+        this.minTime = elapsed;
 
-        String transactionIdString = TransactionIdUtils.formatString(span.getTransactionId());
-        Trace trace = new Trace(transactionIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
+        final Trace trace = Trace.of(span);
         this.traces.add(trace);
+
+        this.addError(span);
+
         calls++;
+    }
+
+    private void addError(SpanBo span) {
         if (span.getErrCode() > 0) {
             error++;
         }
@@ -57,21 +62,17 @@ public class BusinessTransaction {
         Objects.requireNonNull(span, "span");
 
         long elapsed = span.getElapsed();
-
         this.totalTime += elapsed;
         this.maxTime = Math.max(this.maxTime, elapsed);
         this.minTime = Math.min(this.minTime, elapsed);
 
-        String transactionIdString = TransactionIdUtils.formatString(span.getTransactionId());
-        Trace trace = new Trace(transactionIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
+        final Trace trace = Trace.of(span);
         this.traces.add(trace);
 
-        if (span.getErrCode() > 0) {
-            error++;
-        }
+        this.addError(span);
 
         //if (span.getParentSpanId() == -1) {
-            calls++;
+        calls++;
         //}
     }
 

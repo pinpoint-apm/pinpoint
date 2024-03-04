@@ -172,7 +172,7 @@ public class ScatterChartController {
         final LimitedScanResult<List<TransactionId>> limitedScanResult =
                 flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, backwardDirection);
 
-        final List<TransactionId> transactionIdList = limitedScanResult.getScanData();
+        final List<TransactionId> transactionIdList = limitedScanResult.scanData();
         if (logger.isTraceEnabled()) {
             logger.trace("submitted transactionId count={}", transactionIdList.size());
         }
@@ -192,7 +192,7 @@ public class ScatterChartController {
                     backwardDirection,
                     DateTimeFormatUtils.format(range.getFrom()),
                     DateTimeFormatUtils.format(range.getTo()),
-                    DateTimeFormatUtils.format(limitedScanResult.getLimitedTime()),
+                    DateTimeFormatUtils.format(limitedScanResult.limitedTime()),
                     transactionIdList.size()
             );
         }

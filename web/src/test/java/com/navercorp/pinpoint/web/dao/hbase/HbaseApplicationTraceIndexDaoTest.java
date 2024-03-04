@@ -99,13 +99,13 @@ public class HbaseApplicationTraceIndexDaoTest {
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<TransactionId>> result =
                 this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 20, false);
-        Assertions.assertEquals(1000L, result.getLimitedTime());
-        Assertions.assertEquals(ListListUtils.toList(scannedList), result.getScanData());
+        Assertions.assertEquals(1000L, result.limitedTime());
+        Assertions.assertEquals(ListListUtils.toList(scannedList), result.scanData());
 
         // using last row accessor
         result = this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 5, true);
-        Assertions.assertEquals(-1L, result.getLimitedTime());
-        Assertions.assertEquals(ListListUtils.toList(scannedList), result.getScanData());
+        Assertions.assertEquals(-1L, result.limitedTime());
+        Assertions.assertEquals(ListListUtils.toList(scannedList), result.scanData());
 
     }
 
@@ -125,7 +125,7 @@ public class HbaseApplicationTraceIndexDaoTest {
         LimitedScanResult<List<Dot>> scanResult
                 = this.applicationTraceIndexDao.scanTraceScatterData("app", range, 10, false);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
-        scanResult.getScanData().forEach(builder::addDot);
+        scanResult.scanData().forEach(builder::addDot);
         ScatterData result = builder.build();
 
         Assertions.assertEquals(1000L, result.getFrom());
@@ -142,7 +142,7 @@ public class HbaseApplicationTraceIndexDaoTest {
         LimitedScanResult<List<Dot>> scanResult
                 = this.applicationTraceIndexDao.scanTraceScatterData("app", range, 10, false);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
-        scanResult.getScanData().forEach(builder::addDot);
+        scanResult.scanData().forEach(builder::addDot);
         ScatterData result = builder.build();
         Assertions.assertEquals(1000L, result.getFrom());
         Assertions.assertEquals(5000L, result.getTo());

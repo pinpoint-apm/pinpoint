@@ -96,7 +96,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @Override
     public List<SpanBo> selectSpan(TransactionId transactionId) {
-        return selectSpan(transactionId, null).getData();
+        return selectSpan(transactionId, null).data();
     }
 
     @Override

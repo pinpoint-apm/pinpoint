@@ -16,16 +16,15 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -211,7 +210,7 @@ public class SpanAlign implements Align {
 
     @Override
     public String getTransactionId() {
-        return TransactionIdUtils.formatString(spanBo.getTransactionId());
+        return spanBo.getTransactionId().toString();
     }
 
     @Override
