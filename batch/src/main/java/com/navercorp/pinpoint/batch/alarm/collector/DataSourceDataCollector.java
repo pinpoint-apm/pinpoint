@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Taejin Koo
  */
-public class DataSourceDataCollector extends DataCollector {
+public class DataSourceDataCollector extends DataCollector implements DataSourceDataGetter {
     private final AgentStatDao<DataSourceListBo> dataSourceDao;
     private final List<String> agentIds;
     private final long timeSlotEndTime;
@@ -122,6 +122,7 @@ public class DataSourceDataCollector extends DataCollector {
     }
 
 
+    @Override
     public Map<String, List<DataSourceAlarmVO>> getDataSourceConnectionUsageRate() {
         return agentDataSourceConnectionUsageRateMap;
     }

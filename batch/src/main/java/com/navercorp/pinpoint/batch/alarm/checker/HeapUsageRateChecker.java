@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.HeapDataGetter;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 import java.util.Map;
@@ -27,12 +29,13 @@ import java.util.Map;
  */
 public class HeapUsageRateChecker extends LongValueAgentChecker {
     
-    public HeapUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {
+    public HeapUsageRateChecker(DataCollector dataCollector, Rule rule) {
         super(rule, "%", dataCollector);
+        Assert.isTrue(dataCollector instanceof HeapDataGetter, "dataCollector must be an instance of HeapDataGetter");
     }
 
     @Override
     protected Map<String, Long> getAgentValues() {
-        return ((AgentStatDataCollector)dataCollector).getHeapUsageRate();
+        return ((HeapDataGetter)dataCollector).getHeapUsageRate();
     }
 }

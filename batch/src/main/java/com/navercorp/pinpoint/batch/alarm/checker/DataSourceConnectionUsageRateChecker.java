@@ -18,7 +18,10 @@ package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataGetter;
+import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataGetter;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 import java.util.ArrayList;
@@ -36,6 +39,8 @@ public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListVal
 
     public DataSourceConnectionUsageRateChecker(DataCollector dataSourceDataCollector, Rule rule) {
         super(rule, "%", dataSourceDataCollector);
+        Assert.isTrue(dataSourceDataCollector instanceof DataSourceDataGetter, "dataCollector must be an instance of DataSourceDataGetter");
+
     }
 
     @Override
@@ -59,7 +64,7 @@ public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListVal
 
     @Override
     protected Map<String, List<DataSourceAlarmVO>> getAgentValues() {
-        return ((DataSourceDataCollector) dataCollector).getDataSourceConnectionUsageRate();
+        return ((DataSourceDataGetter) dataCollector).getDataSourceConnectionUsageRate();
     }
 
     public List<String> getSmsMessage() {

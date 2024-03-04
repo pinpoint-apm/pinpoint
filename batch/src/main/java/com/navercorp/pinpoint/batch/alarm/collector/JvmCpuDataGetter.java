@@ -17,24 +17,13 @@
  *
  */
 
-package com.navercorp.pinpoint.batch.alarm.checker;
-
-import com.navercorp.pinpoint.batch.alarm.collector.pinot.SystemCpuDataCollector;
-import com.navercorp.pinpoint.web.alarm.vo.Rule;
+package com.navercorp.pinpoint.batch.alarm.collector;
 
 import java.util.Map;
 
 /**
  * @author minwoo-jung
  */
-public class SystemCpuUsageRateCheckerV2 extends LongValueAgentChecker {
-
-    public SystemCpuUsageRateCheckerV2(SystemCpuDataCollector dataCollector, Rule rule) {
-        super(rule, "%", dataCollector);
-    }
-
-    @Override
-    protected Map<String, Long> getAgentValues() {
-        return ((SystemCpuDataCollector)dataCollector).getSystemCpuUsageRate();
-    }
+public interface JvmCpuDataGetter {
+    Map<String, Long> getJvmCpuUsageRate();
 }

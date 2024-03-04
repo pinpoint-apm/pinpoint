@@ -20,6 +20,7 @@
 package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataGetter;
 import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsage;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -34,7 +35,7 @@ import java.util.Objects;
 /**
  * @author minwoo-jung
  */
-public class FileDescriptorDataCollector extends DataCollector {
+public class FileDescriptorDataCollector extends DataCollector implements FileDescriptorDataGetter {
     private final static String METRIC_NAME = "fileDescriptor";
     private final static String FIELD_NAME = "openFileDescriptorCount";
 
@@ -63,6 +64,7 @@ public class FileDescriptorDataCollector extends DataCollector {
         }
     }
 
+    @Override
     public Map<String, Long> getFileDescriptorCount() {
         return agentFileDescriptorCount;
     }

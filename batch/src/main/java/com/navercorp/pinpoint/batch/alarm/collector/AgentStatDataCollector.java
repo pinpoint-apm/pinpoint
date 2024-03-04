@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author minwoo.jung
  */
-public class AgentStatDataCollector extends DataCollector {
+public class AgentStatDataCollector extends DataCollector implements HeapDataGetter, JvmCpuDataGetter, SystemCpuDataGetter {
     private final AgentStatDao<JvmGcBo> jvmGcDao;
     private final AgentStatDao<CpuLoadBo> cpuLoadDao;
     private final List<String> agentIds;
@@ -106,6 +106,7 @@ public class AgentStatDataCollector extends DataCollector {
 
     }
 
+    @Override
     public Map<String, Long> getHeapUsageRate() {
         return agentHeapUsageRate;
     }
@@ -114,9 +115,11 @@ public class AgentStatDataCollector extends DataCollector {
         return agentGcCount;
     }
 
+    @Override
     public Map<String, Long> getJvmCpuUsageRate() {
         return agentJvmCpuUsageRate;
     }
 
+    @Override
     public Map<String, Long> getSystemCpuUsageRate() { return agentSystemCpuUsageRate; }
 }

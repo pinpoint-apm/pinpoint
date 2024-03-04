@@ -20,6 +20,7 @@
 package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.SystemCpuDataGetter;
 import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsageCount;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -34,7 +35,7 @@ import java.util.Objects;
 /**
  * @author minwoo-jung
  */
-public class SystemCpuDataCollector extends DataCollector {
+public class SystemCpuDataCollector extends DataCollector implements SystemCpuDataGetter {
     private final static String METRIC_NAME = "cpuLoad";
     private final static String FIELD_NAME = "system";
 
@@ -64,6 +65,7 @@ public class SystemCpuDataCollector extends DataCollector {
         }
     }
 
+    @Override
     public Map<String, Long> getSystemCpuUsageRate() {
         return agentSystemCpuUsageRate;
     }

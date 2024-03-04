@@ -17,24 +17,13 @@
  *
  */
 
-package com.navercorp.pinpoint.batch.alarm.checker;
-
-import com.navercorp.pinpoint.batch.alarm.collector.pinot.FileDescriptorDataCollector;
-import com.navercorp.pinpoint.web.alarm.vo.Rule;
+package com.navercorp.pinpoint.batch.alarm.collector;
 
 import java.util.Map;
 
 /**
  * @author minwoo-jung
  */
-public class FileDescriptorCheckerV2 extends LongValueAgentChecker {
-
-    public FileDescriptorCheckerV2(FileDescriptorDataCollector dataCollector, Rule rule) {
-        super(rule, "", dataCollector);
-    }
-
-    @Override
-    protected Map<String, Long> getAgentValues() {
-        return ((FileDescriptorDataCollector)dataCollector).getFileDescriptorCount();
-    }
+public interface SystemCpuDataGetter {
+    Map<String, Long> getSystemCpuUsageRate();
 }

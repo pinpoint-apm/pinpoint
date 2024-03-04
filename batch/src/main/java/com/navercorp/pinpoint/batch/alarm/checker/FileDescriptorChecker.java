@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataGetter;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 import java.util.Map;
@@ -27,12 +29,14 @@ import java.util.Map;
  */
 public class FileDescriptorChecker extends LongValueAgentChecker {
 
-    public FileDescriptorChecker(FileDescriptorDataCollector dataCollector, Rule rule) {
+    public FileDescriptorChecker(DataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
+        Assert.isTrue(dataCollector instanceof FileDescriptorDataGetter, "dataCollector must be an instance of FileDescriptorDataGetter");
+
     }
 
     @Override
     protected Map<String, Long> getAgentValues() {
-        return ((FileDescriptorDataCollector)dataCollector).getFileDescriptorCount();
+        return ((FileDescriptorDataGetter)dataCollector).getFileDescriptorCount();
     }
 }
