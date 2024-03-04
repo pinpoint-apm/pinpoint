@@ -174,7 +174,7 @@ public class ParallelResultScanner implements ResultScanner {
     @Override
     public Iterator<Result> iterator() {
         // Identical to HTable.ClientScanner implementation
-        return new Iterator<Result>() {
+        return new Iterator<>() {
             // The next RowResult, possibly pre-read
             Result next = null;
 

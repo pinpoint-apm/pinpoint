@@ -37,10 +37,10 @@ public class HeatMapServiceImplTest {
     public void legacyCompatibilityCheckPassTest() {
         ApplicationTraceIndexDao applicationTraceIndexDao = mock(ApplicationTraceIndexDao.class);
         TraceDao traceDao = mock(TraceDao.class);
-        LimitedScanResult<List<DotMetaData>> scanResult = mock(LimitedScanResult.class);
 
-        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT)).thenReturn(scanResult);
-        when(scanResult.getScanData()).thenReturn(dotMataData());
+        LimitedScanResult<List<DotMetaData>> scanResult = new LimitedScanResult<>(1, dotMataData());
+        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT))
+                .thenReturn(scanResult);
 
         HeatMapService heatMapService = new HeatMapServiceImpl(applicationTraceIndexDao, spanService, traceDao);
         Assertions.assertSame(scanResult, heatMapService.dragScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT));
@@ -50,10 +50,10 @@ public class HeatMapServiceImplTest {
     public void legacyCompatibilityCheckTest() {
         ApplicationTraceIndexDao applicationTraceIndexDao = mock(ApplicationTraceIndexDao.class);
         TraceDao traceDao = mock(TraceDao.class);
-        LimitedScanResult<List<DotMetaData>> scanResult = mock(LimitedScanResult.class);
 
-        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT)).thenReturn(scanResult);
-        when(scanResult.getScanData()).thenReturn(legacyDotMataData());
+        LimitedScanResult<List<DotMetaData>> scanResult = new LimitedScanResult<>(1, legacyDotMataData());
+        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT))
+                .thenReturn(scanResult);
         when(traceDao.selectSpans(any())).thenReturn(matchingSpanData());
 
         HeatMapService heatMapService = new HeatMapServiceImpl(applicationTraceIndexDao, spanService, traceDao);
@@ -65,10 +65,10 @@ public class HeatMapServiceImplTest {
     public void legacyCompatibilityCheckMoreSpanTest() {
         ApplicationTraceIndexDao applicationTraceIndexDao = mock(ApplicationTraceIndexDao.class);
         TraceDao traceDao = mock(TraceDao.class);
-        LimitedScanResult<List<DotMetaData>> scanResult = mock(LimitedScanResult.class);
 
-        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT)).thenReturn(scanResult);
-        when(scanResult.getScanData()).thenReturn(legacyDotMataData());
+        LimitedScanResult<List<DotMetaData>> scanResult = new LimitedScanResult<>(1, legacyDotMataData());
+        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT))
+                .thenReturn(scanResult);
         when(traceDao.selectSpans(any())).thenReturn(moreSpanData());
 
         HeatMapService heatMapService = new HeatMapServiceImpl(applicationTraceIndexDao, spanService, traceDao);
@@ -80,10 +80,9 @@ public class HeatMapServiceImplTest {
     public void legacyCompatibilityCheckErrorTest() {
         ApplicationTraceIndexDao applicationTraceIndexDao = mock(ApplicationTraceIndexDao.class);
         TraceDao traceDao = mock(TraceDao.class);
-        LimitedScanResult<List<DotMetaData>> scanResult = mock(LimitedScanResult.class);
 
+        LimitedScanResult<List<DotMetaData>> scanResult = new LimitedScanResult<>(1, legacyDotMataData());
         when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT)).thenReturn(scanResult);
-        when(scanResult.getScanData()).thenReturn(legacyDotMataData());
         when(traceDao.selectSpans(any())).thenReturn(lessSpanData());
 
         HeatMapService heatMapService = new HeatMapServiceImpl(applicationTraceIndexDao, spanService, traceDao);

@@ -126,7 +126,7 @@ public class SpanServiceImpl implements SpanService {
         Objects.requireNonNull(columnGetCount, "columnGetCount");
 
         final FetchResult<List<SpanBo>> fetchResult = traceDao.selectSpan(transactionId, columnGetCount);
-        final List<SpanBo> spans = fetchResult.getData();
+        final List<SpanBo> spans = fetchResult.data();
         logger.debug("selectSpan spans:{}", spans.size());
 
         populateAgentName(spans);
@@ -134,10 +134,10 @@ public class SpanServiceImpl implements SpanService {
             return new SpanResult(TraceState.State.ERROR, new CallTreeIterator(null));
         }
 
-        final boolean isReachedLimit = columnGetCount.isReachedLimit(fetchResult.getFetchCount());
+        final boolean isReachedLimit = columnGetCount.isReachedLimit(fetchResult.fetchCount());
 
         final SpanResult result = order(spans, filter, isReachedLimit);
-        final CallTreeIterator callTreeIterator = result.getCallTree();
+        final CallTreeIterator callTreeIterator = result.callTree();
         final List<Align> values = callTreeIterator.values();
 
         transitionDynamicApiId(values);

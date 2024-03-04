@@ -56,7 +56,7 @@ public class HeatMapServiceImpl implements HeatMapService {
 
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
 //        boolean requestComplete = scatterData.getDotSize() < limit;
-        List<GetTraceInfo> query = buildQuery(applicationName, scanResult.getScanData());
+        List<GetTraceInfo> query = buildQuery(applicationName, scanResult.scanData());
 
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query);
 
@@ -64,7 +64,7 @@ public class HeatMapServiceImpl implements HeatMapService {
         spanService.populateAgentName(spanList);
 
         logger.debug("dragScatterArea span:{}", spanList.size());
-        return new LimitedScanResult<>(scanResult.getLimitedTime(), spanList);
+        return new LimitedScanResult<>(scanResult.limitedTime(), spanList);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class HeatMapServiceImpl implements HeatMapService {
     private LimitedScanResult<List<DotMetaData>> legacyCompatibilityCheck(String applicationName, LimitedScanResult<List<DotMetaData>> scanResult) {
         Predicate<DotMetaData> legacyTablePredicate = legacyTablePredicate();
 
-        List<DotMetaData> scanData = scanResult.getScanData();
+        List<DotMetaData> scanData = scanResult.scanData();
         Optional<DotMetaData> oldVersion = scanData.stream()
                 .filter(legacyTablePredicate)
                 .findAny();
@@ -128,7 +128,7 @@ public class HeatMapServiceImpl implements HeatMapService {
                 result.add(dotMetaData);
             }
         }
-        return new LimitedScanResult<>(scanResult.getLimitedTime(), result);
+        return new LimitedScanResult<>(scanResult.limitedTime(), result);
     }
 
     private Predicate<DotMetaData> legacyTablePredicate() {
@@ -150,14 +150,14 @@ public class HeatMapServiceImpl implements HeatMapService {
 
         final int slotSize = 100;
         HeatMapBuilder builder = HeatMapBuilder.newBuilder(range.getFrom(), range.getTo(), slotSize, 0, maxY, slotSize);
-        for (Dot dot : scanResult.getScanData()) {
+        for (Dot dot : scanResult.scanData()) {
             final boolean success = dot.getExceptionCode() == Dot.EXCEPTION_NONE;
             builder.addDataPoint(dot.getAcceptedTime(), dot.getElapsedTime(), success);
         }
         HeatMap heatMap = builder.build();
-        logger.debug("getHeatMap applicationName:{} dots:{} heatMap:{}", applicationName, scanResult.getScanData().size(), heatMap);
+        logger.debug("getHeatMap applicationName:{} dots:{} heatMap:{}", applicationName, scanResult.scanData().size(), heatMap);
 
-        return new LimitedScanResult<>(scanResult.getLimitedTime(), heatMap);
+        return new LimitedScanResult<>(scanResult.limitedTime(), heatMap);
     }
 
     private List<GetTraceInfo> buildQuery(String applicationName, List<Dot> dots) {

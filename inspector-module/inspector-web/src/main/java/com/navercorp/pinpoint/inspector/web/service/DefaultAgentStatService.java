@@ -81,10 +81,10 @@ public class DefaultAgentStatService implements AgentStatService {
 
         try {
             for (QueryResult result : queryResults) {
-                CompletableFuture<List<SystemMetricPoint<Double>>> future = result.getFuture();
+                CompletableFuture<List<SystemMetricPoint<Double>>> future = result.future();
                 List<SystemMetricPoint<Double>> doubleList = future.get();
 
-                InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.getField(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
                 metricValueList.add(doubleMetricValue);
             }
         } catch (Throwable e) {
@@ -106,10 +106,10 @@ public class DefaultAgentStatService implements AgentStatService {
 
         try {
             for (QueryResult result : queryResults) {
-                CompletableFuture<List<SystemMetricPoint<Double>>> future = result.getFuture();
+                CompletableFuture<List<SystemMetricPoint<Double>>> future = result.future();
                 List<SystemMetricPoint<Double>> doubleList = future.get();
 
-                InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.getField(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
                 metricValueList.add(doubleMetricValue);
             }
         } catch (Throwable e) {
@@ -182,23 +182,7 @@ public class DefaultAgentStatService implements AgentStatService {
     }
 
     //TODO : (minwoo) It seems that this can also be integrated into one with the metric side.
-    private static class QueryResult {
-        private final CompletableFuture<List<SystemMetricPoint<Double>>> future;
-        private final Field field;
-
-        public QueryResult(CompletableFuture<List<SystemMetricPoint<Double>>> future, Field field) {
-            this.future = Objects.requireNonNull(future, "future");
-            this.field = Objects.requireNonNull(field, "field");
-        }
-
-        public CompletableFuture<List<SystemMetricPoint<Double>>> getFuture() {
-            return future;
-        }
-
-        public Field getField() {
-            return field;
-        }
-
+    private record QueryResult(CompletableFuture<List<SystemMetricPoint<Double>>> future, Field field) {
     }
 
 }

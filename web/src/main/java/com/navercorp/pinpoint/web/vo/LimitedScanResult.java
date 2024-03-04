@@ -16,39 +16,11 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import java.util.Objects;
-
 /**
  * 
  * @author netspider
  * @author emeroad
  * @param <V>
  */
-public class LimitedScanResult<V> {
-
-    private final long limitedTime;
-    private final V data;
-
-    public LimitedScanResult(long limitedTime, V data) {
-        this.limitedTime = limitedTime;
-        this.data = Objects.requireNonNull(data, "data");
-    }
-
-    public V getScanData() {
-        return data;
-    }
-
-    public long getLimitedTime() {
-        return limitedTime;
-    }
-
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("LimitedScanResult{");
-        sb.append("limitedTime=").append(limitedTime);
-        sb.append(", data=").append(data);
-        sb.append('}');
-        return sb.toString();
-    }
+public record LimitedScanResult<V>(long limitedTime, V scanData) {
 }

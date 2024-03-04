@@ -99,17 +99,17 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         List<MetricValue<?>> metricValueList = new ArrayList<>(elementOfBasicGroupList.getFields().size());
         try {
             for (QueryResult<Number> result : queryResults) {
-                CompletableFuture<List<SystemMetricPoint<Number>>> future = result.getFuture();
-                MetricDataType type = result.getType();
+                CompletableFuture<List<SystemMetricPoint<Number>>> future = result.future();
+                MetricDataType type = result.type();
                 List<SystemMetricPoint<Number>> systemMetricPoints = future.get();
                 if (type == MetricDataType.LONG) {
                     List<SystemMetricPoint<Long>> longList = (List<SystemMetricPoint<Long>>) (List<?>) systemMetricPoints;
-                    MetricValue<Long> doubleMetricValue = createSystemMetricValue(timeWindow, result.getTag(), longList, LongUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                    MetricValue<Long> doubleMetricValue = createSystemMetricValue(timeWindow, result.tag(), longList, LongUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
                     metricValueList.add(doubleMetricValue);
                 } else if (type == MetricDataType.DOUBLE) {
                     List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) (List<?>) systemMetricPoints;
                     StopWatch dataProcessWatch = StopWatch.createStarted();
-                    MetricValue<Double> doubleMetricValue = createSystemMetricValue(timeWindow, result.getTag(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                    MetricValue<Double> doubleMetricValue = createSystemMetricValue(timeWindow, result.tag(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
                     dataProcessWatch.stop();
                     metricValueList.add(doubleMetricValue);
                 }
@@ -141,28 +141,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         return (List<QueryResult<Number>>)(List<?>) invokeList;
     }
 
-    private static class QueryResult<T extends Number> {
-        private final MetricDataType type;
-        private final CompletableFuture<List<SystemMetricPoint<T>>> future;
-        private final MetricTag tag;
-
-        public QueryResult(MetricDataType type, CompletableFuture<List<SystemMetricPoint<T>>> future, MetricTag tag) {
-            this.type = Objects.requireNonNull(type, "type");
-            this.future = Objects.requireNonNull(future, "future");
-            this.tag = Objects.requireNonNull(tag, "tag");
-        }
-
-        public MetricDataType getType() {
-            return type;
-        }
-
-        public CompletableFuture<List<SystemMetricPoint<T>>> getFuture() {
-            return future;
-        }
-
-        public MetricTag getTag() {
-            return tag;
-        }
+    private record QueryResult<T extends Number>(MetricDataType type, CompletableFuture<List<SystemMetricPoint<T>>> future, MetricTag tag) {
     }
 
 
@@ -188,7 +167,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
         List<MetricValueGroup<?>> metricValueGroupList = new ArrayList<>(valueList.size());
         for (Map.Entry<TagGroup, List<MetricValue<?>>> entry : metricValueGroupMap.entrySet()) {
-            String groupName = entry.getKey().getGroupName();
+            String groupName = entry.getKey().groupName();
             List<MetricValue<?>> value = entry.getValue();
             MetricValueGroup<?> group = new MetricValueGroup(value, groupName);
             metricValueGroupList.add(group);
@@ -234,8 +213,8 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
             return true;
         }
 
-        List<Tag> tagList1 = tagGroup1.getTagList();
-        List<Tag> tagList2 = tagGroup2.getTagList();
+        List<Tag> tagList1 = tagGroup1.tagList();
+        List<Tag> tagList2 = tagGroup2.tagList();
 
         if (tagList1.size() == tagList2.size()) {
             if (tagList1.containsAll(tagList2)) {
@@ -246,18 +225,9 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         return false;
     }
 
-    private static class TagGroup {
-        private final List<Tag> tagList;
+    private record TagGroup(List<Tag> tagList) {
 
-        public TagGroup(List<Tag> tagList) {
-            this.tagList = Objects.requireNonNull(tagList, "tagList");
-        }
-
-        public List<Tag> getTagList() {
-            return tagList;
-        }
-
-        public String getGroupName() {
+        public String groupName() {
             if (tagList.isEmpty()) {
                 return "groupWithNoTag";
             }
@@ -265,12 +235,6 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
             return TagUtils.toTagString(tagList);
         }
 
-        @Override
-        public String toString() {
-            return "TagGroup{" +
-                    "tagList=" + tagList +
-                    '}';
-        }
     }
 
     private <T extends Number> MetricValue<T> createSystemMetricValue(TimeWindow timeWindow, MetricTag metricTag,
@@ -286,7 +250,4 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         return new MetricValue<>(metricTag.getFieldName(), metricTag.getTags(), valueList);
     }
 
-    private String getChartName(String metricName, String fieldName) {
-        return metricName + "_" + fieldName;
-    }
 }

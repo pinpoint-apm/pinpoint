@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.vo.scatter;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.view.DotSerializer;
 
 import java.util.Objects;
@@ -67,10 +66,6 @@ public class Dot {
         return transactionId;
     }
 
-    public String getTransactionIdAsString() {
-        return TransactionIdUtils.formatString(transactionId);
-    }
-
     public int getExceptionCode() {
         return exceptionCode;
     }
@@ -98,15 +93,14 @@ public class Dot {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(64);
-        sb.append("Dot{");
-        sb.append("transactionId=").append(getTransactionIdAsString());
-        sb.append(", acceptedTime=").append(acceptedTime);
-        sb.append(", elapsedTime=").append(elapsedTime);
-        sb.append(", exceptionCode=").append(exceptionCode);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append('}');
-        return sb.toString();
+        String sb = "Dot{" +
+                "transactionId=" + this.transactionId +
+                ", acceptedTime=" + acceptedTime +
+                ", elapsedTime=" + elapsedTime +
+                ", exceptionCode=" + exceptionCode +
+                ", agentId='" + agentId + '\'' +
+                '}';
+        return sb;
     }
 
 }

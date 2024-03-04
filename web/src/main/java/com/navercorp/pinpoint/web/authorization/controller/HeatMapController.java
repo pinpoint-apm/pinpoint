@@ -67,13 +67,13 @@ public class HeatMapController {
 
         final LimitedScanResult<List<DotMetaData>> dotMetaData = heatMap.dragScatterDataV2(applicationName, query, limit);
         if (logger.isDebugEnabled()) {
-            logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, dotMetaData.getScanData().size());
+            logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, dotMetaData.scanData().size());
         }
 
-        final List<DotMetaData> scanData = dotMetaData.getScanData();
+        final List<DotMetaData> scanData = dotMetaData.scanData();
         final TransactionDotMetaDataViewModel transaction = new TransactionDotMetaDataViewModel(scanData);
         final boolean complete = scanData.size() < limit;
-        final PagingStatus scanStatus = new PagingStatus(complete, dotMetaData.getLimitedTime());
+        final PagingStatus scanStatus = new PagingStatus(complete, dotMetaData.limitedTime());
         return new ResultView(transaction.getMetadata(), scanStatus);
 
     }
@@ -141,7 +141,7 @@ public class HeatMapController {
                 this.heatMap.getHeatMap(applicationName, range, TimeUnit.SECONDS.toMillis(10), LimitUtils.MAX);
         final Status status = new Status(System.currentTimeMillis(), range);
 
-        return new HeatMapController.HeatMapViewModel(scanResult.getScanData(), status);
+        return new HeatMapController.HeatMapViewModel(scanResult.scanData(), status);
     }
 
 
