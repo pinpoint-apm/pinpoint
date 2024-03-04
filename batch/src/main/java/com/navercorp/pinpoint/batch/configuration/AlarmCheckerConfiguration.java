@@ -22,36 +22,26 @@ import com.navercorp.pinpoint.batch.alarm.CheckerRegistry;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.ApdexScoreChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.DataSourceConnectionUsageRateChecker;
-import com.navercorp.pinpoint.batch.alarm.checker.DataSourceConnectionUsageRateCheckerV2;
 import com.navercorp.pinpoint.batch.alarm.checker.DeadlockChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.ErrorCountChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.ErrorCountToCalleeChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.ErrorRateChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.ErrorRateToCalleeChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.FileDescriptorChecker;
-import com.navercorp.pinpoint.batch.alarm.checker.FileDescriptorCheckerV2;
 import com.navercorp.pinpoint.batch.alarm.checker.HeapUsageRateChecker;
-import com.navercorp.pinpoint.batch.alarm.checker.HeapUsageRateCheckerV2;
 import com.navercorp.pinpoint.batch.alarm.checker.JvmCpuUsageRateChecker;
-import com.navercorp.pinpoint.batch.alarm.checker.JvmCpuUsageRateCheckerV2;
 import com.navercorp.pinpoint.batch.alarm.checker.ResponseCountChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowCountChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowCountToCalleeChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowRateChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowRateToCalleeChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SystemCpuUsageRateChecker;
-import com.navercorp.pinpoint.batch.alarm.checker.SystemCpuUsageRateCheckerV2;
 import com.navercorp.pinpoint.batch.alarm.checker.TotalCountToCalleeChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.pinot.FileDescriptorDataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.pinot.HeapDataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.pinot.JvmCpuDataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.pinot.SystemCpuDataCollector;
-import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.apache.logging.log4j.LogManager;
@@ -65,11 +55,9 @@ import java.util.List;
 public class AlarmCheckerConfiguration {
 
     private final Logger logger = LogManager.getLogger(AlarmCheckerConfiguration.class);
-    private final int collectorVersion;
 
-    public AlarmCheckerConfiguration(BatchProperties batchProperties) {
+    public AlarmCheckerConfiguration() {
         logger.info("Install AlarmCheckerConfiguration");
-        collectorVersion = batchProperties.getCollectorVersion();
     }
 
     @Bean
@@ -255,119 +243,62 @@ public class AlarmCheckerConfiguration {
 
     @Bean
     public AlarmCheckerFactory heapUsageRateChecker() {
-        if (collectorVersion == 1) {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new HeapUsageRateChecker((AgentStatDataCollector) dataCollector, rule);
-                }
+        return new AlarmCheckerFactory() {
+            @Override
+            public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
+                return new HeapUsageRateChecker(dataCollector, rule);
+            }
 
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.HEAP_USAGE_RATE.name();
-                }
-            };
-        } else {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new HeapUsageRateCheckerV2((HeapDataCollector)dataCollector, rule);
-                }
-
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.HEAP_USAGE_RATE.name();
-                }
-            };
-        }
+            @Override
+            public String getCategory() {
+                return CheckerCategory.HEAP_USAGE_RATE.name();
+            }
+        };
     }
 
     @Bean
     public AlarmCheckerFactory jvmCpuUsageRateChecker() {
-        if (collectorVersion == 1) {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new JvmCpuUsageRateChecker((AgentStatDataCollector) dataCollector, rule);
-                }
+        return new AlarmCheckerFactory() {
+            @Override
+            public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
+                return new JvmCpuUsageRateChecker(dataCollector, rule);
+            }
 
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.JVM_CPU_USAGE_RATE.name();
-                }
-            };
-        } else {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new JvmCpuUsageRateCheckerV2((JvmCpuDataCollector) dataCollector, rule);
-                }
-
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.JVM_CPU_USAGE_RATE.name();
-                }
-            };
-        }
+            @Override
+            public String getCategory() {
+                return CheckerCategory.JVM_CPU_USAGE_RATE.name();
+            }
+        };
     }
 
     @Bean
     public AlarmCheckerFactory systemCpuUsageRateChecker() {
-        if (collectorVersion == 1) {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new SystemCpuUsageRateChecker((AgentStatDataCollector) dataCollector, rule);
-                }
+        return new AlarmCheckerFactory() {
+            @Override
+            public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
+                return new SystemCpuUsageRateChecker(dataCollector, rule);
+            }
 
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.SYSTEM_CPU_USAGE_RATE.name();
-                }
-            };
-        } else {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new SystemCpuUsageRateCheckerV2((SystemCpuDataCollector) dataCollector, rule);
-                }
-
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.SYSTEM_CPU_USAGE_RATE.name();
-                }
-            };
-        }
-
+            @Override
+            public String getCategory() {
+                return CheckerCategory.SYSTEM_CPU_USAGE_RATE.name();
+            }
+        };
     }
 
     @Bean
     public AlarmCheckerFactory dataSourceConnectionUsageRateChecker() {
-        if (collectorVersion == 1) {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new DataSourceConnectionUsageRateChecker(dataCollector, rule);
-                }
+        return new AlarmCheckerFactory() {
+            @Override
+            public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
+                return new DataSourceConnectionUsageRateChecker(dataCollector, rule);
+            }
 
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.DATASOURCE_CONNECTION_USAGE_RATE.name();
-                }
-            };
-        } else {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new DataSourceConnectionUsageRateCheckerV2(dataCollector, rule);
-                }
-
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.DATASOURCE_CONNECTION_USAGE_RATE.name();
-                }
-            };
-        }
+            @Override
+            public String getCategory() {
+                return CheckerCategory.DATASOURCE_CONNECTION_USAGE_RATE.name();
+            }
+        };
     }
 
     @Bean
@@ -387,31 +318,17 @@ public class AlarmCheckerConfiguration {
 
     @Bean
     public AlarmCheckerFactory fileDescriptorChecker() {
-        if (collectorVersion == 1) {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new FileDescriptorChecker((com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector) dataCollector, rule);
-                }
+        return new AlarmCheckerFactory() {
+            @Override
+            public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
+                return new FileDescriptorChecker(dataCollector, rule);
+            }
 
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.FILE_DESCRIPTOR_COUNT.name();
-                }
-            };
-        } else {
-            return new AlarmCheckerFactory() {
-                @Override
-                public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                    return new FileDescriptorCheckerV2((FileDescriptorDataCollector) dataCollector, rule);
-                }
-
-                @Override
-                public String getCategory() {
-                    return CheckerCategory.FILE_DESCRIPTOR_COUNT.name();
-                }
-            };
-        }
+            @Override
+            public String getCategory() {
+                return CheckerCategory.FILE_DESCRIPTOR_COUNT.name();
+            }
+        };
     }
 
 

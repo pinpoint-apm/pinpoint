@@ -20,6 +20,7 @@
 package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataGetter;
 import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
@@ -44,7 +45,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * @author minwoo-jung
  */
-public class DataSourceDataCollector extends DataCollector {
+public class DataSourceDataCollector extends DataCollector implements DataSourceDataGetter {
 
     private final Logger logger = LogManager.getLogger(DataSourceDataCollector.class);
     private static final String EMTPY_STRING = "";
@@ -197,6 +198,7 @@ public class DataSourceDataCollector extends DataCollector {
     }
 
 
+    @Override
     public Map<String, List<DataSourceAlarmVO>> getDataSourceConnectionUsageRate() {
         return agentDataSourceConnectionUsageRateMap;
     }

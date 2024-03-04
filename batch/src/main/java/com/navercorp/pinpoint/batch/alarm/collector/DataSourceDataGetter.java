@@ -17,12 +17,9 @@
  *
  */
 
-package com.navercorp.pinpoint.batch.alarm.checker;
+package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.pinot.DataSourceDataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
-import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 import java.util.List;
 import java.util.Map;
@@ -30,14 +27,7 @@ import java.util.Map;
 /**
  * @author minwoo-jung
  */
-public class DataSourceConnectionUsageRateCheckerV2 extends DataSourceConnectionUsageRateChecker{
-    public DataSourceConnectionUsageRateCheckerV2(DataCollector dataSourceDataCollector, Rule rule) {
-        super(dataSourceDataCollector, rule);
-    }
+public interface DataSourceDataGetter {
 
-    @Override
-    protected Map<String, List<DataSourceAlarmVO>> getAgentValues() {
-        return ((DataSourceDataCollector)dataCollector).getDataSourceConnectionUsageRate();
-    }
-
+    Map<String, List<DataSourceAlarmVO>> getDataSourceConnectionUsageRate();
 }

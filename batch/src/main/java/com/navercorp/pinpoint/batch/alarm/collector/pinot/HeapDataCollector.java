@@ -20,6 +20,7 @@
 package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.HeapDataGetter;
 import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
@@ -37,7 +38,7 @@ import java.util.Objects;
 /**
  * @author minwoo-jung
  */
-public class HeapDataCollector extends DataCollector {
+public class HeapDataCollector extends DataCollector implements HeapDataGetter {
 
     private final static String METRIC_NAME = "jvmGc";
     private final static String FIELD_HEAP_USED = "heapUsed";
@@ -85,7 +86,8 @@ public class HeapDataCollector extends DataCollector {
         }
     }
 
-    public Map<String, Long> getAgentHeapUsageRate() {
+    @Override
+    public Map<String, Long> getHeapUsageRate() {
         return agentHeapUsageRate;
     }
 
