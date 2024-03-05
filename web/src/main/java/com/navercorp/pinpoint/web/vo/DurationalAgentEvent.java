@@ -35,8 +35,16 @@ public class DurationalAgentEvent extends AgentEvent {
     @JsonProperty
     private long durationEndTimestamp = UNKNOWN_TIMESTAMP;
 
+    public DurationalAgentEvent(AgentEventBo agentEventBo, Object eventMessage) {
+        super(agentEventBo.getAgentId(),
+                agentEventBo.getStartTimestamp(), agentEventBo.getEventTimestamp(),
+                agentEventBo.getEventType(), eventMessage);
+    }
+
     public DurationalAgentEvent(AgentEventBo agentEventBo) {
-        super(agentEventBo);
+        super(agentEventBo.getAgentId(),
+                agentEventBo.getStartTimestamp(), agentEventBo.getEventTimestamp(),
+                agentEventBo.getEventType(), null);
     }
 
     public long getDurationStartTimestamp() {

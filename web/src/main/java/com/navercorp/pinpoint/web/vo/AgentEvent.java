@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.view.AgentEventSerializer;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -29,50 +30,46 @@ import java.util.Comparator;
 @JsonSerialize(using = AgentEventSerializer.class)
 public class AgentEvent {
 
-    public static final Comparator<AgentEvent> EVENT_TIMESTAMP_ASC_COMPARATOR = new Comparator<AgentEvent>() {
-        @Override
-        public int compare(AgentEvent o1, AgentEvent o2) {
-            int eventTimestampComparison = Long.compare(o1.eventTimestamp, o2.eventTimestamp);
-            if (eventTimestampComparison == 0) {
-                return o2.eventTypeCode - o1.eventTypeCode;
-            }
-            return eventTimestampComparison;
-        }
-    };
-
-    public static final Comparator<AgentEvent> EVENT_TIMESTAMP_DESC_COMPARATOR = new Comparator<AgentEvent>() {
-        @Override
-        public int compare(AgentEvent o1, AgentEvent o2) {
-            int eventTimestampComparison = Long.compare(o2.eventTimestamp, o1.eventTimestamp);
-            if (eventTimestampComparison == 0) {
-                return o1.eventTypeCode - o2.eventTypeCode;
-            }
-            return eventTimestampComparison;
-        }
-    };
+    public static final Comparator<AgentEvent> EVENT_TIMESTAMP_ASC_COMPARATOR = Comparator
+                    .comparingLong(AgentEvent::getEventTimestamp)
+                    .thenComparing(Comparator.comparingInt(AgentEvent::getEventTypeCode).reversed());
 
     private final String agentId;
 
-    private final long eventTimestamp;
-
-    private final int eventTypeCode;
-
-    private final String eventTypeDesc;
-
-    private final boolean hasEventMessage;
-
     private final long startTimestamp;
 
-    private Object eventMessage;
+    private final long eventTimestamp;
 
-    public AgentEvent(AgentEventBo agentEventBo) {
-        this.agentId = agentEventBo.getAgentId();
-        this.eventTimestamp = agentEventBo.getEventTimestamp();
-        this.startTimestamp = agentEventBo.getStartTimestamp();
-        AgentEventType eventType = agentEventBo.getEventType();
-        this.eventTypeCode = eventType.getCode();
-        this.eventTypeDesc = eventType.getDesc();
-        this.hasEventMessage = eventType.getMessageType() != Void.class;
+    private final AgentEventType eventType;
+
+    private final Object eventMessage;
+
+    public static AgentEvent from(AgentEventBo event) {
+        Objects.requireNonNull(event, "event");
+
+        final AgentEventType eventType = event.getEventType();
+
+        return new AgentEvent(event.getAgentId(), event.getStartTimestamp(), event.getEventTimestamp(), eventType, null);
+    }
+
+    public static AgentEvent withEventMessage(AgentEventBo event, Object message) {
+        Objects.requireNonNull(event, "event");
+
+        final AgentEventType eventType = event.getEventType();
+
+        return new AgentEvent(event.getAgentId(), event.getStartTimestamp(), event.getEventTimestamp(), eventType, message);
+    }
+
+    public AgentEvent(String agentId, long startTimestamp, long eventTimestamp, AgentEventType eventType) {
+        this(agentId, startTimestamp, eventTimestamp, eventType, null);
+    }
+
+    public AgentEvent(String agentId, long startTimestamp, long eventTimestamp, AgentEventType eventType, Object eventMessage) {
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.eventTimestamp = eventTimestamp;
+        this.startTimestamp = startTimestamp;
+        this.eventType = Objects.requireNonNull(eventType, "eventType");
+        this.eventMessage = eventMessage;
     }
 
     public String getAgentId() {
@@ -84,15 +81,15 @@ public class AgentEvent {
     }
 
     public int getEventTypeCode() {
-        return eventTypeCode;
+        return eventType.getCode();
     }
 
     public String getEventTypeDesc() {
-        return eventTypeDesc;
+        return eventType.getDesc();
     }
 
     public boolean hasEventMessage() {
-        return this.hasEventMessage;
+        return eventType.getMessageType() != Void.class;
     }
 
     public long getStartTimestamp() {
@@ -103,64 +100,30 @@ public class AgentEvent {
         return eventMessage;
     }
 
-    public void setEventMessage(Object eventMessage) {
-        this.eventMessage = eventMessage;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AgentEvent that = (AgentEvent) o;
+
+        if (eventTimestamp != that.eventTimestamp) return false;
+        if (startTimestamp != that.startTimestamp) return false;
+        if (!Objects.equals(agentId, that.agentId)) return false;
+        return eventType == that.eventType;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-        result = prime * result + (int)(eventTimestamp ^ (eventTimestamp >>> 32));
-        result = prime * result + eventTypeCode;
-        result = prime * result + ((eventTypeDesc == null) ? 0 : eventTypeDesc.hashCode());
-        result = prime * result + (hasEventMessage ? 1231 : 1237);
-        result = prime * result + (int)(startTimestamp ^ (startTimestamp >>> 32));
+        int result = agentId != null ? agentId.hashCode() : 0;
+        result = 31 * result + (int) (eventTimestamp ^ (eventTimestamp >>> 32));
+        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
+        result = 31 * result + (eventType != null ? eventType.hashCode() : 0);
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        AgentEvent other = (AgentEvent)obj;
-        if (agentId == null) {
-            if (other.agentId != null)
-                return false;
-        } else if (!agentId.equals(other.agentId))
-            return false;
-        if (eventTimestamp != other.eventTimestamp)
-            return false;
-        if (eventTypeCode != other.eventTypeCode)
-            return false;
-        if (eventTypeDesc == null) {
-            if (other.eventTypeDesc != null)
-                return false;
-        } else if (!eventTypeDesc.equals(other.eventTypeDesc))
-            return false;
-        if (hasEventMessage != other.hasEventMessage)
-            return false;
-        if (startTimestamp != other.startTimestamp)
-            return false;
-        return true;
-    }
-
-    @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentEvent{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", eventTimestamp=").append(eventTimestamp);
-        sb.append(", eventTypeCode=").append(eventTypeCode);
-        sb.append(", eventTypeDesc='").append(eventTypeDesc).append('\'');
-        sb.append(", hasEventMessage=").append(hasEventMessage);
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", eventMessage=").append(eventMessage);
-        sb.append('}');
-        return sb.toString();
+        return "AgentEvent{" + "agentId='" + agentId + '\'' + ", eventTimestamp=" + eventTimestamp + ", startTimestamp=" + startTimestamp + ", eventType=" + eventType + ", eventMessage=" + eventMessage + '}';
     }
 }

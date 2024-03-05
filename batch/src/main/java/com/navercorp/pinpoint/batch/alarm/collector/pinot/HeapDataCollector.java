@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
         return agentHeapUsageRate;
     }
 
-    private class AgentHeapUsage {
+    private static class AgentHeapUsage {
         private final String agentId;
         private Double heapMax;
         private Double heapUsed;

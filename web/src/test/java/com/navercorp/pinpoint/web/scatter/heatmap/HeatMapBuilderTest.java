@@ -54,11 +54,11 @@ public class HeatMapBuilderTest {
 
         assertThat(points).hasSize(2);
 
-        long sum = points.stream().mapToLong(Point::getSuccess).sum();
+        long sum = points.stream().mapToLong(Point::success).sum();
         Assertions.assertEquals(3L, sum);
 
-        Assertions.assertEquals(1, points.get(0).getSuccess());
-        Assertions.assertEquals(2, points.get(1).getSuccess());
+        Assertions.assertEquals(1, points.get(0).success());
+        Assertions.assertEquals(2, points.get(1).success());
     }
 
     @Test
@@ -74,8 +74,8 @@ public class HeatMapBuilderTest {
 
         assertThat(points).hasSize(2);
 
-        Assertions.assertEquals(0, points.get(0).getY());
-        Assertions.assertEquals(20, points.get(1).getY());
+        Assertions.assertEquals(0, points.get(0).y());
+        Assertions.assertEquals(20, points.get(1).y());
 
     }
 

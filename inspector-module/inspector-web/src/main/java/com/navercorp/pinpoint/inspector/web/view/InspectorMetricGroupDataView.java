@@ -30,24 +30,24 @@ import java.util.stream.Collectors;
 /**
  * @author minwoo.jung
  */
-public class InspectorMetricGroupDataVeiw {
+public class InspectorMetricGroupDataView {
     private final InspectorMetricGroupData inspectorMetricGroupData;
 
-    public InspectorMetricGroupDataVeiw(InspectorMetricGroupData inspectorMetricGroupData) {
+    public InspectorMetricGroupDataView(InspectorMetricGroupData inspectorMetricGroupData) {
         this.inspectorMetricGroupData = Objects.requireNonNull(inspectorMetricGroupData, "inspectorMetricGroupData");
     }
 
 
     public String getTitle() {
-        return inspectorMetricGroupData.getTitle();
+        return inspectorMetricGroupData.title();
     }
 
     public List<Long> getTimestamp() {
-        return inspectorMetricGroupData.getTimeStampList();
+        return inspectorMetricGroupData.timestamps();
     }
 
     public List<MetricValueGroupView> getMetricValueGroups() {
-        Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups = inspectorMetricGroupData.getMetricValueGroups();
+        Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups = inspectorMetricGroupData.metricValueGroups();
 
         List<MetricValueGroupView> metricValueGroupViewList= new ArrayList<>(metricValueGroups.size());
 

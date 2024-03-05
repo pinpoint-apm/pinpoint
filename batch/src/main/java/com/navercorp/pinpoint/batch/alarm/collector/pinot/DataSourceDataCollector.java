@@ -79,21 +79,22 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
         try {
             Map<String, List<TagInformation>> agentTagInformation = getAgentTagInformation(range);
 
-            List<QueryResult> queryResults = new ArrayList<>();
+            List<QueryResult<AgentFieldUsage, TagInformation>> queryResults = new ArrayList<>();
 
             for (Map.Entry<String, List<TagInformation>> entry : agentTagInformation.entrySet()) {
                 String agentId = entry.getKey();
                 List<TagInformation> tagInformationList = entry.getValue();
 
                 for (TagInformation tagInformation : tagInformationList) {
-                    CompletableFuture<List<AgentFieldUsage>> futureAgent = alarmDao.selectAvgGroupByField(application.getName(), agentId, METRIC_NAME, fieldList, tagInformation.getTags(), range);
-                    queryResults.add(new QueryResult<AgentFieldUsage, TagInformation>(futureAgent, tagInformation));
+                    CompletableFuture<List<AgentFieldUsage>> futureAgent = alarmDao
+                            .selectAvgGroupByField(application.getName(), agentId, METRIC_NAME, fieldList, tagInformation.tags(), range);
+                    queryResults.add(new QueryResult<>(futureAgent, tagInformation));
                 }
             }
 
             for (QueryResult<AgentFieldUsage, TagInformation> result : queryResults) {
-                CompletableFuture<List<AgentFieldUsage>> futureAgent = result.getFuture();
-                TagInformation tagInformation = result.getKey();
+                CompletableFuture<List<AgentFieldUsage>> futureAgent = result.future();
+                TagInformation tagInformation = result.key();
                 List<AgentFieldUsage> AgentFieldUsageList = futureAgent.get();
 
                 int id = 0;
@@ -113,7 +114,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                             break;
                     }
 
-                    for (Tag tag : tagInformation.getTags()){
+                    for (Tag tag : tagInformation.tags()){
                         String tagKey = tag.getName();
                         switch (tagKey) {
                             case ID:
@@ -127,7 +128,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                 }
 
                 DataSourceAlarmVO dataSourceAlarmVO = new DataSourceAlarmVO(id, databaseName, activeConnection, maxConnection);
-                agentDataSourceConnectionUsageRateMap.add(tagInformation.getAgentId(), dataSourceAlarmVO);
+                agentDataSourceConnectionUsageRateMap.add(tagInformation.agentId(), dataSourceAlarmVO);
             }
         } catch (Exception e) {
             logger.error("Fail to get agent datasource data. applicationName : {}", application.getName(), e);
@@ -136,25 +137,25 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
 
     private Map<String, List<TagInformation>> getAgentTagInformation(Range range) throws ExecutionException, InterruptedException {
         Map<String, List<Tag>> agentJdbcUrlMap = distinctJdbUrlForAgent(range);
-        List<QueryResult> queryResults = new ArrayList<>();
+        List<QueryResult<TagInformation, String>> queryResults = new ArrayList<>();
 
-        for (Map.Entry entry : agentJdbcUrlMap.entrySet()) {
-            String agentId = (String) entry.getKey();
-            List<Tag> jdbcUrlList = (List<Tag>) entry.getValue();
+        for (Map.Entry<String, List<Tag>> entry : agentJdbcUrlMap.entrySet()) {
+            String agentId = entry.getKey();
+            List<Tag> jdbcUrlList = entry.getValue();
 
             for (Tag jdbcUrlTag : jdbcUrlList) {
                 List<Tag> tagList = new ArrayList<>();
                 tagList.add(jdbcUrlTag);
                 CompletableFuture<List<TagInformation>> futureTagInformation = alarmDao.getTagInfoContainedSpecificTag(application.getName(), agentId, METRIC_NAME, FIELD_ACTIVE_CONNECTION, tagList, range);
-                queryResults.add(new QueryResult(futureTagInformation, agentId));
+                queryResults.add(new QueryResult<>(futureTagInformation, agentId));
             }
         }
 
         Map<String, List<TagInformation>> agentTagInformationMap = new HashMap<>();
 
         for (QueryResult<TagInformation, String> result : queryResults) {
-            String agentId = result.getKey();
-            CompletableFuture<List<TagInformation>> futureTagInformation = result.getFuture();
+            String agentId = result.key();
+            CompletableFuture<List<TagInformation>> futureTagInformation = result.future();
 
             List<TagInformation> tagInfoList = futureTagInformation.get();
             TagInformation tagInformation = tagInfoList.get(0);
@@ -171,14 +172,14 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
 
         for (String agentId : agentIds) {
             CompletableFuture<List<Tag>> future = alarmDao.selectTagInfo(application.getName(), agentId, METRIC_NAME, FIELD_ACTIVE_CONNECTION, range);
-            queryResults.add(new QueryResult<Tag, String>(future, agentId));
+            queryResults.add(new QueryResult<>(future, agentId));
         }
 
         Map<String, List<Tag>> agentJdbcUrlMap = new HashMap<>();
 
         for (QueryResult<Tag, String> result : queryResults) {
-            CompletableFuture<List<Tag>> futureTag = result.getFuture();
-            String agentId = result.getKey();
+            CompletableFuture<List<Tag>> futureTag = result.future();
+            String agentId = result.key();
             List<Tag> tagList = futureTag.get();
             List<Tag> jdbcUrlList = new ArrayList<>();
 
@@ -200,22 +201,6 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
         return agentDataSourceConnectionUsageRateMap;
     }
 
-    private static class QueryResult <E, K> {
-        private final CompletableFuture<List<E>> future;
-        private final K key;
-
-        public QueryResult(CompletableFuture<List<E>> tagList, K key) {
-            this.future = Objects.requireNonNull(tagList, "tagList");
-            this.key = Objects.requireNonNull(key, "key");
-        }
-
-        public CompletableFuture<List<E>> getFuture() {
-            return future;
-        }
-
-        public K getKey() {
-            return key;
-        }
-
+    private record QueryResult<E, K>(CompletableFuture<List<E>> future, K key) {
     }
 }

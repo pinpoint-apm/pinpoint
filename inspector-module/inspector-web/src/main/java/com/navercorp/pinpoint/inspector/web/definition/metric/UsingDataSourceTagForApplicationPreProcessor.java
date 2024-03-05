@@ -69,7 +69,7 @@ public class UsingDataSourceTagForApplicationPreProcessor implements MetricPrePr
 
             for (Tag filteredTag : filteredTagList) {
                 TagInformation tagInformation = applicationStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
-                newFieldList.add(new Field(field.getFieldName(), field.getFieldAlias(), tagInformation.getTags(), field.getMatchingRule(), field.getAggregationFunction(), field.getChartType(), field.getUnit(), field.getPostProcess()));
+                newFieldList.add(new Field(field.getFieldName(), field.getFieldAlias(), tagInformation.tags(), field.getMatchingRule(), field.getAggregationFunction(), field.getChartType(), field.getUnit(), field.getPostProcess()));
             }
         }
 

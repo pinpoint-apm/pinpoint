@@ -78,12 +78,8 @@ public class ScatterDataBuilder {
     }
 
     private void addDot(Coordinates coordinates, Dot dot) {
-        final Long x = coordinates.getX();
-        DotGroups dotGroups = this.scatterData.get(x);
-        if (dotGroups == null) {
-            dotGroups = new DotGroups(x);
-            this.scatterData.put(x, dotGroups);
-        }
+        final Long x = coordinates.x();
+        DotGroups dotGroups = this.scatterData.computeIfAbsent(x, DotGroups::new);
 
         dotGroups.addDot(coordinates, dot);
 

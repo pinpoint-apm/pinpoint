@@ -78,7 +78,7 @@ public class MainController {
 
             final TagApplications cachedApplications = cacheService.get(KEY);
             if (cachedApplications != null) {
-                if (eTag.getTag().equals(cachedApplications.getTag())) {
+                if (eTag.tag().equals(cachedApplications.getTag())) {
                     logger.debug("applicationList {} cache hit", KEY);
                     return notModified();
                 } else {

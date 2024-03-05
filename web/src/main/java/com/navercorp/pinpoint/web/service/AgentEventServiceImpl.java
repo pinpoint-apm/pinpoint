@@ -21,14 +21,14 @@ import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.DurationalAgentEvent;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -84,10 +84,9 @@ public class AgentEventServiceImpl implements AgentEventService {
         }
         Objects.requireNonNull(eventType, "eventType");
 
-        final boolean includeEventMessage = true;
         AgentEventBo agentEventBo = this.agentEventDao.getAgentEvent(agentId, eventTimestamp, eventType);
         if (agentEventBo != null) {
-            return createAgentEvent(agentEventBo, includeEventMessage);
+            return createAgentEvent(agentEventBo, true);
         }
         return null;
     }
@@ -125,20 +124,18 @@ public class AgentEventServiceImpl implements AgentEventService {
     }
 
     private AgentEvent createAgentEvent(AgentEventBo agentEventBo, boolean includeEventMessage) {
-        AgentEvent agentEvent = new AgentEvent(agentEventBo);
         if (includeEventMessage) {
-            agentEvent.setEventMessage(deserializeEventMessage(agentEventBo));
+            return AgentEvent.withEventMessage(agentEventBo, deserializeEventMessage(agentEventBo));
         }
-        return agentEvent;
+        return AgentEvent.from(agentEventBo);
     }
 
     @Deprecated
     private DurationalAgentEvent createDurationalAgentEvent(AgentEventBo agentEventBo, boolean includeEventMessage) {
-        DurationalAgentEvent durationalAgentEvent = new DurationalAgentEvent(agentEventBo);
         if (includeEventMessage) {
-            durationalAgentEvent.setEventMessage(deserializeEventMessage(agentEventBo));
+            return new DurationalAgentEvent(agentEventBo, deserializeEventMessage(agentEventBo));
         }
-        return durationalAgentEvent;
+        return new DurationalAgentEvent(agentEventBo);
     }
 
     private Object deserializeEventMessage(AgentEventBo agentEventBo) {

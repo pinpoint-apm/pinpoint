@@ -16,33 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import java.util.Objects;
-
 /**
  * @author emeroad
  */
-public class SimpleAgentKey {
-    private final String agentId;
-    private final long agentStartTime;
-
-    public SimpleAgentKey(String agentId, long agentStartTime) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentStartTime = agentStartTime;
-    }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public long getAgentStartTime() {
-        return agentStartTime;
-    }
-
-    @Override
-    public String toString() {
-        return "SimpleAgentKey{" +
-                "agentId='" + agentId + '\'' +
-                ", agentStartTime=" + agentStartTime +
-                '}';
-    }
+public record SimpleAgentKey(String agentId, long agentStartTime) {
 }

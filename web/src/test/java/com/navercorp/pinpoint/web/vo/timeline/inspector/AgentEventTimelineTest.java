@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
-import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
@@ -243,6 +242,6 @@ public class AgentEventTimelineTest {
     }
 
     private AgentEvent createAgentEvent(long eventTimestamp, AgentEventType agentEventType) {
-        return new AgentEvent(new AgentEventBo("testAgentId", 0, eventTimestamp, agentEventType));
+        return new AgentEvent("testAgentId", 0, eventTimestamp, agentEventType);
     }
 }

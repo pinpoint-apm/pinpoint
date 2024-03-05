@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
-import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -419,7 +418,7 @@ public class AgentStatusTimelineTest {
     }
 
     private AgentEvent createAgentEvent(long agentStartTimestamp, long timestamp, AgentEventType agentEventType) {
-        return new AgentEvent(new AgentEventBo("testAgentId", agentStartTimestamp, timestamp, agentEventType));
+        return new AgentEvent("testAgentId", agentStartTimestamp, timestamp, agentEventType);
     }
 
     private AgentStatusTimelineSegment createSegment(long startTimestamp, long endTimestamp, AgentState state) {

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.service.AgentStatService;
 import com.navercorp.pinpoint.inspector.web.service.ApdexStatService;
-import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataVeiw;
+import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
@@ -84,7 +84,7 @@ public class AgentStatV2Controller {
     }
 
     @GetMapping(value = "/chartList")
-    public InspectorMetricGroupDataVeiw getAgentStatChartList(
+    public InspectorMetricGroupDataView getAgentStatChartList(
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
@@ -94,6 +94,6 @@ public class AgentStatV2Controller {
         InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, InspectorDataSearchKey.UNKNOWN_NAME, agentId, metricDefinitionId, timeWindow);
 
         InspectorMetricGroupData inspectorMetricGroupData = agentStatService.selectAgentStatWithGrouping(inspectorDataSearchKey, timeWindow);
-        return new InspectorMetricGroupDataVeiw(inspectorMetricGroupData);
+        return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }
 }

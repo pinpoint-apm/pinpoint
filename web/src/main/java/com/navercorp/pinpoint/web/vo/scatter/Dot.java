@@ -93,14 +93,13 @@ public class Dot {
 
     @Override
     public String toString() {
-        String sb = "Dot{" +
+        return "Dot{" +
                 "transactionId=" + this.transactionId +
                 ", acceptedTime=" + acceptedTime +
                 ", elapsedTime=" + elapsedTime +
                 ", exceptionCode=" + exceptionCode +
                 ", agentId='" + agentId + '\'' +
                 '}';
-        return sb;
     }
 
 }

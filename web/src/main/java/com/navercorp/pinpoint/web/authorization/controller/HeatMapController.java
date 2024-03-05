@@ -159,7 +159,7 @@ public class HeatMapController {
             List<Point> pointList = heatMap.getData();
             final List<long[]> list = new ArrayList<>(pointList.size());
             for (Point point : pointList) {
-                long[] longs = {point.getX(), point.getY(), point.getSuccess(), point.getFail()};
+                long[] longs = {point.x(), point.y(), point.success(), point.fail()};
                 list.add(longs);
             }
             return list;

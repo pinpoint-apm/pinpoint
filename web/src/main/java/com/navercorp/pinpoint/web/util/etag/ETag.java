@@ -16,28 +16,10 @@
 
 package com.navercorp.pinpoint.web.util.etag;
 
-import java.util.Objects;
-
 /**
  * copy from io.undertow.util.ETag
  */
-public class ETag {
-
-    private final boolean weak;
-    private final String tag;
-
-    public ETag(boolean weak, String tag) {
-        this.weak = weak;
-        this.tag = Objects.requireNonNull(tag, "etag");
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public boolean isWeak() {
-        return weak;
-    }
+public record ETag(boolean weak, String tag) {
 
     @Override
     public String toString() {
