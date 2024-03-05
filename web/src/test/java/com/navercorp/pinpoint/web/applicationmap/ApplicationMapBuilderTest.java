@@ -143,7 +143,7 @@ public class ApplicationMapBuilderTest {
 
                 AgentStatusQuery query = invocation.getArgument(0);
                 for (SimpleAgentKey agentInfo : query.getAgentKeys()) {
-                    AgentStatus agentStatus = new AgentStatus(agentInfo.getAgentId(), AgentLifeCycleState.RUNNING, System.currentTimeMillis());
+                    AgentStatus agentStatus = new AgentStatus(agentInfo.agentId(), AgentLifeCycleState.RUNNING, System.currentTimeMillis());
                     result.add(Optional.of(agentStatus));
                 }
                 return result;

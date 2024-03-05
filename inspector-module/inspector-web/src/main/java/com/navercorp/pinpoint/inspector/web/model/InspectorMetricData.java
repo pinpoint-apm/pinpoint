@@ -16,34 +16,12 @@
 
 package com.navercorp.pinpoint.inspector.web.model;
 
-import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 // TODO : (minwoo) It would be better to combine it with com.navercorp.pinpoint.metric.web.model.SystemMetricData.
-public class InspectorMetricData {
-    private final String title;
-    private final List<Long> timestampList;
-    private final List<InspectorMetricValue> metricValueList;
-    public InspectorMetricData(String title, List<Long> timestampList, List<InspectorMetricValue> metricValueList) {
-        this.title = StringPrecondition.requireHasLength(title, "title");
-        this.timestampList = Objects.requireNonNull(timestampList, "timeStampList");
-        this.metricValueList = Objects.requireNonNull(metricValueList, "metricValueList");
-    }
+public record InspectorMetricData(String title, List<Long> timestamps, List<InspectorMetricValue> metricValues) {
 
-    public String getTitle() {
-        return title;
-    }
-
-    public List<Long> getTimestampList() {
-        return timestampList;
-    }
-
-    public List<InspectorMetricValue> getMetricValueList() {
-        return metricValueList;
-    }
 }

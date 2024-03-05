@@ -113,9 +113,9 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         List<Scan> scans = new ArrayList<>(agentKeyList.size());
         for (SimpleAgentKey agentInfo : agentKeyList) {
             if (agentInfo != null) {
-                final String agentId = agentInfo.getAgentId();
+                final String agentId = agentInfo.agentId();
                 // startTimestamp is stored in reverse order
-                final long toTimestamp = agentInfo.getAgentStartTime();
+                final long toTimestamp = agentInfo.agentStartTime();
                 final long fromTimestamp = toTimestamp - 1;
                 scans.add(createScan(agentId, fromTimestamp, toTimestamp));
             }
@@ -129,7 +129,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         List<Optional<AgentStatus>> agentStatusResult = new ArrayList<>(agentKeyList.size());
         for (SimpleAgentKey agentInfo : agentKeyList) {
             if (agentInfo != null) {
-                AgentStatus agentStatus = createAgentStatus(agentInfo.getAgentId(), agentLifeCycles.get(idx++));
+                AgentStatus agentStatus = createAgentStatus(agentInfo.agentId(), agentLifeCycles.get(idx++));
                 agentStatusResult.add(Optional.of(agentStatus));
             } else {
                 agentStatusResult.add(Optional.empty());

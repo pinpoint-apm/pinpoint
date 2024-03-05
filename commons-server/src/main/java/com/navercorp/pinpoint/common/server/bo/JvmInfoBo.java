@@ -44,15 +44,12 @@ public class JvmInfoBo {
         final Buffer buffer = new FixedBuffer(serializedJvmInfoBo);
         this.version = buffer.readByte();
         int version = this.version & 0xFF;
-        switch (version) {
-            case 0:
-                this.jvmVersion = buffer.readPrefixedString();
-                this.gcTypeName = buffer.readPrefixedString();
-                break;
-            default:
-                this.jvmVersion = "";
-                this.gcTypeName = "";
-                break;
+        if (version == 0) {
+            this.jvmVersion = buffer.readPrefixedString();
+            this.gcTypeName = buffer.readPrefixedString();
+        } else {
+            this.jvmVersion = "";
+            this.gcTypeName = "";
         }
     }
 

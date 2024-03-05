@@ -37,15 +37,15 @@ public class InspectorMetricView {
     }
 
     public String getTitle() {
-        return inspectorMetricData.getTitle();
+        return inspectorMetricData.title();
     }
 
     public List<Long> getTimestamp() {
-        return inspectorMetricData.getTimestampList();
+        return inspectorMetricData.timestamps();
     }
 
     public List<MetricValueView> getMetricValues() {
-        return inspectorMetricData.getMetricValueList().stream()
+        return inspectorMetricData.metricValues().stream()
                 .map(MetricValueView::new)
                 .collect(Collectors.toList());
     }

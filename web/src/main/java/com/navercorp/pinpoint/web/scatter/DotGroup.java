@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.scatter;
 
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,6 @@ public class DotGroup {
     private final Coordinates coordinates;
     private final List<Dot> dotList;
 
-    private Dot dotLeader;
 
     public DotGroup(Coordinates coordinates) {
         this.coordinates = Objects.requireNonNull(coordinates, "coordinates");
@@ -42,10 +42,6 @@ public class DotGroup {
 
     void addDot(Dot dot) {
         dotList.add(dot);
-
-        if (dotLeader == null) {
-            dotLeader = dot;
-        }
     }
 
     public List<Dot> getDotList() {
@@ -56,8 +52,12 @@ public class DotGroup {
         return dotList.size();
     }
 
+    public boolean isEmpty() {
+        return dotList.isEmpty();
+    }
+
     public Dot getDotLeader() {
-        return dotLeader;
+        return CollectionUtils.firstElement(dotList);
     }
 
     @Override

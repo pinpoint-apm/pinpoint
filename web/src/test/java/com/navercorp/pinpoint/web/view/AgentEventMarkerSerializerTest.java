@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
@@ -46,15 +45,15 @@ public class AgentEventMarkerSerializerTest {
     private AgentEventMarker makeData() {
         AgentEventMarker marker = new AgentEventMarker();
         for (int i = 0; i < 3; i++) {
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.AGENT_CONNECTED)));
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.AGENT_PING)));
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.AGENT_SHUTDOWN)));
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN)));
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.AGENT_CLOSED_BY_SERVER)));
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER)));
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.AGENT_DEADLOCK_DETECTED)));
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.USER_THREAD_DUMP)));
-            marker.addAgentEvent(new AgentEvent(new AgentEventBo("agent", 1000L, 1001L, AgentEventType.OTHER)));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.AGENT_CONNECTED));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.AGENT_PING));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.AGENT_SHUTDOWN));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.AGENT_CLOSED_BY_SERVER));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.AGENT_DEADLOCK_DETECTED));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.USER_THREAD_DUMP));
+            marker.addAgentEvent(new AgentEvent("agent", 1001L, 1000L, AgentEventType.OTHER));
         }
 
         return marker;

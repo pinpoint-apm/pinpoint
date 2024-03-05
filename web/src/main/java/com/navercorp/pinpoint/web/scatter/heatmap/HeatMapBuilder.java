@@ -132,8 +132,8 @@ public class HeatMapBuilder {
         return new HeatMap(list, success, fail, oldestAcceptedTime, latestAcceptedTime, xIndex, xTick, yIndex, yTick);
     }
 
-    private static final Comparator<Point> COMPARATOR = Comparator.comparingLong(Point::getX)
+    private static final Comparator<Point> COMPARATOR = Comparator.comparingLong(Point::x)
                                                                     .reversed()
-                                                                    .thenComparingLong(Point::getY);
+                                                                    .thenComparingLong(Point::y);
 
 }

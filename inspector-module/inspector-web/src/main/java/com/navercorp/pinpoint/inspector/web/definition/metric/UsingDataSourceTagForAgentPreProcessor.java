@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.inspector.web.definition.metric;
 
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
-
 import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
@@ -69,8 +68,8 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
             }
 
             for (Tag filteredTag : filteredTagList) {
-                TagInformation tagInformation = agentStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
-                newFieldList.add(new Field(field.getFieldName(), field.getFieldAlias(), tagInformation.getTags(), field.getMatchingRule(), field.getAggregationFunction(), field.getChartType(), field.getUnit(), field.getPostProcess()));
+                TagInformation tagInfo = agentStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
+                newFieldList.add(new Field(field.getFieldName(), field.getFieldAlias(), tagInfo.tags(), field.getMatchingRule(), field.getAggregationFunction(), field.getChartType(), field.getUnit(), field.getPostProcess()));
             }
         }
 
