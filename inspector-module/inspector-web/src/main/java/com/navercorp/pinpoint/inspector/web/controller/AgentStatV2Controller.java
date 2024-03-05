@@ -59,13 +59,14 @@ public class AgentStatV2Controller {
     // TODO : (minwoo) tenantId should be considered. The collector side should also be considered.
     @GetMapping(value = "/chart")
     public InspectorMetricView getAgentStatChart(
+            @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, InspectorDataSearchKey.UNKNOWN_NAME, agentId, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow);
 
         InspectorMetricData inspectorMetricData = agentStatService.selectAgentStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
@@ -85,13 +86,14 @@ public class AgentStatV2Controller {
 
     @GetMapping(value = "/chartList")
     public InspectorMetricGroupDataView getAgentStatChartList(
+            @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, InspectorDataSearchKey.UNKNOWN_NAME, agentId, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow);
 
         InspectorMetricGroupData inspectorMetricGroupData = agentStatService.selectAgentStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);

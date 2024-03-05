@@ -28,9 +28,9 @@
         FROM inspectorStat
         WHERE
       <!--  tenantId = #{tenantId}
-            AND serviceName = #{serviceName}
-            AND applicationName = #{applicationName} -->
-            agentId = #{agentId}
+            AND serviceName = #{serviceName} -->
+            applicationName = #{applicationName}
+            AND agentId = #{agentId}
             AND metricName = #{metricName}
             AND fieldName = #{fieldName}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -49,9 +49,9 @@
         FROM inspectorStat
         WHERE
         <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName}
-              AND applicationName = #{applicationName} -->
-        agentId = #{agentId}
+              AND serviceName = #{serviceName} -->
+        applicationName = #{applicationName}
+        AND agentId = #{agentId}
         AND metricName = #{metricName}
         AND fieldName = #{fieldName}
         <foreach collection="tagList" item="tag" separator=" ">
@@ -70,9 +70,9 @@
         FROM inspectorStat
         WHERE
         <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName}
-              AND applicationName = #{applicationName} -->
-        agentId = #{agentId}
+              AND serviceName = #{serviceName} -->
+        applicationName = #{applicationName}
+        AND agentId = #{agentId}
         AND metricName = #{metricName}
         AND fieldName = #{fieldName}
         <foreach collection="tagList" item="tag" separator=" ">
@@ -88,7 +88,8 @@
         SELECT DISTINCT(tags)
         FROM inspectorStat
         WHERE
-            agentId = #{agentId}
+            applicationName = #{applicationName}
+            AND agentId = #{agentId}
             AND metricName = #{metricName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
@@ -98,7 +99,8 @@
         SELECT applicationName, agentId, metricName, fieldName, tags
         FROM inspectorStat
         WHERE
-            agentId = #{agentId}
+            applicationName = #{applicationName}
+            AND agentId = #{agentId}
             AND metricName = #{metricName}
             AND fieldName = #{fieldName}
             <foreach collection="tagList" item="tag" separator=" ">
