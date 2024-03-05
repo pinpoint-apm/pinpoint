@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +38,10 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
     private final static String METRIC_NAME = "jvmGc";
     private final static String FIELD_HEAP_USED = "heapUsed";
     private final static String FIELD_HEAP_MAX = "heapMax";
-    private AlarmDao alarmDao;
-    private Application application;
+    private final AlarmDao alarmDao;
+    private final Application application;
     private final Map<String, Long> agentHeapUsageRate = new HashMap<>();
-    private final List<String> fieldList;
+    private final List<String> fieldList = List.of(FIELD_HEAP_MAX, FIELD_HEAP_USED);
     private final long timeSlotEndTime;
     private final long slotInterval;
 
@@ -51,9 +50,6 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
         Objects.requireNonNull(dataCollectorCategory, "dataCollectorCategory");
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");
-        this.fieldList = new ArrayList<>(2);
-        fieldList.add(FIELD_HEAP_MAX);
-        fieldList.add(FIELD_HEAP_USED);
         this.timeSlotEndTime = timeSlotEndTime;
         this.slotInterval = slotInterval;
     }

@@ -57,7 +57,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
     private final List<String> agentIds;
     private final long timeSlotEndTime;
     private final long slotInterval;
-    private final List<String> fieldList;
+    private final List<String> fieldList = List.of(FIELD_ACTIVE_CONNECTION, FIELD_MAX_CONNECTION);
     private final MultiValueMap<String, DataSourceAlarmVO> agentDataSourceConnectionUsageRateMap = new LinkedMultiValueMap<>();
 
     public DataSourceDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, List<String> agentIds, long timeSlotEndTime, long slotInterval) {
@@ -66,9 +66,6 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");
         this.agentIds = Objects.requireNonNull(agentIds, "agentIds");
-        this.fieldList = new ArrayList<>(2);
-        fieldList.add(FIELD_ACTIVE_CONNECTION);
-        fieldList.add(FIELD_MAX_CONNECTION);
         this.timeSlotEndTime = timeSlotEndTime;
         this.slotInterval = slotInterval;
     }
@@ -144,8 +141,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
             List<Tag> jdbcUrlList = entry.getValue();
 
             for (Tag jdbcUrlTag : jdbcUrlList) {
-                List<Tag> tagList = new ArrayList<>();
-                tagList.add(jdbcUrlTag);
+                List<Tag> tagList = List.of(jdbcUrlTag);
                 CompletableFuture<List<TagInformation>> futureTagInformation = alarmDao.getTagInfoContainedSpecificTag(application.getName(), agentId, METRIC_NAME, FIELD_ACTIVE_CONNECTION, tagList, range);
                 queryResults.add(new QueryResult<>(futureTagInformation, agentId));
             }
