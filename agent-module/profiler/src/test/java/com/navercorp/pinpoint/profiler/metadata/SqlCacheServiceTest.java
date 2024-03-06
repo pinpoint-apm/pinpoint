@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +33,7 @@ public class SqlCacheServiceTest {
 
     @Test
     public void cacheSql() {
-        final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender = mock(EnhancedDataSender.class);
+        final DataSender<MetaDataType> dataSender = mock(DataSender.class);
         SimpleCache<String> sqlCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 100);
         CachingSqlNormalizer<ParsingResultInternal<Integer>> simpleCachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(sqlCache);
         final SqlCacheService<Integer> sqlMetaDataService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer);
@@ -45,10 +44,10 @@ public class SqlCacheServiceTest {
         boolean newValue = sqlMetaDataService.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
 
         Assertions.assertTrue(newValue);
-        verify(dataSender).request(any(SqlMetaData.class));
+        verify(dataSender).send(any(SqlMetaData.class));
 
         boolean notNewValue = sqlMetaDataService.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
         Assertions.assertFalse(notNewValue);
-        verify(dataSender).request(any(SqlMetaData.class));
+        verify(dataSender).send(any(SqlMetaData.class));
     }
 }

@@ -19,8 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider.metadata;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.cache.UidCache;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
@@ -42,17 +41,17 @@ import java.util.Objects;
 public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> {
     private final ProfilerConfig profilerConfig;
     private final MonitorConfig monitorConfig;
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
+    private final DataSender<MetaDataType> dataSender;
     private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
     public SqlMetadataServiceProvider(ProfilerConfig profilerConfig,
                                       MonitorConfig monitorConfig,
-                                      @MetadataDataSender EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender,
+                                      @MetadataDataSender DataSender<MetaDataType> dataSender,
                                       SimpleCacheFactory simpleCacheFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.monitorConfig = Objects.requireNonNull(monitorConfig, "monitorConfig");
-        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
 
@@ -63,12 +62,12 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
         if (monitorConfig.isSqlStatEnable()) {
             final UidCache stringCache = new UidCache(jdbcSqlCacheSize);
             CachingSqlNormalizer<ParsingResultInternal<byte[]>> simpleCachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(stringCache);
-            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer);
+            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer);
             return new SqlUidMetaDataService(sqlCacheService);
         } else {
             final SimpleCache<String> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
             CachingSqlNormalizer<ParsingResultInternal<Integer>> simpleCachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(stringCache);
-            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer);
+            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer);
             return new DefaultSqlMetaDataService(sqlCacheService);
         }
     }

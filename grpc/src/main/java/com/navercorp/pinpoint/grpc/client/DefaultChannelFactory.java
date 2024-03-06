@@ -169,7 +169,6 @@ public class DefaultChannelFactory implements ChannelFactory {
             setupRetryOption(channelBuilder);
         }
 
-
         channelBuilder.maxTraceEvents(clientOption.getMaxTraceEvent());
 
         return channelBuilder.build();

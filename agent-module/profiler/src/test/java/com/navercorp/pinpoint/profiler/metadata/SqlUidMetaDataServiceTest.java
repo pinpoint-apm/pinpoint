@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.cache.UidCache;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +22,7 @@ public class SqlUidMetaDataServiceTest {
     private SqlUidMetaDataService sut;
 
     @Mock
-    private EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
+    private DataSender<MetaDataType> dataSender;
 
     AutoCloseable autoCloseable;
 
@@ -56,7 +55,7 @@ public class SqlUidMetaDataServiceTest {
         UidParsingResult parsingResult = (UidParsingResult) sut.wrapSqlResult(sql);
 
         assertTrue(sqlCacheService.cacheSql(parsingResult, SqlUidMetaDataService::newSqlUidMetaData));
-        verify(dataSender).request(any(SqlUidMetaData.class));
+        verify(dataSender).send(any(SqlUidMetaData.class));
 
         assertFalse(sqlCacheService.cacheSql(parsingResult, SqlUidMetaDataService::newSqlUidMetaData));
         verifyNoMoreInteractions(dataSender);
@@ -73,7 +72,7 @@ public class SqlUidMetaDataServiceTest {
         assertFalse(sqlCacheService.cacheSql(parsingResult2, SqlUidMetaDataService::newSqlUidMetaData));
 
         assertArrayEquals(parsingResult1.getId(), parsingResult2.getId());
-        verify(dataSender, times(1)).request(any(SqlUidMetaData.class));
+        verify(dataSender, times(1)).send(any(SqlUidMetaData.class));
     }
 
     @Test
@@ -88,7 +87,7 @@ public class SqlUidMetaDataServiceTest {
         assertTrue(sqlCacheService.cacheSql(parsingResult2, SqlUidMetaDataService::newSqlUidMetaData));
 
         assertArrayEquals(parsingResult1.getId(), parsingResult2.getId());
-        verify(dataSender, times(2)).request(any(SqlUidMetaData.class));
+        verify(dataSender, times(2)).send(any(SqlUidMetaData.class));
     }
 
     @Test

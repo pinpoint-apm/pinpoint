@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.test;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.Result;
@@ -35,10 +35,10 @@ public class MockApiMetaDataService implements ApiMetaDataService {
 
     private final SimpleCache<String> apiCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator());
 
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
+    private final DataSender<MetaDataType> dataSender;
 
-    public MockApiMetaDataService(EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender) {
-        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+    public MockApiMetaDataService(DataSender<MetaDataType> dataSender) {
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
     }
 
     @Override
@@ -51,7 +51,7 @@ public class MockApiMetaDataService implements ApiMetaDataService {
         final ApiMetaData apiMetadata = new ApiMetaData(result.getId(), methodDescriptor.getApiDescriptor(),
                 methodDescriptor.getLineNumber(), methodDescriptor.getType());
 
-        this.enhancedDataSender.request(apiMetadata);
+        this.dataSender.send(apiMetadata);
 
         return result.getId();
     }

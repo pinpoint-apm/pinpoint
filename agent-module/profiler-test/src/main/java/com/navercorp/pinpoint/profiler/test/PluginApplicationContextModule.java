@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.SpanType;
+import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -64,6 +65,12 @@ public class PluginApplicationContextModule extends AbstractModule {
         Key<DataSender<MetricType>> statDataSenderKey = Key.get(statDataSenderType, StatDataSender.class);
         bind(statDataSenderKey).toInstance(statDataSender);
 
+        final DataSender<MetaDataType> metadataDataSender = newUdpMetadataDataSender();
+        logger.debug("metadataDataSender:{}", metadataDataSender);
+        TypeLiteral<DataSender<MetaDataType>> metadataDataSenderType = new TypeLiteral<DataSender<MetaDataType>>() {};
+        Key<DataSender<MetaDataType>> metadataDataSenderKey = Key.get(metadataDataSenderType, MetadataDataSender.class);
+        bind(metadataDataSenderKey).toInstance(metadataDataSender);
+
         bind(StorageFactory.class).to(TestSpanStorageFactory.class);
 
         EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender = newTcpDataSender();
@@ -76,6 +83,9 @@ public class PluginApplicationContextModule extends AbstractModule {
         bind(ApiMetaDataService.class).toProvider(MockApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
     }
 
+    private DataSender<MetaDataType> newUdpMetadataDataSender() {
+        return new ListenableDataSender<>("MetadataDataSender");
+    }
 
     private DataSender<MetricType> newUdpStatDataSender() {
         return new ListenableDataSender<>("StatDataSender");
