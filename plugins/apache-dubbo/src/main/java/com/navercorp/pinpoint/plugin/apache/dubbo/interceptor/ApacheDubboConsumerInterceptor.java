@@ -62,7 +62,7 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
             return;
         }
 
-        final RpcInvocation invocation = (RpcInvocation) args[0];
+        final RpcContext context = RpcContext.getContext();
 
         if (trace.canSampled()) {
             final SpanEventRecorder recorder = trace.traceBlockBegin();
@@ -79,17 +79,17 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
             // Finally, pass some tracing data to the server.
             // How to put them in a message is protocol specific.
             // This example assumes that the target protocol message can include any metadata (like HTTP headers).
-            setAttachment(invocation, ApacheDubboConstants.META_TRANSACTION_ID, nextId.getTransactionId());
-            setAttachment(invocation, ApacheDubboConstants.META_SPAN_ID, Long.toString(nextId.getSpanId()));
-            setAttachment(invocation, ApacheDubboConstants.META_PARENT_SPAN_ID, Long.toString(nextId.getParentSpanId()));
-            setAttachment(invocation, ApacheDubboConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
-            setAttachment(invocation, ApacheDubboConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
-            setAttachment(invocation, ApacheDubboConstants.META_FLAGS, Short.toString(nextId.getFlags()));
+            setAttachment(context, ApacheDubboConstants.META_TRANSACTION_ID, nextId.getTransactionId());
+            setAttachment(context, ApacheDubboConstants.META_SPAN_ID, Long.toString(nextId.getSpanId()));
+            setAttachment(context, ApacheDubboConstants.META_PARENT_SPAN_ID, Long.toString(nextId.getParentSpanId()));
+            setAttachment(context, ApacheDubboConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
+            setAttachment(context, ApacheDubboConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
+            setAttachment(context, ApacheDubboConstants.META_FLAGS, Short.toString(nextId.getFlags()));
 
-            setAttachment(invocation, ApacheDubboConstants.META_HOST, getHostAddress(invocation));
+            setAttachment(context, ApacheDubboConstants.META_HOST, getHostAddress((RpcInvocation) args[0]));
         } else {
             // If sampling this transaction is disabled, pass only that infomation to the server.
-            setAttachment(invocation, ApacheDubboConstants.META_DO_NOT_TRACE, "1");
+            setAttachment(context, ApacheDubboConstants.META_DO_NOT_TRACE, "1");
         }
     }
 
@@ -98,8 +98,8 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
         return HostAndPort.toHostAndPortString(url.getHost(), url.getPort());
     }
 
-    private void setAttachment(RpcInvocation invocation, String name, String value) {
-        invocation.setAttachment(name, value);
+    private void setAttachment(RpcContext context, String name, String value) {
+        context.setAttachment(name, value);
         if (isDebug) {
             logger.debug("Set attachment {}={}", name, value);
         }
@@ -122,7 +122,6 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
         }
 
         try {
-            final RpcInvocation invocation = (RpcInvocation) args[0];
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             if (throwable == null) {
@@ -132,7 +131,7 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
 
                 // Optionally, record the destination id (logical name of server. e.g. DB name)
                 recorder.recordDestinationId(endPoint);
-                recorder.recordAttribute(ApacheDubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
+                recorder.recordAttribute(ApacheDubboConstants.DUBBO_ARGS_ANNOTATION_KEY, ((RpcInvocation) args[0]).getArguments());
                 recorder.recordAttribute(ApacheDubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
             } else {
                 recorder.recordException(throwable);
