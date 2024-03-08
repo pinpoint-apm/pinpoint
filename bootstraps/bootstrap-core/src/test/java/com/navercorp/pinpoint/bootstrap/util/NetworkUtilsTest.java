@@ -40,15 +40,10 @@ public class NetworkUtilsTest {
         logger.debug("InetAddress.getLocalHost().getCanonicalHostName()={}", localHost.getCanonicalHostName());
     }
 
-    @SuppressWarnings("deprecation")
-    public void testGetMachineName2() {
-        String machineName = NetworkUtils.getMachineName();
-        Assertions.assertNotSame(machineName, NetworkUtils.ERROR_HOST_NAME);
-    }
-
     @Test
     public void testGetHostName() {
         String hostName = NetworkUtils.getHostName();
+        logger.debug("hostName:{}", hostName);
         Assertions.assertNotSame(hostName, NetworkUtils.ERROR_HOST_NAME);
     }
 

@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.util;
 
 import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.common.util.OsType;
+import com.navercorp.pinpoint.common.util.OsUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
@@ -42,6 +44,8 @@ public final class NetworkUtils {
     private static final String LOOPBACK_ADDRESS_V4_2 = "127.0.1.1";
     private static final String LOOPBACK_ADDRESS_V6 = "0:0:0:0:0:0:0:1";
 
+    private static volatile String LOCAL_HOST_CACHE;
+
     private static final String[] LOOP_BACK_ADDRESS_LIST = new String[]{
             LOOPBACK_ADDRESS_V4_1,
             LOOPBACK_ADDRESS_V4_2,
@@ -52,12 +56,33 @@ public final class NetworkUtils {
     }
 
     public static String getHostName() {
+        final String hostName = getHostNameFromEnv();
+        if (hostName != null) {
+            return hostName;
+        }
+
+        if (LOCAL_HOST_CACHE != null) {
+            return LOCAL_HOST_CACHE;
+        }
+        LOCAL_HOST_CACHE = getHostNameFromDns();
+        return LOCAL_HOST_CACHE;
+    }
+
+    static String getHostNameFromDns() {
         try {
             final InetAddress localHost = InetAddress.getLocalHost();
             return localHost.getHostName();
         } catch (UnknownHostException e) {
-            // Try to get machine name from network interface.
-            return getMachineName();
+            return ERROR_HOST_NAME;
+        }
+    }
+
+    static String getHostNameFromEnv() {
+        final OsType type = OsUtils.getType();
+        if (OsType.WINDOW == type) {
+            return System.getenv("COMPUTERNAME");
+        } else {
+            return System.getenv("HOSTNAME");
         }
     }
 
@@ -175,36 +200,6 @@ public final class NetworkUtils {
 
     private static CommonLogger getLogger() {
         return StdoutCommonLoggerFactory.INSTANCE.getLogger(NetworkUtils.class.getName());
-    }
-
-    @Deprecated
-    public static String getMachineName() {
-        try {
-            Enumeration<NetworkInterface> enet = NetworkInterface.getNetworkInterfaces();
-            while (enet.hasMoreElements()) {
-
-                NetworkInterface net = enet.nextElement();
-                if (net.isLoopback()) {
-                    continue;
-                }
-
-                Enumeration<InetAddress> eaddr = net.getInetAddresses();
-
-                while (eaddr.hasMoreElements()) {
-                    InetAddress inet = eaddr.nextElement();
-
-                    final String canonicalHostName = inet.getCanonicalHostName();
-                    if (!canonicalHostName.equalsIgnoreCase(inet.getHostAddress())) {
-                        return canonicalHostName;
-                    }
-                }
-            }
-            return ERROR_HOST_NAME;
-        } catch (SocketException e) {
-            CommonLogger logger = getLogger();
-            logger.warn(e.getMessage());
-            return ERROR_HOST_NAME;
-        }
     }
 
     public static String getHostFromURL(final String urlSpec) {
