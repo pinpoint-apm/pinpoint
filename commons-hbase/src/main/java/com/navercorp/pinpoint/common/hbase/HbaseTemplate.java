@@ -24,9 +24,12 @@ import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.util.CheckAndMutates;
+import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.MutationType;
+import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.common.util.StopWatch;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
@@ -47,6 +50,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.ScanResultConsumer;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,9 +59,11 @@ import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -96,6 +102,8 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
     private static final CheckAndMutateResult CHECK_AND_MUTATE_RESULT_FAILURE = new CheckAndMutateResult(false, null);
 
+    private ScanMetricReporter scanMetric = new EmptyScanMetricReporter();
+
     public HbaseTemplate() {
     }
 
@@ -117,6 +125,10 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
     public void setNativeAsync(boolean nativeAsync) {
         this.nativeAsync = nativeAsync;
+    }
+
+    public void setScanMetricReporter(ScanMetricReporter scanReporter) {
+        this.scanMetric = scanReporter;
     }
 
     @Override
@@ -388,16 +400,31 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         return execute(tableName, new TableCallback<>() {
             @Override
             public List<T> doInTable(Table table) throws Throwable {
-                List<T> result = new ArrayList<>(scanList.size());
-                for (Scan scan : scanList) {
-                    try (ResultScanner scanner = table.getScanner(scan)) {
-                        T t = action.extractData(scanner);
-                        result.add(t);
-                    }
-                }
+                Scan[] copy = scanList.toArray(new Scan[0]);
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "find", copy);
+
+                final ResultScanner[] resultScanners = ScanUtils.newScanners(table, copy);
+                List<T> result = extractData(resultScanners, action);
+                reporter.report(resultScanners);
                 return result;
             }
         });
+    }
+
+
+    static <T> List<T> extractData(ResultScanner[] resultScanners, final ResultsExtractor<T> action) {
+        final List<T> results = new ArrayList<>();
+        final int length = resultScanners.length;
+        for (int i = 0; i < length; i++) {
+            try (ResultScanner scanner = resultScanners[i]) {
+                T t = action.extractData(scanner);
+                results.add(t);
+            } catch (Throwable th) {
+                ScanUtils.closeScanner(resultScanners, i + 1);
+                throw new HbaseSystemException(th);
+            }
+        }
+        return results;
     }
 
     @Override
@@ -414,26 +441,19 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
     public <T> List<T> findParallel_async(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
         assertAccessAvailable();
-        if (isSimpleScan(scans)) {
+        if (isSimpleScan(scans.size())) {
             return find(tableName, scans, action);
         }
         return asyncExecute(tableName, new AdvancedAsyncTableCallback<>() {
             @Override
             public List<T> doInTable(AsyncTable<AdvancedScanResultConsumer> table) throws Throwable {
                 final Scan[] copy = scans.toArray(new Scan[0]);
-                final List<T> results = new ArrayList<>(copy.length);
 
-                ResultScanner[] resultScanners = ScanUtils.newScanners(table, copy);
-                for (final ResultScanner scanner : resultScanners) {
-                    try (scanner) {
-                        T t = action.extractData(scanner);
-                        results.add(t);
-                    } catch (Throwable th) {
-                        // close all scanners if exception occurred
-                        ScanUtils.closeScanner(resultScanners);
-                        throw new HbaseSystemException(th);
-                    }
-                }
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", copy);
+
+                final ResultScanner[] resultScanners = ScanUtils.newScanners(table, copy);
+                final List<T> results = extractData(resultScanners, action);
+                reporter.report(resultScanners);
                 return results;
             }
         });
@@ -442,26 +462,17 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
     public <T> List<T> findParallel_block(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
         assertAccessAvailable();
-        if (isSimpleScan(scans)) {
+        final Scan[] copy = scans.toArray(new Scan[0]);
+        if (isSimpleScan(copy.length)) {
             return find(tableName, scans, action);
         }
-        List<T> results = new ArrayList<>(scans.size());
-        List<Callable<T>> callables = new ArrayList<>(scans.size());
-        for (final Scan scan : scans) {
-            callables.add(new Callable<T>() {
-                @Override
-                public T call() throws Exception {
-                    return execute(tableName, new TableCallback<T>() {
-                        @Override
-                        public T doInTable(Table table) throws Throwable {
-                            try (ResultScanner scanner = table.getScanner(scan)) {
-                                return action.extractData(scanner);
-                            }
-                        }
-                    });
-                }
-            });
-        }
+        
+        final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi", copy);
+        final Collection<ScanMetrics> scanMetricsList = new ArrayBlockingQueue<>(copy.length);
+
+        List<Callable<T>> callables = callable(tableName, action, copy, scanMetricsList);
+
+        List<T> results = new ArrayList<>(copy.length);
         List<List<Callable<T>>> callablePartitions = ListUtils.partition(callables, this.maxThreadsPerParallelScan);
         for (List<Callable<T>> callablePartition : callablePartitions) {
             try {
@@ -478,11 +489,34 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 return Collections.emptyList();
             }
         }
+        reporter.report(scanMetricsList);
         return results;
     }
 
-    private boolean isSimpleScan(List<Scan> scans) {
-        return isSimpleScan(scans.size());
+    private <T> List<Callable<T>> callable(TableName tableName, ResultsExtractor<T> action, Scan[] scans, Collection<ScanMetrics> scanMetricsList) {
+        List<Callable<T>> callables = new ArrayList<>(scans.length);
+
+        for (Scan scan: scans) {
+            callables.add(new Callable<T>() {
+
+                @Override
+                public T call() throws Exception {
+                    return execute(tableName, new TableCallback<>() {
+                        @Override
+                        public T doInTable(Table table) throws Throwable {
+                            ResultScanner scanner = table.getScanner(scan);
+                            try {
+                                return action.extractData(scanner);
+                            } finally {
+                                IOUtils.closeQuietly(scanner);
+                                scanMetricsList.add(scanner.getScanMetrics());
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        return callables;
     }
 
     private boolean isSimpleScan(int parallelism) {
@@ -533,6 +567,8 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 final boolean debugEnabled = logger.isDebugEnabled();
 
                 Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi", scans);
+
                 final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
                 try (ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners)) {
                     if (debugEnabled) {
@@ -543,6 +579,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                     if (debugEnabled) {
                         logger.debug("DistributedScanner scanTime: {}ms", watch.stop());
                     }
+                    reporter.report(splitScanners);
                 }
             }
         });
@@ -558,6 +595,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 final boolean debugEnabled = logger.isDebugEnabled();
 
                 Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
                 final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
                 try (ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners)) {
                     if (debugEnabled) {
@@ -569,6 +607,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                     if (debugEnabled) {
                         logger.debug("DistributedScanner scanTime: {}ms", watch.stop());
                     }
+                    reporter.report(splitScanners);
                 }
             }
         });
@@ -643,11 +682,14 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
             T result = asyncExecute(tableName, new AdvancedAsyncTableCallback<T>() {
                 @Override
                 public T doInTable(AsyncTable<AdvancedScanResultConsumer> table) throws Throwable {
+                    ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
                     ResultScanner[] resultScanners = ScanUtils.newScanners(table, scans);
 
                     ResultScanner scanner = new DistributedScanner(rowKeyDistributor, resultScanners);
                     try (scanner) {
                         return action.extractData(scanner);
+                    } finally {
+                        reporter.report(resultScanners);
                     }
                 }
             });

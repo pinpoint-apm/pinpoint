@@ -28,6 +28,10 @@ pinpoint:
     realtime:
       enabled: true
 
+hbase:
+  client:
+    scan-metric-reporter:
+      enable: false
 
 pinpoint.web.cache-resources: true
 

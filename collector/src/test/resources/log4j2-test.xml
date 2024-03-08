@@ -12,14 +12,11 @@
     </Appenders>
 
     <Loggers>
-         <Logger name="com.navercorp.pinpoint" level="INFO" additivity="false">
-            <AppenderRef ref="console"/>
-        </Logger>
-        <Logger name="com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader" level="WARN" additivity="false">
+         <Logger name="com.navercorp.pinpoint" level="DEBUG" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
 
-        <Root level="INFO">
+        <Root level="DEBUG">
             <AppenderRef ref="console"/>
         </Root>
     </Loggers>

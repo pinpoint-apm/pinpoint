@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.hbase.async.AsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.ParallelScan;
+import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import org.apache.hadoop.conf.Configuration;
@@ -94,8 +95,9 @@ public class MapHbaseConfiguration {
                                           @Qualifier("mapHbaseTableFactory") TableFactory tableFactory,
                                           @Qualifier("mapHbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
                                           Optional<ParallelScan> parallelScan,
-                                          @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync) {
-        return config.hbaseTemplate(configurable, tableFactory, asyncTableFactory, parallelScan, nativeAsync);
+                                          @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync,
+                                          ScanMetricReporter reporter) {
+        return config.hbaseTemplate(configurable, tableFactory, asyncTableFactory, parallelScan, nativeAsync, reporter);
     }
 
 }
