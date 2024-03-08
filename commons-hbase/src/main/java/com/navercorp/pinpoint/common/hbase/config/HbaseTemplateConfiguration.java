@@ -33,6 +33,9 @@ import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncCacheConfiguration;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.LoggingHbasePutWriter;
+import com.navercorp.pinpoint.common.hbase.util.DefaultScanMetricReporter;
+import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
+import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.Connection;
@@ -77,12 +80,25 @@ public class HbaseTemplateConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "hbase.client.scan-metric-reporter.enable", havingValue = "true")
+    public ScanMetricReporter scannerMetricReporter() {
+        return new DefaultScanMetricReporter();
+    }
+
+    @Bean("scannerMetricReporter")
+    @ConditionalOnProperty(name = "hbase.client.scan-metric-reporter.enable", havingValue = "false", matchIfMissing = true)
+    public ScanMetricReporter emptyScannerMetricReporter() {
+        return new EmptyScanMetricReporter();
+    }
+
+    @Bean
     @Primary
     public HbaseTemplate hbaseTemplate(@Qualifier("hbaseConfiguration") Configuration configurable,
                                        @Qualifier("hbaseTableFactory") TableFactory tableFactory,
                                        @Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
                                        Optional<ParallelScan> parallelScan,
-                                       @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync) {
+                                       @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync,
+                                       ScanMetricReporter scanMetricReporter) {
         HbaseTemplate template2 = new HbaseTemplate();
         template2.setConfiguration(configurable);
         template2.setTableFactory(tableFactory);
@@ -96,6 +112,7 @@ public class HbaseTemplateConfiguration {
 
         template2.setAsyncTableFactory(asyncTableFactory);
         template2.setNativeAsync(nativeAsync);
+        template2.setScanMetricReporter(scanMetricReporter);
         return template2;
     }
 

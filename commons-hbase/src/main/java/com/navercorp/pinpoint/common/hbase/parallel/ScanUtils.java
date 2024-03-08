@@ -79,7 +79,12 @@ public final class ScanUtils {
     }
 
     public static void closeScanner(ResultScanner[] scannerList) {
-        for (ResultScanner scanner : scannerList) {
+        closeScanner(scannerList, 0);
+    }
+
+    public static void closeScanner(ResultScanner[] scannerList, int startOffset) {
+        for (int i = startOffset; i < scannerList.length; i++) {
+            ResultScanner scanner = scannerList[i];
             if (scanner != null) {
                 try {
                     scanner.close();
