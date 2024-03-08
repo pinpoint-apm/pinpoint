@@ -12,10 +12,16 @@ import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PinpointErrorData {
+    private final String hostName;
     private final RequestInfo requestInfo;
 
-    public PinpointErrorData(WebRequest request) {
+    public PinpointErrorData(String hostName, WebRequest request) {
+        this.hostName = hostName;
         this.requestInfo = new RequestInfo(request);
+    }
+
+    public String getHostName() {
+        return hostName;
     }
 
     public RequestInfo getRequestInfo() {
