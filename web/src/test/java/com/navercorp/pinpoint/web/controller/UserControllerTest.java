@@ -50,7 +50,7 @@ public class UserControllerTest {
     private final static String USER_ID = "naver00";
     private final static String USER_NAME = "minwoo";
     private final static String USER_NAME_UPDATED = "minwoo.jung";
-    private final static String USER_DEPARTMENT = "Web platfrom development team";
+    private final static String USER_DEPARTMENT = "Web platform development team";
     private final static String USER_PHONENUMBER = "01012347890";
     private final static String USER_PHONENUMBER_UPDATED = "01000000000";
     private final static String USER_EMAIL = "min@naver.com";
