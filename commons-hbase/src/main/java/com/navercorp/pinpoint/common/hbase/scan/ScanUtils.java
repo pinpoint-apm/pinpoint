@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.common.hbase.parallel;
+package com.navercorp.pinpoint.common.hbase.scan;
 
 import com.navercorp.pinpoint.common.hbase.HbaseSystemException;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
@@ -94,4 +94,6 @@ public final class ScanUtils {
             }
         }
     }
+
+
 }

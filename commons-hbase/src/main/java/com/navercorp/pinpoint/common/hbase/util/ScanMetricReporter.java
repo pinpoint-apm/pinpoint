@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 public interface ScanMetricReporter {
 
@@ -17,6 +18,8 @@ public interface ScanMetricReporter {
 
     interface Reporter {
         void report(ResultScanner[] scanners);
+
+        void report(Supplier<List<ScanMetrics>> scanners);
 
         void report(ResultScanner scanner);
 

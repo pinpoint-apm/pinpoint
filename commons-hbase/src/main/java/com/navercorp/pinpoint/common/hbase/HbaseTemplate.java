@@ -22,7 +22,9 @@ import com.navercorp.pinpoint.common.hbase.future.FutureDecorator;
 import com.navercorp.pinpoint.common.hbase.future.FutureLoggingDecorator;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
-import com.navercorp.pinpoint.common.hbase.parallel.ScanUtils;
+import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
+import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
+import com.navercorp.pinpoint.common.hbase.scan.Scanner;
 import com.navercorp.pinpoint.common.hbase.util.CheckAndMutates;
 import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.MutationType;
@@ -103,6 +105,8 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     private static final CheckAndMutateResult CHECK_AND_MUTATE_RESULT_FAILURE = new CheckAndMutateResult(false, null);
 
     private ScanMetricReporter scanMetric = new EmptyScanMetricReporter();
+
+    private final ResultScannerFactory scannerFactory = new ResultScannerFactory(1024 * 2);
 
     public HbaseTemplate() {
     }
@@ -402,29 +406,14 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
             public List<T> doInTable(Table table) throws Throwable {
                 Scan[] copy = scanList.toArray(new Scan[0]);
                 final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "find", copy);
+                Scanner<T> scanner = scannerFactory.newScanner(table, copy);
 
-                final ResultScanner[] resultScanners = ScanUtils.newScanners(table, copy);
-                List<T> result = extractData(resultScanners, action);
-                reporter.report(resultScanners);
+                List<T> result = scanner.extractData(action);
+
+                reporter.report(scanner::getScanMetrics);
                 return result;
             }
         });
-    }
-
-
-    static <T> List<T> extractData(ResultScanner[] resultScanners, final ResultsExtractor<T> action) {
-        final List<T> results = new ArrayList<>();
-        final int length = resultScanners.length;
-        for (int i = 0; i < length; i++) {
-            try (ResultScanner scanner = resultScanners[i]) {
-                T t = action.extractData(scanner);
-                results.add(t);
-            } catch (Throwable th) {
-                ScanUtils.closeScanner(resultScanners, i + 1);
-                throw new HbaseSystemException(th);
-            }
-        }
-        return results;
     }
 
     @Override
@@ -451,9 +440,9 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
                 final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", copy);
 
-                final ResultScanner[] resultScanners = ScanUtils.newScanners(table, copy);
-                final List<T> results = extractData(resultScanners, action);
-                reporter.report(resultScanners);
+                Scanner<T> scanner = scannerFactory.newScanner(table, copy);
+                List<T> results = scanner.extractData(action);
+                reporter.report(scanner::getScanMetrics);
                 return results;
             }
         });

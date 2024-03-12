@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class EmptyScanMetricReporter implements ScanMetricReporter {
 
@@ -28,6 +29,11 @@ public class EmptyScanMetricReporter implements ScanMetricReporter {
     public static class EmptyReporter implements Reporter {
         @Override
         public void report(ResultScanner[] scanners) {
+        }
+
+        @Override
+        public void report(Supplier<List<ScanMetrics>> scanners) {
+
         }
 
         @Override
