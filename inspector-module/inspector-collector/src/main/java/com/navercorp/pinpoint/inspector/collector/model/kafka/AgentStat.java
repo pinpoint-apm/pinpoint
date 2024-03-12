@@ -30,22 +30,22 @@ import java.util.List;
 public class AgentStat {
 
     private final String tenantId;
+    private final String sortKey;
     private final String applicationName;
     private final String agentId;
-
     private final String metricName;
     private final String fieldName;
     private final double fieldValue;
     private final List<Tag> tags;
-
     private final long eventTime;
 
-    public AgentStat(String tenantId, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime) {
-        this(tenantId, applicationName, agentId, metricName, fieldName, fieldValue, eventTime, Collections.emptyList());
+    public AgentStat(String tenantId, String sortKey, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime) {
+        this(tenantId, sortKey, applicationName, agentId, metricName, fieldName, fieldValue, eventTime, Collections.emptyList());
     }
 
-    public AgentStat(String tenantId, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime, List<Tag> tags) {
+    public AgentStat(String tenantId, String sortKey, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime, List<Tag> tags) {
         this.tenantId = tenantId;
+        this.sortKey = sortKey;
         this.applicationName = applicationName;
         this.agentId = agentId;
         this.metricName = metricName;
@@ -86,6 +86,10 @@ public class AgentStat {
     @JsonSerialize(contentUsing = ToStringSerializer.class)
     public List<Tag> getTags() {
         return tags;
+    }
+
+    public String getSortKey() {
+        return sortKey;
     }
 
 
