@@ -55,8 +55,7 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     public void insert(String agentId, List<T> agentStatData) {
         List<AgentStat> agentStatList = convertDataToKafkaModel(agentStatData);
         for (AgentStat agentStat : agentStatList) {
-            String kafkaKey = generateKafkaKey(agentStat);
-            kafkaAgentStatTemplate.send(topic, kafkaKey, agentStat);
+            kafkaAgentStatTemplate.send(topic, agentStat.getSortKey(), agentStat);
         }
     }
 
@@ -70,15 +69,5 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
         Objects.requireNonNull(agentStatBo, "agentStatBo");
         List<T> dataPointList = this.dataPointFunction.apply(agentStatBo);
         insert(agentStatBo.getAgentId(), dataPointList);
-    }
-
-    private String generateKafkaKey(AgentStat agentStat) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(agentStat.getApplicationName());
-        sb.append("_");
-        sb.append(agentStat.getAgentId());
-        sb.append("_");
-        sb.append(agentStat.getMetricName());
-        return sb.toString();
     }
 }
