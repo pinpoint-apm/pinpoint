@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.hbase.scan.DefaultScanner;
+import com.navercorp.pinpoint.common.hbase.scan.ResultScannerSupplier;
+import com.navercorp.pinpoint.common.hbase.scan.Scanner;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -32,9 +37,8 @@ import static org.mockito.Mockito.verify;
  * @author emeroad
  * @author minwoo.jung
  */
-
 @ExtendWith(MockitoExtension.class)
-public class HbaseTemplateExtractDataIT {
+public class ResultScannerFactoryTest {
 
     @Mock
     ResultScanner scanner1;
@@ -52,9 +56,15 @@ public class HbaseTemplateExtractDataIT {
                 return i++;
             }
         };
-        ResultScanner[] scanners = {scanner1, scanner2, scanner3};
 
-        HbaseTemplate.extractData(scanners, action);
+        ResultScannerSupplier[] suppliers = {
+                new DefaultResultScannerSupplier(scanner1),
+                new DefaultResultScannerSupplier(scanner2),
+                new DefaultResultScannerSupplier(scanner3)
+        };
+
+        Scanner<Integer> scanner = new DefaultScanner<>(suppliers, 1024);
+        scanner.extractData(action);
 
         verify(scanner1).close();
         verify(scanner2).close();
@@ -75,15 +85,20 @@ public class HbaseTemplateExtractDataIT {
                 return i++;
             }
         };
-        ResultScanner[] scanners = {scanner1, scanner2, scanner3};
+        ResultScannerSupplier[] suppliers = {
+                new DefaultResultScannerSupplier(scanner1),
+                new DefaultResultScannerSupplier(scanner2),
+                new DefaultResultScannerSupplier(scanner3)
+        };
 
         HbaseSystemException error = Assertions.assertThrowsExactly(HbaseSystemException.class, () -> {
-            HbaseTemplate.extractData(scanners, action);
+            Scanner<Integer> scanner = new DefaultScanner<>(suppliers, 1024);
+            scanner.extractData(action);
         });
 
-        verify(scanner1).close();
-        verify(scanner2).close();
-        verify(scanner3).close();
+        verify(scanner1, atLeast(1)).close();
+        verify(scanner2, atLeast(1)).close();
+        verify(scanner3, atLeast(1)).close();
 
         verify(scanner1).next();
         verify(scanner2, never()).next();
@@ -91,4 +106,27 @@ public class HbaseTemplateExtractDataIT {
 
         Assertions.assertEquals("error:1", error.getCause().getMessage());
     }
+
+    public static class DefaultResultScannerSupplier implements ResultScannerSupplier {
+        private final ResultScanner scanner;
+
+        public DefaultResultScannerSupplier(ResultScanner scanner) {
+            this.scanner = scanner;
+        }
+
+        @Override
+        public ResultScanner getScanner() {
+            return scanner;
+        }
+
+        @Override
+        public void close() throws Exception {
+            scanner.close();
+        }
+
+        @Override
+        public ScanMetrics getScanMetrics() {
+            return scanner.getScanMetrics();
+        }
+    };
 }

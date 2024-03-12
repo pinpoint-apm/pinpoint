@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 public class DefaultScanMetricReporter implements ScanMetricReporter {
 
@@ -64,6 +65,12 @@ public class DefaultScanMetricReporter implements ScanMetricReporter {
             if (actual != 0) {
                 logger.info("ScanMetric {}/{} {} {}:{}", actual, scanners.length, name, comment, summary.getMetricsMap());
             }
+        }
+
+        @Override
+        public void report(Supplier<List<ScanMetrics>> scanners) {
+            List<ScanMetrics> scanMetrics = scanners.get();
+            this.report(scanMetrics);
         }
 
         @Override
