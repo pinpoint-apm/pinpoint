@@ -92,7 +92,7 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
     private CompletableFuture<Void> getNodeHistogramFuture(Range range, Node node, LinkList linkList, AtomicBoolean stopSign) {
         CompletableFuture<NodeHistogram> nodeHistogramFuture;
         final Application application = node.getApplication();
-        final ServiceType serviceType = application.getServiceType();
+        final ServiceType serviceType = application.serviceType();
 
         if (serviceType.isWas()) {
             // for WAS nodes, set their own response time histogram

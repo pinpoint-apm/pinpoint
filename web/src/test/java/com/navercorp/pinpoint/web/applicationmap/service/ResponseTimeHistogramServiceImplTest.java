@@ -137,8 +137,8 @@ public class ResponseTimeHistogramServiceImplTest {
     }
 
     private ResponseTime createResponseTime(Application application, long timestamp) {
-        ResponseTime responseTime = new ResponseTime(application.getName(), application.getServiceType(), timestamp);
-        HistogramSchema schema = application.getServiceType().getHistogramSchema();
+        ResponseTime responseTime = new ResponseTime(application.name(), application.serviceType(), timestamp);
+        HistogramSchema schema = application.serviceType().getHistogramSchema();
         responseTime.addResponseTime("agentId", schema.getFastSlot().getSlotTime(), 1L);
         responseTime.addResponseTime("agentId", schema.getNormalSlot().getSlotTime(), 2L);
         responseTime.addResponseTime("agentId", schema.getSlowSlot().getSlotTime(), 3L);
@@ -581,8 +581,8 @@ public class ResponseTimeHistogramServiceImplTest {
 
     private LinkData createLinkData(Application fromApplication, Application toApplication, long timestamp) {
         LinkData linkData = new LinkData(fromApplication, toApplication);
-        final ServiceType sourceServiceType = fromApplication.getServiceType();
-        final ServiceType destinationServiceType = toApplication.getServiceType();
+        final ServiceType sourceServiceType = fromApplication.serviceType();
+        final ServiceType destinationServiceType = toApplication.serviceType();
         final HistogramSchema schema = ServiceTypeCategory.findCategory(destinationServiceType.getCode()).getHistogramSchema();
 
         linkData.addLinkData("sourceAgentId", sourceServiceType, "destinationAgentId", destinationServiceType, timestamp, schema.getFastSlot().getSlotTime(), 1L);

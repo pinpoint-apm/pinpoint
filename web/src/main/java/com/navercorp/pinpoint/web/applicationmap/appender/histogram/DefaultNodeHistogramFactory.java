@@ -63,7 +63,7 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
 
         // create applicationHistogram
         final List<Link> toLinkList = linkList.findToLink(terminalApplication);
-        final Histogram applicationHistogram = new Histogram(terminalApplication.getServiceType());
+        final Histogram applicationHistogram = new Histogram(terminalApplication.serviceType());
         for (Link link : toLinkList) {
             applicationHistogram.add(link.getHistogram());
         }
@@ -80,7 +80,7 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
         nodeBuilder.setApplicationTimeHistogram(applicationTimeHistogram);
 
         // for Terminal nodes, create AgentLevel histogram
-        if (terminalApplication.getServiceType().isTerminal() || terminalApplication.getServiceType().isAlias()) {
+        if (terminalApplication.serviceType().isTerminal() || terminalApplication.serviceType().isAlias()) {
             LinkCallDataMap mergeSource = new LinkCallDataMap();
             final Map<String, Histogram> agentHistogramMap = new HashMap<>();
             for (Link link : toLinkList) {
@@ -137,7 +137,7 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
         final NodeHistogram.Builder nodeBuilder = NodeHistogram.newBuilder(queueApplication, range);
 
         // create applicationHistogram
-        final Histogram applicationHistogram = new Histogram(queueApplication.getServiceType());
+        final Histogram applicationHistogram = new Histogram(queueApplication.serviceType());
         for (Link link : toLinkList) {
             applicationHistogram.add(link.getHistogram());
         }

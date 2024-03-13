@@ -1,0 +1,51 @@
+/*
+ * Copyright 2019 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.web.dao;
+
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.scatter.DragArea;
+import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * @author emeroad
+ * @author netspider
+ */
+public interface ApplicationTraceIndexDaoV2 {
+
+    boolean hasTraceIndex(UUID applicationId, Range range, boolean backwardDirection);
+
+    LimitedScanResult<List<TransactionId>> scanTraceIndex(UUID applicationId, Range range, int limit, boolean backwardDirection);
+
+    LimitedScanResult<List<Dot>> scanTraceScatterData(UUID applicationId, Range range, int limit, boolean scanBackward);
+
+
+    LimitedScanResult<List<TransactionId>> scanTraceIndex(UUID applicationId, DragArea dragArea, int limit);
+
+
+    @Deprecated
+    LimitedScanResult<List<Dot>> scanScatterData(UUID applicationId, DragAreaQuery dragAreaQuery, int limit);
+
+    LimitedScanResult<List<DotMetaData>> scanScatterDataV2(UUID applicationId, DragAreaQuery dragAreaQuery, int limit);
+
+}

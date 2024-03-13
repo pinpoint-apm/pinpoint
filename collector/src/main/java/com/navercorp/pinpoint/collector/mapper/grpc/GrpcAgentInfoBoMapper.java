@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc;
 
+import com.navercorp.pinpoint.collector.service.ApplicationInfoService;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -30,19 +32,26 @@ import java.util.Objects;
  */
 @Component
 public class GrpcAgentInfoBoMapper {
+
     private final GrpcServerMetaDataBoMapper serverMetaDataBoMapper;
-
     private final GrpcJvmInfoBoMapper jvmInfoBoMapper;
+    private final ApplicationInfoService applicationInfoService;
 
-    public GrpcAgentInfoBoMapper(GrpcServerMetaDataBoMapper serverMetaDataBoMapper, GrpcJvmInfoBoMapper jvmInfoBoMapper) {
+    public GrpcAgentInfoBoMapper(
+            GrpcServerMetaDataBoMapper serverMetaDataBoMapper,
+            GrpcJvmInfoBoMapper jvmInfoBoMapper,
+            ApplicationInfoService applicationInfoService) {
         this.serverMetaDataBoMapper = Objects.requireNonNull(serverMetaDataBoMapper, "serverMetaDataBoMapper");
         this.jvmInfoBoMapper = Objects.requireNonNull(jvmInfoBoMapper, "jvmInfoBoMapper");
+        this.applicationInfoService = Objects.requireNonNull(applicationInfoService, "applicationInfoService");
     }
 
     public AgentInfoBo map(final PAgentInfo agentInfo, final Header header) {
         final String agentId = header.getAgentId();
         final String agentName = header.getAgentName();
         final String applicationName = header.getApplicationName();
+        final ApplicationId applicationId = this.applicationInfoService.getApplicationId(applicationName);
+        this.applicationInfoService.ensureApplicationIdInverseIndexed(applicationName, applicationId);
         final long startTime = header.getAgentStartTime();
 
         final String hostName = agentInfo.getHostname();
@@ -63,6 +72,7 @@ public class GrpcAgentInfoBoMapper {
         builder.setAgentId(agentId);
         builder.setAgentName(agentName);
         builder.setApplicationName(applicationName);
+        builder.setApplicationId(applicationId);
         builder.setServiceTypeCode(serviceType);
         builder.setPid(pid);
         builder.setVmVersion(vmVersion);

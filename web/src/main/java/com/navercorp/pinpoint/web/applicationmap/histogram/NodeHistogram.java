@@ -60,7 +60,7 @@ public class NodeHistogram {
         this.application = Objects.requireNonNull(application, "application");
         this.range = Objects.requireNonNull(range, "range");
 
-        this.applicationHistogram = new Histogram(this.application.getServiceType());
+        this.applicationHistogram = new Histogram(this.application.serviceType());
         this.agentHistogramMap = Collections.emptyMap();
 
         this.applicationTimeHistogram = new ApplicationTimeHistogram(this.application);
@@ -74,7 +74,7 @@ public class NodeHistogram {
         this.range = builder.range;
 
         if (builder.applicationHistogram == null) {
-            this.applicationHistogram = new Histogram(this.application.getServiceType());
+            this.applicationHistogram = new Histogram(this.application.serviceType());
         } else {
             this.applicationHistogram = builder.applicationHistogram;
         }
@@ -215,7 +215,7 @@ public class NodeHistogram {
         }
 
         private Histogram createApplicationLevelResponseTime(List<ResponseTime> responseHistogram) {
-            final Histogram applicationHistogram = new Histogram(this.application.getServiceType());
+            final Histogram applicationHistogram = new Histogram(this.application.serviceType());
             for (ResponseTime responseTime : responseHistogram) {
                 final Collection<TimeHistogram> histogramList = responseTime.getAgentResponseHistogramList();
                 applicationHistogram.addAll(histogramList);
@@ -236,7 +236,7 @@ public class NodeHistogram {
         private void addAgentLevelHistogram(Map<String, Histogram> agentHistogramMap, String agentId, TimeHistogram histogram) {
             Histogram agentHistogram = agentHistogramMap.get(agentId);
             if (agentHistogram == null) {
-                agentHistogram = new Histogram(application.getServiceType());
+                agentHistogram = new Histogram(application.serviceType());
                 agentHistogramMap.put(agentId, agentHistogram);
             }
             agentHistogram.add(histogram);

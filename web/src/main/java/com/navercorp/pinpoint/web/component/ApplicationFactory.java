@@ -20,10 +20,14 @@ package com.navercorp.pinpoint.web.component;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 
+import java.util.UUID;
+
 /**
  * @author emeroad
  */
 public interface ApplicationFactory {
+
+    Application createApplication(UUID applicationId, String applicationName, short serviceTypeCode);
 
     Application createApplication(String applicationName, short serviceTypeCode);
 

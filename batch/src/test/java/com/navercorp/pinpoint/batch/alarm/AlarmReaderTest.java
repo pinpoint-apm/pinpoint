@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
+import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.StepExecution;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class AlarmReaderTest {
 
     @Mock
-    private ApplicationIndexDao applicationIndexDao;
+    private ApplicationService applicationService;
 
     @Mock
     private AlarmService alarmService;
@@ -45,22 +46,22 @@ public class AlarmReaderTest {
     private StepExecution stepExecution;
 
     private static final List<Application> mockApplications = List.of(
-            new Application("testApplication0", ServiceType.TEST),
-            new Application("testApplication1", ServiceType.TEST),
-            new Application("testApplication2", ServiceType.TEST),
-            new Application("testApplication3", ServiceType.TEST)
+            new Application(UUID.randomUUID(), "testApplication0", ServiceType.TEST),
+            new Application(UUID.randomUUID(), "testApplication1", ServiceType.TEST),
+            new Application(UUID.randomUUID(), "testApplication2", ServiceType.TEST),
+            new Application(UUID.randomUUID(), "testApplication3", ServiceType.TEST)
     );
 
     private static final List<String> applicationIds = mockApplications.stream()
-            .map(Application::getName)
+            .map(Application::name)
             .toList();
 
     @Test
     public void pollingTest() {
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(mockApplications);
+        when(applicationService.getApplications()).thenReturn(mockApplications);
         when(alarmService.selectApplicationId()).thenReturn(applicationIds);
 
-        AlarmReader reader = new AlarmReader(applicationIndexDao, alarmService);
+        AlarmReader reader = new AlarmReader(applicationService, alarmService);
         reader.beforeStep(stepExecution);
         for (int i = 0; i < 4; i++) {
             assertEquals(mockApplications.get(i), reader.read(), "polled application should be same");
@@ -70,9 +71,9 @@ public class AlarmReaderTest {
 
     @Test
     public void pollingFromEmptyTest() {
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(List.of());
+        when(applicationService.getApplications()).thenReturn(List.of());
 
-        AlarmReader reader = new AlarmReader(applicationIndexDao, alarmService);
+        AlarmReader reader = new AlarmReader(applicationService, alarmService);
         reader.beforeStep(stepExecution);
         assertNull(reader.read());
     }

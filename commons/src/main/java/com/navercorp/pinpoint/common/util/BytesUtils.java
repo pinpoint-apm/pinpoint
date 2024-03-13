@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.common.util;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
  * @author emeroad
@@ -28,6 +29,7 @@ public final class BytesUtils {
     public static final int SHORT_BYTE_LENGTH = 2;
     public static final int INT_BYTE_LENGTH = 4;
     public static final int LONG_BYTE_LENGTH = 8;
+    public static final int UUID_BYTE_LENGTH = 16;
     public static final int LONG_LONG_BYTE_LENGTH = 16;
 
     public static final int VLONG_MAX_SIZE = 10;
@@ -123,6 +125,17 @@ public final class BytesUtils {
         final short v = (short) (((buf[offset] & 0xff) << 8) | ((buf[offset + 1] & 0xff)));
 
         return v;
+    }
+
+    public static UUID bytesToUUID(final byte[] buf, final int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf");
+        }
+        checkBounds(buf, offset, UUID_BYTE_LENGTH);
+
+        long msb = bytesToLong(buf, offset);
+        long lsb = bytesToLong(buf, offset + 8);
+        return new UUID(msb, lsb);
     }
 
 

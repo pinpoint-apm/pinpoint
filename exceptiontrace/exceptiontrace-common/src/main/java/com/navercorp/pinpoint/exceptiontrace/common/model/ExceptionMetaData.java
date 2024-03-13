@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
+import com.navercorp.pinpoint.common.server.util.HashUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
 
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author intr3p1d

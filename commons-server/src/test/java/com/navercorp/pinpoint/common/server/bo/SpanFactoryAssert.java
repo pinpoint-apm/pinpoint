@@ -37,7 +37,7 @@ public class SpanFactoryAssert {
 
     public void assertSpan(TSpan tSpan, SpanBo spanBo) {
         Assertions.assertEquals(tSpan.getAgentId(), spanBo.getAgentId());
-        Assertions.assertEquals(tSpan.getApplicationName(), spanBo.getApplicationId());
+        Assertions.assertEquals(tSpan.getApplicationName(), spanBo.getApplicationName());
         Assertions.assertEquals(tSpan.getAgentStartTime(), spanBo.getAgentStartTime());
 
         TransactionId transactionId = spanBo.getTransactionId();
@@ -60,7 +60,7 @@ public class SpanFactoryAssert {
         Assertions.assertEquals(tSpan.getFlag(), spanBo.getFlag());
         Assertions.assertEquals(tSpan.getErr(), spanBo.getErrCode());
 
-        Assertions.assertEquals(tSpan.getParentApplicationName(), spanBo.getParentApplicationId());
+        Assertions.assertEquals(tSpan.getParentApplicationName(), spanBo.getParentApplicationName());
         Assertions.assertEquals(tSpan.getParentApplicationType(), spanBo.getParentApplicationServiceType());
         Assertions.assertEquals(tSpan.getAcceptorHost(), spanBo.getAcceptorHost());
 
@@ -132,7 +132,7 @@ public class SpanFactoryAssert {
 
     public void assertSpanChunk(TSpanChunk tSpanChunk, SpanChunkBo spanChunkBo) {
         Assertions.assertEquals(tSpanChunk.getAgentId(), spanChunkBo.getAgentId());
-        Assertions.assertEquals(tSpanChunk.getApplicationName(), spanChunkBo.getApplicationId());
+        Assertions.assertEquals(tSpanChunk.getApplicationName(), spanChunkBo.getApplicationName());
         Assertions.assertEquals(tSpanChunk.getAgentStartTime(), spanChunkBo.getAgentStartTime());
 
 

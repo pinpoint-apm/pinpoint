@@ -30,65 +30,66 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
  */
-public class ApplicationCleaningProcessor implements ItemProcessor<String, List<CleanTarget>> {
+public class ApplicationCleaningProcessor implements ItemProcessor<UUID, List<CleanTarget>> {
 
     private static final Logger logger = LogManager.getLogger(ApplicationCleaningProcessor.class);
 
     private final BatchAgentService agentService;
-    private final BatchApplicationService applicationService;
+    private final BatchApplicationService batchApplicationService;
     private final Duration emptyDurationThreshold;
 
     public ApplicationCleaningProcessor(
             BatchAgentService agentService,
-            BatchApplicationService applicationService,
+            BatchApplicationService batchApplicationService,
             Duration emptyDurationThreshold
     ) {
         this.agentService = Objects.requireNonNull(agentService, "agentService");
-        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
+        this.batchApplicationService = Objects.requireNonNull(batchApplicationService, "batchApplicationService");
         this.emptyDurationThreshold = Objects.requireNonNull(emptyDurationThreshold, "emptyDurationThreshold");
     }
 
     @Override
-    public List<CleanTarget> process(@Nonnull String applicationName) throws Exception {
-        logger.info("Processing application: {}", applicationName);
+    public List<CleanTarget> process(@Nonnull UUID applicationId) throws Exception {
+        logger.info("Processing application: {}", applicationId);
 
         Range range = getRange();
-        List<String> agentIds = getAgents(applicationName);
+        List<String> agentIds = getAgents(applicationId);
         List<CleanTarget> targets = new ArrayList<>(agentIds.size() + 1);
 
         for (String agentId: agentIds) {
             if (isAgentTarget(agentId, range)) {
-                String agentKey = ClusterKey.compose(applicationName, agentId, -1);
+                String agentKey = ClusterKey.compose(applicationId.toString(), agentId, -1);
                 targets.add(new CleanTarget(CleanTarget.TYPE_AGENT, agentKey));
             }
         }
 
-        if (targets.size() == agentIds.size() && isApplicationTarget(applicationName)) {
-            targets.add(new CleanTarget(CleanTarget.TYPE_APPLICATION, applicationName));
+        if (targets.size() == agentIds.size() && isApplicationTarget(applicationId)) {
+            targets.add(new CleanTarget(CleanTarget.TYPE_APPLICATION, applicationId.toString()));
         }
 
         if (targets.isEmpty()) {
             return null;
         }
 
-        logger.info("Cleaning application {}: {}", applicationName, targets);
+        logger.info("Cleaning application {}: {}", applicationId, targets);
         return targets;
     }
 
-    private boolean isApplicationTarget(String applicationName) {
-        return !this.applicationService.isActive(applicationName, this.emptyDurationThreshold);
+    private boolean isApplicationTarget(UUID applicationId) {
+        return !this.batchApplicationService.isActive(applicationId, this.emptyDurationThreshold);
     }
 
     private boolean isAgentTarget(String agentId, Range range) {
         return !this.agentService.isActive(agentId, range);
     }
 
-    private List<String> getAgents(String applicationName) {
-        return this.agentService.getIds(applicationName);
+    private List<String> getAgents(UUID applicationId) {
+        return this.agentService.getIds(applicationId);
     }
 
     private Range getRange() {

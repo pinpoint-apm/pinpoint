@@ -72,17 +72,17 @@ public class NodeListFactory {
     }
 
     private static boolean isFromNode(final Application fromApplication, final Application toApplication) {
-        if (fromApplication.getServiceType().isRpcClient()) {
+        if (fromApplication.serviceType().isRpcClient()) {
             return false;
         }
         return true;
     }
 
     private static boolean isToNode(final Application fromApplication, final Application toApplication) {
-        if (!toApplication.getServiceType().isRpcClient()) {
+        if (!toApplication.serviceType().isRpcClient()) {
             return true;
         }
-        if (toApplication.getServiceType().isAlias()) {
+        if (toApplication.serviceType().isAlias()) {
             return true;
         }
         return false;

@@ -64,9 +64,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
         writeSimpleNode("targetInfo", link.getTo(), jgen);
 
         Application filterApplication = link.getFilterApplication();
-        jgen.writeStringField("filterApplicationName", filterApplication.getName());
+        jgen.writeStringField("filterApplicationName", filterApplication.name());
         jgen.writeNumberField("filterApplicationServiceTypeCode", filterApplication.getServiceTypeCode());
-        jgen.writeStringField("filterApplicationServiceTypeName", filterApplication.getServiceType().getName());
+        jgen.writeStringField("filterApplicationServiceTypeName", filterApplication.serviceType().getName());
         if (link.isWasToWasLink()) {
             writeWasToWasTargetRpcList(link, jgen);
         }
@@ -139,7 +139,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
         Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();
         for (Application application : sourceLinkTargetAgentList) {
             jgen.writeStartObject();
-            jgen.writeStringField("rpc", application.getName());
+            jgen.writeStringField("rpc", application.name());
             jgen.writeNumberField("rpcServiceTypeCode", application.getServiceTypeCode());
             jgen.writeEndObject();
         }
@@ -185,10 +185,10 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
         jgen.writeStartObject();
         Application application = node.getApplication();
-        jgen.writeStringField("applicationName", application.getName());
-        jgen.writeStringField("serviceType", application.getServiceType().toString());
+        jgen.writeStringField("applicationName", application.name());
+        jgen.writeStringField("serviceType", application.serviceType().toString());
         jgen.writeNumberField("serviceTypeCode", application.getServiceTypeCode());
-        jgen.writeBooleanField("isWas", application.getServiceType().isWas());
+        jgen.writeBooleanField("isWas", application.serviceType().isWas());
         jgen.writeEndObject();
     }
 }

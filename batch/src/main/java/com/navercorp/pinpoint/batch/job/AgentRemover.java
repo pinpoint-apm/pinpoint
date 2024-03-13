@@ -25,6 +25,7 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -44,7 +45,7 @@ public class AgentRemover implements ItemWriter<String> {
         for (String serKey: serAgentKeys) {
             logger.info("Removing agent: {}", serKey);
             ClusterKey key = ClusterKey.parse(serKey);
-            this.agentService.remove(key.getApplicationName(), key.getAgentId());
+            this.agentService.remove(UUID.fromString(key.getApplicationName()), key.getAgentId());
         }
     }
 }

@@ -6,9 +6,9 @@ import com.navercorp.pinpoint.batch.configuration.AlarmCheckerConfiguration;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AlarmService;
+import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +42,7 @@ public class AlarmProcessorTest {
     private AlarmService alarmService;
 
     @Mock
-    private ApplicationIndexDao applicationIndexDao;
+    private ApplicationService applicationService;
 
     @Mock
     private AgentInfoService agentInfoService;
@@ -63,7 +63,7 @@ public class AlarmProcessorTest {
 
         when(alarmService.selectRuleByApplicationId(SERVICE_NAME)).thenReturn(List.of());
 
-        AlarmProcessor proc = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, agentInfoService, checkerRegistry);
+        AlarmProcessor proc = new AlarmProcessor(dataCollectorFactory, alarmService, applicationService, agentInfoService, checkerRegistry);
         AppAlarmChecker checker = proc.process(app);
 
         assertNull(checker, "should be skipped");
@@ -82,7 +82,7 @@ public class AlarmProcessorTest {
         when(agentStatDataCollector.getHeapUsageRate()).thenReturn(heapUsageRate);
 
         // Executions
-        AlarmProcessor processor = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, agentInfoService, checkerRegistry);
+        AlarmProcessor processor = new AlarmProcessor(dataCollectorFactory, alarmService, applicationService, agentInfoService, checkerRegistry);
         AppAlarmChecker appChecker = processor.process(application);
 
         // Validations

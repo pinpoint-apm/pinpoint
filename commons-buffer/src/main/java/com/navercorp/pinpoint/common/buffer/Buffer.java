@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
  * @author emeroad
@@ -89,7 +90,10 @@ public interface Buffer {
 
     void putLong(long v);
 
-
+    default void putUUID(UUID v) {
+        putLong(v.getMostSignificantBits());
+        putLong(v.getLeastSignificantBits());
+    }
 
     /**
      * put value using the variable-length encoding especially for constants
@@ -149,6 +153,12 @@ public interface Buffer {
     short readShort();
 
     long readLong();
+
+    default UUID readUUID() {
+        long mostSigBits = readLong();
+        long leastSigBits = readLong();
+        return new UUID(mostSigBits, leastSigBits);
+    }
 
     long readVLong();
 

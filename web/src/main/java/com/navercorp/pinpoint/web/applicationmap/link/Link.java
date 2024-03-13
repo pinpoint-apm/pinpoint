@@ -245,7 +245,7 @@ public class Link {
     }
 
     public boolean isWasToWasLink() {
-        return this.fromNode.getApplication().getServiceType().isWas() && this.toNode.getApplication().getServiceType().isWas();
+        return this.fromNode.getApplication().serviceType().isWas() && this.toNode.getApplication().serviceType().isWas();
     }
 
     @Override

@@ -82,8 +82,17 @@ public class HbaseColumnFamily {
     }
 
     public static final ApplicationIndex APPLICATION_INDEX_AGENTS = new ApplicationIndex(HbaseTable.APPLICATION_INDEX, Bytes.toBytes("Agents"));
+    public static final ApplicationIndex APPLICATION_INDEX_AGENTS_VER2 = new ApplicationIndex(HbaseTable.APPLICATION_INDEX_VER2, Bytes.toBytes("Agents"));
     public static class ApplicationIndex extends HbaseColumnFamily {
         private ApplicationIndex(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final ApplicationId APPLICATION_ID_FORWARD = new ApplicationId(HbaseTable.APPLICATION_ID, Bytes.toBytes("F"));
+    public static final ApplicationId APPLICATION_ID_INVERSE = new ApplicationId(HbaseTable.APPLICATION_ID, Bytes.toBytes("I"));
+    public static class ApplicationId extends HbaseColumnFamily {
+        private ApplicationId(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);
         }
     }
@@ -99,6 +108,8 @@ public class HbaseColumnFamily {
 
     public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_TRACE = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX, Bytes.toBytes("I"));
     public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_META = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX, Bytes.toBytes("M"));
+    public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_TRACE_VER2 = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX_VER2, Bytes.toBytes("I"));
+    public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_META_VER2 = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX_VER2, Bytes.toBytes("M"));
     public static class ApplicationTraceIndexTrace extends HbaseColumnFamily {
         public static final int ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 

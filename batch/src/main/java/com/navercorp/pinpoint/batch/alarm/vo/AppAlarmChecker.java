@@ -30,7 +30,7 @@ public class AppAlarmChecker {
 
     public AppAlarmChecker(List<AlarmChecker<?>> children) {
         this.children = haveSameApplication(children);
-        this.applicationId = this.children.get(0).getRule().getApplicationId();
+        this.applicationId = this.children.get(0).getRule().getApplicationName();
     }
 
     private List<AlarmChecker<?>> haveSameApplication(List<AlarmChecker<?>> children) {
@@ -38,10 +38,10 @@ public class AppAlarmChecker {
             throw new IllegalArgumentException("children should not be empty");
         }
 
-        final String applicationName = children.get(0).getRule().getApplicationId();
+        final String applicationName = children.get(0).getRule().getApplicationName();
         for (AlarmChecker<?> child : children) {
-            if (!applicationName.equals(child.getRule().getApplicationId())) {
-                throw new IllegalArgumentException("All children should have the same application: " + applicationName + " != " + child.getRule().getApplicationId());
+            if (!applicationName.equals(child.getRule().getApplicationName())) {
+                throw new IllegalArgumentException("All children should have the same application: " + applicationName + " != " + child.getRule().getApplicationName());
             }
         }
         return children;

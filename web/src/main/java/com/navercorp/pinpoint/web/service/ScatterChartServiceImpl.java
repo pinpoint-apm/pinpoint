@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -48,16 +47,16 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final ApplicationTraceIndexService applicationTraceIndexService;
 
     private final TraceDao traceDao;
 
     private final SpanService spanService;
 
-    public ScatterChartServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
+    public ScatterChartServiceImpl(ApplicationTraceIndexService applicationTraceIndexService,
                                    TraceDao traceDao,
                                    SpanService spanService) {
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.applicationTraceIndexService = Objects.requireNonNull(applicationTraceIndexService, "applicationTraceIndexService");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
     }
@@ -78,7 +77,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             }
 
             for (SpanBo span : trace) {
-                if (applicationName.equals(span.getApplicationId())) {
+                if (applicationName.equals(span.getApplicationName())) {
                     final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     result.add(dot);
@@ -113,7 +112,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
-        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, backwardDirection);
+        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexService.scanTraceScatterData(applicationName, range, limit, backwardDirection);
 
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         builder.addDot(scanResult.scanData());
@@ -136,7 +135,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             }
 
             for (SpanBo span : trace) {
-                if (applicationName.equals(span.getApplicationId())) {
+                if (applicationName.equals(span.getApplicationName())) {
                     final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     scatterData.addDot(dot);

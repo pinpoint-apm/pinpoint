@@ -17,33 +17,34 @@ package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.ApplicationService;
+import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.ItemProcessor;
 
-import jakarta.annotation.Nonnull;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author youngjin.kim2
  */
-public class AgentCountProcessor implements ItemProcessor<String, Integer> {
+public class AgentCountProcessor implements ItemProcessor<UUID, Integer> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationService applicationService;
     private final AgentInfoService agentInfoService;
     private final long duration;
 
     public AgentCountProcessor(
-            ApplicationIndexDao applicationIndexDao,
+            ApplicationService applicationService,
             AgentInfoService agentInfoService,
             BatchProperties batchProperties
     ) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
 
         long durationDays = batchProperties.getCleanupInactiveAgentsDurationDays();
@@ -51,12 +52,12 @@ public class AgentCountProcessor implements ItemProcessor<String, Integer> {
     }
 
     @Override
-    public Integer process(@Nonnull String applicationName) {
-        long localCount = applicationIndexDao.selectAgentIds(applicationName)
+    public Integer process(@Nonnull UUID applicationId) {
+        long localCount = applicationService.getAgents(applicationId)
                 .stream()
                 .filter(this::isActive)
                 .count();
-        logger.info("Application {} has {} agents", applicationName, localCount);
+        logger.info("Application {} has {} agents", applicationId, localCount);
         return Math.toIntExact(localCount);
     }
 

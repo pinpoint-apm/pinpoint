@@ -42,7 +42,7 @@ public class VirtualLinkMarker {
     }
 
     public List<LinkData> createVirtualLink(LinkData linkData, Application toApplication, Set<AcceptApplication> acceptApplicationList) {
-        logger.info("one to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
+        logger.info("one to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.name(), acceptApplicationList);
         List<LinkData> virtualLinkDataList = new ArrayList<>();
         logger.debug("acceptApplicationList:{}", acceptApplicationList);
         for (AcceptApplication acceptApplication : acceptApplicationList) {
