@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,12 +48,10 @@ public class TFActiveTraceMapper implements FlinkStatMapper<ActiveTraceBo, TFAge
             return Collections.emptyList();
         }
 
-        List<Integer> activeTraceCountList = new ArrayList<>();
-        activeTraceCountList.add(0, activeTraceCountMap.getFastCount());
-        activeTraceCountList.add(1, activeTraceCountMap.getNormalCount());
-        activeTraceCountList.add(2, activeTraceCountMap.getSlowCount());
-        activeTraceCountList.add(3, activeTraceCountMap.getVerySlowCount());
-        return activeTraceCountList;
+        return List.of(activeTraceCountMap.getFastCount(),
+                activeTraceCountMap.getNormalCount(),
+                activeTraceCountMap.getSlowCount(),
+                activeTraceCountMap.getVerySlowCount());
     }
 
     @Override
