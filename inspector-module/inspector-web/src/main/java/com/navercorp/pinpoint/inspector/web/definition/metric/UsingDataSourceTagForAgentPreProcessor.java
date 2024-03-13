@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -38,8 +39,11 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
     private final static String JDBC_URL = "jdbcUrl";
     private final AgentStatDao agentStatDao;
 
-    public UsingDataSourceTagForAgentPreProcessor(AgentStatDao agentStatDao) {
+    private final AgentStatDao agentStatDaoV2;
+
+    public UsingDataSourceTagForAgentPreProcessor(@Qualifier("pinotAgentStatDao")AgentStatDao agentStatDao, @Qualifier("pinotAgentStatDaoV2")AgentStatDao agentStatDaoV2) {
         this.agentStatDao = Objects.requireNonNull(agentStatDao, "agentStatDao");
+        this.agentStatDaoV2 = Objects.requireNonNull(agentStatDaoV2, "agentStatDao");
     }
 
 
@@ -58,7 +62,7 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
                 continue;
             }
 
-            List<Tag> tagList = agentStatDao.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+            List<Tag> tagList = getTagList(inspectorDataSearchKey, metricDefinition, field);
 
             List<Tag> filteredTagList = new ArrayList<>();
             for (Tag tag : tagList) {
@@ -68,11 +72,27 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
             }
 
             for (Tag filteredTag : filteredTagList) {
-                TagInformation tagInfo = agentStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
+                TagInformation tagInfo = getTagInformation(inspectorDataSearchKey, metricDefinition, field, filteredTag);
                 newFieldList.add(new Field(field.getFieldName(), field.getFieldAlias(), tagInfo.tags(), field.getMatchingRule(), field.getAggregationFunction(), field.getChartType(), field.getUnit(), field.getPostProcess()));
             }
         }
 
         return new MetricDefinition(metricDefinition.getDefinitionId(), metricDefinition.getMetricName(), metricDefinition.getTitle(), metricDefinition.getGroupingRule(), metricDefinition.getPreProcess(), metricDefinition.getPostProcess(), newFieldList);
+    }
+
+    private TagInformation getTagInformation(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition, Field field, Tag filteredTag) {
+        if (inspectorDataSearchKey.getVersion() == 2) {
+            return agentStatDaoV2.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
+        } else {
+            return agentStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
+        }
+    }
+
+    private List<Tag> getTagList(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition, Field field) {
+        if (inspectorDataSearchKey.getVersion() == 2) {
+            return agentStatDaoV2.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+        } else {
+            return agentStatDao.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+        }
     }
 }

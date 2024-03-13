@@ -43,10 +43,11 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("applicationName") String applicationName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("to") long to,
+            @RequestParam("version") int version) {
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow, version);
 
         InspectorMetricData inspectorMetricData =  applicationStatService.selectApplicationStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
@@ -58,7 +59,8 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("to") long to,
+            @RequestParam("version") int version) {
         InspectorMetricData inspectorMetricData = apdexStatService.selectApplicationStat(applicationName, serviceTypeName, metricDefinitionId, from, to);
         return new InspectorMetricView(inspectorMetricData);
     }
@@ -68,10 +70,11 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("applicationName") String applicationName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("to") long to,
+            @RequestParam("version") int version) {
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow, version);
 
         InspectorMetricGroupData inspectorMetricGroupData =  applicationStatService.selectApplicationStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);

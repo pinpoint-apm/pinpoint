@@ -46,7 +46,9 @@ public class InspectorDataSearchKey {
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public InspectorDataSearchKey(String tenantId, String applicationName, String agentId, String metricDefinitionId, TimeWindow timeWindow) {
+    private final int version;
+
+    public InspectorDataSearchKey(String tenantId, String applicationName, String agentId, String metricDefinitionId, TimeWindow timeWindow, int version) {
         this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
@@ -56,6 +58,8 @@ public class InspectorDataSearchKey {
         this.range = timeWindow.getWindowRange();
         this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
         this.limit = timeWindow.getWindowRangeCount();
+
+        this.version = version;
     }
 
     public String getMetricDefinitionId() {
@@ -84,5 +88,9 @@ public class InspectorDataSearchKey {
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public int getVersion() {
+        return version;
     }
 }
