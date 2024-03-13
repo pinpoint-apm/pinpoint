@@ -70,25 +70,34 @@ public class PinpointBasicLoginConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         // for common
         http
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .formLogin()
-                .successHandler(new SaveJwtTokenAuthenticationSuccessHandler(basicLoginService))
-                .and()
-                .httpBasic()
-                .and()
-                .logout()
-                .deleteCookies(BasicLoginConstants.PINPOINT_JWT_COOKIE_NAME);
+                .csrf(customizer -> {
+                    customizer.disable();
+                })
+                .sessionManagement(customizer -> {
+                    customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                })
+                .formLogin(customizer -> {
+                    customizer.successHandler(new SaveJwtTokenAuthenticationSuccessHandler(basicLoginService));
+                })
+                .httpBasic(customizer -> {
+                })
+                .logout(customizer -> {
+                    customizer.deleteCookies(BasicLoginConstants.PINPOINT_JWT_COOKIE_NAME);
+                });
 
         // for admin
-        http.authorizeHttpRequests().requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
-                .and()
-                .exceptionHandling()
-                .accessDeniedPage(BasicLoginConstants.URI_NOT_AUTHORIZED);
+        http
+                .authorizeHttpRequests(customizer -> {
+                    customizer.requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN");
+                })
+                .exceptionHandling(customizer -> {
+                    customizer.accessDeniedPage(BasicLoginConstants.URI_NOT_AUTHORIZED);
+                });
 
         // for user
-        http.authorizeHttpRequests().anyRequest().authenticated();
+        http.authorizeHttpRequests(customizer -> {
+            customizer.anyRequest().authenticated();
+        });
 
         http.addFilterBefore(new JwtRequestFilter(basicLoginService), UsernamePasswordAuthenticationFilter.class);
 
