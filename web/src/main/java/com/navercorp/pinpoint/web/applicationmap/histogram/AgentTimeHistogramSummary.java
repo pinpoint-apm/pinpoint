@@ -32,7 +32,7 @@ public class AgentTimeHistogramSummary {
 
     public static AgentTimeHistogramSummary createSummary(AgentHistogram agentHistogram) {
         Objects.requireNonNull(agentHistogram, "agentHistogram");
-        return new AgentTimeHistogramSummary(agentHistogram.getAgentId().getName(), agentHistogram.getHistogram());
+        return new AgentTimeHistogramSummary(agentHistogram.getAgentId().name(), agentHistogram.getHistogram());
     }
 
     public AgentTimeHistogramSummary(String agentId, Histogram histogram) {

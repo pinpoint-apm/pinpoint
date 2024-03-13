@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.Cell;
@@ -49,7 +50,7 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
             return Collections.emptyList();
         }
         Set<Short> uniqueTypeCodes = new HashSet<>();
-        String applicationName = CellUtils.rowToString(result);
+        String applicationName = BytesUtils.toString(result.getRow());
         
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {

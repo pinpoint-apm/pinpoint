@@ -18,16 +18,17 @@ package com.navercorp.pinpoint.batch.service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
  */
 public interface BatchApplicationService {
 
-    List<String> getAll();
+    List<UUID> getAll();
 
-    boolean isActive(String applicationName, Duration duration);
+    boolean isActive(UUID applicationId, Duration duration);
 
-    void remove(String applicationName);
+    void remove(UUID applicationId);
 
 }

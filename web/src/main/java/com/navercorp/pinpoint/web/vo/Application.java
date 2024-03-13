@@ -21,31 +21,24 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ApplicationSerializer;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
- * 
  * @author netspider
  * @author emeroad
  * @author jaehong.kim
- * 
  */
 @JsonSerialize(using = ApplicationSerializer.class)
-public final class Application {
-    private final String name;
-    private final ServiceType serviceType;
+public record Application(UUID id, String name, ServiceType serviceType) {
 
-    public Application(String name, ServiceType serviceType) {
-        this.name = Objects.requireNonNull(name, "name");
+    public Application(UUID id, String name, ServiceType serviceType) {
+        this.id = id;
+        this.name = name;
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 
-
-    public String getName() {
-        return name;
-    }
-
-    public ServiceType getServiceType() {
-        return serviceType;
+    public Application(String name, ServiceType serviceType) {
+        this(null, name, serviceType);
     }
 
     public short getServiceTypeCode() {
@@ -56,18 +49,13 @@ public final class Application {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Application that = (Application) o;
-
-        if (!name.equals(that.name)) return false;
-        return serviceType.equals(that.serviceType);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(serviceType, that.serviceType);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + serviceType.hashCode();
-        return result;
+        return Objects.hash(id, name, serviceType);
     }
 
     @Override

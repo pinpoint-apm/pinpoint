@@ -190,7 +190,7 @@ public class SpanAlign implements Align {
         if (isMeta()) {
             return " ";
         }
-        return spanBo.getApplicationId();
+        return spanBo.getApplicationName();
     }
 
     @Override

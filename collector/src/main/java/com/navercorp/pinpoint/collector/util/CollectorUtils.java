@@ -57,7 +57,7 @@ public final class CollectorUtils {
     }
 
     public static void checkApplicationName(final String applicationName) {
-        if (!IdValidateUtils.validateId(applicationName)) {
+        if (!IdValidateUtils.validateId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
             throw new IllegalArgumentException("invalid applicationName. applicationName=" + applicationName);
         }
     }

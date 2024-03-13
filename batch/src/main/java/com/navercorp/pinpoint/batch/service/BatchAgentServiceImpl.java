@@ -17,31 +17,32 @@
 package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.ApplicationService;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
  */
 public class BatchAgentServiceImpl implements BatchAgentService {
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationService applicationService;
     private final AgentInfoService agentInfoService;
 
     public BatchAgentServiceImpl(
-            ApplicationIndexDao applicationIndexDao,
+            ApplicationService applicationService,
             AgentInfoService agentInfoService
     ) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     @Override
-    public List<String> getIds(String applicationName) {
-        return this.applicationIndexDao.selectAgentIds(applicationName);
+    public List<String> getIds(UUID applicationId) {
+        return this.applicationService.getAgents(applicationId);
     }
 
     @Override
@@ -50,7 +51,7 @@ public class BatchAgentServiceImpl implements BatchAgentService {
     }
 
     @Override
-    public void remove(String applicationName, String agentId) {
-        this.applicationIndexDao.deleteAgentId(applicationName, agentId);
+    public void remove(UUID applicationId, String agentId) {
+        this.applicationService.deleteAgent(applicationId, agentId);
     }
 }

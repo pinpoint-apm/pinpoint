@@ -107,7 +107,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     public NodeHistogramSummary selectNodeHistogramData(ResponseTimeHistogramServiceOption option) {
         Node node = new Node(option.getApplication());
         Application application = option.getApplication();
-        ServiceType applicationServiceType = application.getServiceType();
+        ServiceType applicationServiceType = application.serviceType();
 
         List<Application> sourceApplications = option.getFromApplications();
         List<Application> destinationApplications = option.getToApplications();
@@ -189,7 +189,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
 
         LinkDataDuplexMap linkDataDuplexMap;
-        ServiceType fromApplicationServiceType = fromApplication.getServiceType();
+        ServiceType fromApplicationServiceType = fromApplication.serviceType();
         LinkDirection linkDirection = LinkDirection.OUT_LINK;
         if (fromApplicationServiceType.isUser()) {
             //scan using toApplication to distinguish same applicationName with different serviceType

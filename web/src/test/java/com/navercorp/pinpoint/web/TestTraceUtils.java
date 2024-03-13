@@ -158,7 +158,7 @@ public class TestTraceUtils {
         public SpanBo build() {
             SpanBo spanBo = new SpanBo();
             spanBo.setVersion(version);
-            spanBo.setApplicationId(applicationName);
+            spanBo.setApplicationName(applicationName);
             spanBo.setAgentId(agentId);
             long spanId = this.spanId;
             if (spanId == SpanId.NULL) {

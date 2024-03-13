@@ -36,11 +36,11 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.Serv
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMap;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMapBuilder;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.service.ApplicationTraceIndexService;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
@@ -70,7 +70,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private final TraceDao traceDao;
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final ApplicationTraceIndexService applicationTraceIndexService;
 
     private final ServiceTypeRegistryService registry;
 
@@ -88,14 +88,14 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private long buildTimeoutMillis;
 
     public FilteredMapServiceImpl(TraceDao traceDao,
-                                  ApplicationTraceIndexDao applicationTraceIndexDao,
+                                  ApplicationTraceIndexService applicationTraceIndexService,
                                   ServiceTypeRegistryService registry,
                                   ApplicationFactory applicationFactory,
                                   ServerInstanceDatasourceService serverInstanceDatasourceService,
                                   Optional<ServerMapDataFilter> serverMapDataFilter,
                                   ApplicationMapBuilderFactory applicationMapBuilderFactory) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.applicationTraceIndexService = Objects.requireNonNull(applicationTraceIndexService, "applicationTraceIndexService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
@@ -117,7 +117,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
         }
 
-        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
+        return this.applicationTraceIndexService.scanTraceIndex(applicationName, range, limit, backwardDirection);
     }
 
     private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter<List<SpanBo>> filter) {

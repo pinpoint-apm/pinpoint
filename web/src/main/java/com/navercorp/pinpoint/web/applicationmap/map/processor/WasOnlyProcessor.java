@@ -47,8 +47,8 @@ public class WasOnlyProcessor implements LinkDataMapProcessor {
 
     private boolean accept(LinkData linkData) {
         final Application toApplication = linkData.getToApplication();
-        boolean isDestinationTerminal = toApplication.getServiceType().isTerminal();
-        boolean isDestinationUnknown = toApplication.getServiceType().isUnknown();
+        boolean isDestinationTerminal = toApplication.serviceType().isTerminal();
+        boolean isDestinationUnknown = toApplication.serviceType().isUnknown();
         if (isDestinationTerminal || isDestinationUnknown) {
             logger.debug("Filtering linkData : {}", linkData);
             return false;

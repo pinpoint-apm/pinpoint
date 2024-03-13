@@ -99,7 +99,7 @@ public class LinkCallData {
         final Long refineTimestamp = timeWindow.refineTimestamp(timeStamp);
         TimeHistogram histogram = targetHistogramTimeMap.get(refineTimestamp);
         if (histogram == null) {
-            histogram = new TimeHistogram(target.getServiceType(), refineTimestamp);
+            histogram = new TimeHistogram(target.serviceType(), refineTimestamp);
             targetHistogramTimeMap.put(refineTimestamp, histogram);
         }
         return histogram;

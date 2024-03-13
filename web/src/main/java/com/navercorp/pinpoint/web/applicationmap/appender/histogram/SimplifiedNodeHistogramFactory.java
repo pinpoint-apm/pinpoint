@@ -42,7 +42,7 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
         // create applicationHistogram
         final List<Link> toLinkList = linkList.findToLink(terminalApplication);
 
-        final ServiceType terminalService = terminalApplication.getServiceType();
+        final ServiceType terminalService = terminalApplication.serviceType();
         final Histogram applicationHistogram = new Histogram(terminalService);
         for (Link link : toLinkList) {
             applicationHistogram.add(link.getHistogram());
@@ -98,7 +98,7 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
         final NodeHistogram nodeHistogram = new NodeHistogram(queueApplication, range);
 
         // create applicationHistogram
-        final Histogram applicationHistogram = new Histogram(queueApplication.getServiceType());
+        final Histogram applicationHistogram = new Histogram(queueApplication.serviceType());
         for (Link link : toLinkList) {
             applicationHistogram.add(link.getHistogram());
         }

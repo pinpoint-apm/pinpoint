@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
@@ -86,6 +87,10 @@ public class AgentInfoBoMapper implements RowMapper<AgentInfoBo> {
         // 2021.03.24 added agent name
         if (buffer.hasRemaining()) {
             builder.setAgentName(buffer.readPrefixedString());
+        }
+        // 2024.03.11 added application id
+        if (buffer.hasRemaining()) {
+            builder.setApplicationId(ApplicationId.of(buffer.readUUID()));
         }
         return builder;
     }

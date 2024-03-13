@@ -36,11 +36,11 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.ApplicationTraceIndexService;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
@@ -95,7 +95,7 @@ public class FilteredMapServiceImplTest {
     private TraceDao traceDao;
 
     @Mock
-    private ApplicationTraceIndexDao applicationTraceIndexDao;
+    private ApplicationTraceIndexService applicationTraceIndexService;
 
     @Mock
     private ApplicationFactory applicationFactory;
@@ -141,7 +141,7 @@ public class FilteredMapServiceImplTest {
                     return new AgentInfoServerGroupListDataSource(agentInfoService, HyperLinkFactory.empty());
                 });
 
-        filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexDao,
+        filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexService,
                 registry, applicationFactory, serverInstanceDatasourceService, Optional.empty(), applicationMapBuilderFactory);
 
     }
@@ -214,7 +214,7 @@ public class FilteredMapServiceImplTest {
         assertThat(nodes).hasSize(4);
         for (Node node : nodes) {
             Application application = node.getApplication();
-            if (application.getName().equals("ROOT_APP") && application.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) {
+            if (application.name().equals("ROOT_APP") && application.serviceType().getCode() == TestTraceUtils.USER_TYPE_CODE) {
                 // USER node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -231,7 +231,7 @@ public class FilteredMapServiceImplTest {
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
                 Assertions.assertTrue(agentTimeHistogram.getAgentResponseTimeViewModelList().isEmpty());
-            } else if (application.getName().equals("ROOT_APP") && application.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
+            } else if (application.name().equals("ROOT_APP") && application.serviceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
                 // ROOT_APP node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -248,7 +248,7 @@ public class FilteredMapServiceImplTest {
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
                 assertAgentTimeHistogram(agentTimeHistogram.getAgentResponseTimeViewModelList(), "root-agent", histogramSchema.getFastSlot(), expectedTimeCounts);
-            } else if (application.getName().equals("APP_A") && application.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
+            } else if (application.name().equals("APP_A") && application.serviceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
                 // APP_A node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -265,7 +265,7 @@ public class FilteredMapServiceImplTest {
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
                 assertAgentTimeHistogram(agentTimeHistogram.getAgentResponseTimeViewModelList(), "app-a", histogramSchema.getFastSlot(), expectedTimeCounts);
-            } else if (application.getName().equals("CacheName") && application.getServiceType().getCode() == TestTraceUtils.CACHE_TYPE_CODE) {
+            } else if (application.name().equals("CacheName") && application.serviceType().getCode() == TestTraceUtils.CACHE_TYPE_CODE) {
                 // CACHE node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -292,39 +292,39 @@ public class FilteredMapServiceImplTest {
         for (Link link : links) {
             Application fromApplication = link.getFrom().getApplication();
             Application toApplication = link.getTo().getApplication();
-            if ((fromApplication.getName().equals("ROOT_APP") && fromApplication.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) &&
-                    (toApplication.getName().equals("ROOT_APP") && toApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
+            if ((fromApplication.name().equals("ROOT_APP") && fromApplication.serviceType().getCode() == TestTraceUtils.USER_TYPE_CODE) &&
+                    (toApplication.name().equals("ROOT_APP") && toApplication.serviceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
                 // histogram
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 1, 0, 0, 0, 0);
                 // time histogram
                 List<TimeViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
-                HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
+                HistogramSchema targetHistogramSchema = toApplication.serviceType().getHistogramSchema();
                 List<ResponseTimeViewModel.TimeCount> expectedTimeCounts = List.of(
                         new ResponseTimeViewModel.TimeCount(timeWindow.refineTimestamp(rootSpanCollectorAcceptTime), 1)
                 );
                 assertTimeHistogram(linkApplicationTimeSeriesHistogram, targetHistogramSchema.getFastSlot(), expectedTimeCounts);
-            } else if ((fromApplication.getName().equals("ROOT_APP") && fromApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
-                    (toApplication.getName().equals("APP_A") && toApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
+            } else if ((fromApplication.name().equals("ROOT_APP") && fromApplication.serviceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
+                    (toApplication.name().equals("APP_A") && toApplication.serviceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
                 // histogram
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 1, 0, 0, 0, 0);
                 // time histogram
                 List<TimeViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
-                HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
+                HistogramSchema targetHistogramSchema = toApplication.serviceType().getHistogramSchema();
                 List<ResponseTimeViewModel.TimeCount> expectedTimeCounts = List.of(
                         new ResponseTimeViewModel.TimeCount(timeWindow.refineTimestamp(appASpanCollectorAcceptTime), 1)
                 );
                 assertTimeHistogram(linkApplicationTimeSeriesHistogram, targetHistogramSchema.getFastSlot(), expectedTimeCounts);
-            } else if ((fromApplication.getName().equals("APP_A") && fromApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
-                    (toApplication.getName().equals("CacheName") && toApplication.getServiceType().getCode() == TestTraceUtils.CACHE_TYPE_CODE
+            } else if ((fromApplication.name().equals("APP_A") && fromApplication.serviceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
+                    (toApplication.name().equals("CacheName") && toApplication.serviceType().getCode() == TestTraceUtils.CACHE_TYPE_CODE
                     )) {
                 // histogram
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 0, 1, 0, 0, 0);
                 // time histogram
                 List<TimeViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
-                HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
+                HistogramSchema targetHistogramSchema = toApplication.serviceType().getHistogramSchema();
                 List<ResponseTimeViewModel.TimeCount> expectedTimeCounts = List.of(
                         new ResponseTimeViewModel.TimeCount(timeWindow.refineTimestamp(appASpanStartTime + cacheStartElapsed), 1)
                 );

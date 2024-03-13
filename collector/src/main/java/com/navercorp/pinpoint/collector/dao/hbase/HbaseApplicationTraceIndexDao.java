@@ -48,14 +48,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE_VER2;
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META_VER2;
 
     private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
-
     private final RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder;
-
 
     public HbaseApplicationTraceIndexDao(HbasePutWriter putWriter,
                                          TableNameProvider tableNameProvider,
@@ -77,7 +75,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // Assert agentId
         CollectorUtils.checkAgentId(span.getAgentId());
         // Assert applicationName
-        CollectorUtils.checkApplicationName(span.getApplicationId());
+        CollectorUtils.checkApplicationName(span.getApplicationName());
 
         final long acceptedTime = span.getCollectorAcceptTime();
         final byte[] distributedKey = applicationIndexRowKeyEncoder.encodeRowKey(span);

@@ -16,7 +16,12 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Taejin Koo
@@ -25,5 +30,15 @@ import org.springframework.stereotype.Service;
 public interface ApplicationService {
 
     boolean isExistApplicationName(String applicationName);
+
+    List<Application> getApplications();
+
+    List<String> getAgents(UUID applicationId);
+
+    void deleteApplication(UUID applicationId);
+
+    void deleteAgents(Map<UUID, List<String>> applicationAgentIdMap);
+
+    void deleteAgent(UUID applicationId, String agentId);
 
 }

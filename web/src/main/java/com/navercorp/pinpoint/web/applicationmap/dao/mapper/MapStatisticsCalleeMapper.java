@@ -91,7 +91,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         for (Cell cell : result.rawCells()) {
 
             final byte[] qualifier = CellUtil.cloneQualifier(cell);
-            final Application in = readInApplication(qualifier, calleeApplication.getServiceType());
+            final Application in = readInApplication(qualifier, calleeApplication.serviceType());
             if (filter.filter(in)) {
                 continue;
             }
@@ -103,7 +103,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
             // There may be no callerHost for virtual queue nodes from user-defined entry points.
             // Terminal nodes, such as httpclient will not have callerHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
-            if (calleeApplication.getServiceType().isQueue()) {
+            if (calleeApplication.serviceType().isQueue()) {
                 callerHost = StringUtils.defaultString(callerHost);
             }
             boolean isError = histogramSlot == (short) -1;
@@ -113,7 +113,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
             }
 
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
-            linkDataMap.addLinkData(in, in.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
+            linkDataMap.addLinkData(in, in.name(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched {}. statistics:{}", LinkDirection.IN_LINK, linkDataMap);

@@ -130,7 +130,7 @@ public class FilteringSpanDecoderTest {
     }
 
     private GetTraceInfo createGetTraceInfo(SpanBo spanBo) {
-        return new GetTraceInfo(spanBo.getTransactionId(), new SpanHint(spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getApplicationId()));
+        return new GetTraceInfo(spanBo.getTransactionId(), new SpanHint(spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getApplicationName()));
     }
 
     private SpanDecoder createMockSpanDecoder() {
@@ -157,7 +157,7 @@ public class FilteringSpanDecoderTest {
             spanBo.setElapsed(createElapsed());
 
             if (applicationId != null) {
-                spanBo.setApplicationId("appName");
+                spanBo.setApplicationName("appName");
             }
 
             return spanBo;

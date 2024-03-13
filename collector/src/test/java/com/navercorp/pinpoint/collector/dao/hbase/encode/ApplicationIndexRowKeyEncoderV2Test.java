@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ApplicationIndexRowKeyEncoderV2Test {
@@ -45,7 +47,7 @@ class ApplicationIndexRowKeyEncoderV2Test {
     @Test
     void newRowKey() {
 
-        byte[] rowKey = encoder.newRowKey("agent", 100, (byte) 10);
+        byte[] rowKey = encoder.newRowKey(new UUID(100, 100), 100, (byte) 10);
 
         int fuzzySize = PinpointConstants.APPLICATION_NAME_MAX_LEN + Bytes.SIZEOF_LONG + 1;
         assertThat(rowKey).hasSize(fuzzySize);

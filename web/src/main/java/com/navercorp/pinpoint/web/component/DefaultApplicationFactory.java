@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author emeroad
@@ -34,6 +35,12 @@ public class DefaultApplicationFactory implements ApplicationFactory {
 
     public DefaultApplicationFactory(ServiceTypeRegistryService registry) {
         this.registry = Objects.requireNonNull(registry, "registry");
+    }
+
+    @Override
+    public Application createApplication(UUID applicationId, String applicationName, short serviceTypeCode) {
+        final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+        return new Application(applicationId, applicationName, serviceType);
     }
 
     @Override

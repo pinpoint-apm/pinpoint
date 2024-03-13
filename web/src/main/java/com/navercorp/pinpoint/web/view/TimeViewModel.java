@@ -54,7 +54,7 @@ public interface TimeViewModel {
 
         List<TimeViewModel> createViewModelV1() {
             final List<TimeViewModel> value = new ArrayList<>(9);
-            ServiceType serviceType = application.getServiceType();
+            ServiceType serviceType = application.serviceType();
             HistogramSchema schema = serviceType.getHistogramSchema();
             value.add(new ResponseTimeViewModel(schema.getFastSlot().getSlotName(), getColumnValue(histogramList, SlotType.FAST)));
             value.add(new ResponseTimeViewModel(schema.getNormalSlot().getSlotName(), getColumnValue(histogramList, SlotType.NORMAL)));

@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class ApplicationIndexRowKeyEncoderV2 implements RowKeyEncoder<SpanBo> {
 
@@ -45,17 +46,17 @@ public class ApplicationIndexRowKeyEncoderV2 implements RowKeyEncoder<SpanBo> {
         // distribute key evenly
         long acceptedTime = span.getCollectorAcceptTime();
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(span.getElapsed());
-        final byte[] appTraceIndexRowKey = newRowKey(span.getApplicationId(), acceptedTime, fuzzyKey);
+        final byte[] appTraceIndexRowKey = newRowKey(span.getApplicationId().value(), acceptedTime, fuzzyKey);
         return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);
     }
 
-    byte[] newRowKey(String applicationName, long acceptedTime, byte fuzzySlotKey) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    byte[] newRowKey(UUID applicationId, long acceptedTime, byte fuzzySlotKey) {
+        Objects.requireNonNull(applicationId, "applicationId");
 
         if (logger.isDebugEnabled()) {
             logger.debug("fuzzySlotKey:{}", fuzzySlotKey);
         }
-        byte[] rowKey = rowKeyEncoder.encodeRowKey(applicationName, acceptedTime);
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(applicationId, acceptedTime);
 
         byte[] fuzzyRowKey = new byte[rowKey.length + 1];
         System.arraycopy(rowKey, 0, fuzzyRowKey, 0, rowKey.length);

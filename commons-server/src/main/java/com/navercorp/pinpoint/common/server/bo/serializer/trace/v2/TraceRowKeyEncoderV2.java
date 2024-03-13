@@ -41,7 +41,8 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
     public byte[] encodeRowKey(TransactionId transactionId) {
         Objects.requireNonNull(transactionId, "transactionId");
 
-        byte[] rowKey = BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        byte[] rowKey = BytesUtils.stringLongLongToBytes(
+                transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         return wrapDistributedRowKey(rowKey);
     }
 

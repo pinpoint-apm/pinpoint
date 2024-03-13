@@ -86,6 +86,6 @@ public class HbaseAgentEventDao implements AgentEventDao {
     }
 
     byte[] createRowKey(String agentId, long eventTimestamp) {
-        return rowKeyEncoder.encodeRowKey(agentId, eventTimestamp);
+            return rowKeyEncoder.encodeRowKey(agentId, eventTimestamp);
     }
 }

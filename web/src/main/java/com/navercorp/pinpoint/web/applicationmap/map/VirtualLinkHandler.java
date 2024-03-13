@@ -94,7 +94,7 @@ public class VirtualLinkHandler {
         for (LinkData calleeLinkData : calleeLinkDataMap.getLinkDataList()) {
             Application fromApplication = calleeLinkData.getFromApplication();
             // filter callee link data from non-WAS nodes
-            if (!fromApplication.getServiceType().isWas()) {
+            if (!fromApplication.serviceType().isWas()) {
                 logger.trace("filtered {} as {} is not a WAS node", calleeLinkData, fromApplication);
                 continue;
             }

@@ -52,7 +52,7 @@ public class SpanEncoderV0 implements SpanEncoder {
     private ByteBuffer encodeQualifier(byte type, BasicSpan basicSpan, SpanEventBo firstEvent, LocalAsyncIdBo localAsyncId) {
         final Buffer buffer = new AutomaticBuffer(128);
         buffer.putByte(type);
-        buffer.putPrefixedString(basicSpan.getApplicationId());
+        buffer.putPrefixedString(basicSpan.getApplicationName());
         buffer.putPrefixedString(basicSpan.getAgentId());
         buffer.putVLong(basicSpan.getAgentStartTime());
         buffer.putLong(basicSpan.getSpanId());

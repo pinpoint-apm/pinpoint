@@ -245,14 +245,14 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         if (!StringUtils.equals(spanBo.getAgentId(), spanChunkBo.getAgentId())) {
             return false;
         }
-        if (!StringUtils.equals(spanBo.getApplicationId(), spanChunkBo.getApplicationId())) {
+        if (!StringUtils.equals(spanBo.getApplicationName(), spanChunkBo.getApplicationName())) {
             return false;
         }
         return true;
     }
 
     private AgentKey newAgentKey(BasicSpan basicSpan) {
-        return new AgentKey(basicSpan.getApplicationId(), basicSpan.getAgentId(), basicSpan.getAgentStartTime(), basicSpan.getSpanId());
+        return new AgentKey(basicSpan.getApplicationName(), basicSpan.getAgentId(), basicSpan.getAgentStartTime(), basicSpan.getSpanId());
     }
 
     private record AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {

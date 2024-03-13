@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
@@ -28,12 +29,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class CollectorGrpcSpanFactoryTest {
     private static final int MAX_SEQUENCE = 10;
+    private static final ApplicationId APPLICATION_ID = ApplicationId.of(UUID.randomUUID());
 
     private final GrpcSpanBinder binder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new SequenceSpanEventFilter(MAX_SEQUENCE);
@@ -41,7 +44,7 @@ public class CollectorGrpcSpanFactoryTest {
     private final BindAttribute attribute = newAttribute();
 
     private BindAttribute newAttribute() {
-        return new BindAttribute("agentId", "applicationName", 88, System.currentTimeMillis());
+        return new BindAttribute("agentId", "applicationName", APPLICATION_ID, 88, System.currentTimeMillis());
     }
 
     private final GrpcSpanFactory factory = new CollectorGrpcSpanFactory(binder, filter);

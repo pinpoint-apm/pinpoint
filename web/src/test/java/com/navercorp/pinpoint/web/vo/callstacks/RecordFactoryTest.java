@@ -220,7 +220,7 @@ public class RecordFactoryTest {
                 .setVersion(1)
                 .setAgentId("express-node-sample-id")
                 .setAgentName("")
-                .setApplicationId("express-node-sample-name")
+                .setApplicationName("express-node-sample-name")
                 .setAgentStartTime(1670293953108L)
                 .setTransactionId(new TransactionId("express-node-sample-id", 1670293953108L, 30))
                 .setParentSpanId(-1)

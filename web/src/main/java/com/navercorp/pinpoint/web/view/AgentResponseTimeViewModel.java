@@ -38,7 +38,7 @@ public class AgentResponseTimeViewModel {
     }
 
     public String getAgentName() {
-        return agentName.getName();
+        return agentName.name();
     }
 
     public List<TimeViewModel> getResponseTimeViewModel() {
