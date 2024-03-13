@@ -113,7 +113,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
             for (SpanBo spanBo : trace) {
                 // show application's incoming requests
-                if (applicationName.equals(spanBo.getApplicationId())) {
+                if (applicationName.equals(spanBo.getApplicationName())) {
                     businessTransactions.add(spanBo);
                 }
             }

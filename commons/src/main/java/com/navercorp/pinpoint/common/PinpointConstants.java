@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.common;
  */
 public final class PinpointConstants {
 
-    public static final int APPLICATION_NAME_MAX_LEN = 24;
+    public static final int APPLICATION_NAME_MAX_LEN = 255;
 
     public static final int AGENT_ID_MAX_LEN = 24;
 

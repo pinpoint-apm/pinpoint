@@ -67,7 +67,10 @@ public class StatisticsService {
             int elapsed,
             boolean isError
     ) {
-        mapStatisticsCallerDao.update(callerApplicationName, callerServiceType, callerAgentId, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
+        mapStatisticsCallerDao.update(
+                callerApplicationName, callerServiceType, callerAgentId,
+                calleeApplicationName, calleeServiceType, calleeHost,
+                elapsed, isError);
     }
 
     /**
@@ -93,7 +96,10 @@ public class StatisticsService {
             int elapsed,
             boolean isError
     ) {
-        mapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
+        mapStatisticsCalleeDao.update(
+                calleeApplicationName, calleeServiceType,
+                callerApplicationName, callerServiceType,
+                callerHost, elapsed, isError);
     }
 
     public void updateResponseTime(

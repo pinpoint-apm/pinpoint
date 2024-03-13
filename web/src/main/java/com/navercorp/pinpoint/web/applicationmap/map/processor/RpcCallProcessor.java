@@ -73,11 +73,11 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
 
     private List<LinkData> replaceLinkData(LinkDirection direction, LinkData linkData, Range range) {
         final Application toApplication = linkData.getToApplication();
-        if (toApplication.getServiceType().isRpcClient() || toApplication.getServiceType().isQueue()) {
+        if (toApplication.serviceType().isRpcClient() || toApplication.serviceType().isQueue()) {
             // rpc client's destination could have an agent installed in which case the link data must be replaced to point
             // to the destination application.
             logger.debug("Finding {} accept applications for {}, {}", direction, toApplication, range);
-            final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), range);
+            final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.name(), range);
             logger.debug("Found {} accept applications: {}", direction, acceptApplicationList);
             if (CollectionUtils.hasLength(acceptApplicationList)) {
                 if (acceptApplicationList.size() == 1) {
@@ -93,10 +93,10 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
                 }
             } else {
                 // for queues, accept application may not exist if no consumers have an agent installed
-                if (toApplication.getServiceType().isQueue()) {
+                if (toApplication.serviceType().isQueue()) {
                     return Collections.singletonList(linkData);
                 } else {
-                    final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
+                    final Application unknown = new Application(toApplication.name(), ServiceType.UNKNOWN);
                     final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown);
                     unknownLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
                     return Collections.singletonList(unknownLinkData);
@@ -115,7 +115,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
         final Set<AcceptApplication> resultSet = new HashSet<>();
 
         for (AcceptApplication acceptApplication : acceptApplicationList) {
-            if (!acceptApplication.getApplication().getServiceType().isAlias()) {
+            if (!acceptApplication.getApplication().serviceType().isAlias()) {
                 resultSet.add(acceptApplication);
             } else {
                 logger.debug("deduct alias application {}", acceptApplication);

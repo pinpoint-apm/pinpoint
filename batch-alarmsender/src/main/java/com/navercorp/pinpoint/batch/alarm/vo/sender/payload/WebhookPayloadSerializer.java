@@ -29,30 +29,30 @@ import java.math.BigDecimal;
 public class WebhookPayloadSerializer extends JsonSerializer<WebhookPayload> {
     
     @Override
-    public void serialize(WebhookPayload webhookPayload, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
-        jgen.writeStartObject();
+    public void serialize(WebhookPayload webhookPayload, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeStartObject();
         
-        jgen.writeStringField("pinpointUrl", webhookPayload.getPinpointUrl());
-        jgen.writeStringField("batchEnv", webhookPayload.getBatchEnv());
-        jgen.writeStringField("applicationId", webhookPayload.getApplicationId());
-        jgen.writeStringField("serviceType", webhookPayload.getServiceType());
-        jgen.writeObjectField("userGroup", webhookPayload.getUserGroup());
+        gen.writeStringField("pinpointUrl", webhookPayload.getPinpointUrl());
+        gen.writeStringField("batchEnv", webhookPayload.getBatchEnv());
+        gen.writeStringField("applicationId", webhookPayload.getApplicationName());
+        gen.writeStringField("serviceType", webhookPayload.getServiceType());
+        gen.writeObjectField("userGroup", webhookPayload.getUserGroup());
         
-        writeChecker(webhookPayload, jgen);
+        writeChecker(webhookPayload, gen);
         
-        jgen.writeStringField("unit", webhookPayload.getUnit());
+        gen.writeStringField("unit", webhookPayload.getUnit());
         Number threshold = webhookPayload.getThreshold();
         if (threshold instanceof Integer integer) {
-            jgen.writeNumberField("threshold", integer);
+            gen.writeNumberField("threshold", integer);
         } else if (threshold instanceof BigDecimal bigDecimal){
-            jgen.writeNumberField("threshold", bigDecimal);
+            gen.writeNumberField("threshold", bigDecimal);
         } else {
             throw new IOException("threshold type should be either Integer or BigDecimal");
         }
-        jgen.writeStringField("notes", webhookPayload.getNotes());
-        jgen.writeNumberField("sequenceCount", webhookPayload.getSequenceCount());
+        gen.writeStringField("notes", webhookPayload.getNotes());
+        gen.writeNumberField("sequenceCount", webhookPayload.getSequenceCount());
         
-        jgen.writeEndObject();
+        gen.writeEndObject();
     }
     
     private void writeChecker(WebhookPayload webhookPayload, JsonGenerator jgen) throws IOException {

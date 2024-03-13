@@ -44,7 +44,7 @@ public class SpanContext {
         List<SpanBo> findList = null;
         for (SpanBo span : nodeList) {
             final ServiceType applicationServiceType = serviceTypeRegistryService.findServiceType(span.getApplicationServiceType());
-            if (findApplicationName.equals(span.getApplicationId()) && includeServiceType(findServiceCode, applicationServiceType)) {
+            if (findApplicationName.equals(span.getApplicationName()) && includeServiceType(findServiceCode, applicationServiceType)) {
                 // apply preAgentFilter
                 if (agentFilter.accept(span.getAgentId())) {
                     if (findList == null) {

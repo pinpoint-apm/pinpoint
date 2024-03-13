@@ -117,8 +117,8 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         }
 
         // start key is replaced by end key because timestamp has been reversed
-        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
-        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
+        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.name(), application.getServiceTypeCode(), range.getTo());
+        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.name(), application.getServiceTypeCode(), range.getFrom());
 
         Scan scan = new Scan();
         scan.setCaching(SCAN_CACHE_SIZE);

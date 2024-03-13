@@ -108,18 +108,18 @@ public class FilteredMapBuilder {
 
         for (SpanBo span : transaction) {
             final Application parentApplication = createParentApplication(span, transactionSpanMap, version);
-            final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
+            final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationName(), span.getApplicationServiceType());
 
             // records the Span's response time statistics
             responseHistogramsBuilder.addHistogram(spanApplication, span, span.getCollectorAcceptTime());
 
-            if (!spanApplication.getServiceType().isRecordStatistics() || spanApplication.getServiceType().isRpcClient()) {
+            if (!spanApplication.serviceType().isRecordStatistics() || spanApplication.serviceType().isRpcClient()) {
                 // span's serviceType is probably not set correctly
                 logger.warn("invalid span application:{}", spanApplication);
                 continue;
             }
 
-            if (parentApplication.getServiceType().isUser()) {
+            if (parentApplication.serviceType().isUser()) {
                 // Outbound data
                 if (logger.isTraceEnabled()) {
                     logger.trace("span user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
@@ -154,7 +154,7 @@ public class FilteredMapBuilder {
     }
 
     private void addLinkData(LinkDataMap linkDataMap, SpanBo span, Application parentApplication, Application spanApplication) {
-        final short slotTime = getHistogramSlotTime(span, spanApplication.getServiceType());
+        final short slotTime = getHistogramSlotTime(span, spanApplication.serviceType());
         // might need to reconsider using collector's accept time for link statistics.
         // we need to convert to time window's timestamp. If not, it may lead to OOM due to mismatch in timeslots.
         long timestamp = timeWindow.refineTimestamp(span.getCollectorAcceptTime());
@@ -162,7 +162,7 @@ public class FilteredMapBuilder {
         final String spanAgentId = span.getAgentId();
         linkDataMap.addLinkData(parentApplication, spanAgentId, spanApplication, spanAgentId, timestamp, slotTime, 1);
 
-        final HistogramSchema histogramSchema = spanApplication.getServiceType().getHistogramSchema();
+        final HistogramSchema histogramSchema = spanApplication.serviceType().getHistogramSchema();
         final short sumElapsedSlotTime = histogramSchema.getSumStatSlot().getSlotTime();
         final short maxElapsedSlotTime = histogramSchema.getMaxStatSlot().getSlotTime();
         final int elapsed = span.getElapsed();
@@ -201,9 +201,9 @@ public class FilteredMapBuilder {
                 // FIXME magic number, remove after front end UI changes and simply use the newer one
                 if (version >= 4) {
                     ServiceType applicationServiceType = this.registry.findServiceType(span.getApplicationServiceType());
-                    applicationName = span.getApplicationId() + "_" + applicationServiceType;
+                    applicationName = span.getApplicationName() + "_" + applicationServiceType;
                 } else {
-                    applicationName = span.getApplicationId();
+                    applicationName = span.getApplicationName();
                 }
                 ServiceType serviceType = this.registry.findServiceType(ServiceType.USER.getCode());
                 return this.applicationFactory.createApplication(applicationName, serviceType);
@@ -225,7 +225,7 @@ public class FilteredMapBuilder {
                     return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
                 }
             }
-            String parentApplicationName = parentSpan.getApplicationId();
+            String parentApplicationName = parentSpan.getApplicationName();
             short parentServiceType = parentSpan.getApplicationServiceType();
             return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
         }
@@ -304,9 +304,9 @@ public class FilteredMapBuilder {
                     destServiceType = ServiceType.UNKNOWN;
                 } else {
                     //replace with alias instead of Unkown when exists
-                    logger.debug("replace with alias {}", replacedApplication.getServiceType());
-                    destServiceType = replacedApplication.getServiceType();
-                    dest = replacedApplication.getName();
+                    logger.debug("replace with alias {}", replacedApplication.serviceType());
+                    destServiceType = replacedApplication.serviceType();
+                    dest = replacedApplication.name();
                 }
             }
         }
@@ -322,7 +322,7 @@ public class FilteredMapBuilder {
             logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
         }
         // endPoint may be null
-        final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint(), destApplication.getName());
+        final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint(), destApplication.name());
         sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
     }
 

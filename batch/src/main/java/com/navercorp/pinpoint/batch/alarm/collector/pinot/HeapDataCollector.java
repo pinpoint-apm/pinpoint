@@ -57,7 +57,7 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
     @Override
     public void collect() {
         Range range = Range.newUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
-        List<AgentFieldUsage> agentFieldUsageList = alarmDao.selectSumGroupByField(application.getName(), METRIC_NAME, fieldList, range);
+        List<AgentFieldUsage> agentFieldUsageList = alarmDao.selectSumGroupByField(application.name(), METRIC_NAME, fieldList, range);
         Map<String, AgentHeapUsage> agentHeapUsageMap = new HashMap<>();
 
         for(AgentFieldUsage agentFieldUsage : agentFieldUsageList) {
@@ -73,7 +73,7 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
         for (Map.Entry<String, AgentHeapUsage> entry : agentHeapUsageMap.entrySet()) {
             String agentId = entry.getKey();
             AgentHeapUsage agentHeapUsage = entry.getValue();
-            long heapUsagePercent = calculatePercent(Double.valueOf(agentHeapUsage.getHeapUsed()).longValue(), Double.valueOf(agentHeapUsage.getHeapMax()).longValue());
+            long heapUsagePercent = calculatePercent(agentHeapUsage.getHeapUsed().longValue(), agentHeapUsage.getHeapMax().longValue());
             agentHeapUsageRate.put(agentId, heapUsagePercent);
         }
     }

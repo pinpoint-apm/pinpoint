@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -34,7 +35,8 @@ public class SpanBo implements Event, BasicSpan {
     //  private AgentKeyBo agentKeyBo;
     @NotBlank private String agentId;
     private String agentName;
-    @NotBlank private String applicationId;
+    @NotBlank private String applicationName;
+    private ApplicationId applicationId;
     @PositiveOrZero private long agentStartTime;
 
     private TransactionId transactionId;
@@ -42,7 +44,7 @@ public class SpanBo implements Event, BasicSpan {
     private long spanId;
     private long parentSpanId;
 
-    private String parentApplicationId;
+    private String parentApplicationName;
     private short parentApplicationServiceType;
 
     private long startTime;
@@ -129,12 +131,22 @@ public class SpanBo implements Event, BasicSpan {
     }
 
     @Override
-    public String getApplicationId() {
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    @Override
+    public ApplicationId getApplicationId() {
         return applicationId;
     }
 
     @Override
-    public void setApplicationId(String applicationId) {
+    public void setApplicationId(ApplicationId applicationId) {
         this.applicationId = applicationId;
     }
 
@@ -348,12 +360,12 @@ public class SpanBo implements Event, BasicSpan {
         }
     }
 
-    public String getParentApplicationId() {
-        return parentApplicationId;
+    public String getParentApplicationName() {
+        return parentApplicationName;
     }
 
-    public void setParentApplicationId(String parentApplicationId) {
-        this.parentApplicationId = parentApplicationId;
+    public void setParentApplicationName(String parentApplicationName) {
+        this.parentApplicationName = parentApplicationName;
     }
 
     public short getParentApplicationServiceType() {
@@ -383,12 +395,13 @@ public class SpanBo implements Event, BasicSpan {
                 "version=" + version +
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +
                 ", parentSpanId=" + parentSpanId +
-                ", parentApplicationId='" + parentApplicationId + '\'' +
+                ", parentApplicationId='" + parentApplicationName + '\'' +
                 ", parentApplicationServiceType=" + parentApplicationServiceType +
                 ", startTime=" + startTime +
                 ", elapsed=" + elapsed +
@@ -419,7 +432,8 @@ public class SpanBo implements Event, BasicSpan {
 
         private String agentId;
         private String agentName;
-        private String applicationId;
+        private String applicationName;
+        private ApplicationId applicationId;
         private long agentStartTime;
 
         private TransactionId transactionId;
@@ -478,7 +492,12 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
-        public Builder setApplicationId(String applicationId) {
+        public Builder setApplicationName(String applicationName) {
+            this.applicationName = applicationName;
+            return this;
+        }
+
+        public Builder setApplicationId(ApplicationId applicationId) {
             this.applicationId = applicationId;
             return this;
         }
@@ -603,12 +622,13 @@ public class SpanBo implements Event, BasicSpan {
             result.setVersion(this.version);
             result.setAgentId(this.agentId);
             result.setAgentName(this.agentName);
+            result.setApplicationName(this.applicationName);
             result.setApplicationId(this.applicationId);
             result.setAgentStartTime(this.agentStartTime);
             result.setTransactionId(this.transactionId);
             result.setSpanId(this.spanId);
             result.setParentSpanId(this.parentSpanId);
-            result.setParentApplicationId(this.parentApplicationId);
+            result.setParentApplicationName(this.parentApplicationId);
             result.setParentApplicationServiceType(this.parentApplicationServiceType);
             result.setStartTime(this.startTime);
             result.setElapsed(this.elapsed);

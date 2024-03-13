@@ -156,8 +156,8 @@ public class ResponseTimeController {
     }
 
     private ResponseTimeHistogramServiceOption.Builder createWasOptionBuilder(Application application, Range range) {
-        if (!application.getServiceType().isWas()) {
-            throw new IllegalArgumentException("application is not WAS. application:" + application + ", serviceTypeCode:" + application.getServiceType());
+        if (!application.serviceType().isWas()) {
+            throw new IllegalArgumentException("application is not WAS. application:" + application + ", serviceTypeCode:" + application.serviceType());
         }
         return new ResponseTimeHistogramServiceOption.Builder(application, range, Collections.emptyList(), Collections.emptyList());
     }

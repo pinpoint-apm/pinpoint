@@ -396,7 +396,7 @@ public class SpanDecoderV0 implements SpanDecoder {
 
     private void readQualifier(BasicSpan basicSpan, Buffer buffer) {
         String applicationId = buffer.readPrefixedString();
-        basicSpan.setApplicationId(applicationId);
+        basicSpan.setApplicationName(applicationId);
 
         String agentId = buffer.readPrefixedString();
         basicSpan.setAgentId(agentId);

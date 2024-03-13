@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AdminService;
+import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
@@ -50,7 +50,7 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
 
     private final AdminService adminService;
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationService applicationService;
 
     private Queue<String> applicationNameQueue;
     private int progress;
@@ -60,19 +60,19 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
     public CleanupInactiveAgentsTasklet(
             BatchProperties batchProperties,
             AdminService adminService,
-            ApplicationIndexDao applicationIndexDao
+            ApplicationService applicationService
     ) {
         Objects.requireNonNull(batchProperties, "batchProperties");
         this.durationDays = batchProperties.getCleanupInactiveAgentsDurationDays();
         this.adminService = Objects.requireNonNull(adminService, "adminService");
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
     }
 
     @Override
     public void beforeStep(@Nonnull StepExecution stepExecution) {
-         List<String> applicationNames = this.applicationIndexDao.selectAllApplicationNames()
+         List<String> applicationNames = this.applicationService.getApplications()
                 .stream()
-                .map(Application::getName)
+                .map(Application::name)
                 .distinct()
                 .collect(Collectors.toList());
         Collections.shuffle(applicationNames);

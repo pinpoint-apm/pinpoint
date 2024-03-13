@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.AgentUuidUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.common.util.UuidUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -46,6 +48,7 @@ public class AgentIdResolver {
     private final List<AgentProperties> agentPropertyList;
 
     private final IdValidator idValidator = new IdValidator();
+    private final IdValidator applicationNameValidator = new IdValidator(PinpointConstants.APPLICATION_NAME_MAX_LEN);
 
     public AgentIdResolver(List<AgentProperties> agentPropertyList) {
         this.agentPropertyList = Objects.requireNonNull(agentPropertyList, "agentPropertyList");
@@ -74,7 +77,7 @@ public class AgentIdResolver {
     }
 
     private String newRandomAgentId() {
-        UUID agentUUID = UUID.randomUUID();
+        UUID agentUUID = UuidUtils.createV4();
         return AgentUuidUtils.encode(agentUUID);
     }
 
@@ -112,7 +115,7 @@ public class AgentIdResolver {
             if (StringUtils.isEmpty(applicationName)) {
                 continue;
             }
-            if (idValidator.validateApplicationName(agentProperty.getType(), applicationName)) {
+            if (applicationNameValidator.validateApplicationName(agentProperty.getType(), applicationName)) {
                 logger.info(agentProperty.getType() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
                 source = applicationName;
             }

@@ -369,9 +369,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 }
             }
             if (this.dotStatus != null) {
-                if (!(this.dotStatus == dot.getStatus())) {
-                    return false;
-                }
+                return this.dotStatus == dot.getStatus();
             }
             return true;
         }

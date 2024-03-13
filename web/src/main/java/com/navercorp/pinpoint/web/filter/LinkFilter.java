@@ -16,16 +16,12 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import java.util.List;
-import java.util.Objects;
-
-
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.agent.AgentFilter;
 import com.navercorp.pinpoint.web.filter.agent.AgentFilterFactory;
 import com.navercorp.pinpoint.web.filter.responsetime.DefaultExecutionTypeFilter;
@@ -42,9 +38,11 @@ import com.navercorp.pinpoint.web.filter.transaction.WasToBackendFilter;
 import com.navercorp.pinpoint.web.filter.transaction.WasToQueueFilter;
 import com.navercorp.pinpoint.web.filter.transaction.WasToUnknownFilter;
 import com.navercorp.pinpoint.web.filter.transaction.WasToWasFilter;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author netspider

@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.vo;
 
 public interface RuleInterface {
     String getCheckerName();
-    String getApplicationId();
+    String getApplicationName();
     String getServiceType();
     Number getThreshold();
     String getNotes();

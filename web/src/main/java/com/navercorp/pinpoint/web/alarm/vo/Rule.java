@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 public class Rule implements RuleInterface {
 
     private String ruleId;
-    @NotBlank private String applicationId;
+    private String applicationName;
     private String serviceType;
     @NotBlank private String checkerName;
     @NotNull private Integer threshold;
@@ -40,8 +40,9 @@ public class Rule implements RuleInterface {
     public Rule() {
     }
 
-    public Rule(String applicationId, String serviceType, String checkerName, Integer Threshold, String userGroupId, boolean smsSend, boolean emailSend, boolean webhookSend, String notes) {
-        this.applicationId = applicationId;
+    public Rule(String applicationName, String serviceType, String checkerName, Integer Threshold, String userGroupId,
+                boolean smsSend, boolean emailSend, boolean webhookSend, String notes) {
+        this.applicationName = applicationName;
         this.serviceType = serviceType;
         this.checkerName = checkerName;
         this.threshold = Threshold;
@@ -52,14 +53,16 @@ public class Rule implements RuleInterface {
         this.notes = notes;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    @Override
+    public String getApplicationName() {
+        return applicationName;
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
+    @Override
     public String getServiceType() {
         return serviceType;
     }
@@ -67,7 +70,8 @@ public class Rule implements RuleInterface {
     public void setServiceType(String serviceType) {
         this.serviceType = serviceType;
     }
-    
+
+    @Override
     public String getCheckerName() {
         return checkerName;
     }
@@ -76,6 +80,7 @@ public class Rule implements RuleInterface {
         this.checkerName = checkerName;
     }
 
+    @Override
     public Integer getThreshold() {
         return threshold;
     }
@@ -124,6 +129,7 @@ public class Rule implements RuleInterface {
         this.ruleId = ruleId;
     }
 
+    @Override
     public String getNotes() {
         return notes;
     }
@@ -133,7 +139,7 @@ public class Rule implements RuleInterface {
     }
 
     public static boolean isRuleInvalidForPost(Rule rule) {
-        return StringUtils.isEmpty(rule.getApplicationId()) ||
+        return StringUtils.isEmpty(rule.getApplicationName()) ||
                 StringUtils.isEmpty(rule.getCheckerName()) ||
                 StringUtils.isEmpty(rule.getUserGroupId()) ||
                 rule.getThreshold() == null;
@@ -142,7 +148,7 @@ public class Rule implements RuleInterface {
 
     public static boolean isRuleInvalid(Rule rule) {
         return StringUtils.isEmpty(rule.getRuleId()) ||
-                StringUtils.isEmpty(rule.getApplicationId()) ||
+                StringUtils.isEmpty(rule.getApplicationName()) ||
                 StringUtils.isEmpty(rule.getCheckerName()) ||
                 StringUtils.isEmpty(rule.getUserGroupId()) ||
                 rule.getThreshold() == null;
@@ -151,18 +157,16 @@ public class Rule implements RuleInterface {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Rule{");
-        sb.append("ruleId='").append(ruleId).append('\'');
-        sb.append(", applicationId='").append(applicationId).append('\'');
-        sb.append(", serviceType='").append(serviceType).append('\'');
-        sb.append(", checkerName='").append(checkerName).append('\'');
-        sb.append(", threshold=").append(threshold);
-        sb.append(", userGroupId='").append(userGroupId).append('\'');
-        sb.append(", smsSend=").append(smsSend);
-        sb.append(", emailSend=").append(emailSend);
-        sb.append(", webhookSend=").append(webhookSend);
-        sb.append(", notes='").append(notes).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "Rule{" + "ruleId='" + ruleId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", serviceType='" + serviceType + '\'' +
+                ", checkerName='" + checkerName + '\'' +
+                ", threshold=" + threshold +
+                ", userGroupId='" + userGroupId + '\'' +
+                ", smsSend=" + smsSend +
+                ", emailSend=" + emailSend +
+                ", webhookSend=" + webhookSend +
+                ", notes='" + notes + '\'' +
+                '}';
     }
 }

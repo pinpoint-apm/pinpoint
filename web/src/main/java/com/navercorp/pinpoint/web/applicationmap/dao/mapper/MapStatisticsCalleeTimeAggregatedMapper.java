@@ -81,7 +81,7 @@ public class MapStatisticsCalleeTimeAggregatedMapper implements RowMapper<LinkDa
         for (Cell cell : result.rawCells()) {
 
             final byte[] qualifier = CellUtil.cloneQualifier(cell);
-            final Application callerApplication = readCallerApplication(qualifier, calleeApplication.getServiceType());
+            final Application callerApplication = readCallerApplication(qualifier, calleeApplication.serviceType());
             if (filter.filter(callerApplication)) {
                 continue;
             }
@@ -93,7 +93,7 @@ public class MapStatisticsCalleeTimeAggregatedMapper implements RowMapper<LinkDa
             // There may be no callerHost for virtual queue nodes from user-defined entry points.
             // Terminal nodes, such as httpclient will not have callerHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
-            if (calleeApplication.getServiceType().isQueue()) {
+            if (calleeApplication.serviceType().isQueue()) {
                 callerHost = StringUtils.defaultString(callerHost);
             }
             boolean isError = histogramSlot == (short) -1;
@@ -103,7 +103,7 @@ public class MapStatisticsCalleeTimeAggregatedMapper implements RowMapper<LinkDa
             }
 
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
-            linkDataMap.addLinkData(callerApplication, callerApplication.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
+            linkDataMap.addLinkData(callerApplication, callerApplication.name(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched Callee. statistics:{}", linkDataMap);

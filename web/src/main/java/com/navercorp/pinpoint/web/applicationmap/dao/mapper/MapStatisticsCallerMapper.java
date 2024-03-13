@@ -101,7 +101,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
             if (StringUtils.isEmpty(calleeHost)) {
-                calleeHost = callee.getName();
+                calleeHost = callee.name();
             }
             linkDataMap.addLinkData(out, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
         }

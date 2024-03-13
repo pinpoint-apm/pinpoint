@@ -54,9 +54,9 @@ public class AgentHeaderReader implements HeaderReader<Header> {
 
     @Override
     public Header extract(Metadata headers) {
-        final String agentId = getId(headers, Header.AGENT_ID_KEY);
+        final String agentId = getId(headers, Header.AGENT_ID_KEY, PinpointConstants.AGENT_ID_MAX_LEN);
         final String agentName = getAgentName(headers, Header.AGENT_NAME_KEY);
-        final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY);
+        final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY, PinpointConstants.APPLICATION_NAME_MAX_LEN);
         final long startTime = getTime(headers, Header.AGENT_START_TIME_KEY);
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
@@ -82,12 +82,12 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
-    protected String getId(Metadata headers, Metadata.Key<String> idKey) {
+    protected String getId(Metadata headers, Metadata.Key<String> idKey, int maxLen) {
         final String id = headers.get(idKey);
         if (id == null) {
             throw Status.INVALID_ARGUMENT.withDescription(idKey.name() + " header is missing").asRuntimeException();
         }
-        return validateId(id, idKey);
+        return validateId(id, idKey, maxLen);
     }
 
     protected String getAgentName(Metadata headers, Metadata.Key<String> idKey) {
@@ -141,8 +141,8 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
-    String validateId(String id, Metadata.Key key) {
-        if (!IdValidateUtils.validateId(id)) {
+    String validateId(String id, Metadata.Key<String> key, int maxLen) {
+        if (!IdValidateUtils.validateId(id, maxLen)) {
             throw Status.INVALID_ARGUMENT.withDescription("invalid " + key.name()).asRuntimeException();
         }
         return id;

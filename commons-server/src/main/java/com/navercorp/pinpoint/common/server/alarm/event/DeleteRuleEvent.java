@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.common.server.alram.event;
+package com.navercorp.pinpoint.common.server.alarm.event;
 
 import java.util.Objects;
 

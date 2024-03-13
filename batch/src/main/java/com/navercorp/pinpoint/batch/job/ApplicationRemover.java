@@ -23,6 +23,7 @@ import org.springframework.batch.item.ItemWriter;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -38,11 +39,12 @@ public class ApplicationRemover implements ItemWriter<String> {
     }
 
     @Override
-    public void write(List<? extends String> applicationNames) throws Exception {
-        for (String applicationName : applicationNames) {
-            logger.info("Removing application: {}", applicationName);
-            this.applicationService.remove(applicationName);
-            logger.info("Removed application: {}", applicationName);
+    public void write(List<? extends String> applicationIds) throws Exception {
+        for (String applicationIdStr : applicationIds) {
+            UUID applicationId = UUID.fromString(applicationIdStr);
+            logger.info("Removing application: {}", applicationId);
+            this.applicationService.remove(applicationId);
+            logger.info("Removed application: {}", applicationId);
         }
     }
 }

@@ -21,12 +21,15 @@ import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.util.UuidUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -42,15 +45,20 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.ApplicationIndex DESCRIPTOR = HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
+    private static final HbaseColumnFamily.ApplicationIndex DESCRIPTOR = HbaseColumnFamily.APPLICATION_INDEX_AGENTS_VER2;
 
     private final HbaseOperations hbaseTemplate;
 
     private final TableNameProvider tableNameProvider;
+    private final ValueMapper<AgentInfoBo> valueMapper;
 
-    public HbaseApplicationIndexDao(HbaseOperations hbaseTemplate, TableNameProvider tableNameProvider) {
+    public HbaseApplicationIndexDao(
+            HbaseOperations hbaseTemplate,
+            TableNameProvider tableNameProvider,
+            @Qualifier("applicationIndexValueMapper") ValueMapper<AgentInfoBo> valueMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.valueMapper = Objects.requireNonNull(valueMapper, "valueMapper");
     }
 
     @Override
@@ -62,9 +70,9 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         // Assert applicationName
         CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
 
-        final Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()));
+        final Put put = new Put(UuidUtils.toBytes(agentInfo.getApplicationId().value()));
         final byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
-        final byte[] value = Bytes.toBytes(agentInfo.getServiceTypeCode());
+        final byte[] value = this.valueMapper.mapValue(agentInfo);
         put.addColumn(DESCRIPTOR.getName(), qualifier, value);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
@@ -54,8 +55,8 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        this.agentId = checkId("agentId", agentId);
-        this.applicationName = checkId("applicationName", applicationName);
+        this.agentId = checkId("agentId", agentId, PinpointConstants.AGENT_ID_MAX_LEN);
+        this.applicationName = checkId("applicationName", applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
         this.agentName = agentName;
         this.isContainer = isContainer;
         this.agentStartTime = agentStartTime;
@@ -68,7 +69,6 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
     }
 
     public AgentInformation createAgentInformation() {
-
         final String machineName = NetworkUtils.getHostName();
         final String hostIp = NetworkUtils.getRepresentationHostIp();
 
@@ -77,10 +77,11 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
         return new DefaultAgentInformation(agentId, agentName, applicationName, isContainer, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
     }
 
-    private String checkId(String keyName,String id) {
-        if (!IdValidateUtils.validateId(id)) {
+    private String checkId(String keyName, String id, int maxLen) {
+        if (!IdValidateUtils.validateId(id, maxLen)) {
             throw new IllegalArgumentException("invalid " + keyName + "=" + id);
         }
         return id;
     }
+
 }

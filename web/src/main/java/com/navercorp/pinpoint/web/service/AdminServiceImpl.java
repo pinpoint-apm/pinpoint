@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -42,23 +42,30 @@ public class AdminServiceImpl implements AdminService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ApplicationIndexDao applicationIndexDao;
-
+    private final ApplicationInfoService applicationInfoService;
+    private final ApplicationService applicationService;
     private final AgentInfoService agentInfoService;
 
-    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, AgentInfoService agentInfoService) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+    public AdminServiceImpl(
+            ApplicationInfoService applicationInfoService,
+            ApplicationService applicationService,
+            AgentInfoService agentInfoService
+    ) {
+        this.applicationInfoService = Objects.requireNonNull(applicationInfoService, "applicationInfoService");
+        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     @Override
     public void removeApplicationName(String applicationName) {
-        applicationIndexDao.deleteApplicationName(applicationName);
+        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+        this.applicationService.deleteApplication(applicationId);
     }
 
     @Override
     public void removeAgentId(String applicationName, String agentId) {
-        applicationIndexDao.deleteAgentId(applicationName, agentId);
+        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+        this.applicationService.deleteAgent(applicationId, agentId);
     }
 
     @Override
@@ -68,9 +75,9 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
 
-        List<String> applicationNames = this.applicationIndexDao.selectAllApplicationNames()
+        List<String> applicationNames = this.applicationService.getApplications()
                 .stream()
-                .map(Application::getName)
+                .map(Application::name)
                 .distinct()
                 .collect(Collectors.toList());
         Collections.shuffle(applicationNames);
@@ -85,18 +92,19 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public int removeInactiveAgentInApplication(String applicationName, int durationDays) {
         try {
-            return removeInactiveAgentInApplication0(applicationName, durationDays);
+            UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+            return removeInactiveAgentInApplication0(applicationId, durationDays);
         } catch (Exception e) {
             logger.error("Backoff to remove inactive agents in application {}", applicationName, e);
         }
         return 0;
     }
 
-    private int removeInactiveAgentInApplication0(String applicationName, int durationDays) {
+    private int removeInactiveAgentInApplication0(UUID applicationId, int durationDays) {
         final List<String> agentsToDelete = new ArrayList<>(100);
         int deleteCount = 0;
 
-        final List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        final List<String> agentIds = this.applicationService.getAgents(applicationId);
         for (String agentId: agentIds) {
             if (!isInactiveAgent(agentId, durationDays)) {
                 continue;
@@ -106,27 +114,27 @@ public class AdminServiceImpl implements AdminService {
             deleteCount++;
 
             if (agentsToDelete.size() >= 100) {
-                logger.info("Delete {} of {}", agentsToDelete, applicationName);
-                applicationIndexDao.deleteAgentIds(Map.of(applicationName, agentsToDelete));
+                logger.info("Delete {} of {}", agentsToDelete, applicationId);
+                this.applicationService.deleteAgents(Map.of(applicationId, agentsToDelete));
                 agentsToDelete.clear();
             }
         }
 
         if (!agentsToDelete.isEmpty()) {
-            logger.info("Delete {} of {}", agentsToDelete, applicationName);
-            applicationIndexDao.deleteAgentIds(Map.of(applicationName, agentsToDelete));
+            logger.info("Delete {} of {}", agentsToDelete, applicationId);
+            this.applicationService.deleteAgents(Map.of(applicationId, agentsToDelete));
         }
 
-        logger.info("({}/{}) agents of {} had been cleaned up", deleteCount, agentIds.size(), applicationName);
+        logger.info("({}/{}) agents of {} had been cleaned up", deleteCount, agentIds.size(), applicationId);
         return deleteCount;
     }
 
     @Override
     public Map<String, List<Application>> getAgentIdMap() {
         Map<String, List<Application>> agentIdMap = new TreeMap<>();
-        List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
+        List<Application> applications = this.applicationService.getApplications();
         for (Application application : applications) {
-            List<String> agentIds = this.applicationIndexDao.selectAgentIds(application.getName());
+            List<String> agentIds = this.applicationService.getAgents(application.id());
             for (String agentId : agentIds) {
                 List<Application> applicationList = agentIdMap.computeIfAbsent(agentId, k -> new ArrayList<>());
                 applicationList.add(application);
@@ -156,7 +164,8 @@ public class AdminServiceImpl implements AdminService {
         if (durationDays < MIN_DURATION_DAYS_FOR_INACTIVITY) {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+        List<String> agentIds = this.applicationService.getAgents(applicationId);
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyMap();
         }

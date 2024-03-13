@@ -76,7 +76,7 @@ public class Node {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("{");
-        sb.append("applicationId").append(span.getApplicationId());
+        sb.append("applicationId").append(span.getApplicationName());
         sb.append(", agentId=").append(span.getAgentId());
         sb.append(", parentSpanId=").append(span.getParentSpanId());
         sb.append(", spanId=").append(span.getSpanId());

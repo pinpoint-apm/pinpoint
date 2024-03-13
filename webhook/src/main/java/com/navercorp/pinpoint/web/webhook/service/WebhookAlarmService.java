@@ -16,7 +16,7 @@
  */
 package com.navercorp.pinpoint.web.webhook.service;
 
-import com.navercorp.pinpoint.common.server.alram.event.DeleteRuleEvent;
+import com.navercorp.pinpoint.common.server.alarm.event.DeleteRuleEvent;
 
 import java.util.List;
 

@@ -40,7 +40,7 @@ public class DefaultLinkFilter implements LinkFilter {
     public boolean filter(Application foundApplication) {
         Objects.requireNonNull(foundApplication, "foundApplication");
 
-        if (this.inApplication.getServiceType().isWas() && this.outApplication.getServiceType().isWas()) {
+        if (this.inApplication.serviceType().isWas() && this.outApplication.serviceType().isWas()) {
             logger.debug("check was to was.");
             // if not from same source, drop
             if (!this.outApplication.equals(foundApplication)) {
@@ -49,10 +49,10 @@ public class DefaultLinkFilter implements LinkFilter {
                 }
                 return true;
             }
-        } else if (this.outApplication.getServiceType().isUser()) {
+        } else if (this.outApplication.serviceType().isUser()) {
             logger.debug("check client to was");
             // if dest not equals to that WAS, drop
-            if (!this.inApplication.getName().equals(foundApplication.getName())) {
+            if (!this.inApplication.name().equals(foundApplication.name())) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("  DROP THE ROW,2, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.inApplication);
                 }
@@ -60,10 +60,10 @@ public class DefaultLinkFilter implements LinkFilter {
             }
         } else {
             logger.debug("check any to any.");
-            if (this.inApplication.getServiceType().isUnknown()) {
+            if (this.inApplication.serviceType().isUnknown()) {
                 //  compare just only application name when dest is unknown.
                 // TODO need more nice way to compare
-                if (!this.inApplication.getName().equals(foundApplication.getName())) {
+                if (!this.inApplication.name().equals(foundApplication.name())) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("  DROP THE ROW,3, DIFFERENT DEST. fetched={}, params={}", foundApplication, inApplication);
                     }

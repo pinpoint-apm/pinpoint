@@ -17,14 +17,15 @@
 package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDaoV2;
+import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -32,38 +33,39 @@ import java.util.Objects;
 @Service
 public class BatchApplicationServiceImpl implements BatchApplicationService {
 
-    private final ApplicationIndexDao applicationIndexDao;
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final ApplicationService applicationService;
+    private final ApplicationTraceIndexDaoV2 applicationTraceIndexDao;
 
     public BatchApplicationServiceImpl(
-            ApplicationIndexDao applicationIndexDao,
-            ApplicationTraceIndexDao applicationTraceIndexDao
+            ApplicationService applicationService,
+            ApplicationTraceIndexDaoV2 applicationTraceIndexDao
     ) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
     }
 
     @Override
-    public List<String> getAll() {
-        return this.applicationIndexDao.selectAllApplicationNames()
+    public List<UUID> getAll() {
+        return this.applicationService.getApplications()
                 .stream()
-                .map(Application::getName)
+                .map(Application::id)
                 .toList();
     }
 
     @Override
-    public boolean isActive(String applicationName, Duration duration) {
+    public boolean isActive(UUID applicationId, Duration duration) {
         long now = System.currentTimeMillis();
         Range range = Range.between(now - duration.toMillis(), now);
-        return hasTrace(applicationName, range);
+        return hasTrace(applicationId, range);
     }
 
-    private boolean hasTrace(String applicationName, Range range) {
-        return this.applicationTraceIndexDao.hasTraceIndex(applicationName, range,false);
+    private boolean hasTrace(UUID applicationId, Range range) {
+        return this.applicationTraceIndexDao.hasTraceIndex(applicationId, range,false);
     }
 
     @Override
-    public void remove(String applicationName) {
-        this.applicationIndexDao.deleteApplicationName(applicationName);
+    public void remove(UUID applicationId) {
+        this.applicationService.deleteApplication(applicationId);
     }
+
 }
