@@ -33,7 +33,7 @@ public class ResultScannerFactory {
 
     private <T> Scanner<T> newScanner0(Function<Scan, ResultScanner> table, Scan[] scans) {
         final int scansLength = scans.length;
-        ResultScannerSupplier[] scanners = new ResultScannerSupplier[scans.length];
+        ResultScannerSupplier[] scanners = new ResultScannerSupplier[scansLength];
         boolean success = false;
         try {
             for (int i = 0; i < scansLength; i++) {
