@@ -78,7 +78,7 @@ public class SpringBeansConfigTest {
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
 
-        // backward compatiblity.
+        // backward compatibility.
         assertThat(springBeansConfig.getTargets()).hasSize(5);
     }
 
