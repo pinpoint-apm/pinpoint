@@ -58,7 +58,9 @@
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
-                        <goals><goal>add-source</goal></goals>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
                         <configuration>
                             <sources>
                                 <source>src/main/java-spring</source>
@@ -78,21 +80,22 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>delete-springframework-files</id>
                         <phase>install</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>clean</goal>
                         </goals>
                         <configuration>
-                            <executable>rm</executable>
-                            <arguments>
-                                <argument>-rf</argument>
-                                <argument>${project.build.directory}/classes/org/springframework</argument>
-                            </arguments>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <directory>${project.build.directory}/classes/org/springframework</directory>
+                                </fileset>
+                            </filesets>
                         </configuration>
                     </execution>
                 </executions>
