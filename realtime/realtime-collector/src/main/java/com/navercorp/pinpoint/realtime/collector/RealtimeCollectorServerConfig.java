@@ -34,6 +34,8 @@ import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
 import com.navercorp.pinpoint.realtime.dto.Echo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,6 +53,12 @@ import org.springframework.context.annotation.Import;
         RealtimeCollectorServiceConfig.class,
 })
 public class RealtimeCollectorServerConfig {
+
+    private static final Logger logger = LogManager.getLogger(RealtimeCollectorServerConfig.class);
+
+    public RealtimeCollectorServerConfig() {
+        logger.info("RealtimeCollectorServerConfig initialized");
+    }
 
     @Bean
     public ChannelServiceServer legacyATCServer(
