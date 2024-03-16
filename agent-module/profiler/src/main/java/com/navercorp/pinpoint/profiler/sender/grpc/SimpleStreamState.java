@@ -15,15 +15,24 @@ public class SimpleStreamState implements StreamState {
     @Override
     public void fail() {
         if (failureTime == 0) {
-            failureTime = System.currentTimeMillis();
+            failureTime = currentTimeMills();
         }
         failCount++;
     }
 
     @Override
+    public long getFailCount() {
+        return failCount;
+    }
+
+    @Override
     public boolean isFailure() {
-        final long errorDuration = System.currentTimeMillis() - failureTime;
+        final long errorDuration = currentTimeMills() - failureTime;
         return errorDuration > limitTime && failCount > limitCount;
+    }
+
+    long currentTimeMills() {
+        return System.currentTimeMillis();
     }
 
     @Override

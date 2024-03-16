@@ -33,7 +33,9 @@ import com.navercorp.pinpoint.grpc.client.interceptor.LoggingDiscardEventListene
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.ExpireStreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+import com.navercorp.pinpoint.profiler.sender.grpc.SimpleSpanGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.SimpleStreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamState;
@@ -108,13 +110,17 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
         final StreamState failState = new SimpleStreamState(spanClientOption.getLimitCount(), spanClientOption.getLimitTime());
         logger.info("failState:{}", failState);
 
-        final SpanGrpcDataSender spanGrpcDataSender = new SpanGrpcDataSender(collectorIp, collectorPort,
-                senderExecutorQueueSize, messageConverter,
-                reconnectExecutor, channelFactory, failState, grpcTransportConfig.getSpanRpcMaxAgeMillis());
+//        final SpanGrpcDataSender spanGrpcDataSender = new SpanGrpcDataSender(collectorIp, collectorPort,
+//                senderExecutorQueueSize, messageConverter,
+//                reconnectExecutor, channelFactory, failState, grpcTransportConfig.getSpanRpcMaxAgeMillis());
+//        if (grpcTransportConfig.isSpanEnableStatLogging()) {
+//            registerChannelzReporter(spanGrpcDataSender);
+//        }
 
-        if (grpcTransportConfig.isSpanEnableStatLogging()) {
-            registerChannelzReporter(spanGrpcDataSender);
-        }
+        SimpleSpanGrpcDataSender spanGrpcDataSender = new SimpleSpanGrpcDataSender(collectorIp, collectorPort,
+                senderExecutorQueueSize, messageConverter,
+                channelFactory, new ExpireStreamState(6000 * 10)
+                , grpcTransportConfig.getSpanRpcMaxAgeMillis());
 
         return spanGrpcDataSender;
     }
