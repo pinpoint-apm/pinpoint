@@ -98,6 +98,7 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-agent-plugins</artifactId>
             <type>pom</type>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -360,6 +361,7 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
             <scope>test</scope>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -374,11 +376,6 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-testcase</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

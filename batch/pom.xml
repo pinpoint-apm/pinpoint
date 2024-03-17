@@ -73,6 +73,7 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-agent-plugins</artifactId>
             <type>pom</type>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
