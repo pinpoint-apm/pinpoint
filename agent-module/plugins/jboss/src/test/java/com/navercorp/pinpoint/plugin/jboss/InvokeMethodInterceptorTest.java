@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.DisableRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeInterceptor;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
@@ -203,7 +204,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
 
-        TraceId traceId = new DefaultTraceId("agentTest", System.currentTimeMillis(), 1);
+        TraceId traceId = new DefaultTraceId(AgentId.of("agentTest"), System.currentTimeMillis(), 1);
         when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn(traceId.getTransactionId());
         when(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn("PARENTSPANID");
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");

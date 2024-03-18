@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap;
 
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,7 +51,7 @@ public class AgentBootLoaderTest {
         ClassLoader classLoader = AgentBootLoaderTest.class.getClassLoader();
         AgentBootLoader agentBootLoader = new AgentBootLoader("com.navercorp.pinpoint.bootstrap.DummyAgent", classLoader);
         Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", agentName, "testCaseAppName", false,
+        AgentOption option = new DefaultAgentOption(instrumentation, AgentId.of("testCaseAgent"), agentName, "testCaseAppName", "testCaseServiceName", false,
                 new DefaultProfilerConfig(), Collections.emptyList(), Collections.emptyList());
         Agent boot = agentBootLoader.boot(option);
         boot.start();

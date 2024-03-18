@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.SqlUidMetaDataService;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -88,13 +89,13 @@ public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<Generat
     }
 
     private static SqlUidMetaDataBo mapSqlUidMetaDataBo(Header agentInfo, PSqlUidMetaData sqlUidMetaData) {
-        final String agentId = agentInfo.getAgentId();
+        final AgentId agentId = agentInfo.getAgentId();
         final long agentStartTime = agentInfo.getAgentStartTime();
         final String applicationName = agentInfo.getApplicationName();
         final byte[] sqlUid = sqlUidMetaData.getSqlUid().toByteArray();
         final String sql = sqlUidMetaData.getSql();
 
-        return new SqlUidMetaDataBo(agentId, agentStartTime, applicationName, sqlUid, sql);
+        return new SqlUidMetaDataBo(AgentId.unwrap(agentId), agentStartTime, applicationName, sqlUid, sql);
     }
 
     private static PResult newResult(boolean success) {

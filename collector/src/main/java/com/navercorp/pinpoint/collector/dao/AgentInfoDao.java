@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 
 /**
@@ -25,5 +26,5 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 public interface AgentInfoDao {
     void insert(AgentInfoBo agentInfo);
 
-    AgentInfoBo getAgentInfo(String agentId, long timestamp);
+    AgentInfoBo getAgentInfo(AgentId agentId, long timestamp);
 }

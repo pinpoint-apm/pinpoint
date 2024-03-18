@@ -26,20 +26,20 @@ import java.util.Properties;
 public class AgentProperties {
     private final AgentIdSourceType type;
     private final Properties properties;
-    private final String agentIdKey;
     private final String agentNameKey;
     private final String applicationNameKey;
+    private final String serviceNameKey;
 
-    public AgentProperties(AgentIdSourceType type, Properties properties, String agentIdKey, String agentNameKey, String applicationNameKey) {
+    public AgentProperties(AgentIdSourceType type, Properties properties, String agentNameKey, String applicationNameKey, String serviceNameKey) {
         this.type = Objects.requireNonNull(type, "type");
         this.properties = Objects.requireNonNull(properties, "properties");
-        this.agentIdKey = Objects.requireNonNull(agentIdKey, "agentIdKey");
         this.agentNameKey = Objects.requireNonNull(agentNameKey, "agentNameKey");
         this.applicationNameKey = Objects.requireNonNull(applicationNameKey, "applicationNameKey");
+        this.serviceNameKey = Objects.requireNonNull(serviceNameKey, "serviceNameKey");
     }
 
-    public AgentProperties(AgentIdSourceType type, Map<String, String> properties, String agentIdKey, String agentNameKey, String applicationNameKey) {
-        this(type, toProperties(properties), agentIdKey, agentNameKey, applicationNameKey);
+    public AgentProperties(AgentIdSourceType type, Map<String, String> properties, String agentNameKey, String applicationNameKey, String serviceNameKey) {
+        this(type, toProperties(properties), agentNameKey, applicationNameKey, serviceNameKey);
     }
 
     private static Properties toProperties(Map<String, String> properties) {
@@ -54,16 +54,8 @@ public class AgentProperties {
         return type;
     }
 
-    public String getAgentId() {
-        return trim(this.properties.getProperty(agentIdKey));
-    }
-
     public String getAgentName() {
         return trim(this.properties.getProperty(agentNameKey));
-    }
-
-    public String getAgentIdKey() {
-        return agentIdKey;
     }
 
     public String getAgentNameKey() {
@@ -78,6 +70,14 @@ public class AgentProperties {
         return applicationNameKey;
     }
 
+    public String getServiceName() {
+        return trim(this.properties.getProperty(serviceNameKey));
+    }
+
+    public String getServiceNameKey() {
+        return serviceNameKey;
+    }
+
     private String trim(String string) {
         if (string == null) {
             return null;
@@ -87,13 +87,11 @@ public class AgentProperties {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentProperties{");
-        sb.append("type=").append(type);
-        sb.append(", properties=").append(properties);
-        sb.append(", agentIdKey='").append(agentIdKey).append('\'');
-        sb.append(", agentNameKey='").append(agentNameKey).append('\'');
-        sb.append(", applicationNameKey='").append(applicationNameKey).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "AgentProperties{" + "type=" + type +
+                ", properties=" + properties +
+                ", agentNameKey='" + agentNameKey + '\'' +
+                ", applicationNameKey='" + applicationNameKey + '\'' +
+                ", serviceNameKey='" + serviceNameKey + '\'' +
+                '}';
     }
 }

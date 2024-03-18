@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.scatter.DragArea;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author emeroad
@@ -33,19 +33,19 @@ import java.util.UUID;
  */
 public interface ApplicationTraceIndexDaoV2 {
 
-    boolean hasTraceIndex(UUID applicationId, Range range, boolean backwardDirection);
+    boolean hasTraceIndex(ApplicationId applicationId, Range range, boolean backwardDirection);
 
-    LimitedScanResult<List<TransactionId>> scanTraceIndex(UUID applicationId, Range range, int limit, boolean backwardDirection);
+    LimitedScanResult<List<TransactionId>> scanTraceIndex(ApplicationId applicationId, Range range, int limit, boolean backwardDirection);
 
-    LimitedScanResult<List<Dot>> scanTraceScatterData(UUID applicationId, Range range, int limit, boolean scanBackward);
+    LimitedScanResult<List<Dot>> scanTraceScatterData(ApplicationId applicationId, Range range, int limit, boolean scanBackward);
 
 
-    LimitedScanResult<List<TransactionId>> scanTraceIndex(UUID applicationId, DragArea dragArea, int limit);
+    LimitedScanResult<List<TransactionId>> scanTraceIndex(ApplicationId applicationId, DragArea dragArea, int limit);
 
 
     @Deprecated
-    LimitedScanResult<List<Dot>> scanScatterData(UUID applicationId, DragAreaQuery dragAreaQuery, int limit);
+    LimitedScanResult<List<Dot>> scanScatterData(ApplicationId applicationId, DragAreaQuery dragAreaQuery, int limit);
 
-    LimitedScanResult<List<DotMetaData>> scanScatterDataV2(UUID applicationId, DragAreaQuery dragAreaQuery, int limit);
+    LimitedScanResult<List<DotMetaData>> scanScatterDataV2(ApplicationId applicationId, DragAreaQuery dragAreaQuery, int limit);
 
 }

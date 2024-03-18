@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.util.LineNumber;
@@ -76,13 +77,13 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedM
 
         try {
             final Header header = ServerContext.getAgentInfo();
-            final String agentId = header.getAgentId();
+            final AgentId agentId = header.getAgentId();
             final long agentStartTime = header.getAgentStartTime();
             final int line = LineNumber.defaultLineNumber(apiMetaData.getLine());
 
             final MethodTypeEnum type = MethodTypeEnum.defaultValueOf(apiMetaData.getType());
 
-            final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo.Builder(agentId, agentStartTime,
+            final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo.Builder(AgentId.unwrap(agentId), agentStartTime,
                     apiMetaData.getApiId(), line, type, apiMetaData.getApiInfo())
                     .setLocation(apiMetaData.getLocation())
                     .build();

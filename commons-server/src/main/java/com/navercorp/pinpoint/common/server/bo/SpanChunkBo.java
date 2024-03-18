@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import jakarta.validation.constraints.NotBlank;
@@ -31,7 +32,7 @@ public class SpanChunkBo implements BasicSpan {
 
     private byte version = 0;
 
-    @NotBlank private String agentId;
+    private AgentId agentId;
     private String agentName;
     @NotBlank private String applicationName;
     private ApplicationId applicationId;
@@ -69,11 +70,11 @@ public class SpanChunkBo implements BasicSpan {
     }
 
     @Override
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 
-    public void setAgentId(String agentId) {
+    public void setAgentId(AgentId agentId) {
         this.agentId = agentId;
     }
 

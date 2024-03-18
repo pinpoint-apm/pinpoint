@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.filter.transaction;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -46,7 +47,7 @@ public class SpanContext {
             final ServiceType applicationServiceType = serviceTypeRegistryService.findServiceType(span.getApplicationServiceType());
             if (findApplicationName.equals(span.getApplicationName()) && includeServiceType(findServiceCode, applicationServiceType)) {
                 // apply preAgentFilter
-                if (agentFilter.accept(span.getAgentId())) {
+                if (agentFilter.accept(AgentId.unwrap(span.getAgentId()))) {
                     if (findList == null) {
                         findList = new ArrayList<>();
                     }

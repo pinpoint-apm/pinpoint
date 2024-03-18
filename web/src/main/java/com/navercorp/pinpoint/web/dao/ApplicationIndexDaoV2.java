@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 
@@ -29,16 +29,16 @@ import java.util.UUID;
  */
 public interface ApplicationIndexDaoV2 {
 
-    List<Application> selectAllApplicationNames();
+    List<Application> selectAllApplications();
 
-    List<Application> selectApplicationName(UUID applicationId);
+    List<Application> selectApplicationName(ApplicationId applicationId);
 
-    List<String> selectAgentIds(UUID applicationId);
+    List<String> selectAgentIds(ApplicationId applicationId);
 
-    void deleteApplication(UUID applicationId);
+    void deleteApplication(ApplicationId applicationId);
 
-    void deleteAgentIds(Map<UUID, List<String>> applicationAgentIdMap);
+    void deleteAgentIds(Map<ApplicationId, List<String>> applicationAgentIdMap);
 
-    void deleteAgentId(UUID applicationId, String agentId);
+    void deleteAgentId(ApplicationId applicationId, String agentId);
 
 }

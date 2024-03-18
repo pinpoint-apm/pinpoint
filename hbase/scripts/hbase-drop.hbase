@@ -20,6 +20,12 @@ disable 'ApplicationMapStatisticsSelf_Ver2'
 
 disable 'HostApplicationMap_Ver2'
 
+disable 'ApplicationIndex_Ver2'
+disable 'ApplicationId'
+disable 'ApplicationTraceIndex_Ver2'
+
+disable 'ServiceId'
+
 
 drop 'AgentInfo'
 drop 'AgentStatV2'
@@ -42,5 +48,12 @@ drop 'ApplicationMapStatisticsCallee_Ver2'
 drop 'ApplicationMapStatisticsSelf_Ver2'
 
 drop 'HostApplicationMap_Ver2'
+
+drop 'ApplicationIndex_Ver2'
+drop 'ApplicationId'
+drop 'ApplicationTraceIndex_Ver2'
+
+drop 'ServiceId'
+
 
 exit

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -58,7 +59,7 @@ public class ServerGroupListTest {
 
     public static AgentAndStatus createAgentInfo(String agentId, String hostName) {
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
-        agentInfoBuilder.setAgentId(agentId);
+        agentInfoBuilder.setAgentId(AgentId.of(agentId));
 
         ServiceType serviceType = ServiceType.TEST_STAND_ALONE;
         agentInfoBuilder.setServiceTypeCode(serviceType.getCode());

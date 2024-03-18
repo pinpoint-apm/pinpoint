@@ -20,6 +20,8 @@ import com.google.common.base.Suppliers;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
@@ -37,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -106,10 +107,10 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
         return Suppliers.memoize(() -> fetchActiveAgents(application.id(), range));
     }
 
-    private List<String> fetchActiveAgents(UUID applicationId, Range activeRange) {
+    private List<String> fetchActiveAgents(ApplicationId applicationId, Range activeRange) {
         return this.applicationService.getAgents(applicationId)
                 .stream()
-                .filter(id -> agentInfoService.isActiveAgent(id, activeRange))
+                .filter(id -> agentInfoService.isActiveAgent(AgentId.of(id), activeRange))
                 .toList();
     }
 

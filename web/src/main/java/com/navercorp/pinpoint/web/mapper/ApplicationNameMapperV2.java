@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.util.UuidUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -31,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  *
@@ -51,7 +51,7 @@ public class ApplicationNameMapperV2 implements RowMapper<List<Application>> {
             return Collections.emptyList();
         }
         Set<Short> uniqueTypeCodes = new HashSet<>();
-        UUID applicationId = UuidUtils.fromBytes(result.getRow());
+        ApplicationId applicationId = ApplicationId.of(UuidUtils.fromBytes(result.getRow()));
         
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -42,7 +43,7 @@ import static org.mockito.Mockito.when;
 class GrpcSpanMessageConverterTest {
 
     private static final Random random = new Random();
-    private static final String agentId = "agent";
+    private static final AgentId agentId = AgentId.of("agent");
     private static final String parentAgentId = "agent-parent";
     private static final short applicationServiceType = 0;
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();

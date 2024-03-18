@@ -72,7 +72,7 @@ public class ResponseHistograms {
             if (span.getErrCode() != 0) {
                 error = true;
             }
-            responseTime.addResponseTime(span.getAgentId(), span.getElapsed(), error);
+            responseTime.addResponseTime(span.getAgentId().value(), span.getElapsed(), error);
             return this;
         }
 

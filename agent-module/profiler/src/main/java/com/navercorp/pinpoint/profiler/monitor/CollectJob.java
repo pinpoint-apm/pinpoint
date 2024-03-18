@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
@@ -36,7 +37,7 @@ public class CollectJob implements Runnable {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final DataSender<MetricType> dataSender;
-    private final String agentId;
+    private final AgentId agentId;
     private final long agentStartTimestamp;
     private final AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector;
     private final int numCollectionsPerBatch;
@@ -47,9 +48,9 @@ public class CollectJob implements Runnable {
     private List<AgentStatMetricSnapshot> agentStats;
 
     public CollectJob(DataSender<MetricType> dataSender,
-                       String agentId, long agentStartTimestamp,
-                       AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
-                       int numCollectionsPerBatch) {
+                      AgentId agentId, long agentStartTimestamp,
+                      AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
+                      int numCollectionsPerBatch) {
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.agentId = agentId;
         this.agentStartTimestamp = agentStartTimestamp;
@@ -83,7 +84,7 @@ public class CollectJob implements Runnable {
         // TODO multi thread issue.
         // If we reuse TAgentStat, there could be concurrency issue because data sender runs in a different thread.
         final AgentStatMetricSnapshotBatch agentStatBatch = new AgentStatMetricSnapshotBatch();
-        agentStatBatch.setAgentId(agentId);
+        agentStatBatch.setAgentId(AgentId.unwrap(agentId));
         agentStatBatch.setStartTimestamp(agentStartTimestamp);
         agentStatBatch.setAgentStats(this.agentStats);
         // If we reuse agentStats list, there could be concurrency issue because data sender runs in a different

@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
@@ -28,6 +30,7 @@ import com.navercorp.pinpoint.web.view.tree.TreeNode;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
@@ -59,15 +62,21 @@ import java.util.Set;
 @RestController
 @Validated
 public class AgentInfoController {
-    private final AgentInfoService agentInfoService;
 
+    private final AgentInfoService agentInfoService;
     private final AgentEventService agentEventService;
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     private final SortByAgentInfo.Rules DEFAULT_SORT_BY = SortByAgentInfo.Rules.AGENT_ID_ASC;
 
-    public AgentInfoController(AgentInfoService agentInfoService, AgentEventService agentEventService) {
+    public AgentInfoController(
+            AgentInfoService agentInfoService,
+            AgentEventService agentEventService,
+            ServiceTypeRegistryService serviceTypeRegistryService
+    ) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }
 
     @GetMapping(value = "/getAgentList", params = {"!application"})
@@ -102,21 +111,26 @@ public class AgentInfoController {
 
     @GetMapping(value = "/getAgentList", params = {"application"})
     public TreeView<TreeNode<AgentStatusAndLink>> getAgentList(
-            @RequestParam("application") @NotBlank String applicationName
+            @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName
     ) {
         final long timestamp = System.currentTimeMillis();
-        return getAgentList(applicationName, timestamp);
+        return getAgentList(applicationName, serviceTypeName, timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "from", "to"})
     public TreeView<TreeNode<AgentStatusAndLink>> getAgentList(
             @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
         final AgentStatusFilter currentRunFilter = AgentStatusFilters.recentRunning(from);
+        final ServiceType serviceType = findServiceTypeByName(serviceTypeName);
         final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
                 currentRunFilter,
+                AgentInfoFilters.acceptAll(),
                 applicationName,
+                serviceType.getCode(),
                 Range.between(from, to),
                 DEFAULT_SORT_BY
         );
@@ -126,10 +140,14 @@ public class AgentInfoController {
     @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
     public TreeView<TreeNode<AgentStatusAndLink>> getAgentList(
             @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("timestamp") @PositiveOrZero long timestamp) {
+        final ServiceType serviceType = findServiceTypeByName(serviceTypeName);
         final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
                 AgentStatusFilters.running(),
+                AgentInfoFilters.acceptAll(),
                 applicationName,
+                serviceType.getCode(),
                 Range.between(timestamp, timestamp),
                 DEFAULT_SORT_BY
         );
@@ -233,6 +251,13 @@ public class AgentInfoController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "agentId already exists");
         }
         return CodeResult.ok("OK");
+    }
+
+    private ServiceType findServiceTypeByName(String serviceTypeName) {
+        if (serviceTypeName == null) {
+            return PinpointConstants.DEFAULT_SERVICE_TYPE;
+        }
+        return this.serviceTypeRegistryService.findServiceTypeByName(serviceTypeName);
     }
 
 }

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
@@ -83,7 +84,7 @@ public class DependencyGraph {
 
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgentId", "mockAgentName", "mockApplicationName", false,
+                AgentId.of("mockAgentId"), "mockAgentName", "mockApplicationName", "mockServiceName", false,
                 profilerConfig, Collections.emptyList(), Collections.emptyList());
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();

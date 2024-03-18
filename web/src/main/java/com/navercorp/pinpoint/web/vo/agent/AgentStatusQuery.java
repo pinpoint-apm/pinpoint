@@ -64,7 +64,7 @@ public class AgentStatusQuery {
         if (agentInfo == null) {
             return null;
         }
-        return new SimpleAgentKey(agentInfo.getAgentId(), agentInfo.getStartTimestamp());
+        return new SimpleAgentKey(agentInfo.getAgentId().value(), agentInfo.getStartTimestamp());
     }
 
     public static <T> AgentStatusQuery buildQuery(Collection<T> agentInfos, Function<T, SimpleAgentKey> transform, Instant timestamp) {

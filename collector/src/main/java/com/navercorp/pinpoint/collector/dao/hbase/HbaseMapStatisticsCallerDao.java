@@ -62,7 +62,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
     }
 
 
@@ -80,7 +80,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         // there may be no endpoint in case of httpclient
         calleeHost = StringUtils.defaultString(calleeHost);
 
-        // make row key. rowkey is me
+        // make row key. row key is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType.getCode(), rowTimeSlot);

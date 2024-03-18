@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.context;
 
+import com.navercorp.pinpoint.common.id.AgentId;
+
 /**
  * @author emeroad
  */
@@ -27,7 +29,7 @@ public interface TraceId {
 
     String getTransactionId();
 
-    String getAgentId();
+    AgentId getAgentId();
 
     long getAgentStartTime();
 

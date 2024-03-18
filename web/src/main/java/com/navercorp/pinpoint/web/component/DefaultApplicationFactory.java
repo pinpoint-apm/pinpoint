@@ -17,13 +17,13 @@
 
 package com.navercorp.pinpoint.web.component;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author emeroad
@@ -38,7 +38,7 @@ public class DefaultApplicationFactory implements ApplicationFactory {
     }
 
     @Override
-    public Application createApplication(UUID applicationId, String applicationName, short serviceTypeCode) {
+    public Application createApplication(ApplicationId applicationId, String applicationName, short serviceTypeCode) {
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         return new Application(applicationId, applicationName, serviceType);
     }

@@ -15,20 +15,27 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationInfo;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author youngjin.kim2
  */
 public interface ApplicationInfoDao {
 
-    UUID getApplicationId(String applicationName);
+    ApplicationId getApplicationId(ApplicationSelector application);
 
-    String getApplicationName(UUID applicationId);
+    Application getApplication(ApplicationId application);
+
+    ApplicationId putApplicationIdIfAbsent(ApplicationInfo application);
 
     List<Application> getApplications();
+
+    List<ApplicationId> getApplications(ServiceId serviceId);
     
 }

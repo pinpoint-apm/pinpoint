@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
@@ -98,7 +99,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstants.AGENT_ID_MAX_LEN);
         buffer.putVInt(span.getElapsed());
         buffer.putSVInt(span.getErrCode());
-        buffer.putPrefixedString(span.getAgentId());
+        buffer.putPrefixedString(AgentId.unwrap(span.getAgentId()));
         return buffer.getBuffer();
     }
 

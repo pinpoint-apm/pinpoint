@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
@@ -37,13 +38,13 @@ public final class SpanUtils {
         Objects.requireNonNull(span, "span");
 
         final TransactionId transactionId = span.getTransactionId();
-        String agentId = transactionId.getAgentId();
+        AgentId agentId = transactionId.getAgentId();
         if (agentId == null) {
             agentId = span.getAgentId();
         }
 
         final Buffer buffer = new AutomaticBuffer(32);
-        buffer.putPrefixedString(agentId);
+        buffer.putPrefixedString(agentId.value());
         buffer.putSVLong(transactionId.getAgentStartTime());
         buffer.putVLong(transactionId.getTransactionSequence());
         return buffer.getBuffer();

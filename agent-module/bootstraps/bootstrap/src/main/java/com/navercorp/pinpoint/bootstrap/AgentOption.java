@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.id.AgentId;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
@@ -28,11 +29,13 @@ public interface AgentOption {
 
     Instrumentation getInstrumentation();
 
-    String getAgentId();
+    AgentId getAgentId();
 
     String getAgentName();
 
     String getApplicationName();
+
+    String getServiceName();
 
     boolean isContainer();
 

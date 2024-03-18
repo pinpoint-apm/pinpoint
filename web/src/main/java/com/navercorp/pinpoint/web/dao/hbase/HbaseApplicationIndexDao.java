@@ -68,7 +68,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
-    public List<Application> selectAllApplicationNames() {
+    public List<Application> selectAllApplications() {
         Scan scan = new Scan();
         scan.setCaching(30);
         scan.addFamily(DESCRIPTOR.getName());
@@ -80,7 +80,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
-    public List<Application> selectApplicationName(String applicationName) {
+    public List<Application> selectApplicationByName(String applicationName) {
         return selectApplicationIndex0(applicationName, applicationNameMapper);
     }
 

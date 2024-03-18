@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
@@ -36,6 +37,7 @@ import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -49,11 +51,12 @@ public class MockApplicationContextModuleTest {
         ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
         when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
         URL resource = getClass().getResource("/");
+        assertThat(resource).isNotNull();
         when(profilerConfig.readString(Profiles.LOG_CONFIG_LOCATION_KEY, null)).thenReturn(resource.getPath());
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgentId", "mockAgentName", "mockApplicationName", false,
+                AgentId.of("mockAgentId"), "mockAgentName", "mockApplicationName", "mockServiceName", false,
                 profilerConfig, Collections.emptyList(), Collections.emptyList());
 
         PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
@@ -71,7 +74,7 @@ public class MockApplicationContextModuleTest {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgentId", "mockAgentName", "mockApplicationName", false,
+                AgentId.of("mockAgentId"), "mockAgentName", "mockApplicationName", "mockServiceName", false,
                 profilerConfig, Collections.emptyList(), Collections.emptyList());
 
         Module pluginModule = new PluginApplicationContextModule();
@@ -87,7 +90,7 @@ public class MockApplicationContextModuleTest {
         AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
         Assertions.assertSame(instance1, instance2);
 
-        ClassFileTransformer instance4 = injector.getInstance(ClassFileTransformer.class);
+        injector.getInstance(ClassFileTransformer.class);
 
         applicationContext.close();
     }

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
@@ -30,7 +31,7 @@ public class SpanQueryBuilderTest {
         span.setCollectorAcceptTime(100);
         span.setElapsed(200);
         span.setApplicationName("appName");
-        span.setAgentId("agentId");
+        span.setAgentId(AgentId.of("agentId"));
 
         Assertions.assertEquals(spanQuery.getTransactionId(), span.getTransactionId());
         Assertions.assertTrue(spanQuery.getSpanFilter().test(span));
@@ -118,7 +119,7 @@ public class SpanQueryBuilderTest {
         Predicate<SpanBo> filter = SpanFilters.agentIdFilter("agentId");
 
         SpanBo span = new SpanBo();
-        span.setAgentId("agentId");
+        span.setAgentId(AgentId.of("agentId"));
 
         Assertions.assertTrue(filter.test(span));
     }

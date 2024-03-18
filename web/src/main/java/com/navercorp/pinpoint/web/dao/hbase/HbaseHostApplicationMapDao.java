@@ -56,7 +56,6 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private static final int HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS = 4;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private int scanCacheSize = 10;
 
     private final HbaseOperations hbaseOperations;
 
@@ -109,15 +108,16 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
             logger.debug("scan parentApplication:{}, range:{}", parentApplication, range);
         }
 
-        // TODO need common logic for creating scanner
+        // TODO: need common logic for creating scanner
         final long startTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getFrom()));
         final long endTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getTo()) + 1);
+
         // start key is replaced by end key because timestamp has been reversed
         final byte[] startKey = createKey(parentApplication, endTime);
         final byte[] endKey = createKey(parentApplication, startTime);
 
         Scan scan = new Scan();
-        scan.setCaching(this.scanCacheSize);
+        scan.setCaching(10);
         scan.withStartRow(startKey);
         scan.withStopRow(endKey);
         scan.setId("HostApplicationScan_Ver2");

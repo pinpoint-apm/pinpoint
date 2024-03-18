@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
@@ -268,7 +269,7 @@ public class GrpcSpanBinder {
         return spanChunkBo;
     }
 
-    private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
+    private TransactionId newTransactionId(PTransactionId pTransactionId, AgentId spanAgentId) {
         final String transactionAgentId = pTransactionId.getAgentId();
         if (StringUtils.hasLength(transactionAgentId)) {
             return new TransactionId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());

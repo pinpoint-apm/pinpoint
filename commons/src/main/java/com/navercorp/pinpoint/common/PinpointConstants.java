@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 /**
  * @author emeroad
  */
@@ -23,8 +25,14 @@ public final class PinpointConstants {
 
     public static final int APPLICATION_NAME_MAX_LEN = 255;
 
+    public static final int SERVICE_NAME_MAX_LEN = 255;
+
     public static final int AGENT_ID_MAX_LEN = 24;
 
     public static final int AGENT_NAME_MAX_LEN = 255;
+
+    public static final ServiceType DEFAULT_SERVICE_TYPE = ServiceType.STAND_ALONE;
+    public static final String DEFAULT_SERVICE_TYPE_NAME = "STAND_ALONE";
+    public static final short DEFAULT_SERVICE_TYPE_CODE = 1000;
 
 }

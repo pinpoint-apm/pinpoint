@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -30,14 +31,14 @@ import com.navercorp.pinpoint.web.vo.tree.InstancesListMap;
 import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +53,7 @@ import java.util.Optional;
 @RequestMapping(value = "/agents")
 @Validated
 public class AgentListController {
+
     private final AgentInfoService agentInfoService;
     private final ServiceTypeRegistryService registry;
     private final ApplicationFactory applicationFactory;
@@ -102,14 +104,21 @@ public class AgentListController {
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam(value = "serviceTypeName") String serviceTypeName,
             @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
         final long timestamp = System.currentTimeMillis();
+
+        ServiceType serviceType = this.registry.findServiceTypeByName(serviceTypeName);
+        if (serviceType == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Service type not found: " + serviceTypeName);
+        }
+
         final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
                 AgentStatusFilters.running(),
                 AgentInfoFilters.exactServiceType(serviceTypeCode, serviceTypeName),
                 applicationName,
+                serviceType.getCode(),
                 Range.between(timestamp, timestamp),
                 paramSortBy
         );
@@ -120,16 +129,23 @@ public class AgentListController {
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam(value = "serviceTypeName") String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy
     ) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
+
+        ServiceType serviceType = this.registry.findServiceTypeByName(serviceTypeName);
+        if (serviceType == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Service type not found: " + serviceTypeName);
+        }
+
         final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
                 AgentStatusFilters.recentRunning(from),
                 AgentInfoFilters.exactServiceType(serviceTypeCode, serviceTypeName),
                 applicationName,
+                serviceType.getCode(),
                 Range.between(from, to),
                 paramSortBy
         );
@@ -193,7 +209,7 @@ public class AgentListController {
             List<AgentStatusAndLink> agents = new ArrayList<>();
             for (ServerInstance instance : group.getInstanceList()) {
                 AgentInfo agentInfo = new AgentInfo();
-                agentInfo.setAgentId(instance.getName());
+                agentInfo.setAgentId(AgentId.of(instance.getName()));
                 agentInfo.setAgentName(instance.getAgentName());
                 agentInfo.setServiceType(instance.getServiceType());
 
@@ -211,7 +227,7 @@ public class AgentListController {
 
             listMap.add(instancesList);
         }
-        return new AgentsMapByHost(new InstancesListMap<AgentStatusAndLink>(listMap));
+        return new AgentsMapByHost(new InstancesListMap<>(listMap));
     }
 
     private static TreeView<InstancesList<AgentStatusAndLink>> treeView(AgentsMapByHost agentsMapByHost) {

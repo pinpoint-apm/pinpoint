@@ -123,11 +123,11 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                 agentDataSourceConnectionUsageRateMap.add(tagInformation.agentId(), dataSourceAlarmVO);
             }
         } catch (RuntimeException e) {
-            logger.error("Fail to get agent datasource data. applicationName : {}", application.getName(), e);
+            logger.error("Fail to get agent datasource data. applicationName : {}", application.name(), e);
         } catch (ExecutionException e) {
-            logger.error("Fail to get agent datasource data with ExecutionException. applicationName : {}", application.getName(), e);
+            logger.error("Fail to get agent datasource data with ExecutionException. applicationName : {}", application.name(), e);
         } catch (InterruptedException e) {
-            logger.error("Fail to get agent datasource data with InterruptedException. applicationName : {}", application.getName(), e);
+            logger.error("Fail to get agent datasource data with InterruptedException. applicationName : {}", application.name(), e);
         }
     }
 
@@ -163,7 +163,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                 errorCount++;
 
                 if (errorCount > 2) {
-                    logger.error("Fail to get agent tag information. applicationName : {}, agentId : {}", application.getName(), agentId, e);
+                    logger.error("Fail to get agent tag information. applicationName : {}, agentId : {}", application.name(), agentId, e);
                     throw e;
                 }
             }
@@ -201,7 +201,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
             } catch (Exception e) {
                 errorCount++;
                 if (errorCount > 2) {
-                    logger.error("Fail to get agent jdbcUrl. applicationName : {}, agentId : {}", application.getName(), agentId, e);
+                    logger.error("Fail to get agent jdbcUrl. applicationName : {}, agentId : {}", application.name(), agentId, e);
                     throw e;
                 }
             }

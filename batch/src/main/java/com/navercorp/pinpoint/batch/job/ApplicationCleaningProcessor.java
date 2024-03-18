@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.batch.job;
 import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.batch.service.BatchApplicationService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import jakarta.annotation.Nonnull;
@@ -30,12 +32,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author youngjin.kim2
  */
-public class ApplicationCleaningProcessor implements ItemProcessor<UUID, List<CleanTarget>> {
+public class ApplicationCleaningProcessor implements ItemProcessor<ApplicationId, List<CleanTarget>> {
 
     private static final Logger logger = LogManager.getLogger(ApplicationCleaningProcessor.class);
 
@@ -54,16 +55,16 @@ public class ApplicationCleaningProcessor implements ItemProcessor<UUID, List<Cl
     }
 
     @Override
-    public List<CleanTarget> process(@Nonnull UUID applicationId) throws Exception {
+    public List<CleanTarget> process(@Nonnull ApplicationId applicationId) throws Exception {
         logger.info("Processing application: {}", applicationId);
 
         Range range = getRange();
-        List<String> agentIds = getAgents(applicationId);
+        List<AgentId> agentIds = getAgents(applicationId);
         List<CleanTarget> targets = new ArrayList<>(agentIds.size() + 1);
 
-        for (String agentId: agentIds) {
+        for (AgentId agentId: agentIds) {
             if (isAgentTarget(agentId, range)) {
-                String agentKey = ClusterKey.compose(applicationId.toString(), agentId, -1);
+                String agentKey = ClusterKey.compose(applicationId.toString(), AgentId.unwrap(agentId), -1);
                 targets.add(new CleanTarget(CleanTarget.TYPE_AGENT, agentKey));
             }
         }
@@ -80,15 +81,15 @@ public class ApplicationCleaningProcessor implements ItemProcessor<UUID, List<Cl
         return targets;
     }
 
-    private boolean isApplicationTarget(UUID applicationId) {
+    private boolean isApplicationTarget(ApplicationId applicationId) {
         return !this.batchApplicationService.isActive(applicationId, this.emptyDurationThreshold);
     }
 
-    private boolean isAgentTarget(String agentId, Range range) {
+    private boolean isAgentTarget(AgentId agentId, Range range) {
         return !this.agentService.isActive(agentId, range);
     }
 
-    private List<String> getAgents(UUID applicationId) {
+    private List<AgentId> getAgents(ApplicationId applicationId) {
         return this.agentService.getIds(applicationId);
     }
 

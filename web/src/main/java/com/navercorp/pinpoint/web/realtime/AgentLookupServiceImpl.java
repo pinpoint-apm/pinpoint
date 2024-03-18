@@ -15,11 +15,13 @@
  */
 package com.navercorp.pinpoint.web.realtime;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
@@ -36,6 +38,8 @@ import java.util.Objects;
  */
 class AgentLookupServiceImpl implements AgentLookupService {
 
+    private static final short DEFAULT_SERVICE_TYPE_CODE = PinpointConstants.DEFAULT_SERVICE_TYPE_CODE;
+
     private final AgentInfoService agentInfoService;
     private final Duration recentness;
 
@@ -49,7 +53,9 @@ class AgentLookupServiceImpl implements AgentLookupService {
         final long now = System.currentTimeMillis();
         return intoClusterKeyList(this.agentInfoService.getAgentsListByApplicationName(
                 AgentStatusFilters.running(),
+                AgentInfoFilters.acceptAll(),
                 applicationName,
+                DEFAULT_SERVICE_TYPE_CODE,
                 Range.between(now - recentness.toMillis(), now),
                 SortByAgentInfo.Rules.AGENT_NAME_ASC
         ));

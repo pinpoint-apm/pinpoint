@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.thrift;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
@@ -158,7 +159,7 @@ public class SpanFactoryTest {
         SpanBo spanBo = spanFactory.newSpanBo(tSpan);
         TransactionId transactionId = spanBo.getTransactionId();
 
-        Assertions.assertEquals(transactionId.getAgentId(), "agentId");
+        Assertions.assertEquals(transactionId.getAgentId().value(), "agentId");
         Assertions.assertEquals(transactionId.getAgentStartTime(), 1);
         Assertions.assertEquals(transactionId.getTransactionSequence(), 2);
     }
@@ -167,13 +168,14 @@ public class SpanFactoryTest {
     public void testTransactionId_include_agentId() {
         TSpan tSpan = new TSpan();
         tSpan.setAgentId("agentId");
-        byte[] transactionIdBytes = TransactionIdUtils.formatBytes("transactionAgentId", 1, 2);
+        AgentId transactionAgentId = AgentId.of("transactionAgentId");
+        byte[] transactionIdBytes = TransactionIdUtils.formatBytes(transactionAgentId, 1, 2);
         tSpan.setTransactionId(transactionIdBytes);
 
         SpanBo spanBo = spanFactory.newSpanBo(tSpan);
         TransactionId transactionId = spanBo.getTransactionId();
 
-        Assertions.assertEquals(transactionId.getAgentId(), "transactionAgentId");
+        Assertions.assertEquals(transactionId.getAgentId(), transactionAgentId);
         Assertions.assertEquals(transactionId.getAgentStartTime(), 1);
         Assertions.assertEquals(transactionId.getTransactionSequence(), 2);
     }

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.buffer.StringAllocator;
 import com.navercorp.pinpoint.common.buffer.StringCacheableBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -242,7 +243,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         if (spanBo.getAgentStartTime() != spanChunkBo.getAgentStartTime()) {
             return false;
         }
-        if (!StringUtils.equals(spanBo.getAgentId(), spanChunkBo.getAgentId())) {
+        if (!StringUtils.equals(AgentId.unwrap(spanBo.getAgentId()), AgentId.unwrap(spanChunkBo.getAgentId()))) {
             return false;
         }
         if (!StringUtils.equals(spanBo.getApplicationName(), spanChunkBo.getApplicationName())) {
@@ -252,7 +253,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     }
 
     private AgentKey newAgentKey(BasicSpan basicSpan) {
-        return new AgentKey(basicSpan.getApplicationName(), basicSpan.getAgentId(), basicSpan.getAgentStartTime(), basicSpan.getSpanId());
+        return new AgentKey(basicSpan.getApplicationName(), basicSpan.getAgentId().value(), basicSpan.getAgentStartTime(), basicSpan.getSpanId());
     }
 
     private record AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {

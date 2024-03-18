@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import jakarta.validation.constraints.NotBlank;
@@ -33,7 +34,7 @@ public class SpanBo implements Event, BasicSpan {
     private byte version = 0;
 
     //  private AgentKeyBo agentKeyBo;
-    @NotBlank private String agentId;
+    private AgentId agentId;
     private String agentName;
     @NotBlank private String applicationName;
     private ApplicationId applicationId;
@@ -111,12 +112,12 @@ public class SpanBo implements Event, BasicSpan {
     }
 
     @Override
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 
     @Override
-    public void setAgentId(String agentId) {
+    public void setAgentId(AgentId agentId) {
         this.agentId = agentId;
     }
 
@@ -430,7 +431,7 @@ public class SpanBo implements Event, BasicSpan {
 
         private int version = 0;
 
-        private String agentId;
+        private AgentId agentId;
         private String agentName;
         private String applicationName;
         private ApplicationId applicationId;
@@ -482,7 +483,7 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
-        public Builder setAgentId(String agentId) {
+        public Builder setAgentId(AgentId agentId) {
             this.agentId = agentId;
             return this;
         }

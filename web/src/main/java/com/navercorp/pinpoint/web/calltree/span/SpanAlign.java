@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -168,10 +169,10 @@ public class SpanAlign implements Align {
     @Override
     public String getAgentId() {
         if (isMeta()) {
-            return " ";
+            return AgentId.of(" ").value();
         }
 
-        return spanBo.getAgentId();
+        return AgentId.unwrap(spanBo.getAgentId());
     }
 
     @Override

@@ -53,7 +53,7 @@ public class SpanEncoderV0 implements SpanEncoder {
         final Buffer buffer = new AutomaticBuffer(128);
         buffer.putByte(type);
         buffer.putPrefixedString(basicSpan.getApplicationName());
-        buffer.putPrefixedString(basicSpan.getAgentId());
+        buffer.putPrefixedString(basicSpan.getAgentId().value());
         buffer.putVLong(basicSpan.getAgentStartTime());
         buffer.putLong(basicSpan.getSpanId());
 

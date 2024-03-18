@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.id.AgentId;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -40,6 +41,10 @@ public final class IdValidateUtils {
 
     public static boolean validateId(String id) {
         return validateId(id, DEFAULT_MAX_LENGTH);
+    }
+
+    public static boolean validateId(AgentId agentId) {
+        return validateId(AgentId.unwrap(agentId));
     }
 
     public static boolean validateId(String id, int maxLength) {

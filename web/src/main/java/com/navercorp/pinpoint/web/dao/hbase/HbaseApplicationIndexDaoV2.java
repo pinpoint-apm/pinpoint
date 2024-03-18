@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.common.util.UuidUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDaoV2;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author netspider
@@ -69,7 +68,7 @@ public class HbaseApplicationIndexDaoV2 implements ApplicationIndexDaoV2 {
     }
 
     @Override
-    public List<Application> selectAllApplicationNames() {
+    public List<Application> selectAllApplications() {
         Scan scan = new Scan();
         scan.setCaching(30);
         scan.addFamily(DESCRIPTOR.getName());
@@ -81,20 +80,20 @@ public class HbaseApplicationIndexDaoV2 implements ApplicationIndexDaoV2 {
     }
 
     @Override
-    public List<Application> selectApplicationName(UUID applicationId) {
+    public List<Application> selectApplicationName(ApplicationId applicationId) {
         return selectApplicationIndex0(applicationId, applicationNameMapper);
     }
 
     @Override
-    public List<String> selectAgentIds(UUID applicationId) {
+    public List<String> selectAgentIds(ApplicationId applicationId) {
         return selectApplicationIndex0(applicationId, agentIdMapper);
     }
 
-    private <T> List<T> selectApplicationIndex0(UUID applicationId, RowMapper<List<T>> rowMapper) {
+    private <T> List<T> selectApplicationIndex0(ApplicationId applicationId, RowMapper<List<T>> rowMapper) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(rowMapper, "rowMapper");
 
-        byte[] rowKey = UuidUtils.toBytes(applicationId);
+        byte[] rowKey = applicationId.toBytes();
 
         Get get = new Get(rowKey);
         get.addFamily(DESCRIPTOR.getName());
@@ -104,10 +103,10 @@ public class HbaseApplicationIndexDaoV2 implements ApplicationIndexDaoV2 {
     }
 
     @Override
-    public void deleteApplication(UUID applicationId) {
+    public void deleteApplication(ApplicationId applicationId) {
         Objects.requireNonNull(applicationId, "applicationName");
 
-        byte[] rowKey = UuidUtils.toBytes(applicationId);
+        byte[] rowKey = applicationId.toBytes();
         Delete delete = new Delete(rowKey);
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
@@ -115,20 +114,20 @@ public class HbaseApplicationIndexDaoV2 implements ApplicationIndexDaoV2 {
     }
 
     @Override
-    public void deleteAgentIds(Map<UUID, List<String>> applicationAgentIdMap) {
+    public void deleteAgentIds(Map<ApplicationId, List<String>> applicationAgentIdMap) {
         if (MapUtils.isEmpty(applicationAgentIdMap)) {
             return;
         }
 
         List<Delete> deletes = new ArrayList<>(applicationAgentIdMap.size());
 
-        for (Map.Entry<UUID, List<String>> entry : applicationAgentIdMap.entrySet()) {
-            UUID applicationId = entry.getKey();
+        for (Map.Entry<ApplicationId, List<String>> entry : applicationAgentIdMap.entrySet()) {
+            ApplicationId applicationId = entry.getKey();
             List<String> agentIds = entry.getValue();
             if (applicationId == null || CollectionUtils.isEmpty(agentIds)) {
                 continue;
             }
-            Delete delete = new Delete(UuidUtils.toBytes(applicationId));
+            Delete delete = new Delete(applicationId.toBytes());
             for (String agentId : agentIds) {
                 if (StringUtils.hasLength(agentId)) {
                     delete.addColumns(DESCRIPTOR.getName(), Bytes.toBytes(agentId));
@@ -145,11 +144,11 @@ public class HbaseApplicationIndexDaoV2 implements ApplicationIndexDaoV2 {
     }
 
     @Override
-    public void deleteAgentId(UUID applicationId, String agentId) {
+    public void deleteAgentId(ApplicationId applicationId, String agentId) {
         Objects.requireNonNull(applicationId, "applicationId");
         Assert.hasLength(agentId, "agentId");
 
-        byte[] rowKey = UuidUtils.toBytes(applicationId);
+        byte[] rowKey = applicationId.toBytes();
         Delete delete = new Delete(rowKey);
         byte[] qualifier = Bytes.toBytes(agentId);
         delete.addColumns(DESCRIPTOR.getName(), qualifier);

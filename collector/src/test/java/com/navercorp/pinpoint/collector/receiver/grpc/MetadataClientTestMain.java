@@ -26,7 +26,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class MetadataClientTestMain {
 
     public static void main(String[] args) {
-        MetadataClientMock clientMock = new MetadataClientMock("localhost", 9997, true);
+        MetadataClientMock clientMock = new MetadataClientMock("localhost", 9997);
         clientMock.apiMetaData(100);
 
         Uninterruptibles.sleepUninterruptibly(60, SECONDS);

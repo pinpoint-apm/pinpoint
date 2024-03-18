@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -44,7 +45,7 @@ public class CollectorGrpcSpanFactoryTest {
     private final BindAttribute attribute = newAttribute();
 
     private BindAttribute newAttribute() {
-        return new BindAttribute("agentId", "applicationName", APPLICATION_ID, 88, System.currentTimeMillis());
+        return new BindAttribute(AgentId.of("agentId"), "applicationName", APPLICATION_ID, 88, System.currentTimeMillis());
     }
 
     private final GrpcSpanFactory factory = new CollectorGrpcSpanFactory(binder, filter);

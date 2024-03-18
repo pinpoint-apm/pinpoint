@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
@@ -218,7 +219,7 @@ public class RecordFactoryTest {
                 .build();
         SpanBo.Builder spanBoBuilder = new SpanBo.Builder(8174884636707391L)
                 .setVersion(1)
-                .setAgentId("express-node-sample-id")
+                .setAgentId(AgentId.of("express-node-sample-id"))
                 .setAgentName("")
                 .setApplicationName("express-node-sample-name")
                 .setAgentStartTime(1670293953108L)

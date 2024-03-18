@@ -37,6 +37,13 @@ public class AgentHeaderFactoryProvider implements Provider<HeaderFactory> {
 
     @Override
     public HeaderFactory get() {
-        return new AgentHeaderFactory(agentInformation.getAgentId(), agentInformation.getAgentName(), agentInformation.getApplicationName(), agentInformation.getServerType().getCode(), agentInformation.getStartTime());
+        return new AgentHeaderFactory(
+                agentInformation.getAgentId(),
+                agentInformation.getAgentName(),
+                agentInformation.getApplicationName(),
+                agentInformation.getServiceName(),
+                agentInformation.getServerType().getCode(),
+                agentInformation.getStartTime()
+        );
     }
 }

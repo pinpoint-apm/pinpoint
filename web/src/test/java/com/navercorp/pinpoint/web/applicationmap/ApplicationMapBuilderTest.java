@@ -57,6 +57,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -79,7 +80,7 @@ public class ApplicationMapBuilderTest {
 
     private AgentInfoServerGroupListDataSource agentInfoServerGroupListDataSource;
 
-    private long buildTimeoutMillis = 1000;
+    private final long buildTimeoutMillis = 1000;
 
     @BeforeEach
     public void setUp() {
@@ -110,7 +111,7 @@ public class ApplicationMapBuilderTest {
         when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);
         when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
-        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentAndStatus>>() {
+        when(agentInfoService.getAgentsByApplicationName(anyString(), anyShort(), anyLong())).thenAnswer(new Answer<Set<AgentAndStatus>>() {
             @Override
             public Set<AgentAndStatus> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
@@ -120,7 +121,7 @@ public class ApplicationMapBuilderTest {
                 return Set.of(new AgentAndStatus(agentInfo, agentStatus));
             }
         });
-        when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
+        when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyShort(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
             @Override
             public Set<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);

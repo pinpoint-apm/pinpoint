@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 
 /**
@@ -23,11 +24,15 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
  */
 public class TransactionId {
 
-    private final String agentId;
+    private final AgentId agentId;
     private final long agentStartTime;
     private final long transactionSequence;
 
     public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
+        this(AgentId.of(agentId), agentStartTime, transactionSequence);
+    }
+
+    public TransactionId(AgentId agentId, long agentStartTime, long transactionSequence) {
         if (!IdValidateUtils.validateId(agentId)) {
             throw new IllegalArgumentException("invalid agentId");
         }
@@ -36,7 +41,7 @@ public class TransactionId {
         this.transactionSequence = transactionSequence;
     }
 
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 
@@ -58,9 +63,7 @@ public class TransactionId {
 
         if (agentStartTime != that.agentStartTime) return false;
         if (transactionSequence != that.transactionSequence) return false;
-        if (!agentId.equals(that.agentId)) return false;
-
-        return true;
+        return agentId.equals(that.agentId);
     }
 
     @Override
