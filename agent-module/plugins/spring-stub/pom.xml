@@ -8,12 +8,15 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-resttemplate-plugin</artifactId>
-    <name>pinpoint-resttemplate-plugin</name>
+    <artifactId>pinpoint-spring-stub</artifactId>
+    <name>pinpoint-spring-stub</name>
     <packaging>jar</packaging>
 
     <properties>
-        <spring.version>${spring4.version}</spring.version>
+        <jdk.version>1.8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <test.jdk.home>${env.JAVA_8_HOME}</test.jdk.home>
+        <spring.version>${spring5.version}</spring.version>
     </properties>
 
     <dependencies>
@@ -24,12 +27,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-spring-stub</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
@@ -37,18 +43,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>com/navercorp/**/*</include>
-                        <include>META-INF/**/*</include>
-                    </includes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
