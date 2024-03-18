@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
@@ -59,7 +60,7 @@ public class AgentsMapByApplicationTest {
     private static AgentAndStatus createAgentInfo(String applicationName, String agentId, String hostname, boolean container, long startTimestamp) {
         AgentInfo agentInfo = new AgentInfo();
         agentInfo.setApplicationName(applicationName);
-        agentInfo.setAgentId(agentId);
+        agentInfo.setAgentId(AgentId.of(agentId));
         agentInfo.setHostName(hostname);
         agentInfo.setContainer(container);
         agentInfo.setStartTimestamp(startTimestamp);

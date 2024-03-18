@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
@@ -175,7 +176,7 @@ public class ActiveTraceRepositoryTest {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
-                    TraceId agentId1 = new DefaultTraceId("agentId", 0L, id);
+                    TraceId agentId1 = new DefaultTraceId(AgentId.of("agentId"), 0L, id);
                     Trace agentId = traceContext.continueTraceObject(agentId1);
                     return new TraceThreadTuple(agentId, Thread.currentThread().getId());
                 } finally {

@@ -159,7 +159,7 @@ public class FilteredMapBuilder {
         // we need to convert to time window's timestamp. If not, it may lead to OOM due to mismatch in timeslots.
         long timestamp = timeWindow.refineTimestamp(span.getCollectorAcceptTime());
 
-        final String spanAgentId = span.getAgentId();
+        final String spanAgentId = span.getAgentId().value();
         linkDataMap.addLinkData(parentApplication, spanAgentId, spanApplication, spanAgentId, timestamp, slotTime, 1);
 
         final HistogramSchema histogramSchema = spanApplication.serviceType().getHistogramSchema();
@@ -323,7 +323,7 @@ public class FilteredMapBuilder {
         }
         // endPoint may be null
         final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint(), destApplication.name());
-        sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
+        sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId().value(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
     }
 
     public FilteredMap build() {

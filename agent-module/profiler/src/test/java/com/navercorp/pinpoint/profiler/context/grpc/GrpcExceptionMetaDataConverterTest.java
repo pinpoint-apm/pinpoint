@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.grpc.trace.PException;
 import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStackTraceElement;
@@ -36,7 +37,7 @@ class GrpcExceptionMetaDataConverterTest {
 
     private static TraceRoot newTraceRoot() {
         TraceRoot traceRoot = mock(TraceRoot.class);
-        final String agentId = "agent";
+        final AgentId agentId = AgentId.of("agent");
         final long agentStartTime = System.currentTimeMillis();
         when(traceRoot.getTraceId()).thenReturn(new DefaultTraceId(agentId, agentStartTime, 0));
         when(traceRoot.getTraceStartTime()).thenReturn(agentStartTime + 100);

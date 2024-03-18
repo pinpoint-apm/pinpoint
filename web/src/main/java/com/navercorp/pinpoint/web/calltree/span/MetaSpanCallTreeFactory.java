@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -33,13 +34,13 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class MetaSpanCallTreeFactory {
-    private static final long DEFAULT_TIMEOUT_MILLISEC = 60 * 1000;
+    private static final long DEFAULT_TIMEOUT_MILLI = 60 * 1000;
 
-    private static final String UNKNOWN_AGENT_ID = "UNKNOWN";
-    private static final String CORRUPTED_AGENT_ID = "CORRUPTED";
+    private static final AgentId UNKNOWN_AGENT_ID = AgentId.of("UNKNOWN");
+    private static final AgentId CORRUPTED_AGENT_ID = AgentId.of("CORRUPTED");
     private static final long AGENT_START_TIME = 0;
 
-    private long timeoutMillisec = DEFAULT_TIMEOUT_MILLISEC;
+    private final long timeoutMilli = DEFAULT_TIMEOUT_MILLI;
 
     public CallTree unknown(final long startTimeMillis) {
         final SpanBo rootSpan = new SpanBo();
@@ -50,7 +51,7 @@ public class MetaSpanCallTreeFactory {
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
         List<AnnotationBo> annotations = new ArrayList<>();
-        ApiMetaDataBo apiMetaData = new ApiMetaDataBo(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
+        ApiMetaDataBo apiMetaData = new ApiMetaDataBo(UNKNOWN_AGENT_ID.value(), AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
                 MethodTypeEnum.WEB_REQUEST, "Unknown");
 
         final AnnotationBo apiMetaDataAnnotation = AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaData);
@@ -76,7 +77,7 @@ public class MetaSpanCallTreeFactory {
 
         List<AnnotationBo> annotations = new ArrayList<>();
 
-        ApiMetaDataBo apiMetaData = new ApiMetaDataBo(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
+        ApiMetaDataBo apiMetaData = new ApiMetaDataBo(CORRUPTED_AGENT_ID.value(), AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
                 MethodTypeEnum.CORRUPTED, "...");
 
         final AnnotationBo apiMetaDataAnnotation = AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaData);
@@ -92,7 +93,7 @@ public class MetaSpanCallTreeFactory {
     }
 
     private String getErrorMessage(String title, long startTimeMillis) {
-        if (System.currentTimeMillis() - startTimeMillis < timeoutMillisec) {
+        if (System.currentTimeMillis() - startTimeMillis < timeoutMilli) {
             return "Corrupted(waiting for packet) ";
         } else {
             if (title != null) {

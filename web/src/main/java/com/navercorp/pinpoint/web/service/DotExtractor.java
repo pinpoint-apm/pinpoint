@@ -60,12 +60,11 @@ public class DotExtractor {
         Objects.requireNonNull(span, "span");
 
         final TransactionId transactionId = span.getTransactionId();
-        return new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
+        return new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId().value());
     }
 
     private List<Dot> getDotList(Application spanApplication) {
-        List<Dot> dotList = this.dotMap.computeIfAbsent(spanApplication, k -> new ArrayList<>());
-        return dotList;
+        return this.dotMap.computeIfAbsent(spanApplication, k -> new ArrayList<>());
     }
 
     public List<ApplicationScatterScanResult> getApplicationScatterScanResult(long from, long to) {

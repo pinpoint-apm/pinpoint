@@ -144,7 +144,7 @@ public class SpanEventAlign implements Align {
 
     @Override
     public String getAgentId() {
-        return spanBo.getAgentId();
+        return spanBo.getAgentId().value();
     }
 
     @Override

@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -37,20 +37,26 @@ import java.util.Objects;
 public class AgentInfoService {
 
     private final AgentInfoDao agentInfoDao;
-
     private final ApplicationIndexDao applicationIndexDao;
+    private final ServiceInfoService serviceInfoService;
 
-    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao) {
+    public AgentInfoService(
+            AgentInfoDao agentInfoDao,
+            ApplicationIndexDao applicationIndexDao,
+            ServiceInfoService serviceInfoService
+    ) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceInfoService");
     }
 
     public void insert(@Valid final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
         applicationIndexDao.insert(agentInfoBo);
+        serviceInfoService.insertAgentInfo(agentInfoBo);
     }
 
-    public AgentInfoBo getAgentInfo(@NotBlank final String agentId, @PositiveOrZero final long timestamp) {
+    public AgentInfoBo getAgentInfo(AgentId agentId, @PositiveOrZero final long timestamp) {
         return agentInfoDao.getAgentInfo(agentId, timestamp);
     }
 }

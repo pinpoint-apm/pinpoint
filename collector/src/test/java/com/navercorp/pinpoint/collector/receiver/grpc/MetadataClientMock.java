@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
@@ -44,9 +45,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,8 +54,6 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
 public class MetadataClientMock {
     private static final int MAX_TOTAL_ATTEMPTS = 3;
-    private static final ScheduledExecutorService RECONNECT_SCHEDULER
-            = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("Pinpoint-reconnect-thread"));
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -67,18 +64,15 @@ public class MetadataClientMock {
 
     private final MetadataGrpc.MetadataStub metadataStub;
     private final AtomicInteger requestCounter = new AtomicInteger(0);
-    private final AtomicInteger responseCounter = new AtomicInteger(0);
     private final List<String> responseList = new ArrayList<>();
 
-    public MetadataClientMock(final String host, final int port, final boolean agentHeader) {
-
-
+    public MetadataClientMock(final String host, final int port) {
         this.retryTimer = newTimer(this.getClass().getName());
         this.channelFactory = newChannelFactory();
         this.channel = channelFactory.build(host, port);
 
         this.metadataStub = MetadataGrpc.newStub(channel);
-        this.retryScheduler = new RetryScheduler<GeneratedMessageV3, PResult>() {
+        this.retryScheduler = new RetryScheduler<>() {
             @Override
             public boolean isSuccess(PResult response) {
                 return response.getSuccess();
@@ -92,7 +86,7 @@ public class MetadataClientMock {
     }
 
     private ChannelFactory newChannelFactory() {
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockAgentName", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory(AgentId.of("mockAgentId"), "mockAgentName", "mockApplicationName", "mockServiceName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("MetadataClientMock");
         channelFactoryBuilder.setHeaderFactory(headerFactory);
         channelFactoryBuilder.setClientOption(new ClientOption());
@@ -112,10 +106,6 @@ public class MetadataClientMock {
     private Timer newTimer(String name) {
         ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
         return new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512, false, 100);
-    }
-
-    public void apiMetaData() {
-        apiMetaData(1);
     }
 
     public void apiMetaData(final int count) {

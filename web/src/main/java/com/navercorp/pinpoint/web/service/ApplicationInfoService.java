@@ -15,12 +15,16 @@
  */
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationInfo;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
+import com.navercorp.pinpoint.common.util.UuidUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationInfoDao;
+import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -34,14 +38,22 @@ public class ApplicationInfoService {
         this.applicationInfoDao = Objects.requireNonNull(applicationInfoDao, "applicationInfoDao");
     }
 
-    @Cacheable(value = "applicationNameById", key = "#applicationId")
-    public String getApplicationName(UUID applicationId) {
-        return this.applicationInfoDao.getApplicationName(applicationId);
+    @Cacheable(value = "applicationById", key = "#applicationId")
+    public Application getApplication(ApplicationId applicationId) {
+        return this.applicationInfoDao.getApplication(applicationId);
     }
 
-    @Cacheable(value = "applicationIdByName", key = "#applicationName")
-    public UUID getApplicationId(String applicationName) {
-        return this.applicationInfoDao.getApplicationId(applicationName);
+    @Cacheable(value = "applicationIdBySelector", key = "#application")
+    public ApplicationId getApplicationId(ApplicationSelector application) {
+        ApplicationId applicationId = this.applicationInfoDao.getApplicationId(application);
+        if (applicationId != null) {
+            return applicationId;
+        }
+
+        ApplicationId newApplicationId = ApplicationId.of(UuidUtils.createV4());
+        ApplicationInfo newApplication = new ApplicationInfo(newApplicationId, application.serviceId(),
+                application.name(), application.serviceTypeCode());
+        return this.applicationInfoDao.putApplicationIdIfAbsent(newApplication);
     }
 
 }

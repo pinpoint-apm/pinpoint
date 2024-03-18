@@ -1,12 +1,13 @@
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.grpc.Header;
 
 import java.util.Objects;
 
 public class BindAttribute {
-    private final String agentId;
+    private final AgentId agentId;
     private final String applicationName;
     private final ApplicationId applicationId;
     private final long agentStartTime;
@@ -20,7 +21,7 @@ public class BindAttribute {
                 acceptedTime);
     }
 
-    public BindAttribute(String agentId, String applicationName, ApplicationId applicationId, long agentStartTime, long acceptedTime) {
+    public BindAttribute(AgentId agentId, String applicationName, ApplicationId applicationId, long agentStartTime, long acceptedTime) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
@@ -32,7 +33,7 @@ public class BindAttribute {
         return acceptedTime;
     }
 
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return this.agentId;
     }
 

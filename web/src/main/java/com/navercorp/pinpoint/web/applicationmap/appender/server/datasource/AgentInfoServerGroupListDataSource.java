@@ -67,7 +67,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
         }
 
         Application application = node.getApplication();
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(application.name(), timestamp.toEpochMilli());
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(application.name(), application.getServiceTypeCode(), timestamp.toEpochMilli());
         if (CollectionUtils.isEmpty(agentInfos)) {
             logger.warn("agentInfo not found. application:{}", application);
             return ServerGroupList.empty();
@@ -94,7 +94,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
         Set<AgentInfo> filteredAgentInfos = new HashSet<>();
         List<AgentInfo> agentsToCheckStatus = new ArrayList<>();
         for (AgentInfo agentInfo : agentInfos) {
-            String agentId = agentInfo.getAgentId();
+            String agentId = agentInfo.getAgentId().value();
             if (agentHistogramMap.containsKey(agentId)) {
                 filteredAgentInfos.add(agentInfo);
             } else {

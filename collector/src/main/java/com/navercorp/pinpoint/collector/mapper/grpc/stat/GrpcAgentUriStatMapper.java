@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
-
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class GrpcAgentUriStatMapper {
     public AgentUriStatBo map(final PAgentUriStat agentUriStat) {
         final Header agentInfo = ServerContext.getAgentInfo();
 
-        final String agentId = agentInfo.getAgentId();
+        final AgentId agentId = agentInfo.getAgentId();
         final String applicationName = agentInfo.getApplicationName();
 
         int bucketVersion = agentUriStat.getBucketVersion();
@@ -46,7 +46,7 @@ public class GrpcAgentUriStatMapper {
         AgentUriStatBo agentUriStatBo = new AgentUriStatBo();
         agentUriStatBo.setServiceName("");                        // TODO: add serviceName when available
         agentUriStatBo.setApplicationName(applicationName);
-        agentUriStatBo.setAgentId(agentId);
+        agentUriStatBo.setAgentId(AgentId.unwrap(agentId));
         agentUriStatBo.setBucketVersion((byte) bucketVersion);
 
         List<PEachUriStat> eachUriStatList = agentUriStat.getEachUriStatList();

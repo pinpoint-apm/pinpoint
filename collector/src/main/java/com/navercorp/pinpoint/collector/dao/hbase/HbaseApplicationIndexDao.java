@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.util.UuidUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -70,8 +70,8 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         // Assert applicationName
         CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
 
-        final Put put = new Put(UuidUtils.toBytes(agentInfo.getApplicationId().value()));
-        final byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
+        final Put put = new Put(agentInfo.getApplicationId().toBytes());
+        final byte[] qualifier = Bytes.toBytes(AgentId.unwrap(agentInfo.getAgentId()));
         final byte[] value = this.valueMapper.mapValue(agentInfo);
         put.addColumn(DESCRIPTOR.getName(), qualifier, value);
 

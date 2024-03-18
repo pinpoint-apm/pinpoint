@@ -81,7 +81,7 @@ public class TransactionMetaDataViewModel {
 
         @Override
         public String getAgentId() {
-            return span.getAgentId();
+            return span.getAgentId().value();
         }
 
         @Override

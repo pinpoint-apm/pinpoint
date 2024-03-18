@@ -21,14 +21,14 @@ import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskSer
 import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.service.async.DefaultAgentProperty;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSessionRegistry;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -62,7 +62,7 @@ public class KeepAliveService {
 
     private AgentProperty newChannelProperties(Header header, short serviceType) {
         final String applicationName = header.getApplicationName();
-        final String agentId = header.getAgentId();
+        final AgentId agentId = header.getAgentId();
         final long agentStartTime = header.getAgentStartTime();
         return new DefaultAgentProperty(applicationName, serviceType, agentId, agentStartTime, header.getProperties());
     }

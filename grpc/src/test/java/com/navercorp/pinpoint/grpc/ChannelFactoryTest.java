@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc;
 
 import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
@@ -104,7 +105,8 @@ public class ChannelFactoryTest {
     @Test
     public void build() throws InterruptedException {
 
-        HeaderFactory headerFactory = new AgentHeaderFactory("agentId", "agentName", "appName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory(AgentId.of("agentId"), "agentName", "appName", "serviceName",
+                ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
 
         CountRecordClientInterceptor countRecordClientInterceptor = new CountRecordClientInterceptor();
 
@@ -140,7 +142,9 @@ public class ChannelFactoryTest {
         Assertions.assertEquals(1, countRecordClientInterceptor.getExecutedInterceptCallCount());
 
         logger.debug("state:{}", managedChannel.getState(true));
-        spanService.awaitOnCompleted();
+        if (!spanService.awaitOnCompleted()) {
+            Assertions.fail("awaitOnCompleted");
+        }
         logger.debug("managedChannel shutdown");
         managedChannel.shutdown();
         managedChannel.awaitTermination(1000, TimeUnit.MILLISECONDS);
@@ -171,8 +175,7 @@ public class ChannelFactoryTest {
         serverFactory.addService(spanService);
 
         addFilter(serverFactory);
-        Server server = serverFactory.build();
-        return server;
+        return serverFactory.build();
     }
 
     private static void addFilter(ServerFactory serverFactory) {

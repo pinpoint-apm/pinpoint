@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.service;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDaoV2;
 import com.navercorp.pinpoint.web.service.ApplicationService;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -45,7 +45,7 @@ public class BatchApplicationServiceImpl implements BatchApplicationService {
     }
 
     @Override
-    public List<UUID> getAll() {
+    public List<ApplicationId> getAll() {
         return this.applicationService.getApplications()
                 .stream()
                 .map(Application::id)
@@ -53,18 +53,18 @@ public class BatchApplicationServiceImpl implements BatchApplicationService {
     }
 
     @Override
-    public boolean isActive(UUID applicationId, Duration duration) {
+    public boolean isActive(ApplicationId applicationId, Duration duration) {
         long now = System.currentTimeMillis();
         Range range = Range.between(now - duration.toMillis(), now);
         return hasTrace(applicationId, range);
     }
 
-    private boolean hasTrace(UUID applicationId, Range range) {
+    private boolean hasTrace(ApplicationId applicationId, Range range) {
         return this.applicationTraceIndexDao.hasTraceIndex(applicationId, range,false);
     }
 
     @Override
-    public void remove(UUID applicationId) {
+    public void remove(ApplicationId applicationId) {
         this.applicationService.deleteApplication(applicationId);
     }
 

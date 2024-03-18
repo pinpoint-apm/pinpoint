@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
+import com.navercorp.pinpoint.common.id.AgentId;
+
 import java.util.Objects;
 
 /**
@@ -7,7 +9,7 @@ import java.util.Objects;
  */
 public class LocalTraceRootImpl implements LocalTraceRoot {
 
-    protected final String agentId;
+    protected final AgentId agentId;
     protected final long localTransactionId;
 
     protected final long traceStartTime;
@@ -15,13 +17,13 @@ public class LocalTraceRootImpl implements LocalTraceRoot {
     protected final Shared shared = new DefaultShared();
 
 
-    LocalTraceRootImpl(String agentId, long traceStartTime, long localTransactionId) {
+    LocalTraceRootImpl(AgentId agentId, long traceStartTime, long localTransactionId) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.traceStartTime = traceStartTime;
         this.localTransactionId = localTransactionId;
     }
 
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 

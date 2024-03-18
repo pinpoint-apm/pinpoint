@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionWrapperBo;
@@ -103,14 +104,14 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
     private ExceptionMetaDataBo mapExceptionMetaDataBo(
             Header agentInfo, PExceptionMetaData exceptionMetaData
     ) {
-        final String agentId = agentInfo.getAgentId();
+        final AgentId agentId = agentInfo.getAgentId();
         final TransactionId transactionId = newTransactionId(exceptionMetaData.getTransactionId(), agentId);
 
         return new ExceptionMetaDataBo(
                 transactionId, exceptionMetaData.getSpanId(),
                 (short) agentInfo.getServiceType(),
                 agentInfo.getApplicationName(),
-                agentInfo.getAgentId(),
+                AgentId.unwrap(agentInfo.getAgentId()),
                 StringUtils.defaultIfEmpty(exceptionMetaData.getUriTemplate(), EMPTY)
         );
     }
@@ -140,9 +141,9 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
         ).collect(Collectors.toList());
     }
 
-    private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
-        final String transactionAgentId = pTransactionId.getAgentId();
-        if (StringUtils.hasLength(transactionAgentId)) {
+    private TransactionId newTransactionId(PTransactionId pTransactionId, AgentId spanAgentId) {
+        final AgentId transactionAgentId = AgentId.of(pTransactionId.getAgentId());
+        if (StringUtils.hasLength(AgentId.unwrap(transactionAgentId))) {
             return new TransactionId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
         } else {
             return new TransactionId(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());

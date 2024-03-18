@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationInfoDao;
 import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationInfo;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import com.navercorp.pinpoint.common.util.UuidUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -37,23 +40,26 @@ public class ApplicationInfoService {
     }
 
     @Cacheable(value = "applicationNameById", key = "#applicationId")
-    public String getApplicationName(ApplicationId applicationId) {
-        return this.applicationInfoDao.getApplicationName(applicationId);
+    public ApplicationInfo getApplication(ApplicationId applicationId) {
+        return this.applicationInfoDao.getApplication(applicationId);
     }
 
-    @Cacheable(value = "applicationIdByName", key = "#applicationName")
-    public ApplicationId getApplicationId(String applicationName) {
-        ApplicationId applicationId = this.applicationInfoDao.getApplicationId(applicationName);
+    @Cacheable(value = "applicationIdByName", key = "{ #serviceId, #applicationName, #serviceTypeCode }")
+    public ApplicationId getApplicationId(ServiceId serviceId, String applicationName, short serviceTypeCode) {
+        ApplicationSelector tuple = new ApplicationSelector(serviceId, applicationName, serviceTypeCode);
+        ApplicationId applicationId = this.applicationInfoDao.getApplicationId(tuple);
         if (applicationId != null) {
             return applicationId;
         }
 
         ApplicationId newApplicationId = ApplicationId.of(UuidUtils.createV4());
-        return this.applicationInfoDao.putApplicationIdIfAbsent(applicationName, newApplicationId);
+        ApplicationInfo newApplication = new ApplicationInfo(newApplicationId, serviceId, applicationName, serviceTypeCode);
+        return this.applicationInfoDao.putApplicationIdIfAbsent(newApplication);
     }
 
-    public void ensureApplicationIdInverseIndexed(String applicationName, ApplicationId applicationId) {
-        this.applicationInfoDao.ensureInverse(applicationName, applicationId);
+    public void ensureApplicationIdInverseIndexed(ServiceId serviceId, String applicationName, short serviceTypeCode, ApplicationId applicationId) {
+        ApplicationInfo application = new ApplicationInfo(applicationId, serviceId, applicationName, serviceTypeCode);
+        this.applicationInfoDao.ensureInverse(application);
     }
 
 }

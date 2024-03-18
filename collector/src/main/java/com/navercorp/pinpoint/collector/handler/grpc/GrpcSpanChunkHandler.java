@@ -6,11 +6,12 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.sampler.Sampler;
 import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
 import com.navercorp.pinpoint.collector.service.ApplicationInfoService;
+import com.navercorp.pinpoint.collector.service.ServiceInfoService;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.hbase.RequestNotPermittedException;
-import com.navercorp.pinpoint.common.profiler.logging.LogSampler;
 import com.navercorp.pinpoint.common.id.ApplicationId;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.id.ServiceId;
+import com.navercorp.pinpoint.common.profiler.logging.LogSampler;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
@@ -50,6 +51,7 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final AcceptedTimeService acceptedTimeService;
     private final ApplicationInfoService applicationInfoService;
+    private final ServiceInfoService serviceInfoService;
 
     private final Sampler<BasicSpan> sampler;
 
@@ -58,11 +60,13 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
             GrpcSpanFactory spanFactory,
             AcceptedTimeService acceptedTimeService,
             SpanSamplerFactory spanSamplerFactory,
-            ApplicationInfoService applicationInfoService) {
+            ApplicationInfoService applicationInfoService,
+            ServiceInfoService serviceInfoService) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.applicationInfoService = Objects.requireNonNull(applicationInfoService, "applicationInfoService");
+        this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceInfoService");
         this.sampler = spanSamplerFactory.createBasicSpanSampler();
 
         logger.info("TraceServices {}", Arrays.toString(traceServices));
@@ -87,7 +91,8 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
 
 
         final Header header = ServerContext.getAgentInfo();
-        final ApplicationId applicationId = this.applicationInfoService.getApplicationId(header.getApplicationName());
+        final ServiceId serviceId = this.serviceInfoService.getServiceId(header.getServiceName());
+        final ApplicationId applicationId = this.applicationInfoService.getApplicationId(serviceId, header.getApplicationName(), (short) header.getServiceType());
         final BindAttribute attribute = BindAttribute.of(header, applicationId, acceptedTimeService.getAcceptedTime());
         final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(spanChunk, attribute);
         if (!sampler.isSampling(spanChunkBo)) {

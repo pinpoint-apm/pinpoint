@@ -19,12 +19,15 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.SqlMetaDataService;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
+import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
@@ -91,12 +94,22 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
     }
 
     private static SqlMetaDataBo mapSqlMetaDataBo(Header agentInfo, PSqlMetaData sqlMetaData) {
-        final String agentId = agentInfo.getAgentId();
+        final AgentId agentId = agentInfo.getAgentId();
         final long agentStartTime = agentInfo.getAgentStartTime();
         final int sqlId = sqlMetaData.getSqlId();
         final String sql = sqlMetaData.getSql();
 
-        return new SqlMetaDataBo(agentId, agentStartTime, sqlId, sql);
+        return new SqlMetaDataBo(AgentId.unwrap(agentId), agentStartTime, sqlId, sql);
+    }
+
+    private static SqlUidMetaDataBo mapSqlUidMetaDataBo(Header agentInfo, PSqlUidMetaData sqlUidMetaData) {
+        final AgentId agentId = agentInfo.getAgentId();
+        final long agentStartTime = agentInfo.getAgentStartTime();
+        final String applicationName = agentInfo.getApplicationName();
+        final byte[] sqlUid = sqlUidMetaData.getSqlUid().toByteArray();
+        final String sql = sqlUidMetaData.getSql();
+
+        return new SqlUidMetaDataBo(AgentId.unwrap(agentId), agentStartTime, applicationName, sqlUid, sql);
     }
 
     private static PResult newResult(boolean success) {

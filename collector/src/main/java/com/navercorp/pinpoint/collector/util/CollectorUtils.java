@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.util;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
@@ -48,6 +49,10 @@ public final class CollectorUtils {
         String hostName = getHostName();
         long pid = ProcessHandle.current().pid();
         return hostName + "@" + pid;
+    }
+
+    public static void checkAgentId(final AgentId agentId) {
+        checkAgentId(AgentId.unwrap(agentId));
     }
 
     public static void checkAgentId(final String agentId) {

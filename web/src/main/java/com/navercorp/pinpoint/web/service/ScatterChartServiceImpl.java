@@ -79,7 +79,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationName())) {
                     final TransactionId transactionId = span.getTransactionId();
-                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
+                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId().value());
                     result.add(dot);
                 }
             }
@@ -137,7 +137,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationName())) {
                     final TransactionId transactionId = span.getTransactionId();
-                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
+                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId().value());
                     scatterData.addDot(dot);
                 }
             }

@@ -15,7 +15,11 @@
  */
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDaoV2;
@@ -29,13 +33,14 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author youngjin.kim2
  */
 @Component
 public class ApplicationTraceIndexServiceImpl implements ApplicationTraceIndexService {
+
+    private static final short DEFAULT_SERVICE_TYPE_CODE = PinpointConstants.DEFAULT_SERVICE_TYPE_CODE;
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
     private final ApplicationTraceIndexDaoV2 applicationTraceIndexDaoV2;
@@ -53,13 +58,13 @@ public class ApplicationTraceIndexServiceImpl implements ApplicationTraceIndexSe
 
     @Override
     public boolean hasTraceIndex(String applicationName, Range range, boolean backwardDirection) {
-        UUID applicationId = getApplicationId(applicationName);
+        ApplicationId applicationId = getApplicationId(applicationName);
         return applicationTraceIndexDao.hasTraceIndex(applicationName, range, backwardDirection) || applicationTraceIndexDaoV2.hasTraceIndex(applicationId, range, backwardDirection);
     }
 
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
-        UUID applicationId = getApplicationId(applicationName);
+        ApplicationId applicationId = getApplicationId(applicationName);
         LimitedScanResult<List<TransactionId>> r1 = applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
         LimitedScanResult<List<TransactionId>> r2 = applicationTraceIndexDaoV2.scanTraceIndex(applicationId, range, limit, backwardDirection);
         return merge(r1, r2);
@@ -67,7 +72,7 @@ public class ApplicationTraceIndexServiceImpl implements ApplicationTraceIndexSe
 
     @Override
     public LimitedScanResult<List<Dot>> scanTraceScatterData(String applicationName, Range range, int limit, boolean scanBackward) {
-        UUID applicationId = getApplicationId(applicationName);
+        ApplicationId applicationId = getApplicationId(applicationName);
         LimitedScanResult<List<Dot>> r1 = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, scanBackward);
         LimitedScanResult<List<Dot>> r2 = applicationTraceIndexDaoV2.scanTraceScatterData(applicationId, range, limit, scanBackward);
         return merge(r1, r2);
@@ -75,7 +80,7 @@ public class ApplicationTraceIndexServiceImpl implements ApplicationTraceIndexSe
 
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, DragArea dragArea, int limit) {
-        UUID applicationId = getApplicationId(applicationName);
+        ApplicationId applicationId = getApplicationId(applicationName);
         LimitedScanResult<List<TransactionId>> r1 = applicationTraceIndexDao.scanTraceIndex(applicationName, dragArea, limit);
         LimitedScanResult<List<TransactionId>> r2 = applicationTraceIndexDaoV2.scanTraceIndex(applicationId, dragArea, limit);
         return merge(r1, r2);
@@ -83,7 +88,7 @@ public class ApplicationTraceIndexServiceImpl implements ApplicationTraceIndexSe
 
     @Override
     public LimitedScanResult<List<Dot>> scanScatterData(String applicationName, DragAreaQuery dragAreaQuery, int limit) {
-        UUID applicationId = getApplicationId(applicationName);
+        ApplicationId applicationId = getApplicationId(applicationName);
         LimitedScanResult<List<Dot>> r1 = applicationTraceIndexDao.scanScatterData(applicationName, dragAreaQuery, limit);
         LimitedScanResult<List<Dot>> r2 = applicationTraceIndexDaoV2.scanScatterData(applicationId, dragAreaQuery, limit);
         return merge(r1, r2);
@@ -91,14 +96,14 @@ public class ApplicationTraceIndexServiceImpl implements ApplicationTraceIndexSe
 
     @Override
     public LimitedScanResult<List<DotMetaData>> scanScatterDataV2(String applicationName, DragAreaQuery dragAreaQuery, int limit) {
-        UUID applicationId = getApplicationId(applicationName);
+        ApplicationId applicationId = getApplicationId(applicationName);
         LimitedScanResult<List<DotMetaData>> r1 = applicationTraceIndexDao.scanScatterDataV2(applicationName, dragAreaQuery, limit);
         LimitedScanResult<List<DotMetaData>> r2 = applicationTraceIndexDaoV2.scanScatterDataV2(applicationId, dragAreaQuery, limit);
         return merge(r1, r2);
     }
 
-    private UUID getApplicationId(String applicationName) {
-        return this.applicationInfoService.getApplicationId(applicationName);
+    private ApplicationId getApplicationId(String applicationName) {
+        return applicationInfoService.getApplicationId(new ApplicationSelector(ServiceId.DEFAULT_ID, applicationName, DEFAULT_SERVICE_TYPE_CODE));
     }
 
     private <T> LimitedScanResult<List<T>> merge(LimitedScanResult<List<T>> r1, LimitedScanResult<List<T>> r2) {

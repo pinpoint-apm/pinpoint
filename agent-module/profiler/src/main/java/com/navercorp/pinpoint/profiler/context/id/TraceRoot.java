@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 
 import java.util.Objects;
 
@@ -36,11 +37,11 @@ public interface TraceRoot extends LocalTraceRoot {
     @Override
     Shared getShared();
 
-    static TraceRoot remote(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
+    static TraceRoot remote(TraceId traceId, AgentId agentId, long traceStartTime, long localTransactionId) {
         return new RemoteTraceRootImpl(traceId, agentId, traceStartTime, localTransactionId);
     }
 
-    static LocalTraceRoot local(String agentId, long traceStartTime, long localTransactionId) {
+    static LocalTraceRoot local(AgentId agentId, long traceStartTime, long localTransactionId) {
         Objects.requireNonNull(agentId, "agentId");
         return new LocalTraceRootImpl(agentId, traceStartTime, localTransactionId);
     }

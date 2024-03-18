@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.test;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
@@ -54,7 +55,7 @@ public class OrderedSpanRecorderTest {
 
     private final OrderedSpanRecorder recorder = new OrderedSpanRecorder();
 
-    private final String agentId = "agentId";
+    private final AgentId agentId = AgentId.of("agentId");
 
     @AfterEach
     public void tearDown() {

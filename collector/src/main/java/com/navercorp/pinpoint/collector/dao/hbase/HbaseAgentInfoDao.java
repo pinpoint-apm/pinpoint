@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
@@ -73,7 +74,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         //check agentName if set
         CollectorUtils.checkAgentName(agentInfo.getAgentName());
 
-        final byte[] rowKey = rowKeyEncoder.encodeRowKey(agentInfo.getAgentId(), agentInfo.getStartTime());
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(AgentId.unwrap(agentInfo.getAgentId()), agentInfo.getStartTime());
         final Put put = new Put(rowKey);
 
         // should add additional agent information. for now added only start-time for sqlMetaData
@@ -94,7 +95,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         hbaseTemplate.put(agentInfoTableName, put);
     }
 
-    public AgentInfoBo getAgentInfo(final String agentId, final long timestamp) {
+    @Override
+    public AgentInfoBo getAgentInfo(final AgentId agentId, final long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
 
         final Scan scan = createScan(agentId, timestamp);
@@ -102,11 +104,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         return this.hbaseTemplate.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
-    private Scan createScan(String agentId, long currentTime) {
+    private Scan createScan(AgentId agentId, long currentTime) {
         final Scan scan = new Scan();
 
-        final byte[] startKeyBytes = rowKeyEncoder.encodeRowKey(agentId, currentTime);
-        final byte[] endKeyBytes = RowKeyUtils.agentIdAndTimestamp(agentId, Long.MAX_VALUE);
+        final byte[] startKeyBytes = rowKeyEncoder.encodeRowKey(AgentId.unwrap(agentId), currentTime);
+        final byte[] endKeyBytes = RowKeyUtils.agentIdAndTimestamp(AgentId.unwrap(agentId), Long.MAX_VALUE);
 
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);

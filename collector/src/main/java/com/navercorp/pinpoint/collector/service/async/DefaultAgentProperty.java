@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
+import com.navercorp.pinpoint.common.id.AgentId;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,12 +27,12 @@ import java.util.Objects;
  */
 public class DefaultAgentProperty implements AgentProperty {
     private final String applicationName;
-    private final String agentId;
+    private final AgentId agentId;
     private final long agentStartTime;
     private final Map<String, Object> properties;
     private final short serviceType;
 
-    public DefaultAgentProperty(String applicationName, short serviceType, String agentId, long agentStartTime, Map<String, Object> properties) {
+    public DefaultAgentProperty(String applicationName, short serviceType, AgentId agentId, long agentStartTime, Map<String, Object> properties) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.agentId = Objects.requireNonNull(agentId, "agentId");
@@ -49,7 +51,7 @@ public class DefaultAgentProperty implements AgentProperty {
     }
 
     @Override
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 
@@ -65,13 +67,11 @@ public class DefaultAgentProperty implements AgentProperty {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultAgentProperty{");
-        sb.append("applicationName='").append(applicationName).append('\'');
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", properties=").append(properties);
-        sb.append(", serviceType=").append(serviceType);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultAgentProperty{" + "applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", agentStartTime=" + agentStartTime +
+                ", properties=" + properties +
+                ", serviceType=" + serviceType +
+                '}';
     }
 }

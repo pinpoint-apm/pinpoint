@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
@@ -44,7 +45,7 @@ public class RandomTSpan {
         tSpan.setApplicationName("appName");
         tSpan.setAgentStartTime(System.currentTimeMillis());
 
-        tSpan.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
+        tSpan.setTransactionId(TransactionIdUtils.formatByteBuffer(AgentId.of("agent"), System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
         tSpan.setSpanId(random.nextLong());
         tSpan.setParentSpanId(RandomUtils.nextInt(0, 100000));
         tSpan.setStartTime(System.currentTimeMillis() + RandomUtils.nextInt(0, 1000));
@@ -152,7 +153,7 @@ public class RandomTSpan {
         tSpanChunk.setApplicationName("appName");
         tSpanChunk.setAgentStartTime(System.currentTimeMillis());
 
-        tSpanChunk.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
+        tSpanChunk.setTransactionId(TransactionIdUtils.formatByteBuffer(AgentId.of("agent"), System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
         tSpanChunk.setSpanId(random.nextLong());
 
         tSpanChunk.setEndPoint(RandomStringUtils.random(20));

@@ -75,14 +75,12 @@ public class CalleeColumnName implements ColumnName {
         if (columnSlotNumber != that.columnSlotNumber) return false;
         if (!callHost.equals(that.callHost)) return false;
         if (!calleeApplicationName.equals(that.calleeApplicationName)) return false;
-        if (!callerAgentId.equals(that.callerAgentId)) return false;
-
-        return true;
+        return callerAgentId.equals(that.callerAgentId);
     }
 
     @Override
     public int hashCode() {
-        // take care when modifying this method - contains hashCodes for hbasekeys
+        // take care when modifying this method - contains hashCodes for hbase keys
         if (hash != 0) {
             return hash;
         }
@@ -99,14 +97,12 @@ public class CalleeColumnName implements ColumnName {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CalleeColumnName{");
-        sb.append("callerAgentId=").append(callerAgentId);
-        sb.append(", calleeServiceType=").append(calleeServiceType);
-        sb.append(", calleeApplicationName='").append(calleeApplicationName).append('\'');
-        sb.append(", callHost='").append(callHost).append('\'');
-        sb.append(", columnSlotNumber=").append(columnSlotNumber);
-        sb.append(", callCount=").append(callCount);
-        sb.append('}');
-        return sb.toString();
+        return "CalleeColumnName{" + "callerAgentId=" + callerAgentId +
+                ", calleeServiceType=" + calleeServiceType +
+                ", calleeApplicationName='" + calleeApplicationName + '\'' +
+                ", callHost='" + callHost + '\'' +
+                ", columnSlotNumber=" + columnSlotNumber +
+                ", callCount=" + callCount +
+                '}';
     }
 }

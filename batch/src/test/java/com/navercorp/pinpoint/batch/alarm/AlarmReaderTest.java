@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
@@ -46,10 +47,10 @@ public class AlarmReaderTest {
     private StepExecution stepExecution;
 
     private static final List<Application> mockApplications = List.of(
-            new Application(UUID.randomUUID(), "testApplication0", ServiceType.TEST),
-            new Application(UUID.randomUUID(), "testApplication1", ServiceType.TEST),
-            new Application(UUID.randomUUID(), "testApplication2", ServiceType.TEST),
-            new Application(UUID.randomUUID(), "testApplication3", ServiceType.TEST)
+            new Application(ApplicationId.of(UUID.randomUUID()), "testApplication0", ServiceType.TEST),
+            new Application(ApplicationId.of(UUID.randomUUID()), "testApplication1", ServiceType.TEST),
+            new Application(ApplicationId.of(UUID.randomUUID()), "testApplication2", ServiceType.TEST),
+            new Application(ApplicationId.of(UUID.randomUUID()), "testApplication3", ServiceType.TEST)
     );
 
     private static final List<String> applicationIds = mockApplications.stream()

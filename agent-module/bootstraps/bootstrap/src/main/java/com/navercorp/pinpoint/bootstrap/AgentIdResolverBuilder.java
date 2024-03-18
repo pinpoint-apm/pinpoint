@@ -32,9 +32,9 @@ public class AgentIdResolverBuilder {
         Objects.requireNonNull(system, "system");
 
         AgentProperties systemProperties = new AgentProperties(AgentIdSourceType.SYSTEM, system,
-                AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY,
                 AgentIdResolver.AGENT_NAME_SYSTEM_PROPERTY,
-                AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY);
+                AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY,
+                AgentIdResolver.SERVICE_NAME_SYSTEM_PROPERTY);
         this.agentProperties.add(systemProperties);
     }
     
@@ -42,9 +42,9 @@ public class AgentIdResolverBuilder {
         Objects.requireNonNull(env, "env");
 
         AgentProperties envProperties = new AgentProperties(AgentIdSourceType.SYSTEM_ENV, env,
-                AgentIdResolver.AGENT_ID_ENV_PROPERTY,
                 AgentIdResolver.AGENT_NAME_ENV_PROPERTY,
-                AgentIdResolver.APPLICATION_NAME_ENV_PROPERTY);
+                AgentIdResolver.APPLICATION_NAME_ENV_PROPERTY,
+                AgentIdResolver.SERVICE_NAME_ENV_PROPERTY);
         this.agentProperties.add(envProperties);
     }
 
@@ -52,9 +52,9 @@ public class AgentIdResolverBuilder {
         Objects.requireNonNull(agentArguments, "agentArguments");
 
         AgentProperties agentArgument = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArguments,
-                AgentIdResolver.AGENT_ID,
                 AgentIdResolver.AGENT_NAME,
-                AgentIdResolver.APPLICATION_NAME);
+                AgentIdResolver.APPLICATION_NAME,
+                AgentIdResolver.SERVICE_NAME);
         this.agentProperties.add(agentArgument);
     }
 

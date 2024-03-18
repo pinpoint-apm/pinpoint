@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -46,12 +47,12 @@ public class GrpcAgentStatMapper {
 
         final Header agentInfo = ServerContext.getAgentInfo();
         final String applicationName = agentInfo.getApplicationName();
-        final String agentId = agentInfo.getAgentId();
+        final AgentId agentId = agentInfo.getAgentId();
         final long startTimestamp = agentInfo.getAgentStartTime();
 
 
 
-        final AgentStatBo.Builder builder = AgentStatBo.newBuilder(applicationName, agentId, startTimestamp);
+        final AgentStatBo.Builder builder = AgentStatBo.newBuilder(applicationName, AgentId.unwrap(agentId), startTimestamp);
 
         this.map(agentStat, builder);
 

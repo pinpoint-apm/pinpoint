@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
@@ -83,7 +84,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     }
 
     @Override
-    public Optional<AgentStatus> getAgentStatus(String agentId, long agentStartTimestamp, long timestamp) {
+    public Optional<AgentStatus> getAgentStatus(AgentId agentId, long agentStartTimestamp, long timestamp) {
         if (agentId == null) {
             return Optional.empty();
         }
@@ -91,11 +92,11 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         // startTimestamp is stored in reverse order
         final long toTimestamp = agentStartTimestamp;
         final long fromTimestamp = toTimestamp - 1;
-        Scan scan = createScan(agentId, fromTimestamp, toTimestamp);
+        Scan scan = createScan(AgentId.unwrap(agentId), fromTimestamp, toTimestamp);
 
         TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations.find(agentLifeCycleTableName, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
-        AgentStatus agentStatus = createAgentStatus(agentId, agentLifeCycleBo);
+        AgentStatus agentStatus = createAgentStatus(agentId.value(), agentLifeCycleBo);
         return Optional.of(agentStatus);
     }
 

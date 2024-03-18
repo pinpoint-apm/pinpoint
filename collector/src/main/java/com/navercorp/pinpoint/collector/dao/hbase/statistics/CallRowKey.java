@@ -49,10 +49,7 @@ public class CallRowKey implements RowKey {
 
         if (callServiceType != that.callServiceType) return false;
         if (rowTimeSlot != that.rowTimeSlot) return false;
-        if (callApplicationName != null ? !callApplicationName.equals(that.callApplicationName) : that.callApplicationName != null)
-            return false;
-
-        return true;
+        return Objects.equals(callApplicationName, that.callApplicationName);
     }
 
     @Override
@@ -60,7 +57,7 @@ public class CallRowKey implements RowKey {
         if (hash != 0) {
             return hash;
         }
-        int result = callApplicationName != null ? callApplicationName.hashCode() : 0;
+        int result = callApplicationName.hashCode();
         result = 31 * result + (int) callServiceType;
         result = 31 * result + (int) (rowTimeSlot ^ (rowTimeSlot >>> 32));
         hash = result;
@@ -69,11 +66,9 @@ public class CallRowKey implements RowKey {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CallRowKey{");
-        sb.append("callApplicationName='").append(callApplicationName).append('\'');
-        sb.append(", callServiceType=").append(callServiceType);
-        sb.append(", rowTimeSlot=").append(rowTimeSlot);
-        sb.append('}');
-        return sb.toString();
+        return "CallRowKey{" + "callApplicationName='" + callApplicationName + '\'' +
+                ", callServiceType=" + callServiceType +
+                ", rowTimeSlot=" + rowTimeSlot +
+                '}';
     }
 }

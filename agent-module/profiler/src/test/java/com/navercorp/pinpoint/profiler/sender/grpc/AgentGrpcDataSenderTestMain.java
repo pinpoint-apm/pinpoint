@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
@@ -46,9 +47,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AgentGrpcDataSenderTestMain {
-    private static final String AGENT_ID = "mockAgentId";
+    private static final AgentId AGENT_ID = AgentId.of("mockAgentId");
     private static final String AGENT_NAME = "mockAgentName";
     private static final String APPLICATION_NAME = "mockApplicationName";
+    private static final String SERVICE_NAME = "mockServiceName";
     private static final long START_TIME = System.currentTimeMillis();
     private static final int SERVICE_TYPE = ServiceType.UNDEFINED.getCode();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
@@ -58,7 +60,7 @@ public class AgentGrpcDataSenderTestMain {
     public void request() throws Exception {
         MetaDataMapper mapper = new MetaDataMapperImpl();
         MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter(mapper);
-        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
+        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_NAME, SERVICE_TYPE, START_TIME);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);
@@ -82,7 +84,7 @@ public class AgentGrpcDataSenderTestMain {
     }
 
     private AgentInfo newAgentInfo() {
-        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
+        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
         JvmInformation jvmInformation = new JvmInformation("1.0", JvmGcType.G1);
         ServerMetaData serverInfo = new DefaultServerMetaData("serverInfo", Collections.emptyList(), Collections.emptyMap(), Collections.emptyList());
         return new AgentInfo(agentInformation, serverInfo, jvmInformation);

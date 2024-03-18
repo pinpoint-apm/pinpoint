@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -23,11 +24,13 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public interface AgentInformation {
 
-    String getAgentId();
+    AgentId getAgentId();
 
     String getAgentName();
 
     String getApplicationName();
+
+    String getServiceName();
 
     boolean isContainer();
 

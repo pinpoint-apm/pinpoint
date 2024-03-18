@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -142,7 +143,7 @@ public class SpanFilters {
 
         @Override
         public boolean test(SpanBo spanBo) {
-            return agentId.equals(spanBo.getAgentId());
+            return agentId.equals(AgentId.unwrap(spanBo.getAgentId()));
         }
 
         @Override

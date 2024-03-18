@@ -55,6 +55,11 @@ public class IdValidator {
         return validate0(type + " applicationName", applicationName);
     }
 
+    public boolean validateServiceName(AgentIdSourceType type, String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName");
+        return validate0(type + " serviceName", serviceName);
+    }
+
     public boolean validateAgentName(AgentIdSourceType type, String agentName) {
         if (StringUtils.isEmpty(agentName)) {
             return false;

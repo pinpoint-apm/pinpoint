@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.profiler.context.compress;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanAutoUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapperImpl;
@@ -40,11 +40,9 @@ import java.util.List;
  */
 public class GrpcSpanProcessorV2Test {
 
-    private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
-
-    private AnnotationValueMapper annotationValueMapper = new AnnotationValueMapperImpl();
-    private SpanMessageMapper mapper = new SpanMessageMapperImpl(annotationValueMapper, new SpanAutoUriGetter());
-    private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2, mapper);
+    private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
+    private final AnnotationValueMapper annotationValueMapper = new AnnotationValueMapperImpl();
+    private final SpanMessageMapper mapper = new SpanMessageMapperImpl(annotationValueMapper, new SpanAutoUriGetter());
 
     @Test
     public void preProcess() {
@@ -66,8 +64,8 @@ public class GrpcSpanProcessorV2Test {
     }
 
     private Span newSpan() {
-        TraceId traceId = new DefaultTraceId("agent", 1, 0);
-        TraceRoot traceRoot = TraceRoot.remote(traceId, "agent", 0, 3);
+        TraceId traceId = new DefaultTraceId(AgentId.of("agent"), 1, 0);
+        TraceRoot traceRoot = TraceRoot.remote(traceId, AgentId.of("agent"), 0, 3);
         return new Span(traceRoot);
     }
 

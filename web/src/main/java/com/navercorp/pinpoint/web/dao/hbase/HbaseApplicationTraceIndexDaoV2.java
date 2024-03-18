@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyBuilder;
@@ -56,7 +57,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Predicate;
 
 /**
@@ -104,12 +104,13 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
         this.traceIdRowKeyDistributor = Objects.requireNonNull(traceIdRowKeyDistributor, "traceIdRowKeyDistributor");
     }
 
+    @SuppressWarnings("unused") // used by spring
     public void setScanCacheSize(int scanCacheSize) {
         this.scanCacheSize = scanCacheSize;
     }
 
     @Override
-    public boolean hasTraceIndex(UUID applicationId, Range range, boolean backwardDirection) {
+    public boolean hasTraceIndex(ApplicationId applicationId, Range range, boolean backwardDirection) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(range, "range");
         logger.debug("hasTraceIndex {}", range);
@@ -125,7 +126,7 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
     }
 
     @Override
-    public LimitedScanResult<List<TransactionId>> scanTraceIndex(final UUID applicationId, Range range, int limit, boolean scanBackward) {
+    public LimitedScanResult<List<TransactionId>> scanTraceIndex(ApplicationId applicationId, Range range, int limit, boolean scanBackward) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(range, "range");
         if (limit < 0) {
@@ -202,13 +203,13 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
     }
 
 
-    private Scan createScan(UUID applicationId, Range range, boolean scanBackward, int limit) {
+    private Scan createScan(ApplicationId applicationId, Range range, boolean scanBackward, int limit) {
         Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
         applyLimitForScan(scan, limit);
 
-        byte[] traceIndexStartKey = rowKeyEncoder.encodeRowKey(applicationId, range.getFrom());
-        byte[] traceIndexEndKey = rowKeyEncoder.encodeRowKey(applicationId, range.getTo());
+        byte[] traceIndexStartKey = rowKeyEncoder.encodeRowKey(applicationId.value(), range.getFrom());
+        byte[] traceIndexEndKey = rowKeyEncoder.encodeRowKey(applicationId.value(), range.getTo());
 
         if (scanBackward) {
             // start key is replaced by end key because key has been reversed
@@ -237,7 +238,7 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
     }
 
     @Override
-    public LimitedScanResult<List<Dot>> scanTraceScatterData(UUID applicationId, Range range, int limit, boolean scanBackward) {
+    public LimitedScanResult<List<Dot>> scanTraceScatterData(ApplicationId applicationId, Range range, int limit, boolean scanBackward) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(range, "range");
         if (limit < 0) {
@@ -258,15 +259,15 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
     }
 
     @Override
-    public LimitedScanResult<List<TransactionId>> scanTraceIndex(UUID applicationName, DragArea dragArea, int limit) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    public LimitedScanResult<List<TransactionId>> scanTraceIndex(ApplicationId applicationId, DragArea dragArea, int limit) {
+        Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(dragArea, "dragArea");
 
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
 
         final Range range = Range.newUncheckedRange(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceIndex range:{}", range);
-        final Scan scan = newFuzzyScanner(applicationName, dragArea, range);
+        final Scan scan = newFuzzyScanner(applicationId, dragArea, range);
 
 
         // TODO
@@ -285,7 +286,7 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
 
     @Deprecated
     @Override
-    public LimitedScanResult<List<Dot>> scanScatterData(UUID applicationId, DragAreaQuery dragAreaQuery, int limit) {
+    public LimitedScanResult<List<Dot>> scanScatterData(ApplicationId applicationId, DragAreaQuery dragAreaQuery, int limit) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
 
@@ -307,7 +308,7 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
     }
 
     @Override
-    public LimitedScanResult<List<DotMetaData>> scanScatterDataV2(UUID applicationId, DragAreaQuery dragAreaQuery, int limit) {
+    public LimitedScanResult<List<DotMetaData>> scanScatterDataV2(ApplicationId applicationId, DragAreaQuery dragAreaQuery, int limit) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
 
@@ -318,7 +319,7 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
         return scanScatterData0(applicationId, dragAreaQuery, limit, true, mapper);
     }
 
-    private <R> LimitedScanResult<List<R>> scanScatterData0(UUID applicationId, DragAreaQuery dragAreaQuery, int limit,
+    private <R> LimitedScanResult<List<R>> scanScatterData0(ApplicationId applicationId, DragAreaQuery dragAreaQuery, int limit,
                                                          boolean metadataScan, RowMapper<List<R>> mapper) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
@@ -376,7 +377,7 @@ public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao
         }
     }
 
-    private Scan newFuzzyScanner(UUID applicationId, DragArea dragArea, Range range) {
+    private Scan newFuzzyScanner(ApplicationId applicationId, DragArea dragArea, Range range) {
         final Scan scan = createScan(applicationId, range, true, -1);
         if (scatterChartProperties.isEnableFuzzyRowFilter()) {
             Filter filter = newFuzzyFilter(dragArea);

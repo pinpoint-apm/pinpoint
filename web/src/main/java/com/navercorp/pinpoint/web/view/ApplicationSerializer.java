@@ -32,9 +32,9 @@ public class ApplicationSerializer extends JsonSerializer<Application> {
     public void serialize(Application application, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         if (application.id() != null) {
-            jgen.writeStringField("applicationId", application.id().toString());
+            jgen.writeStringField("id", application.id().toString());
         } else {
-            jgen.writeNullField("applicationId");
+            jgen.writeNullField("id");
         }
         jgen.writeStringField("applicationName", application.name());
         jgen.writeStringField("serviceType", application.serviceType().getDesc());

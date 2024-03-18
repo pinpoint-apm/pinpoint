@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
@@ -89,7 +90,7 @@ public class DefaultApplicationContextTest {
 //        when(profilerConfig.getTransportModule()).thenReturn("GRPC");
 
         Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgentId", "mockAgentName", "mockApplicationName", false,
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, AgentId.of("mockAgentId"), "mockAgentName", "mockApplicationName", "mockServiceName", false,
                 profilerConfig, Collections.emptyList(), Collections.emptyList());
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();

@@ -17,6 +17,10 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
@@ -32,7 +36,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
@@ -118,7 +121,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         List<Application> applications = applicationService.getApplications();
         List<AgentAndStatus> agents = new ArrayList<>();
         for (Application application : applications) {
-            agents.addAll(getAgentsByApplicationName(application.name(), range.getTo()));
+            agents.addAll(getAgentsByApplicationName(application.name(), application.getServiceTypeCode(), range.getTo()));
         }
 
         return AgentsMapByApplication.newAgentAndStatusMap(
@@ -134,7 +137,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         List<Application> applications = this.applicationService.getApplications();
         List<DetailedAgentAndStatus> agents = new ArrayList<>();
         for (Application application : applications) {
-            agents.addAll(getDetailedAgentsByApplicationName(application.name(), range.getTo()));
+            agents.addAll(getDetailedAgentsByApplicationName(application.name(), application.getServiceTypeCode(), range.getTo()));
         }
 
         return AgentsMapByApplication.newDetailedAgentInfoMap(
@@ -145,27 +148,20 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter,
-                                                          String applicationName,
-                                                          Range range,
-                                                          SortByAgentInfo.Rules sortBy) {
-        return getAgentsListByApplicationName(agentStatusFilter, AgentInfoFilters.acceptAll(), applicationName, range, sortBy);
-    }
-
-    @Override
-    public AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter,
                                                           AgentInfoFilter agentInfoPredicate,
                                                           String applicationName,
+                                                          short serviceTypeCode,
                                                           Range range,
                                                           SortByAgentInfo.Rules sortBy) {
         Objects.requireNonNull(agentStatusFilter, "agentStatusFilter");
         Objects.requireNonNull(agentInfoPredicate, "agentInfoPredicate");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, range.getTo());
         Predicate<AgentStatus> agentStatusFilter0 = agentStatusFilter.and(x -> isActiveAgent(x.getAgentId(), range));
+        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, serviceTypeCode, range.getTo());
 
         if (agentInfoAndStatuses.isEmpty()) {
-            logger.warn("agent list is empty for application:{}", applicationName);
+            logger.warn("agent list is empty for application: {}", applicationName);
         }
 
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(
@@ -220,7 +216,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return ApplicationAgentHostList.newBuilder(offset, endIndex, totalApplications);
     }
 
-    private List<String> getAgentIdList(UUID applicationId, Period durationDays) {
+    private List<String> getAgentIdList(ApplicationId applicationId, Period durationDays) {
         List<String> agentIds = this.applicationService.getAgents(applicationId);
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
@@ -242,13 +238,13 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
-            boolean dataExists = isActiveAgent(agentId, fastRange);
+            boolean dataExists = isActiveAgent(AgentId.of(agentId), fastRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
                 continue;
             }
 
-            dataExists = isActiveAgent(agentId, queryRange);
+            dataExists = isActiveAgent(AgentId.of(agentId), queryRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
             }
@@ -263,8 +259,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp) {
-        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+    public Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, short serviceTypeCode, long timestamp) {
+        ApplicationId applicationId = this.applicationInfoService.getApplicationId(
+                new ApplicationSelector(ServiceId.DEFAULT_ID, applicationName, serviceTypeCode));
         List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationId, timestamp);
 
         List<AgentAndStatus> result = new ArrayList<>(agentInfos.size());
@@ -282,13 +279,13 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
 
     @Override
-    public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
-        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+    public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, short serviceTypeCode, long timestamp) {
+        ApplicationId applicationId = this.applicationInfoService.getApplicationId(new ApplicationSelector(ServiceId.DEFAULT_ID, applicationName, serviceTypeCode));
         List<AgentInfo> agentInfos = getAgentsByApplicationNameWithoutStatus0(applicationId, timestamp);
         return new HashSet<>(agentInfos);
     }
 
-    public List<AgentInfo> getAgentsByApplicationNameWithoutStatus0(UUID applicationId, long timestamp) {
+    public List<AgentInfo> getAgentsByApplicationNameWithoutStatus0(ApplicationId applicationId, long timestamp) {
         Objects.requireNonNull(applicationId, "applicationId");
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
@@ -300,11 +297,10 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return agentInfos.stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-
     }
 
-    public Set<DetailedAgentAndStatus> getDetailedAgentsByApplicationName(String applicationName, long timestamp) {
-        List<DetailedAgentInfo> agentInfos = this.getDetailedAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
+    public Set<DetailedAgentAndStatus> getDetailedAgentsByApplicationName(String applicationName, short serviceTypeCode, long timestamp) {
+        List<DetailedAgentInfo> agentInfos = this.getDetailedAgentsByApplicationNameWithoutStatus0(applicationName, serviceTypeCode, timestamp);
 
         List<DetailedAgentAndStatus> result = new ArrayList<>(agentInfos.size());
 
@@ -320,13 +316,13 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return new HashSet<>(result);
     }
 
-    public List<DetailedAgentInfo> getDetailedAgentsByApplicationNameWithoutStatus0(String applicationName, long timestamp) {
+    public List<DetailedAgentInfo> getDetailedAgentsByApplicationNameWithoutStatus0(String applicationName, short serviceTypeCode, long timestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
 
-        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+        ApplicationId applicationId = this.applicationInfoService.getApplicationId(new ApplicationSelector(ServiceId.DEFAULT_ID, applicationName, serviceTypeCode));
         List<String> agentIds = this.applicationService.getAgents(applicationId);
         List<DetailedAgentInfo> agentInfos = this.agentInfoDao.getDetailedAgentInfos(agentIds, timestamp, false, true);
 
@@ -402,18 +398,18 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public boolean isActiveAgent(String agentId, Range range) {
+    public boolean isActiveAgent(AgentId agentId, Range range) {
         Objects.requireNonNull(agentId, "agentId");
         return isActiveAgentByGcStat(agentId, range) ||
                 isActiveAgentByPing(agentId, range);
     }
 
-    private boolean isActiveAgentByGcStat(String agentId, Range range) {
-        return this.jvmGcDao.agentStatExists(agentId, range);
+    private boolean isActiveAgentByGcStat(AgentId agentId, Range range) {
+        return this.jvmGcDao.agentStatExists(agentId.value(), range);
     }
 
-    private boolean isActiveAgentByPing(String agentId, Range range) {
-        return this.agentEventService.getAgentEvents(agentId, range)
+    private boolean isActiveAgentByPing(AgentId agentId, Range range) {
+        return this.agentEventService.getAgentEvents(agentId.value(), range)
                 .stream()
                 .anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
     }

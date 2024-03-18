@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 
 import java.util.Objects;
@@ -38,8 +39,8 @@ public class AgentPropertyChannelAdaptor implements AgentProperty {
     }
 
     @Override
-    public String getAgentId() {
-        return channelProperties.getAgentId();
+    public AgentId getAgentId() {
+        return AgentId.of(channelProperties.getAgentId());
     }
 
     @Override
@@ -59,9 +60,7 @@ public class AgentPropertyChannelAdaptor implements AgentProperty {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentPropertyChannelAdaptor{");
-        sb.append("channelProperties=").append(channelProperties);
-        sb.append('}');
-        return sb.toString();
+        return "AgentPropertyChannelAdaptor{" + "channelProperties=" + channelProperties +
+                '}';
     }
 }

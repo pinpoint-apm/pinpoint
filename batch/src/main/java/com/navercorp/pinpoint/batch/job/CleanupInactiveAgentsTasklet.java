@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -52,7 +53,7 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
 
     private final ApplicationService applicationService;
 
-    private Queue<String> applicationNameQueue;
+    private Queue<ApplicationId> applicationIdsQueue;
     private int progress;
     private int total;
     private int inactiveCount;
@@ -70,16 +71,16 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
 
     @Override
     public void beforeStep(@Nonnull StepExecution stepExecution) {
-         List<String> applicationNames = this.applicationService.getApplications()
+         List<ApplicationId> applicationIds = this.applicationService.getApplications()
                 .stream()
-                .map(Application::name)
+                .map(Application::id)
                 .distinct()
                 .collect(Collectors.toList());
-        Collections.shuffle(applicationNames);
+        Collections.shuffle(applicationIds);
 
-        this.applicationNameQueue = new ArrayDeque<>(applicationNames);
+        this.applicationIdsQueue = new ArrayDeque<>(applicationIds);
         this.progress = 0;
-        this.total = applicationNames.size();
+        this.total = applicationIds.size();
         this.inactiveCount = 0;
     }
 
@@ -94,16 +95,16 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
             @Nonnull StepContribution contribution,
             @Nonnull ChunkContext chunkContext
     ) throws Exception {
-        String applicationName = this.applicationNameQueue.poll();
-        if (applicationName == null) {
+        ApplicationId applicationId = this.applicationIdsQueue.poll();
+        if (applicationId == null) {
             return RepeatStatus.FINISHED;
         }
 
         try {
-            logger.info("Cleaning application {} ({}/{})", applicationName, ++progress, total);
-            inactiveCount += adminService.removeInactiveAgentInApplication(applicationName, durationDays);
+            logger.info("Cleaning application {} ({}/{})", applicationId, ++progress, total);
+            inactiveCount += adminService.removeInactiveAgentInApplication(applicationId, durationDays);
         } catch (Exception e) {
-            logger.warn("Failed to clean application {}. message: {}", applicationName, e.getMessage(), e);
+            logger.warn("Failed to clean application {}. message: {}", applicationId, e.getMessage(), e);
         }
 
         return RepeatStatus.CONTINUABLE;

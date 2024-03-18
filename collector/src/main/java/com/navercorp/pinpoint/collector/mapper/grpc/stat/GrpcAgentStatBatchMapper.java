@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -42,10 +43,10 @@ public class GrpcAgentStatBatchMapper {
             return null;
         }
         final String applicationName = header.getApplicationName();
-        final String agentId = header.getAgentId();
+        final AgentId agentId = header.getAgentId();
         final long startTimestamp = header.getAgentStartTime();
 
-        final AgentStatBo.Builder builder = new AgentStatBo.Builder(applicationName, agentId, startTimestamp);
+        final AgentStatBo.Builder builder = new AgentStatBo.Builder(applicationName, AgentId.unwrap(agentId), startTimestamp);
         for (PAgentStat agentStat : agentStatBatch.getAgentStatList()) {
             this.mapper.map(agentStat, builder);
         }

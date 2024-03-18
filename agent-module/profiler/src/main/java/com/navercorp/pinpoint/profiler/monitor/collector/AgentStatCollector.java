@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.profiler.monitor.collector;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
+import com.navercorp.pinpoint.profiler.context.module.AgentIdHolder;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
@@ -39,7 +40,7 @@ import java.util.Objects;
  */
 public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMetricSnapshot> {
 
-    private final String agentId;
+    private final AgentId agentId;
     private final long agentStartTimestamp;
     private final AgentStatMetricCollector<JvmGcMetricSnapshot> jvmGcMetricCollector;
     private final AgentStatMetricCollector<CpuLoadMetricSnapshot> cpuLoadMetricCollector;
@@ -55,7 +56,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
 
     @Inject
     public AgentStatCollector(
-            @AgentId String agentId,
+            @AgentIdHolder AgentId agentId,
             @AgentStartTime long agentStartTimestamp,
             AgentStatMetricCollector<JvmGcMetricSnapshot> jvmGcMetricCollector,
             AgentStatMetricCollector<CpuLoadMetricSnapshot> cpuLoadMetricCollector,
@@ -86,7 +87,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
     @Override
     public AgentStatMetricSnapshot collect() {
         AgentStatMetricSnapshot agentStat = new AgentStatMetricSnapshot();
-        agentStat.setAgentId(agentId);
+        agentStat.setAgentId(AgentId.unwrap(agentId));
         agentStat.setStartTimestamp(agentStartTimestamp);
         agentStat.setGc(jvmGcMetricCollector.collect());
         agentStat.setCpuLoad(cpuLoadMetricCollector.collect());
@@ -105,21 +106,19 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentStatCollector{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", agentStartTimestamp=").append(agentStartTimestamp);
-        sb.append(", jvmGcMetricCollector=").append(jvmGcMetricCollector);
-        sb.append(", cpuLoadMetricCollector=").append(cpuLoadMetricCollector);
-        sb.append(", transactionMetricCollector=").append(transactionMetricCollector);
-        sb.append(", activeTraceMetricCollector=").append(activeTraceMetricCollector);
-        sb.append(", dataSourceMetricCollector=").append(dataSourceMetricCollector);
-        sb.append(", responseTimeMetricCollector=").append(responseTimeMetricCollector);
-        sb.append(", deadlockMetricCollector=").append(deadlockMetricCollector);
-        sb.append(", fileDescriptorMetricCollector=").append(fileDescriptorMetricCollector);
-        sb.append(", bufferMetricCollector=").append(bufferMetricCollector);
-        sb.append(", totalThreadMetricCollector=").append(totalThreadMetricCollector);
-        sb.append(", loadedClassMetricCollector=").append(loadedClassMetricCollector);
-        sb.append('}');
-        return sb.toString();
+        return "AgentStatCollector{" + "agentId='" + agentId + '\'' +
+                ", agentStartTimestamp=" + agentStartTimestamp +
+                ", jvmGcMetricCollector=" + jvmGcMetricCollector +
+                ", cpuLoadMetricCollector=" + cpuLoadMetricCollector +
+                ", transactionMetricCollector=" + transactionMetricCollector +
+                ", activeTraceMetricCollector=" + activeTraceMetricCollector +
+                ", dataSourceMetricCollector=" + dataSourceMetricCollector +
+                ", responseTimeMetricCollector=" + responseTimeMetricCollector +
+                ", deadlockMetricCollector=" + deadlockMetricCollector +
+                ", fileDescriptorMetricCollector=" + fileDescriptorMetricCollector +
+                ", bufferMetricCollector=" + bufferMetricCollector +
+                ", totalThreadMetricCollector=" + totalThreadMetricCollector +
+                ", loadedClassMetricCollector=" + loadedClassMetricCollector +
+                '}';
     }
 }

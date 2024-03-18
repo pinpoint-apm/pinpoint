@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
@@ -204,7 +205,7 @@ public class ApplicationMapBuilderTestHelper {
         String hostName = createHostnameFromDepth(depth);
         AgentInfo agentInfo = new AgentInfo();
         agentInfo.setApplicationName(applicationName);
-        agentInfo.setAgentId(agentId);
+        agentInfo.setAgentId(AgentId.of(agentId));
         agentInfo.setHostName(hostName);
         return agentInfo;
     }

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.service.BatchApplicationService;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.Chunk;
@@ -41,7 +42,7 @@ public class ApplicationRemover implements ItemWriter<String> {
     @Override
     public void write(Chunk<? extends String> applicationIds) throws Exception {
         for (String applicationIdStr : applicationIds) {
-            UUID applicationId = UUID.fromString(applicationIdStr);
+            ApplicationId applicationId = ApplicationId.of(UUID.fromString(applicationIdStr));
             logger.info("Removing application: {}", applicationId);
             this.applicationService.remove(applicationId);
             logger.info("Removed application: {}", applicationId);

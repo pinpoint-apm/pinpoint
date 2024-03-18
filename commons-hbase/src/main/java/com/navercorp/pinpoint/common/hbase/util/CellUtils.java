@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.common.hbase.util;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -7,6 +9,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public final class CellUtils {
     private CellUtils() {
@@ -50,6 +53,12 @@ public final class CellUtils {
     public static String valueToString(Cell cell) {
         Objects.requireNonNull(cell, "cell");
         return Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+    }
+
+    public static UUID valueToUUID(Cell cell) {
+        Objects.requireNonNull(cell, "cell");
+        Buffer buffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+        return buffer.readUUID();
     }
 
 

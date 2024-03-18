@@ -20,7 +20,7 @@ import java.util.UUID;
 /**
  * @author youngjin.kim2
  */
-public class UUIDPinpointIdentifier extends AbstractPinpointIdentifier<UUID> {
+public class UUIDPinpointIdentifier extends AbstractPinpointIdentifier<UUID> implements Comparable<UUIDPinpointIdentifier> {
 
     public UUIDPinpointIdentifier(UUID value) {
         super(value);
@@ -29,6 +29,11 @@ public class UUIDPinpointIdentifier extends AbstractPinpointIdentifier<UUID> {
     @Override
     public String toString() {
         return value().toString();
+    }
+
+    @Override
+    public int compareTo(UUIDPinpointIdentifier other) {
+        return value().compareTo(other.value());
     }
 
 }

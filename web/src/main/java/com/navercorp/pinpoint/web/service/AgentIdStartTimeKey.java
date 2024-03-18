@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 import java.util.Objects;
@@ -11,6 +12,10 @@ public class AgentIdStartTimeKey {
     public AgentIdStartTimeKey(String agentId, long agentStartTime) {
         this.agentId = agentId;
         this.agentStartTime = agentStartTime;
+    }
+
+    public AgentIdStartTimeKey(AgentId agentId, long agentStartTime) {
+        this(agentId.value(), agentStartTime);
     }
 
     public String getAgentId() {

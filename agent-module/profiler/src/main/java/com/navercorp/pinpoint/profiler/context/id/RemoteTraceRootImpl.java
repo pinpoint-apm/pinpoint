@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 
 import java.util.Objects;
 
@@ -27,7 +28,7 @@ public class RemoteTraceRootImpl extends LocalTraceRootImpl implements TraceRoot
 
     private final TraceId traceId;
 
-    RemoteTraceRootImpl(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
+    RemoteTraceRootImpl(TraceId traceId, AgentId agentId, long traceStartTime, long localTransactionId) {
         super(agentId, traceStartTime, localTransactionId);
         this.traceId = Objects.requireNonNull(traceId, "traceId");
     }

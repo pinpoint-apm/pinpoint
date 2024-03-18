@@ -17,18 +17,25 @@
 package com.navercorp.pinpoint.collector.dao;
 
 import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationInfo;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
+
+import java.util.List;
 
 /**
  * @author youngjin.kim2
  */
 public interface ApplicationInfoDao {
 
-    ApplicationId getApplicationId(String applicationName);
+    ApplicationId getApplicationId(ApplicationSelector application);
 
-    String getApplicationName(ApplicationId applicationId);
+    ApplicationInfo getApplication(ApplicationId applicationId);
 
-    ApplicationId putApplicationIdIfAbsent(String applicationName, ApplicationId applicationId);
+    ApplicationId putApplicationIdIfAbsent(ApplicationInfo application);
 
-    void ensureInverse(String applicationName, ApplicationId applicationId);
+    void ensureInverse(ApplicationInfo application);
+
+    List<ApplicationId> getApplications(ServiceId serviceId);
 
 }

@@ -16,9 +16,13 @@
 
 package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationInfo;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
@@ -29,12 +33,12 @@ import java.util.UUID;
  * @author youngjin.kim2
  */
 @Component
-public class ApplicationIdForwardMapper implements RowMapper<UUID> {
+public class ApplicationIdForwardMapper implements RowMapper<ApplicationInfo> {
 
     private static final HbaseColumnFamily.ApplicationId DESCRIPTOR = HbaseColumnFamily.APPLICATION_ID_FORWARD;
 
     @Override
-    public UUID mapRow(Result result, int rowNum) throws Exception {
+    public ApplicationInfo mapRow(Result result, int rowNum) throws Exception {
         byte[] family = DESCRIPTOR.getName();
         byte[] qualifier = DESCRIPTOR.getName();
         Cell cell = result.getColumnLatestCell(family, qualifier);
@@ -42,11 +46,19 @@ public class ApplicationIdForwardMapper implements RowMapper<UUID> {
             return null;
         }
 
-        if (cell.getValueLength() < 16) {
-            throw new IllegalArgumentException("Invalid bytes length: " + cell.getValueLength());
-        }
+        return parseCell(cell);
+    }
 
-        return BytesUtils.bytesToUUID(cell.getValueArray(), cell.getValueOffset());
+    private static ApplicationInfo parseCell(Cell cell) {
+        Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+
+        ApplicationSelector application = ApplicationSelector.fromBuffer(valueBuffer);
+
+        Buffer rowBuffer = new OffsetFixedBuffer(cell.getRowArray(), cell.getRowOffset(), cell.getRowOffset());
+        UUID value = rowBuffer.readUUID();
+        ApplicationId id = ApplicationId.of(value);
+
+        return new ApplicationInfo(id, application.serviceId(), application.name(), application.serviceTypeCode());
     }
 
 }

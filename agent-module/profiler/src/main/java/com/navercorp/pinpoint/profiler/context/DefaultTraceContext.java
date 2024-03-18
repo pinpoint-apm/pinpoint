@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -188,7 +189,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return this.agentInformation.getAgentId();
     }
 

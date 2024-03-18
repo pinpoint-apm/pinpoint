@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,14 +31,11 @@ public class AdminServiceImplTest {
     final String APPLICATION_NAME2 = "TEST_APP2";
     final String APPLICATION_NAME3 = "TEST_APP3";
 
-    final UUID APPLICATION_UUID1 = new UUID(1, 1);
-    final UUID APPLICATION_UUID2 = new UUID(2, 2);
-    final UUID APPLICATION_UUID3 = new UUID(3, 3);
+    final ApplicationId APPLICATION_UUID1 = ApplicationId.of(new UUID(1, 1));
+    final ApplicationId APPLICATION_UUID2 = ApplicationId.of(new UUID(2, 2));
+    final ApplicationId APPLICATION_UUID3 = ApplicationId.of(new UUID(3, 3));
 
     AdminService adminService;
-
-    @Mock
-    ApplicationInfoService applicationInfoService;
 
     @Mock
     ApplicationService applicationService;
@@ -47,17 +45,16 @@ public class AdminServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        adminService = new AdminServiceImpl(applicationInfoService, applicationService, agentInfoService);
+        adminService = new AdminServiceImpl(applicationService, agentInfoService);
     }
 
     @Test
     public void removeApplicationName() {
         // given
-        when(applicationInfoService.getApplicationId(APPLICATION_NAME1)).thenReturn(APPLICATION_UUID1);
         doNothing().when(applicationService).deleteApplication(APPLICATION_UUID1);
 
         // when
-        adminService.removeApplicationName(APPLICATION_NAME1);
+        adminService.removeApplicationName(APPLICATION_UUID1);
 
         // then
         verify(applicationService).deleteApplication(APPLICATION_UUID1);
@@ -66,11 +63,10 @@ public class AdminServiceImplTest {
     @Test
     public void removeAgentId() {
         // given
-        when(applicationInfoService.getApplicationId(APPLICATION_NAME1)).thenReturn(APPLICATION_UUID1);
         doNothing().when(applicationService).deleteAgent(APPLICATION_UUID1, AGENT_ID1);
 
         // when
-        adminService.removeAgentId(APPLICATION_NAME1, AGENT_ID1);
+        adminService.removeAgentId(APPLICATION_UUID1, AGENT_ID1);
 
         // then
         verify(applicationService).deleteAgent(APPLICATION_UUID1, AGENT_ID1);

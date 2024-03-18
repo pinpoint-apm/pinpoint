@@ -107,7 +107,7 @@ public class WebhookPayload {
         return "WebhookPayload{" +
                 "pinpointUrl='" + pinpointUrl + '\'' +
                 ", batchEnv='" + batchEnv + '\'' +
-                ", applicationId='" + applicationName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", serviceType='" + serviceType + '\'' +
                 ", checkerName='" + checkerName + '\'' +
                 ", checkerType='" + checkerType + '\'' +

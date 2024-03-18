@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.profiler.test.monitor;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
@@ -82,7 +83,7 @@ public class AgentStatMonitorTest {
         Mockito.when(mockProfilerConfig.getProfileJvmStatBatchSendCount()).thenReturn(numCollectionsPerBatch);
 
         // When
-        AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
+        AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender, AgentId.of("agentId"), System.currentTimeMillis(),
                 agentStatCollector, null, null, mockProfilerConfig);
         monitor.start();
         Thread.sleep(totalTestDurationMs);

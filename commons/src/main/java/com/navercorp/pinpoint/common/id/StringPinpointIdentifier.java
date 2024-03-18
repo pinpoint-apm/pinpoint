@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.id;
 /**
  * @author youngjin.kim2
  */
-public class StringPinpointIdentifier extends AbstractPinpointIdentifier<String> {
+public class StringPinpointIdentifier extends AbstractPinpointIdentifier<String> implements Comparable<StringPinpointIdentifier> {
 
     public StringPinpointIdentifier(String value) {
         super(value);
@@ -27,6 +27,11 @@ public class StringPinpointIdentifier extends AbstractPinpointIdentifier<String>
     @Override
     public String toString() {
         return value();
+    }
+
+    @Override
+    public int compareTo(StringPinpointIdentifier other) {
+        return value().compareTo(other.value());
     }
 
 }

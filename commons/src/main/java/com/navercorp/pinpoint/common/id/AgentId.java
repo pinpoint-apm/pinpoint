@@ -16,6 +16,10 @@
 package com.navercorp.pinpoint.common.id;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.util.AgentUuidUtils;
+import com.navercorp.pinpoint.common.util.UuidUtils;
+
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -24,12 +28,33 @@ public class AgentId extends StringPinpointIdentifier {
 
     private static final int MAX_LENGTH = PinpointConstants.AGENT_ID_MAX_LEN;
 
-    public AgentId(String value) {
+    private AgentId(String value) {
         super(value);
 
         if (value().length() > MAX_LENGTH) {
             throw new IllegalArgumentException("length of agentId cannot be greater than " + MAX_LENGTH);
         }
+    }
+
+    public static AgentId random() {
+        UUID uuid = UuidUtils.createV4();
+        String str = AgentUuidUtils.encode(uuid);
+        return new AgentId(str);
+    }
+
+    public static AgentId of(String value) {
+        if (value == null) { // TODO: null-check should be done prior
+            return null;
+        }
+
+        return new AgentId(value);
+    }
+
+    public static String unwrap(AgentId agentId) {
+        if (agentId == null) { // TODO: null-check should be done prior
+            return null;
+        }
+        return agentId.value();
     }
 
 }

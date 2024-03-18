@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.profiler.util;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.id.AgentId;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,12 +31,12 @@ import java.nio.ByteBuffer;
  */
 public class TransactionIdUtilsTest {
 
-    public static final String AGENT_ID = "test";
+    public static final AgentId AGENT_ID = AgentId.of("test");
 
     @Test
     public void testParseTransactionId() {
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(AGENT_ID + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "2");
-        Assertions.assertEquals(transactionId.getAgentId(), "test");
+        Assertions.assertEquals(transactionId.getAgentId().value(), "test");
         Assertions.assertEquals(transactionId.getAgentStartTime(), 1L);
         Assertions.assertEquals(transactionId.getTransactionSequence(), 2L);
     }
@@ -56,7 +57,7 @@ public class TransactionIdUtilsTest {
             String id1 = AGENT_ID + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "2";
             String id2 = AGENT_ID + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "3";
             TransactionId transactionId = TransactionIdUtils.parseTransactionId(id1 + ", " + id2);
-            Assertions.assertEquals(transactionId.getAgentId(), "test");
+            Assertions.assertEquals(transactionId.getAgentId().value(), "test");
             Assertions.assertEquals(transactionId.getAgentStartTime(), 1L);
             Assertions.assertEquals(transactionId.getTransactionSequence(), 2L);
         });
@@ -120,10 +121,10 @@ public class TransactionIdUtilsTest {
     }
 
 
-    private static ByteBuffer writeTransactionId_for_compatibility(String agentId, long agentStartTime, long transactionSequence) {
+    private static ByteBuffer writeTransactionId_for_compatibility(AgentId agentId, long agentStartTime, long transactionSequence) {
         final Buffer buffer = new AutomaticBuffer(1 + 5 + 24 + 10 + 10);
         buffer.putByte(TransactionIdUtils.VERSION);
-        buffer.putPrefixedString(agentId);
+        buffer.putPrefixedString(AgentId.unwrap(agentId));
         buffer.putVLong(agentStartTime);
         buffer.putVLong(transactionSequence);
         return buffer.wrapByteBuffer();
@@ -138,7 +139,7 @@ public class TransactionIdUtilsTest {
 
     @Test
     public void longAgentId() {
-        String agentId = StringUtils.repeat('a', PinpointConstants.AGENT_ID_MAX_LEN);
+        AgentId agentId = AgentId.of(StringUtils.repeat('a', PinpointConstants.AGENT_ID_MAX_LEN));
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(agentId + "^1^2");
         Assertions.assertEquals(agentId, transactionId.getAgentId());
     }
@@ -146,7 +147,7 @@ public class TransactionIdUtilsTest {
     @Test
     public void tooLongAgentId() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            String agentId = StringUtils.repeat('a', PinpointConstants.AGENT_ID_MAX_LEN + 1);
+            AgentId agentId = AgentId.of(StringUtils.repeat('a', PinpointConstants.AGENT_ID_MAX_LEN + 1));
             TransactionId transactionId = TransactionIdUtils.parseTransactionId(agentId + "^1^2");
             Assertions.assertEquals(agentId, transactionId.getAgentId());
         });

@@ -36,7 +36,7 @@ import java.util.Map;
 public class SpanFactoryAssert {
 
     public void assertSpan(TSpan tSpan, SpanBo spanBo) {
-        Assertions.assertEquals(tSpan.getAgentId(), spanBo.getAgentId());
+        Assertions.assertEquals(tSpan.getAgentId(), spanBo.getAgentId().value());
         Assertions.assertEquals(tSpan.getApplicationName(), spanBo.getApplicationName());
         Assertions.assertEquals(tSpan.getAgentStartTime(), spanBo.getAgentStartTime());
 
@@ -131,7 +131,7 @@ public class SpanFactoryAssert {
 
 
     public void assertSpanChunk(TSpanChunk tSpanChunk, SpanChunkBo spanChunkBo) {
-        Assertions.assertEquals(tSpanChunk.getAgentId(), spanChunkBo.getAgentId());
+        Assertions.assertEquals(tSpanChunk.getAgentId(), spanChunkBo.getAgentId().value());
         Assertions.assertEquals(tSpanChunk.getApplicationName(), spanChunkBo.getApplicationName());
         Assertions.assertEquals(tSpanChunk.getAgentStartTime(), spanChunkBo.getAgentStartTime());
 

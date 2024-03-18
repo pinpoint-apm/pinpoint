@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.filter;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -77,19 +78,19 @@ public class LinkFilterTest {
         fromSpanBo.setApplicationName("APP_A");
 
         fromSpanBo.setServiceType(tomcatServiceType);
-        fromSpanBo.setAgentId("AGENT_A");
+        fromSpanBo.setAgentId(AgentId.of("AGENT_A"));
         fromSpanBo.setSpanId(100);
 
         SpanBo toSpanBO = new SpanBo();
         toSpanBO.setApplicationName("APP_B");
         toSpanBO.setServiceType(tomcatServiceType);
-        toSpanBO.setAgentId("AGENT_B");
+        toSpanBO.setAgentId(AgentId.of("AGENT_B"));
         toSpanBO.setParentSpanId(100);
 
         SpanBo spanBoC = new SpanBo();
         spanBoC.setApplicationName("APP_C");
         spanBoC.setServiceType(tomcatServiceType);
-        spanBoC.setAgentId("AGENT_C");
+        spanBoC.setAgentId(AgentId.of("AGENT_C"));
 
         Assertions.assertTrue(linkFilter.include(List.of(fromSpanBo, toSpanBO)));
         Assertions.assertFalse(linkFilter.include(List.of(fromSpanBo, spanBoC)));
@@ -117,19 +118,19 @@ public class LinkFilterTest {
         fromSpanBo.setApplicationName("APP_A");
 
         fromSpanBo.setServiceType(tomcatServiceType);
-        fromSpanBo.setAgentId("AGENT_A");
+        fromSpanBo.setAgentId(AgentId.of("AGENT_A"));
         fromSpanBo.setSpanId(100);
 
         SpanBo toSpanBO = new SpanBo();
         toSpanBO.setApplicationName("APP_B");
         toSpanBO.setServiceType(tomcatServiceType);
-        toSpanBO.setAgentId("AGENT_B");
+        toSpanBO.setAgentId(AgentId.of("AGENT_B"));
         toSpanBO.setParentSpanId(100);
 
         SpanBo spanBoC = new SpanBo();
         spanBoC.setApplicationName("APP_C");
         spanBoC.setServiceType(tomcatServiceType);
-        spanBoC.setAgentId("AGENT_C");
+        spanBoC.setAgentId(AgentId.of("AGENT_C"));
 
         Assertions.assertTrue(linkFilter.include(List.of(fromSpanBo, toSpanBO)));
         Assertions.assertFalse(linkFilter.include(List.of(fromSpanBo, spanBoC)));

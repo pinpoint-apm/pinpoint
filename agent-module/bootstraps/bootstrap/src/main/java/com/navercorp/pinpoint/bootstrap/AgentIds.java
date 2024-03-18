@@ -22,19 +22,14 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentIds {
-    private final String agentId;
     private final String agentName;
     private final String applicationName;
+    private final String serviceName;
 
-    public AgentIds(String agentId, String agentName, String applicationName) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+    public AgentIds(String agentName, String applicationName, String serviceName) {
         this.agentName = agentName;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-    }
-
-
-    public String getAgentId() {
-        return agentId;
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
     }
 
     public String getAgentName() {
@@ -44,4 +39,9 @@ public class AgentIds {
     public String getApplicationName() {
         return applicationName;
     }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
 }
