@@ -29,6 +29,7 @@ public class DefaultAgentInformation implements AgentInformation {
     private final String agentId;
     private final String agentName;
     private final String applicationName;
+    private final String serviceName;
     private final boolean isContainer;
     private final long startTime;
     private final int pid;
@@ -42,6 +43,7 @@ public class DefaultAgentInformation implements AgentInformation {
             String agentId,
             String agentName,
             String applicationName,
+            String serviceName,
             boolean isContainer,
             long startTime,
             int pid,
@@ -53,6 +55,7 @@ public class DefaultAgentInformation implements AgentInformation {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.isContainer = isContainer;
         this.startTime = startTime;
         this.pid = pid;
@@ -76,6 +79,11 @@ public class DefaultAgentInformation implements AgentInformation {
     @Override
     public String getApplicationName() {
         return applicationName;
+    }
+
+    @Override
+    public String getServiceName() {
+        return serviceName;
     }
 
     @Override
@@ -120,19 +128,18 @@ public class DefaultAgentInformation implements AgentInformation {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", agentName='").append(agentName).append('\'');
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", isContainer=").append(isContainer);
-        sb.append(", startTime=").append(startTime);
-        sb.append(", pid=").append(pid);
-        sb.append(", machineName='").append(machineName).append('\'');
-        sb.append(", hostIp='").append(hostIp).append('\'');
-        sb.append(", serverType=").append(serverType);
-        sb.append(", jvmVersion='").append(jvmVersion).append('\'');
-        sb.append(", agentVersion='").append(agentVersion).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "{" + "agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                ", isContainer=" + isContainer +
+                ", startTime=" + startTime +
+                ", pid=" + pid +
+                ", machineName='" + machineName + '\'' +
+                ", hostIp='" + hostIp + '\'' +
+                ", serverType=" + serverType +
+                ", jvmVersion='" + jvmVersion + '\'' +
+                ", agentVersion='" + agentVersion + '\'' +
+                '}';
     }
 }

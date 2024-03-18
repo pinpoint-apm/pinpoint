@@ -31,6 +31,8 @@ public enum HbaseTable {
     APPLICATION_INDEX("ApplicationIndex"),
     APPLICATION_INDEX_VER2("ApplicationIndex_Ver2"),
     APPLICATION_ID("ApplicationId"),
+    SERVICE_ID("ServiceId"),
+    SERVICE_APPLICATION_INDEX("ServiceApplicationIndex"),
     APPLICATION_STAT_AGGRE("ApplicationStatAggre"),
     APPLICATION_TRACE_INDEX("ApplicationTraceIndex"),
     APPLICATION_TRACE_INDEX_VER2("ApplicationTraceIndex_Ver2"),

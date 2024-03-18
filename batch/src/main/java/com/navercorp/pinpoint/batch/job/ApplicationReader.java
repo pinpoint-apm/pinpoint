@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.service.BatchApplicationService;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,20 +27,19 @@ import org.springframework.batch.item.ItemStreamReader;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author youngjin.kim2
  */
-public class ApplicationReader implements ItemStreamReader<UUID> {
+public class ApplicationReader implements ItemStreamReader<ApplicationId> {
 
     private static final Logger logger = LogManager.getLogger(ApplicationReader.class);
     private static final String CURRENT_INDEX = "current.index";
 
     private final BatchApplicationService applicationService;
 
-    private List<UUID> applicationIds;
+    private List<ApplicationId> applicationIds;
 
     private final AtomicInteger currentIndexAtom = new AtomicInteger(0);
 
@@ -48,7 +48,7 @@ public class ApplicationReader implements ItemStreamReader<UUID> {
     }
 
     @Override
-    public UUID read() {
+    public ApplicationId read() {
         int currentIndex = currentIndexAtom.getAndIncrement();
         if (currentIndex < applicationIds.size()) {
             logger.info("Reading application: {} / {}", currentIndex, applicationIds.size());
@@ -83,7 +83,7 @@ public class ApplicationReader implements ItemStreamReader<UUID> {
         logger.info("Closing application reader");
     }
 
-    private List<UUID> getAllApplications() {
+    private List<ApplicationId> getAllApplications() {
         return this.applicationService.getAll()
                 .stream()
                 .sorted()

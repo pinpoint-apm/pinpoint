@@ -34,6 +34,8 @@ public interface AgentOption {
 
     String getApplicationName();
 
+    String getServiceName();
+
     boolean isContainer();
 
     ProfilerConfig getProfilerConfig();

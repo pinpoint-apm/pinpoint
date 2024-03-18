@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author Taejin Koo
@@ -29,16 +30,18 @@ import java.util.UUID;
 @Service
 public interface ApplicationService {
 
-    boolean isExistApplicationName(String applicationName);
+    boolean isExistApplicationName(ApplicationId applicationId);
+
+    List<Application> getApplications(ServiceId serviceId);
 
     List<Application> getApplications();
 
-    List<String> getAgents(UUID applicationId);
+    List<String> getAgents(ApplicationId applicationId);
 
-    void deleteApplication(UUID applicationId);
+    void deleteApplication(ApplicationId applicationId);
 
-    void deleteAgents(Map<UUID, List<String>> applicationAgentIdMap);
+    void deleteAgents(Map<ApplicationId, List<String>> applicationAgentIdMap);
 
-    void deleteAgent(UUID applicationId, String agentId);
+    void deleteAgent(ApplicationId applicationId, String agentId);
 
 }

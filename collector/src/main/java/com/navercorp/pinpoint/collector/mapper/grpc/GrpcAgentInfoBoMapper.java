@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.collector.mapper.grpc;
 
 import com.navercorp.pinpoint.collector.service.ApplicationInfoService;
+import com.navercorp.pinpoint.collector.service.ServiceInfoService;
 import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -36,22 +38,28 @@ public class GrpcAgentInfoBoMapper {
     private final GrpcServerMetaDataBoMapper serverMetaDataBoMapper;
     private final GrpcJvmInfoBoMapper jvmInfoBoMapper;
     private final ApplicationInfoService applicationInfoService;
+    private final ServiceInfoService serviceInfoService;
 
     public GrpcAgentInfoBoMapper(
             GrpcServerMetaDataBoMapper serverMetaDataBoMapper,
             GrpcJvmInfoBoMapper jvmInfoBoMapper,
-            ApplicationInfoService applicationInfoService) {
+            ApplicationInfoService applicationInfoService,
+            ServiceInfoService serviceInfoService
+    ) {
         this.serverMetaDataBoMapper = Objects.requireNonNull(serverMetaDataBoMapper, "serverMetaDataBoMapper");
         this.jvmInfoBoMapper = Objects.requireNonNull(jvmInfoBoMapper, "jvmInfoBoMapper");
         this.applicationInfoService = Objects.requireNonNull(applicationInfoService, "applicationInfoService");
+        this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceInfoService");
     }
 
     public AgentInfoBo map(final PAgentInfo agentInfo, final Header header) {
         final String agentId = header.getAgentId();
         final String agentName = header.getAgentName();
         final String applicationName = header.getApplicationName();
-        final ApplicationId applicationId = this.applicationInfoService.getApplicationId(applicationName);
-        this.applicationInfoService.ensureApplicationIdInverseIndexed(applicationName, applicationId);
+        final String serviceName = header.getServiceName();
+        final ServiceId serviceId = this.serviceInfoService.getServiceId(serviceName);
+        final ApplicationId applicationId = this.applicationInfoService.getApplicationId(serviceId, applicationName);
+        this.applicationInfoService.ensureApplicationIdInverseIndexed(serviceId, applicationName, applicationId);
         final long startTime = header.getAgentStartTime();
 
         final String hostName = agentInfo.getHostname();
@@ -73,6 +81,8 @@ public class GrpcAgentInfoBoMapper {
         builder.setAgentName(agentName);
         builder.setApplicationName(applicationName);
         builder.setApplicationId(applicationId);
+        builder.setServiceName(serviceName);
+        builder.setServiceId(serviceId);
         builder.setServiceTypeCode(serviceType);
         builder.setPid(pid);
         builder.setVmVersion(vmVersion);

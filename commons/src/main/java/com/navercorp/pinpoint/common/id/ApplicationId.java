@@ -23,7 +23,7 @@ import java.util.UUID;
  * @author youngjin.kim2
  */
 public class ApplicationId extends UUIDPinpointIdentifier {
-    public static final ApplicationId NOT_EXIST_APPLICATION_ID = new ApplicationId(UuidUtils.EMPTY);
+    public static final ApplicationId NOT_EXIST = new ApplicationId(UuidUtils.EMPTY);
 
     public ApplicationId(UUID value) {
         super(value);
@@ -31,6 +31,10 @@ public class ApplicationId extends UUIDPinpointIdentifier {
 
     public static ApplicationId of(UUID value) {
         return new ApplicationId(value);
+    }
+
+    public byte[] toBytes() {
+        return UuidUtils.toBytes(this.value());
     }
 
 }

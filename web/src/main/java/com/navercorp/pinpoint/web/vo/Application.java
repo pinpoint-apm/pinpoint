@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ApplicationSerializer;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author netspider
@@ -29,16 +30,17 @@ import java.util.UUID;
  * @author jaehong.kim
  */
 @JsonSerialize(using = ApplicationSerializer.class)
-public record Application(UUID id, String name, ServiceType serviceType) {
+public record Application(ServiceId serviceId, ApplicationId id, String name, ServiceType serviceType) {
 
-    public Application(UUID id, String name, ServiceType serviceType) {
+    public Application(ServiceId serviceId, ApplicationId id, String name, ServiceType serviceType) {
+        this.serviceId = serviceId;
         this.id = id;
         this.name = name;
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 
     public Application(String name, ServiceType serviceType) {
-        this(null, name, serviceType);
+        this(null, null, name, serviceType);
     }
 
     public short getServiceTypeCode() {

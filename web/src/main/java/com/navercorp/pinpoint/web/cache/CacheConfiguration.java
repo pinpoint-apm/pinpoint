@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.web.cache;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
+import com.navercorp.pinpoint.common.server.config.CustomCacheRegistration;
+import com.navercorp.pinpoint.common.server.config.DefaultCustomCacheRegistration;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -47,6 +50,16 @@ public class CacheConfiguration implements CachingConfigurer {
     }
 
     @Bean
+    public CustomCacheRegistration apiMetadataCache() {
+        Cache<Object, Object> cache = Caffeine.newBuilder()
+                .expireAfterWrite(600, TimeUnit.SECONDS)
+                .initialCapacity(500)
+                .maximumSize(10000)
+                .build();
+        return new DefaultCustomCacheRegistration(API_METADATA_CACHE_NAME, cache);
+    }
+
+    @Bean
     public CacheManager applicationNameList() {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager(APPLICATION_LIST_CACHE_NAME);
         caffeineCacheManager.setCaffeine(Caffeine.newBuilder()
@@ -54,6 +67,16 @@ public class CacheConfiguration implements CachingConfigurer {
                 .initialCapacity(10)
                 .maximumSize(200));
         return caffeineCacheManager;
+    }
+
+    @Bean
+    public CustomCacheRegistration applicationNameListCache() {
+        Cache<Object, Object> cache = Caffeine.newBuilder()
+                .expireAfterWrite(120, TimeUnit.SECONDS)
+                .initialCapacity(10)
+                .maximumSize(200)
+                .build();
+        return new DefaultCustomCacheRegistration(APPLICATION_LIST_CACHE_NAME, cache);
     }
 
 }

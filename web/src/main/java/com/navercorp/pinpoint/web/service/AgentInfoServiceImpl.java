@@ -17,6 +17,9 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -62,7 +65,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -209,7 +211,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return ApplicationAgentHostList.newBuilder(offset, endIndex, totalApplications);
     }
 
-    private List<String> getAgentIdList(UUID applicationId, int durationDays) {
+    private List<String> getAgentIdList(ApplicationId applicationId, int durationDays) {
         List<String> agentIds = this.applicationService.getAgents(applicationId);
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
@@ -254,7 +256,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp) {
-        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+        ApplicationId applicationId = this.applicationInfoService.getApplicationId(
+                new ApplicationSelector(ServiceId.DEFAULT_ID, applicationName));
         List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationId, timestamp);
 
         List<AgentAndStatus> result = new ArrayList<>(agentInfos.size());
@@ -273,12 +276,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
-        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+        ApplicationId applicationId = this.applicationInfoService.getApplicationId(new ApplicationSelector(ServiceId.DEFAULT_ID, applicationName));
         List<AgentInfo> agentInfos = getAgentsByApplicationNameWithoutStatus0(applicationId, timestamp);
         return new HashSet<>(agentInfos);
     }
 
-    public List<AgentInfo> getAgentsByApplicationNameWithoutStatus0(UUID applicationId, long timestamp) {
+    public List<AgentInfo> getAgentsByApplicationNameWithoutStatus0(ApplicationId applicationId, long timestamp) {
         Objects.requireNonNull(applicationId, "applicationId");
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
@@ -316,7 +319,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
 
-        UUID applicationId = this.applicationInfoService.getApplicationId(applicationName);
+        ApplicationId applicationId = this.applicationInfoService.getApplicationId(new ApplicationSelector(ServiceId.DEFAULT_ID, applicationName));
         List<String> agentIds = this.applicationService.getAgents(applicationId);
         List<DetailedAgentInfo> agentInfos = this.agentInfoDao.getDetailedAgentInfos(agentIds, timestamp, false, true);
 

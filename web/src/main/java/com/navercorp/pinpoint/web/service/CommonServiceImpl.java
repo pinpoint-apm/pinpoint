@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,7 @@ public class CommonServiceImpl implements CommonService {
 
     @Override
     public List<Application> selectAllApplicationNames() {
-        return applicationService.getApplications();
+        return applicationService.getApplications(ServiceId.DEFAULT_ID);
     }
 
 }

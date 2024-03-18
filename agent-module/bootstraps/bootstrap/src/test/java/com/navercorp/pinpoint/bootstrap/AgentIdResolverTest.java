@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 
 public class AgentIdResolverTest {
@@ -14,9 +15,9 @@ public class AgentIdResolverTest {
         properties.setProperty(AgentIdResolver.AGENT_ID, "agentId");
         properties.setProperty(AgentIdResolver.AGENT_NAME, "agentName");
         properties.setProperty(AgentIdResolver.APPLICATION_NAME, "appName");
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME, AgentIdResolver.SERVICE_NAME);
 
-        AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap));
+        AgentIdResolver resolver = new AgentIdResolver(Collections.singletonList(ap));
         AgentIds resolve = resolver.resolve();
 
         Assertions.assertEquals("agentId", resolve.getAgentId());
@@ -29,9 +30,9 @@ public class AgentIdResolverTest {
         Properties properties = new Properties();
         properties.setProperty(AgentIdResolver.AGENT_ID, "agentId");
         properties.setProperty(AgentIdResolver.APPLICATION_NAME, "appName");
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME, AgentIdResolver.SERVICE_NAME);
 
-        AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap));
+        AgentIdResolver resolver = new AgentIdResolver(Collections.singletonList(ap));
         AgentIds resolve = resolver.resolve();
 
         Assertions.assertEquals("agentId", resolve.getAgentId());
@@ -44,9 +45,9 @@ public class AgentIdResolverTest {
         Properties properties = new Properties();
         properties.setProperty(AgentIdResolver.AGENT_ID, "agentId");
 
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME, AgentIdResolver.SERVICE_NAME);
 
-        AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap));
+        AgentIdResolver resolver = new AgentIdResolver(Collections.singletonList(ap));
         AgentIds resolve = resolver.resolve();
 
         Assertions.assertNull(resolve);
@@ -57,11 +58,11 @@ public class AgentIdResolverTest {
         Properties properties1 = new Properties();
         properties1.setProperty(AgentIdResolver.AGENT_ID, "agentId1");
         properties1.setProperty(AgentIdResolver.AGENT_NAME, "agentName1");
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties1, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties1, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME, AgentIdResolver.SERVICE_NAME);
 
         Properties properties2 = new Properties();
         properties2.setProperty(AgentIdResolver.APPLICATION_NAME, "appName2");
-        AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME);
+        AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME, AgentIdResolver.SERVICE_NAME);
 
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap, ap2));
         AgentIds resolve = resolver.resolve();
@@ -76,14 +77,14 @@ public class AgentIdResolverTest {
         Properties properties1 = new Properties();
         properties1.setProperty(AgentIdResolver.AGENT_ID, "agentId1");
         properties1.setProperty(AgentIdResolver.AGENT_NAME, "agentName1");
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties1, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties1, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME, AgentIdResolver.SERVICE_NAME);
 
         Properties properties2 = new Properties();
         properties2.setProperty(AgentIdResolver.AGENT_ID, "agentId2");
         properties2.setProperty(AgentIdResolver.AGENT_NAME, "agentName2");
         properties2.setProperty(AgentIdResolver.APPLICATION_NAME, "appName2");
 
-        AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME);
+        AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2, AgentIdResolver.AGENT_ID, AgentIdResolver.AGENT_NAME, AgentIdResolver.APPLICATION_NAME, AgentIdResolver.SERVICE_NAME);
 
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap, ap2));
         AgentIds resolve = resolver.resolve();

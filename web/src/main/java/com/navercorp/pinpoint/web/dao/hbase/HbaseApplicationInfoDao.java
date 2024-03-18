@@ -20,22 +20,27 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationInfo;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import com.navercorp.pinpoint.common.server.util.HashUtils;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.UuidUtils;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.dao.ApplicationInfoDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.CheckAndMutate;
+import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -44,58 +49,41 @@ import java.util.UUID;
 public class HbaseApplicationInfoDao implements ApplicationInfoDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    // TODO: This value is temporary, and the service type should be removed
+    private static final ServiceType DEFAULT_SERVICE_TYPE = ServiceType.STAND_ALONE;
+
     private static final HbaseColumnFamily.ApplicationId DESCRIPTOR_FORWARD = HbaseColumnFamily.APPLICATION_ID_FORWARD;
     private static final HbaseColumnFamily.ApplicationId DESCRIPTOR_INVERSE = HbaseColumnFamily.APPLICATION_ID_INVERSE;
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
-    private final RowMapper<UUID> forwardRowMapper;
-    private final RowMapper<String> inverseRowMapper;
-    private final RowMapper<Application> applicationRowMapper;
+    private final RowMapper<ApplicationInfo> forwardRowMapper;
+    private final RowMapper<ApplicationId> inverseRowMapper;
 
     public HbaseApplicationInfoDao(
             HbaseOperations hbaseTemplate,
             TableNameProvider tableNameProvider,
-            @Qualifier("applicationIdForwardMapper") RowMapper<UUID> forwardRowMapper,
-            @Qualifier("applicationIdInverseMapper") RowMapper<String> inverseRowMapper,
-            @Qualifier("applicationForwardMapper") RowMapper<Application> applicationRowMapper
+            @Qualifier("applicationIdForwardMapper") RowMapper<ApplicationInfo> forwardRowMapper,
+            @Qualifier("applicationIdInverseMapper") RowMapper<ApplicationId> inverseRowMapper
     ) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.forwardRowMapper = Objects.requireNonNull(forwardRowMapper, "forwardRowMapper");
         this.inverseRowMapper = Objects.requireNonNull(inverseRowMapper, "inverseRowMapper");
-        this.applicationRowMapper = Objects.requireNonNull(applicationRowMapper, "applicationRowMapper");
     }
 
     @Override
-    public UUID getApplicationId(String applicationName) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    public ApplicationId getApplicationId(ApplicationSelector selector) {
+        Objects.requireNonNull(selector, "selector");
+        Objects.requireNonNull(selector.serviceId(), "selector.serviceId");
+        Objects.requireNonNull(selector.name(), "selector.applicationName");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("getApplicationId() applicationName:{}", applicationName);
-        }
-
-        TableName tableName = this.tableNameProvider.getTableName(DESCRIPTOR_FORWARD.getTable());
-        byte[] rowKey = encodeStringAsRowKey(applicationName);
-        byte[] family = DESCRIPTOR_FORWARD.getName();
-        byte[] qualifier = DESCRIPTOR_FORWARD.getName();
-
-        Get get = new Get(rowKey);
-        get.addColumn(family, qualifier);
-
-        return hbaseTemplate.get(tableName, get, this.forwardRowMapper);
-    }
-
-    @Override
-    public String getApplicationName(UUID applicationId) {
-        Objects.requireNonNull(applicationId, "applicationId");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("getApplicationName() applicationId:{}", applicationId);
+            logger.debug("getApplicationId() serviceId: {}, applicationName: {}", selector.serviceId(), selector.name());
         }
 
         TableName tableName = this.tableNameProvider.getTableName(DESCRIPTOR_INVERSE.getTable());
-        byte[] rowKey = UuidUtils.toBytes(applicationId);
+        byte[] rowKey = encodeSelectorRowKey(selector);
         byte[] family = DESCRIPTOR_INVERSE.getName();
         byte[] qualifier = DESCRIPTOR_INVERSE.getName();
 
@@ -103,6 +91,27 @@ public class HbaseApplicationInfoDao implements ApplicationInfoDao {
         get.addColumn(family, qualifier);
 
         return hbaseTemplate.get(tableName, get, this.inverseRowMapper);
+    }
+
+    @Override
+    public Application getApplication(ApplicationId applicationId) {
+        Objects.requireNonNull(applicationId, "applicationId");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("getApplication() applicationId:{}", applicationId);
+        }
+
+        TableName tableName = this.tableNameProvider.getTableName(DESCRIPTOR_FORWARD.getTable());
+        byte[] rowKey = applicationId.toBytes();
+        byte[] family = DESCRIPTOR_FORWARD.getName();
+        byte[] qualifier = DESCRIPTOR_FORWARD.getName();
+
+        Get get = new Get(rowKey);
+        get.addColumn(family, qualifier);
+
+        ApplicationInfo info = hbaseTemplate.get(tableName, get, this.forwardRowMapper);
+
+        return new Application(info.serviceId(), info.id(), info.name(), DEFAULT_SERVICE_TYPE);
     }
 
     @Override
@@ -115,11 +124,71 @@ public class HbaseApplicationInfoDao implements ApplicationInfoDao {
         scan.setCaching(30);
         scan.addColumn(family, qualifier);
 
-        return hbaseTemplate.find(tableName, scan, this.applicationRowMapper);
+        List<ApplicationInfo> infos = hbaseTemplate.find(tableName, scan, this.forwardRowMapper);
+        return mapApplicationInfos(infos);
     }
 
-    private static byte[] encodeStringAsRowKey(String str) {
-        return HashUtils.hashBytes(BytesUtils.toBytes(str)).asBytes();
+    @Override
+    public ApplicationId putApplicationIdIfAbsent(ApplicationInfo application) {
+        Objects.requireNonNull(application, "application");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("putApplicationIdIfAbsent() serviceId: {}, applicationName:{}, applicationId:{}",
+                    application.serviceId(), application.name(), application.id());
+        }
+
+        CheckAndMutateResult camResult = putInverse(application);
+        if (camResult.isSuccess()) {
+            putForward(application);
+        }
+
+        return getApplicationId(new ApplicationSelector(application.serviceId(), application.name()));
+    }
+
+    private CheckAndMutateResult putInverse(ApplicationInfo application) {
+        ApplicationSelector selector = new ApplicationSelector(application.serviceId(), application.name());
+
+        TableName tableName = this.tableNameProvider.getTableName(DESCRIPTOR_INVERSE.getTable());
+        byte[] rowKey = encodeSelectorRowKey(selector);
+        byte[] family = DESCRIPTOR_INVERSE.getName();
+        byte[] qualifier = DESCRIPTOR_INVERSE.getName();
+        byte[] value = application.id().toBytes();
+
+        Put put = new Put(rowKey);
+        put.addColumn(family, qualifier, value);
+
+        CheckAndMutate checkAndMutate = CheckAndMutate.newBuilder(rowKey)
+                .ifNotExists(family, qualifier)
+                .build(put);
+
+        return hbaseTemplate.checkAndMutate(tableName, checkAndMutate);
+    }
+
+    private void putForward(ApplicationInfo application) {
+        ApplicationSelector selector = new ApplicationSelector(application.serviceId(), application.name());
+
+        TableName tableName = this.tableNameProvider.getTableName(DESCRIPTOR_FORWARD.getTable());
+        byte[] rowKey = application.id().toBytes();
+        byte[] family = DESCRIPTOR_FORWARD.getName();
+        byte[] qualifier = DESCRIPTOR_FORWARD.getName();
+        byte[] value = selector.toBytes();
+
+        Put put = new Put(rowKey);
+        put.addColumn(family, qualifier, value);
+
+        hbaseTemplate.put(tableName, put);
+    }
+
+    private static byte[] encodeSelectorRowKey(ApplicationSelector selector) {
+        return HashUtils.hashBytes(selector.toBytes()).asBytes();
+    }
+
+    private List<Application> mapApplicationInfos(List<ApplicationInfo> infos) {
+        List<Application> applications = new ArrayList<>(infos.size());
+        for (ApplicationInfo info : infos) {
+            applications.add(new Application(info.serviceId(), info.id(), info.name(), DEFAULT_SERVICE_TYPE));
+        }
+        return applications;
     }
 
 }

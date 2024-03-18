@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.job;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
@@ -27,17 +28,16 @@ import org.springframework.batch.item.ItemReader;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author youngjin.kim2
  */
-public class AgentCountReader implements ItemReader<UUID>, StepExecutionListener {
+public class AgentCountReader implements ItemReader<ApplicationId>, StepExecutionListener {
 
     private final ApplicationService applicationService;
 
-    private Queue<UUID> applicationNameQueue;
+    private Queue<ApplicationId> applicationNameQueue;
 
     public AgentCountReader(ApplicationService applicationService) {
         this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
@@ -45,7 +45,7 @@ public class AgentCountReader implements ItemReader<UUID>, StepExecutionListener
 
     @Override
     public void beforeStep(@Nonnull StepExecution stepExecution) {
-        List<UUID> applicationNames = applicationService.getApplications()
+        List<ApplicationId> applicationNames = applicationService.getApplications()
                 .stream()
                 .map(Application::id)
                 .toList();
@@ -58,7 +58,7 @@ public class AgentCountReader implements ItemReader<UUID>, StepExecutionListener
     }
 
     @Override
-    public UUID read() {
+    public ApplicationId read() {
         return applicationNameQueue.poll();
     }
 

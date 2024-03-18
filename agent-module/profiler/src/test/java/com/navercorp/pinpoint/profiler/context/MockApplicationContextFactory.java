@@ -40,7 +40,8 @@ public class MockApplicationContextFactory {
         String mockAgentId = "mockAgentId";
         String mockAgentName = "mockAgentName";
         String mockApplicationName = "mockApplicationName";
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgentId, mockAgentName, mockApplicationName, false,
+        String mockServiceName = "mockServiceName";
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgentId, mockAgentName, mockApplicationName, mockServiceName, false,
                 config, Collections.emptyList(), Collections.emptyList());
         return new DefaultApplicationContext(agentOption, moduleFactory);
     }

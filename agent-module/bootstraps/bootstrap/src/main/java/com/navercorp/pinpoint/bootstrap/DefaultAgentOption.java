@@ -32,6 +32,7 @@ public class DefaultAgentOption implements AgentOption {
     private final String agentId;
     private final String agentName;
     private final String applicationName;
+    private final String serviceName;
     private final boolean isContainer;
 
     private final ProfilerConfig profilerConfig;
@@ -39,12 +40,13 @@ public class DefaultAgentOption implements AgentOption {
     private final List<String> bootstrapJarPaths;
 
     public DefaultAgentOption(final Instrumentation instrumentation,
-                              String agentId, String agentName, String applicationName, final boolean isContainer,
+                              String agentId, String agentName, String applicationName, String serviceName, final boolean isContainer,
                               final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.isContainer = isContainer;
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.pluginJars = Objects.requireNonNull(pluginJars, "pluginJars");
@@ -72,6 +74,11 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
     public boolean isContainer() {
         return isContainer;
     }
@@ -93,16 +100,15 @@ public class DefaultAgentOption implements AgentOption {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultAgentOption{");
-        sb.append("instrumentation=").append(instrumentation);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", agentName='").append(agentName).append('\'');
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", isContainer=").append(isContainer);
-        sb.append(", profilerConfig=").append(profilerConfig);
-        sb.append(", pluginJars=").append(pluginJars);
-        sb.append(", bootstrapJarPaths=").append(bootstrapJarPaths);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultAgentOption{" + "instrumentation=" + instrumentation +
+                ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                ", isContainer=" + isContainer +
+                ", profilerConfig=" + profilerConfig +
+                ", pluginJars=" + pluginJars +
+                ", bootstrapJarPaths=" + bootstrapJarPaths +
+                '}';
     }
 }

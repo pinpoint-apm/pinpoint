@@ -97,6 +97,21 @@ public class HbaseColumnFamily {
         }
     }
 
+    public static final ServiceId SERVICE_ID_FORWARD = new ServiceId(HbaseTable.SERVICE_ID, Bytes.toBytes("F"));
+    public static final ServiceId SERVICE_ID_INVERSE = new ServiceId(HbaseTable.SERVICE_ID, Bytes.toBytes("I"));
+    public static class ServiceId extends HbaseColumnFamily {
+        private ServiceId(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final ServiceApplicationIndex SERVICE_APPLICATION_INDEX = new ServiceApplicationIndex(HbaseTable.SERVICE_APPLICATION_INDEX, Bytes.toBytes("I"));
+    public static class ServiceApplicationIndex extends HbaseColumnFamily {
+        private ServiceApplicationIndex(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
     public static final ApplicationStatStatistics APPLICATION_STAT_STATISTICS = new ApplicationStatStatistics(HbaseTable.APPLICATION_STAT_AGGRE, Bytes.toBytes("S"));
     public static class ApplicationStatStatistics extends HbaseColumnFamily {
         public int TIMESPAN_MS = 5 * 60 * 1000;

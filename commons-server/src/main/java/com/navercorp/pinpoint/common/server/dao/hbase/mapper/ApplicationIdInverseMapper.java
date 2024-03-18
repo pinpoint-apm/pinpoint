@@ -18,28 +18,37 @@ package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 /**
  * @author youngjin.kim2
  */
 @Component
-public class ApplicationIdInverseMapper implements RowMapper<String> {
+public class ApplicationIdInverseMapper implements RowMapper<ApplicationId> {
 
     private static final HbaseColumnFamily.ApplicationId DESCRIPTOR = HbaseColumnFamily.APPLICATION_ID_INVERSE;
 
     @Override
-    public String mapRow(Result result, int rowNum) throws Exception {
+    public ApplicationId mapRow(Result result, int rowNum) throws Exception {
         byte[] family = DESCRIPTOR.getName();
         byte[] qualifier = DESCRIPTOR.getName();
         Cell cell = result.getColumnLatestCell(family, qualifier);
         if (cell == null) {
             return null;
         }
-        return BytesUtils.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+
+        if (cell.getValueLength() < 16) {
+            throw new IllegalArgumentException("Invalid bytes length: " + cell.getValueLength());
+        }
+
+        UUID value = BytesUtils.bytesToUUID(cell.getValueArray(), cell.getValueOffset());
+        return ApplicationId.of(value);
     }
 
 }

@@ -31,10 +31,15 @@ public class ApplicationSerializer extends JsonSerializer<Application> {
     @Override
     public void serialize(Application application, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
-        if (application.id() != null) {
-            jgen.writeStringField("applicationId", application.id().toString());
+        if (application.serviceId() != null) {
+            jgen.writeStringField("serviceId", application.serviceId().toString());
         } else {
-            jgen.writeNullField("applicationId");
+            jgen.writeNullField("serviceId");
+        }
+        if (application.id() != null) {
+            jgen.writeStringField("id", application.id().toString());
+        } else {
+            jgen.writeNullField("id");
         }
         jgen.writeStringField("applicationName", application.name());
         jgen.writeStringField("serviceType", application.serviceType().getDesc());

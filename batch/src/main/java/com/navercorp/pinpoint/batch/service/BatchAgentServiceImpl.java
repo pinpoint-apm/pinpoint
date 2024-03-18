@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.batch.service;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -41,7 +41,7 @@ public class BatchAgentServiceImpl implements BatchAgentService {
     }
 
     @Override
-    public List<String> getIds(UUID applicationId) {
+    public List<String> getIds(ApplicationId applicationId) {
         return this.applicationService.getAgents(applicationId);
     }
 
@@ -51,7 +51,7 @@ public class BatchAgentServiceImpl implements BatchAgentService {
     }
 
     @Override
-    public void remove(UUID applicationId, String agentId) {
+    public void remove(ApplicationId applicationId, String agentId) {
         this.applicationService.deleteAgent(applicationId, agentId);
     }
 }

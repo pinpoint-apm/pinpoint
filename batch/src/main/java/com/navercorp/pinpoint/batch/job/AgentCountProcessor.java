@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
@@ -25,13 +26,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.ItemProcessor;
 
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author youngjin.kim2
  */
-public class AgentCountProcessor implements ItemProcessor<UUID, Integer> {
+public class AgentCountProcessor implements ItemProcessor<ApplicationId, Integer> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -52,7 +52,7 @@ public class AgentCountProcessor implements ItemProcessor<UUID, Integer> {
     }
 
     @Override
-    public Integer process(@Nonnull UUID applicationId) {
+    public Integer process(@Nonnull ApplicationId applicationId) {
         long localCount = applicationService.getAgents(applicationId)
                 .stream()
                 .filter(this::isActive)

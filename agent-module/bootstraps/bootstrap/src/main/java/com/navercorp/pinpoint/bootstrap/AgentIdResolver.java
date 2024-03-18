@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.common.util.AgentUuidUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.UuidUtils;
@@ -30,16 +31,19 @@ import java.util.UUID;
  */
 public class AgentIdResolver {
     public static final String APPLICATION_NAME = "applicationName";
+    public static final String SERVICE_NAME = "serviceName";
     public static final String AGENT_ID = "agentId";
     public static final String AGENT_NAME = "agentName";
 
     public static final String SYSTEM_PROPERTY_PREFIX = "pinpoint.";
     public static final String APPLICATION_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "applicationName";
+    public static final String SERVICE_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "serviceName";
     public static final String AGENT_ID_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentId";
     public static final String AGENT_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentName";
 
     public static final String ENV_PROPERTY_PREFIX = "PINPOINT_";
     public static final String APPLICATION_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "APPLICATION_NAME";
+    public static final String SERVICE_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "SERVICE_NAME";
     public static final String AGENT_ID_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_ID";
     public static final String AGENT_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_NAME";
 
@@ -49,6 +53,7 @@ public class AgentIdResolver {
 
     private final IdValidator idValidator = new IdValidator();
     private final IdValidator applicationNameValidator = new IdValidator(PinpointConstants.APPLICATION_NAME_MAX_LEN);
+    private final IdValidator serviceNameValidator = new IdValidator(PinpointConstants.SERVICE_NAME_MAX_LEN);
 
     public AgentIdResolver(List<AgentProperties> agentPropertyList) {
         this.agentPropertyList = Objects.requireNonNull(agentPropertyList, "agentPropertyList");
@@ -68,12 +73,19 @@ public class AgentIdResolver {
             return null;
         }
 
+        String serviceName = getServiceName();
+        if (StringUtils.isEmpty(serviceName)) {
+            logger.info("Failed to resolve ServiceName(-Dpinpoint.serviceName)");
+            serviceName = ServiceId.DEFAULT_SERVICE_NAME;
+            logger.info("Using default serviceName='" + agentId + "'");
+        }
+
         final String agentName = getAgentName();
         if (StringUtils.isEmpty(agentName)) {
             logger.info("No AgentName(-Dpinpoint.agentName) provided, it's optional!");
         }
 
-        return new AgentIds(agentId, agentName, applicationName);
+        return new AgentIds(agentId, agentName, applicationName, serviceName);
     }
 
     private String newRandomAgentId() {
@@ -118,6 +130,21 @@ public class AgentIdResolver {
             if (applicationNameValidator.validateApplicationName(agentProperty.getType(), applicationName)) {
                 logger.info(agentProperty.getType() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
                 source = applicationName;
+            }
+        }
+        return source;
+    }
+
+    private String getServiceName() {
+        String source = null;
+        for (AgentProperties agentProperty : agentPropertyList) {
+            final String serviceName = agentProperty.getServiceName();
+            if (StringUtils.isEmpty(serviceName)) {
+                continue;
+            }
+            if (serviceNameValidator.validateServiceName(agentProperty.getType(), serviceName)) {
+                logger.info(agentProperty.getType() + " " + agentProperty.getServiceNameKey() + "=" + serviceName);
+                source = serviceName;
             }
         }
         return source;
