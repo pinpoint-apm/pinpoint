@@ -38,7 +38,7 @@
         <dependency>
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.3.2-patch11</version>
+            <version>0.4.1</version>
         </dependency>
 
         <dependency>
@@ -67,11 +67,6 @@
             <artifactId>clickhouse</artifactId>
             <version>1.19.0</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.clickhouse</groupId>
-            <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.4.1</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
