@@ -78,16 +78,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>com/navercorp/**/*</include>
-                        <include>META-INF/**/*</include>
-                    </includes>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -122,6 +112,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
+                    <includes>
+                        <include>com/navercorp/**/*</include>
+                        <include>META-INF/**/*</include>
+                    </includes>
                     <archive>
                         <manifestEntries>
                             <Pinpoint-Plugin-Package-Class-Requirements>com.navercorp.pinpoint.plugin.jetty.javax:javax.servlet.http.HttpServletRequest, com.navercorp.pinpoint.jetty.tomcat.jakarta:jakarta.servlet.http.HttpServletRequest</Pinpoint-Plugin-Package-Class-Requirements>
