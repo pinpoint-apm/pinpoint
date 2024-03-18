@@ -1,0 +1,74 @@
+/*
+ * Copyright 2018 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.profiler.receiver;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+/**
+ * @author Taejin Koo
+ */
+public class ProfilerCommandLocatorBuilder {
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private final Map<Short, ProfilerCommandService> profilerCommandServiceRepository;
+
+    public ProfilerCommandLocatorBuilder() {
+        this.profilerCommandServiceRepository = new HashMap<>();
+    }
+
+    public void addService(ProfilerCommandServiceGroup serviceGroup) {
+        Objects.requireNonNull(serviceGroup, "serviceGroup");
+
+        for (ProfilerCommandService service : serviceGroup.getCommandServiceList()) {
+            addService(service);
+        }
+    }
+
+    public boolean addService(ProfilerCommandService service) {
+        Objects.requireNonNull(service, "service");
+
+        return addService(service.getCommandServiceCode(), service);
+    }
+
+    boolean addService(short commandCode, ProfilerCommandService service) {
+        Objects.requireNonNull(service, "service");
+
+        final ProfilerCommandService exist = profilerCommandServiceRepository.get(commandCode);
+        if (exist != null) {
+            logger.warn("Already Register CommandCode:{}, RegisteredService:{}.", commandCode, exist);
+            return false;
+        }
+
+        profilerCommandServiceRepository.put(commandCode, service);
+        return true;
+    }
+
+    public ProfilerCommandServiceLocator build() {
+        return new DefaultProfilerCommandServiceLocator(this);
+    }
+
+    protected Map<Short, ProfilerCommandService> getProfilerCommandServiceRepository() {
+        return profilerCommandServiceRepository;
+    }
+
+}

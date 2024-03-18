@@ -85,11 +85,8 @@
 
     <modules>
         <module>annotations</module>
-        <module>agent</module>
-        <module>agent-sdk</module>
+        <module>agent-module</module>
 
-        <module>agent-plugins</module>
-        <module>bootstraps</module>
         <module>collector</module>
         <module>collector-starter</module>
         <module>commons</module>
@@ -102,18 +99,10 @@
         <module>commons-mybatis</module>
         <module>datasource</module>
         <module>basic-login</module>
-        <module>tools</module>
-        <module>plugins</module>
-        <module>plugins-loader</module>
-        <module>profiler</module>
         <module>thrift-datasender</module>
-        <module>profiler-logging</module>
-        <module>profiler-optional</module>
-        <module>profiler-test</module>
         <module>rpc</module>
         <module>thrift</module>
         <module>grpc</module>
-        <module>test</module>
         <module>web</module>
         <module>web-starter</module>
         <module>webhook</module>
@@ -136,8 +125,6 @@
         <module>exceptiontrace</module>
         <module>web-angular</module>
 
-        <!-- <module>agent-testweb</module> -->
-        <!-- <module>plugins-it</module> -->
     </modules>
 
     <properties>
@@ -413,78 +400,10 @@
                 <artifactId>pinpoint-grpc</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstraps</artifactId>
-                <type>pom</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-java9</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-java9-internal</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-java15</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-java16</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-profiler</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-thrift-datasender</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-profiler-logging</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-profiler-optional</artifactId>
-                <type>pom</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-profiler-test</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-agent-plugins</artifactId>
-                <type>pom</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-agent-plugins</artifactId>
-                <type>zip</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -642,16 +561,6 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-plugins-assembly</artifactId>
                 <type>pom</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-tools</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -2054,7 +1963,6 @@
             </activation>
             <modules>
                 <module>agent-testweb</module>
-                <module>plugins-it</module>
             </modules>
         </profile>
 

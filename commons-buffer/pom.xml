@@ -25,7 +25,6 @@
     </parent>
 
     <artifactId>pinpoint-commons-buffer</artifactId>
-    <name>pinpoint-commons-buffer</name>
     <packaging>jar</packaging>
 
     <dependencies>
