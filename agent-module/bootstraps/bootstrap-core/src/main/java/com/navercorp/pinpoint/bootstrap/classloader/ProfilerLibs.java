@@ -82,7 +82,8 @@ public class ProfilerLibs {
                 "org.codehaus.mojo.animal_sniffer",
                 "org.checkerframework",
 
-                "io.github.resilience4j"
+                "io.github.resilience4j",
+                "io.vavr"
         };
 
         PINPOINT_PROFILER_CLASS = Collections.unmodifiableList(Arrays.asList(lib));
