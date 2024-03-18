@@ -115,6 +115,7 @@
                     <artifactId>pinpoint-bootstrap-core</artifactId>
                 </exclusion>
             </exclusions>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
