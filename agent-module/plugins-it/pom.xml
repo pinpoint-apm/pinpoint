@@ -82,6 +82,9 @@
 
     <properties>
         <spring.version>${spring5.version}</spring.version>
+
+        <maven.install.skip>true</maven.install.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencyManagement>
@@ -163,7 +166,13 @@
                         <skip>true</skip>
                     </configuration>
                 </plugin>
-
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <skipIfEmpty>true</skipIfEmpty>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         
