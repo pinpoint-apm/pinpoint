@@ -142,7 +142,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
         final DependencyResolver resolver = getDependencyResolver(repositories);
 
-        final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets("com.navercorp.pinpoint:pinpoint-test:" + Version.VERSION);
+        final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets("com.navercorp.pinpoint:pinpoint-plugins-test:" + Version.VERSION);
         final List<String> agentLibs = new ArrayList<>();
         agentLibs.addAll(context.getAgentLibList());
 
