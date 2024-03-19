@@ -340,11 +340,11 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
 
                                 AgentStat activeConnectionSize = new AgentStat(tenantId, sortKey, dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(),
                                         AgentStatType.DATASOURCE.getChartType(), AgentStatField.DATASOURCE_ACTIVE_CONNECTION_SIZE.getFieldName(),
-                                        dataSourceBo.getActiveConnectionSize(), dataSourceListBo.getTimestamp(), tags);
+                                        dataSourceBo.getActiveConnectionSize(), dataSourceListBo.getTimestamp(), tags, dataSourceBo.getJdbcUrl());
 
                                 AgentStat maxConnectionSize = new AgentStat(tenantId, sortKey, dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(),
                                         AgentStatType.DATASOURCE.getChartType(), AgentStatField.DATASOURCE_MAX_CONNECTION_SIZE.getFieldName(),
-                                        dataSourceBo.getMaxConnectionSize(), dataSourceListBo.getTimestamp(), tags);
+                                        dataSourceBo.getMaxConnectionSize(), dataSourceListBo.getTimestamp(), tags, dataSourceBo.getJdbcUrl());
 
                                 builder.add(activeConnectionSize);
                                 builder.add(maxConnectionSize);
