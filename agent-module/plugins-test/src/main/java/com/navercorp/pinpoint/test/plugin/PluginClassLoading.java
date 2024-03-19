@@ -86,8 +86,8 @@ public final class PluginClassLoading {
     };
 
     public static final String[] PLUGIN_CONTAINS_MATCHES = new String[]{
-            Paths.get("pinpoint", "plugins").toString() + File.separator,
-            Paths.get("pinpoint-naver", "naver-plugins").toString() + File.separator
+            File.separator + "pinpoint" + File.separator + "agent-module" + File.separator + "plugins" + File.separator,
+            File.separator + "pinpoint-naver" + File.separator + "agent-module" + File.separator + "naver-plugins" + File.separator
     };
 
     public static final String[] PLUGIN_IT_UTILS_CONTAINS_MATCHES = new String[]{
