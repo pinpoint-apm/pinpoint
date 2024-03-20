@@ -132,9 +132,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <jdk.version>1.8</jdk.version>
+        <maven.compiler.source>${jdk.version}</maven.compiler.source>
+        <maven.compiler.target>${jdk.version}</maven.compiler.target>
+        <maven.compiler.compilerVersion>${jdk.version}</maven.compiler.compilerVersion>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
-        <javadoc.source>${jdk.version}</javadoc.source>
 
         <docker.repository.name>pinpointdocker</docker.repository.name>
 
@@ -1609,7 +1611,6 @@
                     <version>${plugin.pmd.version}</version>
                     <configuration>
                         <linkXRef>true</linkXRef>
-                        <targetJdk>${jdk.version}</targetJdk>
                         <excludes>
                             <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
@@ -1693,15 +1694,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${plugin.compiler.version}</version>
                 <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
                     <fork>true</fork>
                     <debug>true</debug>
                     <verbose>true</verbose>
                     <parameters>true</parameters>
                     <showDeprecation>true</showDeprecation>
                     <detail>true</detail>
-                    <compilerVersion>${jdk.version}</compilerVersion>
                     <executable>${jdk.home}/bin/javac</executable>
                 </configuration>
             </plugin>
@@ -1883,7 +1881,6 @@
                         <version>3.4.0</version>
                         <configuration>
                             <doclint>none</doclint>
-                            <source>${javadoc.source}</source>
 <!--                            <detectOfflineLinks>false</detectOfflineLinks>-->
 <!--                            <detectJavaApiLink>false</detectJavaApiLink>-->
                             <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
