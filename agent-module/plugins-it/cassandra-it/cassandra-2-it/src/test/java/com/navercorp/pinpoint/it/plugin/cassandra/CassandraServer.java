@@ -54,7 +54,7 @@ public class CassandraServer implements SharedTestLifeCycle {
         }
     }
 
-    public static Cluster newCluster(String host, int port) {
+    public Cluster newCluster(String host, int port) {
         Cluster.Builder builder = Cluster.builder();
         builder.addContactPoint(host);
         builder.withPort(port);
