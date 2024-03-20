@@ -79,7 +79,11 @@ public abstract class CassandraDatastaxITBase {
     public static void setup() {
         PORT = Integer.parseInt(System.getProperty("PORT"));
         CASSANDRA_ADDRESS = HOST + ":" + getPort();
-        cluster = CassandraServer.newCluster(HOST, getPort());
+        Cluster.Builder builder = Cluster.builder();
+        builder.addContactPoint(HOST);
+        builder.withPort(PORT);
+        builder.withoutMetrics();
+        cluster = builder.build();
         logger.info("setup cluster {}", CASSANDRA_ADDRESS);
     }
 
