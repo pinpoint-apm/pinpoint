@@ -118,7 +118,7 @@ public class LinkCallDataMap {
             // need target (to) ServiceType
             // the definition of source is data from the source when the source sends a request to a target.
             // Thus ServiceType is the target's ServiceType
-            sourceList.addAgentHistogram(key.getFrom().getName(), key.getTo().getServiceType(), linkCallData.getTimeHistogram());
+            sourceList.addAgentHistogram(key.getFrom().name(), key.getTo().serviceType(), linkCallData.getTimeHistogram());
         }
         return sourceList;
     }

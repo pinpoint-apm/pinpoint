@@ -8,8 +8,4 @@ public class ApplicationNameRowKeyEncoder extends IdRowKeyEncoder {
         super(HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
     }
 
-    @Override
-    public byte[] encodeRowKey(String applicationName, long timestamp) {
-        return super.encodeRowKey(applicationName, timestamp);
-    }
 }

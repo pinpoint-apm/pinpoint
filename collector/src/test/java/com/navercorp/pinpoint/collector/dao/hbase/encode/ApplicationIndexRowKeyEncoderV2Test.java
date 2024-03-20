@@ -18,12 +18,15 @@
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,8 +47,7 @@ class ApplicationIndexRowKeyEncoderV2Test {
 
     @Test
     void newRowKey() {
-
-        byte[] rowKey = encoder.newRowKey("agent", 100, (byte) 10);
+        byte[] rowKey = encoder.newRowKey(ApplicationId.of(new UUID(100, 100)), 100, (byte) 10);
 
         int fuzzySize = PinpointConstants.APPLICATION_NAME_MAX_LEN + Bytes.SIZEOF_LONG + 1;
         assertThat(rowKey).hasSize(fuzzySize);

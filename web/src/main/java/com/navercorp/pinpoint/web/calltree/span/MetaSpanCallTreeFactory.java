@@ -45,7 +45,7 @@ public class MetaSpanCallTreeFactory {
         final SpanBo rootSpan = new SpanBo();
         rootSpan.setTransactionId(new TransactionId(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
         rootSpan.setAgentId(UNKNOWN_AGENT_ID);
-        rootSpan.setApplicationId("UNKNOWN");
+        rootSpan.setApplicationName("UNKNOWN");
         rootSpan.setStartTime(startTimeMillis);
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
@@ -71,7 +71,7 @@ public class MetaSpanCallTreeFactory {
 
         rootSpan.setTransactionId(new TransactionId(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
         rootSpan.setAgentId(CORRUPTED_AGENT_ID);
-        rootSpan.setApplicationId("CORRUPTED");
+        rootSpan.setApplicationName("CORRUPTED");
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
         List<AnnotationBo> annotations = new ArrayList<>();

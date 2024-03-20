@@ -109,6 +109,11 @@ class PinpointStarter {
             logger.warn("applicationName is null");
             return false;
         }
+        final String serviceName = agentIds.getServiceName();
+        if (serviceName == null) {
+            logger.warn("serviceName is null");
+            return false;
+        }
 
         final ContainerResolver containerResolver = new ContainerResolver();
         final boolean isContainer = containerResolver.isContainer();
@@ -144,7 +149,7 @@ class PinpointStarter {
 
             final List<Path> pluginJars = agentDirectory.getPlugins();
             final String agentName = agentIds.getAgentName();
-            AgentOption option = createAgentOption(agentId, agentName, applicationName, isContainer,
+            AgentOption option = createAgentOption(agentId, agentName, applicationName, serviceName, isContainer,
                     profilerConfig,
                     instrumentation,
                     pluginJars,
@@ -258,14 +263,16 @@ class PinpointStarter {
 
     }
 
-    private AgentOption createAgentOption(String agentId, String agentName, String applicationName, boolean isContainer,
+    private AgentOption createAgentOption(String agentId, String agentName, String applicationName, String serviceName,
+                                          boolean isContainer,
                                           ProfilerConfig profilerConfig,
                                           Instrumentation instrumentation,
                                           List<Path> pluginJars,
                                           List<Path> bootstrapJarPaths) {
         List<String> pluginJarStrPath = toPathList(pluginJars);
         List<String> bootstrapJarPathStrPath = toPathList(bootstrapJarPaths);
-        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, isContainer, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
+        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, serviceName,
+                isContainer, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
     }
 
     private List<String> toPathList(List<Path> paths) {

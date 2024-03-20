@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -33,12 +34,17 @@ public class CommonCacheManagerConfiguration {
 
     @Bean
     @Primary
-    public CacheManager cacheManager() {
+    public CacheManager cacheManager(List<CustomCacheRegistration> registrations) {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(600, TimeUnit.SECONDS)
                 .initialCapacity(200)
                 .maximumSize(1000));
+
+        for (CustomCacheRegistration registration : registrations) {
+            cacheManager.registerCustomCache(registration.name(), registration.cache());
+        }
+
         return cacheManager;
     }
 

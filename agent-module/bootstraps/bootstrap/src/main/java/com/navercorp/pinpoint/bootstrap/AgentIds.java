@@ -25,13 +25,14 @@ public class AgentIds {
     private final String agentId;
     private final String agentName;
     private final String applicationName;
+    private final String serviceName;
 
-    public AgentIds(String agentId, String agentName, String applicationName) {
+    public AgentIds(String agentId, String agentName, String applicationName, String serviceName) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = agentName;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
     }
-
 
     public String getAgentId() {
         return agentId;
@@ -44,4 +45,9 @@ public class AgentIds {
     public String getApplicationName() {
         return applicationName;
     }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
 }

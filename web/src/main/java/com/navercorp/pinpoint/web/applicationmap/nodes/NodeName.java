@@ -17,7 +17,7 @@ public class NodeName {
 
     public static NodeName of(Application application) {
         Objects.requireNonNull(application, "application");
-        return new NodeName(application.getName(), application.getServiceType());
+        return new NodeName(application.name(), application.serviceType());
     }
 
     public NodeName(String name, ServiceType serviceType) {

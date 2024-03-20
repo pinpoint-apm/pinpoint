@@ -38,7 +38,7 @@ public class ApplicationIndexRowKeyEncoderV1 implements RowKeyEncoder<SpanBo> {
     public byte[] encodeRowKey(SpanBo span) {
         // distribute key evenly
         long acceptedTime = span.getCollectorAcceptTime();
-        final byte[] applicationTraceIndexRowKey = rowKeyEncoder.encodeRowKey(span.getApplicationId(), acceptedTime);
+        final byte[] applicationTraceIndexRowKey = rowKeyEncoder.encodeRowKey(span.getApplicationName(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
     }
 }

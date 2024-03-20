@@ -8,8 +8,4 @@ public class AgentIdRowKeyEncoder extends IdRowKeyEncoder {
         super(HbaseTableConstants.AGENT_ID_MAX_LEN);
     }
 
-    @Override
-    public byte[] encodeRowKey(String agentId, long timestamp) {
-        return super.encodeRowKey(agentId, timestamp);
-    }
 }

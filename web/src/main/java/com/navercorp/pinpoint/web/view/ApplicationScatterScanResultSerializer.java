@@ -32,7 +32,7 @@ public class ApplicationScatterScanResultSerializer extends JsonSerializer<Appli
     public void serialize(ApplicationScatterScanResult value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         Application application = value.getApplication();
-        jgen.writeStringField("applicationName", application.getName());
+        jgen.writeStringField("applicationName", application.name());
         jgen.writeNumberField("applicationServiceType", application.getServiceTypeCode());
 
         jgen.writeFieldName("scatter");

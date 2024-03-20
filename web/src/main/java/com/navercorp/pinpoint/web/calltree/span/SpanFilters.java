@@ -173,7 +173,7 @@ public class SpanFilters {
         return new Predicate<>() {
             @Override
             public boolean test(SpanBo spanBo) {
-                return applicationId.equals(spanBo.getApplicationId());
+                return applicationId.equals(spanBo.getApplicationName());
             }
 
             @Override

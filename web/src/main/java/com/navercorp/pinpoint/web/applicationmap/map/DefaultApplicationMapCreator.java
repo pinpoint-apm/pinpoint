@@ -66,7 +66,7 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
                 searchResult.addSourceLinkData(outLinkData);
                 final Application toApplication = outLinkData.getToApplication();
                 // skip if nextApplication is a terminal or an unknown cloud
-                final ServiceType toServiceType = toApplication.getServiceType();
+                final ServiceType toServiceType = toApplication.serviceType();
                 if (toServiceType.isTerminal() || toServiceType.isUnknown()) {
                     continue;
                 }

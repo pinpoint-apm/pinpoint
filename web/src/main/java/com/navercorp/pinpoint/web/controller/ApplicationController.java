@@ -16,10 +16,15 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.ApplicationInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
+import com.navercorp.pinpoint.web.service.ServiceInfoService;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -44,11 +49,19 @@ import java.util.Objects;
 public class ApplicationController {
     public static final int MAX_PAGING_LIMIT = 100;
 
+    private final ServiceInfoService serviceInfoService;
+    private final ApplicationInfoService applicationInfoService;
     private final AgentInfoService agentInfoService;
-
     private final ApplicationService applicationService;
 
-    public ApplicationController(AgentInfoService agentInfoService, ApplicationService applicationService) {
+    public ApplicationController(
+            ServiceInfoService serviceInfoService,
+            ApplicationInfoService applicationInfoService,
+            AgentInfoService agentInfoService,
+            ApplicationService applicationService
+    ) {
+        this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceInfoService");
+        this.applicationInfoService = Objects.requireNonNull(applicationInfoService, "applicationInfoService");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
     }
@@ -67,6 +80,7 @@ public class ApplicationController {
 
     @RequestMapping(value = "/isAvailableApplicationName")
     public CodeResult<String> isAvailableApplicationName(
+            @RequestParam(value = "serviceName", defaultValue = ServiceId.DEFAULT_SERVICE_NAME) String serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName
     ) {
         final IdValidateUtils.CheckResult result =
@@ -81,7 +95,15 @@ public class ApplicationController {
             );
         }
 
-        if (applicationService.isExistApplicationName(applicationName)) {
+        ServiceId serviceId = this.serviceInfoService.getServiceId(serviceName);
+        if (serviceId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "serviceName not found");
+        }
+
+        ApplicationId applicationId = this.applicationInfoService.getApplicationId(new ApplicationSelector(serviceId, applicationName));
+
+
+        if (applicationService.isExistApplicationName(applicationId)) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "applicationName already exists");
         }
 

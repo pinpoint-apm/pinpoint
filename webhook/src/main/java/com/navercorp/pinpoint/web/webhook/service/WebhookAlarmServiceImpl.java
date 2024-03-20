@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.webhook.service;
 
-import com.navercorp.pinpoint.common.server.alram.event.DeleteRuleEvent;
+import com.navercorp.pinpoint.common.server.alarm.event.DeleteRuleEvent;
 import com.navercorp.pinpoint.web.webhook.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.webhook.model.WebhookSendInfo;
 import org.apache.logging.log4j.LogManager;

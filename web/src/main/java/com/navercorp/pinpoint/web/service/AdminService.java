@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
@@ -30,20 +31,20 @@ public interface AdminService {
     int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
     String MIN_DURATION_DAYS_FOR_INACTIVITY_STR = "" + MIN_DURATION_DAYS_FOR_INACTIVITY;
 
-    void removeApplicationName(String applicationName);
+    void removeApplicationName(ApplicationId applicationId);
 
-    void removeAgentId(String applicationName, String agentId);
+    void removeAgentId(ApplicationId applicationId, String agentId);
 
     @Deprecated
     void removeInactiveAgents(int durationDays);
 
     @Deprecated
-    int removeInactiveAgentInApplication(String applicationName, int durationDays);
+    int removeInactiveAgentInApplication(ApplicationId applicationId, int durationDays);
 
     Map<String, List<Application>> getAgentIdMap();
 
     Map<String, List<Application>> getDuplicateAgentIdMap();
 
-    Map<String, List<Application>> getInactiveAgents(String applicationName, int durationDays);
+    Map<String, List<Application>> getInactiveAgents(ApplicationId applicationId, int durationDays);
 
 }

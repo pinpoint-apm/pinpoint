@@ -29,7 +29,7 @@ public class SpanQueryBuilderTest {
         span.setTransactionId(new TransactionId("agent", 1, 2));
         span.setCollectorAcceptTime(100);
         span.setElapsed(200);
-        span.setApplicationId("appName");
+        span.setApplicationName("appName");
         span.setAgentId("agentId");
 
         Assertions.assertEquals(spanQuery.getTransactionId(), span.getTransactionId());
@@ -48,7 +48,7 @@ public class SpanQueryBuilderTest {
         span.setTransactionId(txId);
         span.setCollectorAcceptTime(100);
         span.setElapsed(200);
-        span.setApplicationId("appName");
+        span.setApplicationName("appName");
 
         Assertions.assertTrue(filter.test(span));
     }

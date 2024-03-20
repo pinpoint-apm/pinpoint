@@ -53,7 +53,7 @@
     </bean>
     <bean id="applicationCleaningProcessor" class="com.navercorp.pinpoint.batch.job.ApplicationCleaningProcessor">
         <constructor-arg name="agentService" ref="batchAgentService" />
-        <constructor-arg name="applicationService" ref="batchApplicationService" />
+        <constructor-arg name="batchApplicationService" ref="batchApplicationService" />
         <constructor-arg name="emptyDurationThreshold" value="${job.cleanup.inactive.applications.emptydurationthreshold:P35D}" />
     </bean>
 

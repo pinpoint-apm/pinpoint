@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.batch.alarm.vo.sender.payload;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmCheckerInterface;
-import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
 
 /**
  * @author Jongjin.Bae
@@ -28,7 +27,7 @@ public class WebhookPayload {
     
     private final String pinpointUrl;
     private final String batchEnv;
-    private final String applicationId;
+    private final String applicationName;
     private final String serviceType;
     private final String checkerName;
     private final String checkerType;
@@ -43,7 +42,7 @@ public class WebhookPayload {
         this.pinpointUrl = pinpointUrl;
         this.batchEnv = batchEnv;
 
-        this.applicationId = checker.getRule().getApplicationId();
+        this.applicationName = checker.getRule().getApplicationName();
         this.serviceType = checker.getRule().getServiceType();
         this.checkerName = checker.getRule().getCheckerName();
         this.checkerType = checker.getCheckerType();
@@ -63,8 +62,8 @@ public class WebhookPayload {
         return batchEnv;
     }
     
-    public String getApplicationId() {
-        return applicationId;
+    public String getApplicationName() {
+        return applicationName;
     }
     
     public String getServiceType() {
@@ -108,7 +107,7 @@ public class WebhookPayload {
         return "WebhookPayload{" +
                 "pinpointUrl='" + pinpointUrl + '\'' +
                 ", batchEnv='" + batchEnv + '\'' +
-                ", applicationId='" + applicationId + '\'' +
+                ", applicationId='" + applicationName + '\'' +
                 ", serviceType='" + serviceType + '\'' +
                 ", checkerName='" + checkerName + '\'' +
                 ", checkerType='" + checkerType + '\'' +

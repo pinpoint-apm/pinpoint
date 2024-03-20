@@ -51,10 +51,10 @@ public class Node {
     }
 
     public String getApplicationTextName() {
-        if (application.getServiceType().isUser()) {
+        if (application.serviceType().isUser()) {
             return "USER";
         } else {
-            return application.getName();
+            return application.name();
         }
     }
 
@@ -78,7 +78,7 @@ public class Node {
     }
 
     public ServiceType getServiceType() {
-        return application.getServiceType();
+        return application.serviceType();
     }
 
     public NodeHistogram getNodeHistogram() {

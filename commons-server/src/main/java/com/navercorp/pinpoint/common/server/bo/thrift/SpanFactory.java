@@ -89,7 +89,7 @@ public class SpanFactory {
     SpanBo newSpanBo(TSpan tSpan) {
         final SpanBo spanBo = new SpanBo();
         spanBo.setAgentId(tSpan.getAgentId());
-        spanBo.setApplicationId(tSpan.getApplicationName());
+        spanBo.setApplicationName(tSpan.getApplicationName());
         spanBo.setAgentStartTime(tSpan.getAgentStartTime());
 
         final TransactionId transactionId = newTransactionId(tSpan.getTransactionId(), spanBo.getAgentId());
@@ -123,7 +123,7 @@ public class SpanFactory {
             spanBo.setApplicationServiceType(tSpan.getServiceType());
         }
 
-        spanBo.setParentApplicationId(tSpan.getParentApplicationName());
+        spanBo.setParentApplicationName(tSpan.getParentApplicationName());
         spanBo.setParentApplicationServiceType(tSpan.getParentApplicationType());
 
         // FIXME span.errCode contains error of span and spanEvent
@@ -291,7 +291,7 @@ public class SpanFactory {
     SpanChunkBo newSpanChunkBo(TSpanChunk tSpanChunk) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setAgentId(tSpanChunk.getAgentId());
-        spanChunkBo.setApplicationId(tSpanChunk.getApplicationName());
+        spanChunkBo.setApplicationName(tSpanChunk.getApplicationName());
         spanChunkBo.setAgentStartTime(tSpanChunk.getAgentStartTime());
         spanChunkBo.setServiceType(tSpanChunk.getServiceType());
         if (tSpanChunk.isSetApplicationServiceType()) {

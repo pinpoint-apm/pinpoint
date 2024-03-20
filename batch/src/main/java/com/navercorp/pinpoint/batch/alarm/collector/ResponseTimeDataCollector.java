@@ -36,7 +36,7 @@ public class ResponseTimeDataCollector extends DataCollector {
     private final MapResponseDao responseDao;
     private final long timeSlotEndTime;
     private final long slotInterval;
-    private final AtomicBoolean init =new AtomicBoolean(false); // need to consider a race condition when checkers start simultaneously.
+    private final AtomicBoolean init = new AtomicBoolean(false); // need to consider a race condition when checkers start simultaneously.
 
     private long fastCount = 0;
     private long normalCount = 0;
