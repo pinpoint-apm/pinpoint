@@ -40,8 +40,7 @@ public class ListenableFutureInterceptor extends AsyncContextSpanEventSimpleArou
     private final ServerResponseHeaderRecorder<ClientHttpResponse> responseHeaderRecorder;
     private final HttpStatusProvider statusCodeProvider;
 
-    public ListenableFutureInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext,
-                                       int springVersion) {
+    public ListenableFutureInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext, int springVersion) {
         super(traceContext, methodDescriptor);
         this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new RestTemplateResponseHeaderAdaptor());
         this.statusCodeProvider = HttpStatusProviderFactory.getHttpStatusProvider(springVersion);
@@ -98,5 +97,4 @@ public class ListenableFutureInterceptor extends AsyncContextSpanEventSimpleArou
             }
         }
     }
-
 }
