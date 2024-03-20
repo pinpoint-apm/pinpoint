@@ -108,7 +108,6 @@
 <!--                    <argLine>-->
 <!--                        &#45;&#45;add-exports java.base/jdk.internal.access=ALL-UNNAMED-->
 <!--                    </argLine>-->
-                    <encoding>${encoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>

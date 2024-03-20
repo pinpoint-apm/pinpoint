@@ -13,7 +13,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <encoding>UTF-8</encoding>
         <undertow.version>2.2.17.Final</undertow.version>
     </properties>
 

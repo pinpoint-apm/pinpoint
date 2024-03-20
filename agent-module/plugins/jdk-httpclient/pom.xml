@@ -45,7 +45,7 @@
                 <configuration>
                     <argLine>
                         --add-exports java.net.http/jdk.internal.net.http=ALL-UNNAMED
-                        -Dfile.encoding=${encoding}
+                        -Dfile.encoding=${project.build.sourceEncoding}
                     </argLine>
                 </configuration>
             </plugin>

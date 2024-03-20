@@ -263,7 +263,6 @@
                 <version>${plugin.surefire.version}</version>
                 <configuration>
                     <enableAssertions>false</enableAssertions>
-                    <encoding>${encoding}</encoding>
                 </configuration>
             </plugin>
         </plugins>

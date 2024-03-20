@@ -128,7 +128,6 @@
     </modules>
 
     <properties>
-        <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -1610,7 +1609,6 @@
                     <version>${plugin.pmd.version}</version>
                     <configuration>
                         <linkXRef>true</linkXRef>
-                        <sourceEncoding>${encoding}</sourceEncoding>
                         <targetJdk>${jdk.version}</targetJdk>
                         <excludes>
                             <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
@@ -1689,9 +1687,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${plugin.resources.version}</version>
-                <configuration>
-                    <encoding>${encoding}</encoding>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1703,7 +1698,6 @@
                     <fork>true</fork>
                     <debug>true</debug>
                     <verbose>true</verbose>
-                    <encoding>${encoding}</encoding>
                     <parameters>true</parameters>
                     <showDeprecation>true</showDeprecation>
                     <detail>true</detail>
@@ -1724,7 +1718,6 @@
                     </excludes>
                     <!-- Add  @{argLine} for jacoco -->
                     <argLine>@{argLine}</argLine>
-                    <encoding>${encoding}</encoding>
                     <jvm>${test.jdk.home}/bin/java</jvm>
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
@@ -1745,7 +1738,6 @@
                             <goal>verify</goal>
                         </goals>
                         <configuration>
-<!--                            <encoding>UTF-8</encoding>-->
                             <excludes>
                                 <exclude>**/*Base</exclude>
                             </excludes>
@@ -1833,8 +1825,6 @@
                 <inherited>false</inherited>
                 <configuration>
                     <aggregate>true</aggregate>
-                    <inputEncoding>${encoding}</inputEncoding>
-                    <outputEncoding>${encoding}</outputEncoding>
                     <windowTitle>Pinpoint ${project.version} Cross Reference</windowTitle>
                     <docTitle>Pinpoint ${project.version} Cross Reference</docTitle>
                 </configuration>
