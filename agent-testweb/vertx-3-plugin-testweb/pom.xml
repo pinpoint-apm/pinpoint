@@ -27,14 +27,12 @@
     <packaging>jar</packaging>
 
     <properties>
-        <encoding>UTF-8</encoding>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
 
         <vertx.version>3.9.8</vertx.version>
 
         <spring-boot-build-skip>true</spring-boot-build-skip>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
         <main.verticle>com.pinpoint.test.plugin.Vertx3PluginTestStarter</main.verticle>

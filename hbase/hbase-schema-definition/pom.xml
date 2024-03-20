@@ -32,7 +32,6 @@
                     <packageName>com.navercorp.pinpoint.hbase.schema.definition.xml</packageName>
                     <addGeneratedAnnotation>true</addGeneratedAnnotation>
                     <locale>en</locale>
-                    <encoding>${encoding}</encoding>
                 </configuration>
             </plugin>
         </plugins>
