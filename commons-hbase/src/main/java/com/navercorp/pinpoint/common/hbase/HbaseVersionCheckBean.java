@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import org.apache.hadoop.hbase.ClusterStatus;
+import org.apache.hadoop.hbase.ClusterMetrics;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.util.VersionInfo;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -42,10 +42,11 @@ public class HbaseVersionCheckBean implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        ClusterStatus clusterStatus = template.execute(Admin::getClusterStatus);
-        logger.info("hbase-clusterStatus:{}", clusterStatus);
-        String hBaseServerVersion = clusterStatus.getHBaseVersion();
-        logger.info("hbase-clusterStatus HBaseServerVersion:{}", hBaseServerVersion);
+        ClusterMetrics clusterMetrics = template.execute(Admin::getClusterMetrics);
+        logger.info("HBase ClusterMetrics:{}", clusterMetrics);
+
+        String hBaseServerVersion = clusterMetrics.getHBaseVersion();
+        logger.info("HBaseServerVersion:{}", hBaseServerVersion);
         if (!hbaseVersionCompatibility) {
             return;
         }
