@@ -78,6 +78,14 @@
                                     <include>com.navercorp.pinpoint:pinpoint-common-servlet</include>
                                 </includes>
                             </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>com.navercorp.pinpoint:pinpoint-common-servlet</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <relocations>
                                 <relocation>
                                     <pattern>com.navercorp.pinpoint.plugin.common.servlet</pattern>

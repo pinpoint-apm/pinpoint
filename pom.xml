@@ -136,6 +136,7 @@
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
         <maven.compiler.compilerVersion>${jdk.version}</maven.compiler.compilerVersion>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <maven.compiler.executable>${jdk.home}/bin/javac</maven.compiler.executable>
         <test.jdk.home>${jdk.home}</test.jdk.home>
 
         <docker.repository.name>pinpointdocker</docker.repository.name>
@@ -1696,11 +1697,10 @@
                 <configuration>
                     <fork>true</fork>
                     <debug>true</debug>
-                    <verbose>true</verbose>
+                    <verbose>false</verbose>
                     <parameters>true</parameters>
                     <showDeprecation>true</showDeprecation>
                     <detail>true</detail>
-                    <executable>${jdk.home}/bin/javac</executable>
                 </configuration>
             </plugin>
             <plugin>

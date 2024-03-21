@@ -66,7 +66,7 @@
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java16</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-profiler-test</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-plugins-assembly</exclude>
-                <exclude>com.navercorp.pinpoint:pinpoint-tools</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-agent-tools</exclude>
 <!--                <exclude>*:pom</exclude>-->
             </excludes>
             <outputDirectory>lib</outputDirectory>
@@ -96,7 +96,7 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>com.navercorp.pinpoint:pinpoint-tools</include>
+                <include>com.navercorp.pinpoint:pinpoint-agent-tools</include>
             </includes>
             <outputDirectory>tools</outputDirectory>
         </dependencySet>
