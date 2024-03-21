@@ -107,6 +107,12 @@
                             </artifactSet>
                             <filters>
                                 <filter>
+                                    <artifact>com.navercorp.pinpoint:pinpoint-common-servlet</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
                                     <artifact>com.navercorp.pinpoint:pinpoint-jboss-plugin</artifact>
                                     <includes>
                                         <include>com/navercorp/pinpoint/plugin/jboss/JbossConfig.class</include>
