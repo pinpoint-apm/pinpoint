@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.thrift;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -179,56 +178,5 @@ public class SpanFactoryTest {
         Assertions.assertEquals(transactionId.getTransactionSequence(), 2);
     }
 
-
-    @Test
-    public void testFastLocalAsyncIdBo() {
-        int asyncId = 1;
-        short asyncSequence = 0;
-        TSpanEvent tSpanEvent = new TSpanEvent();
-
-        tSpanEvent.setAsyncId(asyncId);
-        tSpanEvent.setAsyncSequence(asyncSequence);
-        LocalAsyncIdBo localAsyncIdBo = spanFactory.fastLocalAsyncIdBo(List.of(tSpanEvent));
-
-        Assertions.assertEquals(localAsyncIdBo.getAsyncId(), asyncId);
-        Assertions.assertEquals(localAsyncIdBo.getSequence(), asyncSequence);
-    }
-
-    @Test
-    public void testFastLocalAsyncIdBo_empty() {
-
-        TSpanEvent tSpanEvent = new TSpanEvent();
-
-        LocalAsyncIdBo localAsyncIdBo = spanFactory.fastLocalAsyncIdBo(List.of(tSpanEvent));
-        Assertions.assertNull(localAsyncIdBo);
-    }
-
-    @Test
-    public void testFullScanLocalAsyncIdBo() {
-        int asyncId = 1;
-        short asyncSequence = 0;
-        TSpanEvent tSpanEvent = new TSpanEvent();
-        tSpanEvent.setAsyncId(asyncId);
-        tSpanEvent.setAsyncSequence(asyncSequence);
-
-        TSpanChunk tSpanChunk = new TSpanChunk();
-        tSpanChunk.setSpanEventList(List.of(tSpanEvent, tSpanEvent));
-
-        LocalAsyncIdBo localAsyncIdBo = spanFactory.fullScanLocalAsyncIdBo(tSpanChunk);
-
-        Assertions.assertEquals(localAsyncIdBo.getAsyncId(), asyncId);
-        Assertions.assertEquals(localAsyncIdBo.getSequence(), asyncSequence);
-    }
-
-    @Test
-    public void testFullScanLocalAsyncIdBo_empty() {
-
-        TSpanEvent tSpanEvent = new TSpanEvent();
-        TSpanChunk tSpanChunk = new TSpanChunk();
-        tSpanChunk.setSpanEventList(List.of(tSpanEvent, tSpanEvent));
-
-        LocalAsyncIdBo localAsyncIdBo = spanFactory.fullScanLocalAsyncIdBo(tSpanChunk);
-        Assertions.assertNull(localAsyncIdBo);
-    }
 
 }

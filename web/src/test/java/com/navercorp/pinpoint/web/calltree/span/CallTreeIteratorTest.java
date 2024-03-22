@@ -525,14 +525,17 @@ public class CallTreeIteratorTest {
             buffer.append(align.getStartTime());
             buffer.append(", lastTime=");
             buffer.append(align.getEndTime());
-            if (!align.isSpan()) {
-                buffer.append(", nextAsyncId=");
-                buffer.append(align.getSpanEventBo().getNextAsyncId());
+            if (align.isAsync()) {
                 buffer.append(", asyncId=");
-                buffer.append(align.getSpanEventBo().getAsyncId());
+                buffer.append(align.getAsyncId());
+            } else if (!align.isSpan()) {
+                int nextAsyncId = align.getSpanEventBo().getNextAsyncId();
+                if (nextAsyncId != -1) {
+                    buffer.append(", nextAsyncId=");
+                    buffer.append(nextAsyncId);
+                }
             }
             buffer.append("\n");
-
         }
         logger.debug(buffer.toString());
     }

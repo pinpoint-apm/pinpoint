@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
+import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -33,6 +33,7 @@ public class SpanEventBitField {
     public static final int SET_ANNOTATION = 0;
     public static final int SET_HAS_EXCEPTION = 1;
     public static final int SET_NEXT_ASYNCID = 2;
+    @Deprecated
     public static final int SET_ASYNCID = 3;
     public static final int SET_NEXT_SPANID = 4;
     public static final int SET_ENDPOINT = 5;
@@ -56,9 +57,6 @@ public class SpanEventBitField {
 
         final SpanEventBitField bitField = new SpanEventBitField();
 
-        if (spanEventBo.getRpc() != null) {
-            bitField.setRpc(true);
-        }
         if (spanEventBo.getEndPoint() != null) {
             bitField.setEndPoint(true);
         }
@@ -84,12 +82,6 @@ public class SpanEventBitField {
             bitField.setNextAsyncId(true);
         }
 
-
-        if (spanEventBo.getAsyncId() == -1 && spanEventBo.getAsyncSequence() == -1) {
-            bitField.setAsyncId(false);
-        } else {
-            bitField.setAsyncId(true);
-        }
         return bitField;
     }
 
@@ -209,25 +201,6 @@ public class SpanEventBitField {
     void setDestinationId(boolean destinationId) {
         setBit(SET_DESTINATIONID, destinationId);
     }
-
-    @Deprecated
-    public boolean isSetRpc() {
-        return testBit(SET_RPC);
-    }
-
-    @Deprecated
-    void setRpc(boolean rpc) {
-        setBit(SET_RPC, rpc);
-    }
-
-    public boolean isSetAsyncId() {
-        return testBit(SET_ASYNCID);
-    }
-
-    void setAsyncId(boolean asyncId) {
-        setBit(SET_ASYNCID, asyncId);
-    }
-
 
 
     public StartElapsedTimeEncodingStrategy getStartElapsedEncodingStrategy() {
