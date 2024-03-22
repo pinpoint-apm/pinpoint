@@ -31,7 +31,6 @@ import reactor.core.Disposable;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author youngjin.kim2
@@ -66,7 +65,7 @@ class LogConnectionHandler implements StreamObserver<PLogPile>, Consumer<LogDema
         }
         final List<Log> logs = pLogPile.getRecordsList().stream()
                 .map(el -> new Log(el.getSeq(), el.getTimestamp(), el.getMessage()))
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         this.pileConsumer.accept(new LogPile(pLogPile.getSeq(), logs));
     }
 

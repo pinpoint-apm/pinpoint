@@ -29,13 +29,13 @@ import java.util.Properties;
 public class PostgreSqlServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private PostgreSQLContainer postgreSql;
+    private PostgreSQLContainer<?> postgreSql;
 
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        postgreSql = new PostgreSQLContainer("postgres:9.6.12");
+        postgreSql = new PostgreSQLContainer<>("postgres:9.6.12");
         postgreSql.withInitScript("postgresql-init.sql");
         postgreSql.start();
 

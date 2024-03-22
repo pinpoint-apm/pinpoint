@@ -27,7 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.StepExecution;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -54,7 +53,7 @@ public class AlarmReaderTest {
 
     private static final List<String> applicationIds = mockApplications.stream()
             .map(Application::getName)
-            .collect(Collectors.toUnmodifiableList());
+            .toList();
 
     @Test
     public void pollingTest() {

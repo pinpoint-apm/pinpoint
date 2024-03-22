@@ -66,11 +66,11 @@ public class JtdsConnectionIT {
     private static DriverProperties driverProperties;
 
 
-    public static final JdbcDatabaseContainer mssqlserver = newMSSQLServerContainer(logger.getName());
+    public static final JdbcDatabaseContainer<?> mssqlserver = newMSSQLServerContainer(logger.getName());
 
-    public static JdbcDatabaseContainer newMSSQLServerContainer(String loggerName) {
-        final MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-latest");
-        mssqlServerContainer.addEnv("ACCEPT_EULA", "y");
+    public static JdbcDatabaseContainer<?> newMSSQLServerContainer(String loggerName) {
+        final MSSQLServerContainer<?> mssqlServerContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2019-latest");
+        mssqlServerContainer.acceptLicense();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
         mssqlServerContainer.withPassword(JtdsITConstants.PASSWORD);
         mssqlServerContainer.withLogConsumer(new Consumer<OutputFrame>() {

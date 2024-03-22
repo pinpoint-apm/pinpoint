@@ -23,17 +23,16 @@ import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.CassandraContainer;
 
-import java.util.concurrent.TimeUnit;
 
 public class CassandraTest {
 
-    private static CassandraContainer container;
+    private static CassandraContainer<?> container;
 
     @BeforeClass
     public static void beforeClass() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        container = new CassandraContainer(CassandraContainer.IMAGE + ":3.11.6");
+        container = new CassandraContainer<>("cassandra:3.11.6");
         container.start();
 
         container.getLocalDatacenter();

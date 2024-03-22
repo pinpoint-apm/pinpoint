@@ -11,7 +11,7 @@ public final class DatabaseContainers {
     private DatabaseContainers() {
     }
 
-    public static Properties toProperties(JdbcDatabaseContainer container) {
+    public static Properties toProperties(JdbcDatabaseContainer<?> container) {
         Objects.requireNonNull(container, "container");
 
         Properties properties = new Properties();
@@ -20,19 +20,27 @@ public final class DatabaseContainers {
         properties.setProperty(DriverProperties.PASSWARD, container.getPassword());
         properties.setProperty(DriverProperties.HOST, container.getHost());
         properties.setProperty(DriverProperties.PORT, container.getFirstMappedPort().toString());
-
-        System.setProperty(DriverProperties.URL, container.getJdbcUrl());
-        System.setProperty(DriverProperties.USER, container.getUsername());
-        System.setProperty(DriverProperties.PASSWARD, container.getPassword());
-        System.setProperty(DriverProperties.HOST, container.getHost());
-        System.setProperty(DriverProperties.PORT, container.getFirstMappedPort().toString());
-        try {
-            properties.setProperty(DriverProperties.DATABASE, container.getDatabaseName());
-            System.setProperty(DriverProperties.DATABASE, container.getDatabaseName());
-        } catch (UnsupportedOperationException ignored) {
+        String databaseName = getDatabaseName(container);
+        if (databaseName != null) {
+            properties.setProperty(DriverProperties.DATABASE, databaseName);
         }
 
+        putSystemProperties(properties);
+
         return properties;
+    }
+
+    private static void putSystemProperties(Properties properties) {
+        Properties system = System.getProperties();
+        system.putAll(properties);
+    }
+
+    private static String getDatabaseName(JdbcDatabaseContainer<?> container) {
+        try {
+            return container.getDatabaseName();
+        } catch (UnsupportedOperationException ignored) {
+            return null;
+        }
     }
 
     public static Properties toProperties(String url, String user, String password) {
@@ -45,9 +53,7 @@ public final class DatabaseContainers {
         properties.setProperty(DriverProperties.USER, user);
         properties.setProperty(DriverProperties.PASSWARD, password);
 
-        System.setProperty(DriverProperties.URL, url);
-        System.setProperty(DriverProperties.USER, user);
-        System.setProperty(DriverProperties.PASSWARD, password);
+        putSystemProperties(properties);
 
         return properties;
     }
@@ -62,10 +68,7 @@ public final class DatabaseContainers {
     }
 
     public static DriverProperties readSystemProperties() {
-        String url = System.getProperty(DriverProperties.URL);
-        String user = System.getProperty(DriverProperties.USER);
-        String password = System.getProperty(DriverProperties.PASSWARD);
-        return new DriverProperties(url, user, password, System.getProperties());
+        return readDriverProperties(System.getProperties());
     }
 
 }

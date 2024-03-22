@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 public class MariaDBServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
-    private MariaDBContainer mariaDB;
+    private MariaDBContainer<?> mariaDB;
 
     public static final String DATABASE_NAME = "test";
     public static final String USERNAME = "root";
@@ -26,7 +26,7 @@ public class MariaDBServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        mariaDB = new MariaDBContainer("mariadb:10.3.6");
+        mariaDB = new MariaDBContainer<>("mariadb:10.3.6");
         mariaDB.withLogConsumer(new Consumer<OutputFrame>() {
             @Override
             public void accept(OutputFrame outputFrame) {

@@ -30,13 +30,13 @@ import java.util.Properties;
 public class MssqlServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private static MSSQLServerContainer container;
+    private static MSSQLServerContainer<?> container;
 
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new MSSQLServerContainer();
+        container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-CU12");
         container.waitingFor(Wait.forListeningPort());
         container.withInitScript("mssql-init.sql");
         container.start();

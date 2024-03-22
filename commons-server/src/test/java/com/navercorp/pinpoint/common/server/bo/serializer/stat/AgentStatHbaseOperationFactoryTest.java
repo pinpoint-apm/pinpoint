@@ -20,11 +20,10 @@ import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import org.apache.hadoop.hbase.client.Put;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -38,13 +37,13 @@ import java.util.TreeSet;
 import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_STAT_STATISTICS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class AgentStatHbaseOperationFactoryTest {
 
@@ -57,11 +56,6 @@ public class AgentStatHbaseOperationFactoryTest {
 
     @Autowired
     private AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void create_should_return_empty_list_for_null_dataPoints() {
@@ -189,10 +183,10 @@ public class AgentStatHbaseOperationFactoryTest {
         final long testStartTimestamp = 0L;
 
         AgentStatDataPoint mock = mock(AgentStatDataPoint.class);
-        when(mock.getAgentId()).thenReturn(testAgentId);
-        when(mock.getStartTimestamp()).thenReturn(testStartTimestamp);
-        when(mock.getTimestamp()).thenReturn(testTimestamp);
-        when(mock.getAgentStatType()).thenReturn(AgentStatType.UNKNOWN);
+        lenient().when(mock.getAgentId()).thenReturn(testAgentId);
+        lenient().when(mock.getStartTimestamp()).thenReturn(testStartTimestamp);
+        lenient().when(mock.getTimestamp()).thenReturn(testTimestamp);
+        lenient().when(mock.getAgentStatType()).thenReturn(AgentStatType.UNKNOWN);
         return mock;
     }
 }

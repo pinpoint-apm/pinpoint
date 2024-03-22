@@ -31,8 +31,9 @@ public final class MSSQLServerContainerFactory {
     private MSSQLServerContainerFactory() {
     }
 
-    public static MSSQLServerContainer newMSSQLServerContainer(String loggerName) {
-        final MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer();
+    public static MSSQLServerContainer<?> newMSSQLServerContainer(String loggerName) {
+        final MSSQLServerContainer<?> mssqlServerContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-CU12");
+        mssqlServerContainer.acceptLicense();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
 
         mssqlServerContainer.withLogConsumer(new Consumer<OutputFrame>() {
