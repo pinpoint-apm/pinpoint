@@ -7,8 +7,6 @@ import java.util.Comparator;
  */
 public final class SpanEventComparator {
 
-    public static final Comparator<SpanEventBo> INSTANCE = Comparator.comparingInt(SpanEventBo::getSequence)
-            .thenComparingInt(SpanEventBo::getAsyncId)
-            .thenComparingInt(SpanEventBo::getAsyncSequence);
+    public static final Comparator<SpanEventBo> INSTANCE = Comparator.comparingInt(SpanEventBo::getSequence);
 
 }

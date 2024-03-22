@@ -127,9 +127,7 @@ public class RandomTSpan {
         tSpanEvent.setDestinationId(RandomStringUtils.random(20));
         tSpanEvent.setApiId(RandomUtils.nextInt(0, 65535));
 
-        tSpanEvent.setAsyncId(randomNegative(RandomUtils.nextInt(0, 10)));
         tSpanEvent.setNextAsyncId(random.nextInt());
-        tSpanEvent.setAsyncSequence((short) RandomUtils.nextInt(0, Short.MAX_VALUE));
 
         if (random.nextBoolean()) {
             TIntStringValue exceptionInfo = new TIntStringValue();

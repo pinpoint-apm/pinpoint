@@ -55,10 +55,6 @@ public class SpanEventBo implements Event {
 
     private int nextAsyncId = -1;
 
-    @Deprecated
-    private int asyncId = -1;
-    @Deprecated
-    private short asyncSequence = -1;
 
     public SpanEventBo() {
     }
@@ -94,16 +90,6 @@ public class SpanEventBo implements Event {
 
     public void setEndElapsed(int endElapsed) {
         this.endElapsed = endElapsed;
-    }
-
-    @Deprecated
-    public String getRpc() {
-        return null;
-    }
-
-    @Deprecated
-    public void setRpc(String rpc) {
-//        this.rpc = rpc;
     }
 
     public short getServiceType() {
@@ -167,10 +153,6 @@ public class SpanEventBo implements Event {
         this.annotationBoList = annotationList;
     }
 
-    public boolean isAsync() {
-        return this.asyncId != -1;
-    }
-
     public boolean hasException() {
         return hasException;
     }
@@ -207,30 +189,6 @@ public class SpanEventBo implements Event {
     }
 
 
-    @Deprecated
-    public int getAsyncId() {
-        return asyncId;
-    }
-
-    @Deprecated
-    public void setAsyncId(int asyncId) {
-        this.asyncId = asyncId;
-    }
-
-    @Deprecated
-    public short getAsyncSequence() {
-        return asyncSequence;
-    }
-
-    @Deprecated
-    public void setAsyncSequence(short asyncSequence) {
-        this.asyncSequence = asyncSequence;
-    }
-
-    private boolean isDeprecatedAsyncFieldsSet() {
-        return asyncId != -1 || asyncSequence != -1;
-    }
-
     @Override
     public String toString() {
         return "SpanEventBo{" +
@@ -250,8 +208,6 @@ public class SpanEventBo implements Event {
                 ", exceptionMessage='" + exceptionMessage + '\'' +
                 ", exceptionClass='" + exceptionClass + '\'' +
                 ", nextAsyncId=" + nextAsyncId +
-                ", asyncId=" + asyncId +
-                ", asyncSequence=" + asyncSequence +
                 '}';
     }
 

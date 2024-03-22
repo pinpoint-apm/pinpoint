@@ -107,7 +107,6 @@ public class SpanFactoryAssert {
         Assertions.assertEquals(tSpanEvent.getStartElapsed(), spanEventBo.getStartElapsed());
         Assertions.assertEquals(tSpanEvent.getEndElapsed(), spanEventBo.getEndElapsed());
 
-        Assertions.assertEquals(tSpanEvent.getRpc(), spanEventBo.getRpc());
         Assertions.assertEquals(tSpanEvent.getServiceType(), spanEventBo.getServiceType());
         Assertions.assertEquals(tSpanEvent.getEndPoint(), spanEventBo.getEndPoint());
 
@@ -128,8 +127,6 @@ public class SpanFactoryAssert {
 
         Assertions.assertEquals(tSpanEvent.getNextAsyncId(), spanEventBo.getNextAsyncId());
 
-        Assertions.assertEquals(-1, spanEventBo.getAsyncId());
-        Assertions.assertEquals(-1, spanEventBo.getAsyncSequence());
     }
 
 

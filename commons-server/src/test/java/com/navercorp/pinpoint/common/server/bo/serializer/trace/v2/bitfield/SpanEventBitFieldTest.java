@@ -41,16 +41,6 @@ public class SpanEventBitFieldTest {
 
     }
 
-    @Test
-    public void testRpc_first() {
-        SpanEventBo spanEventBo = new SpanEventBo();
-
-        spanEventBo.setRpc("Rpc");
-
-        SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assertions.assertFalse(bitField.isSetRpc());
-
-    }
 
     @Test
     public void testEndPoint_first() throws Exception {
@@ -139,20 +129,6 @@ public class SpanEventBitFieldTest {
 
     }
 
-    @Test
-    public void testAsyncId_first() {
-        SpanEventBo spanEventBo = new SpanEventBo();
-
-        spanEventBo.setAsyncId(1234);
-        spanEventBo.setAsyncSequence((short) 1234);
-
-        SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assertions.assertTrue(bitField.isSetAsyncId());
-
-        bitField.setAsyncId(false);
-        Assertions.assertFalse(bitField.isSetAsyncId());
-
-    }
 
     @Test
     public void testStartElapsed_equals_next() {
