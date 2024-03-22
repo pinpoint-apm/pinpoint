@@ -25,12 +25,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.Random;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 /**
  * @author Taejin Koo
@@ -57,9 +55,9 @@ public class DefaultResponseTimeMetricCollectorTest {
             totalValue += value;
         }
 
-        when(responseTimeValue.getAvg()).thenReturn(totalValue / COUNT);
+        lenient().when(responseTimeValue.getAvg()).thenReturn(totalValue / COUNT);
 
-        when(responseTimeMetric.responseTimeValue()).thenReturn(responseTimeValue);
+        lenient().when(responseTimeMetric.responseTimeValue()).thenReturn(responseTimeValue);
     }
 
     @Test
@@ -70,7 +68,6 @@ public class DefaultResponseTimeMetricCollectorTest {
         Assertions.assertEquals(totalValue / COUNT, collect.getAvg());
     }
 
-    @MockitoSettings(strictness = Strictness.LENIENT)
     @Test
     public void throwNPETest() throws Exception {
         Assertions.assertThrows(NullPointerException.class, () -> {

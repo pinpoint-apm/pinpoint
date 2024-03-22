@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +36,7 @@ public class SupportedCommandUtilsTest {
 
     private static final List<Integer> CODES = TYPES.stream()
             .map(el -> Integer.valueOf(el.getCode()))
-            .collect(Collectors.toUnmodifiableList());
+            .toList();
 
     @Test
     public void testConverting() {

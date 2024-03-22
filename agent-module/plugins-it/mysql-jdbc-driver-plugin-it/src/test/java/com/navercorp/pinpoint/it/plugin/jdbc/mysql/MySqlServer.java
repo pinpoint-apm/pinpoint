@@ -21,13 +21,13 @@ public class MySqlServer implements SharedTestLifeCycle {
     public static final String USERNAME = "root";
     public static final String PASSWORD = "";
 
-    private MySQLContainer mysqlDB = new MySQLContainer("mysql:5.7.34");
+    private MySQLContainer<?> mysqlDB = new MySQLContainer<>("mysql:5.7.34");
 
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        mysqlDB = new MySQLContainer("mysql:5.7.34");
+        mysqlDB = new MySQLContainer<>("mysql:5.7.34");
         mysqlDB.withLogConsumer(new Consumer<OutputFrame>() {
             @Override
             public void accept(OutputFrame outputFrame) {

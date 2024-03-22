@@ -36,12 +36,12 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 
 /**
  * @author Taejin Koo
  */
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class ProducerAddHeaderInterceptorTest {
 
     @Mock
@@ -71,15 +71,16 @@ public class ProducerAddHeaderInterceptorTest {
     @Test
     public void beforeWhenSampled() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        lenient().doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
         Header[] headers = getHeadersWhenSampled();
         Assertions.assertEquals(6, headers.length);
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     public void beforeWhenSampledNoHeader() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(false).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        lenient().doReturn(false).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
 
         Header[] headers = getHeadersWhenSampled();
         Assertions.assertEquals(0, headers.length);
@@ -114,7 +115,7 @@ public class ProducerAddHeaderInterceptorTest {
     @Test
     public void beforeWhenUnsampled() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        lenient().doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
         doReturn(trace).when(traceContext).currentRawTraceObject();
         doReturn(false).when(trace).canSampled();
         doReturn(recorder).when(trace).currentSpanEventRecorder();
@@ -135,11 +136,11 @@ public class ProducerAddHeaderInterceptorTest {
     @Test
     public void beforeWhenV1() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        lenient().doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
         doReturn(trace).when(traceContext).currentRawTraceObject();
 
         doReturn(apiVersions).when(apiVersionsGetter)._$PINPOINT$_getApiVersions();
-        doReturn(RecordBatch.MAGIC_VALUE_V1).when(apiVersions).maxUsableProduceMagic();
+        lenient().doReturn(RecordBatch.MAGIC_VALUE_V1).when(apiVersions).maxUsableProduceMagic();
 
         ProducerAddHeaderInterceptor interceptor = new ProducerAddHeaderInterceptor(traceContext);
 

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -41,7 +40,7 @@ public class ChannelzController {
     ) {
         List<Long> ids = this.socketLookup.find(remoteAddress, localPort).stream()
                 .map(SocketEntry::getSocketId)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         return this.channelzService.getSocketStatsList(ids);
     }
 

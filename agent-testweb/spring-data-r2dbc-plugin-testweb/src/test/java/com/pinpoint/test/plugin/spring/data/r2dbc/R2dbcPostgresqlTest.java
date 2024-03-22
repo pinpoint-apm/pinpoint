@@ -25,13 +25,13 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 public class R2dbcPostgresqlTest {
 
-    private static PostgreSQLContainer container;
+    private static PostgreSQLContainer<?> container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new PostgreSQLContainer();
+        container = new PostgreSQLContainer<>();
         container.withInitScript("postgresql-init.sql");
 
         container.start();

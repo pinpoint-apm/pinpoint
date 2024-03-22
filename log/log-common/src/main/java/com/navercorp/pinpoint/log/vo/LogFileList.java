@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.log.vo;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author youngjin.kim2
@@ -30,7 +29,7 @@ public class LogFileList {
 
     public LogFileList(List<FileKey> fileKeys) {
         Objects.requireNonNull(fileKeys, "fileKeys");
-        this.fileKeys = fileKeys.stream().map(el -> el.toString()).distinct().collect(Collectors.toUnmodifiableList());
+        this.fileKeys = fileKeys.stream().map(FileKey::toString).distinct().toList();
     }
 
     public static LogFileList of(List<FileKey> fileKeys) {

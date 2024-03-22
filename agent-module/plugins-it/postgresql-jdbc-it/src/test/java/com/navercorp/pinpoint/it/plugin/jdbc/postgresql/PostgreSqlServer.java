@@ -13,7 +13,7 @@ import java.util.Properties;
 public class PostgreSqlServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private PostgreSQLContainer postgreSql;
+    private PostgreSQLContainer<?> postgreSql;
 
     @Override
     public Properties beforeAll() {

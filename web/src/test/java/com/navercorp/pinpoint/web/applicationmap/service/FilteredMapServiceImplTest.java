@@ -57,8 +57,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
@@ -78,6 +76,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +84,6 @@ import static org.mockito.Mockito.when;
  * @author HyunGil Jeong
  */
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class FilteredMapServiceImplTest {
 
     private static final Random RANDOM = new Random();
@@ -130,7 +128,7 @@ public class FilteredMapServiceImplTest {
                     ServiceType serviceType = invocation.getArgument(1);
                     return new Application(applicationName, serviceType);
                 });
-        when(applicationFactory.createApplicationByTypeName(anyString(), anyString()))
+        lenient().when(applicationFactory.createApplicationByTypeName(anyString(), anyString()))
                 .thenAnswer(invocation -> {
                     String applicationName = invocation.getArgument(0);
                     ServiceType serviceType = registry.findServiceTypeByName(invocation.getArgument(1));

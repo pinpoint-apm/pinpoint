@@ -23,7 +23,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author youngjin.kim2
@@ -52,7 +51,7 @@ public class CollectorStateUpdateRunnable implements Runnable {
     private CollectorState getCollectorState() {
         List<ProfilerDescription> clusterKeys = this.clusterPointLocator.getClusterPointList().stream()
                 .map(point -> new ProfilerDescription(point.getClusterKey()))
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         return new CollectorState(clusterKeys);
     }
 

@@ -16,13 +16,13 @@ import java.util.function.Consumer;
 public class MsSqlServer implements SharedTestLifeCycle {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private MSSQLServerContainer mssqlserver;
+    private MSSQLServerContainer<?> mssqlserver;
     @Override
     public Properties beforeAll() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        mssqlserver = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-latest");
-        mssqlserver.addEnv("ACCEPT_EULA", "y");
+        mssqlserver = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2019-latest");
+        mssqlserver.acceptLicense();
         mssqlserver.withInitScript("sql/init_mssql.sql");
         mssqlserver.withPassword(JtdsITConstants.PASSWORD);
 

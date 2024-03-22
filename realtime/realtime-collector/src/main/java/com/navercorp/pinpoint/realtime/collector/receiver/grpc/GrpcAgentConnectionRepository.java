@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 public class GrpcAgentConnectionRepository implements ClusterPointLocator {
 
@@ -54,7 +53,7 @@ public class GrpcAgentConnectionRepository implements ClusterPointLocator {
             logger.warn("Duplicated cluster key detected: key = {}, num = {}", key, candidates.size());
         }
 
-        if (candidates.size() > 0) {
+        if (!candidates.isEmpty()) {
             return candidates.iterator().next();
         }
 
@@ -63,7 +62,7 @@ public class GrpcAgentConnectionRepository implements ClusterPointLocator {
 
     @Override
     public Collection<ClusterPoint> getClusterPointList() {
-        return this.getConnections().stream().map(el -> (ClusterPoint) el).collect(Collectors.toUnmodifiableList());
+        return this.getConnections().stream().map(el -> (ClusterPoint) el).toList();
     }
 
 }

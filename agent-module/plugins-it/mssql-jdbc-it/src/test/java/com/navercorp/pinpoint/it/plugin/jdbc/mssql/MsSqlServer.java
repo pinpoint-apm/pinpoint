@@ -13,7 +13,7 @@ import java.util.Properties;
 public class MsSqlServer implements SharedTestLifeCycle {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private MSSQLServerContainer mssqlserver;
+    private MSSQLServerContainer<?> mssqlserver;
 
     @Override
     public Properties beforeAll() {
