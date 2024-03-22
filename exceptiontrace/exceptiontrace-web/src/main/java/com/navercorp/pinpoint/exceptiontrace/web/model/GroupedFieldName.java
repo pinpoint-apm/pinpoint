@@ -36,6 +36,9 @@ public class GroupedFieldName {
     }
 
     public String inAString() {
+        if (uriTemplate == null && errorClassName == null && errorMessage == null && stackTraceHash == null) {
+            return null;
+        }
         return StringUtils.abbreviate(
                 Stream.of(uriTemplate, errorClassName, errorMessage, stackTraceHash)
                         .filter(StringUtils::hasLength)

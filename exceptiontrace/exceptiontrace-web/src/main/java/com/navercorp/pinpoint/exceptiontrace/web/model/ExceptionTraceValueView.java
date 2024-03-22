@@ -28,6 +28,7 @@ import java.util.List;
 public class ExceptionTraceValueView implements TimeSeriesValueView {
 
     private static final String TOTAL_FIELDNAME = "total";
+    private static final String EMPTY_STRING = "";
     private GroupedFieldName groupedFieldName;
     private List<Integer> values;
 
@@ -40,7 +41,7 @@ public class ExceptionTraceValueView implements TimeSeriesValueView {
 
     @Override
     public String getFieldName() {
-        return groupedFieldName != null ? StringUtils.defaultIfEmpty(groupedFieldName.inAString(), TOTAL_FIELDNAME) : TOTAL_FIELDNAME;
+        return StringUtils.defaultIfEmpty(groupedFieldName.inAString(), TOTAL_FIELDNAME);
     }
 
     @JsonIgnore
