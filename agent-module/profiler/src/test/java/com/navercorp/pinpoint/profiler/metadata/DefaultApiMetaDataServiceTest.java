@@ -17,8 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
@@ -36,7 +35,7 @@ public class DefaultApiMetaDataServiceTest {
 
     @Test
     public void cacheApi() {
-        EnhancedDataSender<MetaDataType, ResponseMessage> dataSender = mock(EnhancedDataSender.class);
+        DataSender<MetaDataType> dataSender = mock(DataSender.class);
         SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(1));
         ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService(dataSender, cache);
 
@@ -46,11 +45,11 @@ public class DefaultApiMetaDataServiceTest {
         int first = apiMetaDataService.cacheApi(methodDescriptor);
 
         Assertions.assertNotEquals(first, 0, "not exist");
-        verify(dataSender).request(any(ApiMetaData.class));
+        verify(dataSender).send(any(ApiMetaData.class));
 
         int second = apiMetaDataService.cacheApi(methodDescriptor);
         Assertions.assertEquals(first, second, "check cache");
-        verify(dataSender).request(any(ApiMetaData.class));
+        verify(dataSender).send(any(ApiMetaData.class));
     }
 
 }

@@ -177,7 +177,9 @@ public class GrpcModule extends PrivateModule {
         bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(agentDataSender);
 
-        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
+        TypeLiteral<DataSender<MetaDataType>> metadataDataSenderTypeLiteral = new TypeLiteral<DataSender<MetaDataType>>() {
+        };
+        Key<DataSender<MetaDataType>> metadataDataSender = Key.get(metadataDataSenderTypeLiteral, MetadataDataSender.class);
         bind(metadataDataSender).toProvider(MetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(metadataDataSender);
     }

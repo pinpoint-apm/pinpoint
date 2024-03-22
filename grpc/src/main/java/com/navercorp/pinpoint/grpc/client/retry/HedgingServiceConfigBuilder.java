@@ -23,8 +23,8 @@ import java.util.Map;
 
 public class HedgingServiceConfigBuilder implements ServiceConfigBuilder {
 
-    public static final int DEFAULT_MAX_ATTEMPTS = 3;
-    public static final long DEFAULT_HEDGING_DELAY_MILLIS = 1000L;
+    private static final int DEFAULT_MAX_ATTEMPTS = 3;
+    private static final long DEFAULT_HEDGING_DELAY_MILLIS = 1000L;
 
     private double maxAttempts = DEFAULT_MAX_ATTEMPTS; //Required. Must be two or greater
     private String hedgingDelay = millisToString(DEFAULT_HEDGING_DELAY_MILLIS);  //Required. Long decimal with "s" appended
@@ -67,6 +67,19 @@ public class HedgingServiceConfigBuilder implements ServiceConfigBuilder {
 
     public void setNonFatalStatusCodes(List<String> nonFatalStatusCodes) {
         this.nonFatalStatusCodes = nonFatalStatusCodes;
+    }
+
+    // for compatibility
+    public void setMaxCount(int maxCount) {
+        if (maxCount != -1) {
+            setMaxAttempts(maxCount);
+        }
+    }
+
+    public void setRetryDelayMillis(int retryDelayMillis) {
+        if (retryDelayMillis != -1) {
+            setHedgingDelayMillis(retryDelayMillis);
+        }
     }
 
     public String millisToString(long value) {
