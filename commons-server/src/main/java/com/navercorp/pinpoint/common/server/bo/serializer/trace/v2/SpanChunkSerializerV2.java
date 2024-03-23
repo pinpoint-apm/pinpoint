@@ -30,7 +30,7 @@ public class SpanChunkSerializerV2 implements HbaseSerializer<SpanChunkBo, Put> 
         ByteBuffer qualifier = spanEncoder.encodeSpanChunkQualifier(encodingContext);
         ByteBuffer columnValue = spanEncoder.encodeSpanChunkColumnValue(encodingContext);
 
-        long acceptedTime = put.getTimeStamp();
+        long acceptedTime = put.getTimestamp();
         put.addColumn(HbaseColumnFamily.TRACE_V2_SPAN.getName(), qualifier, acceptedTime, columnValue);
     }
 
