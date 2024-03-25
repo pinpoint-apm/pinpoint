@@ -8,7 +8,7 @@ public final class CassandraITConstants {
     public static final String CASSANDRA_TESTCONTAINER = "org.testcontainers:cassandra:" + TestcontainersOption.VERSION;
 
     // https://hub.docker.com/_/cassandra
-    public static final String CASSANDRA_3_X_IMAGE = "cassandra:3.11.6";
+    public static final String CASSANDRA_3_X_IMAGE = "cassandra:3.11.16";
 
     public static final String TEST_KEYSPACE = "mykeyspace";
     public static final String TEST_TABLE = "mytable";

@@ -31,7 +31,7 @@ public class MongodbServer implements SharedTestLifeCycle {
     @Override
     public Properties beforeAll() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        container = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
+        container = new MongoDBContainer(DockerImageName.parse("mongo:4.0.28"));
         container.start();
 
         final String url = "mongodb://" + container.getHost() + ":" + container.getFirstMappedPort();

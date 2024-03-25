@@ -13,7 +13,7 @@ public class ESServerContainerFactory {
     public static final int DEFAULT_PORT = 9200;
 
     public static ElasticsearchContainer newESServerContainerFactory(String loggerName) {
-        ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer();
+        ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer("elasticsearch:7.17.18");
         elasticsearchContainer.withLogConsumer(new Consumer<OutputFrame>() {
             private final Logger logger = LogManager.getLogger(loggerName);
             @Override

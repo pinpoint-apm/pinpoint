@@ -26,7 +26,7 @@ public class MariaDBServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        mariaDB = new MariaDBContainer<>("mariadb:10.3.6");
+        mariaDB = new MariaDBContainer<>("mariadb:10.6.17");
         mariaDB.withLogConsumer(new Consumer<OutputFrame>() {
             @Override
             public void accept(OutputFrame outputFrame) {
