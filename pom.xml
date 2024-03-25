@@ -240,7 +240,7 @@
         <mockito.version>4.11.0</mockito.version>
         <bytebuddy.version>1.12.23</bytebuddy.version>
 
-        <testcontainers.version>1.17.6</testcontainers.version>
+        <testcontainers.version>1.19.7</testcontainers.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.11.0</plugin.compiler.version>
