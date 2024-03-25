@@ -1,0 +1,16 @@
+{
+  "extends": "@pinpoint-fe/tsconfig/base.json",
+  "include": [
+    ".",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "build",
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "target": "ES6",
+    "resolveJsonModule": true
+  }
+}

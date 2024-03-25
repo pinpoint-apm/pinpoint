@@ -1,0 +1,303 @@
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .rich-datetime-picker {
+    *,
+    ::before,
+    ::after {
+      box-sizing: border-box; /* 1 */
+      border-width: 0; /* 2 */
+      border-style: solid; /* 2 */
+      border-color: #e5e7eb; /* 2 */
+    }
+
+    ::before,
+    ::after {
+      --tw-content: '';
+    }
+
+    line-height: 1.5; /* 1 */
+    -webkit-text-size-adjust: 100%; /* 2 */
+    -moz-tab-size: 4; /* 3 */
+    -o-tab-size: 4;
+    tab-size: 4; /* 3 */
+    font-feature-settings: normal; /* 5 */
+    font-variation-settings: normal; /* 6 */
+
+    button,
+    input {
+      font-family: inherit; /* 1 */
+      font-feature-settings: inherit; /* 1 */
+      font-variation-settings: inherit; /* 1 */
+      font-weight: inherit; /* 1 */
+      line-height: inherit; /* 1 */
+      color: inherit; /* 1 */
+    }
+
+    button {
+      text-transform: none;
+    }
+
+    button,
+    [type='button'],
+    [type='reset'],
+    [type='submit'] {
+      -webkit-appearance: button; /* 1 */
+      background-color: transparent; /* 2 */
+      background-image: none; /* 2 */
+    }
+
+    :-moz-focusring {
+      outline: auto;
+    }
+
+    :-moz-ui-invalid {
+      box-shadow: none;
+    }
+
+    ::-webkit-inner-spin-button,
+    ::-webkit-outer-spin-button {
+      height: auto;
+    }
+
+    [type='search'] {
+      -webkit-appearance: textfield; /* 1 */
+      outline-offset: -2px; /* 2 */
+    }
+
+    ::-webkit-search-decoration {
+      -webkit-appearance: none;
+    }
+
+    ::-webkit-file-upload-button {
+      -webkit-appearance: button; /* 1 */
+      font: inherit; /* 2 */
+    }
+
+    input::-moz-placeholder {
+      opacity: 1; /* 1 */
+      color: #9ca3af; /* 2 */
+    }
+
+    input::placeholder {
+      opacity: 1; /* 1 */
+      color: #9ca3af; /* 2 */
+    }
+
+    button,
+    [role='button'] {
+      cursor: pointer;
+    }
+
+    :disabled {
+      cursor: default;
+    }
+
+    [hidden] {
+      display: none;
+    }
+
+    *,
+    ::before,
+    ::after {
+      --tw-border-spacing-x: 0;
+      --tw-border-spacing-y: 0;
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-rotate: 0;
+      --tw-skew-x: 0;
+      --tw-skew-y: 0;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-pan-x:  ;
+      --tw-pan-y:  ;
+      --tw-pinch-zoom:  ;
+      --tw-scroll-snap-strictness: proximity;
+      --tw-gradient-from-position:  ;
+      --tw-gradient-via-position:  ;
+      --tw-gradient-to-position:  ;
+      --tw-ordinal:  ;
+      --tw-slashed-zero:  ;
+      --tw-numeric-figure:  ;
+      --tw-numeric-spacing:  ;
+      --tw-numeric-fraction:  ;
+      --tw-ring-inset:  ;
+      --tw-ring-offset-width: 0px;
+      --tw-ring-offset-color: #fff;
+      --tw-ring-color: rgb(59 130 246 / 0.5);
+      --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-ring-shadow: 0 0 #0000;
+      --tw-shadow: 0 0 #0000;
+      --tw-shadow-colored: 0 0 #0000;
+      --tw-blur:  ;
+      --tw-brightness:  ;
+      --tw-contrast:  ;
+      --tw-grayscale:  ;
+      --tw-hue-rotate:  ;
+      --tw-invert:  ;
+      --tw-saturate:  ;
+      --tw-sepia:  ;
+      --tw-drop-shadow:  ;
+      --tw-backdrop-blur:  ;
+      --tw-backdrop-brightness:  ;
+      --tw-backdrop-contrast:  ;
+      --tw-backdrop-grayscale:  ;
+      --tw-backdrop-hue-rotate:  ;
+      --tw-backdrop-invert:  ;
+      --tw-backdrop-opacity:  ;
+      --tw-backdrop-saturate:  ;
+      --tw-backdrop-sepia:  ;
+    }
+
+    ::backdrop {
+      --tw-border-spacing-x: 0;
+      --tw-border-spacing-y: 0;
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-rotate: 0;
+      --tw-skew-x: 0;
+      --tw-skew-y: 0;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-pan-x:  ;
+      --tw-pan-y:  ;
+      --tw-pinch-zoom:  ;
+      --tw-scroll-snap-strictness: proximity;
+      --tw-gradient-from-position:  ;
+      --tw-gradient-via-position:  ;
+      --tw-gradient-to-position:  ;
+      --tw-ordinal:  ;
+      --tw-slashed-zero:  ;
+      --tw-numeric-figure:  ;
+      --tw-numeric-spacing:  ;
+      --tw-numeric-fraction:  ;
+      --tw-ring-inset:  ;
+      --tw-ring-offset-width: 0px;
+      --tw-ring-offset-color: #fff;
+      --tw-ring-color: rgb(59 130 246 / 0.5);
+      --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-ring-shadow: 0 0 #0000;
+      --tw-shadow: 0 0 #0000;
+      --tw-shadow-colored: 0 0 #0000;
+      --tw-blur:  ;
+      --tw-brightness:  ;
+      --tw-contrast:  ;
+      --tw-grayscale:  ;
+      --tw-hue-rotate:  ;
+      --tw-invert:  ;
+      --tw-saturate:  ;
+      --tw-sepia:  ;
+      --tw-drop-shadow:  ;
+      --tw-backdrop-blur:  ;
+      --tw-backdrop-brightness:  ;
+      --tw-backdrop-contrast:  ;
+      --tw-backdrop-grayscale:  ;
+      --tw-backdrop-hue-rotate:  ;
+      --tw-backdrop-invert:  ;
+      --tw-backdrop-opacity:  ;
+      --tw-backdrop-saturate:  ;
+      --tw-backdrop-sepia:  ;
+    }
+
+    ::backdrop {
+      --tw-border-spacing-x: 0;
+      --tw-border-spacing-y: 0;
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-rotate: 0;
+      --tw-skew-x: 0;
+      --tw-skew-y: 0;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-pan-x:  ;
+      --tw-pan-y:  ;
+      --tw-pinch-zoom:  ;
+      --tw-scroll-snap-strictness: proximity;
+      --tw-gradient-from-position:  ;
+      --tw-gradient-via-position:  ;
+      --tw-gradient-to-position:  ;
+      --tw-ordinal:  ;
+      --tw-slashed-zero:  ;
+      --tw-numeric-figure:  ;
+      --tw-numeric-spacing:  ;
+      --tw-numeric-fraction:  ;
+      --tw-ring-inset:  ;
+      --tw-ring-offset-width: 0px;
+      --tw-ring-offset-color: #fff;
+      --tw-ring-color: rgb(59 130 246 / 0.5);
+      --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-ring-shadow: 0 0 #0000;
+      --tw-shadow: 0 0 #0000;
+      --tw-shadow-colored: 0 0 #0000;
+      --tw-blur:  ;
+      --tw-brightness:  ;
+      --tw-contrast:  ;
+      --tw-grayscale:  ;
+      --tw-hue-rotate:  ;
+      --tw-invert:  ;
+      --tw-saturate:  ;
+      --tw-sepia:  ;
+      --tw-drop-shadow:  ;
+      --tw-backdrop-blur:  ;
+      --tw-backdrop-brightness:  ;
+      --tw-backdrop-contrast:  ;
+      --tw-backdrop-grayscale:  ;
+      --tw-backdrop-hue-rotate:  ;
+      --tw-backdrop-invert:  ;
+      --tw-backdrop-opacity:  ;
+      --tw-backdrop-saturate:  ;
+      --tw-backdrop-sepia:  ;
+    }
+
+    @apply rdp-text-rgba8;
+  }
+  .rich-datetime-picker__trigger {
+    @apply rdp-relative rdp-flex rdp-h-8 rdp-rounded rdp-border;
+  }
+  .rich-datetime-picker__trigger.disable {
+    @apply rdp-pointer-events-none rdp-opacity-50;
+  }
+  .rich-datetime-picker__input {
+    @apply rdp-w-full rdp-rounded rdp-bg-transparent rdp-pl-12.5 rdp-text-sm focus:rdp-outline-none;
+  }
+  .rich-datetime-picker__panel {
+    @apply rdp-absolute rdp-top-[calc(100%+2px)] rdp-z-10 rdp-w-full rdp-rounded rdp-bg-white rdp-shadow-box1;
+  }
+  .rich-datetime-picker__panel.expand-left {
+    @apply rdp-rounded-l-none;
+  }
+  .rich-datetime-picker__panel.expand-right {
+    @apply rdp-rounded-r-none;
+  }
+  .rich-datetime-picker__panel.expand-bottom {
+    @apply rdp-rounded-b-none;
+  }
+  .rich-datetime-picker__panel.expand-left .rich-datetime-picker__item {
+    @apply first:rdp-rounded-l-none last:rdp-rounded-l-none;
+  }
+  .rich-datetime-picker__panel.expand-right .rich-datetime-picker__item {
+    @apply first:rdp-rounded-r-none last:rdp-rounded-r-none;
+  }
+  .rich-datetime-picker__panel.expand-bottom .rich-datetime-picker__item {
+    @apply last:rdp-rounded-b-none;
+  }
+  .rich-datetime-picker__item {
+    @apply rdp-flex rdp-h-7.5 rdp-cursor-pointer rdp-items-center rdp-gap-2.5 rdp-bg-inherit rdp-p-1.5 first:rdp-rounded-t last:rdp-rounded-b hover:rdp-bg-rgba06;
+  }
+  .rich-datetime-picker__item-text {
+    @apply rdp-text-sm rdp-font-normal;
+  }
+  .rich-datetime-picker__tag {
+    @apply rdp-flex rdp-h-5 rdp-w-9 rdp-cursor-pointer rdp-items-center rdp-justify-center rdp-rounded-sm rdp-bg-rgba1 rdp-text-xs rdp-text-rgba5;
+  }
+  .rich-datetime-picker__tag--colorized {
+    @apply rdp-flex rdp-h-5 rdp-items-center rdp-justify-center rdp-rounded-sm rdp-px-1.5 rdp-pt-1 rdp-text-xs rdp-text-primary;
+  }
+  .rich-datetime-picker__more {
+    @apply rdp-absolute rdp-top-0 -rdp-z-10 rdp-h-full rdp-w-70 rdp-cursor-default rdp-overflow-auto rdp-bg-white rdp-shadow-box1;
+  }
+  .rich-datetime-picker__more-label {
+    @apply rdp-flex rdp-cursor-pointer rdp-items-center rdp-justify-center rdp-rounded-sm rdp-bg-rgbaPrimary rdp-px-1.5 rdp-py-1 rdp-text-xs rdp-text-primary hover:rdp-bg-primary hover:rdp-text-white;
+  }
+}

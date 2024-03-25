@@ -1,0 +1,94 @@
+{
+  "pipeline": {
+    "@pinpoint-fe/scatter-chart#build": {
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/server-map#build": {
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/constants#build": {
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/utils#build": {
+      "dependsOn": ["@pinpoint-fe/constants#build"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/hooks#build": {
+      "dependsOn": ["@pinpoint-fe/utils#build"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/atoms#build": {
+      "dependsOn": ["@pinpoint-fe/utils#build"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/ui#build": {
+      "dependsOn": ["@pinpoint-fe/atoms#build", "@pinpoint-fe/hooks#build"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/web#build": {
+      "dependsOn": ["@pinpoint-fe/ui#build"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/scatter-chart#devBuild": {
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/server-map#devBuild": {
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/constants#devBuild": {
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/utils#devBuild": {
+      "dependsOn": ["@pinpoint-fe/constants#devBuild"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/hooks#devBuild": {
+      "dependsOn": ["@pinpoint-fe/utils#devBuild"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/atoms#devBuild": {
+      "dependsOn": ["@pinpoint-fe/utils#devBuild"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/ui#devBuild": {
+      "dependsOn": ["@pinpoint-fe/atoms#devBuild", "@pinpoint-fe/hooks#devBuild"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "dependsOn": [
+        "@pinpoint-fe/scatter-chart#devBuild",
+        "@pinpoint-fe/server-map#devBuild",
+        "@pinpoint-fe/constants#devBuild",
+        "@pinpoint-fe/utils#devBuild",
+        "@pinpoint-fe/atoms#devBuild",
+        "@pinpoint-fe/hooks#devBuild",
+        "@pinpoint-fe/ui#devBuild"
+      ]
+    },
+    "lint": {
+      "dependsOn": [
+        "@pinpoint-fe/scatter-chart#devBuild",
+        "@pinpoint-fe/server-map#devBuild",
+        "@pinpoint-fe/constants#devBuild",
+        "@pinpoint-fe/utils#devBuild",
+        "@pinpoint-fe/atoms#devBuild",
+        "@pinpoint-fe/hooks#devBuild",
+        "@pinpoint-fe/ui#devBuild"
+      ],
+      "outputs": []
+    },
+    "clean": {},
+    "clean:dist": {},
+    "test": {},
+    "storybook": {
+      "cache": false
+    },
+    "build-storybook": {
+      "dependsOn": ["lint"]
+    },
+    "chromatic": {
+      "dependsOn": ["lint"]
+    }
+  }
+}

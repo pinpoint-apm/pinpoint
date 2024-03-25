@@ -1,0 +1,146 @@
+{
+  "COMMON": {
+    "NO_DATA": "No Data",
+    "FAILED_TO_FETCH_DATA": "Failed to fetch the data",
+    "NO_AGENTS": "There are no running agents.",
+    "MIN_LENGTH": "Enter at least {{minLength}} letters",
+    "REQUIRED": "{{requiredField}} is required.",
+    "REQUIRED_SELECT": "Select {{requiredField}}",
+    "DO_NOT_HAVE_PERMISSION": "Don't have permission.",
+    "CONFIRM": "OK",
+    "SUBMIT": "Submit",
+    "UPDATE": "Update",
+    "UPDATE_SUCCESS": "Successfully updated.",
+    "UPDATE_FAIL": "Update failed",
+    "ADD": "Add",
+    "CREATE": "Create",
+    "CREATE_SUCCESS": "Successfully created.",
+    "CREATE_FAILED": "Creation failed.",
+    "SAVE": "Save",
+    "REMOVE": "Remove",
+    "DELETE": "Delete",
+    "DELETE_CONFIRM_QUESTION": "Are you sure you want to delete \"{{target}}\"?",
+    "DELETE_CONFIRM_DESCRIPTION": "This action cannot be undone. This will permanently delete your {{target}} from server.",
+    "CANCEL": "Cancel",
+    "CONTINUE": "Continue",
+    "EDIT": "Edit",
+    "OPTIONAL": "Optional",
+    "SEARCH_INPUT": "Input query",
+    "EMPTY": "The list is empty.",
+    "EMPTY_ON_SEARCH": "We couldn't find anything.",
+    "CHART_INTERACTION_GUIDE_MESSAGE": "* You can zoom in on the chart by dragging the mouse.",
+    "PAGE_REFRESH": "Refresh page",
+    "TRY_AGAIN": "Try again",
+    "SOMETHING_WENT_WRONG": "Something went wrong",
+    "SUBMIT_SUCCESS": "Successfully submitted.",
+    "SUBMIT_FAIL": "Failed to submit.",
+    "REMOVE_SUCCESS": "Successfully removed.",
+    "REMOVE_FAIL": "Failed to remove."
+  },
+  "APP_SELECT": {
+    "FAVORITE_APP_LIST": "Favorite List",
+    "APP_LIST": "Application List",
+    "SELECT_YOUR_APP": "Select your application",
+    "INPUT_APP_NAME_PLACE_HOLDER": "Input application name"
+  },
+  "DATE_RANGE_PICKER": {
+    "MAX_SEARCH_PERIOD": "Search duration may not be greater than {{maxSearchPeriod}}days."
+  },
+  "URL_STAT": {
+    "SELECT_URL_INFO": "Select a path info below"
+  },
+  "TRANSACTION_LIST": {
+    "SELECT_TRANSACTION": "Select your transaction",
+    "TRANSACTION_RETRIEVE_ERROR": "Transaction information is missing<br>Will go to Main"
+  },
+  "METRIC": {
+    "HOST_GROUP_LIST": "Host-Group List",
+    "SELECT_HOST_GROUP": "Select your host-group",
+    "INPUT_HOST_GROUP": "Input host-group name"
+  },
+  "CONFIGURATION": {
+    "GENERAL": {
+      "DESC": "User configuration is stored in browser cache. Server-side storage will be supported in a future release."
+    },
+    "EXPERIMENTAL": {
+      "DESC": "You may try the experimental features."
+    },
+    "INSTALLATION": {
+      "APPLICATION_NAME_DUPLICATION_CHECK": "You can check if application name is duplicated.",
+      "AGENT_ID_DUPLICATION_CHECK": "You can check if agent id is duplicated.",
+      "APPLICATION_NAME_PLACEHOLDER": "Input application name.",
+      "AGENT_ID_PLACEHOLDER": "Input agent ID."
+    },
+    "USER_GROUP": {
+      "USER_GROUP_ADD_PLACEHOLDER": "Enter user group name",
+      "USER_GROUP_SEARCH_PLACEHOLDER": "Search user group",
+      "USER_GROUP_ADD_TITLE": "Add user group",
+      "USER_GROUP_REMOVE_TITLE": "Remove user group",
+      "USER_GROUP_REMOVE_DESC": "Remove the following user group.",
+      "GROUP_MEMBER_REMOVE_TITLE": "Remove group member",
+      "GROUP_MEMBER_REMOVE_DESC": "Remove the following group member.",
+      "GROUP_MEMBER_SEARCH_PLACEHOLDER": "Search group member",
+      "USER_SEARCH_PLACEHOLDER": "Search user",
+      "LABEL": {
+        "USER_GROUP_NAME": "Group name",
+        "USER_GROUP_ADD_BUTTON": "Add user group",
+        "GROUP_MEMBER_ADD_BUTTON": "Add group member"
+      },
+      "VALIDATION": "Enter only numbers, alphabets, and '-', '_' characters.(4~30)"
+    },
+    "USERS": {
+      "USER_ADD_TITLE": "Add user",
+      "USER_INFO_TITLE": "User info",
+      "USER_SEARCH_PLACEHOLDER": "Search user",
+      "USER_REMOVE_TITLE": "Remove user",
+      "USER_REMOVE_DESC": "Remove the following user.",
+      "LABEL": {
+        "USER_ADD_BUTTON": "Add user",
+        "USER_ID": "USER ID",
+        "USER_NAME": "Name",
+        "USER_DEPARTMENT": "Department",
+        "USER_PHONE_NUMBER": "Phone",
+        "USER_EMAIL": "Email"
+      },
+      "VALIDATION": {
+        "USER_ID": "Enter only numbers, alphabets lowercase, and '-' ,'_' characters.(4~24)",
+        "USER_NAME": "Enter only numbers, alphabets, Hangeul, and '-', '_', '.' characters.(1~30)",
+        "USER_DEPARTMENT": "Enter only numbers, alphabets, Hangeul, and '-', '_', '.' characters.(3~40)",
+        "USER_PHONE_NUMBER": "Enter a valid number.",
+        "USER_EMAIL": "Enter a valid email address."
+      }
+    },
+    "COMMON": {
+      "LABEL": {
+        "ACTIONS": "Actions"
+      },
+      "NAME": "Name",
+      "USER_ID": "User ID",
+      "DEPARTMENT": "Department",
+      "PHONE": "Phone",
+      "EMAIL": "Email",
+      "USER_GROUP": "User Group ID",
+      "CHECKER": "Checker",
+      "THRESHOLD": "Threshold",
+      "TYPE": "Type",
+      "NOTES": "Notes",
+      "WEBHOOK": "Webhook"
+    },
+    "ALARM": {
+      "NAME": "Alarm",
+      "EMPTY": "No added alarm.",
+      "ADD": "Add Alarm",
+      "EDIT": "Edit Alarm",
+      "DETAIL": "Alarm Detail",
+      "DESC": "Application's status is periodically checked and alarm is triggered if certain pre-configured conditions (rules) are satisfied.\npinpoint-batch server checks every 3 minutes based on the last 5 minutes of data.\nAnd if the conditions are satisfied, it sends sms/email/webhook to the users listed in the user group."
+    },
+    "WEBHOOK": {
+      "NAME": "Webhook",
+      "EMPTY": "No created webhook.",
+      "CREATE": "Create Webhook",
+      "EDIT": "Edit Webhook",
+      "DETAIL": "Webhook Detail",
+      "ALIAS": "Alias"
+    }
+  }
+}

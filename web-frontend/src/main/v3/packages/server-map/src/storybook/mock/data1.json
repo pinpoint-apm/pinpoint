@@ -1,0 +1,5556 @@
+{
+  "applicationMapData": {
+    "range": {
+      "from": 1684129434000,
+      "to": 1684129734000,
+      "fromDateTime": "2023-05-15 14:43:54",
+      "toDateTime": "2023-05-15 14:48:54"
+    },
+    "linkDataArray": [
+      {
+        "key": "Shopping-Payment^SPRING_BOOT~vendor.payment.card.com:7777^UNKNOWN",
+        "from": "Shopping-Payment^SPRING_BOOT",
+        "to": "vendor.payment.card.com:7777^UNKNOWN",
+        "fromAgent": [
+          "shopping.payment01"
+        ],
+        "fromAgentIdNameMap": {
+          "shopping.payment01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "Shopping-Payment",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "targetInfo": {
+          "applicationName": "vendor.payment.card.com:7777",
+          "serviceType": "UNKNOWN",
+          "serviceTypeCode": 1,
+          "isWas": false
+        },
+        "filterApplicationName": "Shopping-Payment",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "totalCount": 13,
+        "errorCount": 0,
+        "slowCount": 0,
+        "responseStatistics": {
+          "Tot": 13,
+          "Sum": 6104,
+          "Avg": 469,
+          "Max": 943
+        },
+        "histogram": {
+          "1s": 13,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                3
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                5
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                699
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                327
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                390
+              ],
+              [
+                1684129680000,
+                807
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                827
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                943
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                732
+              ],
+              [
+                1684129680000,
+                807
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                2098
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                1638
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1561
+              ],
+              [
+                1684129680000,
+                807
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                3
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                5
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      },
+      {
+        "key": "Shopping-Product^SPRING_BOOT~product^MYSQL",
+        "from": "Shopping-Product^SPRING_BOOT",
+        "to": "product^MYSQL",
+        "fromAgent": [
+          "shopping.product01"
+        ],
+        "fromAgentIdNameMap": {
+          "shopping.product01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "Shopping-Product",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "targetInfo": {
+          "applicationName": "product",
+          "serviceType": "MYSQL",
+          "serviceTypeCode": 2101,
+          "isWas": false
+        },
+        "filterApplicationName": "Shopping-Product",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "totalCount": 62,
+        "errorCount": 0,
+        "slowCount": 0,
+        "responseStatistics": {
+          "Tot": 62,
+          "Sum": 22,
+          "Avg": 0,
+          "Max": 1
+        },
+        "histogram": {
+          "1s": 62,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                11
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                19
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                13
+              ],
+              [
+                1684129680000,
+                4
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                1
+              ],
+              [
+                1684129560000,
+                1
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                3
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                8
+              ],
+              [
+                1684129560000,
+                6
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                11
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                19
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                13
+              ],
+              [
+                1684129680000,
+                4
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      },
+      {
+        "key": "Shopping-Order^SPRING_BOOT~Shopping-Product^SPRING_BOOT",
+        "from": "Shopping-Order^SPRING_BOOT",
+        "to": "Shopping-Product^SPRING_BOOT",
+        "fromAgent": [
+          "shopping.order01"
+        ],
+        "toAgent": [
+          "shopping.product01"
+        ],
+        "fromAgentIdNameMap": {
+          "shopping.order01": ""
+        },
+        "toAgentIdNameMap": {
+          "shopping.product01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "Shopping-Order",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "targetInfo": {
+          "applicationName": "Shopping-Product",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "filterApplicationName": "Shopping-Order",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "filterTargetRpcList": [
+          {
+            "rpc": "product.demo.pinpoint.com:8181",
+            "rpcServiceTypeCode": 9055
+          }
+        ],
+        "totalCount": 80,
+        "errorCount": 0,
+        "slowCount": 0,
+        "responseStatistics": {
+          "Tot": 80,
+          "Sum": 55,
+          "Avg": 0,
+          "Max": 3
+        },
+        "histogram": {
+          "1s": 80,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                6
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                26
+              ],
+              [
+                1684129560000,
+                24
+              ],
+              [
+                1684129620000,
+                18
+              ],
+              [
+                1684129680000,
+                6
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                3
+              ],
+              [
+                1684129560000,
+                2
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                4
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                20
+              ],
+              [
+                1684129560000,
+                19
+              ],
+              [
+                1684129620000,
+                9
+              ],
+              [
+                1684129680000,
+                3
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                6
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                26
+              ],
+              [
+                1684129560000,
+                24
+              ],
+              [
+                1684129620000,
+                18
+              ],
+              [
+                1684129680000,
+                6
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      },
+      {
+        "key": "Shopping-Api^SPRING_BOOT~Shopping-Order^SPRING_BOOT",
+        "from": "Shopping-Api^SPRING_BOOT",
+        "to": "Shopping-Order^SPRING_BOOT",
+        "fromAgent": [
+          "shopping.api01"
+        ],
+        "toAgent": [
+          "shopping.order01"
+        ],
+        "fromAgentIdNameMap": {
+          "shopping.api01": ""
+        },
+        "toAgentIdNameMap": {
+          "shopping.order01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "Shopping-Api",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "targetInfo": {
+          "applicationName": "Shopping-Order",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "filterApplicationName": "Shopping-Api",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "filterTargetRpcList": [
+          {
+            "rpc": "order.demo.pinpoint.com:8182",
+            "rpcServiceTypeCode": 9058
+          }
+        ],
+        "totalCount": 61,
+        "errorCount": 0,
+        "slowCount": 2,
+        "responseStatistics": {
+          "Tot": 61,
+          "Sum": 38464,
+          "Avg": 630,
+          "Max": 8762
+        },
+        "histogram": {
+          "1s": 55,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                4
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                20
+              ],
+              [
+                1684129560000,
+                11
+              ],
+              [
+                1684129620000,
+                13
+              ],
+              [
+                1684129680000,
+                7
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                2811
+              ],
+              [
+                1684129440000,
+                8526
+              ],
+              [
+                1684129500000,
+                87
+              ],
+              [
+                1684129560000,
+                4
+              ],
+              [
+                1684129620000,
+                259
+              ],
+              [
+                1684129680000,
+                604
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8762
+              ],
+              [
+                1684129440000,
+                8526
+              ],
+              [
+                1684129500000,
+                952
+              ],
+              [
+                1684129560000,
+                14
+              ],
+              [
+                1684129620000,
+                2738
+              ],
+              [
+                1684129680000,
+                4815
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                19680
+              ],
+              [
+                1684129440000,
+                8526
+              ],
+              [
+                1684129500000,
+                1752
+              ],
+              [
+                1684129560000,
+                46
+              ],
+              [
+                1684129620000,
+                3626
+              ],
+              [
+                1684129680000,
+                4834
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                7
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                20
+              ],
+              [
+                1684129560000,
+                11
+              ],
+              [
+                1684129620000,
+                14
+              ],
+              [
+                1684129680000,
+                8
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      },
+      {
+        "key": "Shopping-Api^SPRING_BOOT~Shopping-Product^SPRING_BOOT",
+        "from": "Shopping-Api^SPRING_BOOT",
+        "to": "Shopping-Product^SPRING_BOOT",
+        "fromAgent": [
+          "shopping.api01"
+        ],
+        "toAgent": [
+          "shopping.product01"
+        ],
+        "fromAgentIdNameMap": {
+          "shopping.api01": ""
+        },
+        "toAgentIdNameMap": {
+          "shopping.product01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "Shopping-Api",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "targetInfo": {
+          "applicationName": "Shopping-Product",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "filterApplicationName": "Shopping-Api",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "filterTargetRpcList": [
+          {
+            "rpc": "product.demo.pinpoint.com:8181",
+            "rpcServiceTypeCode": 9058
+          }
+        ],
+        "totalCount": 22,
+        "errorCount": 0,
+        "slowCount": 0,
+        "responseStatistics": {
+          "Tot": 22,
+          "Sum": 30,
+          "Avg": 1,
+          "Max": 3
+        },
+        "histogram": {
+          "1s": 22,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                8
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                6
+              ],
+              [
+                1684129560000,
+                3
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                1
+              ],
+              [
+                1684129560000,
+                1
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                3
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                1
+              ],
+              [
+                1684129560000,
+                2
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                3
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                13
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                6
+              ],
+              [
+                1684129560000,
+                4
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                3
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                8
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                6
+              ],
+              [
+                1684129560000,
+                3
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      },
+      {
+        "key": "Shopping-Order^SPRING_BOOT~Shopping-Payment^SPRING_BOOT",
+        "from": "Shopping-Order^SPRING_BOOT",
+        "to": "Shopping-Payment^SPRING_BOOT",
+        "fromAgent": [
+          "shopping.order01"
+        ],
+        "toAgent": [
+          "shopping.payment01"
+        ],
+        "fromAgentIdNameMap": {
+          "shopping.order01": ""
+        },
+        "toAgentIdNameMap": {
+          "shopping.payment01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "Shopping-Order",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "targetInfo": {
+          "applicationName": "Shopping-Payment",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "filterApplicationName": "Shopping-Order",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "filterTargetRpcList": [
+          {
+            "rpc": "pay.demo.pinpoint.com:8183",
+            "rpcServiceTypeCode": 9055
+          }
+        ],
+        "totalCount": 42,
+        "errorCount": 0,
+        "slowCount": 0,
+        "responseStatistics": {
+          "Tot": 42,
+          "Sum": 6196,
+          "Avg": 147,
+          "Max": 944
+        },
+        "histogram": {
+          "1s": 42,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                9
+              ],
+              [
+                1684129440000,
+                3
+              ],
+              [
+                1684129500000,
+                15
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                12
+              ],
+              [
+                1684129680000,
+                3
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                182
+              ],
+              [
+                1684129440000,
+                173
+              ],
+              [
+                1684129500000,
+                110
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                130
+              ],
+              [
+                1684129680000,
+                269
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                827
+              ],
+              [
+                1684129440000,
+                519
+              ],
+              [
+                1684129500000,
+                944
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                733
+              ],
+              [
+                1684129680000,
+                808
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                1646
+              ],
+              [
+                1684129440000,
+                520
+              ],
+              [
+                1684129500000,
+                1650
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1571
+              ],
+              [
+                1684129680000,
+                809
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                9
+              ],
+              [
+                1684129440000,
+                3
+              ],
+              [
+                1684129500000,
+                15
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                12
+              ],
+              [
+                1684129680000,
+                3
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      },
+      {
+        "key": "ApiGateway^SPRING_BOOT~Shopping-Api^SPRING_BOOT",
+        "from": "ApiGateway^SPRING_BOOT",
+        "to": "Shopping-Api^SPRING_BOOT",
+        "fromAgent": [
+          "apigw01"
+        ],
+        "toAgent": [
+          "shopping.api01"
+        ],
+        "fromAgentIdNameMap": {
+          "apigw01": ""
+        },
+        "toAgentIdNameMap": {
+          "shopping.api01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "ApiGateway",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "targetInfo": {
+          "applicationName": "Shopping-Api",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "filterApplicationName": "ApiGateway",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "filterTargetRpcList": [
+          {
+            "rpc": "shopping.demo.pinpoint.com:8180",
+            "rpcServiceTypeCode": 9058
+          }
+        ],
+        "totalCount": 68,
+        "errorCount": 0,
+        "slowCount": 2,
+        "responseStatistics": {
+          "Tot": 68,
+          "Sum": 38589,
+          "Avg": 567,
+          "Max": 8764
+        },
+        "histogram": {
+          "1s": 62,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                10
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                15
+              ],
+              [
+                1684129680000,
+                6
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1516
+              ],
+              [
+                1684129440000,
+                8529
+              ],
+              [
+                1684129500000,
+                85
+              ],
+              [
+                1684129560000,
+                6
+              ],
+              [
+                1684129620000,
+                228
+              ],
+              [
+                1684129680000,
+                692
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8764
+              ],
+              [
+                1684129440000,
+                8529
+              ],
+              [
+                1684129500000,
+                953
+              ],
+              [
+                1684129560000,
+                18
+              ],
+              [
+                1684129620000,
+                2741
+              ],
+              [
+                1684129680000,
+                4818
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                19710
+              ],
+              [
+                1684129440000,
+                8529
+              ],
+              [
+                1684129500000,
+                1787
+              ],
+              [
+                1684129560000,
+                66
+              ],
+              [
+                1684129620000,
+                3651
+              ],
+              [
+                1684129680000,
+                4846
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                13
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                16
+              ],
+              [
+                1684129680000,
+                7
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      },
+      {
+        "key": "ApiGateway_SPRING_BOOT^USER~ApiGateway^SPRING_BOOT",
+        "from": "ApiGateway_SPRING_BOOT^USER",
+        "to": "ApiGateway^SPRING_BOOT",
+        "toAgent": [
+          "apigw01"
+        ],
+        "toAgentIdNameMap": {
+          "apigw01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "ApiGateway_SPRING_BOOT",
+          "serviceType": "USER",
+          "serviceTypeCode": 2,
+          "isWas": false
+        },
+        "targetInfo": {
+          "applicationName": "ApiGateway",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "filterApplicationName": "ApiGateway",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "totalCount": 68,
+        "errorCount": 0,
+        "slowCount": 2,
+        "responseStatistics": {
+          "Tot": 68,
+          "Sum": 38648,
+          "Avg": 568,
+          "Max": 8766
+        },
+        "histogram": {
+          "1s": 62,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                10
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                15
+              ],
+              [
+                1684129680000,
+                6
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1516
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                86
+              ],
+              [
+                1684129560000,
+                7
+              ],
+              [
+                1684129620000,
+                228
+              ],
+              [
+                1684129680000,
+                693
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8766
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                955
+              ],
+              [
+                1684129560000,
+                19
+              ],
+              [
+                1684129620000,
+                2742
+              ],
+              [
+                1684129680000,
+                4818
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                19720
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                1814
+              ],
+              [
+                1684129560000,
+                71
+              ],
+              [
+                1684129620000,
+                3662
+              ],
+              [
+                1684129680000,
+                4851
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                13
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                16
+              ],
+              [
+                1684129680000,
+                7
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      },
+      {
+        "key": "Shopping-Order^SPRING_BOOT~order^MYSQL",
+        "from": "Shopping-Order^SPRING_BOOT",
+        "to": "order^MYSQL",
+        "fromAgent": [
+          "shopping.order01"
+        ],
+        "fromAgentIdNameMap": {
+          "shopping.order01": ""
+        },
+        "sourceInfo": {
+          "applicationName": "Shopping-Order",
+          "serviceType": "SPRING_BOOT",
+          "serviceTypeCode": 1210,
+          "isWas": true
+        },
+        "targetInfo": {
+          "applicationName": "order",
+          "serviceType": "MYSQL",
+          "serviceTypeCode": 2101,
+          "isWas": false
+        },
+        "filterApplicationName": "Shopping-Order",
+        "filterApplicationServiceTypeCode": 1210,
+        "filterApplicationServiceTypeName": "SPRING_BOOT",
+        "totalCount": 104,
+        "errorCount": 0,
+        "slowCount": 2,
+        "responseStatistics": {
+          "Tot": 104,
+          "Sum": 32041,
+          "Avg": 308,
+          "Max": 8001
+        },
+        "histogram": {
+          "1s": 98,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                12
+              ],
+              [
+                1684129440000,
+                2
+              ],
+              [
+                1684129500000,
+                35
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                23
+              ],
+              [
+                1684129680000,
+                11
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1200
+              ],
+              [
+                1684129440000,
+                2667
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                83
+              ],
+              [
+                1684129680000,
+                333
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8001
+              ],
+              [
+                1684129440000,
+                8001
+              ],
+              [
+                1684129500000,
+                1
+              ],
+              [
+                1684129560000,
+                1
+              ],
+              [
+                1684129620000,
+                2001
+              ],
+              [
+                1684129680000,
+                4001
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                18008
+              ],
+              [
+                1684129440000,
+                8001
+              ],
+              [
+                1684129500000,
+                15
+              ],
+              [
+                1684129560000,
+                6
+              ],
+              [
+                1684129620000,
+                2007
+              ],
+              [
+                1684129680000,
+                4004
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                15
+              ],
+              [
+                1684129440000,
+                3
+              ],
+              [
+                1684129500000,
+                35
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                24
+              ],
+              [
+                1684129680000,
+                12
+              ]
+            ]
+          }
+        ],
+        "hasAlert": false
+      }
+    ],
+    "nodeDataArray": [
+      {
+        "key": "Shopping-Order^SPRING_BOOT",
+        "applicationName": "Shopping-Order",
+        "category": "SPRING_BOOT",
+        "serviceType": "SPRING_BOOT",
+        "serviceTypeCode": "1210",
+        "isWas": true,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 61,
+        "errorCount": 0,
+        "slowCount": 2,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 61,
+          "Sum": 38416,
+          "Avg": 629,
+          "Max": 8762
+        },
+        "histogram": {
+          "1s": 55,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "apdexScore": 0.901,
+        "apdexFormula": {
+          "satisfiedCount": 55,
+          "toleratingCount": 1,
+          "totalSamples": 61
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                4
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                20
+              ],
+              [
+                1684129560000,
+                11
+              ],
+              [
+                1684129620000,
+                13
+              ],
+              [
+                1684129680000,
+                7
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                2810
+              ],
+              [
+                1684129440000,
+                8525
+              ],
+              [
+                1684129500000,
+                86
+              ],
+              [
+                1684129560000,
+                3
+              ],
+              [
+                1684129620000,
+                258
+              ],
+              [
+                1684129680000,
+                603
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8762
+              ],
+              [
+                1684129440000,
+                8525
+              ],
+              [
+                1684129500000,
+                950
+              ],
+              [
+                1684129560000,
+                13
+              ],
+              [
+                1684129620000,
+                2737
+              ],
+              [
+                1684129680000,
+                4814
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                19672
+              ],
+              [
+                1684129440000,
+                8525
+              ],
+              [
+                1684129500000,
+                1732
+              ],
+              [
+                1684129560000,
+                40
+              ],
+              [
+                1684129620000,
+                3617
+              ],
+              [
+                1684129680000,
+                4830
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                7
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                20
+              ],
+              [
+                1684129560000,
+                11
+              ],
+              [
+                1684129620000,
+                14
+              ],
+              [
+                1684129680000,
+                8
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 1,
+        "instanceErrorCount": 0,
+        "agentIds": [
+          "shopping.order01"
+        ],
+        "agentIdNameMap": {
+          "shopping.order01": ""
+        }
+      },
+      {
+        "key": "Shopping-Api^SPRING_BOOT",
+        "applicationName": "Shopping-Api",
+        "category": "SPRING_BOOT",
+        "serviceType": "SPRING_BOOT",
+        "serviceTypeCode": "1210",
+        "isWas": true,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 68,
+        "errorCount": 0,
+        "slowCount": 2,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 68,
+          "Sum": 38547,
+          "Avg": 566,
+          "Max": 8763
+        },
+        "histogram": {
+          "1s": 62,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "apdexScore": 0.911,
+        "apdexFormula": {
+          "satisfiedCount": 62,
+          "toleratingCount": 1,
+          "totalSamples": 68
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                10
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                15
+              ],
+              [
+                1684129680000,
+                6
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1515
+              ],
+              [
+                1684129440000,
+                8527
+              ],
+              [
+                1684129500000,
+                84
+              ],
+              [
+                1684129560000,
+                6
+              ],
+              [
+                1684129620000,
+                227
+              ],
+              [
+                1684129680000,
+                691
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8763
+              ],
+              [
+                1684129440000,
+                8527
+              ],
+              [
+                1684129500000,
+                953
+              ],
+              [
+                1684129560000,
+                17
+              ],
+              [
+                1684129620000,
+                2739
+              ],
+              [
+                1684129680000,
+                4816
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                19703
+              ],
+              [
+                1684129440000,
+                8527
+              ],
+              [
+                1684129500000,
+                1776
+              ],
+              [
+                1684129560000,
+                61
+              ],
+              [
+                1684129620000,
+                3639
+              ],
+              [
+                1684129680000,
+                4841
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                13
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                16
+              ],
+              [
+                1684129680000,
+                7
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 1,
+        "instanceErrorCount": 0,
+        "agentIds": [
+          "shopping.api01"
+        ],
+        "agentIdNameMap": {
+          "shopping.api01": ""
+        }
+      },
+      {
+        "key": "Shopping-Payment^SPRING_BOOT",
+        "applicationName": "Shopping-Payment",
+        "category": "SPRING_BOOT",
+        "serviceType": "SPRING_BOOT",
+        "serviceTypeCode": "1210",
+        "isWas": true,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 13,
+        "errorCount": 0,
+        "slowCount": 0,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 13,
+          "Sum": 6114,
+          "Avg": 470,
+          "Max": 944
+        },
+        "histogram": {
+          "1s": 13,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "apdexScore": 1.0,
+        "apdexFormula": {
+          "satisfiedCount": 13,
+          "toleratingCount": 0,
+          "totalSamples": 13
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                3
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                5
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                700
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                328
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                391
+              ],
+              [
+                1684129680000,
+                808
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                827
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                944
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                733
+              ],
+              [
+                1684129680000,
+                808
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                2100
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                1641
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1565
+              ],
+              [
+                1684129680000,
+                808
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                3
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                5
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 1,
+        "instanceErrorCount": 0,
+        "agentIds": [
+          "shopping.payment01"
+        ],
+        "agentIdNameMap": {
+          "shopping.payment01": ""
+        }
+      },
+      {
+        "key": "order^MYSQL",
+        "applicationName": "order",
+        "category": "MYSQL",
+        "serviceType": "MYSQL",
+        "serviceTypeCode": "2101",
+        "isWas": false,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 104,
+        "errorCount": 0,
+        "slowCount": 2,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 104,
+          "Sum": 32041,
+          "Avg": 308,
+          "Max": 8001
+        },
+        "histogram": {
+          "1s": 98,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "apdexScore": 0.942,
+        "apdexFormula": {
+          "satisfiedCount": 98,
+          "toleratingCount": 1,
+          "totalSamples": 104
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                12
+              ],
+              [
+                1684129440000,
+                2
+              ],
+              [
+                1684129500000,
+                35
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                23
+              ],
+              [
+                1684129680000,
+                11
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1200
+              ],
+              [
+                1684129440000,
+                2667
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                83
+              ],
+              [
+                1684129680000,
+                333
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8001
+              ],
+              [
+                1684129440000,
+                8001
+              ],
+              [
+                1684129500000,
+                1
+              ],
+              [
+                1684129560000,
+                1
+              ],
+              [
+                1684129620000,
+                2001
+              ],
+              [
+                1684129680000,
+                4001
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                18008
+              ],
+              [
+                1684129440000,
+                8001
+              ],
+              [
+                1684129500000,
+                15
+              ],
+              [
+                1684129560000,
+                6
+              ],
+              [
+                1684129620000,
+                2007
+              ],
+              [
+                1684129680000,
+                4004
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                15
+              ],
+              [
+                1684129440000,
+                3
+              ],
+              [
+                1684129500000,
+                35
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                24
+              ],
+              [
+                1684129680000,
+                12
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 1,
+        "instanceErrorCount": 0,
+        "agentIds": [
+          "77.777.777.7777:7777"
+        ],
+        "agentIdNameMap": {
+          "77.777.777.7777:7777": null
+        }
+      },
+      {
+        "key": "vendor.payment.card.com:7777^UNKNOWN",
+        "applicationName": "vendor.payment.card.com:7777",
+        "category": "UNKNOWN",
+        "serviceType": "UNKNOWN",
+        "serviceTypeCode": "1",
+        "isWas": false,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 13,
+        "errorCount": 0,
+        "slowCount": 0,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 13,
+          "Sum": 6104,
+          "Avg": 469,
+          "Max": 943
+        },
+        "histogram": {
+          "1s": 13,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "apdexScore": 1.0,
+        "apdexFormula": {
+          "satisfiedCount": 13,
+          "toleratingCount": 0,
+          "totalSamples": 13
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                3
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                5
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                699
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                327
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                390
+              ],
+              [
+                1684129680000,
+                807
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                827
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                943
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                732
+              ],
+              [
+                1684129680000,
+                807
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                2098
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                1638
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1561
+              ],
+              [
+                1684129680000,
+                807
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                3
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                5
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 0,
+        "instanceErrorCount": 0,
+        "agentIds": [],
+        "agentIdNameMap": {}
+      },
+      {
+        "key": "ApiGateway_SPRING_BOOT^USER",
+        "applicationName": "USER",
+        "category": "USER",
+        "serviceType": "USER",
+        "serviceTypeCode": "2",
+        "isWas": false,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 68,
+        "errorCount": 0,
+        "slowCount": 2,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 68,
+          "Sum": 38648,
+          "Avg": 568,
+          "Max": 8766
+        },
+        "histogram": {
+          "1s": 62,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "apdexScore": 0.911,
+        "apdexFormula": {
+          "satisfiedCount": 62,
+          "toleratingCount": 1,
+          "totalSamples": 68
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                10
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                15
+              ],
+              [
+                1684129680000,
+                6
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1516
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                86
+              ],
+              [
+                1684129560000,
+                7
+              ],
+              [
+                1684129620000,
+                228
+              ],
+              [
+                1684129680000,
+                693
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8766
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                955
+              ],
+              [
+                1684129560000,
+                19
+              ],
+              [
+                1684129620000,
+                2742
+              ],
+              [
+                1684129680000,
+                4818
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                19720
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                1814
+              ],
+              [
+                1684129560000,
+                71
+              ],
+              [
+                1684129620000,
+                3662
+              ],
+              [
+                1684129680000,
+                4851
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                13
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                16
+              ],
+              [
+                1684129680000,
+                7
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 0,
+        "instanceErrorCount": 0,
+        "agentIds": [],
+        "agentIdNameMap": {}
+      },
+      {
+        "key": "product^MYSQL",
+        "applicationName": "product",
+        "category": "MYSQL",
+        "serviceType": "MYSQL",
+        "serviceTypeCode": "2101",
+        "isWas": false,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 62,
+        "errorCount": 0,
+        "slowCount": 0,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 62,
+          "Sum": 22,
+          "Avg": 0,
+          "Max": 1
+        },
+        "histogram": {
+          "1s": 62,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "apdexScore": 1.0,
+        "apdexFormula": {
+          "satisfiedCount": 62,
+          "toleratingCount": 0,
+          "totalSamples": 62
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                11
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                19
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                13
+              ],
+              [
+                1684129680000,
+                4
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                1
+              ],
+              [
+                1684129560000,
+                1
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                3
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                8
+              ],
+              [
+                1684129560000,
+                6
+              ],
+              [
+                1684129620000,
+                4
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                11
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                19
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                13
+              ],
+              [
+                1684129680000,
+                4
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 1,
+        "instanceErrorCount": 0,
+        "agentIds": [
+          "77.777.777.7777:7777"
+        ],
+        "agentIdNameMap": {
+          "77.777.777.7777:7777": null
+        }
+      },
+      {
+        "key": "ApiGateway^SPRING_BOOT",
+        "applicationName": "ApiGateway",
+        "category": "SPRING_BOOT",
+        "serviceType": "SPRING_BOOT",
+        "serviceTypeCode": "1210",
+        "isWas": true,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 68,
+        "errorCount": 0,
+        "slowCount": 2,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 68,
+          "Sum": 38648,
+          "Avg": 568,
+          "Max": 8766
+        },
+        "histogram": {
+          "1s": 62,
+          "3s": 1,
+          "5s": 2,
+          "Slow": 3,
+          "Error": 0
+        },
+        "apdexScore": 0.911,
+        "apdexFormula": {
+          "satisfiedCount": 62,
+          "toleratingCount": 1,
+          "totalSamples": 68
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                10
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                15
+              ],
+              [
+                1684129680000,
+                6
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1516
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                86
+              ],
+              [
+                1684129560000,
+                7
+              ],
+              [
+                1684129620000,
+                228
+              ],
+              [
+                1684129680000,
+                693
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                8766
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                955
+              ],
+              [
+                1684129560000,
+                19
+              ],
+              [
+                1684129620000,
+                2742
+              ],
+              [
+                1684129680000,
+                4818
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                19720
+              ],
+              [
+                1684129440000,
+                8530
+              ],
+              [
+                1684129500000,
+                1814
+              ],
+              [
+                1684129560000,
+                71
+              ],
+              [
+                1684129620000,
+                3662
+              ],
+              [
+                1684129680000,
+                4851
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                13
+              ],
+              [
+                1684129440000,
+                1
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                10
+              ],
+              [
+                1684129620000,
+                16
+              ],
+              [
+                1684129680000,
+                7
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 1,
+        "instanceErrorCount": 0,
+        "agentIds": [
+          "apigw01"
+        ],
+        "agentIdNameMap": {
+          "apigw01": ""
+        }
+      },
+      {
+        "key": "Shopping-Product^SPRING_BOOT",
+        "applicationName": "Shopping-Product",
+        "category": "SPRING_BOOT",
+        "serviceType": "SPRING_BOOT",
+        "serviceTypeCode": "1210",
+        "isWas": true,
+        "isQueue": false,
+        "isAuthorized": true,
+        "totalCount": 62,
+        "errorCount": 0,
+        "slowCount": 0,
+        "hasAlert": false,
+        "responseStatistics": {
+          "Tot": 62,
+          "Sum": 68,
+          "Avg": 1,
+          "Max": 2
+        },
+        "histogram": {
+          "1s": 62,
+          "3s": 0,
+          "5s": 0,
+          "Slow": 0,
+          "Error": 0
+        },
+        "apdexScore": 1.0,
+        "apdexFormula": {
+          "satisfiedCount": 62,
+          "toleratingCount": 0,
+          "totalSamples": 62
+        },
+        "timeSeriesHistogram": [
+          {
+            "key": "1s",
+            "values": [
+              [
+                1684129380000,
+                11
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                19
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                13
+              ],
+              [
+                1684129680000,
+                4
+              ]
+            ]
+          },
+          {
+            "key": "3s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "5s",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Slow",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Error",
+            "values": [
+              [
+                1684129380000,
+                0
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                0
+              ],
+              [
+                1684129560000,
+                0
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                0
+              ]
+            ]
+          },
+          {
+            "key": "Avg",
+            "values": [
+              [
+                1684129380000,
+                1
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                1
+              ],
+              [
+                1684129560000,
+                1
+              ],
+              [
+                1684129620000,
+                0
+              ],
+              [
+                1684129680000,
+                1
+              ]
+            ]
+          },
+          {
+            "key": "Max",
+            "values": [
+              [
+                1684129380000,
+                2
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                2
+              ],
+              [
+                1684129560000,
+                2
+              ],
+              [
+                1684129620000,
+                1
+              ],
+              [
+                1684129680000,
+                2
+              ]
+            ]
+          },
+          {
+            "key": "Sum",
+            "values": [
+              [
+                1684129380000,
+                14
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                21
+              ],
+              [
+                1684129560000,
+                18
+              ],
+              [
+                1684129620000,
+                10
+              ],
+              [
+                1684129680000,
+                5
+              ]
+            ]
+          },
+          {
+            "key": "Tot",
+            "values": [
+              [
+                1684129380000,
+                11
+              ],
+              [
+                1684129440000,
+                0
+              ],
+              [
+                1684129500000,
+                19
+              ],
+              [
+                1684129560000,
+                15
+              ],
+              [
+                1684129620000,
+                13
+              ],
+              [
+                1684129680000,
+                4
+              ]
+            ]
+          }
+        ],
+        "instanceCount": 1,
+        "instanceErrorCount": 0,
+        "agentIds": [
+          "shopping.product01"
+        ],
+        "agentIdNameMap": {
+          "shopping.product01": ""
+        }
+      }
+    ]
+  }
+}
