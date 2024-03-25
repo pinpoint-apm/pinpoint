@@ -1,0 +1,50 @@
+{
+  "name": "@pinpoint-fe/web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx}\"",
+    "lint": "yarn format && eslint ./src --config .eslintrc.cjs",
+    "clean": "yarn clean:dist && yarn clean:node_modules && yarn clean:turbo",
+    "clean:node_modules": "rm -rf node_modules",
+    "clean:dist": "rm -rf dist",
+    "clean:turbo": "rm -rf .turbo",
+    "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/v3\""
+  },
+  "dependencies": {
+    "@pinpoint-fe/atoms": "*",
+    "@pinpoint-fe/constants": "*",
+    "@pinpoint-fe/hooks": "*",
+    "@pinpoint-fe/ui": "*",
+    "@pinpoint-fe/utils": "*",
+    "@tanstack/react-query": "^5.17.19",
+    "date-fns": "^2.29.3",
+    "i18next": "^23.2.11",
+    "jotai": "^2.1.1",
+    "re-resizable": "^6.9.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^13.0.2",
+    "react-icons": "^4.9.0",
+    "react-router-dom": "^6.10.0",
+    "swr": "^2.1.2",
+    "usehooks-ts": "^2.9.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@pinpoint-fe/configs": "*",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^3.1.0",
+    "cpx": "^1.5.0",
+    "eslint": "^8.15.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.5",
+    "vite-plugin-compression2": "^0.9.2"
+  }
+}

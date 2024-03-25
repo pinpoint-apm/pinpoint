@@ -1,0 +1,96 @@
+.rich-datetime-picker__date-picker {
+  width: 100%;
+  border: none;
+
+  svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .react-datepicker__month-container {
+    width: 100%;
+    // padding: 0 1.5rem;
+
+    .react-datepicker__header {
+      border: none;
+      background-color: inherit;
+      font-size: 0.875rem;
+    }
+
+    .react-datepicker__current-month {
+      font-weight: 500;
+    }
+
+    .react-datepicker__month {
+      margin: 0px;
+      padding: 0 1.5rem;
+    }
+
+    .react-datepicker__day-names {
+      padding: 0 1.5rem;
+    }
+
+    .react-datepicker__day-names,
+    .react-datepicker__week {
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.3125rem;
+
+      .react-datepicker__day--in-range {
+        border-radius: 2px;
+      }
+    }
+
+    .react-datepicker__day-name,
+    .react-datepicker__day {
+      width: 2.25rem;
+      line-height: 1.5rem;
+      margin: 0px;
+    }
+
+    .react-datepicker__day--in-selecting-range:not(
+        .react-datepicker__day--in-range,
+        .react-datepicker__month-text--in-range,
+        .react-datepicker__quarter-text--in-range,
+        .react-datepicker__year-text--in-range
+      ) {
+      border-radius: 2px;
+      background-color: rgba(147, 56, 255, 0.2);
+      color: inherit;
+
+      &:hover {
+        background-color: inherit;
+      }
+    }
+
+    .react-datepicker__day--selected {
+      color: white !important;
+      background-color: #9338ff !important;
+      border-radius: 2px;
+
+      &:hover {
+        background-color: white;
+        color: inherit;
+      }
+    }
+  }
+}
+
+.rich-datetime-picker__day.__day--in-range {
+  background-color: #9338ff;
+  color: white;
+}
+
+.rich-datetime-picker__day {
+  &:hover:not(.react-datepicker__day--disabled) {
+    background-color: white;
+    outline: 1px solid #9338ff;
+    border-radius: 2px;
+    color: inherit;
+  }
+}
+
+.rich-datetime-picker__day-name {
+  color: rgba(0, 0, 0, 0.5);
+}

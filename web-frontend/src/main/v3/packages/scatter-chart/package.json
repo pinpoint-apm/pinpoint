@@ -1,0 +1,82 @@
+{
+  "name": "@pinpoint-fe/scatter-chart",
+  "version": "1.5.1",
+  "description": "Open-source scatter-chart library written in pure JS based on canvas api, Specifically designed for visualizing request and response patterns over time",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web-frontend/src/main/v3/packages/scatter-chart/README.md"
+  },
+  "author": {
+    "name": "NAVER"
+  },
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./dist/index.css": "./dist/index.css"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "sideEffects": [
+    "dist/**/*.css"
+  ],
+  "scripts": {
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "lint": "npm run format && eslint ./src/**/*.ts --config .eslintrc.cjs",
+    "test": "jest",
+    "storybook": "start-storybook -p 6009",
+    "build-storybook": "build-storybook",
+    "build": "npm run lint && yarn test && tsup --config tsup.config.production.ts",
+    "clean": "rm -rf dist",
+    "dev": "tsup --config tsup.config.dev.ts --watch",
+    "devBuild": "tsup src/index.ts --format esm,cjs --dts",
+    "chromatic": "npx chromatic --project-token=8e9829505277"
+  },
+  "dependencies": {
+    "color": "^4.2.3",
+    "html2canvas": "^1.4.1",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.merge": "^4.6.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.10",
+    "@pinpoint-fe/tsconfig": "*",
+    "@storybook/addon-actions": "^6.5.15",
+    "@storybook/addon-essentials": "^6.5.15",
+    "@storybook/addon-interactions": "^6.5.15",
+    "@storybook/addon-links": "^6.5.15",
+    "@storybook/builder-webpack5": "^6.5.15",
+    "@storybook/html": "^6.5.15",
+    "@storybook/manager-webpack5": "^6.5.15",
+    "@storybook/testing-library": "^0.0.13",
+    "@swc/core": "^1.3.35",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/user-event": "^14.2.1",
+    "@types/color": "^3.0.3",
+    "@types/jest": "^28.1.4",
+    "@types/lodash.clonedeep": "^4.5.7",
+    "@types/lodash.merge": "^4.6.7",
+    "@typescript-eslint/eslint-plugin": "^5.58.0",
+    "@typescript-eslint/parser": "^5.58.0",
+    "babel-loader": "^8.2.5",
+    "chromatic": "^6.5.4",
+    "css-loader": "^6.7.3",
+    "eslint": "^8.15.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "jest": "^28.1.0",
+    "jest-canvas-mock": "^2.4.0",
+    "jest-environment-jsdom": "^28.1.2",
+    "prettier": "^2.8.7",
+    "storybook-css-modules": "^1.0.8",
+    "style-loader": "^3.3.1",
+    "ts-jest": "^28.0.5",
+    "tsup": "^6.2.1",
+    "typescript": "^4.5.5"
+  }
+}

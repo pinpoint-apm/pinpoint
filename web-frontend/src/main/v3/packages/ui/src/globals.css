@@ -1,0 +1,215 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* :root {
+    --primary-blue-50: #f0f8fe;
+    --primary-blue-50: 205.7 87.5% 96.9%;
+    --primary-blue-100: #deeefb;
+    --primary-blue-100: 206.9 78.4% 92.7%;
+    --primary-blue-200: #c5e4f8;
+    --primary-blue-200: 203.5 78.5% 87.3%;
+    --primary-blue-300: #9dd3f3;
+    --primary-blue-300: 202.3 78.2% 78.4%;
+    --primary-blue-400: #6eb9ec;
+    --primary-blue-400: 204.3 76.8% 67.8%;
+    --primary-blue-500: #469ae4;
+    --primary-blue-500: 208.1 74.5% 58.4%;
+    --primary-blue-600: #3783d9;
+    --primary-blue-600: 211.9 68.1% 53.3%;
+    --primary-blue-700: #2e6dc7;
+    --primary-blue-700: 215.3 62.4% 48%;
+    --primary-blue-800: #2b59a2;
+    --primary-blue-800: 216.8 58% 40.2%;
+    --primary-blue-900: #284c80;
+    --primary-blue-900: 215.5 52.4% 32.9%;
+    --primary-blue-950: #1d2f4e;
+    --primary-blue-950: 218 45.8% 21%;
+
+    --background: #ffffff;
+    --foreground: #020817;
+
+    --card: #ffffff;
+    --card-foreground: #020817;
+
+    --popover: #ffffff;
+    --popover-foreground: #020817;
+
+    --primary: 222.2, 47.4%, 11.2%;
+    --primary-foreground: #f8fafc;
+
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+
+    --destructive: #ef4444;
+    --destructive-foreground: #f8fafc;
+
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #020817;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --primary-blue-50: #151515;
+    --primary-blue-100: #072238;
+    --primary-blue-200: #0a3451;
+    --primary-blue-300: #9dd3f3;
+    --primary-blue-400: #85c4ef;
+    --primary-blue-500: #5ca6e7;
+    --primary-blue-600: #4c90dd;
+    --primary-blue-700: #3c7bd2;
+    --primary-blue-800: #3064b6;
+    --primary-blue-900: #2e5893;
+    --primary-blue-950: #243a61;
+
+    --background: #020817;
+    --foreground: #f8fafc;
+
+    --card: #020817;
+    --card-foreground: #f8fafc;
+
+    --popover: #020817;
+    --popover-foreground: #f8fafc;
+
+    --primary: var(--primary-blue-500);
+    --primary-foreground: #0f172a;
+
+    --secondary: #1e293b;
+    --secondary-foreground: #f8fafc;
+
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+
+    --accent: #1e293b;
+    --accent-foreground: #f8fafc;
+
+    --destructive: #7f1d1d;
+    --destructive-foreground: #f8fafc;
+
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #cbd5e1;
+  } */
+  :root {
+    --ui-background: 0 0% 100%;
+    --ui-foreground: 222.2 84% 4.9%;
+
+    --ui-card: 0 0% 100%;
+    --ui-card-foreground: 222.2 84% 4.9%;
+
+    --ui-popover: 0 0% 100%;
+    --ui-popover-foreground: 222.2 84% 4.9%;
+
+    --ui-primary: 208.1 74.5% 58.4%;
+    --ui-primary-foreground: 210 40% 98%;
+
+    --ui-secondary: 210 40% 96.1%;
+    --ui-secondary-foreground: 222.2 47.4% 11.2%;
+
+    --ui-muted: 210 40% 96.1%;
+    --ui-muted-foreground: 215.4 16.3% 46.9%;
+
+    --ui-accent: 210 40% 96.1%;
+    --ui-accent-foreground: 222.2 47.4% 11.2%;
+
+    --ui-destructive: 0 84.2% 60.2%;
+    --ui-destructive-foreground: 210 40% 98%;
+
+    /* --ui-border: 240 5.9% 90%; */
+    --ui-border: 214.3 31.8% 91.4%;
+    --ui-input: 214.3 31.8% 91.4%;
+    --ui-ring: 222.2 84% 4.9%;
+
+    --ui-radius: 0.4rem;
+  }
+
+  .dark {
+    --ui-background: 222.2 84% 4.9%;
+    --ui-foreground: 210 40% 98%;
+
+    --ui-card: 222.2 84% 4.9%;
+    --ui-card-foreground: 210 40% 98%;
+
+    --ui-popover: 222.2 84% 4.9%;
+    --ui-popover-foreground: 210 40% 98%;
+
+    --ui-primary: 210 40% 98%;
+    --ui-primary-foreground: 222.2 47.4% 11.2%;
+
+    --ui-secondary: 217.2 32.6% 17.5%;
+    --ui-secondary-foreground: 210 40% 98%;
+
+    --ui-muted: 217.2 32.6% 17.5%;
+    --ui-muted-foreground: 215 20.2% 65.1%;
+
+    --ui-accent: 217.2 32.6% 17.5%;
+    --ui-accent-foreground: 210 40% 98%;
+
+    --ui-destructive: 0 62.8% 30.6%;
+    --ui-destructive-foreground: 210 40% 98%;
+
+    --ui-border: 217.2 32.6% 17.5%;
+    /* --ui-border: 240 3.7% 15.9%; */
+    --ui-input: 217.2 32.6% 17.5%;
+    --ui-ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      sans-serif,
+      -apple-system,
+      BlinkMacSystemFont,
+      Segoe UI,
+      Helvetica Neue;
+  }
+  svg {
+    display: inline;
+  }
+  button {
+    font-size: inherit;
+  }
+}
+
+@layer components {
+  .__scatter_chart__legend {
+    @apply gap-2;
+  }
+
+  .__scatter_chart__legend_container {
+    @apply pb-1 mt-4;
+  }
+
+  .__scatter_chart__legend_count {
+    @apply ml-3 !text-xl font-bold;
+  }
+
+  .__scatter_chart__legend_mark {
+    @apply self-center;
+  }
+
+  .pp-arrow-sm {
+    @apply absolute bottom-0 w-2 h-2 rotate-45 bg-inherit -translate-x-2/4 left-1/2;
+  }
+
+  .PopoverContent {
+    width: var(--radix-popover-trigger-width);
+    max-height: var(--radix-popover-content-available-height);
+  }
+}

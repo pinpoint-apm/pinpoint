@@ -1,0 +1,30 @@
+{
+  "name": "pinpoint-fe-v3",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean --force && rm -rf node_modules",
+    "clean:dist": "turbo run clean:dist --force",
+    "storybook": "turbo run storybook --force",
+    "build:storybook": "turbo run build-storybook",
+    "deploy:storybook": "turbo run chromatic"
+  },
+  "devDependencies": {
+    "prettier": "latest",
+    "turbo": "latest"
+  },
+  "engines": {
+    "npm": ">=7.0.0",
+    "node": ">=14.0.0"
+  },
+  "packageManager": "yarn@1.22.10",
+  "dependencies": {}
+}
