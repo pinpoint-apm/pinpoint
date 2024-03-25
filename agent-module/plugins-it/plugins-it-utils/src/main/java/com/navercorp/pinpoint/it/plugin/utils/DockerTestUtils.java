@@ -15,56 +15,22 @@
  */
 package com.navercorp.pinpoint.it.plugin.utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import com.github.dockerjava.api.model.Info;
+import org.testcontainers.DockerClientFactory;
 
 /**
  * @author youngjin.kim2
  */
 public class DockerTestUtils {
+
     public static boolean isArmDockerServer() {
-        return getDockerArchitecture().contains("arm");
-    }
-
-    private static String getDockerArchitecture() {
-        final String dockerInfo = execute("docker version", 3000);
-        int serverIndex = dockerInfo.indexOf("Server: ");
-        if (serverIndex != -1) {
-            final String dockerServerInfo = dockerInfo.substring(serverIndex);
-            final String archLine = Arrays.stream(dockerServerInfo.split("\n"))
-                    .filter(line -> line.contains("OS/Arch:"))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Invalid docker version result"));
-            return archLine.split(":")[1].trim();
+        DockerClientFactory dockerClientFactory = DockerClientFactory.instance();
+        Info dockerInfo = dockerClientFactory.getInfo();
+        String arch = dockerInfo.getArchitecture();
+        if (arch == null) {
+            throw new RuntimeException("Failed to get docker architecture");
         }
-        return dockerInfo;
+        return arch.contains("aarch") || arch.contains("arm");
     }
 
-    private static String execute(String command, long waitMillis) {
-        try {
-            return execute0(command, waitMillis);
-        } catch (Throwable th) {
-            throw new RuntimeException("Failed to run '" + command + "'");
-        }
-    }
-
-    private static String execute0(String command, long waitMillis) throws InterruptedException, IOException {
-        final Process proc = Runtime.getRuntime().exec(command);
-        if (!proc.waitFor(waitMillis, TimeUnit.MILLISECONDS)) {
-            throw new RuntimeException();
-        }
-        return readAll(proc.getInputStream());
-    }
-
-    private static String readAll(InputStream is) {
-        return new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.joining("\n"));
-    }
 }
