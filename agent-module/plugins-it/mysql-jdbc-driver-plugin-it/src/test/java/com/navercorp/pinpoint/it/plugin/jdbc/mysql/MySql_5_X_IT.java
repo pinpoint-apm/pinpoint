@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 @Dependency({"mysql:mysql-connector-java:[5.min,5.1.9),[5.1.10,5.max]", "log4j:log4j:1.2.16",
         "org.slf4j:slf4j-log4j12:1.7.5", JDBCTestConstants.VERSION})
 @SharedDependency({"mysql:mysql-connector-java:8.0.28", JDBCTestConstants.VERSION, TestcontainersOption.MYSQLDB})
-@SharedTestLifeCycleClass(MySqlServer.class)
+@SharedTestLifeCycleClass(MySqlServer5.class)
 public class MySql_5_X_IT extends MySql_IT_Base {
 
     private static MySqlItHelper HELPER;
