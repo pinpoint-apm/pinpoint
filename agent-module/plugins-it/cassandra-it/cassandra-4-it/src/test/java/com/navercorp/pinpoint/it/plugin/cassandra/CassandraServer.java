@@ -15,7 +15,7 @@ public class CassandraServer implements SharedTestLifeCycle {
 
     private final String dockerImageVersion;
 
-    public CassandraContainer cassandra;
+    public CassandraContainer<?> cassandra;
 
     public CassandraServer(String dockerImageVersion) {
         this.dockerImageVersion = Objects.requireNonNull(dockerImageVersion, "dockerImageVersion");
@@ -25,7 +25,7 @@ public class CassandraServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        cassandra = new CassandraContainer(dockerImageVersion);
+        cassandra = new CassandraContainer<>(dockerImageVersion);
         cassandra.withInitScript("cassandra-init.sql");
         cassandra.start();
 

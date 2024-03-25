@@ -17,7 +17,7 @@ public class CassandraServer implements SharedTestLifeCycle {
 
     private final String dockerImageVersion;
 
-    public CassandraContainer cassandra;
+    public CassandraContainer<?> cassandra;
     private Cluster cluster;
 
     public CassandraServer(String dockerImageVersion) {
@@ -28,7 +28,7 @@ public class CassandraServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        cassandra = new CassandraContainer(dockerImageVersion);
+        cassandra = new CassandraContainer<>(dockerImageVersion);
         cassandra.start();
 
         final Integer port = cassandra.getMappedPort(CassandraContainer.CQL_PORT);
