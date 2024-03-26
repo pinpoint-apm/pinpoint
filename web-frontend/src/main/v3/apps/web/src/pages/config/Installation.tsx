@@ -1,4 +1,3 @@
-import React from 'react';
 import { getLayoutWithConfiguration, getLayoutWithSideNavigation } from '@/components/Layout';
 import {
   AgentDuplicationCheck,

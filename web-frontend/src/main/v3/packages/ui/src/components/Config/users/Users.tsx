@@ -11,10 +11,9 @@ import { useTranslation } from 'react-i18next';
 
 export interface UsersProps {
   configuration?: Configuration;
-  autoResize?: boolean;
 }
 
-export const Users = ({ configuration, autoResize }: UsersProps) => {
+export const Users = ({ configuration }: UsersProps) => {
   const enableUserEdit = configuration?.editUserInfo;
   const usersTableRef = React.useRef<UsersTableAction>(null);
   const { t } = useTranslation();
@@ -35,7 +34,7 @@ export const Users = ({ configuration, autoResize }: UsersProps) => {
   return (
     <div className="space-y-2">
       <UsersTable
-        autoResize={autoResize}
+        autoResize
         ref={usersTableRef}
         enableUserEdit={enableUserEdit}
         actionRenderer={(user) => {
