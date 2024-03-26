@@ -1,4 +1,3 @@
-import React from 'react';
 import { WebhookPage, WebhookPageProps, withInitialFetch } from '@pinpoint-fe/ui';
 import { getLayoutWithConfiguration, getLayoutWithSideNavigation } from '@/components/Layout';
 

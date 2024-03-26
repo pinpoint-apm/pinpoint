@@ -69,8 +69,8 @@ export const Realtime = () => {
     const nodeIds = nodes
       ? nodes.map((node) => node.id)
       : edges
-        ? edges.map((edge) => edge.target)
-        : [];
+      ? edges.map((edge) => edge.target)
+      : [];
 
     return serverMapData?.applicationMapData.nodeDataArray
       ?.filter(({ key }: GetServerMap.NodeData) => nodeIds.includes(key))

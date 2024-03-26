@@ -1,4 +1,3 @@
-import React from 'react';
 import { TransactionListPage, TransactionListPageProps, withInitialFetch } from '@pinpoint-fe/ui';
 import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
 
