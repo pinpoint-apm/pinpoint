@@ -24,13 +24,14 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
 
 public class R2dbcMssqlTest {
-    private static MSSQLServerContainer container;
+    private static MSSQLServerContainer<?> container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
 
-        container = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2017-CU12");
+        container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-CU12");
         container.acceptLicense();
         container.withInitScript("mssql-init.sql");
         container.start();

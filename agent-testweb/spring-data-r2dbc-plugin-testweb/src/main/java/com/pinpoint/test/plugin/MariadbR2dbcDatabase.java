@@ -32,7 +32,13 @@ public class MariadbR2dbcDatabase implements R2dbcDatabase {
 
     @PostConstruct
     public void init() throws Exception {
-        MariadbConnectionConfiguration connectionConfiguration = MariadbConnectionConfiguration.builder().host("localhost").port(9115).username("root").password("").database("test").build();
+        MariadbConnectionConfiguration.Builder builder = MariadbConnectionConfiguration.builder();
+        MariadbConnectionConfiguration connectionConfiguration = builder.host("localhost")
+                .port(9115)
+                .username("root")
+                .password("")
+                .database("test")
+                .build();
         connectionFactory = new MariadbConnectionFactory(connectionConfiguration);
     }
 
