@@ -31,7 +31,7 @@ public class R2dbcPostgresqlTest {
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new PostgreSQLContainer<>();
+        container = new PostgreSQLContainer<>("postgres:9.6.24");
         container.withInitScript("postgresql-init.sql");
 
         container.start();

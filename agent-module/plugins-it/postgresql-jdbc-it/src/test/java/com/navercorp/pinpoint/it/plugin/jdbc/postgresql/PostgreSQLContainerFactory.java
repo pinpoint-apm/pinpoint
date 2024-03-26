@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 public class PostgreSQLContainerFactory {
 
     public static PostgreSQLContainer<?> newContainer(String loggerName) {
-        PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:9.6.12");
+        PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:9.6.24");
         container.withInitScript("init_postgresql.sql");
 
         container.withLogConsumer(new Consumer<OutputFrame>() {

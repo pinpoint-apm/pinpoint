@@ -28,14 +28,13 @@ public class R2dbcMariadbTest {
     public static final String USERNAME = "root";
     public static final String PASSWORD = "";
 
-    private static MariaDBContainer container;
+    private static MariaDBContainer<?> container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
-        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
 
-        container = new MariaDBContainer("mariadb:10.3.6");
+        container = new MariaDBContainer<>("mariadb:10.6.17");
         container.withDatabaseName(DATABASE_NAME);
         container.withUsername(USERNAME);
         container.withPassword(PASSWORD);
