@@ -39,7 +39,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author minwoo-jung
  */
-@Repository
+@Repository("pinotApplicationStatDao")
 public class PinotApplicationStatDao implements ApplicationStatDao {
 
     private static final String NAMESPACE = PinotApplicationStatDao.class.getName() + ".";
@@ -53,31 +53,31 @@ public class PinotApplicationStatDao implements ApplicationStatDao {
 
     @Override
     public CompletableFuture<List<AvgMinMaxMetricPoint<Double>>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgMinMaxData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<MinMaxMetricPoint<Double>>> selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMinMaxData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgMinData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxData", inspectorQueryParameter);
     }
 

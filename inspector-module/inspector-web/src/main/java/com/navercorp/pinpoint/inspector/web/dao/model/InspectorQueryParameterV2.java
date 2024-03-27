@@ -106,7 +106,7 @@ public class InspectorQueryParameterV2 {
 
     @Override
     public String toString() {
-        return "InspectorQueryParameter{" +
+        return "InspectorQueryParameterV2{" +
                 "tenantId='" + tenantId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
@@ -116,6 +116,7 @@ public class InspectorQueryParameterV2 {
                 ", range=" + range +
                 ", timePrecision=" + timePrecision +
                 ", limit=" + limit +
+                ", sortKey='" + sortKey + '\'' +
                 '}';
     }
 }
