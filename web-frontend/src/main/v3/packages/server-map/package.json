@@ -23,9 +23,12 @@
     "storybook": "start-storybook -p 6008",
     "build-storybook": "build-storybook",
     "build": "tsup --config tsup.config.production.ts",
-    "clean": "rm -rf dist",
+    "clean": "yarn clean:dist && yarn clean:node_modules && yarn clean:turbo",
+    "clean:node_modules": "rm -rf node_modules",
+    "clean:dist": "rm -rf dist",
+    "clean:turbo": "rm -rf .turbo",
     "dev": "tsup --config tsup.config.dev.ts --watch",
-    "devBuild": "tsup --config tsup.config.dev.ts "
+    "devBuild": "tsup --config tsup.config.dev.ts"
   },
   "dependencies": {
     "cytoscape": "^3.24.0",

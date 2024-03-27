@@ -3,6 +3,9 @@
     "@pinpoint-fe/scatter-chart#build": {
       "outputs": ["dist/**"]
     },
+    "@pinpoint-fe/datetime-picker#build": {
+      "outputs": ["dist/**"]
+    },
     "@pinpoint-fe/server-map#build": {
       "outputs": ["dist/**"]
     },
@@ -22,11 +25,20 @@
       "outputs": ["dist/**"]
     },
     "@pinpoint-fe/ui#build": {
-      "dependsOn": ["@pinpoint-fe/atoms#build", "@pinpoint-fe/hooks#build"],
+      "dependsOn": [
+        "@pinpoint-fe/atoms#build",
+        "@pinpoint-fe/hooks#build",
+        "@pinpoint-fe/scatter-chart#build",
+        "@pinpoint-fe/datetime-picker#build",
+        "@pinpoint-fe/server-map#build"
+      ],
       "outputs": ["dist/**"]
     },
     "@pinpoint-fe/web#build": {
       "dependsOn": ["@pinpoint-fe/ui#build"],
+      "outputs": ["dist/**"]
+    },
+    "@pinpoint-fe/datetime-picker#devBuild": {
       "outputs": ["dist/**"]
     },
     "@pinpoint-fe/scatter-chart#devBuild": {
@@ -51,23 +63,22 @@
       "outputs": ["dist/**"]
     },
     "@pinpoint-fe/ui#devBuild": {
-      "dependsOn": ["@pinpoint-fe/atoms#devBuild", "@pinpoint-fe/hooks#devBuild"],
+      "dependsOn": [
+        "@pinpoint-fe/atoms#devBuild",
+        "@pinpoint-fe/hooks#devBuild",
+        "@pinpoint-fe/scatter-chart#devBuild",
+        "@pinpoint-fe/datetime-picker#devBuild",
+        "@pinpoint-fe/server-map#devBuild"
+      ],
       "outputs": ["dist/**"]
     },
     "dev": {
       "cache": false,
-      "dependsOn": [
-        "@pinpoint-fe/scatter-chart#devBuild",
-        "@pinpoint-fe/server-map#devBuild",
-        "@pinpoint-fe/constants#devBuild",
-        "@pinpoint-fe/utils#devBuild",
-        "@pinpoint-fe/atoms#devBuild",
-        "@pinpoint-fe/hooks#devBuild",
-        "@pinpoint-fe/ui#devBuild"
-      ]
+      "dependsOn": ["@pinpoint-fe/ui#devBuild"]
     },
     "lint": {
       "dependsOn": [
+        "@pinpoint-fe/datetime-picker#devBuild",
         "@pinpoint-fe/scatter-chart#devBuild",
         "@pinpoint-fe/server-map#devBuild",
         "@pinpoint-fe/constants#devBuild",

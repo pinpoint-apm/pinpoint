@@ -31,7 +31,7 @@
       "@/assets/*": ["assets/*"],
       "@/*": ["*"]
     },
-    "types": ["vite-plugin-svgr/client", "jest"],
+    "types": ["vite-plugin-svgr/client", "jest", "node"],
     "esModuleInterop": true
   },
   "include": ["src"],

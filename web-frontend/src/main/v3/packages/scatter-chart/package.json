@@ -32,7 +32,10 @@
     "storybook": "start-storybook -p 6009",
     "build-storybook": "build-storybook",
     "build": "npm run lint && yarn test && tsup --config tsup.config.production.ts",
-    "clean": "rm -rf dist",
+    "clean": "yarn clean:dist && yarn clean:node_modules && yarn clean:turbo",
+    "clean:node_modules": "rm -rf node_modules",
+    "clean:dist": "rm -rf dist",
+    "clean:turbo": "rm -rf .turbo",
     "dev": "tsup --config tsup.config.dev.ts --watch",
     "devBuild": "tsup src/index.ts --format esm,cjs --dts",
     "chromatic": "npx chromatic --project-token=8e9829505277"
