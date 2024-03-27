@@ -29,7 +29,7 @@ public class R2dbcMssqlTest {
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
-        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer(), "ARM not supported");
 
         container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-CU12");
         container.acceptLicense();

@@ -38,7 +38,7 @@ public class R2dbcOracleTest {
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
-        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer(), "ARM not supported");
 
         container = new OracleContainer(ORACLE_21_X_IMAGE);
         container.setWaitStrategy(Wait.forLogMessage(".*Completed.*", 1));

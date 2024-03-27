@@ -36,7 +36,7 @@ public class MariadbServer implements SharedTestLifeCycle {
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
-        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer(), "ARM not supported");
 
         container = new MariaDBContainer<>("mariadb:10.3.6");
         container.waitingFor(Wait.forListeningPort());
