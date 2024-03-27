@@ -14,12 +14,12 @@ public final class PluginClassLoading {
             "opentest4",
             "hamcrest", // for JUnit
             "assertj-core",
-            "pinpoint-test", // pinpoint-test-{VERSION}.jar
-            Paths.get("test", "target", "classes").toString(),
+            "pinpoint-plugins-test", // pinpoint-test-{VERSION}.jar
+            Paths.get("agent-module", "plugins-test", "target", "classes").toString(),
 //            "/test/target/classes", // pinpoint-test build output directory
             Paths.get("testcase", "target", "classes").toString(),
 //            "/testcase/target/classes",
-            Paths.get("pinpoint", "plugins").toString(),
+            Paths.get("pinpoint", "agent-module", "plugins").toString(),
 //            "/pinpoint/plugins/", // required when executing test on IDE
 
             // logger for bootstrap classloader
@@ -53,8 +53,8 @@ public final class PluginClassLoading {
             "httpcore",
             "guava",
             "plexus",
-            "pinpoint-test",
-            Paths.get("test", "target", "classes").toString(),
+            "pinpoint-plugins-test",
+            Paths.get("agent-module", "plugins-test", "target", "classes").toString(),
 //            "/test/target/classes", // pinpoint-test build output directory
 
             // logger for child classloader

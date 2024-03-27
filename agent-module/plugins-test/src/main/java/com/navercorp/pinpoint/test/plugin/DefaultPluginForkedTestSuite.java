@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
@@ -25,11 +26,7 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -80,9 +77,16 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
             this.testOnSystemClassLoader = onClassLoader.system();
         }
 
+        Set<String> dependenySet = new HashSet<>();
         Dependency deps = testClass.getAnnotation(Dependency.class);
-        this.dependencies = deps == null ? null : deps.value();
-
+        if(deps != null) {
+            dependenySet.addAll(Arrays.asList(deps.value()));
+        }
+        SharedDependency sharedDependency = testClass.getAnnotation(SharedDependency.class);
+        if(sharedDependency != null) {
+            dependenySet.addAll(Arrays.asList(sharedDependency.value()));
+        }
+        this.dependencies = dependenySet.toArray(new String[dependenySet.size()]);
         TestRoot lib = testClass.getAnnotation(TestRoot.class);
 
         if (lib == null) {
