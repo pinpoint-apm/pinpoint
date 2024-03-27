@@ -35,7 +35,7 @@ public class R2dbcMysqlTest {
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new MySQLContainer<>("mysql:5.7.34");
+        container = new MySQLContainer<>("mysql:8.0.36");
         container.withDatabaseName(DATABASE_NAME);
         container.withUsername(USERNAME);
         container.withPassword(PASSWORD);

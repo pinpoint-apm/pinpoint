@@ -79,7 +79,7 @@ public class JtdsConnectionIT {
     @BeforeAll
     public static void beforeClass() throws Exception {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
-        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer());
+        Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer(), "ARM not supported");
         mssqlserver.start();
 
         String address = mssqlserver.getJdbcUrl().substring(JtdsITConstants.JDBC_URL_PREFIX.length());
