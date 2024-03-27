@@ -19,12 +19,19 @@ export const useDataSourceChartTooltip = (
 
   const getTooltipData = (focusIndex: number) =>
     tooltipData.map(({ metricValues, tags }) => {
+      const getTagValue = (name: string) =>
+        tags.find(({ name: tagName }: InspectorAgentDataSourceChart.TagValue) => tagName === name)
+          ?.value;
+      const getMetricValue = (name: string) =>
+        metricValues.find(
+          ({ fieldName }: InspectorAgentDataSourceChart.MetricValue) => fieldName === name,
+        )?.valueList[focusIndex];
       return {
-        jdbcUrl: tags[2].value,
-        serviceTypeCode: tags[0].value,
-        activeAvg: metricValues[0].valueList[focusIndex],
-        activeMax: metricValues[1].valueList[focusIndex],
-        totalMax: metricValues[2].valueList[focusIndex],
+        jdbcUrl: getTagValue('jdbcUrl'),
+        serviceTypeCode: getTagValue('serviceTypeCode'),
+        activeAvg: getMetricValue('activeAvg'),
+        activeMax: getMetricValue('activeMax'),
+        totalMax: getMetricValue('totalMax'),
       };
     });
 
