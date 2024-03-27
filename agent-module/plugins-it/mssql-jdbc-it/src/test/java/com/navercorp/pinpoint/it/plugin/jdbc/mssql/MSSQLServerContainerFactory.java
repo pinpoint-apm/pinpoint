@@ -16,13 +16,10 @@
 
 package com.navercorp.pinpoint.it.plugin.jdbc.mssql;
 
-import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
+import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.output.OutputFrame;
-
-import java.util.function.Consumer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,13 +33,8 @@ public final class MSSQLServerContainerFactory {
         mssqlServerContainer.acceptLicense();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
 
-        mssqlServerContainer.withLogConsumer(new Consumer<OutputFrame>() {
-            private final Logger logger = LogManager.getLogger(loggerName);
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
-            }
-        });
+        final Logger logger = LogManager.getLogger(loggerName);
+        mssqlServerContainer.withLogConsumer(new LogOutputStream(logger::info));
         return mssqlServerContainer;
     }
 }

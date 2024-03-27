@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.it.plugin.jdbc.jtds;
 
-import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
+import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.junit.Assume;
@@ -8,10 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.output.OutputFrame;
 
 import java.util.Properties;
-import java.util.function.Consumer;
 
 public class MsSqlServer implements SharedTestLifeCycle {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -27,12 +25,7 @@ public class MsSqlServer implements SharedTestLifeCycle {
         mssqlserver.withPassword(JtdsITConstants.PASSWORD);
 
 
-        mssqlserver.withLogConsumer(new Consumer<OutputFrame>() {
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
-            }
-        });
+        mssqlserver.withLogConsumer(new LogOutputStream(logger::info));
         mssqlserver.start();
 
         return DatabaseContainers.toProperties(mssqlserver);

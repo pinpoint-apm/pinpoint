@@ -16,30 +16,22 @@
 
 package com.navercorp.pinpoint.it.plugin.jdbc.postgresql;
 
-import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
+import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.output.OutputFrame;
-
-import java.util.function.Consumer;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class PostgreSQLContainerFactory {
+    private static final Logger logger = LogManager.getLogger(PostgreSQLContainerFactory.class);
 
     public static PostgreSQLContainer<?> newContainer(String loggerName) {
         PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:9.6.24");
         container.withInitScript("init_postgresql.sql");
 
-        container.withLogConsumer(new Consumer<OutputFrame>() {
-            private final Logger logger = LogManager.getLogger();
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
-            }
-        });
+        container.withLogConsumer(new LogOutputStream(logger::info));
         return container;
     }
 }

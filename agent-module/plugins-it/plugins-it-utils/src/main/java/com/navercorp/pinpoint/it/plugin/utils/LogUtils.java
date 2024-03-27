@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.it.plugin.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Deprecated
 public final class LogUtils {
     private static final String LINE_BREAK_REGEX = "((\\r?\\n)|(\\r))";
     private static final String LINE_BREAK_AT_END_REGEX = LINE_BREAK_REGEX + "$";
@@ -27,6 +28,10 @@ public final class LogUtils {
     private LogUtils() {
     }
 
+    /**
+     * @deprecated Since 3.0.0 Use {@link org.testcontainers.containers.output.OutputFrame#getUtf8StringWithoutLineEnding}
+     */
+    @Deprecated
     public static String removeLineBreak(String log) {
         Matcher matcher = LINE_BREAK_AT_END_REGEX_PATTERN.matcher(log);
         return matcher.replaceAll("");

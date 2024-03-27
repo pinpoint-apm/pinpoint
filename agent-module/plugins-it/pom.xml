@@ -101,9 +101,10 @@
             <!-- testcontainers -->
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers</artifactId>
+                <artifactId>testcontainers-bom</artifactId>
+                <scope>import</scope>
+                <type>pom</type>
                 <version>${testcontainers.version}</version>
-                <scope>test</scope>
             </dependency>
 
         </dependencies>
