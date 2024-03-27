@@ -80,7 +80,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
         String host = matcher.group(2);
         String portString = matcher.group(3);
         String db = matcher.group(4);
-        String user = matcher.group(5);
+//        String user = matcher.group(5);
 //        String pass = matcher.group(6);
 //        String prop = matcher.group(7);
 

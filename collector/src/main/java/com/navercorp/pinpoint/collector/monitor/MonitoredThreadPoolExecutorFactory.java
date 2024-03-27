@@ -21,6 +21,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -28,10 +29,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class MonitoredThreadPoolExecutorFactory {
+public class MonitoredThreadPoolExecutorFactory implements Serializable {
 
     private final String name;
-    private final MetricRegistry registry;
+    private final transient MetricRegistry registry;
     private final int logRate;
 
     public MonitoredThreadPoolExecutorFactory(String name, MetricRegistry registry, int logRate) {

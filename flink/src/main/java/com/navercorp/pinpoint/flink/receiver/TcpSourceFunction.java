@@ -23,10 +23,15 @@ import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunctio
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.Serial;
+
 /**
  * @author minwoo.jung
  */
 public class TcpSourceFunction extends RichParallelSourceFunction<RawData> {
+
+    @Serial
+    private static final long serialVersionUID = -1605300070500115073L;
 
     private final Logger logger = LogManager.getLogger(TcpSourceFunction.class);
     private transient GlobalJobParameters globalJobParameters;

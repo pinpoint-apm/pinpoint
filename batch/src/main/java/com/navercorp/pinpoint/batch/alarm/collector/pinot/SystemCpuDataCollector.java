@@ -57,8 +57,8 @@ public class SystemCpuDataCollector extends DataCollector implements SystemCpuDa
         List<AgentUsageCount> agentUsageCountList = alarmDao.selectSumCount(application.getName(), METRIC_NAME, FIELD_NAME, range);
 
         for (AgentUsageCount agentUsageCount : agentUsageCountList) {
-            long jvmCpuUsagedPercent = calculatePercent(Double.valueOf(agentUsageCount.getValue()).longValue(), 100L * Double.valueOf(agentUsageCount.getCountValue()).longValue());
-            agentSystemCpuUsageRate.put(agentUsageCount.getAgentId(), jvmCpuUsagedPercent);
+            long jvmCpuUsagePercent = calculatePercent(agentUsageCount.getValue().longValue(), 100L * agentUsageCount.getCountValue().longValue());
+            agentSystemCpuUsageRate.put(agentUsageCount.getAgentId(), jvmCpuUsagePercent);
         }
     }
 

@@ -3,10 +3,11 @@ package com.navercorp.pinpoint.common.banner;
 import java.util.List;
 
 public abstract class PinpointBanner {
-    protected Mode pinpointBannerMode;
-    protected List<String> keysToPrint;
+    private Mode pinpointBannerMode;
+    private List<String> keysToPrint;
 
-    protected final String BANNER[] = {
+    @SuppressWarnings("SpellCheckingInspection")
+    protected static final String[] BANNER = {
             "",
             "        88888888ba   88  888b      88  88888888ba     ,ad8888ba,    88  888b      88  888888888888",
             "        88      ,8P  88  88 `8b    88  88      ,8P  d8'        `8b  88  88 `8b    88       88",
@@ -19,7 +20,22 @@ public abstract class PinpointBanner {
     };
 
     public abstract void printBanner();
-    public abstract void setPinpointBannerMode(Mode mode);
+
+    protected Mode getPinpointBannerMode() {
+        return pinpointBannerMode;
+    }
+
+    public void setPinpointBannerMode(Mode mode) {
+        this.pinpointBannerMode = mode;
+    }
+
+    protected List<String> getKeysToPrint() {
+        return keysToPrint;
+    }
+
+    protected void setKeysToPrint(List<String> keysToPrint) {
+        this.keysToPrint = keysToPrint;
+    }
 
     protected String format(String key, String value) {
         return String.format(" :: %55s :: %35s", key, value);

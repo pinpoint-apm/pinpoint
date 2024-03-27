@@ -24,9 +24,7 @@ public class BatchStarter extends BasicStarter {
     public static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.batch.config.location";
 
     public BatchStarter(Class<?>... sources) {
-        super(sources);
-        this.externalPropertySourceName = EXTERNAL_PROPERTY_SOURCE_NAME;
-        this.externalConfigurationKey = EXTERNAL_CONFIGURATION_KEY;
+        super(EXTERNAL_PROPERTY_SOURCE_NAME, EXTERNAL_CONFIGURATION_KEY, sources);
         setWebApplicationType(WebApplicationType.NONE);
     }
 }

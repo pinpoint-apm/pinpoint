@@ -57,7 +57,7 @@ public class FileDescriptorDataCollector extends DataCollector implements FileDe
         List<AgentUsage> agentUsageList = alarmDao.selectAvg(application.getName(), METRIC_NAME, FIELD_NAME, range);
 
         for (AgentUsage agentUsage : agentUsageList) {
-            agentFileDescriptorCount.put(agentUsage.getAgentId(), Double.valueOf(agentUsage.getValue()).longValue());
+            agentFileDescriptorCount.put(agentUsage.getAgentId(), agentUsage.getValue().longValue());
         }
     }
 

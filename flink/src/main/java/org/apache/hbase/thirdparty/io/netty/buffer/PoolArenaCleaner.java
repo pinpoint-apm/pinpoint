@@ -27,6 +27,7 @@ public class PoolArenaCleaner {
 
     private static final Logger logger = LogManager.getLogger(PoolArenaCleaner.class);
 
+    @SuppressWarnings("FinalizeCalledExplicitly")
     public static void finalizeExplicitly() {
         try {
             logger.info("Destroying netty direct buffer chunks");

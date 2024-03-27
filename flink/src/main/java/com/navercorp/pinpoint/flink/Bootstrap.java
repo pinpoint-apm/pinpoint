@@ -100,18 +100,20 @@ public class Bootstrap {
     }
 
     public static Bootstrap getInstance(Map<String, String> jobParameters) {
-        if (instance == null)  {
-            synchronized(Bootstrap.class) {
-                if (instance == null) {
-                    String profiles = jobParameters.getOrDefault(SPRING_PROFILE, "local");
-                    System.setProperty(PINPOINT_PROFILE, profiles);
-                    instance = new Bootstrap();
-                    logger.info("Bootstrap initialization. : job parameter " + jobParameters);
-                }
+        synchronized(Bootstrap.class) {
+            if (instance == null) {
+                instance = buildBootstrap(jobParameters);
             }
+            return instance;
         }
+    }
 
-        return instance;
+    private static Bootstrap buildBootstrap(Map<String, String> jobParameters) {
+        String profiles = jobParameters.getOrDefault(SPRING_PROFILE, "local");
+        System.setProperty(PINPOINT_PROFILE, profiles);
+        Bootstrap bootstrap = new Bootstrap();
+        logger.info("Initialized bootstrap: jobParameters=" + jobParameters);
+        return bootstrap;
     }
 
     public static void close() {

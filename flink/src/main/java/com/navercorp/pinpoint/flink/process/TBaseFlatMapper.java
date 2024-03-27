@@ -32,6 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -41,6 +42,10 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String, JoinStatBo, Long>> {
+
+    @Serial
+    private static final long serialVersionUID = 8646632121712637243L;
+
     private final static List<Tuple3<String, JoinStatBo, Long>> EMPTY_LIST = Collections.emptyList();
 
     private final static Logger logger = LogManager.getLogger(TBaseFlatMapper.class);
@@ -68,7 +73,7 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
     }
 
     @Override
-    public void flatMap(RawData rawData, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
+    public void flatMap(RawData rawData, Collector<Tuple3<String, JoinStatBo, Long>> out) {
         final TBase<?, ?> tBase = rawData.getData();
         if (tBase == null) {
             logger.error("tBase is null");

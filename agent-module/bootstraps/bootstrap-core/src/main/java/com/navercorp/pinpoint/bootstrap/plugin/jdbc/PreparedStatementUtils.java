@@ -38,7 +38,7 @@ public final class PreparedStatementUtils {
 
 
     public static List<Method> findBindVariableSetMethod() {
-        return bindMethod;
+        return Collections.unmodifiableList(bindMethod);
     }
 
     public static List<Method> findBindVariableSetMethod(BindVariableFilter filter) {

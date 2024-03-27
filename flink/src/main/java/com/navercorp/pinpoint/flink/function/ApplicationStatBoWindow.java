@@ -27,6 +27,7 @@ import org.apache.flink.util.Collector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +36,10 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, JoinStatBo, Long>, Tuple3<String, JoinStatBo, Long>, String, TimeWindow> {
+
+    @Serial
+    private static final long serialVersionUID = -3953699799713562034L;
+
     public static final int WINDOW_SIZE = 10000;
     public static final int ALLOWED_LATENESS = 45000;
 

@@ -73,7 +73,7 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
         for (Map.Entry<String, AgentHeapUsage> entry : agentHeapUsageMap.entrySet()) {
             String agentId = entry.getKey();
             AgentHeapUsage agentHeapUsage = entry.getValue();
-            long heapUsagePercent = calculatePercent(Double.valueOf(agentHeapUsage.getHeapUsed()).longValue(), Double.valueOf(agentHeapUsage.getHeapMax()).longValue());
+            long heapUsagePercent = calculatePercent(agentHeapUsage.getHeapUsed().longValue(), agentHeapUsage.getHeapMax().longValue());
             agentHeapUsageRate.put(agentId, heapUsagePercent);
         }
     }
