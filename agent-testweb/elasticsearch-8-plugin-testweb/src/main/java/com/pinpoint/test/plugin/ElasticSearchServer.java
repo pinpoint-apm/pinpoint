@@ -1,17 +1,15 @@
 package com.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
+import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 @Component
 public class ElasticSearchServer {
@@ -35,13 +33,8 @@ public class ElasticSearchServer {
             throw new IllegalStateException("Docker not enabled");
         }
 
-        elasticSearchContainer = new ElasticsearchContainer();
-        elasticSearchContainer.withLogConsumer(new Consumer<OutputFrame>() {
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
-            }
-        });
+        elasticSearchContainer = new ElasticsearchContainer("elasticsearch:7.17.19");
+        elasticSearchContainer.withLogConsumer(new LogOutputStream(logger::info));
         elasticSearchContainer.start();
         logger.info("host:{} port:{}", elasticSearchContainer.getHttpHostAddress(), getPort());
     }

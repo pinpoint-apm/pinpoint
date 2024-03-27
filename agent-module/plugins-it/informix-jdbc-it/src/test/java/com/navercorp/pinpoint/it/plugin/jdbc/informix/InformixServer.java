@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.it.plugin.jdbc.informix;
 
-import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
+import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.output.OutputFrame;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -32,7 +31,6 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Consumer;
 
 public class InformixServer implements SharedTestLifeCycle {
     private static final Logger LOGGER = LogManager.getLogger(InformixServer.class);
@@ -46,12 +44,7 @@ public class InformixServer implements SharedTestLifeCycle {
         container.withExposedPorts(9088, 9089, 27017, 27018, 27883);
         container.withEnv("LICENSE", "accept");
         container.withEnv("DB_INIT", "1");
-        container.withLogConsumer(new Consumer<OutputFrame>() {
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                LOGGER.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
-            }
-        });
+        container.withLogConsumer(new LogOutputStream(LOGGER::info));
         container.start();
 
         Connection connection = null;

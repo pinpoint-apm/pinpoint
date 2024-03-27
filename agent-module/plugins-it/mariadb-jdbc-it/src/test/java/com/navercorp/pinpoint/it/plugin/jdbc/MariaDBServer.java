@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.it.plugin.jdbc;
 
-import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
+import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
@@ -8,11 +8,9 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.util.Properties;
-import java.util.function.Consumer;
 
 public class MariaDBServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
@@ -27,12 +25,7 @@ public class MariaDBServer implements SharedTestLifeCycle {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
         mariaDB = new MariaDBContainer<>("mariadb:10.6.17");
-        mariaDB.withLogConsumer(new Consumer<OutputFrame>() {
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
-            }
-        });
+        mariaDB.withLogConsumer(new LogOutputStream(logger::info));
         mariaDB.waitingFor(Wait.forListeningPort());
         mariaDB.withDatabaseName(DATABASE_NAME);
         mariaDB.withUsername(USERNAME);

@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.DockerTestUtils;
-import com.navercorp.pinpoint.it.plugin.utils.LogUtils;
+import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverManagerUtils;
@@ -39,7 +39,6 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.output.OutputFrame;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -48,7 +47,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import java.util.function.Consumer;
 
 /**
  * @author emeroad
@@ -73,13 +71,7 @@ public class JtdsConnectionIT {
         mssqlServerContainer.acceptLicense();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
         mssqlServerContainer.withPassword(JtdsITConstants.PASSWORD);
-        mssqlServerContainer.withLogConsumer(new Consumer<OutputFrame>() {
-            private final Logger logger = LogManager.getLogger(loggerName);
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
-            }
-        });
+        mssqlServerContainer.withLogConsumer(new LogOutputStream(logger::info));
         return mssqlServerContainer;
     }
 
