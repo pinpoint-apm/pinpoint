@@ -20,7 +20,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.navercorp.pinpoint.inspector.web.dao.pinot.PinotApplicationStatDao">
+<mapper namespace="com.navercorp.pinpoint.inspector.web.dao.pinot.PinotApplicationStatDaoV2">
 
     <resultMap id="avgMinMaxResultMap" type="AvgMinMaxMetricPoint">
         <constructor>
@@ -66,18 +66,38 @@
 
     <select id="selectInspectorAvgMinMaxData" parameterType="inspectorQueryParameter" resultMap="avgMinMaxResultMap" >
         SELECT
-        AVG(fieldValue) AS avgValue,
-        MIN(fieldValue) AS minValue,
-        MAX(fieldValue) AS maxValue,
-        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
-        FROM inspectorStat
+            DIV(SUM(sumFieldValue), SUM(countFieldValue)) AS avgValue,
+            MIN(minFieldValue) AS minValue,
+            MAX(maxFieldValue) AS maxValue,
+            DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStatApp
+        WHERE
+        <!--  tenantId = #{tenantId}
+              AND serviceName = #{serviceName} -->
+            applicationName = #{applicationName}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+            <foreach collection="tagList" item="tag" separator=" ">
+                AND tags = #{tag}
+            </foreach>
+        GROUP BY aggregatedTime
+        ORDER BY aggregatedTime asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectInspectorSumData" parameterType="inspectorQueryParameter" resultMap="singleResultMap" >
+        SELECT
+        SUM(sumFieldValue) as fValue,
+        DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStatApp
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
         applicationName = #{applicationName}
         AND metricName = #{metricName}
         AND fieldName = #{fieldName}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
@@ -88,17 +108,17 @@
 
     <select id="selectInspectorMinMaxData" parameterType="inspectorQueryParameter" resultMap="minMaxResultMap" >
         SELECT
-        MIN(fieldValue) AS minValue,
-        MAX(fieldValue) AS maxValue,
-        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
-        FROM inspectorStat
+        MIN(minFieldValue) AS minValue,
+        MAX(maxFieldValue) AS maxValue,
+        DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStatApp
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
         applicationName = #{applicationName}
         AND metricName = #{metricName}
         AND fieldName = #{fieldName}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
@@ -109,40 +129,20 @@
 
     <select id="selectInspectorAvgMinData" parameterType="inspectorQueryParameter" resultMap="avgMinResultMap" >
         SELECT
-        AVG(fieldValue) AS avgValue,
-        MIN(fieldValue) AS minValue,
-        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
-        FROM inspectorStat
+        DIV(SUM(sumFieldValue), SUM(countFieldValue)) AS avgValue,
+        MIN(minFieldValue) AS minValue,
+        DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStatApp
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
         applicationName = #{applicationName}
         AND metricName = #{metricName}
         AND fieldName = #{fieldName}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
-        <foreach collection="tagList" item="tag" separator=" ">
-            AND tags = #{tag}
-        </foreach>
-        GROUP BY aggregatedTime
-        ORDER BY aggregatedTime asc
-        LIMIT ${limit}
-    </select>
-
-    <select id="selectInspectorSumData" parameterType="inspectorQueryParameter" resultMap="singleResultMap" >
-        SELECT
-        SUM(fieldValue) as fValue,
-        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
-        FROM inspectorStat
-        WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
-        applicationName = #{applicationName}
-        AND metricName = #{metricName}
-        AND fieldName = #{fieldName}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
-        <foreach collection="tagList" item="tag" separator=" ">
-            AND tags = #{tag}
-        </foreach>
+        AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+        <if test="tagList != null and tagList.size() > 0">
+            AND primaryTag = #{tagList[0]}
+        </if>
         GROUP BY aggregatedTime
         ORDER BY aggregatedTime asc
         LIMIT ${limit}
@@ -150,46 +150,32 @@
 
     <select id="selectInspectorMaxData" parameterType="inspectorQueryParameter" resultMap="singleResultMap" >
         SELECT
-        MAX(fieldValue) as fValue,
-        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
-        FROM inspectorStat
+        MAX(maxFieldValue) as fValue,
+        DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
+        FROM inspectorStatApp
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
         applicationName = #{applicationName}
         AND metricName = #{metricName}
         AND fieldName = #{fieldName}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
-        <foreach collection="tagList" item="tag" separator=" ">
-            AND tags = #{tag}
-        </foreach>
+        AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+        <if test="tagList != null and tagList.size() > 0">
+            AND primaryTag = #{tagList[0]}
+        </if>
         GROUP BY aggregatedTime
         ORDER BY aggregatedTime asc
         LIMIT ${limit}
     </select>
 
     <select id="selectTagInfo" parameterType="inspectorQueryParameter" resultType="Tag">
-        SELECT DISTINCT(tags)
-        FROM inspectorStat
+        SELECT DISTINCT(primaryTag)
+        FROM inspectorStatApp
         WHERE
             applicationName = #{applicationName}
             AND metricName = #{metricName}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
-    </select>
-
-    <select id="selectTagInfoContainedSpecificTag" parameterType="inspectorQueryParameter" resultMap="tagInfoMap">
-        SELECT applicationName, agentId, metricName, fieldName, tags
-        FROM inspectorStat
-        WHERE
-            applicationName = #{applicationName}
-            AND metricName = #{metricName}
-            AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
-            <foreach collection="tagList" item="tag" separator=" ">
-                AND tags = #{tag}
-            </foreach>
-        LIMIT 1
+            AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
     </select>
 
 </mapper>

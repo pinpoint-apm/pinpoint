@@ -33,10 +33,10 @@
             AND agentId = #{agentId}
             AND metricName = #{metricName}
             AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
             GROUP BY avgTime
             ORDER BY avgTime asc
             LIMIT ${limit}
@@ -54,10 +54,10 @@
         AND agentId = #{agentId}
         AND metricName = #{metricName}
         AND fieldName = #{fieldName}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY avgTime
         ORDER BY avgTime asc
         LIMIT ${limit}
@@ -75,10 +75,10 @@
         AND agentId = #{agentId}
         AND metricName = #{metricName}
         AND fieldName = #{fieldName}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY avgTime
         ORDER BY avgTime asc
         LIMIT ${limit}
@@ -103,10 +103,10 @@
             AND agentId = #{agentId}
             AND metricName = #{metricName}
             AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
         LIMIT 1
     </select>
 

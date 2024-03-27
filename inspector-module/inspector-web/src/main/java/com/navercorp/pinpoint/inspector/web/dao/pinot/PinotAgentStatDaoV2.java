@@ -52,19 +52,19 @@ public class PinotAgentStatDaoV2 implements AgentStatDao {
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumData", inspectorQueryParameter);
     }
 
