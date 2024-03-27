@@ -26,21 +26,22 @@ import java.lang.reflect.Method;
  */
 public final class PlatformClassLoaderUtils {
 
-    private static final ClassLoader platformClassLoader = lookupPlatformOrBootstrapClassLoader();
+    private static volatile ClassLoader platformClassLoader = null;
 
     private PlatformClassLoaderUtils() {
     }
 
     private static ClassLoader lookupPlatformOrBootstrapClassLoader() {
         if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
-            return getPlatformClassLoader0();
+            return lookupPlatformOrBootstrapClassLoaderOnOrAfterJava9();
         } else {
             // java 8 under
             return Object.class.getClassLoader();
         }
     }
 
-    private static ClassLoader getPlatformClassLoader0() {
+    @SuppressWarnings("JavaReflectionMemberAccess")
+    private static ClassLoader lookupPlatformOrBootstrapClassLoaderOnOrAfterJava9() {
 //        Warning : Not recommended
 //        return ClassLoader.getSystemClassLoader().getParent();
         try {
@@ -53,13 +54,19 @@ public final class PlatformClassLoaderUtils {
     }
 
     public static ClassLoader getPlatformOrBootstrapClassLoader() {
-        return platformClassLoader;
+        synchronized (PlatformClassLoaderUtils.class) {
+            if (platformClassLoader == null) {
+                platformClassLoader = lookupPlatformOrBootstrapClassLoader();
+            }
+
+            return platformClassLoader;
+        }
     }
 
 
     public static Class<?> findClassFromPlatformClassLoader(String className) {
         try {
-            return Class.forName(className, false, platformClassLoader);
+            return Class.forName(className, false, getPlatformOrBootstrapClassLoader());
         } catch (ClassNotFoundException e) {
             return null;
         }

@@ -30,7 +30,8 @@ public enum TransportModule {
         if (equalsIgnoreCase(TransportModule.GRPC.name(), transportModule)) {
             return GRPC;
         }
-        return GRPC;
+
+        return null;
     }
 
     private static boolean equalsIgnoreCase(String str1, String str2) {
@@ -38,13 +39,11 @@ public enum TransportModule {
     }
 
     public static TransportModule parse(String transportModule, TransportModule defaultModule) {
-        Objects.requireNonNull(transportModule, "transportModule");
-        Objects.requireNonNull(defaultModule, "defaultModule");
-
-        final TransportModule resolvedModule = parse(transportModule);
-        if (resolvedModule == null) {
-            return defaultModule;
+        final TransportModule resolvedModule = parse(Objects.requireNonNull(transportModule, "transportModule"));
+        if (resolvedModule != null) {
+            return resolvedModule;
         }
-        return resolvedModule;
+
+        return defaultModule;
     }
 }

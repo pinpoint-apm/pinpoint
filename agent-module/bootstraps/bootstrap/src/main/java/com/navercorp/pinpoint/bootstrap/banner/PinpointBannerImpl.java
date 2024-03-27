@@ -13,18 +13,13 @@ public class PinpointBannerImpl extends PinpointBanner {
     private Properties properties;
 
     public PinpointBannerImpl(List<String> keysToPrint, BootLogger logger) {
-        this.pinpointBannerMode = Mode.CONSOLE;
+        this.setPinpointBannerMode(Mode.CONSOLE);
         this.logger = Objects.requireNonNull(logger, "logger");
-        this.keysToPrint = Objects.requireNonNull(keysToPrint, "keysToPrint");
+        this.setKeysToPrint(Objects.requireNonNull(keysToPrint, "keysToPrint"));
     }
 
     public void setPinpointBannerProperty(Properties properties) {
         this.properties = Objects.requireNonNull(properties, "properties");
-    }
-
-    @Override
-    public void setPinpointBannerMode(Mode mode) {
-        this.pinpointBannerMode = mode;
     }
 
     @Override
@@ -34,7 +29,7 @@ public class PinpointBannerImpl extends PinpointBanner {
             return;
         }
 
-        switch (this.pinpointBannerMode) {
+        switch (this.getPinpointBannerMode()) {
             case OFF:
                 return;
             case LOG:
@@ -53,7 +48,7 @@ public class PinpointBannerImpl extends PinpointBanner {
         }
         sb.append(format("Pinpoint Version", Version.VERSION)).append(System.lineSeparator());
 
-        for (String key: keysToPrint) {
+        for (String key: getKeysToPrint()) {
             String value = properties.getProperty(key);
             if ( value != null ) {
                 sb.append(format(key, value)).append('\n');

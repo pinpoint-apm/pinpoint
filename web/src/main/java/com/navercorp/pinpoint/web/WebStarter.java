@@ -8,9 +8,7 @@ public class WebStarter extends BasicStarter  {
     public static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.web.config.location";
 
     public WebStarter(Class<?>... sources) {
-        super(sources);
-        this.externalPropertySourceName = EXTERNAL_PROPERTY_SOURCE_NAME;
-        this.externalConfigurationKey = EXTERNAL_CONFIGURATION_KEY;
+        super(EXTERNAL_PROPERTY_SOURCE_NAME, EXTERNAL_CONFIGURATION_KEY, sources);
     }
 
 }

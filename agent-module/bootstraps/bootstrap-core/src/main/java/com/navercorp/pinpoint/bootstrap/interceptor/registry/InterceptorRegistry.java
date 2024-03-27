@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor.registry;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -28,13 +29,14 @@ public final class InterceptorRegistry {
 
     private static final Locker LOCK = new DefaultLocker();
 
-    private static InterceptorRegistryAdaptor REGISTRY = EmptyRegistryAdaptor.EMPTY;
+    private static final AtomicReference<InterceptorRegistryAdaptor> REGISTRY =
+            new AtomicReference<>(EmptyRegistryAdaptor.EMPTY);
 
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
         Objects.requireNonNull(interceptorRegistryAdaptor, "interceptorRegistryAdaptor");
 
         if (LOCK.lock(lock)) {
-            REGISTRY = interceptorRegistryAdaptor;
+            REGISTRY.set(interceptorRegistryAdaptor);
         } else {
             throw new IllegalStateException("bind failed. lock=" + lock + " current=" + LOCK.getLock());
         }
@@ -42,13 +44,13 @@ public final class InterceptorRegistry {
 
     public static void unbind(final Object lock) {
         if (LOCK.unlock(lock)) {
-            REGISTRY = EmptyRegistryAdaptor.EMPTY;
+            REGISTRY.set(EmptyRegistryAdaptor.EMPTY);
         } else {
             throw new IllegalStateException("unbind failed. lock=" + lock + " current=" + LOCK.getLock());
         }
     }
 
     public static Interceptor getInterceptor(int key) {
-        return REGISTRY.getInterceptor(key);
+        return REGISTRY.get().getInterceptor(key);
     }
 }

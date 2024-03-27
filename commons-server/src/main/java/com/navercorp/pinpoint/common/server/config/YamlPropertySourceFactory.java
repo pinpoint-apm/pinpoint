@@ -17,23 +17,32 @@
 
 package com.navercorp.pinpoint.common.server.config;
 
+import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
+import java.util.Objects;
 import java.util.Properties;
 
 public class YamlPropertySourceFactory implements PropertySourceFactory {
 
     @Override
+    @Nonnull
     public PropertySource<?> createPropertySource(String name, EncodedResource encodedResource) {
-        YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
-        factory.setResources(encodedResource.getResource());
+        Resource resource = encodedResource.getResource();
+        String filename = resource.getFilename();
+        if (filename == null) {
+            throw new IllegalArgumentException("Resource must have a filename");
+        }
 
-        final String filename = encodedResource.getResource().getFilename();
-        final Properties properties = factory.getObject();
+        YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
+        factory.setResources(resource);
+        Properties properties = Objects.requireNonNullElseGet(factory.getObject(), Properties::new);
+
         return new PropertiesPropertySource(filename, properties);
     }
 }

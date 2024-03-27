@@ -29,6 +29,7 @@ public class ContainerResolver {
 
     public static final String CONTAINER_PROPERTY_KEY = "pinpoint.container";
     public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
+    public static final String DOT_DOCKER_ENV_FILEPATH = "/.dockerenv";
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
@@ -67,7 +68,7 @@ public class ContainerResolver {
     }
 
     private boolean isDockerEnv() {
-        File file = new File("/.dockerenv");
+        File file = new File(DOT_DOCKER_ENV_FILEPATH);
         return file.exists() || System.getenv(KUBERNETES_SERVICE_HOST) != null;
     }
 }

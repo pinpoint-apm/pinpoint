@@ -9,14 +9,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * source : http://scrumbucket.org/converting-a-pojo-into-html/
+ * <a href="http://scrumbucket.org/converting-a-pojo-into-html/">Source</a>
  */
 public class HTMLBuilder {
 
 
     public static class HTMLStyle extends ToStringStyle {
 
-        public static final String[] toStringClass = {"java.lang", "java.net"};
+        private static final String[] toStringClass = {"java.lang", "java.net"};
 
         public HTMLStyle() {
             setFieldSeparator("</td></tr>" + System.lineSeparator() + "<tr><td>");

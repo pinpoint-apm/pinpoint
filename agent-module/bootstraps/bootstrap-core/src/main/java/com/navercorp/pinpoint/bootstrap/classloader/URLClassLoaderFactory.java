@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.bootstrap.classloader;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.List;
 
 /**
@@ -27,6 +29,6 @@ class URLClassLoaderFactory implements ClassLoaderFactory{
 
     @Override
     public ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
-        return new URLClassLoader(urls, parent);
+        return AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urls, parent));
     }
 }

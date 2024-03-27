@@ -7,8 +7,8 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class PinpointSpringBanner extends PinpointBanner implements ApplicationListener<ApplicationStartedEvent> {
 
@@ -19,7 +19,7 @@ public class PinpointSpringBanner extends PinpointBanner implements ApplicationL
     private Environment environment;
 
     public PinpointSpringBanner() {
-        this.pinpointBannerMode = Mode.CONSOLE;
+        this.setPinpointBannerMode(Mode.CONSOLE);
     }
 
     @Override
@@ -38,9 +38,9 @@ public class PinpointSpringBanner extends PinpointBanner implements ApplicationL
         this.setPinpointBannerMode(mode);
 
         if (bannerConfigs == null) {
-            this.keysToPrint = new ArrayList<>();
+            this.setKeysToPrint(List.of());
         } else {
-            this.keysToPrint = Arrays.asList(bannerConfigs.split(CONFIG_SEPARATOR));
+            this.setKeysToPrint(Arrays.asList(bannerConfigs.split(CONFIG_SEPARATOR)));
         }
 
         printBanner();
@@ -53,14 +53,11 @@ public class PinpointSpringBanner extends PinpointBanner implements ApplicationL
             return;
         }
 
-        switch (this.pinpointBannerMode) {
-            case OFF:
-                return;
-            case LOG:
-                logger.info(buildBannerString());
-                return;
-            default:
-                System.out.println(buildBannerString());
+        switch (this.getPinpointBannerMode()) {
+            case OFF -> {
+            }
+            case LOG -> logger.info(buildBannerString());
+            default -> System.out.println(buildBannerString());
         }
     }
 
@@ -72,7 +69,7 @@ public class PinpointSpringBanner extends PinpointBanner implements ApplicationL
         }
         sb.append(format("Pinpoint Version", Version.VERSION)).append(System.lineSeparator());
 
-        for (String key: this.keysToPrint) {
+        for (String key: this.getKeysToPrint()) {
             String value = environment.getProperty(key);
             if ( value != null ) {
                 sb.append(format(key, value)).append(System.lineSeparator());
@@ -82,8 +79,4 @@ public class PinpointSpringBanner extends PinpointBanner implements ApplicationL
         return sb.toString();
     }
 
-    @Override
-    public void setPinpointBannerMode(Mode mode) {
-        this.pinpointBannerMode = mode;
-    }
 }

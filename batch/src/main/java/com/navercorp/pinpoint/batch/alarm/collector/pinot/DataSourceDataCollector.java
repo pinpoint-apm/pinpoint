@@ -103,23 +103,20 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                     String fieldName = agentFieldUsage.getFieldName();
 
                     switch (fieldName) {
-                        case FIELD_ACTIVE_CONNECTION:
-                            activeConnection = (int) Math.floor(agentFieldUsage.getValue());
-                            break;
-                        case FIELD_MAX_CONNECTION:
-                            maxConnection = (int) Math.floor(agentFieldUsage.getValue());
-                            break;
+                        case FIELD_ACTIVE_CONNECTION -> activeConnection = (int) Math.floor(agentFieldUsage.getValue());
+                        case FIELD_MAX_CONNECTION -> maxConnection = (int) Math.floor(agentFieldUsage.getValue());
+                        default -> {
+                            logger.warn("Unknown field name : {}", fieldName);
+                            continue;
+                        }
                     }
 
                     for (Tag tag : tagInformation.tags()){
                         String tagKey = tag.getName();
                         switch (tagKey) {
-                            case ID:
-                                id = Integer.parseInt(tag.getValue());
-                                break;
-                            case DATABASE_NAME:
-                                databaseName = tag.getValue();
-                                break;
+                            case ID -> id = Integer.parseInt(tag.getValue());
+                            case DATABASE_NAME -> databaseName = tag.getValue();
+                            default -> logger.warn("Unknown tag key : {}", tagKey);
                         }
                     }
                 }
@@ -127,8 +124,12 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                 DataSourceAlarmVO dataSourceAlarmVO = new DataSourceAlarmVO(id, databaseName, activeConnection, maxConnection);
                 agentDataSourceConnectionUsageRateMap.add(tagInformation.agentId(), dataSourceAlarmVO);
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("Fail to get agent datasource data. applicationName : {}", application.getName(), e);
+        } catch (ExecutionException e) {
+            logger.error("Fail to get agent datasource data with ExecutionException. applicationName : {}", application.getName(), e);
+        } catch (InterruptedException e) {
+            logger.error("Fail to get agent datasource data with InterruptedException. applicationName : {}", application.getName(), e);
         }
     }
 

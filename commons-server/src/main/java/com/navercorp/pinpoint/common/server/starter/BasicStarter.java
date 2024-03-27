@@ -31,15 +31,17 @@ import java.util.List;
 import java.util.Objects;
 
 public class BasicStarter {
-    protected String externalPropertySourceName;
-    protected String externalConfigurationKey;
+    private final String externalPropertySourceName;
+    private final String externalConfigurationKey;
     private final List<String> externalProfiles = new ArrayList<>();
 
     private WebApplicationType webApplicationType = WebApplicationType.SERVLET;
 
     private final Class<?>[] sources;
 
-    public BasicStarter(Class<?>... sources) {
+    public BasicStarter(String externalPropertySourceName, String externalConfigurationKey, Class<?>... sources) {
+        this.externalPropertySourceName = Objects.requireNonNull(externalPropertySourceName, "externalPropertySourceName");
+        this.externalConfigurationKey = Objects.requireNonNull(externalConfigurationKey, "externalConfigurationKey");
         this.sources = Objects.requireNonNull(sources, "sources");
     }
 
