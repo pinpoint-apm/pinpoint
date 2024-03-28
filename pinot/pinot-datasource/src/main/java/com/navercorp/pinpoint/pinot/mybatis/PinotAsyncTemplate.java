@@ -146,15 +146,14 @@ public class PinotAsyncTemplate {
     }
 
     private ResultSet toResultSet(ResultSetGroup resultSetGroup) {
+        if (resultSetGroup == null) {
+//            return null or empty??
+            return PinotResultSet.empty();
+        }
         if (!resultSetGroup.getExceptions().isEmpty()) {
             for (Exception exception : resultSetGroup.getExceptions()) {
                 logger.error(" exception occurred during the execution of the query. :{}", exception.getMessage(), exception);
             }
-        }
-
-        if (resultSetGroup == null) {
-//            return null or empty??
-            return PinotResultSet.empty();
         }
         if (resultSetGroup.getResultSetCount() == 0) {
             return PinotResultSet.empty();
