@@ -31,13 +31,13 @@
         <module>agent</module>
         <module>agent-plugins</module>
         <module>agent-sdk</module>
-<!--        <module>agent-testweb</module>-->
 
         <module>bootstraps</module>
 
         <module>plugins</module>
         <module>plugins-loader</module>
-        <module>plugins-test</module>
+        <module>plugins-it</module>
+        <module>plugins-test-module</module>
 
         <module>profiler</module>
         <module>profiler-logging</module>
