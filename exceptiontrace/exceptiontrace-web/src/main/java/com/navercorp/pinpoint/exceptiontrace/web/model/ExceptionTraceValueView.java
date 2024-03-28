@@ -41,7 +41,10 @@ public class ExceptionTraceValueView implements TimeSeriesValueView {
 
     @Override
     public String getFieldName() {
-        return StringUtils.defaultIfEmpty(groupedFieldName.inAString(), TOTAL_FIELDNAME);
+        if (groupedFieldName == null) {
+            return TOTAL_FIELDNAME;
+        }
+        return StringUtils.defaultString(groupedFieldName.inAString(), TOTAL_FIELDNAME);
     }
 
     @JsonIgnore
