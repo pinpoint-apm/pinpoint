@@ -18,6 +18,7 @@ public final class PluginClassLoading {
             Paths.get("agent-module", "plugins-test", "target", "classes").toString(),
 //            "/test/target/classes", // pinpoint-test build output directory
             Paths.get("testcase", "target", "classes").toString(),
+            "pinpoint-testcase",
 //            "/testcase/target/classes",
             Paths.get("pinpoint", "agent-module", "plugins").toString(),
 //            "/pinpoint/plugins/", // required when executing test on IDE
