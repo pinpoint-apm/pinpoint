@@ -47,7 +47,13 @@ export const InspectorPage = () => {
         <ApplicationCombinedList
           open={!application}
           selectedApplication={application}
-          onClickApplication={(application) => navigate(getInspectorPath(application, { version }))}
+          onClickApplication={(application) =>
+            navigate(
+              `${getInspectorPath(application)}?${convertParamsToQueryString({
+                version,
+              })}`,
+            )
+          }
         />
         {application && (
           <div className="flex items-center gap-1 ml-4 text-sm font-semibold truncate">

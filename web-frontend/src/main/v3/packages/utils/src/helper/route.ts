@@ -27,15 +27,12 @@ export const getApplicationPath =
     let queryString = '';
     if (application?.applicationName && application.serviceType) {
       subPath = `/${application.applicationName}@${application.serviceType}`;
-      if (queryParams) {
-        queryString = `${convertParamsToQueryString({ ...queryParams })}`;
+      if (queryParams?.from && queryParams?.to) {
+        queryString = `${convertParamsToQueryString({
+          from: queryParams.from,
+          to: queryParams.to,
+        })}`;
       }
-      // if (queryParams?.from && queryParams?.to) {
-      //   queryString = `${convertParamsToQueryString({
-      //     from: queryParams.from,
-      //     to: queryParams.to,
-      //   })}`;
-      // }
       return `${pagePath}${subPath}${queryString ? `?${queryString}` : queryString}`;
     }
 
