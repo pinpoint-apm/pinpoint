@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
+import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
@@ -55,7 +56,7 @@ import java.util.Properties;
  */
 @PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.microsoft.sqlserver:mssql-jdbc:[7.0.0.jre8]", JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
+@Dependency({"com.microsoft.sqlserver:mssql-jdbc:[7.0.0.jre8]", PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
 @PinpointConfig("pinpoint-mssql.config")
 public class MSSSqlConnectionIT {
 
