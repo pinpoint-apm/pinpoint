@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.dao.model;
 
+import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -32,6 +33,7 @@ public class BatchQueryParameter {
     private final String applicationName;
     private final String agentId;
     private final String metricName;
+    private final String sortKey;
     private final List<String> fieldList;
 
     private final List<Tag> tagList;
@@ -45,6 +47,7 @@ public class BatchQueryParameter {
         this.agentId = EMPTY_STRING;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
+        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
         this.fieldList = Objects.requireNonNull(fieldList, "fieldList");
         this.tagList = Collections.EMPTY_LIST;
         this.fieldName = EMPTY_STRING;
@@ -57,6 +60,7 @@ public class BatchQueryParameter {
         this.agentId = EMPTY_STRING;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
+        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
         this.fieldList = Collections.EMPTY_LIST;
         this.tagList = Collections.EMPTY_LIST;
         this.fieldName = fieldName;
@@ -69,6 +73,7 @@ public class BatchQueryParameter {
         this.agentId = EMPTY_STRING;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
+        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
         this.fieldList = Objects.requireNonNull(fieldList, "fieldList");
         this.tagList = Objects.requireNonNull(tagList, "tagList");
         this.fieldName = EMPTY_STRING;
@@ -82,6 +87,7 @@ public class BatchQueryParameter {
         this.agentId = agentId;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
+        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
         this.fieldList = Collections.EMPTY_LIST;
         this.tagList = Collections.EMPTY_LIST;
         this.fieldName = fieldName;
@@ -95,6 +101,7 @@ public class BatchQueryParameter {
         this.agentId = agentId;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
+        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
         this.fieldName = EMPTY_STRING;
         this.fieldList = Objects.requireNonNull(fieldList, "fieldList");;
         this.tagList = Objects.requireNonNull(tagList, "tagList");
@@ -108,6 +115,7 @@ public class BatchQueryParameter {
         this.agentId = agentId;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
+        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
         this.fieldName = fieldName;
         this.fieldList = Collections.EMPTY_LIST;
         this.tagList = Objects.requireNonNull(tagList, "tagList");
@@ -140,6 +148,10 @@ public class BatchQueryParameter {
 
     public String getAgentId() {
         return agentId;
+    }
+
+    public String getSortKey() {
+        return sortKey;
     }
 
     @Override
