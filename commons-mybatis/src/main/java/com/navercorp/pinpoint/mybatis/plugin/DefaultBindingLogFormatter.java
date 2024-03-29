@@ -18,8 +18,8 @@
 package com.navercorp.pinpoint.mybatis.plugin;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.Date;
 import java.util.List;
@@ -27,12 +27,12 @@ import java.util.Properties;
 
 /**
  * proxy for intercepting {@link org.apache.ibatis.mapping.BoundSql} and changing operations of {@link org.apache.ibatis.mapping.BoundSql#getSql()}
-
+ *
  * @author emeroad
  */
 public class DefaultBindingLogFormatter implements BindLogFormatter {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private boolean removeWhitespace = true;
 
     public void setRemoveWhitespace(boolean removeWhitespace) {
@@ -81,7 +81,6 @@ public class DefaultBindingLogFormatter implements BindLogFormatter {
             this.removeWhitespace = Boolean.parseBoolean(removeWhitespace);
         }
     }
-
 
 
     /**
