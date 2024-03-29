@@ -109,7 +109,6 @@
         <module>web-frontend</module>
         <module>hbase</module>
         <module>flink</module>
-        <module>testcase</module>
         <module>batch</module>
 
         <module>pinot</module>
@@ -574,7 +573,7 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-testcase</artifactId>
+                <artifactId>pinpoint-pugins-test-utils</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
