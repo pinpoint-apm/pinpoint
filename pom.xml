@@ -1365,10 +1365,11 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>5.9.3</version>
-                <scope>test</scope>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.10.2</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>
