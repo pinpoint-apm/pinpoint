@@ -107,7 +107,6 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                         case FIELD_MAX_CONNECTION -> maxConnection = (int) Math.floor(agentFieldUsage.getValue());
                         default -> {
                             logger.warn("Unknown field name : {}", fieldName);
-                            continue;
                         }
                     }
 
@@ -116,7 +115,6 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                         switch (tagKey) {
                             case ID -> id = Integer.parseInt(tag.getValue());
                             case DATABASE_NAME -> databaseName = tag.getValue();
-                            default -> logger.warn("Unknown tag key : {}", tagKey);
                         }
                     }
                 }
