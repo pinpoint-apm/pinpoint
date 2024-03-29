@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.retry.annotation.Retryable;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author minwoo-jung
  */
+@Retryable(maxAttempts = 3, value = {Exception.class})
 public class PinotAlarmDao implements AlarmDao {
 
     private static final String NAMESPACE = PinotAlarmDao.class.getName() + ".";

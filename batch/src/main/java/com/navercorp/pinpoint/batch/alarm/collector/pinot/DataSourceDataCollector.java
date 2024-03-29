@@ -150,15 +150,25 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
 
         Map<String, List<TagInformation>> agentTagInformationMap = new HashMap<>();
 
+        int errorCount = 0;
         for (QueryResult<TagInformation, String> result : queryResults) {
             String agentId = result.key();
-            CompletableFuture<List<TagInformation>> futureTagInformation = result.future();
 
-            List<TagInformation> tagInfoList = futureTagInformation.get();
-            TagInformation tagInformation = tagInfoList.get(0);
+            try {
+                CompletableFuture<List<TagInformation>> futureTagInformation = result.future();
+                List<TagInformation> tagInfoList = futureTagInformation.get();
+                TagInformation tagInformation = tagInfoList.get(0);
 
-            List<TagInformation> tagInformationList = agentTagInformationMap.computeIfAbsent(agentId, k -> new ArrayList<>());
-            tagInformationList.add(tagInformation);
+                List<TagInformation> tagInformationList = agentTagInformationMap.computeIfAbsent(agentId, k -> new ArrayList<>());
+                tagInformationList.add(tagInformation);
+            } catch (Exception e) {
+                errorCount++;
+
+                if (errorCount > 2) {
+                    logger.error("Fail to get agent tag information. applicationName : {}, agentId : {}", application.getName(), agentId, e);
+                    throw e;
+                }
+            }
         }
 
         return agentTagInformationMap;
@@ -173,20 +183,30 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
         }
 
         Map<String, List<Tag>> agentJdbcUrlMap = new HashMap<>();
+        int errorCount = 0;
 
         for (QueryResult<Tag, String> result : queryResults) {
             CompletableFuture<List<Tag>> futureTag = result.future();
             String agentId = result.key();
-            List<Tag> tagList = futureTag.get();
-            List<Tag> jdbcUrlList = new ArrayList<>();
 
-            for (Tag tag : tagList) {
-                if (tag.getName().equals(JDBC_URL)) {
-                    jdbcUrlList.add(tag);
+            try {
+                List<Tag> tagList = futureTag.get();
+                List<Tag> jdbcUrlList = new ArrayList<>();
+
+                for (Tag tag : tagList) {
+                    if (tag.getName().equals(JDBC_URL)) {
+                        jdbcUrlList.add(tag);
+                    }
+                }
+
+                agentJdbcUrlMap.put(agentId, jdbcUrlList);
+            } catch (Exception e) {
+                errorCount++;
+                if (errorCount > 2) {
+                    logger.error("Fail to get agent jdbcUrl. applicationName : {}, agentId : {}", application.getName(), agentId, e);
+                    throw e;
                 }
             }
-
-            agentJdbcUrlMap.put(agentId, jdbcUrlList);
         }
 
         return agentJdbcUrlMap;
