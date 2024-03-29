@@ -32,6 +32,7 @@
         <module>plugins-it-utils-jdbc</module>
 
         <module>plugins-test</module>
+        <module>testcase</module>
     </modules>
 
     <properties>
