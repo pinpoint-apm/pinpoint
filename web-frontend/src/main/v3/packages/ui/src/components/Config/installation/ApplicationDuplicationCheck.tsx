@@ -20,8 +20,8 @@ export const ApplicationDuplicationCheck = () => {
   const checkStatus: CheckStatus = data
     ? { status: DUPLICATION_CHECK_STATUS.SUCCESS }
     : error
-    ? { status: DUPLICATION_CHECK_STATUS.ERROR, message: error.message }
-    : null;
+      ? { status: DUPLICATION_CHECK_STATUS.ERROR, message: error.message }
+      : null;
 
   React.useEffect(() => {
     if (checkStatus?.status === DUPLICATION_CHECK_STATUS.SUCCESS) {

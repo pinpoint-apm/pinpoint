@@ -9,9 +9,11 @@ import { toast } from '../Toast';
 import { ErrorResponse } from '@pinpoint-fe/constants';
 import { ErrorToast } from './ErrorToast';
 
-export type ErrorBoundaryProps = Partial<ErrorBoundaryPropsWithRender>;
+export type ErrorBoundaryProps = Partial<ErrorBoundaryPropsWithRender> & {
+  errorMessage?: React.ReactNode | ((message?: string) => React.ReactNode);
+};
 
-export const ErrorBoundary = ({ fallbackRender, children }: ErrorBoundaryProps) => {
+export const ErrorBoundary = ({ fallbackRender, children, errorMessage }: ErrorBoundaryProps) => {
   const { t } = useTranslation();
   return (
     <ErrorBoundaryComponent
@@ -26,8 +28,18 @@ export const ErrorBoundary = ({ fallbackRender, children }: ErrorBoundaryProps) 
         (({ error, resetErrorBoundary }) => {
           return (
             <div className="flex flex-col items-center justify-center w-full h-full gap-5 p-3">
-              <div className="text-center">
-                <p className="mb-2 text-sm">{t('COMMON.SOMETHING_WENT_WRONG')}</p>
+              <div className="w-full text-center max-w-[28rem]">
+                {errorMessage ? (
+                  typeof errorMessage === 'function' ? (
+                    errorMessage(error?.message)
+                  ) : (
+                    errorMessage
+                  )
+                ) : (
+                  <p className="mb-2 text-sm truncate">
+                    {error?.message || t('COMMON.SOMETHING_WENT_WRONG')}
+                  </p>
+                )}
                 <ErrorDetailDialog error={error} />
               </div>
               <div className="flex gap-2">

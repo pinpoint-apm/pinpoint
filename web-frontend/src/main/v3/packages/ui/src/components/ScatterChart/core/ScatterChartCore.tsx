@@ -197,6 +197,32 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
             },
           },
         });
+      } else {
+        // TODO scatter chart개선 후 정리 필요
+        // eslint-disable-next-line
+        // @ts-ignore
+        const prevDatas = Object.keys(scatterRef.current.datas).reduce((acc, key) => {
+          return [
+            ...acc,
+            // eslint-disable-next-line
+            // @ts-ignore
+            ...(scatterRef.current?.datas[key].map((d) => ({ ...d, type: key })) || []),
+          ];
+        }, [] as ScatterDataType[]);
+        scatterRef.current.clear();
+        // eslint-disable-next-line
+        // @ts-ignore
+        scatterRef.current?.yAxis.setOption({
+          min: y?.[0],
+          max: y?.[1],
+        });
+        // eslint-disable-next-line
+        // @ts-ignore
+        scatterRef.current.setPadding();
+        // eslint-disable-next-line
+        // @ts-ignore
+        scatterRef.current.setYRatio();
+        scatterRef.current.render(prevDatas);
       }
     }, [y?.[0], y?.[1]]);
 

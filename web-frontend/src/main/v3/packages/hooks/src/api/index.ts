@@ -5,6 +5,8 @@ export * from './useAlarmRuleQuery';
 export * from './useDeleteConfigGroupMember';
 export * from './useDeleteConfigUserGroup';
 export * from './useDeleteConfigUsers';
+export * from './useGetActiveThreadLightDump';
+export * from './useGetActiveThreadDump';
 export * from './useGetAgentList';
 export * from './useGetAlarmRuleChecker';
 export * from './useGetApdexScore';

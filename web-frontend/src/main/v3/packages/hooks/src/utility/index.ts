@@ -4,4 +4,5 @@ export * from './useExperimentals';
 export * from './useHeightToBottom';
 export * from './useLocalStorage';
 export * from './useLanguage';
+export * from './useTabFocus';
 // export * from './useSearchParameters';

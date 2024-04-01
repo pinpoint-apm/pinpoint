@@ -1,17 +1,22 @@
-// import '@pinpoint-fe/scatter-chart/dist/index.css';
 import React from 'react';
 import { AgentActiveThread, GetServerMap } from '@pinpoint-fe/constants';
 import { useActiveThread } from './useActiveThread';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
+import { useAtomValue } from 'jotai';
+import { serverMapCurrentTargetAtom, serverMapCurrentTargetDataAtom } from '@pinpoint-fe/atoms';
+import { AgentActiveThreadSkeleton } from './AgentActiveThreadSkeleton';
 
-export interface ActiveRequestProps {
-  nodeData?: GetServerMap.NodeData;
-}
+export interface ActiveRequestProps {}
 
-export const AgentActiveThreadFetcher = ({ nodeData }: ActiveRequestProps) => {
+export const AgentActiveThreadFetcher = () => {
   const wsRef = React.useRef<WebSocket>();
-  const applicationName = nodeData?.applicationName;
+  const [webSocketState, setWebSocketState] = React.useState<number>(WebSocket.CLOSED);
+  const currentServerMapTarget = useAtomValue(serverMapCurrentTargetAtom);
+  const applicationNameRef = React.useRef('');
+  const applicationName = currentServerMapTarget?.applicationName || '';
   const { activeThreadCountsWithTotal, setActiveThreadCounts } = useActiveThread();
+  const [isApplicationLocked, setApplicationLock] = React.useState(true);
+  const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
 
   React.useEffect(() => {
     initWebSocket();
@@ -22,18 +27,24 @@ export const AgentActiveThreadFetcher = ({ nodeData }: ActiveRequestProps) => {
   }, []);
 
   React.useEffect(() => {
-    const isSocketOpen = wsRef.current?.readyState === wsRef.current?.OPEN;
+    if ((applicationName && !isApplicationLocked) || applicationNameRef.current === '') {
+      applicationNameRef.current = applicationName;
+    }
+  }, [applicationName, isApplicationLocked]);
 
-    if (applicationName && isSocketOpen) {
+  React.useEffect(() => {
+    const isSocketOpen = wsRef.current?.readyState === WebSocket.OPEN;
+
+    if (applicationNameRef.current && isSocketOpen) {
       sendMessage({
         type: 'REQUEST',
         command: 'activeThreadCount',
         parameters: {
-          applicationName,
+          applicationName: applicationNameRef.current,
         },
       });
     }
-  }, [applicationName, wsRef.current?.readyState]);
+  }, [applicationNameRef.current, wsRef.current?.readyState]);
 
   const initWebSocket = () => {
     const location = window.location;
@@ -47,6 +58,7 @@ export const AgentActiveThreadFetcher = ({ nodeData }: ActiveRequestProps) => {
     ws.addEventListener(
       'open',
       () => {
+        setWebSocketState(WebSocket.CONNECTING);
         // setSocketOpen(true);
       },
       { signal },
@@ -58,6 +70,7 @@ export const AgentActiveThreadFetcher = ({ nodeData }: ActiveRequestProps) => {
         if (parsedMessage?.type === 'PING') {
           sendMessage({ type: 'PONG' });
         } else if (parsedMessage?.result) {
+          setWebSocketState(WebSocket.OPEN);
           setActiveThreadCounts(parsedMessage);
         }
       },
@@ -66,6 +79,7 @@ export const AgentActiveThreadFetcher = ({ nodeData }: ActiveRequestProps) => {
     ws.addEventListener(
       'close',
       () => {
+        setWebSocketState(WebSocket.CLOSED);
         eventController.abort();
         initWebSocket();
         // wsRef.current = undefined;
@@ -88,10 +102,35 @@ export const AgentActiveThreadFetcher = ({ nodeData }: ActiveRequestProps) => {
 
   return (
     <div className="w-full h-full">
-      <AgentActiveThreadView
-        applicationName={applicationName}
-        thread={activeThreadCountsWithTotal}
-      />
+      {webSocketState === WebSocket.OPEN ? (
+        isApplicationLocked ? (
+          <AgentActiveThreadView
+            applicationLocked={isApplicationLocked}
+            applicationName={applicationNameRef.current}
+            thread={activeThreadCountsWithTotal}
+            onClickLockButton={() => {
+              setApplicationLock(!isApplicationLocked);
+            }}
+          />
+        ) : currentTargetData?.isWas ? (
+          <AgentActiveThreadView
+            applicationLocked={isApplicationLocked}
+            applicationName={applicationNameRef.current}
+            thread={activeThreadCountsWithTotal}
+            onClickLockButton={() => {
+              setApplicationLock(!isApplicationLocked);
+            }}
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full">
+            Selected target is not a WAS.
+          </div>
+        )
+      ) : webSocketState === WebSocket.CONNECTING ? (
+        <AgentActiveThreadSkeleton />
+      ) : (
+        <div className="flex items-center justify-center w-full h-full">Connection closed.</div>
+      )}
     </div>
   );
 };

@@ -19,5 +19,6 @@ export enum APP_SETTING_KEYS {
   TRANSACTION_LIST_RESIZABLE = 'transactionListResizable',
   TRANSACTION_DETAIL_RESIZABLE = 'transactionDetailResizable',
   SERVER_MAP_HORIZONTAL_RESIZABLE = 'serverMapHorizontalResizable',
+  REALTIME_ACTIVE_REQUEST_RESIZABLE = 'realtimeActiveRequestResizable',
   ALARM_LAST_SELECTED_APPLICATION = 'alarmLastSelectedApplication',
 }

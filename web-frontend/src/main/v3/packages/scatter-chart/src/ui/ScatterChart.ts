@@ -200,22 +200,33 @@ export class ScatterChart {
     this.gridAxis.setPadding(this.options.padding);
   }
 
-  private setRatio() {
+  private setXRatio() {
     const axisOption = this.options?.axis;
     const xAxis = this.xAxis.getOption();
-    const yAxis = this.yAxis.getOption();
     const padding = this.options.padding;
     const width = this.viewport.canvas.width / this.viewport.viewLayer.dpr;
-    const height = this.viewport.canvas.height / this.viewport.viewLayer.dpr;
     const minX = xAxis.min;
     const maxX = xAxis.max;
-    const minY = yAxis.min;
-    const maxY = yAxis.max;
     const innerPaddingX = axisOption.x.padding ?? this.xAxis.innerPadding;
-    const innerPaddingY = axisOption.y.padding ?? this.yAxis?.innerPadding;
 
     this.xRatio = (width - padding.left - padding.right - innerPaddingX * 2) / (maxX - minX);
+  }
+
+  private setYRatio() {
+    const axisOption = this.options?.axis;
+    const yAxis = this.yAxis.getOption();
+    const padding = this.options.padding;
+    const height = this.viewport.canvas.height / this.viewport.viewLayer.dpr;
+    const minY = yAxis.min;
+    const maxY = yAxis.max;
+    const innerPaddingY = axisOption.y.padding ?? this.yAxis?.innerPadding;
+
     this.yRatio = (height - padding.bottom - padding.top - innerPaddingY * 2) / (maxY - minY);
+  }
+
+  private setRatio() {
+    this.setXRatio();
+    this.setYRatio();
   }
 
   private setGuide() {
@@ -633,6 +644,7 @@ export class ScatterChart {
   }
 
   public clear() {
+    Object.values(this.dataLayers).forEach((layer) => layer.clear());
     this.render([]);
   }
 

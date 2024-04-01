@@ -6,4 +6,5 @@ export * from './ScatterFullScreen';
 export * from './SystemMetric';
 export * from './TransactionList';
 export * from './TransactionDetail';
+export * from './ThreadDump';
 export * from './UrlStatistic';

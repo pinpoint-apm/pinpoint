@@ -25,8 +25,8 @@ export const WebhookListFetcher = ({
       {children
         ? children(webhookList)
         : webhookList && webhookList.length > 0
-        ? webhookList.map((webhook) => webhook.alias)
-        : empty}
+          ? webhookList.map((webhook) => webhook.alias)
+          : empty}
     </>
   );
 };

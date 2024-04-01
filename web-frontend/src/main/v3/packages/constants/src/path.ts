@@ -19,6 +19,7 @@ export const APP_PATH = {
   SERVER_MAP_REALTIME: '/serverMap/realtime',
   SERVER_MAP: '/serverMap',
   SYSTEM_METRIC: '/systemMetric',
+  THREAD_DUMP: '/threadDump',
   TRANSACTION_DETAIL: '/transactionDetail',
   TRANSACTION_LIST: '/transactionList',
   URL_STATISTIC: '/urlStatistic',

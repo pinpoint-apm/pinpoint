@@ -1,4 +1,5 @@
-export * from './AgentActiveThread';
+export * from './ActiveThreadDump';
+export * from './ActiveThreadLightDump';
 export * from './AgentActiveThread';
 export * from './AlarmRule';
 export * from './Application';
