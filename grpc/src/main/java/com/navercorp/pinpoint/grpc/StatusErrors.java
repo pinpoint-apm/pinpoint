@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 
@@ -23,21 +24,23 @@ import io.grpc.StatusRuntimeException;
  * @author jaehong.kim
  */
 public class StatusErrors {
-    private static final String CONNECTION_REFUSED_MESSAGE = "Connection refused: no further information";
-    private static final String CANCELLED_BEFORE_RECEIVING_HALF_CLOSE = "CANCELLED: cancelled before receiving half close";
+    static final String CONNECTION_REFUSED_MESSAGE = "Connection refused: no further information";
+    static final String CANCELLED_BEFORE_RECEIVING_HALF_CLOSE = "CANCELLED: cancelled before receiving half close";
 
 
     public static StatusError throwable(final Throwable t) {
         if (t instanceof StatusRuntimeException) {
-            StatusRuntimeException exception = (StatusRuntimeException) t;
-            if (exception.getStatus().getCode() == Status.UNAVAILABLE.getCode()) {
+            final StatusRuntimeException exception = (StatusRuntimeException) t;
+            final Status.Code code = exception.getStatus().getCode();
+            if (code == Status.UNAVAILABLE.getCode()) {
                 final String causeMessage = findCauseMessage(t, CONNECTION_REFUSED_MESSAGE, 2);
                 if (causeMessage != null) {
                     final String message = exception.getStatus().getDescription() + ": " + causeMessage;
                     return new SimpleStatusError(message, t);
                 }
-            } else if (exception.getStatus().getCode() == Status.CANCELLED.getCode()) {
-                if (exception.getMessage() != null && exception.getMessage().startsWith(CANCELLED_BEFORE_RECEIVING_HALF_CLOSE)) {
+            } else if (code == Status.CANCELLED.getCode()) {
+                final String message = exception.getMessage();
+                if (StringUtils.contains(message, CANCELLED_BEFORE_RECEIVING_HALF_CLOSE)) {
                     return new SimpleStatusError(CANCELLED_BEFORE_RECEIVING_HALF_CLOSE, t);
                 }
             }
@@ -49,8 +52,9 @@ public class StatusErrors {
         int depth = 0;
         Throwable cause = t.getCause();
         while (cause != null && depth < maxDepth) {
-            if (cause.getMessage().startsWith(message)) {
-                return cause.getMessage();
+            final String causeMessage = cause.getMessage();
+            if (StringUtils.startWith(causeMessage, message)) {
+                return causeMessage;
             }
 
             if (cause.getCause() == cause) {
@@ -62,6 +66,7 @@ public class StatusErrors {
         // Not found
         return null;
     }
+
 
     private static class SimpleStatusError implements StatusError {
         private final String message;
