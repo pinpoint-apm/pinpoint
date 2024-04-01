@@ -52,7 +52,7 @@ public class PatternLayoutInterceptor implements AroundInterceptor1 {
         String oldPattern = (String) arg0;
         if (oldPattern.contains(PATTERN_TRANSACTION_ID)) {
             if (debug) {
-                logger.debug("Log4j2 pattern already have pinpoint pattern, pattern:" + oldPattern);
+                logger.debug("Log4j2 pattern already have pinpoint pattern, pattern:{}", oldPattern);
             }
             return;
         }
@@ -70,8 +70,7 @@ public class PatternLayoutInterceptor implements AroundInterceptor1 {
             if (!oldPattern.contentEquals(newPattern)) {
                 changed = true;
                 if (debug) {
-                    logger.debug("Log4j2 pattern replaced, old pattern(" + oldPattern + ") and new pattern(" +
-                            newPattern + ").");
+                    logger.debug("Log4j2 pattern replaced, old pattern({}) and new pattern({})", oldPattern, newPattern);
                 }
                 break;
             }
