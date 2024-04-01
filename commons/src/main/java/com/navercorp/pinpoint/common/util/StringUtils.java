@@ -81,6 +81,14 @@ public final class StringUtils {
         return object.toString();
     }
 
+    public static boolean startWith(String str, String prefix) {
+        return str != null && str.startsWith(prefix);
+    }
+
+    public static boolean contains(String str, String prefix) {
+        return str != null && str.contains(prefix);
+    }
+
 
     public static String abbreviate(final String str) {
         return abbreviate(str, DEFAULT_ABBREVIATE_MAX_WIDTH);
