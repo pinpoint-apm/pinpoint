@@ -140,8 +140,8 @@ export function VirtualizedDataTable<TData, TValue>({
     const selectedRowData = enableMultiRowSelection
       ? rows.map((row) => row.original)
       : rows[0]?.original
-      ? [rows[0]?.original]
-      : [];
+        ? [rows[0]?.original]
+        : [];
 
     onChangeRowSelection?.([...selectedRowData]);
   }, [rowSelection]);

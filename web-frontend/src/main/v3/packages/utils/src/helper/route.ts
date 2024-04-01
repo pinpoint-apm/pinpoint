@@ -94,3 +94,4 @@ export const getInspectorPath = getApplicationPath(APP_PATH.INSPECTOR);
 export const getSystemMetricPath = getHostGroupPath(APP_PATH.SYSTEM_METRIC);
 export const getTransactionListPath = getApplicationPath(APP_PATH.TRANSACTION_LIST);
 export const getTransactionDetailPath = getApplicationPath(APP_PATH.TRANSACTION_DETAIL);
+export const getThreadDumpPath = getApplicationPath(APP_PATH.THREAD_DUMP);

@@ -131,8 +131,8 @@ export const FilterWizard = ({
     currentFilterState?.transactionResult === undefined
       ? TRANSACTION_RESULT.ALL
       : currentFilterState?.transactionResult
-      ? TRANSACTION_RESULT.FAIL_ONLY
-      : TRANSACTION_RESULT.SUCESS_ONLY;
+        ? TRANSACTION_RESULT.FAIL_ONLY
+        : TRANSACTION_RESULT.SUCESS_ONLY;
   const [responseTime, setResponseTime] = React.useState<[number, number]>(defaultResponseTime);
   const [transactionResult, setTransactionResult] = React.useState(defaultTransactionResult);
 
@@ -186,8 +186,8 @@ export const FilterWizard = ({
         transactionResult === TRANSACTION_RESULT.ALL
           ? null
           : transactionResult === TRANSACTION_RESULT.SUCESS_ONLY
-          ? false
-          : true,
+            ? false
+            : true,
     };
     const newFilters = [...appliedFilters].filter((filter) => {
       if (newFilter.applicationName) {

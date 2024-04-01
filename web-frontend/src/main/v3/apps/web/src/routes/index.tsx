@@ -27,12 +27,14 @@ import { transactionRouteLoader } from './loader/transaction';
 import { transactionDetailRouteLoader } from './loader/transactionDetail';
 import { inspectorRouteLoader } from './loader/inspector';
 import Inspector from '@/pages/Inspector';
+import ThreadDump from '@/pages/ThreadDump';
 import Help from '@/pages/config/Help';
 import Installation from '@/pages/config/Installation';
 import UserGroup from '@/pages/config/UserGroup';
 import Users from '@/pages/config/Users';
 import Alarm from '@/pages/config/Alarm';
 import Webhook from '@/pages/config/Webhook';
+import { threadDumpRouteLoader } from './loader/threadDump';
 
 const defaultLoader = () => redirect('/serverMap');
 
@@ -105,6 +107,11 @@ const router = createBrowserRouter(
       path: `${APP_PATH.INSPECTOR}/:application?`,
       element: <Inspector />,
       loader: inspectorRouteLoader,
+    },
+    {
+      path: `${APP_PATH.THREAD_DUMP}/:application?`,
+      element: <ThreadDump />,
+      loader: threadDumpRouteLoader,
     },
     {
       path: `${APP_PATH.CONFIG_ALARM}`,
