@@ -32,9 +32,7 @@
         SELECT 'agentId', fieldName, AVG(fieldValue) AS sumValue
         FROM inspectorStatV2
         WHERE
-        applicationName = #{applicationName}
-        AND agentId = #{agentId}
-        AND metricName = #{metricName}
+        sortKey = #{sortKey}
         AND fieldName IN
         <foreach collection="fieldList" item="fieldName" separator="," open="(" close=")">
             #{fieldName}
