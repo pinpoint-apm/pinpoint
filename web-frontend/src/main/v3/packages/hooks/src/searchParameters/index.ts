@@ -2,8 +2,8 @@ export * from './useErrorAnalysisSearchParameters';
 export * from './useFilteredMapParameters';
 export * from './useSearchParameters';
 export * from './useServerMapSearchParameters';
-export * from './useSqlStatSearchParameters';
 export * from './useSystemMetricSearchParameters';
 export * from './useTransactionSearchParameters';
 export * from './useUrlStatSearchParameters';
 export * from './useInspectorSearchParameters';
+export * from './utils'

@@ -3,7 +3,6 @@ export const IMAGE_PATH = `${BASE_PATH}/img`;
 export const APP_PATH = {
   API_CHECK: '/apiCheck',
   CONFIG_ALARM: '/config/alarm',
-  CONFIG_ESM: '/config/esm',
   CONFIG_EXPERIMENTAL: '/config/experimental',
   CONFIG_GENERAL: '/config/general',
   CONFIG_HELP: '/config/help',
@@ -19,7 +18,6 @@ export const APP_PATH = {
   SCATTER_FULL_SCREEN: '/scatterFullScreenMode',
   SERVER_MAP_REALTIME: '/serverMap/realtime',
   SERVER_MAP: '/serverMap',
-  SQL_STATISTIC: '/sqlStatistic',
   SYSTEM_METRIC: '/systemMetric',
   TRANSACTION_DETAIL: '/transactionDetail',
   TRANSACTION_LIST: '/transactionList',
