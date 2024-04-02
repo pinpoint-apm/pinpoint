@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import com.navercorp.pinpoint.web.view.TagApplications;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class CacheServiceImpl implements CacheService {
 
     private final Cache cache;
 
-    public CacheServiceImpl(CacheManager cacheManager) {
+    public CacheServiceImpl(@Qualifier(CacheConfiguration.APPLICATION_LIST_CACHE_NAME) CacheManager cacheManager) {
         Objects.requireNonNull(cacheManager, "cacheManager");
         this.cache = Objects.requireNonNull(cacheManager.getCache(CacheConfiguration.APPLICATION_LIST_CACHE_NAME));
     }
