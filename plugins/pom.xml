@@ -112,6 +112,7 @@
         <module>agentsdk-async</module>
         <module>spring-data-r2dbc</module>
         <module>spring-tx</module>
+        <module>spring-stub</module>
     </modules>
 
 
