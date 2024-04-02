@@ -66,11 +66,6 @@ export const APDEX_SCORE = `${LOCAL_API_PATH}/getApdexScore`;
 //   '/agents/search-all',
 export const SEARCH_APPLICATION = `${LOCAL_API_PATH}/agents/search-application`;
 //   '/agents/statistics',
-export const SQL_STATISTIC_FILTER_OPTIONS = `${LOCAL_API_PATH}/sqlStat/filterOptions`;
-export const SQL_STATISTIC_GROUPS = `${LOCAL_API_PATH}/sqlStat/groups`;
-export const SQL_STATISTIC_SUMMARY = `${LOCAL_API_PATH}/sqlStat/summary`;
-export const SQL_STATISTIC_CHART = `${LOCAL_API_PATH}/sqlStat/chart`;
-
 export const ERROR_ANALYSIS_GROUPS = `${LOCAL_API_PATH}/errors/groups`;
 export const ERROR_ANALYSIS_ERROR_LIST = `${LOCAL_API_PATH}/errors/errorList`;
 export const ERROR_ANALYSIS_GROUPED_ERROR_LIST = `${LOCAL_API_PATH}/errors/errorList/groupBy`;

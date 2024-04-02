@@ -88,7 +88,6 @@ export const getFilteredMapPath = (filterState: FilteredMap.FilterState, soureIs
   return `${APP_PATH.FILTERED_MAP}/${applicationNameAndType}`;
 };
 
-export const getSqlStatPath = getApplicationPath(APP_PATH.SQL_STATISTIC);
 export const getErrorAnalysisPath = getApplicationPath(APP_PATH.ERROR_ANALYSIS);
 export const getUrlStatPath = getApplicationPath(APP_PATH.URL_STATISTIC);
 export const getInspectorPath = getApplicationPath(APP_PATH.INSPECTOR);
