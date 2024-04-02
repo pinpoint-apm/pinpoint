@@ -55,7 +55,7 @@ public class InspectorQueryParameterV2 {
         this.tenantId = inspectorDataSearchKey.getTenantId();
         this.applicationName = inspectorDataSearchKey.getApplicationName();
         this.agentId = inspectorDataSearchKey.getAgentId();
-        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
+        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
         this.metricName = metricName;
         this.fieldName = fieldName;
         this.tagList = tagList;

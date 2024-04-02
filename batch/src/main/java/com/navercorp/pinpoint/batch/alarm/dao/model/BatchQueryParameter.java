@@ -47,7 +47,7 @@ public class BatchQueryParameter {
         this.agentId = EMPTY_STRING;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
+        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
         this.fieldList = Objects.requireNonNull(fieldList, "fieldList");
         this.tagList = Collections.EMPTY_LIST;
         this.fieldName = EMPTY_STRING;
@@ -60,7 +60,7 @@ public class BatchQueryParameter {
         this.agentId = EMPTY_STRING;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
+        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
         this.fieldList = Collections.EMPTY_LIST;
         this.tagList = Collections.EMPTY_LIST;
         this.fieldName = fieldName;
@@ -73,7 +73,7 @@ public class BatchQueryParameter {
         this.agentId = EMPTY_STRING;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
+        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
         this.fieldList = Objects.requireNonNull(fieldList, "fieldList");
         this.tagList = Objects.requireNonNull(tagList, "tagList");
         this.fieldName = EMPTY_STRING;
@@ -87,7 +87,7 @@ public class BatchQueryParameter {
         this.agentId = agentId;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
+        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
         this.fieldList = Collections.EMPTY_LIST;
         this.tagList = Collections.EMPTY_LIST;
         this.fieldName = fieldName;
@@ -101,7 +101,7 @@ public class BatchQueryParameter {
         this.agentId = agentId;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
+        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
         this.fieldName = EMPTY_STRING;
         this.fieldList = Objects.requireNonNull(fieldList, "fieldList");;
         this.tagList = Objects.requireNonNull(tagList, "tagList");
@@ -115,7 +115,7 @@ public class BatchQueryParameter {
         this.agentId = agentId;
         StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKey(applicationName, agentId, metricName);
+        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
         this.fieldName = fieldName;
         this.fieldList = Collections.EMPTY_LIST;
         this.tagList = Objects.requireNonNull(tagList, "tagList");
