@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
+import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,30 +39,46 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     private final Logger logger = LogManager.getLogger(DefaultAgentStatDao.class.getName());
 
     private final Function<AgentStatBo, List<T>> dataPointFunction;
-    private final BiFunction<List<T>, String, List<AgentStat>> convertToKafkaModelFunction;
-    private final KafkaTemplate kafkaAgentStatTemplate;
-    private final String topic;
+    private final BiFunction<List<T>, String, List<AgentStat>> convertToKafkaAgentStatModelFunction;
+    private final Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStatModelFunction;
+    private final KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate;
+    private final KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate;
+    private final String agentStatTopic;
+    private final String applicationStatTopic;
     private final TenantProvider tenantProvider;
 
-    public DefaultAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, KafkaTemplate kafkaAgentStatTemplate, BiFunction<List<T>, String, List<AgentStat>> convertToKafkaModelFunction, String topic, TenantProvider tenantProvider) {
+    public DefaultAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, BiFunction<List<T>, String, List<AgentStat>> convertToKafkaAgentStatModelFunction, Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStatModelFunction, String agentStatTopic, String applicationStatTopic, TenantProvider tenantProvider) {
         this.dataPointFunction = Objects.requireNonNull(dataPointFunction, "dataPointFunction");
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
-        this.convertToKafkaModelFunction = convertToKafkaModelFunction;
-        this.topic = topic;
-        this.tenantProvider = tenantProvider;
+        this.kafkaApplicationStatTemplate = Objects.requireNonNull(kafkaApplicationStatTemplate, "kafkaApplicationStatTemplate");
+        this.convertToKafkaAgentStatModelFunction = Objects.requireNonNull(convertToKafkaAgentStatModelFunction, "convertToKafkaAgentStatModelFunction");
+        this.convertToKafkaApplicationStatModelFunction = Objects.requireNonNull(convertToKafkaApplicationStatModelFunction, "convertToKafkaApplicationStatModelFunction");
+        this.agentStatTopic = Objects.requireNonNull(agentStatTopic, "agentStatTopic");
+        this.applicationStatTopic = Objects.requireNonNull(applicationStatTopic, "applicationStatTopic");
+        this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
     @Override
     public void insert(String agentId, List<T> agentStatData) {
-        List<AgentStat> agentStatList = convertDataToKafkaModel(agentStatData);
+        List<AgentStat> agentStatList = convertToKafkaAgentStatModel(agentStatData);
         for (AgentStat agentStat : agentStatList) {
-            kafkaAgentStatTemplate.send(topic, agentStat.getSortKey(), agentStat);
+            kafkaAgentStatTemplate.send(agentStatTopic, agentStat.getSortKey(), agentStat);
         }
+
+        List<ApplicationStat> applicationStatList = convertToKafkaApplicationStatModel(agentStatList);
+        for (ApplicationStat applicationStat : applicationStatList) {
+            kafkaApplicationStatTemplate.send(applicationStatTopic, applicationStat.getSortKey(), applicationStat);
+        }
+
     }
 
-    private List<AgentStat> convertDataToKafkaModel(List<T> AgentStatDataPointList) {
-        List<AgentStat> agentStatList = convertToKafkaModelFunction.apply(AgentStatDataPointList, tenantProvider.getTenantId());
-        return agentStatList;
+    private List<AgentStat> convertToKafkaAgentStatModel(List<T> AgentStatDataPointList) {
+        return convertToKafkaAgentStatModelFunction.apply(AgentStatDataPointList, tenantProvider.getTenantId());
+    }
+
+    private List<ApplicationStat> convertToKafkaApplicationStatModel(List<AgentStat> agentStatList) {
+        return convertToKafkaApplicationStatModelFunction.apply(agentStatList);
+
     }
 
     @Override

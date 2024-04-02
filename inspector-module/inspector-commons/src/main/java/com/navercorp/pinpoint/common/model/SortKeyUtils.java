@@ -21,11 +21,19 @@ package com.navercorp.pinpoint.common.model;
  */
 public final class SortKeyUtils {
 
-    public static String generateKey(String applicationName, String agentId, String metricName) {
+    public static String generateKeyForAgentStat(String applicationName, String agentId, String metricName) {
         StringBuilder sb = new StringBuilder();
         sb.append(applicationName);
         sb.append("#");
         sb.append(agentId);
+        sb.append("#");
+        sb.append(metricName);
+        return sb.toString();
+    }
+
+    public static String generateKeyForApplicationStat(String applicationName, String metricName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(applicationName);
         sb.append("#");
         sb.append(metricName);
         return sb.toString();

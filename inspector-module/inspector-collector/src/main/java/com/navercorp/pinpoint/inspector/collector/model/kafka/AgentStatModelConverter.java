@@ -45,10 +45,16 @@ import java.util.stream.Stream;
 // TODO : (minwoo) tenantId must be entered
 public class AgentStatModelConverter<T extends AgentStatDataPoint> {
 
+    public static final String  DATASOUCE_TAG_ID_KEY = "id";
+    public static final String  DATASOUCE_TAG_SERVICE_TYPE_CODE_KEY = "serviceTypeCode";
+    public static final String  DATASOUCE_TAG_DATABASE_NAME_KEY = "databaseName";
+    public static final String  DATASOUCE_TAG_JDBC_URL_KEY = "jdbcUrl";
+
+
     public static List<AgentStat> convertCpuLoadToAgentStat(List<CpuLoadBo> cpuLoadBoList, String tenantId) {
         List<AgentStat> agentStatList = cpuLoadBoList.stream()
                 .flatMap(cpuLoadBo -> {
-                    String sortKey = SortKeyUtils.generateKey(cpuLoadBo.getApplicationName(), cpuLoadBo.getAgentId(), AgentStatType.CPU_LOAD.getChartType());
+                    String sortKey = SortKeyUtils.generateKeyForAgentStat(cpuLoadBo.getApplicationName(), cpuLoadBo.getAgentId(), AgentStatType.CPU_LOAD.getChartType());
                     AgentStat jvmCpuLoad = new AgentStat(tenantId, sortKey, cpuLoadBo.getApplicationName(), cpuLoadBo.getAgentId(),
                             AgentStatType.CPU_LOAD.getChartType(), AgentStatField.CPU_LOAD_JVM.getFieldName(),
                             cpuLoadBo.getJvmCpuLoad(), cpuLoadBo.getTimestamp());
@@ -66,7 +72,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertActiveTraceToAgentStat(List<ActiveTraceBo> activeTraceBoList, String tenantId) {
         List<AgentStat> agentStatList = activeTraceBoList.stream()
                 .flatMap(activeTraceBo -> {
-                    String sortKey = SortKeyUtils.generateKey(activeTraceBo.getApplicationName(), activeTraceBo.getAgentId(), AgentStatType.ACTIVE_TRACE.getChartType());
+                    String sortKey = SortKeyUtils.generateKeyForAgentStat(activeTraceBo.getApplicationName(), activeTraceBo.getAgentId(), AgentStatType.ACTIVE_TRACE.getChartType());
                     AgentStat fastCount = new AgentStat(tenantId, sortKey, activeTraceBo.getApplicationName(), activeTraceBo.getAgentId(),
                             AgentStatType.ACTIVE_TRACE.getChartType(), AgentStatField.ACTIVE_TRACE_FAST_COUNT.getFieldName(),
                             activeTraceBo.getActiveTraceHistogram().getFastCount(), activeTraceBo.getTimestamp());
@@ -97,7 +103,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertJvmGcToAgentStat(List<JvmGcBo> jvmGcBoList, String tenantId) {
         List<AgentStat> agentStatList = jvmGcBoList.stream()
                 .flatMap(jvmGcBo -> {
-                    String sortKey = SortKeyUtils.generateKey(jvmGcBo.getApplicationName(), jvmGcBo.getAgentId(), AgentStatType.JVM_GC.getChartType());
+                    String sortKey = SortKeyUtils.generateKeyForAgentStat(jvmGcBo.getApplicationName(), jvmGcBo.getAgentId(), AgentStatType.JVM_GC.getChartType());
                     AgentStat gcType = new AgentStat(tenantId, sortKey, jvmGcBo.getApplicationName(), jvmGcBo.getAgentId(),
                             AgentStatType.JVM_GC.getChartType(), AgentStatField.JVM_GC_TYPE.getFieldName(),
                             jvmGcBo.getGcType().getTypeCode(), jvmGcBo.getTimestamp());
@@ -132,7 +138,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
         List<AgentStat> agentStatList = jvmGcDetailedBoList
                 .stream()
                 .flatMap(jvmGcDetailedBo -> {
-                            String sortKey = SortKeyUtils.generateKey(jvmGcDetailedBo.getApplicationName(), jvmGcDetailedBo.getAgentId(), AgentStatType.JVM_GC_DETAILED.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(jvmGcDetailedBo.getApplicationName(), jvmGcDetailedBo.getAgentId(), AgentStatType.JVM_GC_DETAILED.getChartType());
                             AgentStat newGcCount = new AgentStat(tenantId, sortKey, jvmGcDetailedBo.getApplicationName(), jvmGcDetailedBo.getAgentId(),
                                     AgentStatType.JVM_GC_DETAILED.getChartType(), AgentStatField.JVM_GC_DETAILED_GC_NEW_COUNT.getFieldName(),
                                     jvmGcDetailedBo.getGcNewCount(), jvmGcDetailedBo.getTimestamp());
@@ -171,7 +177,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertTransactionToAgentStat(List<TransactionBo> transactionBoList, String tenantId) {
         List<AgentStat> agentStatList = transactionBoList.stream()
                 .flatMap(transactionBo -> {
-                            String sortKey = SortKeyUtils.generateKey(transactionBo.getApplicationName(), transactionBo.getAgentId(), AgentStatType.TRANSACTION.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(transactionBo.getApplicationName(), transactionBo.getAgentId(), AgentStatType.TRANSACTION.getChartType());
                             AgentStat collectInterval = new AgentStat(tenantId, sortKey, transactionBo.getApplicationName(), transactionBo.getAgentId(),
                                     AgentStatType.TRANSACTION.getChartType(), AgentStatField.TRANSACTION_COLLECT_INTERVAL.getFieldName(),
                                     transactionBo.getCollectInterval(), transactionBo.getTimestamp());
@@ -218,7 +224,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertResponseTimeToAgentStat(List<ResponseTimeBo> reponseTimeBoList, String tenantId) {
         List<AgentStat> agentStatList = reponseTimeBoList.stream()
                 .flatMap(responseTimeBo -> {
-                            String sortKey = SortKeyUtils.generateKey(responseTimeBo.getApplicationName(), responseTimeBo.getAgentId(), AgentStatType.RESPONSE_TIME.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(responseTimeBo.getApplicationName(), responseTimeBo.getAgentId(), AgentStatType.RESPONSE_TIME.getChartType());
                             AgentStat avg = new AgentStat(tenantId, sortKey, responseTimeBo.getApplicationName(), responseTimeBo.getAgentId(),
                                     AgentStatType.RESPONSE_TIME.getChartType(), AgentStatField.RESPONSE_TIME_AVG.getFieldName(),
                                     responseTimeBo.getAvg(), responseTimeBo.getTimestamp());
@@ -236,7 +242,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertDeadlockThreadCountToAgentStat(List<DeadlockThreadCountBo> deadlockThreadCountBoList, String tenantId) {
         List<AgentStat> agentStatList = deadlockThreadCountBoList.stream()
                 .flatMap(deadlockThreadCountBo -> {
-                            String sortKey = SortKeyUtils.generateKey(deadlockThreadCountBo.getApplicationName(), deadlockThreadCountBo.getAgentId(), AgentStatType.DEADLOCK.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(deadlockThreadCountBo.getApplicationName(), deadlockThreadCountBo.getAgentId(), AgentStatType.DEADLOCK.getChartType());
                             AgentStat deadlockedThreadCount = new AgentStat(tenantId, sortKey, deadlockThreadCountBo.getApplicationName(), deadlockThreadCountBo.getAgentId(),
                                     AgentStatType.DEADLOCK.getChartType(), AgentStatField.DEADLOCK_THREAD_COUNT.getFieldName(),
                                     deadlockThreadCountBo.getDeadlockedThreadCount(), deadlockThreadCountBo.getTimestamp());
@@ -251,7 +257,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertFileDescriptorToAgentStat(List<FileDescriptorBo> fileDescriptorBoList, String tenantId) {
         List<AgentStat> agentStatList = fileDescriptorBoList.stream()
                 .flatMap(fileDescriptorBo -> {
-                            String sortKey = SortKeyUtils.generateKey(fileDescriptorBo.getApplicationName(), fileDescriptorBo.getAgentId(), AgentStatType.FILE_DESCRIPTOR.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(fileDescriptorBo.getApplicationName(), fileDescriptorBo.getAgentId(), AgentStatType.FILE_DESCRIPTOR.getChartType());
                             AgentStat openFileDescriptorCount = new AgentStat(tenantId, sortKey, fileDescriptorBo.getApplicationName(), fileDescriptorBo.getAgentId(),
                                     AgentStatType.FILE_DESCRIPTOR.getChartType(), AgentStatField.OPEN_FILE_DESCRIPTOR_COUNT.getFieldName(),
                                     fileDescriptorBo.getOpenFileDescriptorCount(), fileDescriptorBo.getTimestamp());
@@ -266,7 +272,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertDirectBufferToAgentStat(List<DirectBufferBo> directBufferBoList, String tenantId) {
         List<AgentStat> agentStatList = directBufferBoList.stream()
                 .flatMap(directBufferBo -> {
-                            String sortKey = SortKeyUtils.generateKey(directBufferBo.getApplicationName(), directBufferBo.getAgentId(), AgentStatType.DIRECT_BUFFER.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(directBufferBo.getApplicationName(), directBufferBo.getAgentId(), AgentStatType.DIRECT_BUFFER.getChartType());
                             AgentStat directCount = new AgentStat(tenantId, sortKey, directBufferBo.getApplicationName(), directBufferBo.getAgentId(),
                                     AgentStatType.DIRECT_BUFFER.getChartType(), AgentStatField.DIRECT_BUFFER_DIRECT_COUNT.getFieldName(),
                                     directBufferBo.getDirectCount(), directBufferBo.getTimestamp());
@@ -291,7 +297,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertTotalThreadCountToAgentStat(List<TotalThreadCountBo> totalThreadCountBoList, String tenantId) {
         List<AgentStat> agentStatList = totalThreadCountBoList.stream()
                 .flatMap(totalThreadCountBo -> {
-                            String sortKey = SortKeyUtils.generateKey(totalThreadCountBo.getApplicationName(), totalThreadCountBo.getAgentId(), AgentStatType.TOTAL_THREAD.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(totalThreadCountBo.getApplicationName(), totalThreadCountBo.getAgentId(), AgentStatType.TOTAL_THREAD.getChartType());
                             AgentStat totalThreadCount = new AgentStat(tenantId, sortKey, totalThreadCountBo.getApplicationName(), totalThreadCountBo.getAgentId(),
                                     AgentStatType.TOTAL_THREAD.getChartType(), AgentStatField.TOTAL_THREAD_COUNT.getFieldName(),
                                     totalThreadCountBo.getTotalThreadCount(), totalThreadCountBo.getTimestamp());
@@ -308,7 +314,7 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertLoadedClassToAgentStat(List<LoadedClassBo> loadedClassBoList, String tenantId) {
         List<AgentStat> agentStatList = loadedClassBoList.stream()
                 .flatMap(loadedClassBo -> {
-                            String sortKey = SortKeyUtils.generateKey(loadedClassBo.getApplicationName(), loadedClassBo.getAgentId(), AgentStatType.LOADED_CLASS.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(loadedClassBo.getApplicationName(), loadedClassBo.getAgentId(), AgentStatType.LOADED_CLASS.getChartType());
                             AgentStat loadedClassCount = new AgentStat(tenantId, sortKey, loadedClassBo.getApplicationName(), loadedClassBo.getAgentId(),
                                     AgentStatType.LOADED_CLASS.getChartType(), AgentStatField.CLASS_COUNT_LOAD.getFieldName(),
                                     loadedClassBo.getLoadedClassCount(), loadedClassBo.getTimestamp());
@@ -327,24 +333,24 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static List<AgentStat> convertDataSourceToAgentStat(List<DataSourceListBo> dataSourceListBoList, String tenantId) {
         List<AgentStat> agentStatList = dataSourceListBoList.stream()
                 .flatMap(dataSourceListBo -> {
-                            String sortKey = SortKeyUtils.generateKey(dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(), AgentStatType.DATASOURCE.getChartType());
+                            String sortKey = SortKeyUtils.generateKeyForAgentStat(dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(), AgentStatType.DATASOURCE.getChartType());
                             Stream.Builder<AgentStat> builder = Stream.builder();
 
                             for (DataSourceBo dataSourceBo : dataSourceListBo.getList()) {
                                 List<Tag> tags = List.of(
-                                    new Tag("id", String.valueOf(dataSourceBo.getId())),
-                                    new Tag("serviceTypeCode", String.valueOf(dataSourceBo.getServiceTypeCode())),
-                                    new Tag("databaseName", dataSourceBo.getDatabaseName()),
-                                    new Tag("jdbcUrl", dataSourceBo.getJdbcUrl())
+                                    new Tag(DATASOUCE_TAG_ID_KEY, String.valueOf(dataSourceBo.getId())),
+                                    new Tag(DATASOUCE_TAG_SERVICE_TYPE_CODE_KEY, String.valueOf(dataSourceBo.getServiceTypeCode())),
+                                    new Tag(DATASOUCE_TAG_DATABASE_NAME_KEY, dataSourceBo.getDatabaseName()),
+                                    new Tag(DATASOUCE_TAG_JDBC_URL_KEY, dataSourceBo.getJdbcUrl())
                                 );
 
                                 AgentStat activeConnectionSize = new AgentStat(tenantId, sortKey, dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(),
                                         AgentStatType.DATASOURCE.getChartType(), AgentStatField.DATASOURCE_ACTIVE_CONNECTION_SIZE.getFieldName(),
-                                        dataSourceBo.getActiveConnectionSize(), dataSourceListBo.getTimestamp(), tags, dataSourceBo.getJdbcUrl());
+                                        dataSourceBo.getActiveConnectionSize(), dataSourceListBo.getTimestamp(), tags);
 
                                 AgentStat maxConnectionSize = new AgentStat(tenantId, sortKey, dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(),
                                         AgentStatType.DATASOURCE.getChartType(), AgentStatField.DATASOURCE_MAX_CONNECTION_SIZE.getFieldName(),
-                                        dataSourceBo.getMaxConnectionSize(), dataSourceListBo.getTimestamp(), tags, dataSourceBo.getJdbcUrl());
+                                        dataSourceBo.getMaxConnectionSize(), dataSourceListBo.getTimestamp(), tags);
 
                                 builder.add(activeConnectionSize);
                                 builder.add(maxConnectionSize);

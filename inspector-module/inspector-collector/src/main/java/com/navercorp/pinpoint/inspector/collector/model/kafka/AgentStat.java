@@ -29,8 +29,6 @@ import java.util.List;
  */
 public class AgentStat {
 
-    private static String NULL_STRING = "null";
-
     private final String tenantId;
     private final String sortKey;
     private final String applicationName;
@@ -39,15 +37,13 @@ public class AgentStat {
     private final String fieldName;
     private final double fieldValue;
     private final List<Tag> tags;
-
-    private final String primaryTag;
     private final long eventTime;
 
     public AgentStat(String tenantId, String sortKey, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime) {
-        this(tenantId, sortKey, applicationName, agentId, metricName, fieldName, fieldValue, eventTime, Collections.emptyList(), NULL_STRING);
+        this(tenantId, sortKey, applicationName, agentId, metricName, fieldName, fieldValue, eventTime, Collections.emptyList());
     }
 
-    public AgentStat(String tenantId, String sortKey, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime, List<Tag> tags, String primaryTag) {
+    public AgentStat(String tenantId, String sortKey, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime, List<Tag> tags) {
         this.tenantId = tenantId;
         this.sortKey = sortKey;
         this.applicationName = applicationName;
@@ -57,7 +53,6 @@ public class AgentStat {
         this.fieldValue = fieldValue;
         this.eventTime = eventTime;
         this.tags = tags;
-        this.primaryTag = primaryTag;
     }
 
     public String getTenantId() {
@@ -91,10 +86,6 @@ public class AgentStat {
     @JsonSerialize(contentUsing = ToStringSerializer.class)
     public List<Tag> getTags() {
         return tags;
-    }
-
-    public String getPrimaryTag() {
-        return primaryTag;
     }
 
     public String getSortKey() {
