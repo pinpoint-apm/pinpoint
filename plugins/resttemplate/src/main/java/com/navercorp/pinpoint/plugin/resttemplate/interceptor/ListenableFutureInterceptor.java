@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.resttemplate.RestTemplateConstants;
 import com.navercorp.pinpoint.plugin.resttemplate.RestTemplateResponseHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.resttemplate.field.accessor.TraceFutureFlagAccessor;
+import com.navercorp.pinpoint.plugin.resttemplate.interceptor.util.HttpStatusProvider;
+import com.navercorp.pinpoint.plugin.resttemplate.interceptor.util.HttpStatusProviderFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.AbstractClientHttpResponse;
 import org.springframework.http.client.ClientHttpResponse;
@@ -39,10 +41,13 @@ import java.io.IOException;
 public class ListenableFutureInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
     private final ServerResponseHeaderRecorder<ClientHttpResponse> responseHeaderRecorder;
+    private final HttpStatusProvider statusCodeProvider;
 
-    public ListenableFutureInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
+    public ListenableFutureInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext,
+                                       int springVersion) {
         super(traceContext, methodDescriptor);
         this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new RestTemplateResponseHeaderAdaptor());
+        this.statusCodeProvider = HttpStatusProviderFactory.getHttpStatusProvider(springVersion);
     }
 
     @Override
@@ -89,12 +94,9 @@ public class ListenableFutureInterceptor extends AsyncContextSpanEventSimpleArou
         if (args.length == 1 && args[0] instanceof AbstractClientHttpResponse) {
             AbstractClientHttpResponse response = (AbstractClientHttpResponse) args[0];
             try {
-                HttpStatus statusCode = response.getStatusCode();
-                if (statusCode != null) {
-                    recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCode.value());
-                }
+                recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeProvider.getStatusCode(response));
                 this.responseHeaderRecorder.recordHeader(recorder, response);
-            } catch (IOException ioException) {
+            } catch (Exception ioException) {
                 logger.warn("Failed to after process. {}", ioException.getMessage(), ioException);
             }
         }

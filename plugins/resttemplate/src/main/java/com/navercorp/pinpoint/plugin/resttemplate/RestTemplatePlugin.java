@@ -117,8 +117,10 @@ public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAwar
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod executeMethod = InstrumentUtils.findMethod(target, "execute");
+
+            final int springVersion = SpringVersion.getVersion(classLoader);
             if (executeMethod != null) {
-                executeMethod.addScopedInterceptor(HttpRequestInterceptor.class, RestTemplateConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+                executeMethod.addScopedInterceptor(HttpRequestInterceptor.class, va(springVersion), RestTemplateConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
 
             return target.toBytecode();
@@ -167,8 +169,9 @@ public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAwar
 
             final List<InstrumentMethod> constructors = target.getDeclaredConstructors();
             if (constructors != null && constructors.size() == 1) { //only intercept one-constructor response, no overloading
+                final int springVersion = SpringVersion.getVersion(classLoader);
                 for (InstrumentMethod constructor : constructors) {
-                    constructor.addScopedInterceptor(ClientHttpResponseInterceptor.class, "HttpResponse", ExecutionPolicy.BOUNDARY);
+                    constructor.addScopedInterceptor(ClientHttpResponseInterceptor.class, va(springVersion), "HttpResponse", ExecutionPolicy.BOUNDARY);
                 }
             }
 
