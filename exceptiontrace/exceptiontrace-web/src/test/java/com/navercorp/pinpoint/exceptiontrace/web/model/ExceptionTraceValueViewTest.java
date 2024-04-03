@@ -17,17 +17,22 @@ class ExceptionTraceValueViewTest {
         emptyFieldName.setErrorMessage("");
         view.setGroupedFieldName(emptyFieldName);
 
-        assertEquals("", view.getFieldName());
+        assertEquals(ExceptionTraceValueView.EMPTY_STRING, view.getFieldName());
 
+        GroupedFieldName nullStringFieldName = new GroupedFieldName();
+        emptyFieldName.setErrorMessage("null");
+        view.setGroupedFieldName(emptyFieldName);
+
+        assertEquals(ExceptionTraceValueView.EMPTY_STRING, view.getFieldName());
 
         GroupedFieldName nullFieldName = new GroupedFieldName();
         view.setGroupedFieldName(nullFieldName);
 
-        assertEquals("total", view.getFieldName());
+        assertEquals(ExceptionTraceValueView.TOTAL_FIELDNAME, view.getFieldName());
 
 
         view.setGroupedFieldName(null);
 
-        assertEquals("total", view.getFieldName());
+        assertEquals(ExceptionTraceValueView.TOTAL_FIELDNAME, view.getFieldName());
     }
 }

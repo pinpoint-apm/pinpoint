@@ -88,15 +88,21 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     public List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionTraceSummaryEntity> entities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIES_QUERY, exceptionTraceQueryParameter);
         return entities.stream()
-                .map(mapper::entityToExceptionTraceSummary)
-                .collect(Collectors.toList());
+                .map((ExceptionTraceSummaryEntity e) ->
+                        mapper.toSummary(
+                                e, exceptionTraceQueryParameter.getGroupByAttributes()
+                        )
+                ).collect(Collectors.toList());
     }
 
     @Override
     public List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionTraceValueViewEntity> valueViewEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
         return valueViewEntities.stream()
-                .map(mapper::entityToExceptionTraceValueView)
-                .collect(Collectors.toList());
+                .map((ExceptionTraceValueViewEntity e) ->
+                        mapper.toValueView(
+                                e, exceptionTraceQueryParameter.getGroupByAttributes()
+                        )
+                ).collect(Collectors.toList());
     }
 }

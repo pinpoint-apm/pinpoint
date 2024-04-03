@@ -25,10 +25,10 @@ import java.util.List;
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceValueView implements TimeSeriesValueView {
+public class ExceptionTraceValueView implements TimeSeriesValueView, Grouped {
 
-    private static final String TOTAL_FIELDNAME = "total";
-    private static final String EMPTY_STRING = "";
+    public static final String TOTAL_FIELDNAME = "total";
+    public static final String EMPTY_STRING = "(empty error message)";
     private GroupedFieldName groupedFieldName;
     private List<Integer> values;
 
@@ -44,7 +44,10 @@ public class ExceptionTraceValueView implements TimeSeriesValueView {
         if (groupedFieldName == null) {
             return TOTAL_FIELDNAME;
         }
-        return StringUtils.defaultString(groupedFieldName.inAString(), TOTAL_FIELDNAME);
+        return StringUtils.defaultIfEmpty(
+                StringUtils.defaultString(groupedFieldName.inAString(), TOTAL_FIELDNAME),
+                EMPTY_STRING
+        );
     }
 
     @JsonIgnore

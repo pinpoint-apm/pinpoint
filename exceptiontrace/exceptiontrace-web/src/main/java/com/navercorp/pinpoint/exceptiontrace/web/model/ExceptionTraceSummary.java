@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceSummary {
+public class ExceptionTraceSummary implements Grouped {
 
     private GroupedFieldName groupedFieldName;
     private String mostRecentErrorClass;
