@@ -1,13 +1,8 @@
 {
-  "schemaName": "inspectorStatV2",
+  "schemaName": "inspectorStatApp",
   "dimensionFieldSpecs": [
     {
       "name": "tenantId",
-      "dataType": "STRING",
-      "defaultNullValue": ""
-    },
-    {
-      "name": "sortKey",
       "dataType": "STRING",
       "defaultNullValue": ""
     },
@@ -17,12 +12,12 @@
       "defaultNullValue": ""
     },
     {
-      "name": "applicationName",
+      "name": "sortKey",
       "dataType": "STRING",
       "defaultNullValue": ""
     },
     {
-      "name": "agentId",
+      "name": "applicationName",
       "dataType": "STRING"
     },
     {
@@ -39,22 +34,36 @@
       "defaultNullValue": ""
     },
     {
-      "name": "tags",
+      "name": "primaryTag",
       "dataType": "STRING",
-      "singleValueField": false,
-      "defaultNullValue": "null"
+      "defaultNullValue": ""
     }
   ],
   "metricFieldSpecs": [
     {
-      "name": "fieldValue",
+      "name": "sumFieldValue",
       "dataType": "DOUBLE",
-      "defaultNullValue": -1.0
+      "defaultNullValue": 0
+    },
+    {
+      "name": "minFieldValue",
+      "dataType": "DOUBLE",
+      "defaultNullValue": 0
+    },
+    {
+      "name": "maxFieldValue",
+      "dataType": "DOUBLE",
+      "defaultNullValue": 0
+    },
+    {
+      "name": "countFieldValue",
+      "dataType": "INT",
+      "defaultNullValue": 0
     }
   ],
   "dateTimeFieldSpecs": [
     {
-      "name": "eventTime",
+      "name": "roundedEventTime",
       "dataType": "TIMESTAMP",
       "format" : "1:MILLISECONDS:EPOCH",
       "granularity": "1:MILLISECONDS"

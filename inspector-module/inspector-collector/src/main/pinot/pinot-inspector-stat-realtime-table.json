@@ -11,9 +11,17 @@
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["applicationName"],
-    "bloomFilterColumns": ["tenantId", "serviceName", "applicationName", "agentId", "metricName", "fieldName"],
-    "noDictionaryColumns": ["fieldValue", "eventTime"],
+    "sortedColumn": ["sortKey"],
+    "bloomFilterColumns": ["tenantId", "serviceName", "sortKey", "applicationName", "agentId", "metricName", "fieldName"],
+    "noDictionaryColumns": ["fieldValue"],
+    "segmentPartitionConfig": {
+      "columnPartitionMap": {
+        "sortKey": {
+          "functionName": "Murmur",
+          "numPartitions": 64
+        }
+      }
+    },
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
@@ -32,14 +40,10 @@
   "metadata": {
     "customConfigs": {}
   },
-  "task": {
-    "taskTypeConfigsMap": {
-      "RealtimeToOfflineSegmentsTask": {
-        "bucketTimePeriod": "4h",
-        "bufferTimePeriod": "12h",
-        "schedule": "0 0 * * * ?",
-        "maxNumRecordsPerSegment": "6000000"
-      }
-    }
+  "routing": {
+    "segmentPrunerTypes": [
+      "time",
+      "partition"
+    ]
   }
 }

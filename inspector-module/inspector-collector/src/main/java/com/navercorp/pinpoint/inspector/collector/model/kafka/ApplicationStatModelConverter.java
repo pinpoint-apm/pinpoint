@@ -66,7 +66,7 @@ public class ApplicationStatModelConverter {
                                                         agentStat.getApplicationName(),
                                                         agentStat.getMetricName(),
                                                         agentStat.getFieldName(),
-                                                        tags.toString(),
+                                                        jdbcUrlTag.toString(),
                                                         agentStat.getFieldValue(),
                                                         agentStat.getEventTime()));
         }

@@ -45,17 +45,17 @@ public class InspectorQueryParameterV2 {
 
     private final String sortKey;
 
-    public InspectorQueryParameterV2(InspectorDataSearchKey inspectorDataSearchKey, String metricName, String fieldName) {
-        this(inspectorDataSearchKey, metricName, fieldName, Collections.emptyList());
+    public InspectorQueryParameterV2(InspectorDataSearchKey inspectorDataSearchKey, String sortKey, String metricName, String fieldName) {
+        this(inspectorDataSearchKey, sortKey, metricName, fieldName, Collections.emptyList());
     }
 
-    public InspectorQueryParameterV2(InspectorDataSearchKey inspectorDataSearchKey, String metricName, String fieldName, List<Tag> tagList) {
+    public InspectorQueryParameterV2(InspectorDataSearchKey inspectorDataSearchKey, String sortKey, String metricName, String fieldName, List<Tag> tagList) {
         Objects.requireNonNull(inspectorDataSearchKey, "inspectorDataSearchKey");
 
         this.tenantId = inspectorDataSearchKey.getTenantId();
+        this.sortKey = sortKey;
         this.applicationName = inspectorDataSearchKey.getApplicationName();
         this.agentId = inspectorDataSearchKey.getAgentId();
-        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
         this.metricName = metricName;
         this.fieldName = fieldName;
         this.tagList = tagList;

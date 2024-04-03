@@ -1,0 +1,69 @@
+{
+  "tableName": "inspectorStatApp",
+  "tableType": "REALTIME",
+  "query" : {
+    "disableGroovy": false
+  },
+  "segmentsConfig": {
+    "timeColumnName": "roundedEventTime",
+    "timeType": "MILLISECONDS",
+    "schemaName": "inspectorStatApp",
+    "replicasPerPartition": "3",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "7"
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "sortedColumn": ["sortKey"],
+    "bloomFilterColumns": ["tenantId", "serviceName", "sortKey", "applicationName", "metricName", "fieldName", "version", "primaryTag"],
+    "noDictionaryColumns": ["sumFieldValue", "minFieldValue", "maxFieldValue", "countFieldValue"],
+    "loadMode": "MMAP",
+    "nullHandlingEnabled": true,
+    "streamConfigs": {
+      "streamType": "kafka",
+      "stream.kafka.consumer.type": "lowlevel",
+      "stream.kafka.topic.name": "inspector-stat-app",
+      "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+      "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
+      "stream.kafka.broker.list": "localhost:19092",
+      "realtime.segment.flush.threshold.rows": "0",
+      "realtime.segment.flush.threshold.time": "24h",
+      "realtime.segment.flush.threshold.segment.size": "64M",
+      "stream.kafka.consumer.prop.auto.offset.reset": "smallest"
+    }
+  },
+  "ingestionConfig": {
+    "transformConfigs": [
+      {
+        "columnName": "roundedEventTime",
+        "transformFunction": "DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '30:SECONDS')"
+      }
+    ],
+    "aggregationConfigs": [
+      {
+        "columnName": "sumFieldValue",
+        "aggregationFunction": "SUM(fieldValue)"
+      },
+      {
+        "columnName": "minFieldValue",
+        "aggregationFunction": "MIN(fieldValue)"
+      },
+      {
+        "columnName": "maxFieldValue",
+        "aggregationFunction": "MAX(fieldValue)"
+      },
+      {
+        "columnName": "countFieldValue",
+        "aggregationFunction": "COUNT(*)"
+      }
+    ]
+  },
+  "metadata": {
+    "customConfigs": {}
+  },
+  "routing": {
+    "segmentPrunerTypes": [
+      "time"
+    ]
+  }
+}

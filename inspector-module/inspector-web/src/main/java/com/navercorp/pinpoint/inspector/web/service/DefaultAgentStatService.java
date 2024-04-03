@@ -59,13 +59,11 @@ public class DefaultAgentStatService implements AgentStatService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentStatDao agentStatDaoV2;
-    private final AgentStatDao agentStatDao;
     private final YMLInspectorManager ymlInspectorManager;
     private final MetricProcessorManager metricProcessorManager;
     private final FieldProcessorManager fieldProcessorManager;
 
-    public DefaultAgentStatService(@Qualifier("pinotAgentStatDaoV2")AgentStatDao agentStatDaoV2, @Qualifier("pinotAgentStatDao")AgentStatDao agentStatDao, @Qualifier("agentInspectorDefinition")Mappings agentInspectorDefinition, MetricProcessorManager metricProcessorManager, FieldProcessorManager fieldProcessorManager) {
-        this.agentStatDao = Objects.requireNonNull(agentStatDao, "agentStatDao");
+    public DefaultAgentStatService(@Qualifier("pinotAgentStatDaoV2")AgentStatDao agentStatDaoV2, @Qualifier("agentInspectorDefinition")Mappings agentInspectorDefinition, MetricProcessorManager metricProcessorManager, FieldProcessorManager fieldProcessorManager) {
         this.agentStatDaoV2 = Objects.requireNonNull(agentStatDaoV2, "agentStatDaoV2");
         Objects.requireNonNull(agentInspectorDefinition, "agentInspectorDefinition");
         this.ymlInspectorManager = new YMLInspectorManager(agentInspectorDefinition);
@@ -77,12 +75,7 @@ public class DefaultAgentStatService implements AgentStatService {
     public InspectorMetricData selectAgentStat(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow){
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
 
-        List<QueryResult> queryResults;
-        if (inspectorDataSearchKey.getVersion() == 2) {
-            queryResults = selectAll2(inspectorDataSearchKey, metricDefinition);
-        } else {
-            queryResults = selectAll(inspectorDataSearchKey, metricDefinition);
-        }
+        List<QueryResult> queryResults = selectAll(inspectorDataSearchKey, metricDefinition);
 
         List<InspectorMetricValue> metricValueList = new ArrayList<>(metricDefinition.getFields().size());
 
@@ -107,14 +100,7 @@ public class DefaultAgentStatService implements AgentStatService {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
         MetricDefinition newMetricDefinition = preProcess(inspectorDataSearchKey, metricDefinition);
 
-        List<QueryResult> queryResults;
-        if (inspectorDataSearchKey.getVersion() == 2) {
-            queryResults = selectAll2(inspectorDataSearchKey, newMetricDefinition);
-        } else {
-            queryResults = selectAll(inspectorDataSearchKey, newMetricDefinition);
-        }
-
-
+        List<QueryResult> queryResults = selectAll(inspectorDataSearchKey, newMetricDefinition);
         List<InspectorMetricValue> metricValueList = new ArrayList<>(newMetricDefinition.getFields().size());
 
         try {
@@ -174,27 +160,6 @@ public class DefaultAgentStatService implements AgentStatService {
     }
 
     private List<QueryResult> selectAll(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
-        List<QueryResult> invokeList = new ArrayList<>();
-
-        for (Field field : metricDefinition.getFields()) {
-            //TODO : (minwoo) Consolidate dao calls into one
-            CompletableFuture<List<SystemMetricPoint<Double>>> doubleFuture = null;
-            if (AggregationFunction.AVG.equals(field.getAggregationFunction())) {
-                doubleFuture = agentStatDao.selectAgentStatAvg(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-            } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
-                doubleFuture = agentStatDao.selectAgentStatMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-            } else if (AggregationFunction.SUM.equals(field.getAggregationFunction())) {
-                doubleFuture = agentStatDao.selectAgentStatSum(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-            } else {
-                throw new IllegalArgumentException("Unknown aggregation function : " + field.getAggregationFunction());
-            }
-            invokeList.add(new QueryResult(doubleFuture, field));
-        }
-
-        return invokeList;
-    }
-
-    private List<QueryResult> selectAll2(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
         List<QueryResult> invokeList = new ArrayList<>();
 
         for (Field field : metricDefinition.getFields()) {

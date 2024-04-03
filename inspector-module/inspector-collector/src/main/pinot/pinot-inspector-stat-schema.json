@@ -12,6 +12,11 @@
       "defaultNullValue": ""
     },
     {
+      "name": "sortKey",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
       "name": "applicationName",
       "dataType": "STRING",
       "defaultNullValue": ""

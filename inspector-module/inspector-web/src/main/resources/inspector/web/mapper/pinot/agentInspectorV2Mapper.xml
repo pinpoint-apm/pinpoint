@@ -25,7 +25,7 @@
         SELECT
             AVG(fieldValue) AS avgValue,
             DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
       <!--  tenantId = #{tenantId}
             AND serviceName = #{serviceName} -->
@@ -44,7 +44,7 @@
         SELECT
         MAX(fieldValue) AS avgValue,
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
@@ -63,7 +63,7 @@
         SELECT
         SUM(fieldValue) AS avgValue,
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
@@ -80,7 +80,7 @@
 
     <select id="selectTagInfo" parameterType="inspectorQueryParameterV2" resultType="Tag">
         SELECT DISTINCT(tags)
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
@@ -89,7 +89,7 @@
 
     <select id="selectTagInfoContainedSpecificTag" parameterType="inspectorQueryParameterV2" resultMap="tagInfoMap">
         SELECT applicationName, agentId, metricName, fieldName, tags
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
