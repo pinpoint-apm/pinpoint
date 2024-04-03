@@ -37,11 +37,9 @@ import java.util.Objects;
 public class UsingDataSourceTagForApplicationPreProcessor implements MetricPreProcessor {
 
     private final static String JDBC_URL = "jdbcUrl";
-    private final ApplicationStatDao applicationStatDao;
     private final ApplicationStatDao applicationStatDaoV2;
 
-    public UsingDataSourceTagForApplicationPreProcessor(@Qualifier("pinotApplicationStatDao")ApplicationStatDao applicationStatDao, @Qualifier("pinotApplicationStatDaoV2")ApplicationStatDao applicationStatDaoV2) {
-        this.applicationStatDao = Objects.requireNonNull(applicationStatDao, "applicationStatDao");
+    public UsingDataSourceTagForApplicationPreProcessor(@Qualifier("pinotApplicationStatDaoV2") ApplicationStatDao applicationStatDaoV2) {
         this.applicationStatDaoV2 = Objects.requireNonNull(applicationStatDaoV2, "applicationStatDao");
     }
 
@@ -52,14 +50,6 @@ public class UsingDataSourceTagForApplicationPreProcessor implements MetricPrePr
 
     @Override
     public MetricDefinition preProcess(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
-        if (inspectorDataSearchKey.getVersion() == 2) {
-            return getMetricDefinitionV2(inspectorDataSearchKey, metricDefinition);
-        } else {
-            return getMetricDefinition(inspectorDataSearchKey, metricDefinition);
-        }
-    }
-
-    private MetricDefinition getMetricDefinitionV2(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
         List<Field> newFieldList = new ArrayList<>(metricDefinition.getFields().size());
 
         //TODO : (minwoo) Performance improvement, it seems that you need to import jdbcurl only once and fill the rest of the fields with data, rather than doing it in turn.
@@ -74,33 +64,6 @@ public class UsingDataSourceTagForApplicationPreProcessor implements MetricPrePr
                 List<Tag> newTagList = new ArrayList<Tag>(1);
                 newTagList.add(tag);
                 newFieldList.add(new Field(field.getFieldName(), field.getFieldAlias(), newTagList, field.getMatchingRule(), field.getAggregationFunction(), field.getChartType(), field.getUnit(), field.getPostProcess()));
-            }
-        }
-
-        return new MetricDefinition(metricDefinition.getDefinitionId(), metricDefinition.getMetricName(), metricDefinition.getTitle(), metricDefinition.getGroupingRule(), metricDefinition.getPreProcess(), metricDefinition.getPostProcess(), newFieldList);
-    }
-
-    private MetricDefinition getMetricDefinition(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
-        List<Field> newFieldList = new ArrayList<>(metricDefinition.getFields().size());
-
-        //TODO : (minwoo) Performance improvement, it seems that you need to import jdbcurl only once and fill the rest of the fields with data, rather than doing it in turn.
-        for (Field field : metricDefinition.getFields()) {
-            if (!field.getMatchingRule().equals(MatchingRule.ALL)) {
-                continue;
-            }
-
-            List<Tag> tagList = applicationStatDao.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-
-            List<Tag> filteredTagList = new ArrayList<>();
-            for (Tag tag : tagList) {
-                if (tag.getName().equals(JDBC_URL)) {
-                    filteredTagList.add(tag);
-                }
-            }
-
-            for (Tag filteredTag : filteredTagList) {
-                TagInformation tagInformation = applicationStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
-                newFieldList.add(new Field(field.getFieldName(), field.getFieldAlias(), tagInformation.tags(), field.getMatchingRule(), field.getAggregationFunction(), field.getChartType(), field.getUnit(), field.getPostProcess()));
             }
         }
 

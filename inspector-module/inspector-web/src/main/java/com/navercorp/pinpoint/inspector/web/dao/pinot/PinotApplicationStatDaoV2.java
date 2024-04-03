@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.inspector.web.dao.pinot;
 
+import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.dao.ApplicationStatDao;
-import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameter;
+import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameterV2;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -53,42 +54,46 @@ public class PinotApplicationStatDaoV2 implements ApplicationStatDao {
 
     @Override
     public CompletableFuture<List<AvgMinMaxMetricPoint<Double>>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgMinMaxData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<MinMaxMetricPoint<Double>>> selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMinMaxData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgMinData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxData", inspectorQueryParameter);
     }
 
     @Override
     public List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, metricName, field.getFieldName());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName());
         return syncTemplate.selectList(NAMESPACE + "selectTagInfo", inspectorQueryParameter);
     }
 
     @Override
     public TagInformation getTagInfoContainedSpecificTag(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field, Tag tag) {
         throw new UnsupportedOperationException("not support getTagInfoContainedSpecificTag method.");
+    }
+
+    private String generateKeyForApplicationStat(InspectorDataSearchKey inspectorDataSearchKey, String metricName) {
+        return SortKeyUtils.generateKeyForApplicationStat(inspectorDataSearchKey.getApplicationName(), metricName);
     }
 }

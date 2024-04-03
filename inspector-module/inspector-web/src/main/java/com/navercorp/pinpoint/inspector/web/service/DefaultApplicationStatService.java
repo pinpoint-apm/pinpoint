@@ -44,11 +44,9 @@ public class DefaultApplicationStatService implements ApplicationStatService {
 
     private final YMLInspectorManager ymlInspectorManager;
     private final MetricProcessorManager metricProcessorManager;
-    private final ApplicationStatDao applicationStatDao;
     private final ApplicationStatDao applicationStatDaoV2;
 
-    public DefaultApplicationStatService(@Qualifier("pinotApplicationStatDaoV2")ApplicationStatDao applicationStatDaoV2, @Qualifier("pinotApplicationStatDao")ApplicationStatDao applicationStatDao, @Qualifier("applicationInspectorDefinition") Mappings applicationInspectorDefinition, MetricProcessorManager metricProcessorManager) {
-        this.applicationStatDao = Objects.requireNonNull(applicationStatDao, "applicationStatDao");
+    public DefaultApplicationStatService(@Qualifier("pinotApplicationStatDaoV2")ApplicationStatDao applicationStatDaoV2, @Qualifier("applicationInspectorDefinition") Mappings applicationInspectorDefinition, MetricProcessorManager metricProcessorManager) {
         this.applicationStatDaoV2 = Objects.requireNonNull(applicationStatDaoV2, "applicationStatDaoV2");
         Objects.requireNonNull(applicationInspectorDefinition, "applicationInspectorDefinition");
         this.ymlInspectorManager = new YMLInspectorManager(applicationInspectorDefinition);
@@ -59,15 +57,9 @@ public class DefaultApplicationStatService implements ApplicationStatService {
     public InspectorMetricData selectApplicationStat(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow) {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
 
-        List<QueryResult> queryResults;
-        if (inspectorDataSearchKey.getVersion() == 2) {
-            queryResults =  selectAll2(inspectorDataSearchKey, metricDefinition);
-        } else {
-            queryResults =  selectAll(inspectorDataSearchKey, metricDefinition);
-        }
-
-
+        List<QueryResult> queryResults =  selectAll2(inspectorDataSearchKey, metricDefinition);
         List<InspectorMetricValue> metricValueList = new ArrayList<>(queryResults.size());
+
         try {
             for (QueryResult result : queryResults) {
                 Class<?> resultType = result.resultType();
@@ -101,13 +93,7 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
         MetricDefinition newMetricDefinition = preProcess(inspectorDataSearchKey, metricDefinition);
 
-        List<QueryResult> queryResults;
-        if (inspectorDataSearchKey.getVersion() == 2) {
-            queryResults =  selectAll2(inspectorDataSearchKey, newMetricDefinition);
-        } else {
-            queryResults =  selectAll(inspectorDataSearchKey, newMetricDefinition);
-        }
-
+        List<QueryResult> queryResults =  selectAll2(inspectorDataSearchKey, newMetricDefinition);
         List<InspectorMetricValue> metricValueList = new ArrayList<>(newMetricDefinition.getFields().size());
 
         try {
@@ -228,38 +214,6 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         inspectorMetricValueList.add(new InspectorMetricValue("MIN", field.getTags(), field.getChartType(), field.getUnit(), minValueList));
         inspectorMetricValueList.add(new InspectorMetricValue("MAX", field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
         return inspectorMetricValueList;
-    }
-
-    private List<QueryResult> selectAll(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
-        List<QueryResult> invokeList = new ArrayList<>();
-
-        for (Field field : metricDefinition.getFields()) {
-            CompletableFuture<? extends List<? extends Point>> doubleFuture = null;
-            Class<?> resultType;
-
-            if (AggregationFunction.AVG_MIN_MAX.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDao.selectStatAvgMinMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = AvgMinMaxMetricPoint.class;
-            } else if (AggregationFunction.AVG_MIN.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDao.selectStatAvgMin(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = AvgMinMetricPoint.class;
-            } else if (AggregationFunction.MIN_MAX.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDao.selectStatMinMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = MinMaxMetricPoint.class;
-            } else if (AggregationFunction.SUM.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDao.selectStatSum(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = SystemMetricPoint.class;
-            } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDao.selectStatMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = SystemMetricPoint.class;
-            } else {
-                throw new RuntimeException("not support aggregation function : " + field.getAggregationFunction());
-            }
-
-            invokeList.add(new QueryResult(doubleFuture, field, resultType));
-        }
-
-        return invokeList;
     }
 
     private List<QueryResult> selectAll2(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {

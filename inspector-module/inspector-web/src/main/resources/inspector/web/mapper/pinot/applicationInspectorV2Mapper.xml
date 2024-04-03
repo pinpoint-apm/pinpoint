@@ -54,17 +54,7 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="tagInfoMap" type="TagInformation">
-        <constructor>
-            <arg column="applicationName" javaType="string"/>
-            <arg column="agentId" javaType="string"/>
-            <arg column="metricName" javaType="string"/>
-            <arg column="fieldName" javaType="string"/>
-            <arg column="tags" javaType="list" typeHandler="MultiValueTagTypeHandler"/>
-        </constructor>
-    </resultMap>
-
-    <select id="selectInspectorAvgMinMaxData" parameterType="inspectorQueryParameter" resultMap="avgMinMaxResultMap" >
+    <select id="selectInspectorAvgMinMaxData" parameterType="inspectorQueryParameterV2" resultMap="avgMinMaxResultMap" >
         SELECT
             DIV(SUM(sumFieldValue), SUM(countFieldValue)) AS avgValue,
             MIN(minFieldValue) AS minValue,
@@ -74,8 +64,7 @@
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
-            applicationName = #{applicationName}
-            AND metricName = #{metricName}
+            sortKey = #{sortKey}
             AND fieldName = #{fieldName}
             AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -86,7 +75,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectInspectorSumData" parameterType="inspectorQueryParameter" resultMap="singleResultMap" >
+    <select id="selectInspectorSumData" parameterType="inspectorQueryParameterV2" resultMap="singleResultMap" >
         SELECT
         SUM(sumFieldValue) as fValue,
         DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
@@ -94,8 +83,7 @@
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
-        applicationName = #{applicationName}
-        AND metricName = #{metricName}
+        sortKey = #{sortKey}
         AND fieldName = #{fieldName}
         AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
@@ -106,7 +94,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectInspectorMinMaxData" parameterType="inspectorQueryParameter" resultMap="minMaxResultMap" >
+    <select id="selectInspectorMinMaxData" parameterType="inspectorQueryParameterV2" resultMap="minMaxResultMap" >
         SELECT
         MIN(minFieldValue) AS minValue,
         MAX(maxFieldValue) AS maxValue,
@@ -115,8 +103,7 @@
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
-        applicationName = #{applicationName}
-        AND metricName = #{metricName}
+        sortKey = #{sortKey}
         AND fieldName = #{fieldName}
         AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
@@ -127,7 +114,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectInspectorAvgMinData" parameterType="inspectorQueryParameter" resultMap="avgMinResultMap" >
+    <select id="selectInspectorAvgMinData" parameterType="inspectorQueryParameterV2" resultMap="avgMinResultMap" >
         SELECT
         DIV(SUM(sumFieldValue), SUM(countFieldValue)) AS avgValue,
         MIN(minFieldValue) AS minValue,
@@ -136,8 +123,7 @@
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
-        applicationName = #{applicationName}
-        AND metricName = #{metricName}
+        sortKey = #{sortKey}
         AND fieldName = #{fieldName}
         AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <if test="tagList != null and tagList.size() > 0">
@@ -148,7 +134,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectInspectorMaxData" parameterType="inspectorQueryParameter" resultMap="singleResultMap" >
+    <select id="selectInspectorMaxData" parameterType="inspectorQueryParameterV2" resultMap="singleResultMap" >
         SELECT
         MAX(maxFieldValue) as fValue,
         DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
@@ -156,8 +142,7 @@
         WHERE
         <!--  tenantId = #{tenantId}
               AND serviceName = #{serviceName} -->
-        applicationName = #{applicationName}
-        AND metricName = #{metricName}
+        sortKey = #{sortKey}
         AND fieldName = #{fieldName}
         AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <if test="tagList != null and tagList.size() > 0">
@@ -168,12 +153,11 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectTagInfo" parameterType="inspectorQueryParameter" resultType="Tag">
+    <select id="selectTagInfo" parameterType="inspectorQueryParameterV2" resultType="Tag">
         SELECT DISTINCT(primaryTag)
         FROM inspectorStatApp
         WHERE
-            applicationName = #{applicationName}
-            AND metricName = #{metricName}
+            sortKey = #{sortKey}
             AND fieldName = #{fieldName}
             AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
     </select>
