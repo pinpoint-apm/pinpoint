@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
@@ -23,12 +24,20 @@ import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewE
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
+import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
+import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
+
+import java.util.List;
 
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
@@ -39,6 +48,7 @@ import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replace
 @Mapper(
         componentModel = "spring",
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         uses = {
                 StackTraceMapper.class,
                 MapStructUtils.class
@@ -57,21 +67,40 @@ public interface ExceptionMetaDataEntityMapper {
     ExceptionMetaDataView toView(ExceptionMetaDataEntity entity);
 
     @Mappings({
-            @Mapping(source = "values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),
-            @Mapping(source = "uriTemplate", target = "groupedFieldName.uriTemplate"),
-            @Mapping(source = "errorClassName", target = "groupedFieldName.errorClassName"),
-            @Mapping(source = ".", target = "groupedFieldName.errorMessage", qualifiedByName = "selectErrorMessage"),
-            @Mapping(source = "stackTraceHash", target = "groupedFieldName.stackTraceHash")
+            @Mapping(source = "entity.values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),
+            @Mapping(target = "tags", ignore = true),
+            @Mapping(target = "groupedFieldName", ignore = true),
     })
-    ExceptionTraceValueView entityToExceptionTraceValueView(ExceptionTraceValueViewEntity entity);
+    ExceptionTraceValueView toValueView(
+            ExceptionTraceValueViewEntity entity,
+            List<GroupByAttributes> attributesList
+    );
 
     @Mappings({
-            @Mapping(source = "uriTemplate", target = "groupedFieldName.uriTemplate"),
-            @Mapping(source = "errorClassName", target = "groupedFieldName.errorClassName"),
-            @Mapping(source = ".", target = "groupedFieldName.errorMessage", qualifiedByName = "selectErrorMessage"),
-            @Mapping(source = "stackTraceHash", target = "groupedFieldName.stackTraceHash")
+            @Mapping(target = "groupedFieldName", ignore = true),
     })
-    ExceptionTraceSummary entityToExceptionTraceSummary(ExceptionTraceSummaryEntity entity);
+    ExceptionTraceSummary toSummary(
+            ExceptionTraceSummaryEntity entity,
+            List<GroupByAttributes> attributesList
+    );
+
+    @AfterMapping
+    default void addGroupedFieldName(
+            GroupedFieldNameEntity entity,
+            List<GroupByAttributes> attributesList,
+            @MappingTarget Grouped grouped
+    ) {
+        GroupedFieldName groupedFieldName = new GroupedFieldName();
+        for (GroupByAttributes attributes : attributesList) {
+            switch (attributes) {
+                case STACK_TRACE -> groupedFieldName.setStackTraceHash(checkIfNull(entity.getStackTraceHash()));
+                case URI_TEMPLATE -> groupedFieldName.setUriTemplate(checkIfNull(entity.getUriTemplate()));
+                case ERROR_CLASS_NAME -> groupedFieldName.setErrorClassName(checkIfNull(entity.getErrorClassName()));
+                case ERROR_MESSAGE_LOG_TYPE -> groupedFieldName.setErrorMessage(checkIfNull(selectErrorMessage(entity)));
+            }
+        }
+        grouped.setGroupedFieldName(groupedFieldName);
+    }
 
     @Named("selectErrorMessage")
     default String selectErrorMessage(GroupedFieldNameEntity entity) {
@@ -81,5 +110,9 @@ public interface ExceptionMetaDataEntityMapper {
             );
         }
         return entity.getErrorMessage();
+    }
+
+    default String checkIfNull(String s) {
+        return StringUtils.defaultString(s, "null");
     }
 }

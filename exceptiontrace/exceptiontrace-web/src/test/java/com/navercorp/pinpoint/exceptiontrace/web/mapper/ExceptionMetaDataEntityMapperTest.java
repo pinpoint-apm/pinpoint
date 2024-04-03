@@ -10,6 +10,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewE
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -180,7 +181,9 @@ class ExceptionMetaDataEntityMapperTest {
     public void testEntityToValueView() {
         ExceptionTraceValueViewEntity expected = newExceptionMetaDataEntity();
 
-        ExceptionTraceValueView actual = mapper.entityToExceptionTraceValueView(expected);
+        ExceptionTraceValueView actual = mapper.toValueView(
+                expected, List.of(GroupByAttributes.values())
+        );
 
         assertEquals(expected.getUriTemplate(), actual.getGroupedFieldName().getUriTemplate());
         assertEquals(expected.getErrorClassName(), actual.getGroupedFieldName().getErrorClassName());
@@ -208,7 +211,9 @@ class ExceptionMetaDataEntityMapperTest {
     public void testEntityToSummary() {
         ExceptionTraceSummaryEntity expected = newExceptionTraceSummaryEntity();
 
-        ExceptionTraceSummary actual = mapper.entityToExceptionTraceSummary(expected);
+        ExceptionTraceSummary actual = mapper.toSummary(
+                expected, List.of(GroupByAttributes.values())
+        );
 
         assertEquals(expected.getMostRecentErrorClass(), actual.getMostRecentErrorClass());
         assertEquals(expected.getMostRecentErrorMessage(), actual.getMostRecentErrorMessage());
@@ -239,14 +244,14 @@ class ExceptionMetaDataEntityMapperTest {
     }
 
     @Test
-    public void testSelectErrorMessage(){
+    public void testSelectErrorMessage() {
         GroupedFieldNameEntity entity = new GroupedFieldNameEntity();
         entity.setErrorMessage_logtype("getAgentsList.from: \u0011 ì\u009D´ì\u0083\u0081ì\u009D´ì\u0096´ì\u0095¼ í\u0095©ë\u008B\u0088ë\u008B¤");
 
         String result = mapper.selectErrorMessage(entity);
         assertEquals(
-                "getAgentsList.from: "+ CLPMapper.DICTIONARY_REPLACEMENT +" 이상이어야 합니다"
-                ,result
+                "getAgentsList.from: " + CLPMapper.DICTIONARY_REPLACEMENT + " 이상이어야 합니다"
+                , result
         );
     }
 }

@@ -70,6 +70,10 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.timeWindowRangeCount = builder.timeWindowRangeCount;
     }
 
+    public List<GroupByAttributes> getGroupByAttributes() {
+        return groupByAttributes;
+    }
+
     public static class Builder extends QueryParameter.Builder<Builder> {
 
         private static final int MAX_LIMIT = 65536;
