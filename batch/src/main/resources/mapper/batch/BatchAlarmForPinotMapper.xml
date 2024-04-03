@@ -15,7 +15,7 @@
 
     <select id="selectSumGroupByField" parameterType="BatchQueryParameter" resultType="AgentFieldUsage">
         SELECT agentId, fieldName, SUM(fieldValue) AS sumValue
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
             applicationName = #{applicationName}
             AND metricName = #{metricName}
@@ -30,7 +30,7 @@
 
     <select id="selectAvgGroupByField" parameterType="BatchQueryParameter" resultType="AgentFieldUsage">
         SELECT 'agentId', fieldName, AVG(fieldValue) AS sumValue
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
         sortKey = #{sortKey}
         AND fieldName IN
@@ -47,7 +47,7 @@
 
     <select id="selectSumCount" parameterType="BatchQueryParameter" resultType="AgentUsageCount">
         SELECT agentId, SUM(fieldValue) AS sumValue, COUNT(*) AS countValue
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
             applicationName = #{applicationName}
             AND metricName = #{metricName}
@@ -58,7 +58,7 @@
 
     <select id="selectAvg" parameterType="BatchQueryParameter" resultType="AgentUsage">
         SELECT agentId, AVG(fieldValue) AS avgValue
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
             applicationName = #{applicationName}
           AND metricName = #{metricName}
@@ -69,7 +69,7 @@
 
     <select id="selectTagInfo" parameterType="BatchQueryParameter" resultType="Tag">
         SELECT DISTINCT(tags)
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
@@ -78,7 +78,7 @@
 
     <select id="selectTagInfoContainedSpecificTag" parameterType="BatchQueryParameter" resultMap="tagInfoMap">
         SELECT applicationName, agentId, metricName, fieldName, tags
-        FROM inspectorStatV2
+        FROM inspectorStat
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
