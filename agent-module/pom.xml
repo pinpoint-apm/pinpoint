@@ -155,5 +155,14 @@
                 <module>plugins-it</module>
             </modules>
         </profile>
+        <profile>
+            <id>agent-testweb-module</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>agent-testweb</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
