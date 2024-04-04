@@ -36,8 +36,6 @@ import com.navercorp.pinpoint.common.util.SystemProperty;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.nio.file.Path;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -226,15 +224,7 @@ class PinpointStarter {
 
 
     private ClassLoader createClassLoader(final String name, final URL[] urls, final ClassLoader parentClassLoader, List<String> libClass) {
-        if (System.getSecurityManager() != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-                public ClassLoader run() {
-                    return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, libClass);
-                }
-            });
-        } else {
-            return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, libClass);
-        }
+        return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, libClass);
     }
 
     private String getBootClass() {

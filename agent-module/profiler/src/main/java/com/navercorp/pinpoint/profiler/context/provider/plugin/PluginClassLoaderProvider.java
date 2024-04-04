@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,15 +46,6 @@ public class PluginClassLoaderProvider implements Provider<ClassLoader> {
     }
 
     private ClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parentClassLoader) {
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-                @Override
-                public ClassLoader run() {
-                    return new URLClassLoader(urls, parentClassLoader);
-                }
-            });
-        }
         return new URLClassLoader(urls, parentClassLoader);
     }
 

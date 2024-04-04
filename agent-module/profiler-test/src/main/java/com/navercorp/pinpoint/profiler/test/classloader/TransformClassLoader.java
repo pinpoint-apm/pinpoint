@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Set;
@@ -49,12 +47,6 @@ public class TransformClassLoader extends URLClassLoader {
 
     private final Set<String> notDefinedClass = new CopyOnWriteArraySet<>();
     private final List<String> notDefinedPackages = new CopyOnWriteArrayList<>();
-
-    private final static ProtectionDomain DEFAULT_DOMAIN = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
-        public Object run() {
-            return TransformClassLoader.class.getProtectionDomain();
-        }
-    });
 
     private Translator translator;
     private ProtectionDomain domain;
@@ -210,7 +202,7 @@ public class TransformClassLoader extends URLClassLoader {
             if (logger.isLoggable(Level.FINE)) {
                 this.logger.fine("defineClass:" + name);
             }
-            return defineClass(name, classfile, 0, classfile.length, DEFAULT_DOMAIN);
+            return defineClass(name, classfile, 0, classfile.length, TransformClassLoader.class.getProtectionDomain());
         } else {
             if (logger.isLoggable(Level.FINE)) {
                 this.logger.fine("defineClass:" + name);
