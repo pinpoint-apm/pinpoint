@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.classloader;
 
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.List;
 
 /**
@@ -28,7 +26,6 @@ import java.util.List;
 public class ParallelClassLoaderFactory implements ClassLoaderFactory {
     @Override
     public ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
-        return AccessController.doPrivileged((PrivilegedAction<ParallelClassLoader>) () ->
-                new ParallelClassLoader(name, urls, parent, libClass));
+        return new ParallelClassLoader(name, urls, parent, libClass);
     }
 }
