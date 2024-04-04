@@ -46,9 +46,9 @@ public interface ThreadDumpMapper {
 
     @Mappings({
             @Mapping(source = "threadState", target = "threadState"),
-            @Mapping(source = "stackTrace", target = "stackTraceList", ignore = true),
-            @Mapping(source = "lockedMonitors", target = "lockedMonitorList"),
-            @Mapping(source = "lockedSynchronizers", target = "lockedSynchronizerList", ignore = true),
+            @Mapping(source = "stackTrace", target = "stackTrace", ignore = true),
+            @Mapping(source = "lockedMonitors", target = "lockedMonitor"),
+            @Mapping(source = "lockedSynchronizers", target = "lockedSynchronizer", ignore = true),
     })
     PThreadDump map(ThreadDumpMetricSnapshot snapshot);
     

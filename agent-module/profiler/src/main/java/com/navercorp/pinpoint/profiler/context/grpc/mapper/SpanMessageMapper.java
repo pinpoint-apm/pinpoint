@@ -83,9 +83,9 @@ public interface SpanMessageMapper {
             @Mapping(source = "span.exceptionInfo", target = "exceptionInfo"),
             @Mapping(source = "span.traceRoot.shared.loggingInfo", target = "loggingTransactionInfo"),
 
-            @Mapping(source = "span.annotations", target = "annotationList"),
+            @Mapping(source = "span.annotations", target = "annotation"),
 
-            @Mapping(source = "span.spanEventList", target = "spanEventList")
+            @Mapping(source = "span.spanEventList", target = "spanEvent")
     })
     void map(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
 
@@ -105,7 +105,10 @@ public interface SpanMessageMapper {
             @Mapping(source = "spanChunk.traceRoot.traceId.spanId", target = "spanId"),
             @Mapping(source = "spanChunk.traceRoot.shared.endPoint", target = "endPoint"),
 
-            @Mapping(source = "spanChunk.spanEventList", target = "spanEventList"),
+            @Mapping(source = "spanChunk.spanEventList", target = "spanEvent"),
+
+            @Mapping(target = "keyTime", ignore = true),
+            @Mapping(target = "localAsyncId", ignore = true),
     })
     void toPSpanChunk(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
 
@@ -130,7 +133,9 @@ public interface SpanMessageMapper {
             @Mapping(source = "depth", target = "depth", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class),
             @Mapping(source = ".", target = "nextEvent"),
             @Mapping(source = "asyncIdObject.asyncId", target = "asyncEvent"),
-            @Mapping(source = "annotations", target = "annotationList"),
+            @Mapping(source = "annotations", target = "annotation"),
+
+            @Mapping(target = "startElapsed", ignore = true)
     })
     PSpanEvent map(SpanEvent spanEvent);
 

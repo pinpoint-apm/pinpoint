@@ -52,7 +52,7 @@ public interface UriStatMapper {
 
     @Mappings({
             @Mapping(source = ".", target = "bucketVersion", qualifiedByName = "currentBucketVersion"),
-            @Mapping(source = "allUriStatData", target = "eachUriStatList")
+            @Mapping(source = "allUriStatData", target = "eachUriStat")
     })
     PAgentUriStat map(AgentUriStatData agentUriStatData);
 
@@ -73,6 +73,7 @@ public interface UriStatMapper {
     }
 
     @Mappings({
+            @Mapping(target = "histogram", ignore = true)
     })
     PUriHistogram map(UriStatHistogram uriStatHistogram);
 

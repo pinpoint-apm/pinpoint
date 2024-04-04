@@ -34,6 +34,8 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import java.util.List;
+
 /**
  * @author intr3p1d
  */
@@ -57,25 +59,31 @@ public interface AgentInfoMapper {
             @Mapping(source = "agentInformation.pid", target = "pid"),
             @Mapping(source = "agentInformation.serverType.code", target = "serviceType"),
             @Mapping(source = "agentInformation.jvmVersion", target = "vmVersion"),
-            @Mapping(source = ".", target = "agentVersion", qualifiedByName = "agentVersion")
+            @Mapping(source = ".", target = "agentVersion", qualifiedByName = "agentVersion"),
+
+            @Mapping(target = "endStatus", ignore = true),
+            @Mapping(target = "endTimestamp", ignore = true),
+
     })
     PAgentInfo map(AgentInfo agentInfo);
 
     @Mappings({
-            @Mapping(source = "vmArgs", target = "vmArgList"),
-            @Mapping(source = "serviceInfos", target = "serviceInfoList"),
+            @Mapping(source = "vmArgs", target = "vmArg"),
+            @Mapping(source = "serviceInfos", target = "serviceInfo"),
+            @Mapping(source = "serverInfo", target = "serverInfo"),
     })
     PServerMetaData map(ServerMetaData serverMetaData);
 
     @Mappings({
-            @Mapping(source = "serviceLibs", target = "serviceLibList"),
+            @Mapping(source = "serviceLibs", target = "serviceLib"),
     })
     PServiceInfo map(ServiceInfo serviceInfo);
 
     @Mappings({
             @Mapping(source = "jvmVersion", target = "vmVersion"),
-            @Mapping(source = "jvmGcType", target = "gcType", qualifiedBy = JvmGcTypeMapper.ToPJvmGcType.class)
+            @Mapping(source = "jvmGcType", target = "gcType", qualifiedBy = JvmGcTypeMapper.ToPJvmGcType.class),
 
+            @Mapping(target = "version", ignore = true),
     })
     PJvmInfo map(JvmInformation jvmInformation);
 

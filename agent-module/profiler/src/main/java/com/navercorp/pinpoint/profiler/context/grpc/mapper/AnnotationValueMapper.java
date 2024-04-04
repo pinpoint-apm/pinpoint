@@ -44,6 +44,7 @@ import com.navercorp.pinpoint.profiler.context.annotation.ObjectAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.ShortAnnotation;
 import com.navercorp.pinpoint.profiler.context.annotation.StringAnnotation;
 import org.mapstruct.CollectionMappingStrategy;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -130,7 +131,6 @@ public interface AnnotationValueMapper {
         return builder;
     }
 
-
     @Qualifier
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.CLASS)
@@ -145,6 +145,25 @@ public interface AnnotationValueMapper {
         return mapNonNull(annotation);
     }
 
+    @Named("dummy")
+    @Mappings({
+            @Mapping(target = "binaryValue", ignore = true),
+            @Mapping(target = "boolValue", ignore = true),
+            @Mapping(target = "byteValue", ignore = true),
+            @Mapping(target = "bytesStringStringValue", ignore = true),
+            @Mapping(target = "doubleValue", ignore = true),
+            @Mapping(target = "intBooleanIntBooleanValue", ignore = true),
+            @Mapping(target = "intStringStringValue", ignore = true),
+            @Mapping(target = "intStringValue", ignore = true),
+            @Mapping(target = "intValue", ignore = true),
+            @Mapping(target = "longIntIntByteByteStringValue", ignore = true),
+            @Mapping(target = "longValue", ignore = true),
+            @Mapping(target = "stringValue", ignore = true),
+            @Mapping(target = "shortValue", ignore = true),
+            @Mapping(target = "stringStringValue", ignore = true),
+    })
+    PAnnotationValue dummyForIgnoreMapping(Annotation<?> annotation);
+
     @SubclassMappings({
             @SubclassMapping(source = BooleanAnnotation.class, target = PAnnotationValue.class),
             @SubclassMapping(source = ByteAnnotation.class, target = PAnnotationValue.class),
@@ -157,18 +176,22 @@ public interface AnnotationValueMapper {
             @SubclassMapping(source = ShortAnnotation.class, target = PAnnotationValue.class),
             @SubclassMapping(source = StringAnnotation.class, target = PAnnotationValue.class),
     })
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     PAnnotationValue mapNonNull(Annotation<?> annotation);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "boolValue"),
     })
     PAnnotationValue map(BooleanAnnotation annotation);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "byteValue"),
     })
     PAnnotationValue map(ByteAnnotation annotation);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "binaryValue", qualifiedByName = "copyFrom"),
     })
@@ -179,21 +202,25 @@ public interface AnnotationValueMapper {
         return ByteString.copyFrom(v);
     }
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "doubleValue"),
     })
     PAnnotationValue map(DoubleAnnotation annotation);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "intValue"),
     })
     PAnnotationValue map(IntAnnotation annotation);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "longValue"),
     })
     PAnnotationValue map(LongAnnotation annotation);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "stringValue", qualifiedByName = "ObjectToString"),
     })
@@ -204,11 +231,13 @@ public interface AnnotationValueMapper {
         return (String) o;
     }
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "shortValue"),
     })
     PAnnotationValue map(ShortAnnotation annotation);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "value", target = "stringValue"),
     })
@@ -252,18 +281,22 @@ public interface AnnotationValueMapper {
         throw new UnsupportedOperationException("unsupported type:" + dataType);
     }
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
     })
     PIntStringValue map(IntStringValue v);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
     })
     PStringStringValue map(StringStringValue v);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
     })
     PIntStringStringValue map(IntStringStringValue v);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "intValue2", target = "intValue2", conditionQualifiedByName = "isNotMinusInt"),
             @Mapping(source = "byteValue1", target = "byteValue1", conditionQualifiedByName = "isNotMinusByte"),
@@ -282,12 +315,14 @@ public interface AnnotationValueMapper {
         return value != -1;
     }
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "booleanValue1", target = "boolValue1"),
             @Mapping(source = "booleanValue2", target = "boolValue2"),
     })
     PIntBooleanIntBooleanValue map(IntBooleanIntBooleanValue v);
 
+    @InheritConfiguration(name = "dummyForIgnoreMapping")
     @Mappings({
             @Mapping(source = "bytesValue", target = "bytesValue", qualifiedByName = "copyFrom"),
     })

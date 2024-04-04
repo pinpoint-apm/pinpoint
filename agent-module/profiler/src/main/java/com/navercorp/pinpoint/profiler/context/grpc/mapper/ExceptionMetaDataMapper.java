@@ -69,7 +69,7 @@ public interface ExceptionMetaDataMapper {
     }
 
     @Mappings({
-            @Mapping(source = "exceptionWrappers", target = "exceptionsList"),
+            @Mapping(source = "exceptionWrappers", target = "exceptions"),
             @Mapping(source = "traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
             @Mapping(source = "traceRoot.traceId.spanId", target = "spanId"),
             @Mapping(source = "traceRoot.shared.uriTemplate", target = "uriTemplate")

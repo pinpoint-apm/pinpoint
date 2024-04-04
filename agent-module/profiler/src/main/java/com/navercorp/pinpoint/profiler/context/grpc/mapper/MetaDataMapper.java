@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.profiler.metadata.SqlUidMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.SubclassMapping;
@@ -64,6 +66,9 @@ public interface MetaDataMapper {
 
     PSqlUidMetaData map(SqlUidMetaData sqlUidMetaData);
 
+    @Mappings({
+            @Mapping(target = "location", ignore = true)
+    })
     PApiMetaData map(ApiMetaData apiMetaData);
 
     PStringMetaData map(StringMetaData stringMetaData);
