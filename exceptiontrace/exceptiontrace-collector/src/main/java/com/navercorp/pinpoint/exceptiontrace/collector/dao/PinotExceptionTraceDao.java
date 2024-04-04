@@ -40,6 +40,7 @@ import java.util.function.BiConsumer;
 @Repository
 public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final boolean isDebugEnabled = logger.isDebugEnabled();
 
     private final KafkaTemplate<String, ExceptionMetaDataEntity> kafkaExceptionMetaDataTemplate;
 
@@ -64,11 +65,16 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     @Override
     public void insert(List<ExceptionMetaData> exceptionMetaData) {
         Objects.requireNonNull(exceptionMetaData);
-        logger.info("Pinot data insert: {}", exceptionMetaData);
+
+        if (isDebugEnabled) {
+            logger.debug("Pinot data insert: {}", exceptionMetaData);
+        }
 
         for (ExceptionMetaData e : exceptionMetaData) {
             ExceptionMetaDataEntity dataEntity = mapper.toEntity(e);
-            logger.info("data insert {}", dataEntity);
+            if (isDebugEnabled) {
+                logger.debug("data insert {}", dataEntity);
+            }
             CompletableFuture<SendResult<String, ExceptionMetaDataEntity>> response = this.kafkaExceptionMetaDataTemplate.send(
                     topic, dataEntity
             );
