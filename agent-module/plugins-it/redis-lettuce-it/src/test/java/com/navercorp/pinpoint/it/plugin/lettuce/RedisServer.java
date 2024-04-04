@@ -28,6 +28,7 @@ public class RedisServer implements SharedTestLifeCycle {
     private GenericContainer<?> redisServer;
 
     @Override
+    @SuppressWarnings("resource")
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 

@@ -47,7 +47,6 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>6.2.2.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

@@ -31,7 +31,6 @@
 
     <properties>
         <jedis.version>2.4.2</jedis.version>
-        <lettuce.version>6.1.5.RELEASE</lettuce.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <cassandra4.driver.version>4.15.0</cassandra4.driver.version>
 
@@ -155,12 +154,6 @@
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>${jedis.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.lettuce</groupId>
-                <artifactId>lettuce-core</artifactId>
-                <version>${lettuce.version}</version>
             </dependency>
 
             <dependency>

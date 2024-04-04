@@ -39,7 +39,6 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>6.2.3.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
