@@ -52,7 +52,8 @@ public class DependencyResolverTest {
         DependencyResolverFactory factory = new DependencyResolverFactory();
         DependencyResolver resolver = factory.get();
 
-        Map<String, List<Artifact>> sets = resolver.resolveDependencySets("org.apache.maven.resolver:maven-resolver-util:[0,)", "org.apache.maven.resolver:maven-resolver-api");
+        Map<String, List<Artifact>> sets = resolver.resolveDependencySets("org.apache.maven.resolver:maven-resolver-util:[1.0,)",
+                "org.apache.maven.resolver:maven-resolver-api");
 
         int i = 0;
         for (Map.Entry<String, List<Artifact>> set : sets.entrySet()) {
