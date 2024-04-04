@@ -1978,15 +1978,5 @@
             </properties>
         </profile>
 
-        <profile>
-            <id>it-module</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>agent-testweb</module>
-            </modules>
-        </profile>
-
     </profiles>
 </project>
