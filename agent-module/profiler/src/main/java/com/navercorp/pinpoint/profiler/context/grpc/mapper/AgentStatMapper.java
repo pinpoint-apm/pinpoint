@@ -86,7 +86,7 @@ public interface AgentStatMapper {
     }
 
     @Mappings({
-            @Mapping(source = "agentStats", target = "agentStatList"),
+            @Mapping(source = "agentStats", target = "agentStat"),
     })
     PAgentStatBatch map(AgentStatMetricSnapshotBatch batch);
 
@@ -133,6 +133,9 @@ public interface AgentStatMapper {
         return ActiveTraceHistogramUtils.asList(histogram);
     }
 
+    @Mappings({
+            @Mapping(source = "dataSourceList", target = "dataSource"),
+    })
     PDataSourceList map(DataSourceMetricSnapshot snapshot);
 
     @Mappings({
@@ -147,7 +150,8 @@ public interface AgentStatMapper {
     PResponseTime map(ResponseTimeValue value);
 
     @Mappings({
-            @Mapping(source = "deadlockedThreadCount", target = "count")
+            @Mapping(source = "deadlockedThreadCount", target = "count"),
+            @Mapping(target = "threadDump", ignore = true),
     })
     PDeadlock map(DeadlockMetricSnapshot snapshot);
 

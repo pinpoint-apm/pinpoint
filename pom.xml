@@ -97,6 +97,7 @@
         <module>commons-server</module>
         <module>commons-server-cluster</module>
         <module>commons-mybatis</module>
+        <module>commons-mapstruct-spi</module>
         <module>datasource</module>
         <module>basic-login</module>
         <module>thrift-datasender</module>
@@ -320,6 +321,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-mybatis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-mapstruct-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -888,7 +894,11 @@
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.hbase</groupId>
