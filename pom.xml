@@ -1569,6 +1569,11 @@
                 <artifactId>joda-time</artifactId>
                 <version>2.10.10</version>
             </dependency>
+            <dependency>
+                <groupId>io.lettuce</groupId>
+                <artifactId>lettuce-core</artifactId>
+                <version>6.3.2.RELEASE</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
