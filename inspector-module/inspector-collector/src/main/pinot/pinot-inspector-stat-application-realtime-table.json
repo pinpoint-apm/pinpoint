@@ -17,6 +17,14 @@
     "sortedColumn": ["sortKey"],
     "bloomFilterColumns": ["tenantId", "serviceName", "sortKey", "applicationName", "metricName", "fieldName", "version", "primaryTag"],
     "noDictionaryColumns": ["sumFieldValue", "minFieldValue", "maxFieldValue", "countFieldValue"],
+    "segmentPartitionConfig": {
+      "columnPartitionMap": {
+        "sortKey": {
+          "functionName": "Murmur",
+          "numPartitions": 64
+        }
+      }
+    },
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
@@ -63,7 +71,8 @@
   },
   "routing": {
     "segmentPrunerTypes": [
-      "time"
+      "time",
+      "partition"
     ]
   }
 }
