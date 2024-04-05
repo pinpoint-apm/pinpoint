@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstanceFactory;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import com.navercorp.pinpoint.test.plugin.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
@@ -142,9 +143,9 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
         final DependencyResolver resolver = getDependencyResolver(repositories);
 
-        final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets("com.navercorp.pinpoint:pinpoint-plugins-test:" + Version.VERSION);
-        final List<String> agentLibs = new ArrayList<>();
-        agentLibs.addAll(context.getAgentLibList());
+        final String pluginsTest = "com.navercorp.pinpoint:pinpoint-plugins-test:" + Version.VERSION;
+        final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets(pluginsTest);
+        final List<String> agentLibs = new ArrayList<>(context.getAgentLibList());
 
         for (Map.Entry<String, List<Artifact>> dependencyCase : agentDependency.entrySet()) {
             try {
@@ -174,10 +175,11 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
                 fileList.add(file);
             }
             final URL[] agentUrls = URLUtils.fileToUrls(fileList);
-            final PluginAgentTestClassLoader agentClassLoader = new PluginAgentTestClassLoader(agentUrls, Thread.currentThread().getContextClassLoader());
+
+            final Thread thread = Thread.currentThread();
+            final ClassLoader currentClassLoader = thread.getContextClassLoader();
+            final PluginAgentTestClassLoader agentClassLoader = new PluginAgentTestClassLoader(agentUrls, currentClassLoader);
             agentClassLoader.setTransformIncludeList(context.getTransformIncludeList());
-            Thread thread = Thread.currentThread();
-            ClassLoader currentClassLoader = thread.getContextClassLoader();
             try {
                 thread.setContextClassLoader(agentClassLoader);
                 final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(currentClassLoader, testId, agentClassLoader, libs, context.getTransformIncludeList(), isOnSystemClassLoader());
@@ -201,7 +203,11 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
 
     private List<PluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) throws ClassNotFoundException {
         final PluginTestInstanceFactory pluginTestInstanceFactory = new PluginTestInstanceFactory(context);
-        final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(Thread.currentThread().getContextClassLoader(), "", null, Collections.emptyList(), Collections.emptyList(), isOnSystemClassLoader());
+        ClassLoader contextClassLoader = ClassLoaderUtils.getContextClassLoader();
+        boolean onSystemClassLoader = isOnSystemClassLoader();
+        List<String> libs = Collections.emptyList();
+        List<String> transformIncludeList = Collections.emptyList();
+        final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(contextClassLoader, "", null, libs, transformIncludeList, onSystemClassLoader);
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
         pluginTestInstanceList.add(pluginTestInstance);
         return pluginTestInstanceList;
