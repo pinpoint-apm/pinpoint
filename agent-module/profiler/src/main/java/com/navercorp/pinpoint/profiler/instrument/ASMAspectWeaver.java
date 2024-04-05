@@ -141,8 +141,8 @@ public class ASMAspectWeaver {
     }
 
     private static class MethodNodes {
-        public final List<ASMMethodNodeAdapter> pointCuts = new ArrayList<ASMMethodNodeAdapter>();
-        public final List<ASMMethodNodeAdapter> jointPoints = new ArrayList<ASMMethodNodeAdapter>();
-        public final List<ASMMethodNodeAdapter> utils = new ArrayList<ASMMethodNodeAdapter>();
+        public final List<ASMMethodNodeAdapter> pointCuts = new ArrayList<>();
+        public final List<ASMMethodNodeAdapter> jointPoints = new ArrayList<>();
+        public final List<ASMMethodNodeAdapter> utils = new ArrayList<>();
     }
 }
