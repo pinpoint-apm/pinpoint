@@ -36,7 +36,6 @@
 
         <module>plugins</module>
         <module>plugins-loader</module>
-        <module>plugins-it</module>
         <module>plugins-test-module</module>
 
         <module>profiler</module>
