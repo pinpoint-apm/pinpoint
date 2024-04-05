@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestSharedTestClassLoader;
+import com.navercorp.pinpoint.test.plugin.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 
 import java.io.File;
@@ -33,7 +34,8 @@ public class PluginSharedInstanceFactory {
             fileList.add(file);
         }
         final URL[] urls = URLUtils.fileToUrls(fileList);
-        final PluginTestSharedTestClassLoader classLoader = new PluginTestSharedTestClassLoader(urls, Thread.currentThread().getContextClassLoader());
+        final ClassLoader contextClassLoader = ClassLoaderUtils.getContextClassLoader();
+        final PluginTestSharedTestClassLoader classLoader = new PluginTestSharedTestClassLoader(urls, contextClassLoader);
 
         return new PluginSharedInstance(testClassName, sharedClassName, classLoader);
     }

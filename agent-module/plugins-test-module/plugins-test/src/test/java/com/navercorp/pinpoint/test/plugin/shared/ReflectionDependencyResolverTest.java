@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.test.plugin.util.ClassLoaderUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -32,7 +33,8 @@ public class ReflectionDependencyResolverTest {
 
     @Test
     public void get() throws Exception {
-        ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(Thread.currentThread().getContextClassLoader(), new String[]{});
+        ClassLoader contextClassLoader = ClassLoaderUtils.getContextClassLoader();
+        ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(contextClassLoader, new String[]{});
         List<File> files = dependencyResolver.lookup(Collections.singletonList("commons-logging:commons-logging:1.2"));
         assertThat(files).hasSize(1);
     }
