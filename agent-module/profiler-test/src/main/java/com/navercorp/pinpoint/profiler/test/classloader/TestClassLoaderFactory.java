@@ -17,22 +17,20 @@
 package com.navercorp.pinpoint.profiler.test.classloader;
 
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * @author hyungil.jeong
  */
 public class TestClassLoaderFactory {
 
-    private static final Logger LOGGER = LogManager.getLogger(TestClassLoaderFactory.class);
 
     public static TestClassLoader createTestClassLoader(DefaultApplicationContext applicationContext, URL[] urls, ClassLoader parentClassLoader) {
-//        final TestClassLoader testClassLoader = new TestClassLoader(applicationContext, urls, parentClassLoader);
-        final TestClassLoader testClassLoader = new TestClassLoader(applicationContext, urls);
-        return testClassLoader;
+        Objects.requireNonNull(applicationContext, "applicationContext");
+        Objects.requireNonNull(urls, "urls");
+        return new TestClassLoader(applicationContext, urls, parentClassLoader);
     }
 
 }

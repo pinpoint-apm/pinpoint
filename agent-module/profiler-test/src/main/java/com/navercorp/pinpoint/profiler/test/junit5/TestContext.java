@@ -28,6 +28,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * @author hyungil.jeong
@@ -50,7 +51,7 @@ public class TestContext implements Closeable {
         this.testClassWrapper = testClassWrapper;
         this.mockApplicationContext = createMockApplicationContext(testClassWrapper.getConfigPath());
         this.mockApplicationContext.start();
-        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockApplicationContext, null, null);
+        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockApplicationContext, new URL[0], null);
         this.classLoader.initialize();
         try {
             this.baseTestClass = classLoader.loadClass(BASE_TEST_CLASS_NAME);
@@ -76,8 +77,7 @@ public class TestContext implements Closeable {
 
     public Class<?> createTestClass() {
         try {
-            final Class<?> testClazz = classLoader.loadClass(testClassWrapper.getTestClass().getName());
-            return testClazz;
+            return classLoader.loadClass(testClassWrapper.getTestClass().getName());
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }

@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
@@ -32,6 +30,7 @@ import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerDeleg
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 import com.navercorp.pinpoint.profiler.plugin.TransformCallbackProvider;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,24 +54,12 @@ public class TestClassLoader extends TransformClassLoader {
     private final InstrumentContext instrumentContext;
 
     public TestClassLoader(DefaultApplicationContext applicationContext, URL[] urls) {
-        super(urls);
-        Objects.requireNonNull(applicationContext, "applicationContext");
-
-        this.applicationContext = applicationContext;
-        this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
-
-        ClassInjector classInjector = new DebugTransformerClassInjector();
-        this.instrumentContext = new PluginInstrumentContext(applicationContext.getProfilerConfig(), applicationContext.getInstrumentEngine(),
-                applicationContext.getDynamicTransformTrigger(), classInjector, classFileTransformerLoader);
-
-        this.delegateClass = new ArrayList<>();
+        this(applicationContext, urls, ClassLoader.getSystemClassLoader());
     }
 
     public TestClassLoader(DefaultApplicationContext applicationContext, URL[] urls, ClassLoader parentClassLoader) {
         super(urls, parentClassLoader);
-        Objects.requireNonNull(applicationContext, "applicationContext");
-
-        this.applicationContext = applicationContext;
+        this.applicationContext = Objects.requireNonNull(applicationContext, "applicationContext");
         this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
 
         ClassInjector classInjector = new DebugTransformerClassInjector();
@@ -146,15 +133,9 @@ public class TestClassLoader extends TransformClassLoader {
     }
 
     private Translator newTranslator() {
-        final InstrumentEngine instrumentEngine = applicationContext.getInstrumentEngine();
-        if (instrumentEngine instanceof ASMEngine) {
-            logger.info("ASM BCI engine");
-            return new DefaultTranslator(this, applicationContext.getClassFileTransformer());
-        }
-
-
-        logger.info("Unknown BCI engine");
-        return new DefaultTranslator(this, applicationContext.getClassFileTransformer());
+        logger.info("ASM BCI engine");
+        ClassFileTransformer classFileTransformer = applicationContext.getClassFileTransformer();
+        return new DefaultTranslator(this, classFileTransformer);
     }
 
 }
