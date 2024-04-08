@@ -17,13 +17,15 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestClassLoader;
+import com.navercorp.pinpoint.test.plugin.util.ThreadContextExecutor;
 
 public class PluginSharedInstance {
 
-    private String className;
-    private String sharedClassName;
+    private final String className;
+    private final String sharedClassName;
     private PluginTestClassLoader classLoader;
     private Class<?> sharedClass;
+    private final ThreadContextExecutor executor;
 
     Object object = null;
 
@@ -31,6 +33,7 @@ public class PluginSharedInstance {
         this.className = className;
         this.sharedClassName = sharedClassName;
         this.classLoader = classLoader;
+        this.executor = new ThreadContextExecutor(classLoader);
     }
 
     public void before() {
@@ -41,34 +44,29 @@ public class PluginSharedInstance {
             throw new RuntimeException(e);
         }
 
-        Thread thread = Thread.currentThread();
-        final ClassLoader currentClassLoader = thread.getContextClassLoader();
-        try {
-            thread.setContextClassLoader(this.classLoader);
-            this.object = sharedClass.newInstance();
-            if (object instanceof SharedTestLifeCycle) {
-                ((SharedTestLifeCycle) object).beforeAll();
+
+        this.executor.execute(() -> {
+            try {
+                this.object = sharedClass.newInstance();
+                if (object instanceof SharedTestLifeCycle) {
+                    ((SharedTestLifeCycle) object).beforeAll();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            thread.setContextClassLoader(currentClassLoader);
-        }
+        });
     }
 
     public void after() {
-        Thread thread = Thread.currentThread();
-        final ClassLoader currentClassLoader = thread.getContextClassLoader();
-        try {
-            thread.setContextClassLoader(this.classLoader);
-            if (object instanceof SharedTestLifeCycle) {
-                ((SharedTestLifeCycle) object).afterAll();
+        executor.execute(() -> {
+            try {
+                if (object instanceof SharedTestLifeCycle) {
+                    ((SharedTestLifeCycle) object).afterAll();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            thread.setContextClassLoader(currentClassLoader);
-        }
+        });
     }
 
     public void clear() {
