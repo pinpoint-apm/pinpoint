@@ -37,10 +37,10 @@ import java.util.Objects;
 public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcessor {
 
     private final static String JDBC_URL = "jdbcUrl";
-    private final AgentStatDao agentStatDaoV2;
+    private final AgentStatDao agentStatDao;
 
-    public UsingDataSourceTagForAgentPreProcessor(@Qualifier("pinotAgentStatDaoV2")AgentStatDao agentStatDaoV2) {
-        this.agentStatDaoV2 = Objects.requireNonNull(agentStatDaoV2, "agentStatDao");
+    public UsingDataSourceTagForAgentPreProcessor(@Qualifier("pinotAgentStatDao")AgentStatDao agentStatDao) {
+        this.agentStatDao = Objects.requireNonNull(agentStatDao, "agentStatDao");
     }
 
 
@@ -78,10 +78,10 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
     }
 
     private TagInformation getTagInformation(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition, Field field, Tag filteredTag) {
-        return agentStatDaoV2.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
+        return agentStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
     }
 
     private List<Tag> getTagList(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition, Field field) {
-        return agentStatDaoV2.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+        return agentStatDao.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
     }
 }

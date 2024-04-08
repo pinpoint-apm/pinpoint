@@ -42,14 +42,17 @@ public class InspectorQueryParameter {
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public InspectorQueryParameter(InspectorDataSearchKey inspectorDataSearchKey, String metricName, String fieldName) {
-        this(inspectorDataSearchKey, metricName, fieldName, Collections.emptyList());
+    private final String sortKey;
+
+    public InspectorQueryParameter(InspectorDataSearchKey inspectorDataSearchKey, String sortKey, String metricName, String fieldName) {
+        this(inspectorDataSearchKey, sortKey, metricName, fieldName, Collections.emptyList());
     }
 
-    public InspectorQueryParameter(InspectorDataSearchKey inspectorDataSearchKey, String metricName, String fieldName, List<Tag> tagList) {
+    public InspectorQueryParameter(InspectorDataSearchKey inspectorDataSearchKey, String sortKey, String metricName, String fieldName, List<Tag> tagList) {
         Objects.requireNonNull(inspectorDataSearchKey, "inspectorDataSearchKey");
 
         this.tenantId = inspectorDataSearchKey.getTenantId();
+        this.sortKey = sortKey;
         this.applicationName = inspectorDataSearchKey.getApplicationName();
         this.agentId = inspectorDataSearchKey.getAgentId();
         this.metricName = metricName;
@@ -96,6 +99,10 @@ public class InspectorQueryParameter {
         return applicationName;
     }
 
+    public String getSortKey() {
+        return sortKey;
+    }
+
     @Override
     public String toString() {
         return "InspectorQueryParameter{" +
@@ -108,6 +115,12 @@ public class InspectorQueryParameter {
                 ", range=" + range +
                 ", timePrecision=" + timePrecision +
                 ", limit=" + limit +
+                ", sortKey='" + sortKey + '\'' +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tenantId, applicationName, agentId, metricName, fieldName, tagList, range, timePrecision, limit, sortKey);
     }
 }
