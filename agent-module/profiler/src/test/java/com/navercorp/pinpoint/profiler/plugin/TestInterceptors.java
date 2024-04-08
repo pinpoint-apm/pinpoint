@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 
 public class TestInterceptors {
@@ -110,9 +108,7 @@ public class TestInterceptors {
     public static class TestInterceptor2 extends AbstractInterceptor {
         private final TraceContext context;
         private final MethodDescriptor descriptor;
-        private final InstrumentClass targetClass;
-        private final InstrumentMethod targetMethod;
-        
+
         private final String field0;
         private final int field1;
         private final double field2;
@@ -120,11 +116,9 @@ public class TestInterceptors {
         private final long field4;
         
 
-        public TestInterceptor2(String field0, TraceContext context, int field1, double field2, MethodDescriptor descriptor, boolean field3, InstrumentClass targetClass, InstrumentMethod targetMethod, long field4) {
+        public TestInterceptor2(String field0, TraceContext context, int field1, double field2, MethodDescriptor descriptor, boolean field3, long field4) {
             this.context = context;
             this.descriptor = descriptor;
-            this.targetClass = targetClass;
-            this.targetMethod = targetMethod;
             this.field0 = field0;
             this.field1 = field1;
             this.field2 = field2;
@@ -132,11 +126,9 @@ public class TestInterceptors {
             this.field4 = field4;
         }
 
-        public TestInterceptor2(String field0, int field1, double field2, TraceContext context, InstrumentClass targetClass, MethodDescriptor descriptor, InstrumentMethod targetMethod) {
+        public TestInterceptor2(String field0, int field1, double field2, TraceContext context, MethodDescriptor descriptor) {
             this.context = context;
             this.descriptor = descriptor;
-            this.targetClass = targetClass;
-            this.targetMethod = targetMethod;
             this.field0 = field0;
             this.field1 = field1;
             this.field2 = field2;
@@ -144,11 +136,9 @@ public class TestInterceptors {
             this.field4 = 0;
         }
         
-        public TestInterceptor2(TraceContext context, MethodDescriptor descriptor, InstrumentClass targetClass, InstrumentMethod targetMethod, String field0, int field1) {
+        public TestInterceptor2(TraceContext context, MethodDescriptor descriptor, String field0, int field1) {
             this.context = context;
             this.descriptor = descriptor;
-            this.targetClass = targetClass;
-            this.targetMethod = targetMethod;
             this.field0 = field0;
             this.field1 = field1;
             this.field2 = 0;
@@ -156,11 +146,9 @@ public class TestInterceptors {
             this.field4 = 0;
         }
         
-        public TestInterceptor2(TraceContext context, InstrumentClass targetClass, MethodDescriptor descriptor, InstrumentMethod targetMethod) {
+        public TestInterceptor2(TraceContext context, MethodDescriptor descriptor) {
             this.context = context;
             this.descriptor = descriptor;
-            this.targetClass = targetClass;
-            this.targetMethod = targetMethod;
             this.field0 = null;
             this.field1 = 0;
             this.field2 = 0;
@@ -168,11 +156,9 @@ public class TestInterceptors {
             this.field4 = 0;
         }
         
-        public TestInterceptor2(MethodDescriptor descriptor, InstrumentClass targetClass, String field0) {
+        public TestInterceptor2(MethodDescriptor descriptor, String field0) {
             this.context = null;
             this.descriptor = descriptor;
-            this.targetClass = targetClass;
-            this.targetMethod = null;
             this.field0 = field0;
             this.field1 = 0;
             this.field2 = 0;
@@ -186,14 +172,6 @@ public class TestInterceptors {
 
         public MethodDescriptor getDescriptor() {
             return descriptor;
-        }
-
-        public InstrumentMethod getTargetMethod() {
-            return targetMethod;
-        }
-        
-        public InstrumentClass getTargetClass() {
-            return targetClass;
         }
 
         public String getField0() {

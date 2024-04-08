@@ -30,19 +30,27 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
         this.index = new WeakAtomicReferenceArray<Interceptor>(maxRegistrySize, Interceptor.class);
     }
 
-
     @Override
     public int addInterceptor(Interceptor interceptor) {
         if (interceptor == null) {
             return -1;
         }
 
-        final int newId = nextId();
-        if (newId >= registrySize) {
-            throw new IndexOutOfBoundsException("Interceptor registry size exceeded. Check the \"profiler.interceptorregistry.size\" setting. size=" + index.length() + " id=" + id);
-        }
+        final int newId = checkMaxSize(nextId());
         index.set(newId, interceptor);
         return newId;
+    }
+
+    @Override
+    public int addInterceptor() {
+        return checkMaxSize(nextId());
+    }
+
+    private int checkMaxSize(int id) {
+        if (id >= registrySize) {
+            throw new IndexOutOfBoundsException("Interceptor registry size exceeded. Check the \"profiler.interceptorregistry.size\" setting. size=" + index.length() + " id=" + id);
+        }
+        return id;
     }
 
     private int nextId() {

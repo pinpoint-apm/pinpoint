@@ -28,13 +28,13 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class InterceptorRegistryBinderProvider implements Provider<InterceptorRegistryBinder>  {
+public class InterceptorRegistryBinderProvider implements Provider<InterceptorRegistryBinder> {
 
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     @Inject
     public InterceptorRegistryBinderProvider(InstrumentConfig instrumentConfig) {
-        this(getInterceptorRegistrySize(instrumentConfig));
+        this(getInterceptorRegistrySize(instrumentConfig), getInterceptorHolderEnable(instrumentConfig));
     }
 
     private static int getInterceptorRegistrySize(InstrumentConfig instrumentConfig) {
@@ -42,8 +42,13 @@ public class InterceptorRegistryBinderProvider implements Provider<InterceptorRe
         return instrumentConfig.getInterceptorRegistrySize();
     }
 
-    public InterceptorRegistryBinderProvider(int interceptorSize) {
-        this.interceptorRegistryBinder = new DefaultInterceptorRegistryBinder(interceptorSize);
+    private static boolean getInterceptorHolderEnable(InstrumentConfig instrumentConfig) {
+        Objects.requireNonNull(instrumentConfig, "instrumentConfig");
+        return instrumentConfig.getInterceptorHolderEnable();
+    }
+
+    public InterceptorRegistryBinderProvider(int interceptorSize, boolean interceptorHolderEnable) {
+        this.interceptorRegistryBinder = new DefaultInterceptorRegistryBinder(interceptorSize, interceptorHolderEnable);
     }
 
     @Override

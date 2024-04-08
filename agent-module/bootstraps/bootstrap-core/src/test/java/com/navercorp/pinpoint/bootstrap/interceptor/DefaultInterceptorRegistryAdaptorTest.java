@@ -58,4 +58,10 @@ public class DefaultInterceptorRegistryAdaptorTest {
 
         Assertions.assertSame(mock, find);
     }
+
+    @Test
+    public void addInterceptor() {
+        InterceptorRegistryAdaptor registry = new DefaultInterceptorRegistryAdaptor();
+        int key = registry.addInterceptor();
+    }
 }

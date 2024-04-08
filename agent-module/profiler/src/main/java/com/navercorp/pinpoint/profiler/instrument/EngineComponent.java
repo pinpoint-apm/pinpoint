@@ -34,5 +34,7 @@ public interface EngineComponent {
 
     int addInterceptor(Interceptor interceptor);
 
+    int addInterceptor();
+
     int cacheApi(MethodDescriptor methodDescriptor);
 }
