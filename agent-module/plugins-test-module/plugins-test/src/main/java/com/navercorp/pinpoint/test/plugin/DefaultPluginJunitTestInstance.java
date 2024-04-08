@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLoggerBinder;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.logging.Log4j2Binder;
 import com.navercorp.pinpoint.profiler.test.MockApplicationContextFactory;
@@ -34,7 +34,7 @@ public class DefaultPluginJunitTestInstance implements PluginJunitTestInstance {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final PLoggerBinder loggerBinder = new Log4j2Binder(LogManager.getContext());
+    private final PluginLoggerBinder loggerBinder = new Log4j2Binder(LogManager.getContext());
     private final TestClassLoader classLoader;
     private final DefaultApplicationContext mockApplicationContext;
 
@@ -77,6 +77,6 @@ public class DefaultPluginJunitTestInstance implements PluginJunitTestInstance {
         if (mockApplicationContext != null) {
             mockApplicationContext.close();
         }
-        PLoggerFactory.unregister(loggerBinder);
+        PluginLogManager.unregister(loggerBinder);
     }
 }

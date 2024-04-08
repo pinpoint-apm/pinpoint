@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.LocalAddressAccessor;
@@ -30,7 +30,7 @@ import com.rabbitmq.client.impl.nio.SocketChannelFrameHandler;
  */
 public class SocketChannelFrameHandlerConstructInterceptor implements AroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     @Override
     public void before(Object target, Object[] args) {

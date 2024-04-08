@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.weblogic;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptorHelper;
 import weblogic.servlet.internal.ServletResponseImpl;
 
@@ -32,7 +32,7 @@ import java.io.IOException;
  * @author jaehong.kim
  */
 public class WeblogicAsyncListener implements AsyncListener {
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 

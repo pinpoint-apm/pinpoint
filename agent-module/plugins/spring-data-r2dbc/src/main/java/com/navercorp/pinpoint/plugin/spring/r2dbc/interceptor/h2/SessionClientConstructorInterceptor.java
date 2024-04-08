@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
@@ -29,7 +29,7 @@ import org.h2.engine.ConnectionInfo;
 import java.util.List;
 
 public class SessionClientConstructorInterceptor extends SetDatabaseInfoInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

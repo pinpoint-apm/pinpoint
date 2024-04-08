@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 public class AddRecordsToTasksInterceptor extends SpanRecursiveAroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     protected static final String SCOPE_NAME = "##KAFKA_STREAMS_START_TRACE";
 
     protected static final KafkaStreamsMethodDescriptor METHOD_DESCRIPTOR = new KafkaStreamsMethodDescriptor();
@@ -118,7 +118,7 @@ public class AddRecordsToTasksInterceptor extends SpanRecursiveAroundInterceptor
             /**
              * The Logger.
              */
-            final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+            final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
             @Override
             public Trace createTrace(TraceContext traceContext, ConsumerRecordsDesc consumerRecords) {

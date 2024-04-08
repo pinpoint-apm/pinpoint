@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.bootstrap.util.argument;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,7 @@ class ValidationTest {
     private final Validator validator = newArgumentValidator();
 
     public Validator newArgumentValidator() {
-        PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
         Validation validation = new Validation(logger);
         validation.addArgument(String.class, 0);
@@ -32,7 +32,7 @@ class ValidationTest {
 
     @Test
     void empty() {
-        PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
         Validation validation = new Validation(logger);
         Validator validator = validation.build();
@@ -43,7 +43,7 @@ class ValidationTest {
 
     @Test
     void predicate() {
-        PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
         Validation validation = new Validation(logger);
         validation.addPredicate(new Predicate() {
@@ -96,7 +96,7 @@ class ValidationTest {
 
     @Test
     void valid_min() {
-        PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
         Validation validation = new Validation(logger);
         validation.addArgument(String.class, 0);

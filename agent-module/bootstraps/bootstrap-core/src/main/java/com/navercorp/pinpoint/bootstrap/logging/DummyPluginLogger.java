@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.bootstrap.logging;
 /**
  * @author emeroad
  */
-public class DummyPLogger implements PLogger {
+public class DummyPluginLogger implements PluginLogger {
 
-    public static final PLogger INSTANCE = new DummyPLogger();
+    public static final PluginLogger INSTANCE = new DummyPluginLogger();
 
     @Override
     public void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {

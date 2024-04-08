@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.user.interceptor.MQExternalClientHandlerInterceptor;
@@ -43,7 +43,7 @@ import java.util.Set;
  *
  */
 public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private TransformTemplate transformTemplate;
     
@@ -96,7 +96,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
                 try {
                     method.addInterceptor(UserIncludeMethodInterceptor.class);
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }
@@ -140,7 +140,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
                 try {
                     method.addInterceptor(MQExternalClientHandlerInterceptor.class);
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }

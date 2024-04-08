@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.plugin.mongo;
 
 
 import com.mongodb.WriteConcern;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -51,7 +51,7 @@ public class MongoWriteConcernMapper {
                     WriteConcern key = (WriteConcern) f.get(null);
                     writeConcernMap.put(key, value);
                 } catch (IllegalAccessException e) {
-                    PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     logger.warn("WriteConcern access error Caused by:" + e.getMessage(), e);
                 }
             }

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.process.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 import java.lang.reflect.Method;
 
@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
  * @author Woonduk Kang(emeroad)
  */
 public class Java9PidProvider implements PidProvider {
-    private static final PLogger logger = PLoggerFactory.getLogger(Java9PidProvider.class);
+    private static final PluginLogger logger = PluginLogManager.getLogger(Java9PidProvider.class);
 
     private static final Method pidMethod = getPidMethod();
 

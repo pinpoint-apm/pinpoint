@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTargetScope;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 
@@ -29,7 +29,7 @@ import java.util.Set;
  * @author jaehong.kim
  */
 public class ClassPathDefinitionScannerDoScanInterceptor implements AroundInterceptor {
-    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
+    protected final PluginLogger logger = PluginLogManager.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
     private final ClassLoader classLoader;

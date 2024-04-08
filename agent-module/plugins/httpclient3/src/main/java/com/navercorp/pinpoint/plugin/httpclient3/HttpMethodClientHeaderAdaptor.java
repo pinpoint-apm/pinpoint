@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import org.apache.commons.httpclient.HttpMethod;
 
@@ -26,7 +26,7 @@ import org.apache.commons.httpclient.HttpMethod;
  */
 public class HttpMethodClientHeaderAdaptor implements ClientHeaderAdaptor<HttpMethod> {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

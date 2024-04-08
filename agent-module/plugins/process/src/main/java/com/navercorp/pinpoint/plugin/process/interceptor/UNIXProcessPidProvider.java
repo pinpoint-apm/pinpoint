@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.process.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
 import java.lang.reflect.Field;
@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
  * @author Woonduk Kang(emeroad)
  */
 public class UNIXProcessPidProvider implements PidProvider {
-    private static final PLogger logger = PLoggerFactory.getLogger(Java9PidProvider.class);
+    private static final PluginLogger logger = PluginLogManager.getLogger(Java9PidProvider.class);
 
     // for test
     static final String PROCESS_CLASS_NAME = "java.lang.UNIXProcess";

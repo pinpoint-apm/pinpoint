@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.plugin.jdbc.clickhouse;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
@@ -39,7 +39,7 @@ public class ClickHouseJdbcUrlParser implements JdbcUrlParserV2 {
     static final String URL_PREFIX = "jdbc:clickhouse:";
     static final String URL_SHORT_PREFIX = "jdbc:ch:";
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     @Override
     public DatabaseInfo parse(String jdbcUrl) {

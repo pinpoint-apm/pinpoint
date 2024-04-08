@@ -1,18 +1,18 @@
 package com.navercorp.pinpoint.bootstrap.util.argument;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ClassPredicate implements Predicate {
-    private final PLogger logger;
+    private final PluginLogger logger;
 
     private final Class<?> clazz;
     private final int index;
 
 
-    public ClassPredicate(PLogger logger, Class<?> clazz, int index) {
+    public ClassPredicate(PluginLogger logger, Class<?> clazz, int index) {
         this.logger = logger;
         this.clazz = clazz;
         this.index = index;

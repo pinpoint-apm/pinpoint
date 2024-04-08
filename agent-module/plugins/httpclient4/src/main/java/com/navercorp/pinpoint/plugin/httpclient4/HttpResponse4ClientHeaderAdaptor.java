@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseAdaptor;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.http.Header;
@@ -33,7 +33,7 @@ import java.util.Set;
  */
 public class HttpResponse4ClientHeaderAdaptor implements ResponseAdaptor<HttpResponse> {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

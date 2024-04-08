@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.plugin.json_lib;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 import java.lang.reflect.Modifier;
 
@@ -40,7 +40,7 @@ public final class JsonUtils {
                 method.addScopedInterceptor(interceptorClassName, constructorArgs, JSON_LIB_SCOPE);
                 return true;
             } catch (InstrumentException e) {
-                final PLogger logger = PLoggerFactory.getLogger(JsonUtils.class);
+                final PluginLogger logger = PluginLogManager.getLogger(JsonUtils.class);
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unsupported method " + method, e);
                 }

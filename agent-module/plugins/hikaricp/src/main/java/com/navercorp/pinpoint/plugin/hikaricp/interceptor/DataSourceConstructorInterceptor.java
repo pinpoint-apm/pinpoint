@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -37,7 +37,7 @@ import java.util.Properties;
  */
 public class DataSourceConstructorInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;

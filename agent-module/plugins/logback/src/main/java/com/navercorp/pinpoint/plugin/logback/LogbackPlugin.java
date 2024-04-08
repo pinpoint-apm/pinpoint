@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
@@ -46,7 +46,7 @@ import java.util.Arrays;
  * @author yjqg6666
  */
 public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
 
     private TransformTemplate transformTemplate;
     
@@ -67,7 +67,7 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     public static class LoggingEventTransform implements TransformCallback {
-        private final PLogger logger = PLoggerFactory.getLogger(getClass());
+        private final PluginLogger logger = PluginLogManager.getLogger(getClass());
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass mdcClass = instrumentor.getInstrumentClass(loader, "org.slf4j.MDC", null);

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.okhttp.v2;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.squareup.okhttp.Request;
 
@@ -26,7 +26,7 @@ import com.squareup.okhttp.Request;
  */
 public class RequestBuilder2ClientHeaderAdaptor implements ClientHeaderAdaptor<Request.Builder> {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

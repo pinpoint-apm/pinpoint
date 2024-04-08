@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import reactor.netty.http.client.HttpClientRequest;
 
@@ -25,7 +25,7 @@ import reactor.netty.http.client.HttpClientRequest;
  * @author jaehong.kim
  */
 public class HttpClientRequestHeaderAdaptor implements ClientHeaderAdaptor<HttpClientRequest> {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

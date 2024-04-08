@@ -18,20 +18,24 @@ package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
 
 import java.util.Objects;
 
 /**
  * @author emeroad
  */
-public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogger {
+@SuppressWarnings("deprecation")
+public class Log4J2PluginLoggerAdapter extends AbstractLoggerAdapter implements PLogger {
 
     private final Logger logger;
     private final boolean isDebug;
+    private final Marker marker;
 
-    public Log4j2PLoggerAdapter(Logger logger) {
+    public Log4J2PluginLoggerAdapter(Logger logger, Marker marker) {
         this.logger = Objects.requireNonNull(logger, "logger");
-        this.isDebug = logger.isDebugEnabled();
+        this.marker = Objects.requireNonNull(marker, "marker");
+        this.isDebug = logger.isDebugEnabled(marker);
     }
 
     public String getName() {
@@ -43,7 +47,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
         if (isDebug) {
             StringBuilder sb = logMethod(TYPE.BEFORE, target, className, methodName, parameterDescription, args);
             String log = sb.toString();
-            logger.debug(log);
+            logger.debug(marker, log);
         }
     }
 
@@ -52,7 +56,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
         if (isDebug) {
             StringBuilder sb = logMethod(TYPE.BEFORE, target, args);
             String log = sb.toString();
-            logger.debug(log);
+            logger.debug(marker, log);
         }
     }
 
@@ -63,9 +67,9 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
             logResult(sb, result, throwable);
             String log = sb.toString();
             if (throwable == null) {
-                logger.debug(log);
+                logger.debug(marker, log);
             } else {
-                logger.debug(log, throwable);
+                logger.debug(marker, log, throwable);
             }
         }
     }
@@ -78,9 +82,9 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
             logResult(sb, result, throwable);
             String log = sb.toString();
             if (throwable == null) {
-                logger.debug(log);
+                logger.debug(marker, log);
             } else {
-                logger.debug(log, throwable);
+                logger.debug(marker, log, throwable);
             }
         }
     }
@@ -91,7 +95,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
         if (isDebug) {
             StringBuilder sb = logMethod(TYPE.AFTER, target, className, methodName, parameterDescription, args);
             String log = sb.toString();
-            logger.debug(log);
+            logger.debug(marker, log);
         }
     }
 
@@ -100,159 +104,159 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
         if (isDebug) {
             StringBuilder sb = logMethod(TYPE.AFTER, target, args);
             String log = sb.toString();
-            logger.debug(log);
+            logger.debug(marker, log);
         }
     }
 
 
     @Override
     public boolean isTraceEnabled() {
-        return logger.isTraceEnabled();
+        return logger.isTraceEnabled(marker);
     }
 
     @Override
     public void trace(String msg) {
-        logger.trace(msg);
+        logger.trace(marker, msg);
     }
 
     @Override
     public void trace(String format, Object arg) {
-        logger.trace(format, arg);
+        logger.trace(marker, format, arg);
     }
 
     @Override
     public void trace(String format, Object arg1, Object arg2) {
-        logger.trace(format, arg1, arg2);
+        logger.trace(marker, format, arg1, arg2);
     }
 
     @Override
     public void trace(String format, Object[] argArray) {
-        logger.trace(format, argArray);
+        logger.trace(marker, format, argArray);
     }
 
     @Override
     public void trace(String msg, Throwable t) {
-        logger.trace(msg, t);
+        logger.trace(marker, msg, t);
     }
 
     @Override
     public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
+        return logger.isDebugEnabled(marker);
     }
 
     @Override
     public void debug(String msg) {
-        logger.debug(msg);
+        logger.debug(marker, msg);
     }
 
     @Override
     public void debug(String format, Object arg) {
-        logger.debug(format, arg);
+        logger.debug(marker, format, arg);
     }
 
     @Override
     public void debug(String format, Object arg1, Object arg2) {
-        logger.debug(format, arg1, arg2);
+        logger.debug(marker, format, arg1, arg2);
     }
 
     @Override
     public void debug(String format, Object[] argArray) {
-        logger.debug(format, argArray);
+        logger.debug(marker, format, argArray);
     }
 
     @Override
     public void debug(String msg, Throwable t) {
-        logger.debug(msg, t);
+        logger.debug(marker, msg, t);
     }
 
     @Override
     public boolean isInfoEnabled() {
-        return logger.isInfoEnabled();
+        return logger.isInfoEnabled(marker);
     }
 
     @Override
     public void info(String msg) {
-        logger.info(msg);
+        logger.info(marker, msg);
     }
 
     @Override
     public void info(String format, Object arg) {
-        logger.info(format, arg);
+        logger.info(marker, format, arg);
     }
 
     @Override
     public void info(String format, Object arg1, Object arg2) {
-        logger.info(format, arg1, arg2);
+        logger.info(marker, format, arg1, arg2);
     }
 
     @Override
     public void info(String format, Object[] argArray) {
-        logger.info(format, argArray);
+        logger.info(marker, format, argArray);
     }
 
     @Override
     public void info(String msg, Throwable t) {
-        logger.info(msg, t);
+        logger.info(marker, msg, t);
     }
 
     @Override
     public boolean isWarnEnabled() {
-        return logger.isWarnEnabled();
+        return logger.isWarnEnabled(marker);
     }
 
     @Override
     public void warn(String msg) {
-        logger.warn(msg);
+        logger.warn(marker, msg);
     }
 
     @Override
     public void warn(String format, Object arg) {
-        logger.warn(format, arg);
+        logger.warn(marker, format, arg);
     }
 
     @Override
     public void warn(String format, Object[] argArray) {
-        logger.warn(format, argArray);
+        logger.warn(marker, format, argArray);
     }
 
     @Override
     public void warn(String format, Object arg1, Object arg2) {
-        logger.warn(format, arg1, arg2);
+        logger.warn(marker, format, arg1, arg2);
     }
 
     @Override
     public void warn(String msg, Throwable t) {
-        logger.warn(msg, t);
+        logger.warn(marker, msg, t);
     }
 
     @Override
     public boolean isErrorEnabled() {
-        return logger.isErrorEnabled();
+        return logger.isErrorEnabled(marker);
     }
 
     @Override
     public void error(String msg) {
-        logger.error(msg);
+        logger.error(marker, msg);
     }
 
     @Override
     public void error(String format, Object arg) {
-        logger.error(format, arg);
+        logger.error(marker, format, arg);
     }
 
     @Override
     public void error(String format, Object arg1, Object arg2) {
-        logger.error(format, arg1, arg2);
+        logger.error(marker, format, arg1, arg2);
     }
 
     @Override
     public void error(String format, Object[] argArray) {
-        logger.error(format, argArray);
+        logger.error(marker, format, argArray);
     }
 
     @Override
     public void error(String msg, Throwable t) {
-        logger.error(msg, t);
+        logger.error(marker, msg, t);
     }
 
 }

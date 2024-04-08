@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
@@ -28,7 +28,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class HttpParameterRecorder<T> implements ParameterRecorder<T> {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final ParameterExtractor<T> parameterExtractor;
 
     public HttpParameterRecorder(ParameterExtractor<T> parameterExtractor) {

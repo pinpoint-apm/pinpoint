@@ -20,15 +20,15 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  */
 public abstract class SpanSimpleAroundInterceptor implements AroundInterceptor {
-    protected final PLogger logger;
+    protected final PluginLogger logger;
     protected final boolean isDebug;
 
     protected final MethodDescriptor methodDescriptor;
@@ -37,7 +37,7 @@ public abstract class SpanSimpleAroundInterceptor implements AroundInterceptor {
     protected SpanSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, Class<? extends SpanSimpleAroundInterceptor> childClazz) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.logger = PLoggerFactory.getLogger(childClazz);
+        this.logger = PluginLogManager.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
     }
 

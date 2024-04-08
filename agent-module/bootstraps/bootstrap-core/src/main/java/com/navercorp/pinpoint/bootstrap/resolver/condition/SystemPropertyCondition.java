@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -31,7 +31,7 @@ public class SystemPropertyCondition implements Condition<String>, ConditionValu
 
     public static final SystemPropertyCondition INSTANCE = new SystemPropertyCondition();
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass().getName()); 
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass().getName());
 
     private final SystemProperty property;
     

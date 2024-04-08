@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.asynchttpclient.Request;
@@ -27,7 +27,7 @@ import org.asynchttpclient.Request;
  */
 public class RequestHeaderAdaptorV2 implements ClientHeaderAdaptor<Request> {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

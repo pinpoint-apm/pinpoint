@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.grpc.interceptor.client;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import io.grpc.Metadata;
 
@@ -26,7 +26,7 @@ import io.grpc.Metadata;
  */
 class GrpcClientHeaderAdaptor implements ClientHeaderAdaptor<Metadata> {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

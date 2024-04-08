@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
@@ -38,7 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSenderProvider;
     private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSenderProvider;

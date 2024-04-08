@@ -21,13 +21,13 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.RecordCollectorGetter;
 import org.apache.kafka.streams.processor.internals.RecordCollector;
 
 public class ProcessInterceptor implements AroundInterceptor {
-    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
+    protected final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     public ProcessInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {

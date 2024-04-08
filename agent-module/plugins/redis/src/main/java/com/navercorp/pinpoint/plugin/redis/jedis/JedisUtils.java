@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.plugin.redis.jedis.interceptor.JedisMethodInterceptor;
 import com.navercorp.pinpoint.plugin.redis.jedis.interceptor.SetEndPointInterceptor;
 
@@ -48,7 +48,7 @@ public final class JedisUtils {
             try {
                 method.addScopedInterceptor(JedisMethodInterceptor.class, va(config.isIo()), scope);
             } catch (Exception e) {
-                final PLogger logger = PLoggerFactory.getLogger(JedisUtils.class.getClass());
+                final PluginLogger logger = PluginLogManager.getLogger(JedisUtils.class.getClass());
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unsupported method {}", method, e);
                 }

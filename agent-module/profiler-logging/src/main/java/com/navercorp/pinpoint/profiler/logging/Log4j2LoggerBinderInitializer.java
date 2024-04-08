@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.logging;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLoggerBinder;
 import org.apache.logging.log4j.LogManager;
 
 /**
@@ -27,13 +27,13 @@ import org.apache.logging.log4j.LogManager;
  */
 public class Log4j2LoggerBinderInitializer {
 
-    private static final PLoggerBinder loggerBinder = new Log4j2Binder(LogManager.getContext());
+    private static final PluginLoggerBinder loggerBinder = new Log4j2Binder(LogManager.getContext());
 
     public static void beforeClass() {
-        PLoggerFactory.initialize(loggerBinder);
+        PluginLogManager.initialize(loggerBinder);
     }
 
     public static void afterClass() {
-        PLoggerFactory.unregister(loggerBinder);
+        PluginLogManager.unregister(loggerBinder);
     }
 }

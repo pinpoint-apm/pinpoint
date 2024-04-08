@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 public abstract class SetDatabaseInfoInterceptor implements AroundInterceptor {
-    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
+    protected final PluginLogger logger = PluginLogManager.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
     public SetDatabaseInfoInterceptor() {
