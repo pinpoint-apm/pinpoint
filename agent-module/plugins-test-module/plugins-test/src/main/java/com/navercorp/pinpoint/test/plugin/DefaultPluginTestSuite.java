@@ -49,8 +49,9 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
     private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
     private final TaggedLogger logger = TestLogger.getLogger();
-    private final boolean testOnSystemClassLoader;
-    private final boolean testOnChildClassLoader;
+
+    private final ClassLoding classLoding;
+
     private final String[] repositories;
     private final String[] dependencies;
     private final Class<?> sharedClass;
@@ -72,16 +73,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         super(testClass);
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
-        if (onClassLoader == null) {
-            this.testOnChildClassLoader = true;
-        } else {
-            this.testOnChildClassLoader = onClassLoader.child();
-        }
-        if (onClassLoader == null) {
-            this.testOnSystemClassLoader = false;
-        } else {
-            this.testOnSystemClassLoader = onClassLoader.system();
-        }
+        this.classLoding = getClassLoding(onClassLoader);
 
         Dependency deps = testClass.getAnnotation(Dependency.class);
         this.dependencies = deps == null ? null : deps.value();
@@ -95,6 +87,14 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         SharedDependency sharedDependency = testClass.getAnnotation(SharedDependency.class);
         this.sharedDependencies = sharedDependency == null ? new String[0] : sharedDependency.value();
         this.testClassName = testClass.getName();
+    }
+
+    private ClassLoding getClassLoding(OnClassLoader onClassLoader) {
+        if (onClassLoader == null) {
+            return ClassLoding.Child;
+        } else {
+            return onClassLoader.type();
+        }
     }
 
     @Override
@@ -182,7 +182,8 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
             agentClassLoader.setTransformIncludeList(context.getTransformIncludeList());
             try {
                 thread.setContextClassLoader(agentClassLoader);
-                final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(currentClassLoader, testId, agentClassLoader, libs, context.getTransformIncludeList(), isOnSystemClassLoader());
+                final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(currentClassLoader, testId, agentClassLoader,
+                        libs, context.getTransformIncludeList(), classLoding);
                 pluginTestInstanceList.add(pluginTestInstance);
             } finally {
                 thread.setContextClassLoader(currentClassLoader);
@@ -204,22 +205,12 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     private List<PluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) throws ClassNotFoundException {
         final PluginTestInstanceFactory pluginTestInstanceFactory = new PluginTestInstanceFactory(context);
         ClassLoader contextClassLoader = ClassLoaderUtils.getContextClassLoader();
-        boolean onSystemClassLoader = isOnSystemClassLoader();
         List<String> libs = Collections.emptyList();
         List<String> transformIncludeList = Collections.emptyList();
-        final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(contextClassLoader, "", null, libs, transformIncludeList, onSystemClassLoader);
+        final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(contextClassLoader, "", null, libs, transformIncludeList, classLoding);
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
         pluginTestInstanceList.add(pluginTestInstance);
         return pluginTestInstanceList;
     }
 
-    boolean isOnSystemClassLoader() {
-        if (testOnSystemClassLoader) {
-            return true;
-        }
-        if (testOnChildClassLoader) {
-            return false;
-        }
-        return false;
-    }
 }
