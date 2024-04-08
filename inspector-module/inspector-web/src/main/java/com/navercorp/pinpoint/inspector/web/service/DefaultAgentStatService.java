@@ -58,13 +58,13 @@ public class DefaultAgentStatService implements AgentStatService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AgentStatDao agentStatDaoV2;
+    private final AgentStatDao agentStatDao;
     private final YMLInspectorManager ymlInspectorManager;
     private final MetricProcessorManager metricProcessorManager;
     private final FieldProcessorManager fieldProcessorManager;
 
-    public DefaultAgentStatService(@Qualifier("pinotAgentStatDaoV2")AgentStatDao agentStatDaoV2, @Qualifier("agentInspectorDefinition")Mappings agentInspectorDefinition, MetricProcessorManager metricProcessorManager, FieldProcessorManager fieldProcessorManager) {
-        this.agentStatDaoV2 = Objects.requireNonNull(agentStatDaoV2, "agentStatDaoV2");
+    public DefaultAgentStatService(@Qualifier("pinotAgentStatDao")AgentStatDao agentStatDao, @Qualifier("agentInspectorDefinition")Mappings agentInspectorDefinition, MetricProcessorManager metricProcessorManager, FieldProcessorManager fieldProcessorManager) {
+        this.agentStatDao = Objects.requireNonNull(agentStatDao, "agentStatDao");
         Objects.requireNonNull(agentInspectorDefinition, "agentInspectorDefinition");
         this.ymlInspectorManager = new YMLInspectorManager(agentInspectorDefinition);
         this.metricProcessorManager = Objects.requireNonNull(metricProcessorManager, "metricProcessorManager");
@@ -166,11 +166,11 @@ public class DefaultAgentStatService implements AgentStatService {
             //TODO : (minwoo) Consolidate dao calls into one
             CompletableFuture<List<SystemMetricPoint<Double>>> doubleFuture = null;
             if (AggregationFunction.AVG.equals(field.getAggregationFunction())) {
-                doubleFuture = agentStatDaoV2.selectAgentStatAvg(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+                doubleFuture = agentStatDao.selectAgentStatAvg(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
             } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
-                doubleFuture = agentStatDaoV2.selectAgentStatMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+                doubleFuture = agentStatDao.selectAgentStatMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
             } else if (AggregationFunction.SUM.equals(field.getAggregationFunction())) {
-                doubleFuture = agentStatDaoV2.selectAgentStatSum(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+                doubleFuture = agentStatDao.selectAgentStatSum(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
             } else {
                 throw new IllegalArgumentException("Unknown aggregation function : " + field.getAggregationFunction());
             }

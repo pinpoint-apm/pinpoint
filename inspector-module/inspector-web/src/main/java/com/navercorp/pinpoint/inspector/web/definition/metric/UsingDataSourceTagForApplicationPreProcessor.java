@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.inspector.web.definition.metric;
 
-import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.dao.ApplicationStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
@@ -37,10 +36,10 @@ import java.util.Objects;
 public class UsingDataSourceTagForApplicationPreProcessor implements MetricPreProcessor {
 
     private final static String JDBC_URL = "jdbcUrl";
-    private final ApplicationStatDao applicationStatDaoV2;
+    private final ApplicationStatDao applicationStatDao;
 
-    public UsingDataSourceTagForApplicationPreProcessor(@Qualifier("pinotApplicationStatDaoV2") ApplicationStatDao applicationStatDaoV2) {
-        this.applicationStatDaoV2 = Objects.requireNonNull(applicationStatDaoV2, "applicationStatDao");
+    public UsingDataSourceTagForApplicationPreProcessor(@Qualifier("pinotApplicationStatDao") ApplicationStatDao applicationStatDao) {
+        this.applicationStatDao = Objects.requireNonNull(applicationStatDao, "applicationStatDao");
     }
 
     @Override
@@ -58,7 +57,7 @@ public class UsingDataSourceTagForApplicationPreProcessor implements MetricPrePr
                 continue;
             }
 
-            List<Tag> tagList = applicationStatDaoV2.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+            List<Tag> tagList = applicationStatDao.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
 
             for (Tag tag : tagList) {
                 List<Tag> newTagList = new ArrayList<Tag>(1);

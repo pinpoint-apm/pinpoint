@@ -44,10 +44,10 @@ public class DefaultApplicationStatService implements ApplicationStatService {
 
     private final YMLInspectorManager ymlInspectorManager;
     private final MetricProcessorManager metricProcessorManager;
-    private final ApplicationStatDao applicationStatDaoV2;
+    private final ApplicationStatDao applicationStatDao;
 
-    public DefaultApplicationStatService(@Qualifier("pinotApplicationStatDaoV2")ApplicationStatDao applicationStatDaoV2, @Qualifier("applicationInspectorDefinition") Mappings applicationInspectorDefinition, MetricProcessorManager metricProcessorManager) {
-        this.applicationStatDaoV2 = Objects.requireNonNull(applicationStatDaoV2, "applicationStatDaoV2");
+    public DefaultApplicationStatService(@Qualifier("pinotApplicationStatDao")ApplicationStatDao applicationStatDao, @Qualifier("applicationInspectorDefinition") Mappings applicationInspectorDefinition, MetricProcessorManager metricProcessorManager) {
+        this.applicationStatDao = Objects.requireNonNull(applicationStatDao, "applicationStatDao");
         Objects.requireNonNull(applicationInspectorDefinition, "applicationInspectorDefinition");
         this.ymlInspectorManager = new YMLInspectorManager(applicationInspectorDefinition);
         this.metricProcessorManager = Objects.requireNonNull(metricProcessorManager, "metricProcessorManager");
@@ -224,19 +224,19 @@ public class DefaultApplicationStatService implements ApplicationStatService {
             Class<?> resultType;
 
             if (AggregationFunction.AVG_MIN_MAX.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDaoV2.selectStatAvgMinMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+                doubleFuture = applicationStatDao.selectStatAvgMinMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
                 resultType = AvgMinMaxMetricPoint.class;
             } else if (AggregationFunction.AVG_MIN.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDaoV2.selectStatAvgMin(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+                doubleFuture = applicationStatDao.selectStatAvgMin(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
                 resultType = AvgMinMetricPoint.class;
             } else if (AggregationFunction.MIN_MAX.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDaoV2.selectStatMinMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+                doubleFuture = applicationStatDao.selectStatMinMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
                 resultType = MinMaxMetricPoint.class;
             } else if (AggregationFunction.SUM.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDaoV2.selectStatSum(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+                doubleFuture = applicationStatDao.selectStatSum(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
                 resultType = SystemMetricPoint.class;
             } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
-                doubleFuture = applicationStatDaoV2.selectStatMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+                doubleFuture = applicationStatDao.selectStatMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
                 resultType = SystemMetricPoint.class;
             } else {
                 throw new RuntimeException("not support aggregation function : " + field.getAggregationFunction());

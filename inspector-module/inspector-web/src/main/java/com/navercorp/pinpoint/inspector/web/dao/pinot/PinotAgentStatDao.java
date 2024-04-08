@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.inspector.web.dao.pinot;
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
-import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameterV2;
+import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameter;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -37,41 +37,41 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author minwoo.jung
  */
-@Repository("pinotAgentStatDaoV2")
-public class PinotAgentStatDaoV2 implements AgentStatDao {
+@Repository("pinotAgentStatDao")
+public class PinotAgentStatDao implements AgentStatDao {
 
-    private static final String NAMESPACE = PinotAgentStatDaoV2.class.getName() + ".";
+    private static final String NAMESPACE = PinotAgentStatDao.class.getName() + ".";
 
     private final PinotAsyncTemplate asyncTemplate;
     private final SqlSessionTemplate syncTemplate;
 
 
-    public PinotAgentStatDaoV2(@Qualifier("inspectorPinotAsyncTemplate") PinotAsyncTemplate asyncTemplate, @Qualifier("inspectorPinotTemplate") SqlSessionTemplate syncTemplate) {
+    public PinotAgentStatDao(@Qualifier("inspectorPinotAsyncTemplate") PinotAsyncTemplate asyncTemplate, @Qualifier("inspectorPinotTemplate") SqlSessionTemplate syncTemplate) {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
         this.syncTemplate = Objects.requireNonNull(syncTemplate, "syncTemplate");
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumData", inspectorQueryParameter);
     }
 
     @Override
     public List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName());
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName());
         return syncTemplate.selectList(NAMESPACE + "selectTagInfo", inspectorQueryParameter);
     }
 
@@ -79,7 +79,7 @@ public class PinotAgentStatDaoV2 implements AgentStatDao {
     public TagInformation getTagInfoContainedSpecificTag(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field, Tag tag) {
         List<Tag> tagList = new ArrayList<Tag>();
         tagList.add(tag);
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), tagList);
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), tagList);
 
         return syncTemplate.selectOne(NAMESPACE + "selectTagInfoContainedSpecificTag", inspectorQueryParameter);
     }
