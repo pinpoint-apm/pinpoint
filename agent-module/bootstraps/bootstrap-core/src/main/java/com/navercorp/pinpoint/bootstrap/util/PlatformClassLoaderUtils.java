@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
  */
 public final class PlatformClassLoaderUtils {
 
-    private static volatile ClassLoader platformClassLoader = null;
+    private static final ClassLoader PLATFORM_CLASS_LOADER = lookupPlatformOrBootstrapClassLoader();
 
     private PlatformClassLoaderUtils() {
     }
@@ -54,19 +54,13 @@ public final class PlatformClassLoaderUtils {
     }
 
     public static ClassLoader getPlatformOrBootstrapClassLoader() {
-        synchronized (PlatformClassLoaderUtils.class) {
-            if (platformClassLoader == null) {
-                platformClassLoader = lookupPlatformOrBootstrapClassLoader();
-            }
-
-            return platformClassLoader;
-        }
+        return PLATFORM_CLASS_LOADER;
     }
 
 
     public static Class<?> findClassFromPlatformClassLoader(String className) {
         try {
-            return Class.forName(className, false, getPlatformOrBootstrapClassLoader());
+            return Class.forName(className, false, PLATFORM_CLASS_LOADER);
         } catch (ClassNotFoundException e) {
             return null;
         }
