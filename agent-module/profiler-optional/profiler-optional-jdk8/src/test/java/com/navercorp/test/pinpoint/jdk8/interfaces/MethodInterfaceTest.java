@@ -17,22 +17,21 @@
 package com.navercorp.test.pinpoint.jdk8.interfaces;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.instrument.ASMClass;
 import com.navercorp.pinpoint.profiler.instrument.ASMClassNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.ASMClassWriter;
 import com.navercorp.pinpoint.profiler.instrument.ASMFieldNodeAdapter;
+import com.navercorp.pinpoint.profiler.instrument.ASMInterceptorHolder;
 import com.navercorp.pinpoint.profiler.instrument.ASMMethodNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.EngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -47,6 +46,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -55,20 +55,10 @@ import static org.mockito.Mockito.mock;
  * @author jaehong.kim
  */
 public class MethodInterfaceTest {
-    private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
     private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
+    private AtomicInteger interceptorIdCounter = new AtomicInteger();
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-
-    @BeforeAll
-    public static void beforeClass() {
-        interceptorRegistryBinder.bind();
-    }
-
-    @AfterAll
-    public static void afterClass() {
-        interceptorRegistryBinder.unbind();
-    }
 
     @Test
     public void addInterceptor() throws Exception {
@@ -76,7 +66,7 @@ public class MethodInterfaceTest {
         final String targetClassName = "com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterfaceClass";
         logger.debug("Add interceptor interface={}, class={}", targetInterfaceName, targetClassName);
 
-        final int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new SimpleInterceptor());
+        final Interceptor interceptor = new SimpleInterceptor();
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(SimpleInterceptor.class);
         final List<String> methodNameList = Arrays.asList("currentTimeMillis", "foo");
         TestClassLoader classLoader = new TestClassLoader();
@@ -100,6 +90,13 @@ public class MethodInterfaceTest {
                     if (!methodNameList.contains(methodNode.name)) {
                         continue;
                     }
+                    int interceptorId = interceptorIdCounter.incrementAndGet();
+                    try {
+                        ASMInterceptorHolder.create(interceptorId, classLoader, interceptor);
+                    } catch (InstrumentException e) {
+                        throw new RuntimeException(e);
+                    }
+
                     methodNodeAdapter.addBeforeInterceptor(interceptorId, interceptorDefinition, 99);
                     logger.debug("Add before interceptor in method={}", methodNode.name);
                     methodNodeAdapter.addAfterInterceptor(interceptorId, interceptorDefinition, 99);

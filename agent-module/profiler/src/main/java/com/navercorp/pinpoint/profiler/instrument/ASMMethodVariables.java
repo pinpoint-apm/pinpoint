@@ -192,7 +192,7 @@ public class ASMMethodVariables {
         // find enter & exit instruction.
         final LabelNode variableStartLabelNode = new LabelNode();
         final LabelNode variableEndLabelNode = new LabelNode();
-        if(instructions.getFirst() != null) {
+        if (instructions.getFirst() != null) {
             instructions.insertBefore(instructions.getFirst(), variableStartLabelNode);
         } else {
             instructions.insert(variableStartLabelNode);
@@ -298,8 +298,13 @@ public class ASMMethodVariables {
     private void initInterceptorVar(final InsnList instructions, final int interceptorId) {
         assertInitializedInterceptorLocalVariables();
         this.interceptorVarIndex = addInterceptorLocalVariable("_$PINPOINT$_interceptor", "Lcom/navercorp/pinpoint/bootstrap/interceptor/Interceptor;");
-        push(instructions, interceptorId);
-        instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(InterceptorRegistry.class), "getInterceptor", "(I)" + Type.getDescriptor(Interceptor.class), false));
+        if(InterceptorRegistry.isInterceptorHolderEnable()) {
+            final String className = ASMInterceptorHolder.getInterceptorHolderClassName(interceptorId);
+            instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, JavaAssistUtils.javaNameToJvmName(className), "get", "()" + Type.getDescriptor(Interceptor.class), false));
+        } else {
+            push(instructions, interceptorId);
+            instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(InterceptorRegistry.class), "getInterceptor", "(I)" + Type.getDescriptor(Interceptor.class), false));
+        }
         storeVar(instructions, this.interceptorVarIndex);
         this.resultVarIndex = addInterceptorLocalVariable("_$PINPOINT$_result", "Ljava/lang/Object;");
         loadNull(instructions);

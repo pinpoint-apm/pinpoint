@@ -17,11 +17,12 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -31,6 +32,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,7 +46,6 @@ import static org.mockito.Mockito.when;
  */
 public class ASMMethodNodeTest {
 
-    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
@@ -88,11 +89,15 @@ public class ASMMethodNodeTest {
     }
 
     @Test
-    public void addInterceptor() throws Exception {
-        final int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ArgsArrayInterceptor());
+    public void addArgsArrayInterceptor() throws Exception {
+        addInterceptor(new ArgsArrayInterceptor(), ArgsArrayInterceptor.class);
+    }
+
+    void addInterceptor(Interceptor interceptor, Class<? extends Interceptor> interceptorClass) throws Exception {
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.NormalClass";
         final ASMClass declaringClass = mock(ASMClass.class);
         when(declaringClass.getName()).thenReturn(targetClassName);
+        when(declaringClass.getClassLoader()).thenReturn(Thread.currentThread().getContextClassLoader());
         final EngineComponent engineComponent = mock(EngineComponent.class);
         when(engineComponent.createInterceptorDefinition(any(Class.class))).thenAnswer(new Answer<InterceptorDefinition>() {
             @Override
@@ -102,7 +107,39 @@ public class ASMMethodNodeTest {
                 return interceptorDefinitionFactory.createInterceptorDefinition(clazz);
             }
         });
-
+        final AtomicInteger interceptorRegistryCount = new AtomicInteger();
+        when(engineComponent.addInterceptor()).thenAnswer(new Answer<Integer>() {
+            @Override
+            public Integer answer(InvocationOnMock invocation) throws Throwable {
+                return interceptorRegistryCount.incrementAndGet();
+            }
+        });
+        final ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        when(engineComponent.getScopeFactory()).thenAnswer(new Answer<ScopeFactory>() {
+            @Override
+            public ScopeFactory answer(InvocationOnMock invocation) throws Throwable {
+                return new ScopeFactory();
+            }
+        });
+        when(engineComponent.getObjectBinderFactory()).thenAnswer(new Answer<ObjectBinderFactory>() {
+            @Override
+            public ObjectBinderFactory answer(InvocationOnMock invocation) throws Throwable {
+                return objectBinderFactory;
+            }
+        });
+        final AnnotatedInterceptorFactory annotatedInterceptorFactory = mock(AnnotatedInterceptorFactory.class);
+        when(objectBinderFactory.newAnnotatedInterceptorFactory(any())).thenAnswer(new Answer<AnnotatedInterceptorFactory>() {
+            @Override
+            public AnnotatedInterceptorFactory answer(InvocationOnMock invocation) throws Throwable {
+                return annotatedInterceptorFactory;
+            }
+        });
+        when(annotatedInterceptorFactory.newInterceptor(any(), any(), any(), any())).thenAnswer(new Answer<Interceptor>() {
+            @Override
+            public Interceptor answer(InvocationOnMock invocation) throws Throwable {
+                return interceptor;
+            }
+        });
 
         ASMClassNodeLoader.TestClassLoader classLoader = ASMClassNodeLoader.getClassLoader();
 
@@ -117,7 +154,7 @@ public class ASMMethodNodeTest {
                 for (MethodNode methodNode : methodNodes) {
                     ASMMethod method = new ASMMethod(engineComponent, pluginContext, declaringClass, methodNode);
                     try {
-                        method.addInterceptor(interceptorId);
+                        method.addInterceptor(interceptorClass);
                     } catch (InstrumentException e) {
                         exception[0] = e;
                         e.printStackTrace();
