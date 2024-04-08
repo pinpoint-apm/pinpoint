@@ -46,8 +46,9 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
     private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
     private final TaggedLogger logger = TestLogger.getLogger();
-    private final boolean testOnSystemClassLoader;
-    private final boolean testOnChildClassLoader;
+
+    private final ClassLoding classLoding;
+
     private final String[] repositories;
     private final String[] dependencies;
 
@@ -73,16 +74,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         super(testClass);
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
-        if (onClassLoader == null) {
-            this.testOnChildClassLoader = true;
-        } else {
-            this.testOnChildClassLoader = onClassLoader.child();
-        }
-        if (onClassLoader == null) {
-            this.testOnSystemClassLoader = false;
-        } else {
-            this.testOnSystemClassLoader = onClassLoader.system();
-        }
+        this.classLoding = getClassLoding(onClassLoader);
 
         Set<String> dependenySet = new HashSet<>();
         Dependency deps = testClass.getAnnotation(Dependency.class);
@@ -117,6 +109,14 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         Repository repos = testClass.getAnnotation(Repository.class);
         this.repositories = repos == null ? new String[0] : repos.value();
         this.sharedProcess = sharedProcess;
+    }
+
+    private ClassLoding getClassLoding(OnClassLoader onClassLoader) {
+        if (onClassLoader == null) {
+            return ClassLoding.Child;
+        } else {
+            return onClassLoader.type();
+        }
     }
 
     @Override
@@ -170,33 +170,15 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     }
 
     private PluginForkedTestInstance newSharedProcessPluginTestCase(PluginForkedTestContext context, String testId, List<String> libs, SharedProcessManager sharedProcessManager) {
-        if (testOnSystemClassLoader) {
+        if (classLoding == ClassLoding.System) {
             return new SharedPluginForkedTestInstance(context, testId, libs, true, sharedProcessManager);
         }
-        if (testOnChildClassLoader) {
-            return new SharedPluginForkedTestInstance(context, testId, libs, false, sharedProcessManager);
-        }
-        throw new IllegalStateException("Illegal classLoader");
+        return new SharedPluginForkedTestInstance(context, testId, libs, false, sharedProcessManager);
     }
 
     private List<PluginForkedTestInstance> createCasesWithJdkOnly(PluginForkedTestContext context) throws ClassNotFoundException {
-        List<PluginForkedTestInstance> instanceList = new ArrayList<>();
-
-        if (testOnSystemClassLoader) {
-            instanceList.add(new DefaultPluginForkedTestInstance(context, "", Collections.emptyList(), true));
-        } else {
-            instanceList.add(new DefaultPluginForkedTestInstance(context, "", Collections.emptyList(), false));
-        }
-        return instanceList;
+        DefaultPluginForkedTestInstance testInstance = new DefaultPluginForkedTestInstance(context, "", Collections.emptyList(), classLoding);
+        return Collections.singletonList(testInstance);
     }
 
-    boolean isOnSystemClassLoader() {
-        if (testOnSystemClassLoader) {
-            return true;
-        }
-        if (testOnChildClassLoader) {
-            return false;
-        }
-        return false;
-    }
 }

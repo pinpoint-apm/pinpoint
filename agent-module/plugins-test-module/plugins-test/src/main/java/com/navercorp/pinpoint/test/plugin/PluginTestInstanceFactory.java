@@ -27,20 +27,25 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PluginTestInstanceFactory {
 
     private final PluginTestContext context;
 
     public PluginTestInstanceFactory(PluginTestContext context) {
-        this.context = context;
+        this.context = Objects.requireNonNull(context, "context");
     }
 
-    public PluginTestInstance create(ClassLoader parentClassLoader, String testId, PluginAgentTestClassLoader agentClassLoader, List<String> libs, List<String> transformIncludeList, boolean onSystemClassLoader) throws ClassNotFoundException {
-        final String id = testId + ":" + (onSystemClassLoader ? "system" : "child");
+    public PluginTestInstance create(ClassLoader parentClassLoader, String testId,
+                                     PluginAgentTestClassLoader agentClassLoader,
+                                     List<String> libs,
+                                     List<String> transformIncludeList,
+                                     ClassLoding classLoading) throws ClassNotFoundException {
+        final String id = testId + ":" + classLoading;
         PluginTestInstanceCallback instanceContext = startAgent(context.getConfigFile(), agentClassLoader);
         final List<File> fileList = new ArrayList<>();
-        for (String classPath : getClassPath(libs, onSystemClassLoader)) {
+        for (String classPath : getClassPath(libs, classLoading)) {
             File file = new File(classPath);
             fileList.add(file);
         }
@@ -55,7 +60,7 @@ public class PluginTestInstanceFactory {
         return new DefaultPluginTestInstance(id, testClassLoader, testClass, context.isManageTraceObject(), instanceContext);
     }
 
-    List<String> getClassPath(List<String> libs, boolean onSystemClassLoader) {
+    List<String> getClassPath(List<String> libs, ClassLoding classLoading) {
         final List<String> libList = new ArrayList<>(context.getJunitLibList());
         libList.addAll(libs);
         libList.add(context.getTestClassLocation());

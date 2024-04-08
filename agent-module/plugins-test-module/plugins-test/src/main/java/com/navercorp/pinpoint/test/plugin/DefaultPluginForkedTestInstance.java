@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS_PATH_PREFIX;
@@ -33,14 +34,16 @@ public class DefaultPluginForkedTestInstance implements PluginForkedTestInstance
     private final PluginForkedTestContext context;
     private final String testId;
     private final List<String> libs;
-    private final boolean onSystemClassLoader;
+    private final ClassLoding type;
     private final ProcessManager processManager;
 
-    public DefaultPluginForkedTestInstance(PluginForkedTestContext context, String testId, List<String> libs, boolean onSystemClassLoader) {
+    public DefaultPluginForkedTestInstance(PluginForkedTestContext context,
+                                           String testId, List<String> libs,
+                                           ClassLoding type) {
         this.context = context;
-        this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
+        this.testId = testId + ":" + type + ":" + context.getJvmVersion();
         this.libs = libs;
-        this.onSystemClassLoader = onSystemClassLoader;
+        this.type = Objects.requireNonNull(type, "type");
         this.processManager = new DefaultProcessManager(context);
     }
 
@@ -51,7 +54,7 @@ public class DefaultPluginForkedTestInstance implements PluginForkedTestInstance
 
     @Override
     public List<String> getClassPath() {
-        if (onSystemClassLoader) {
+        if (type == ClassLoding.System) {
             List<String> libs = new ArrayList<>(context.getRequiredLibraries());
             libs.addAll(this.libs);
             libs.add(context.getTestClassLocation());
@@ -78,7 +81,7 @@ public class DefaultPluginForkedTestInstance implements PluginForkedTestInstance
 
         args.add(context.getTestClass().getName());
 
-        if (!onSystemClassLoader) {
+        if (type == ClassLoding.Child) {
             StringBuilder classPath = new StringBuilder();
             classPath.append(CHILD_CLASS_PATH_PREFIX);
 
