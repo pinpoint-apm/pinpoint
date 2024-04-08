@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.grpc.field.accessor.MethodNameAccessor;
@@ -43,7 +43,7 @@ import java.util.List;
  * @author Taejin Koo
  */
 public class GrpcClientPlugin implements ProfilerPlugin, TransformTemplateAware {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
 
     @Override
@@ -84,7 +84,7 @@ public class GrpcClientPlugin implements ProfilerPlugin, TransformTemplateAware 
 
 
     public static class ClientStreamListenerImplTransformer implements TransformCallback {
-        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -110,7 +110,7 @@ public class GrpcClientPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     public static class ClientCallImplTransformer implements TransformCallback {
-        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);

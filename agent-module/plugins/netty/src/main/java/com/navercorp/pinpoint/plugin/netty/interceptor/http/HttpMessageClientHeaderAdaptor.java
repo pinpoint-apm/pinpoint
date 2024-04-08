@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.netty.interceptor.http;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
@@ -26,7 +26,7 @@ import io.netty.handler.codec.http.HttpMessage;
  * @author Woonduk Kang(emeroad)
  */
 public class HttpMessageClientHeaderAdaptor implements ClientHeaderAdaptor<HttpMessage> {
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

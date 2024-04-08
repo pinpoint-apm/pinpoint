@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.DisableRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
@@ -93,7 +93,7 @@ public class InvokeMethodInterceptorTest {
     @BeforeAll
     public static void before() {
         LoggerContext context = LogManager.getContext();
-        PLoggerFactory.initialize(new Log4j2Binder(context));
+        PluginLogManager.initialize(new Log4j2Binder(context));
     }
 
     /**

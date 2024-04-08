@@ -15,8 +15,8 @@
 package com.navercorp.pinpoint.plugin.druid;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class DruidDataSourceMonitor implements DataSourceMonitor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
 
     private volatile boolean closed = false;
 

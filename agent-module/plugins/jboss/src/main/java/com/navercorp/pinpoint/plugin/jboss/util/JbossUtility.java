@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.plugin.jboss.util;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import org.jboss.remoting3.Connection;
 
 import java.net.InetAddress;
@@ -35,7 +35,7 @@ import java.util.List;
 public class JbossUtility {
 
     /** The Constant LOGGER. */
-    private static final PLogger LOGGER = PLoggerFactory.getLogger(JbossUtility.class);
+    private static final PluginLogger LOGGER = PluginLogManager.getLogger(JbossUtility.class);
 
     /**
      * Fetch remote address.

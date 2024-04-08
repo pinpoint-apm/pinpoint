@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLoggerBinder;
 import com.navercorp.pinpoint.profiler.logging.jul.JulAdaptorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +30,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     private LoggerContext loggerContext;
     private final Path profilePath;
 
-    private PLoggerBinder binder;
+    private PluginLoggerBinder binder;
 
 
     public Log4j2LoggingSystem(Path profilePath) {
@@ -155,12 +155,12 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     }
 
 
-    private void bindPLoggerFactory(PLoggerBinder binder) {
+    private void bindPLoggerFactory(PluginLoggerBinder binder) {
         final String binderClassName = binder.getClass().getName();
-        PLogger pLogger = binder.getLogger(binder.getClass().getName());
-        pLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
+        PluginLogger pluginLogger = binder.getLogger(binder.getClass().getName());
+        pluginLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
         // Set binder to static LoggerFactory
         // Should we unset binder at shutdown hook or stop()?
-        PLoggerFactory.initialize(binder);
+        PluginLogManager.initialize(binder);
     }
 }

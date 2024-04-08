@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.BrokerUriFieldAccessor;
 import com.navercorp.pinpoint.plugin.paho.mqtt.descriptor.MqttSubscribeEntryMethodDescriptor;
@@ -37,7 +37,7 @@ import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.UNKNOWN;
  */
 public abstract class MqttCallbackMessageArrivedInterceptor extends SpanRecursiveAroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
 
     private static final String SCOPE_NAME = "##PAHO_MQTT_MESSAGE_ARRIVED_START_TRACE";
 

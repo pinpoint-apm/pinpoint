@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -127,7 +127,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
         private static class DefaultTraceFactory implements TraceFactory {
 
-            final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+            final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
             final boolean isDebug = logger.isDebugEnabled();
 
             @Override

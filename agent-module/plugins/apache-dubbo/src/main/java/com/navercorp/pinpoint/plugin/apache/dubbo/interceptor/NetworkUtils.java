@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.apache.dubbo.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -29,7 +29,7 @@ import java.util.Enumeration;
  * @author K
  */
 public final class NetworkUtils {
-    private static final PLogger logger = PLoggerFactory.getLogger(NetworkUtils.class);
+    private static final PluginLogger logger = PluginLogManager.getLogger(NetworkUtils.class);
 
     private static volatile String LOCAL_ADDRESS_CACHE;
 

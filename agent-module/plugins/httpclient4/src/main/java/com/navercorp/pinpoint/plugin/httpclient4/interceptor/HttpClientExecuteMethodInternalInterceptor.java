@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -37,14 +37,14 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
 
     private boolean isHasCallbackParam;
 
-    protected final PLogger logger;
+    protected final PluginLogger logger;
     protected final boolean isDebug;
 
     protected final TraceContext traceContext;
     private final InterceptorScope interceptorScope;
 
     public HttpClientExecuteMethodInternalInterceptor(boolean isHasCallbackParam, TraceContext context, InterceptorScope interceptorScope) {
-        this.logger = PLoggerFactory.getLogger(this.getClass());
+        this.logger = PluginLogManager.getLogger(this.getClass());
         this.isDebug = logger.isDebugEnabled();
 
         this.traceContext = context;

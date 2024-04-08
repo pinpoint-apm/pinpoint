@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.interceptor.scope;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 import java.util.Objects;
 
@@ -26,7 +26,7 @@ import java.util.Objects;
  * @author emeroad
  */
 public class ScopedStaticAroundInterceptor implements StaticAroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean debugEnabled = logger.isDebugEnabled();
 
     private final StaticAroundInterceptor delegate;

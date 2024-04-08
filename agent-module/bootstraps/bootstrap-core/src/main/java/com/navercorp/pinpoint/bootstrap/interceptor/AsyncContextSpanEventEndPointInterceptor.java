@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
 import java.util.Objects;
@@ -33,7 +33,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public abstract class AsyncContextSpanEventEndPointInterceptor implements AroundInterceptor {
-    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
+    protected final PluginLogger logger = PluginLogManager.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
     protected final MethodDescriptor methodDescriptor;

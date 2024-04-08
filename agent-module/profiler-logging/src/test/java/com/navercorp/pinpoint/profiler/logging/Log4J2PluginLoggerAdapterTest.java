@@ -25,32 +25,32 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author jaehong.kim
  */
-public class Log4j2PLoggerAdapterTest {
+public class Log4J2PluginLoggerAdapterTest {
 
     @Test
     public void getSimpleName() {
-        assertEquals("int[]", Log4j2PLoggerAdapter.getSimpleName((new int[1]).getClass()));
-        assertEquals("Log4j2PLoggerAdapterTest$Dummy", Log4j2PLoggerAdapter.getSimpleName(Dummy.class));
+        assertEquals("int[]", Log4J2PluginLoggerAdapter.getSimpleName((new int[1]).getClass()));
+        assertEquals("Log4J2PluginLoggerAdapterTest$Dummy", Log4J2PluginLoggerAdapter.getSimpleName(Dummy.class));
 
         Runnable r = new Runnable() {
             @Override
             public void run() {
             }
         };
-        assertEquals("Log4j2PLoggerAdapterTest$1", Log4j2PLoggerAdapter.getSimpleName(r.getClass()));
+        assertEquals("Log4J2PluginLoggerAdapterTest$1", Log4J2PluginLoggerAdapter.getSimpleName(r.getClass()));
     }
 
     @Test
     public void isSimpleType() {
-        assertTrue(Log4j2PLoggerAdapter.isSimpleType(new Integer(1)));
-        assertTrue(Log4j2PLoggerAdapter.isSimpleType(Boolean.TRUE));
+        assertTrue(Log4J2PluginLoggerAdapter.isSimpleType(new Integer(1)));
+        assertTrue(Log4J2PluginLoggerAdapter.isSimpleType(Boolean.TRUE));
 
         // array, object
-        assertFalse(Log4j2PLoggerAdapter.isSimpleType(new int[1]));
-        assertFalse(Log4j2PLoggerAdapter.isSimpleType(new Dummy()));
+        assertFalse(Log4J2PluginLoggerAdapter.isSimpleType(new int[1]));
+        assertFalse(Log4J2PluginLoggerAdapter.isSimpleType(new Dummy()));
     }
 
-    private class Dummy {
+    private static class Dummy {
     }
 
 }

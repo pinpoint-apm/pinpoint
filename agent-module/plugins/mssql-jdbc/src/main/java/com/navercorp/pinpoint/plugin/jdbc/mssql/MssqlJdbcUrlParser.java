@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.plugin.jdbc.mssql;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
@@ -40,7 +40,7 @@ public class MssqlJdbcUrlParser implements JdbcUrlParserV2 {
     // Property names are case-insensitive
     private static final String DATABASE_NAME_PROPERTY = "databaseName=";
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     @Override
     public DatabaseInfo parse(String jdbcUrl) {

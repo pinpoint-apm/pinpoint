@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.bootstrap.util.argument;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +10,11 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class Validation {
-    private final PLogger logger;
+    private final PluginLogger logger;
     private final List<Predicate> list = new ArrayList<>(4);
     private int min;
 
-    public Validation(PLogger logger) {
+    public Validation(PluginLogger logger) {
         this.logger = Objects.requireNonNull(logger, "logger");
     }
 

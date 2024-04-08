@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.plugin.grpc.interceptor.client;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.grpc.field.accessor.MethodNameAccessor;
 import com.navercorp.pinpoint.plugin.grpc.field.accessor.RemoteAddressAccessor;
@@ -29,7 +29,7 @@ import io.grpc.MethodDescriptor;
  */
 public class ChannelNewCallInterceptor implements AroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

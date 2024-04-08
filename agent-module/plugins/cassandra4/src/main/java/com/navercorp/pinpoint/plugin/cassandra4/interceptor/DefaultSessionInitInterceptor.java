@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.plugin.cassandra4.interceptor;
 import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.plugin.cassandra4.HostListAccessor;
 import java.util.List;
 
 public class DefaultSessionInitInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

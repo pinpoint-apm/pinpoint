@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.grpc.field.accessor.ServerStreamGetter;
@@ -37,7 +37,7 @@ import java.security.ProtectionDomain;
  * @author Taejin Koo
  */
 public class GrpcServerPlugin implements ProfilerPlugin, TransformTemplateAware {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
 
     @Override
@@ -74,7 +74,7 @@ public class GrpcServerPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     public static class ServerTransportListenerImplTransform implements TransformCallback {
-        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {

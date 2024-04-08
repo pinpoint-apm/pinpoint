@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.plugin.log4j.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.plugin.log4j.Log4jConfig;
 import org.apache.log4j.PatternLayout;
 
@@ -31,7 +31,7 @@ public class PatternLayoutInterceptor implements AroundInterceptor1 {
 
     private static final String PATTERN_TRANSACTION_ID = "%X{PtxId}";
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean debug = logger.isDebugEnabled();
 
     private final Log4jConfig config;

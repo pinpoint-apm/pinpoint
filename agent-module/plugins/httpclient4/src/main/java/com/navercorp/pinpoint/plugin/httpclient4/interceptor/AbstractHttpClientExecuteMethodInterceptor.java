@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
@@ -36,7 +36,7 @@ import org.apache.http.HttpRequest;
  * @author jaehong.kim
  */
 public abstract class AbstractHttpClientExecuteMethodInterceptor implements AroundInterceptor {
-    protected final PLogger logger;
+    protected final PluginLogger logger;
     protected final boolean isDebug;
 
     private final boolean isHasCallbackParam;
@@ -46,7 +46,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
 
     public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz,
                                                       boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
-        this.logger = PLoggerFactory.getLogger(childClazz);
+        this.logger = PluginLogManager.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
 
         this.traceContext = context;

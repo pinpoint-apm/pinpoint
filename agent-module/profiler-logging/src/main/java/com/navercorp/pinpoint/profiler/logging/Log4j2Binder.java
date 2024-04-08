@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.logging;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLoggerBinder;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.apache.logging.log4j.spi.LoggerContext;
 
@@ -28,26 +30,27 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author emeroad
  */
-public class Log4j2Binder implements PLoggerBinder {
+public class Log4j2Binder implements PluginLoggerBinder {
 
-    private final ConcurrentMap<String, PLogger> loggerCache = new ConcurrentHashMap<>(256, 0.75f, 128);
+    private final ConcurrentMap<String, PluginLogger> loggerCache = new ConcurrentHashMap<>(256, 0.75f, 128);
     private final LoggerContext loggerContext;
+    private final Marker marker = MarkerManager.getMarker("PLUGIN");
 
     public Log4j2Binder(LoggerContext loggerContext) {
         this.loggerContext = Objects.requireNonNull(loggerContext, "loggerContext");
     }
 
     @Override
-    public PLogger getLogger(String name) {
+    public PluginLogger getLogger(String name) {
 
-        final PLogger hitPLogger = loggerCache.get(name);
-        if (hitPLogger != null) {
-            return hitPLogger;
+        final PluginLogger hitPluginLogger = loggerCache.get(name);
+        if (hitPluginLogger != null) {
+            return hitPluginLogger;
         }
         ExtendedLogger logger = loggerContext.getLogger(name);
-        PLogger log4j2Adapter = new Log4j2PLoggerAdapter(logger);
+        PluginLogger log4j2Adapter = new Log4J2PluginLoggerAdapter(logger, marker);
 
-        final PLogger before = loggerCache.putIfAbsent(name, log4j2Adapter);
+        final PluginLogger before = loggerCache.putIfAbsent(name, log4j2Adapter);
         if (before != null) {
             return before;
         }

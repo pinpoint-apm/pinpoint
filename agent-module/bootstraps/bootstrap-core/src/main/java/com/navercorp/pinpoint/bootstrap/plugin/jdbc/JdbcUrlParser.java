@@ -15,8 +15,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 @Deprecated
 public abstract class JdbcUrlParser {
-    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
+    protected final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final ConcurrentMap<String, DatabaseInfo> cache = new ConcurrentHashMap<>();
 
     //http://www.petefreitag.com/articles/jdbc_urls/

@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -52,7 +52,7 @@ import java.util.List;
  */
 public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private TransformTemplate transformTemplate;
 
@@ -114,7 +114,7 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
                     method.addInterceptor(NoopTracerSetTraceContextInterceptor.class);
                     break;
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }
@@ -148,7 +148,7 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
                 try {
                     method.addInterceptor(TransactionIdStartedInterceptor.class);
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }
@@ -164,7 +164,7 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
                 try {
                     method.addInterceptor(TransactionIdFinishedInterceptor.class);
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }
@@ -181,7 +181,7 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
                 try {
                     method.addInterceptor(TransactionIdFailedInterceptor.class);
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }
@@ -198,7 +198,7 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
                 try {
                     method.addInterceptor(TransactionIdMarkInterceptor.class);
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }
@@ -223,7 +223,7 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
                     method.addInterceptor(KafkaProducerSendInterceptor.class);
                     break;
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }
@@ -250,7 +250,7 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
                     method.addInterceptor(StartMarkerCopyInterceptor.class);
                     break;
                 } catch (Exception e) {
-                    final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+                    final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
                         logger.warn("Unsupported method " + method, e);
                     }
@@ -262,7 +262,7 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public static class EntryPointTransform implements TransformCallback {
 
-        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
 
         @Override

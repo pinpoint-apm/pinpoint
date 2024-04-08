@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
 import com.mongodb.MongoClientSettings;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.mongo.HostListAccessor;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 import java.util.List;
 
 public class ReactiveMongoClientImplConstructorInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     public ReactiveMongoClientImplConstructorInterceptor() {

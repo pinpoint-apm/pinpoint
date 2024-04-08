@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.plugin.grpc;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.plugin.grpc.interceptor.client.ChannelNewCallInterceptor;
 import com.navercorp.pinpoint.plugin.grpc.interceptor.server.CopyAsyncContextInterceptor;
 import com.navercorp.pinpoint.plugin.grpc.interceptor.server.ServerHalfCloseListenerInterceptor;
@@ -40,7 +40,7 @@ public final class GrpcUtils {
         if (newCallMethod != null) {
             newCallMethod.addInterceptor(ChannelNewCallInterceptor.class);
         } else {
-            PLogger logger = PLoggerFactory.getLogger(GrpcUtils.class.getName());
+            PluginLogger logger = PluginLogManager.getLogger(GrpcUtils.class.getName());
             logger.debug("can't find newCall method");
         }
     }
@@ -50,7 +50,7 @@ public final class GrpcUtils {
         if (startCall != null) {
             startCall.addInterceptor(CopyAsyncContextInterceptor.class);
         } else {
-            PLogger logger = PLoggerFactory.getLogger(GrpcUtils.class.getName());
+            PluginLogger logger = PluginLogManager.getLogger(GrpcUtils.class.getName());
             logger.debug("can't find startCall method");
         }
     }
@@ -59,7 +59,7 @@ public final class GrpcUtils {
         List<InstrumentMethod> declaredMethods = target.getDeclaredMethods();
         for (InstrumentMethod declaredMethod : declaredMethods) {
             if (declaredMethod.getName().equals("onMessage") && !traceOnMessage) {
-                PLogger logger = PLoggerFactory.getLogger(GrpcUtils.class.getName());
+                PluginLogger logger = PluginLogManager.getLogger(GrpcUtils.class.getName());
                 logger.debug("skip add onMessage interceptor");
                 continue;
             }

@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConstants;
 
 /**
@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConstants;
  */
 public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(BeanMethodInterceptor.class);
+    private final PluginLogger logger = PluginLogManager.getLogger(BeanMethodInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;

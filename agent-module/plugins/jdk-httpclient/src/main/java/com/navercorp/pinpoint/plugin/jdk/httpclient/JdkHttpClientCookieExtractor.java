@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.jdk.httpclient;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import jdk.internal.net.http.HttpRequestImpl;
@@ -28,7 +28,7 @@ public class JdkHttpClientCookieExtractor implements CookieExtractor<HttpRequest
 
     public static final CookieExtractor<HttpRequestImpl> INSTANCE = new JdkHttpClientCookieExtractor();
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override
