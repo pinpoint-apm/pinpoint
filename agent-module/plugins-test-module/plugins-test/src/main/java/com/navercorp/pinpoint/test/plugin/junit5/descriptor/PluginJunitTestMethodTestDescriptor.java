@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.test.junit5.IsRootSpan;
 import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
+import com.navercorp.pinpoint.test.plugin.util.ThreadContextExecutor;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
@@ -30,16 +31,18 @@ import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.UniqueId;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public class PluginJunitTestMethodTestDescriptor extends TestMethodTestDescriptor {
 
-    private TestContext testContext;
-    private Method testMethod;
+    private final TestContext testContext;
+    private final ThreadContextExecutor executor;
+
 
     public PluginJunitTestMethodTestDescriptor(UniqueId uniqueId, Class<?> testClass, Method testMethod, JupiterConfiguration configuration, TestContext testContext) {
         super(uniqueId, testClass, testMethod, configuration);
-        this.testContext = testContext;
-        this.testMethod = testMethod;
+        this.testContext = Objects.requireNonNull(testContext, "testContext");
+        this.executor = new ThreadContextExecutor(testContext.getClassLoader());
     }
 
     @Override
@@ -48,13 +51,11 @@ public class PluginJunitTestMethodTestDescriptor extends TestMethodTestDescripto
         setupBaseTest(extensionContext.getRequiredTestInstance());
 
         beginTracing();
-        final Thread thread = Thread.currentThread();
-        final ClassLoader originalClassLoader = thread.getContextClassLoader();
         try {
-            thread.setContextClassLoader(testContext.getClassLoader());
-            super.execute(context, dynamicTestExecutor);
+            executor.execute(() -> {
+                super.execute(context, dynamicTestExecutor);
+            });
         } finally {
-            thread.setContextClassLoader(originalClassLoader);
             endTracing();
         }
 
@@ -104,7 +105,7 @@ public class PluginJunitTestMethodTestDescriptor extends TestMethodTestDescripto
     }
 
     private boolean shouldCreateNewTraceObject() {
-        IsRootSpan isRootSpan = this.testMethod.getAnnotation(IsRootSpan.class);
+        IsRootSpan isRootSpan = getTestMethod().getAnnotation(IsRootSpan.class);
         return isRootSpan == null || !isRootSpan.value();
     }
 

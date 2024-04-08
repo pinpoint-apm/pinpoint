@@ -17,42 +17,34 @@
 package com.navercorp.pinpoint.test.plugin.junit5.descriptor;
 
 import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
+import com.navercorp.pinpoint.test.plugin.util.ThreadContextExecutor;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.UniqueId;
 
+
 public class PluginJunitTestClassTestDescriptor extends ClassTestDescriptor {
 
-    private TestContext testContext;
+    private final ThreadContextExecutor executor;
 
     public PluginJunitTestClassTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, TestContext testContext) {
         super(uniqueId, testClass, configuration);
-        this.testContext = testContext;
+        this.executor = new ThreadContextExecutor(testContext.getClassLoader());
     }
 
 
     @Override
     public JupiterEngineExecutionContext before(JupiterEngineExecutionContext context) {
-        final Thread thread = Thread.currentThread();
-        final ClassLoader originalClassLoader = thread.getContextClassLoader();
-        try {
-            thread.setContextClassLoader(testContext.getClassLoader());
+        return this.executor.call(() -> {
             return super.before(context);
-        } finally {
-            thread.setContextClassLoader(originalClassLoader);
-        }
+        });
     }
 
     @Override
     public void after(JupiterEngineExecutionContext context) {
-        final Thread thread = Thread.currentThread();
-        final ClassLoader originalClassLoader = thread.getContextClassLoader();
-        try {
-            thread.setContextClassLoader(testContext.getClassLoader());
+        this.executor.execute(() -> {
             super.after(context);
-        } finally {
-            thread.setContextClassLoader(originalClassLoader);
-        }
+        });
     }
 }
