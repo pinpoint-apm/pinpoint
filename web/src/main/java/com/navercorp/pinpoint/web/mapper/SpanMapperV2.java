@@ -255,51 +255,6 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         return new AgentKey(basicSpan.getApplicationId(), basicSpan.getAgentId(), basicSpan.getAgentStartTime(), basicSpan.getSpanId());
     }
 
-    public static class AgentKey {
-        private final long spanId;
-        private final String applicationId;
-        private final String agentId;
-        private final long agentStartTime;
-
-
-        public AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {
-            this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
-            this.agentId = Objects.requireNonNull(agentId, "agentId");
-            this.agentStartTime = agentStartTime;
-            this.spanId = spanId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            AgentKey agentKey = (AgentKey) o;
-
-            if (spanId != agentKey.spanId) return false;
-            if (agentStartTime != agentKey.agentStartTime) return false;
-            if (!applicationId.equals(agentKey.applicationId)) return false;
-            return agentId.equals(agentKey.agentId);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = (int) (spanId ^ (spanId >>> 32));
-            result = 31 * result + applicationId.hashCode();
-            result = 31 * result + agentId.hashCode();
-            result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "AgentKey{" +
-                    "spanId=" + spanId +
-                    ", applicationId='" + applicationId + '\'' +
-                    ", agentId='" + agentId + '\'' +
-                    ", agentStartTime=" + agentStartTime +
-                    '}';
-        }
+    private record AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {
     }
 }
