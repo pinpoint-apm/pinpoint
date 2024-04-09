@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.weblogic.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicAsyncListener;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicConstants;
 
@@ -31,23 +30,23 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class ServletRequestImplStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class ServletRequestImplStartAsyncInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
-    public ServletRequestImplStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        super(context, descriptor);
+    public ServletRequestImplStartAsyncInterceptor(TraceContext context) {
+        super(context);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    protected Trace currentTrace() {
+    public Trace currentTrace() {
         return traceContext.currentRawTraceObject();
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (validate(target, result, throwable)) {
             final AsyncContext asyncContext = (AsyncContext) result;
             final AsyncListener asyncListener = new WeblogicAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
@@ -57,7 +56,7 @@ public class ServletRequestImplStartAsyncInterceptor extends SpanEventSimpleArou
             }
         }
         recorder.recordServiceType(WeblogicConstants.WEBLOGIC_METHOD);
-        recorder.recordApi(methodDescriptor);
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }
 

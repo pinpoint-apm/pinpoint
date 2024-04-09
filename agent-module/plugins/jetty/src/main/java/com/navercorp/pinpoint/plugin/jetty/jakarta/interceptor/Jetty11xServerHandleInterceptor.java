@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.jetty.jakarta.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
@@ -34,8 +33,8 @@ import org.eclipse.jetty.server.Response;
  */
 public class Jetty11xServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
-    public Jetty11xServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory requestRecorderFactory) {
-        super(traceContext, descriptor, requestRecorderFactory);
+    public Jetty11xServerHandleInterceptor(TraceContext traceContext, RequestRecorderFactory requestRecorderFactory) {
+        super(traceContext, requestRecorderFactory);
     }
 
     @Override

@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
@@ -43,21 +42,19 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 
 // vertx 3.8, 4.x+
-public abstract class Http1xClientConnectionCreateRequestInterceptor implements AroundInterceptor {
+public abstract class Http1xClientConnectionCreateRequestInterceptor implements ApiIdAwareAroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
 
     abstract String getHost(Object[] args);
 
-    public Http1xClientConnectionCreateRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public Http1xClientConnectionCreateRequestInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.descriptor = descriptor;
 
         final VertxHttpClientConfig config = new VertxHttpClientConfig(traceContext.getProfilerConfig());
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
@@ -71,7 +68,7 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -85,7 +82,7 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -109,7 +106,7 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
 
             if (trace.canSampled()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordApi(descriptor);
+                recorder.recordApiId(apiId);
                 recorder.recordException(throwable);
                 recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
 

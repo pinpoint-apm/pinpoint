@@ -1,10 +1,9 @@
 package com.navercorp.pinpoint.plugin.resin.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.resin.ResinAsyncListener;
 import com.navercorp.pinpoint.plugin.resin.ResinConstants;
 
@@ -16,23 +15,23 @@ import javax.servlet.http.HttpServletRequest;
  * @author huangpengjie@fang.com
  * @author jaehong.kim
  */
-public class HttpServletRequestImplInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class HttpServletRequestImplInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
-    public HttpServletRequestImplInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        super(context, descriptor);
+    public HttpServletRequestImplInterceptor(TraceContext context) {
+        super(context);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    protected Trace currentTrace() {
+    public Trace currentTrace() {
         return traceContext.currentRawTraceObject();
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (validate(target, result, throwable)) {
             final AsyncContext asyncContext = (AsyncContext) result;
             final AsyncListener asyncListener = new ResinAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
@@ -42,7 +41,7 @@ public class HttpServletRequestImplInterceptor extends SpanEventSimpleAroundInte
             }
         }
         recorder.recordServiceType(ResinConstants.RESIN_METHOD);
-        recorder.recordApi(methodDescriptor);
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }
 
@@ -66,5 +65,4 @@ public class HttpServletRequestImplInterceptor extends SpanEventSimpleAroundInte
         }
         return true;
     }
-
 }

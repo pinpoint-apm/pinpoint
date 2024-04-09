@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
@@ -30,7 +29,7 @@ import com.navercorp.pinpoint.plugin.reactor.netty.HttpCallContext;
 import com.navercorp.pinpoint.plugin.reactor.netty.HttpCallContextAccessor;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 
-public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
     // The request has been prepared and ready for I/O handler to be invoked
     private static final String REQUEST_PREPARED = "[request_prepared]";
     // The request has been sent
@@ -52,8 +51,8 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
     // Propagated when a connection is being fully closed
     private static final String DISCONNECTING = "[disconnecting]";
 
-    public HttpIOHandlerObserverOnStateChangeInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public HttpIOHandlerObserverOnStateChangeInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
@@ -82,7 +81,7 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
     }
 
     @Override
-    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
         if (trace.canSampled()) {
             // for compatibility.
             final Object state = ArrayArgumentUtils.getArgument(args, 1, Object.class);
@@ -110,7 +109,7 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     @Override
@@ -135,16 +134,16 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
     }
 
     @Override
-    protected void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             recorder.recordException(throwable);
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
         }
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 
     boolean isReady(String state) {

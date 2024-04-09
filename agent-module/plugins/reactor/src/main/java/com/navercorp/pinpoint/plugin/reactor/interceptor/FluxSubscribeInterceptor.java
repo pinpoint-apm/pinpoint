@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class FluxSubscribeInterceptor extends FluxAndMonoSubscribeInterceptor {
 
-    public FluxSubscribeInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, ServiceType serviceType) {
-        super(traceContext, methodDescriptor, serviceType);
+    public FluxSubscribeInterceptor(TraceContext traceContext, ServiceType serviceType) {
+        super(traceContext, serviceType);
     }
 }

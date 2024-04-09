@@ -16,15 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
 import java.util.Objects;
@@ -32,15 +28,12 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public abstract class AsyncContextSpanEventEndPointInterceptor implements AroundInterceptor {
-    protected final PluginLogger logger = PluginLogManager.getLogger(getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
+public abstract class AsyncContextSpanEventEndPointInterceptor extends AbstractAsyncContextSpanEventEndPointInterceptor implements AroundInterceptor {
 
     protected final MethodDescriptor methodDescriptor;
-    protected final TraceContext traceContext;
 
     public AsyncContextSpanEventEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        super(traceContext);
         this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
@@ -134,35 +127,4 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
-
-    protected AsyncContext getAsyncContext(Object target, Object[] args) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
-
-    protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
-
-    private Trace getAsyncTrace(AsyncContext asyncContext) {
-        final Trace trace = asyncContext.continueAsyncTraceObject();
-        if (trace == null) {
-            return null;
-        }
-
-        return trace;
-    }
-
-    private void deleteAsyncTrace(final Trace trace) {
-        traceContext.removeTraceObject();
-        trace.close();
-    }
-
-
-    private void finishAsyncState(final AsyncContext asyncContext) {
-        if (AsyncContextUtils.asyncStateFinish(asyncContext)) {
-            if (isDebug) {
-                logger.debug("finished asyncState. asyncTraceId={}", asyncContext);
-            }
-        }
-    }
 }

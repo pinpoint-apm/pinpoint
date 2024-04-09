@@ -17,23 +17,22 @@
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
-public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     private final boolean traceOnError;
     private final boolean markErrorOnError;
 
-    public OnErrorSubscriberInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public OnErrorSubscriberInterceptor(TraceContext traceContext) {
+        super(traceContext);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
         this.traceOnError = config.isTraceOnError();
         this.markErrorOnError = config.isMarkErrorOnError();
@@ -48,7 +47,7 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAro
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -59,10 +58,10 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAro
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (traceOnError && trace.canSampled()) {
             recorder.recordServiceType(ReactorConstants.REACTOR);
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {
                 recorder.recordException(markErrorOnError, argThrowable);
@@ -71,6 +70,6 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventSimpleAro
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

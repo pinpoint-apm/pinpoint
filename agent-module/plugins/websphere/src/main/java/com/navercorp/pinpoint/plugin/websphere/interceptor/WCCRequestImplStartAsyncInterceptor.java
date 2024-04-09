@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.websphere.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereAsyncListener;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereConstants;
 
@@ -31,23 +30,23 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class WCCRequestImplStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class WCCRequestImplStartAsyncInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
-    public WCCRequestImplStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        super(context, descriptor);
+    public WCCRequestImplStartAsyncInterceptor(TraceContext context) {
+        super(context);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    protected Trace currentTrace() {
+    public Trace currentTrace() {
         return traceContext.currentRawTraceObject();
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (validate(target, result, throwable)) {
             final AsyncContext asyncContext = (AsyncContext) result;
             final AsyncListener asyncListener = new WebsphereAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
@@ -57,7 +56,7 @@ public class WCCRequestImplStartAsyncInterceptor extends SpanEventSimpleAroundIn
             }
         }
         recorder.recordServiceType(WebsphereConstants.WEBSPHERE_METHOD);
-        recorder.recordApi(methodDescriptor);
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }
 

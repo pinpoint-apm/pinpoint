@@ -16,11 +16,10 @@
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointApiAwareInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
@@ -29,19 +28,19 @@ import com.navercorp.pinpoint.plugin.vertx.VertxHandleException;
 /**
  * @author jaehong.kim
  */
-public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointInterceptor {
-    public HandleExceptionInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
-        super(traceContext, methodDescriptor);
+public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointApiAwareInterceptor {
+    public HandleExceptionInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
 
             final Throwable handleException = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
@@ -59,7 +58,7 @@ public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointInt
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 
     private static String buildErrorMessage(Throwable handleException, Throwable throwable) {

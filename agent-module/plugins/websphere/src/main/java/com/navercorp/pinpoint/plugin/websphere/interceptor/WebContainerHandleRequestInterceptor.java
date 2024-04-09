@@ -21,8 +21,9 @@ import com.ibm.websphere.servlet.response.IResponse;
 import com.ibm.ws.webcontainer.channel.WCCResponseImpl;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
@@ -44,16 +45,14 @@ import com.navercorp.pinpoint.plugin.websphere.WebsphereConstants;
  * @author sjmittal
  * @author jaehong.kim
  */
-public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
+public class WebContainerHandleRequestInterceptor implements ApiIdAwareAroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MethodDescriptor methodDescriptor;
     private final Validator validator;
     private final ServletRequestListener<IRequest> servletRequestListener;
 
-    public WebContainerHandleRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<IRequest> requestRecorderFactory) {
-        this.methodDescriptor = descriptor;
+    public WebContainerHandleRequestInterceptor(TraceContext traceContext, RequestRecorderFactory<IRequest> requestRecorderFactory) {
         this.validator = buildValidator();
         final WebsphereConfiguration config = new WebsphereConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<IRequest> requestAdaptor = new IRequestAdaptor();
@@ -81,7 +80,7 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -92,14 +91,15 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
 
         try {
             final IRequest request = (IRequest) args[0];
-            this.servletRequestListener.initialized(request, WebsphereConstants.WEBSPHERE_METHOD, this.methodDescriptor);
+            MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
+            this.servletRequestListener.initialized(request, WebsphereConstants.WEBSPHERE_METHOD, methodDescriptor);
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
         }
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
