@@ -80,6 +80,7 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
         try {
             return future.get(30l, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
