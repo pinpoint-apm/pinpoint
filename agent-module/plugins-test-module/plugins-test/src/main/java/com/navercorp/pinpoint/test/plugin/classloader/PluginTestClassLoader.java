@@ -28,6 +28,8 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Enumeration;
 
+import static java.util.Objects.requireNonNull;
+
 // parent: jdk, log, junit
 public class PluginTestClassLoader extends URLClassLoader {
     public static final IsJdkPackage isJdkPackage = new IsJdkPackage();
@@ -44,7 +46,7 @@ public class PluginTestClassLoader extends URLClassLoader {
     private URL[] urls;
 
     public PluginTestClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
+        super(requireNonNull(urls), parent);
         this.urls = urls;
         setClassLoaderName(getClass().getSimpleName());
     }
@@ -73,7 +75,7 @@ public class PluginTestClassLoader extends URLClassLoader {
                 }
             }
             if (c == null) {
-                throw new ClassNotFoundException("not found " + name + ", urls=" + Arrays.asList(urls));
+                throw new ClassNotFoundException("not found " + name + ", urls=" + Arrays.toString(urls));
             }
 
             if (resolve) {
@@ -83,6 +85,8 @@ public class PluginTestClassLoader extends URLClassLoader {
             return c;
         }
     }
+
+
 
     protected boolean isDelegated(String name) {
         return isJdkPackage.test(name) || isLogPackage.test(name) || isJunitPackage.test(name) || isPinpointCommonPackage.test(name);
@@ -130,7 +134,7 @@ public class PluginTestClassLoader extends URLClassLoader {
         }
         try {
             close();
-        } catch (IOException e) {
+        } catch (IOException ignore) {
         }
     }
 

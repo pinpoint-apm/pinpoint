@@ -94,7 +94,7 @@ public class SharedProcessManager implements ProcessManager {
                 try {
                     process.waitFor();
                 } catch (InterruptedException e) {
-                    // ignore
+                    Thread.currentThread().interrupt();
                 }
 
                 timer.cancel();

@@ -56,7 +56,11 @@ public class SharedTestExecutor {
     private <V> V awaitFuture(String action, Future<V> future, long timeout, TimeUnit unit) {
         try {
             return future.get(timeout, unit);
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.warn("{} interrupt error {}", action, testClazzName, e);
+            throw new IllegalStateException(action + " interrupt error "  + testClazzName, e);
+        } catch (ExecutionException e) {
             logger.warn("{} execution error {}", action, testClazzName, e);
             throw new IllegalStateException(action + " execution error "  + testClazzName, e);
         } catch (TimeoutException e) {
