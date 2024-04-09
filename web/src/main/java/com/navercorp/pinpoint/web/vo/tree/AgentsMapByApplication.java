@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.web.vo.tree;
 
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 
@@ -13,7 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class AgentsMapByApplication<T> {
 
@@ -28,11 +27,11 @@ public class AgentsMapByApplication<T> {
     }
 
     public static AgentsMapByApplication<AgentAndStatus> newAgentAndStatusMap(
-            AgentStatusFilter filter,
+            AgentStatusFilter agentStatusFilter,
             Collection<AgentAndStatus> agentAndStatuses
     ) {
         return AgentsMapByApplication.newAgentsMapByApplication(
-                filter,
+                agentStatusFilter,
                 agentAndStatuses,
                 AgentAndStatus::getAgentInfo,
                 AgentAndStatus::getStatus,
@@ -41,11 +40,11 @@ public class AgentsMapByApplication<T> {
     }
 
     public static AgentsMapByApplication<DetailedAgentInfo> newDetailedAgentInfoMap(
-            AgentStatusFilter filter,
+            AgentStatusFilter agentStatusPredicate,
             Collection<DetailedAgentAndStatus> agentAndStatuses
     ) {
         return AgentsMapByApplication.newAgentsMapByApplication(
-                filter,
+                agentStatusPredicate,
                 agentAndStatuses,
                 DetailedAgentInfo::getAgentInfo,
                 DetailedAgentAndStatus::getStatus,
@@ -54,26 +53,27 @@ public class AgentsMapByApplication<T> {
     }
 
     public static <I, T> AgentsMapByApplication<T> newAgentsMapByApplication(
-            AgentStatusFilter filter,
+            AgentStatusFilter agentStatusPredicate,
             Collection<I> agentCollection,
-            Function<T, AgentInfo> agentInfoSupplier,
-            Function<I, AgentStatus> agentStatusSupplier,
-            Function<I, T> finisher
+            Function<T, AgentInfo> agentInfoFn,
+            Function<I, AgentStatus> agentStatusFn,
+            Function<I, T> finisherFn
     ) {
-        Objects.requireNonNull(filter, "filter");
+        Objects.requireNonNull(agentStatusPredicate, "agentStatusPredicate");
         Objects.requireNonNull(agentCollection, "agentCollection");
 
-        InstancesListMapBuilder<I, T> instancesListMapBuilder =
-                new InstancesListMapBuilder<I, T>(
-                        agentInfoSupplier.andThen(AgentsMapByApplication::byApplicationName),
+        InstancesListMap<T> instancesListMap =
+                new InstancesListMapBuilder<>(
+                        agentInfoFn.andThen(AgentsMapByApplication::byApplicationName),
                         Comparator.naturalOrder(),
-                        SortByAgentInfo.agentIdAsc(agentInfoSupplier).getComparator(),
-                        agentCollection
-                );
+                        SortByAgentInfo.agentIdAsc(agentInfoFn).getComparator(),
+                        agentCollection,
+                        finisherFn
+                )
+                        .withFilterBefore((I x) -> agentStatusPredicate.test(agentStatusFn.apply(x)))
+                        .build();
 
-        instancesListMapBuilder.withFilter((I x) -> filter.filter(agentStatusSupplier.apply(x)));
-        instancesListMapBuilder.withFinisher(finisher);
-        return new AgentsMapByApplication<T>(instancesListMapBuilder.build());
+        return new AgentsMapByApplication<>(instancesListMap);
     }
 
     private static String byApplicationName(AgentInfo agentInfo) {

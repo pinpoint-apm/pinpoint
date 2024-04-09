@@ -21,8 +21,7 @@ import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
@@ -49,7 +48,7 @@ class AgentLookupServiceImpl implements AgentLookupService {
     public List<ClusterKey> getRecentAgents(String applicationName) {
         final long now = System.currentTimeMillis();
         return intoClusterKeyList(this.agentInfoService.getAgentsListByApplicationName(
-                new AgentStatusFilterChain(AgentStatusFilter::filterRunning),
+                AgentStatusFilters.running(),
                 applicationName,
                 Range.between(now - recentness.toMillis(), now),
                 SortByAgentInfo.Rules.AGENT_NAME_ASC
