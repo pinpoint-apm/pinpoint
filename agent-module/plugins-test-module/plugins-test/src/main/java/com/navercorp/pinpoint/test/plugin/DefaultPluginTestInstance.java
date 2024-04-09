@@ -85,6 +85,8 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (TimeoutException e) {
+            // testcase interrupt
+            future.cancel(true);
             throw new RuntimeException(e);
         }
     }
@@ -101,6 +103,13 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
         }
         if (this.executorService != null) {
             this.executorService.shutdownNow();
+            try {
+                if (!this.executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                    System.err.println("ExecutorService did not terminate in the specified time");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }

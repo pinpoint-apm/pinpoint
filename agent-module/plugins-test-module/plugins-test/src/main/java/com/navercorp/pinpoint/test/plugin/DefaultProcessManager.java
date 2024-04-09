@@ -26,8 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.PINPOINT_TEST_ID;
 
@@ -75,27 +74,21 @@ public class DefaultProcessManager implements ProcessManager {
 
     @Override
     public void stop() {
-        if (process != null) {
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
+        final boolean terminate = waitFor(process);
+        if (!terminate) {
+            logger.warn("Process not terminated. Destroy process.");
+            process.destroy();
+        }
+         process = null;
+    }
 
-                @Override
-                public void run() {
-                    process.destroy();
-                }
-
-            }, 10 * 1000);
-
-            try {
-                process.waitFor();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                logger.warn(e, "waitFor() is interrupted");
-            }
-
-            timer.cancel();
-            timer.purge();
-            process = null;
+    private boolean waitFor(Process process) {
+        try {
+            return process.waitFor(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.warn(e, "Process.waitFor() is interrupted");
+            return false;
         }
     }
 
