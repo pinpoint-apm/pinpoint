@@ -64,8 +64,9 @@ public class SharedTestExecutor {
             logger.warn("{} execution error {}", action, testClazzName, e);
             throw new IllegalStateException(action + " execution error "  + testClazzName, e);
         } catch (TimeoutException e) {
-            future.cancel(true);
             logger.warn("{} timeout {}", action,  testClazzName);
+            // testcase interrupt
+            future.cancel(true);
             throw new IllegalStateException(action + " timeout " + testClazzName);
         }
     }

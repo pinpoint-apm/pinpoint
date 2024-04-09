@@ -111,11 +111,7 @@ public class PluginTestClassLoader extends URLClassLoader {
             return super.getResource(name);
         }
 
-        URL url = findResource(name);
-        if (url != null) {
-            return url;
-        }
-        return null;
+        return findResource(name);
     }
 
     @Override
