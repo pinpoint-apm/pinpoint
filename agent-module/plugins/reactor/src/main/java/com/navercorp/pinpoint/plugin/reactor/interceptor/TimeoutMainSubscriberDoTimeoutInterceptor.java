@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -29,12 +28,12 @@ import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 import com.navercorp.pinpoint.plugin.reactor.TimeoutDescriptionGetter;
 
-public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     private final boolean traceTimeout;
 
-    public TimeoutMainSubscriberDoTimeoutInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public TimeoutMainSubscriberDoTimeoutInterceptor(TraceContext traceContext) {
+        super(traceContext);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
         this.traceTimeout = config.isTraceTimeout();
     }
@@ -47,7 +46,7 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -58,9 +57,9 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (traceTimeout && trace.canSampled()) {
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(ReactorConstants.REACTOR);
             recorder.recordException(throwable);
 
@@ -77,6 +76,6 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

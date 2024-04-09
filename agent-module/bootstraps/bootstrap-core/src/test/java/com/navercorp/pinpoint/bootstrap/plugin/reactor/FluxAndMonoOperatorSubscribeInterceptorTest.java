@@ -37,7 +37,7 @@ public class FluxAndMonoOperatorSubscribeInterceptorTest {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Set asyncContext to target
         target._$PINPOINT$_setReactorContext(mockAsyncContext);
@@ -59,7 +59,7 @@ public class FluxAndMonoOperatorSubscribeInterceptorTest {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Set asyncContext to target
         target._$PINPOINT$_setAsyncContext(mockAsyncContext);
@@ -84,7 +84,7 @@ public class FluxAndMonoOperatorSubscribeInterceptorTest {
     public void targetNotContainAsyncContext() {
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Not set asyncContext to target
         // before
@@ -106,7 +106,7 @@ public class FluxAndMonoOperatorSubscribeInterceptorTest {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Set asyncContext to target
         arg0._$PINPOINT$_setReactorContext(mockAsyncContext);
@@ -129,7 +129,7 @@ public class FluxAndMonoOperatorSubscribeInterceptorTest {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Not set asyncContext to target
         // before

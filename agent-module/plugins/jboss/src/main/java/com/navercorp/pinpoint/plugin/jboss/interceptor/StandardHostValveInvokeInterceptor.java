@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.plugin.jboss.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
@@ -53,12 +54,11 @@ import javax.servlet.http.HttpServletResponse;
  * @author emeroad
  * @author jaehong.kim
  */
-public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
+public class StandardHostValveInvokeInterceptor implements ApiIdAwareAroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private final MethodDescriptor methodDescriptor;
     private final Validator validator;
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
@@ -70,9 +70,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param traceContext the trace context
      * @param descriptor   the descriptor
      */
-    public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor, final RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
-        this.methodDescriptor = descriptor;
-
+    public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
         this.validator = buildValidator();
         final JbossConfig config = new JbossConfig(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
@@ -114,7 +112,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(final Object target, final Object[] args) {
+    public void before(final Object target, final int apiId, final Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -131,9 +129,10 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 }
                 return;
             }
-            this.servletRequestListener.initialized(request, JbossConstants.JBOSS_METHOD, this.methodDescriptor);
+            MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
+            this.servletRequestListener.initialized(request, JbossConstants.JBOSS_METHOD, methodDescriptor);
             final HttpServletResponse response = (HttpServletResponse) args[1];
-            this.servletResponseListener.initialized(response, JbossConstants.JBOSS_METHOD, this.methodDescriptor); //must after request listener due to trace block begin
+            this.servletResponseListener.initialized(response, JbossConstants.JBOSS_METHOD, methodDescriptor); //must after request listener due to trace block begin
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
@@ -142,7 +141,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(final Object target, final Object[] args, final Object result, final Throwable throwable) {
+    public void after(final Object target, final int apiId, final Object[] args, final Object result, final Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -170,5 +169,4 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             }
         }
     }
-
 }

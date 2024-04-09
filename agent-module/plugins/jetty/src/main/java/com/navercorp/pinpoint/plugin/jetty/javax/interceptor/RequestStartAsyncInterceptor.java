@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.jetty.javax.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 import com.navercorp.pinpoint.plugin.jetty.javax.JettyAsyncListener;
 
@@ -31,25 +30,23 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class RequestStartAsyncInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
-    public RequestStartAsyncInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
-    }
-
-
-    @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
-        
+    public RequestStartAsyncInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
-    protected Trace currentTrace() {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
+    }
+
+    @Override
+    public Trace currentTrace() {
         return traceContext.currentRawTraceObject();
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) throws Exception {
         if (validate(target, result, throwable)) {
             // Add async listener. Servlet 3.0
             final AsyncContext asyncContext = (AsyncContext) result;
@@ -60,7 +57,7 @@ public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundIntercept
             }
         }
         recorder.recordServiceType(JettyConstants.JETTY_METHOD);
-        recorder.recordApi(methodDescriptor);
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }
 

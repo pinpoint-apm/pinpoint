@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
@@ -26,8 +25,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class ParallelFluxSubscribeInterceptor extends FluxAndMonoOperatorSubscribeInterceptor {
 
-    public ParallelFluxSubscribeInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, ServiceType serviceType) {
-        super(traceContext, methodDescriptor, serviceType);
+    public ParallelFluxSubscribeInterceptor(TraceContext traceContext, ServiceType serviceType) {
+        super(traceContext, serviceType);
     }
 
     @Override

@@ -18,17 +18,16 @@ package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class FluxAndMonoOperatorSubscribeInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class FluxAndMonoOperatorSubscribeInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
     private final ServiceType serviceType;
 
-    public FluxAndMonoOperatorSubscribeInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, ServiceType serviceType) {
-        super(traceContext, methodDescriptor);
+    public FluxAndMonoOperatorSubscribeInterceptor(TraceContext traceContext, ServiceType serviceType) {
+        super(traceContext);
         this.serviceType = serviceType;
     }
 
@@ -89,7 +88,7 @@ public class FluxAndMonoOperatorSubscribeInterceptor extends AsyncContextSpanEve
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apidId, Object[] args) {
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -97,8 +96,8 @@ public class FluxAndMonoOperatorSubscribeInterceptor extends AsyncContextSpanEve
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApiId(apiId);
         recorder.recordServiceType(serviceType);
         recorder.recordException(throwable);
     }

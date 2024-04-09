@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.jboss.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jboss.JbossAsyncListener;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 
@@ -31,23 +30,23 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class RequestStartAsyncInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
-    public RequestStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        super(context, descriptor);
+    public RequestStartAsyncInterceptor(TraceContext context) {
+        super(context);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    protected Trace currentTrace() {
+    public Trace currentTrace() {
         return traceContext.currentRawTraceObject();
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (validate(target, result, throwable)) {
             // Add async listener. Servlet 3.0
             final AsyncContext asyncContext = (AsyncContext) result;
@@ -59,7 +58,7 @@ public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundIntercept
         }
 
         recorder.recordServiceType(JbossConstants.JBOSS_METHOD);
-        recorder.recordApi(methodDescriptor);
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }
 
@@ -82,5 +81,4 @@ public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundIntercept
         }
         return true;
     }
-
 }

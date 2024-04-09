@@ -47,18 +47,19 @@ public class RequestContextImplCompleteInterceptorTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        interceptor = new RequestContextImplCompleteInterceptor(traceContext, descriptor);
+        interceptor = new RequestContextImplCompleteInterceptor(traceContext);
     }
 
     @Test
     public void doInBeforeTrace() {
-        interceptor.doInBeforeTrace(recorder, null, new Object[]{marshallable});
+        int apiId = 1;
+        interceptor.doInBeforeTrace(recorder, null, apiId, new Object[]{marshallable});
     }
 
     @Test
     public void doInAfterTrace() {
-        interceptor.doInAfterTrace(recorder, null, null, null, null);
-        verify(recorder).recordApi(descriptor);
+        int apiId = 1;
+        interceptor.doInAfterTrace(recorder, null, apiId,null, null, null);
         verify(recorder).recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
         verify(recorder).recordException(null);
     }

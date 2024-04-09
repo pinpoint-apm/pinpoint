@@ -23,14 +23,13 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
@@ -45,7 +44,7 @@ import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConfig;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
 import com.navercorp.pinpoint.plugin.akka.http.HttpRequestAdaptor;
 
-public class DirectivesInterceptor implements AroundInterceptor {
+public class DirectivesInterceptor implements ApiIdAwareAroundInterceptor {
 
     private final PluginLogger logger = PluginLogManager.getLogger(DirectivesInterceptor.class);
     private final boolean isTrace = logger.isTraceEnabled();
@@ -53,7 +52,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
 
 
     private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
+
     private static final AkkaHttpServerMethodDescriptor AKKA_HTTP_SERVER_METHOD_DESCRIPTOR = new AkkaHttpServerMethodDescriptor();
 
     private final ProxyRequestRecorder<HttpRequest> proxyRequestRecorder;
@@ -64,9 +63,8 @@ public class DirectivesInterceptor implements AroundInterceptor {
     private final Filter<String> traceExcludeMethodFilter;
 
 
-    public DirectivesInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor, final RequestRecorderFactory<HttpRequest> requestRecorderFactory) {
+    public DirectivesInterceptor(final TraceContext traceContext, final RequestRecorderFactory<HttpRequest> requestRecorderFactory) {
         this.traceContext = traceContext;
-        this.descriptor = methodDescriptor;
 
         final AkkaHttpConfig config = new AkkaHttpConfig(traceContext.getProfilerConfig());
         this.excludeUrlFilter = config.getExcludeUrlFilter();
@@ -79,7 +77,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
 
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -256,7 +254,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -277,7 +275,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
+            recorder.recordApiId(apiId);
             recorder.recordException(throwable);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {

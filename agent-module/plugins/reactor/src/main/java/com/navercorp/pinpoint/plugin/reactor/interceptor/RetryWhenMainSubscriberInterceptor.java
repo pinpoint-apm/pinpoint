@@ -17,23 +17,22 @@
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
-public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     private final boolean traceRetry;
     private final boolean markErrorRetry;
 
-    public RetryWhenMainSubscriberInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public RetryWhenMainSubscriberInterceptor(TraceContext traceContext) {
+        super(traceContext);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
         this.traceRetry = config.isTraceRetry();
         this.markErrorRetry = config.isMarkErrorRetry();
@@ -47,7 +46,7 @@ public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventSim
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -58,9 +57,9 @@ public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventSim
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (traceRetry && trace.canSampled()) {
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(ReactorConstants.REACTOR);
 
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
@@ -71,6 +70,6 @@ public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventSim
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

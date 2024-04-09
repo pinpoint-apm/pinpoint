@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.undertowservlet.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.undertowservlet.UndertowAsyncListener;
 import com.navercorp.pinpoint.plugin.undertowservlet.UndertowServletConstants;
 
@@ -31,14 +30,14 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class HttpServletRequestImplStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class HttpServletRequestImplStartAsyncInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
-    public HttpServletRequestImplStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        super(context, descriptor);
+    public HttpServletRequestImplStartAsyncInterceptor(TraceContext context) {
+        super(context);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
@@ -47,7 +46,7 @@ public class HttpServletRequestImplStartAsyncInterceptor extends SpanEventSimple
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (validate(target, result, throwable)) {
             final AsyncContext asyncContext = (AsyncContext) result;
             final AsyncListener asyncListener = new UndertowAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
@@ -57,7 +56,7 @@ public class HttpServletRequestImplStartAsyncInterceptor extends SpanEventSimple
             }
         }
         recorder.recordServiceType(UndertowServletConstants.UNDERTOW_SERVLET_METHOD);
-        recorder.recordApi(methodDescriptor);
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }
 

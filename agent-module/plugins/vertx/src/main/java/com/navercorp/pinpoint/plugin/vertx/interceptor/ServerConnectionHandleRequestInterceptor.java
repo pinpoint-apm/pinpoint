@@ -18,13 +18,12 @@ package com.navercorp.pinpoint.plugin.vertx.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
@@ -50,7 +49,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public class ServerConnectionHandleRequestInterceptor implements AroundInterceptor {
+public class ServerConnectionHandleRequestInterceptor implements ApiIdAwareAroundInterceptor {
     private static final String SCOPE_NAME = "##VERTX_SERVER_CONNECTION_TRACE";
     private static final VertxHttpServerMethodDescriptor VERTX_HTTP_SERVER_METHOD_DESCRIPTOR = new VertxHttpServerMethodDescriptor();
 
@@ -68,15 +67,11 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final ParameterRecorder<HttpServerRequest> parameterRecorder;
 
     private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
 
     private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
-    public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext,
-                                                    final MethodDescriptor methodDescriptor,
-                                                    final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
+    public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext, final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.descriptor = methodDescriptor;
 
         final VertxHttpServerConfig config = new VertxHttpServerConfig(traceContext.getProfilerConfig());
         this.excludeUrlFilter = config.getExcludeUrlFilter();
@@ -95,7 +90,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -164,7 +159,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -203,7 +198,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         try {
             if (trace.canSampled()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordApi(descriptor);
+                recorder.recordApiId(apiId);
                 recorder.recordException(throwable);
                 if (validate) {
                     final HttpServerRequest request = (HttpServerRequest) args[0];

@@ -18,16 +18,15 @@ package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 
-public class FuncationApplyInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class FuncationApplyInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
 
-    public FuncationApplyInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public FuncationApplyInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args) {
@@ -35,7 +34,7 @@ public class FuncationApplyInterceptor extends AsyncContextSpanEventSimpleAround
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -43,8 +42,8 @@ public class FuncationApplyInterceptor extends AsyncContextSpanEventSimpleAround
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApiId(apiId);
         recorder.recordServiceType(ReactorConstants.REACTOR);
         recorder.recordException(throwable);
     }

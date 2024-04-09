@@ -18,12 +18,11 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
@@ -37,12 +36,12 @@ import reactor.netty.http.client.HttpClientRequest;
 /**
  * @author jaehong.kim
  */
-public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
 
-    public HttpClientOperationsSendInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public HttpClientOperationsSendInterceptor(TraceContext traceContext) {
+        super(traceContext);
 
         final ReactorNettyPluginConfig config = new ReactorNettyPluginConfig(traceContext.getProfilerConfig());
         final boolean param = config.isParam();
@@ -63,7 +62,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
     }
 
     @Override
-    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
         final HttpClientRequest request = (HttpClientRequest) target;
         if (trace.canSampled()) {
             final TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -79,7 +78,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     // AFTER
@@ -93,9 +92,9 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordException(throwable);
 
             final HttpClientRequest request = (HttpClientRequest) target;
@@ -105,7 +104,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 
     private boolean validate(final Object target) {

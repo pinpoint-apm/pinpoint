@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.jboss.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 
 /**
@@ -28,26 +27,25 @@ import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
  * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
  * @author jaehong.kim
  */
-public class ContextInvocationInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class ContextInvocationInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
     /**
      * Instantiates a new invoke context interceptor.
      *
      * @param traceContext the trace context
-     * @param descriptor   the descriptor
      */
-    public ContextInvocationInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+    public ContextInvocationInterceptor(final TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
         recorder.recordServiceType(JbossConstants.JBOSS_METHOD);
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }
 

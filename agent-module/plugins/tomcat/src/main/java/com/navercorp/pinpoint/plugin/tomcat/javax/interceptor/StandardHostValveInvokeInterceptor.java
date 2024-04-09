@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.plugin.tomcat.javax.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
@@ -51,11 +52,10 @@ import javax.servlet.http.HttpServletResponse;
  * @author emeroad
  * @author jaehong.kim
  */
-public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
+public class StandardHostValveInvokeInterceptor implements ApiIdAwareAroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MethodDescriptor methodDescriptor;
     private final Validator validator;
 
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
@@ -67,10 +67,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final boolean uriStatCollectMethod;
 
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor,
-                                              RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
         this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
 
         this.validator = buildValidator();
         final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());
@@ -107,7 +105,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -127,15 +125,16 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 return;
             }
             final HttpServletResponse response = (HttpServletResponse) args[1];
-            this.servletRequestListener.initialized(request, TomcatConstants.TOMCAT_METHOD, this.methodDescriptor);
-            this.servletResponseListener.initialized(response, TomcatConstants.TOMCAT_METHOD, this.methodDescriptor); //must after request listener due to trace block begin
+            MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
+            this.servletRequestListener.initialized(request, TomcatConstants.TOMCAT_METHOD, methodDescriptor);
+            this.servletResponseListener.initialized(response, TomcatConstants.TOMCAT_METHOD, methodDescriptor); //must after request listener due to trace block begin
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
         }
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

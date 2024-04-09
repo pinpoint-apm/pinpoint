@@ -18,21 +18,20 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
 
-public class HttpObserverOnUncaughtExceptionInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class HttpObserverOnUncaughtExceptionInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
     private final boolean traceHttpError;
     private final boolean markErrorHttpError;
 
-    public HttpObserverOnUncaughtExceptionInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public HttpObserverOnUncaughtExceptionInterceptor(TraceContext traceContext) {
+        super(traceContext);
         final ReactorNettyPluginConfig config = new ReactorNettyPluginConfig(traceContext.getProfilerConfig());
         this.traceHttpError = config.isTraceHttpError();
         this.markErrorHttpError = config.isMarkErrorHttpError();
@@ -47,7 +46,7 @@ public class HttpObserverOnUncaughtExceptionInterceptor extends AsyncContextSpan
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     @Override
@@ -59,9 +58,9 @@ public class HttpObserverOnUncaughtExceptionInterceptor extends AsyncContextSpan
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (traceHttpError && trace.canSampled()) {
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 1, Throwable.class);
             if (argThrowable != null) {
@@ -71,6 +70,6 @@ public class HttpObserverOnUncaughtExceptionInterceptor extends AsyncContextSpan
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

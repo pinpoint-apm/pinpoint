@@ -17,21 +17,20 @@ package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
 /**
  * @author jaehong.kim
  */
-public class ContextImplRunOnContextInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class ContextImplRunOnContextInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
-    public ContextImplRunOnContextInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public ContextImplRunOnContextInterceptor(final TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
@@ -40,7 +39,7 @@ public class ContextImplRunOnContextInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
         if (validate(args)) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -64,15 +63,15 @@ public class ContextImplRunOnContextInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void afterTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
-            recorder.recordApi(this.methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
             recorder.recordException(throwable);
         }
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

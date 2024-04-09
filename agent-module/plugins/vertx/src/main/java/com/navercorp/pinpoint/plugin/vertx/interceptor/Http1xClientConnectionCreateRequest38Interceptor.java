@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 
 public class Http1xClientConnectionCreateRequest38Interceptor extends Http1xClientConnectionCreateRequestInterceptor {
 
-    public Http1xClientConnectionCreateRequest38Interceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+    public Http1xClientConnectionCreateRequest38Interceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
