@@ -41,8 +41,7 @@ public final class DateTimeUtils {
 
         Instant instant = Instant.ofEpochMilli(epochMilli);
         // java 9
-//        LocalDate localDate = LocalDate.ofInstant(instant, ZONE_ID);
-        LocalDate localDate = instant.atZone(ZONE_ID).toLocalDate();
+        LocalDate localDate = LocalDate.ofInstant(instant, ZONE_ID);
         ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZONE_ID);
         return zonedDateTime.toInstant().toEpochMilli();
     }
