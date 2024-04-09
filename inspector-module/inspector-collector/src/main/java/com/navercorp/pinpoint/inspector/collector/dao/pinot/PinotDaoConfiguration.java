@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStatModelConverter;
+import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStatV2;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStatModelConverter;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
@@ -53,13 +54,15 @@ import java.util.function.Function;
 public class PinotDaoConfiguration {
 
     private final KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate;
+    private final KafkaTemplate<Long, AgentStatV2> kafkaAgentStatV2Template;
     private final KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate;
     private final String agentStatTopic;
     private final String applicationStatTopic;
     private final TenantProvider tenantProvider;
 
-    public PinotDaoConfiguration(KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, @Value("${kafka.inspector.topic.agent}") String agentStatTopic, @Value("${kafka.inspector.topic.application}") String applicationStatTopic, TenantProvider tenantProvider) {
+    public PinotDaoConfiguration(KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<Long, AgentStatV2> kafkaAgentStatV2Template,  KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, @Value("${kafka.inspector.topic.agent}") String agentStatTopic, @Value("${kafka.inspector.topic.application}") String applicationStatTopic, TenantProvider tenantProvider) {
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
+        this.kafkaAgentStatV2Template = Objects.requireNonNull(kafkaAgentStatV2Template, "kafkaAgentStatV2Template");
         this.kafkaApplicationStatTemplate = Objects.requireNonNull(kafkaApplicationStatTemplate, "kafkaApplicationStatTemplate");
         this.agentStatTopic = agentStatTopic;
         this.applicationStatTopic = applicationStatTopic;
@@ -67,7 +70,7 @@ public class PinotDaoConfiguration {
     }
 
     private <T extends AgentStatDataPoint> AgentStatDao<T> newAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, BiFunction<List<T>, String, List<AgentStat>> convertToAgentStat, Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStat) {
-        return new DefaultAgentStatDao(dataPointFunction, kafkaAgentStatTemplate, kafkaApplicationStatTemplate, convertToAgentStat, convertToKafkaApplicationStat, agentStatTopic, applicationStatTopic, tenantProvider);
+        return new DefaultAgentStatDao(dataPointFunction, kafkaAgentStatTemplate, kafkaAgentStatV2Template, kafkaApplicationStatTemplate, convertToAgentStat, convertToKafkaApplicationStat, agentStatTopic, applicationStatTopic, tenantProvider);
     }
 
     @Bean
