@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTestContext;
 import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
+import com.navercorp.pinpoint.test.plugin.ProcessTerminator;
 import com.navercorp.pinpoint.test.plugin.junit5.launcher.SharedPluginForkedTestLauncher;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
 import com.navercorp.pinpoint.test.plugin.util.CommandLineOption;
@@ -38,8 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -81,23 +81,8 @@ public class SharedProcessManager implements ProcessManager {
     public void stop() {
         if (testRepository.isEmpty()) {
             if (process != null) {
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-
-                    @Override
-                    public void run() {
-                        process.destroy();
-                    }
-
-                }, 10 * 1000);
-
-                try {
-                    process.waitFor();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-
-                timer.cancel();
+                ProcessTerminator terminator = new ProcessTerminator(logger, process);
+                terminator.destroy(10, TimeUnit.SECONDS);
                 process = null;
             }
         }
