@@ -11,7 +11,7 @@ import { getParsedDateRange, isValidDateRange } from '@pinpoint-fe/utils';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 import { toast } from '../Toast';
-import { useLanguage } from '@pinpoint-fe/hooks';
+import { useLanguage, useSearchParameters } from '@pinpoint-fe/hooks';
 
 export type DateState = {
   dates?: {
@@ -66,12 +66,17 @@ export const DatetimePicker = React.memo(
     onChange,
     ...props
   }: DatetimePickerProps) => {
+    const { application } = useSearchParameters();
     const [language] = useLanguage();
     const [input, setInput] = React.useState('');
     const parsedDate = getParsedDateRange({ from, to }, isValidDateRange(maxDateRangeDays));
     const parsedFromTimestamp = parsedDate.from.getTime();
     const parsedToTimestamp = parsedDate.to.getTime();
     const gap = parsedDate.to.getTime() - parsedDate.from.getTime();
+
+    React.useEffect(() => {
+      setInput('');
+    }, [application?.applicationName, application?.serviceType]);
 
     const handleChange = (dateState: DateState, text = '') => {
       setInput(text);
