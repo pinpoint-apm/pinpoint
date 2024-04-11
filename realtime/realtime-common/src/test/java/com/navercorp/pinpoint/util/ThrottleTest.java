@@ -19,8 +19,7 @@ import com.navercorp.pinpoint.realtime.util.MinTermThrottle;
 import com.navercorp.pinpoint.realtime.util.Throttle;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -49,23 +48,13 @@ public class ThrottleTest {
         assertThat(numHit.get()).isLessThanOrEqualTo(11).isGreaterThanOrEqualTo(8);
     }
 
+    @SuppressWarnings("unchecked")
     private void executeParallel(Runnable target) {
-        final List<Thread> threads = new ArrayList<>(4);
+        final CompletableFuture<Void>[] result = new CompletableFuture[4];
         for (int i = 0; i < 4; i++) {
-            final Thread thread = new Thread(target, "hitTester-" + (i + 1));
-            threads.add(thread);
+            result[i] = CompletableFuture.runAsync(target);
         }
-        for (final Thread thread: threads) {
-            thread.start();
-        }
-        for (final Thread thread: threads) {
-            while (true) {
-                try {
-                    thread.join();
-                    break;
-                } catch (Exception ignored) {}
-            }
-        }
+        CompletableFuture.allOf(result).join();
     }
 
 }
