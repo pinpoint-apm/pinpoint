@@ -50,4 +50,9 @@ public final class EmptyRegistryAdaptor implements InterceptorRegistryAdaptor {
     @Override
     public void clear() {
     }
+
+    @Override
+    public boolean contains(int key) {
+        return false;
+    }
 }

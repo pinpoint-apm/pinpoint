@@ -56,6 +56,10 @@ public final class InterceptorRegistry {
         return REGISTRY.get().getInterceptor(key);
     }
 
+    public static boolean contains(int key) {
+        return REGISTRY.get().contains(key);
+    }
+
     public static void setInterceptorHolderEnable(boolean enable) {
         interceptorHolderEnable = enable;
     }
