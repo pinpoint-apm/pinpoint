@@ -255,13 +255,16 @@ public class ASMMethod implements InstrumentMethod {
     private int createInterceptor(Class<? extends Interceptor> interceptorClass, Object[] constructorArgs, ScopeInfo scopeInfo) throws InstrumentException {
         final ObjectBinderFactory objectBinderFactory = this.engineComponent.getObjectBinderFactory();
         final AnnotatedInterceptorFactory factory = objectBinderFactory.newAnnotatedInterceptorFactory(this.pluginContext);
+        final ClassLoader classLoader = this.declaringClass.getClassLoader();
         int interceptorId = 0;
-        if (InterceptorRegistry.isInterceptorHolderEnable()) {
-            interceptorId = this.engineComponent.addInterceptor();
-            ASMInterceptorHolder.create(interceptorId, this.declaringClass.getClassLoader(), factory, interceptorClass, constructorArgs, scopeInfo, this.descriptor);
-        } else {
+        if (classLoader == null || Boolean.FALSE == InterceptorRegistry.isInterceptorHolderEnable()) {
+            // Bootstrap ClassLoader or disable interceptorHolder
             final Interceptor interceptor = factory.newInterceptor(interceptorClass, constructorArgs, scopeInfo, this.descriptor);
             interceptorId = this.engineComponent.addInterceptor(interceptor);
+        } else {
+            // InterceptorHolder
+            interceptorId = this.engineComponent.addInterceptor();
+            ASMInterceptorHolder.create(interceptorId, this.declaringClass.getClassLoader(), factory, interceptorClass, constructorArgs, scopeInfo, this.descriptor);
         }
         return interceptorId;
     }

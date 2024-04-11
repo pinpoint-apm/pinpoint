@@ -76,4 +76,9 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
             }
         }
     }
+
+    @Override
+    public boolean contains(int key) {
+        return this.index.get(key) != null;
+    }
 }

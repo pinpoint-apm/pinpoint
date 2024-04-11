@@ -14,4 +14,6 @@ public interface InterceptorRegistryAdaptor {
     Interceptor getInterceptor(int key);
 
     void clear();
+
+    boolean contains(int key);
 }
