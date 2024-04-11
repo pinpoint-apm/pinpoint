@@ -74,22 +74,12 @@ public class DefaultProcessManager implements ProcessManager {
 
     @Override
     public void stop() {
-        final boolean terminate = waitFor(process);
-        if (!terminate) {
-            logger.warn("Process not terminated. Destroy process.");
-            process.destroy();
+        if (process == null) {
+            return;
         }
-         process = null;
-    }
-
-    private boolean waitFor(Process process) {
-        try {
-            return process.waitFor(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            logger.warn(e, "Process.waitFor() is interrupted");
-            return false;
-        }
+        ProcessTerminator terminator = new ProcessTerminator(logger, process);
+        terminator.destroy(10, TimeUnit.SECONDS);
+        process = null;
     }
 
     private List<String> buildCommand(PinpointPluginTestInstance pluginTestInstance) {
