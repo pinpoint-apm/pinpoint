@@ -25,23 +25,20 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
-import java.util.Objects;
-import java.util.Timer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author HyunGil Jeong
  */
 public class PinpointWebSocketTimerTaskDecoratorTest {
 
-    private static final long DELAY_MS = 1000L;
-
     private final TimerTaskDecoratorFactory timerTaskDecoratorFactory = new PinpointWebSocketTimerTaskDecoratorFactory();
 
     @Test
-    public void testAuthenticationPropagation() throws InterruptedException {
+    public void testAuthenticationPropagation() {
         final int numThreads = 3;
         final Authentication[] authentications = new Authentication[numThreads];
         for (int i = 0; i < authentications.length; i++) {
@@ -49,44 +46,43 @@ public class PinpointWebSocketTimerTaskDecoratorTest {
             final String credential = "credential" + i;
             authentications[i] = new TestingAuthenticationToken(principal, credential);
         }
-        final CountDownLatch schedulerLatch = new CountDownLatch(numThreads);
-        final Timer timer = new Timer();
-
+        List<CompletableFuture<Authentication>> result = new ArrayList<>();
         for (Authentication authentication : authentications) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    SecurityContext securityContext = new SecurityContextImpl();
-                    securityContext.setAuthentication(authentication);
-                    SecurityContextHolder.setContext(securityContext);
-                    TimerTask timerTask = timerTaskDecoratorFactory.createTimerTaskDecorator().decorate(new TestTimerTask(schedulerLatch, authentication));
-                    timer.schedule(timerTask, DELAY_MS);
-                }
-            }).start();
+            CompletableFuture<Authentication> future = CompletableFuture.supplyAsync(() -> {
+                SecurityContext securityContext = new SecurityContextImpl();
+                securityContext.setAuthentication(authentication);
+                SecurityContextHolder.setContext(securityContext);
+                TestTimerTask run = new TestTimerTask();
+                TimerTask timerTask = timerTaskDecoratorFactory.createTimerTaskDecorator().decorate(run);
+                timerTask.run();
+                return run.result();
+            });
+            result.add(future);
         }
-        Assertions.assertTrue(schedulerLatch.await(2 * DELAY_MS, TimeUnit.MILLISECONDS), "Timed out waiting for timer task completion");
+
+        for (int i = 0; i < authentications.length; i++) {
+            Authentication expected = authentications[i];
+            Authentication actual = result.get(i).join();
+            Assertions.assertEquals(expected, actual);
+        }
     }
 
     private static class TestTimerTask extends TimerTask {
 
-        private final CountDownLatch executeLatch;
-        private final Authentication expectedAuthentication;
+        private Authentication result;
 
-        private TestTimerTask(CountDownLatch executeLatch, Authentication expectedAuthentication) {
-            this.executeLatch = Objects.requireNonNull(executeLatch, "executeLatch");
-            this.expectedAuthentication = Objects.requireNonNull(expectedAuthentication, "expectedAuthentication");
+        private TestTimerTask() {
         }
 
         @Override
         public void run() {
-            try {
-                SecurityContext securityContext = SecurityContextHolder.getContext();
-                Assertions.assertNotNull(securityContext);
-                Authentication actualAuthentication = securityContext.getAuthentication();
-                Assertions.assertSame(expectedAuthentication, actualAuthentication);
-            } finally {
-                executeLatch.countDown();
-            }
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            Assertions.assertNotNull(securityContext);
+            this.result = securityContext.getAuthentication();
+        }
+
+        public Authentication result() {
+            return result;
         }
     }
 }
