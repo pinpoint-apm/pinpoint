@@ -16,7 +16,7 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
-        <spring.boot.version>2.3.12.RELEASE</spring.boot.version>
+        <spring-boot.version>${spring-boot2.version}</spring-boot.version>
     </properties>
 
     <dependencies>

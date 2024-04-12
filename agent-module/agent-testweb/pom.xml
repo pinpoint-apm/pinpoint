@@ -46,7 +46,7 @@
         </pinpoint.agent.default.jvmargument>
         <pinpoint.agent.jvmargument>${pinpoint.agent.default.jvmargument}</pinpoint.agent.jvmargument>
 
-        <spring.boot.version>${spring.boot2.version}</spring.boot.version>
+        <spring-boot.version>${spring-boot2.version}</spring-boot.version>
         <spring.version>${spring5.version}</spring.version>
     </properties>
 
