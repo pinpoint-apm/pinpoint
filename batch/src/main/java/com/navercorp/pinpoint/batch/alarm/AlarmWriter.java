@@ -23,9 +23,8 @@ import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
 import java.util.List;
@@ -51,18 +50,10 @@ public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionLi
         this.interceptor = Objects.requireNonNullElseGet(alarmWriterInterceptor, DefaultAlarmWriterInterceptor::new);
     }
 
-    @Override
-    public void beforeStep(@Nonnull StepExecution stepExecution) {
-    }
 
     @Override
-    public ExitStatus afterStep(@Nonnull StepExecution stepExecution) {
-        return null;
-    }
-
-    @Override
-    public void write(@Nonnull List<? extends AppAlarmChecker> appAlarmCheckers) {
-        List<AlarmChecker<?>> checkers = AppAlarmChecker.flatten(appAlarmCheckers);
+    public void write(@Nonnull Chunk<? extends AppAlarmChecker> appAlarmCheckers) {
+        List<AlarmChecker<?>> checkers = AppAlarmChecker.flatten(appAlarmCheckers.getItems());
         interceptor.before(checkers);
         try {
             for (AppAlarmChecker appAlarmChecker: appAlarmCheckers) {

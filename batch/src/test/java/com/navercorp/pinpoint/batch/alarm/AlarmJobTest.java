@@ -18,13 +18,12 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 import java.util.Date;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -43,7 +42,8 @@ public class AlarmJobTest {
     }
 
     private static JobParameters getParameters() {
-        Map<String, JobParameter> parameters = Map.of("schedule.scheduledFireTime", new JobParameter(new Date()));
-        return new JobParameters(parameters);
+        JobParametersBuilder builder = new JobParametersBuilder();
+        builder.addDate("schedule.scheduledFireTime", new Date());
+        return builder.toJobParameters();
     }
 }

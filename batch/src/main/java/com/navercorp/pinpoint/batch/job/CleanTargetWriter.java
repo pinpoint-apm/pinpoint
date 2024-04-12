@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import jakarta.annotation.Nonnull;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
 import java.util.ArrayList;
@@ -37,13 +38,14 @@ public class CleanTargetWriter implements ItemWriter<CleanTarget> {
     }
 
     @Override
-    public void write(@Nonnull List<? extends CleanTarget> items) throws Exception {
+    public void write(@Nonnull Chunk<? extends CleanTarget> chunks) throws Exception {
+        List<? extends CleanTarget> items = chunks.getItems();
         if (this.applicationRemover != null) {
-            this.applicationRemover.write(getApplicationNames(items));
+            this.applicationRemover.write(new Chunk<>(getApplicationNames(items)));
         }
 
         if (this.agentRemover != null) {
-            this.agentRemover.write(getAgents(items));
+            this.agentRemover.write(new Chunk<>(getAgents(items)));
         }
     }
 

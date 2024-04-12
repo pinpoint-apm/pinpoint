@@ -171,7 +171,7 @@
 
         <spring4.version>4.3.30.RELEASE</spring4.version>
         <spring5.version>5.3.28</spring5.version>
-        <spring.batch.version>4.3.7</spring.batch.version>
+        <spring.batch.version>5.1.1</spring.batch.version>
 
 <!--        <spring.security.version>5.8.1</spring.security.version>-->
         <spring.security.version>6.1.8</spring.security.version>

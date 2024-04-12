@@ -17,10 +17,11 @@
 package com.navercorp.pinpoint.batch.job;
 
 import jakarta.annotation.Nonnull;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
-import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * @author youngjin.kim2
@@ -34,25 +35,18 @@ public class ItemListWriter<T> implements ItemWriter<List<T>> {
     }
 
     @Override
-    public void write(@Nonnull List<? extends List<T>> items) throws Exception {
+    public void write(@Nonnull Chunk<? extends List<T>> items) throws Exception {
         if (this.delegate != null) {
             this.delegate.write(flatten(items));
         }
     }
 
-    private List<T> flatten(List<? extends List<T>> items) {
-        List<T> lst = new ArrayList<>(size(items));
+    private Chunk<T> flatten(Chunk<? extends List<T>> items) {
+        Chunk<T> lst = new Chunk<>();
         for (List<T> sub: items) {
             lst.addAll(sub);
         }
         return lst;
     }
 
-    private int size(List<? extends List<T>> items) {
-        int size = 0;
-        for (List<T> item : items) {
-            size += item.size();
-        }
-        return size;
-    }
 }

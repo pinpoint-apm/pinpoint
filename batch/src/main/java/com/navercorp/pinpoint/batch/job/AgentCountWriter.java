@@ -19,13 +19,17 @@ package com.navercorp.pinpoint.batch.job;
 import com.navercorp.pinpoint.web.dao.AgentStatisticsDao;
 import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
+import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecutionException;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
-import jakarta.annotation.Nonnull;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -69,8 +73,9 @@ public class AgentCountWriter implements ItemWriter<Integer>, StepExecutionListe
     }
 
     @Override
-    public void write(List<? extends Integer> items) {
-        count.getAndAdd(items.stream().mapToInt(el -> el).sum());
+    public void write(Chunk<? extends Integer> items) {
+        int sum = items.getItems().stream().mapToInt(el -> el).sum();
+        count.getAndAdd(sum);
     }
 
     private void writeCount(int count) throws JobExecutionException {
