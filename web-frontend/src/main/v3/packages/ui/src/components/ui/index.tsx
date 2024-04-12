@@ -1,5 +1,6 @@
 export * from './accordion';
 export * from './alert';
+export * from './alert-dialog';
 export * from './badge';
 export * from './button';
 export * from './button-group';
@@ -16,6 +17,7 @@ export * from './label';
 export * from './popover';
 export * from './radio-group';
 export * from './resizable';
+export * from './scroll-area';
 export * from './select';
 export * from './separator';
 export * from './sheet';

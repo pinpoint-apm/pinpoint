@@ -43,7 +43,7 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
   const { t } = useTranslation();
   const [selectedApplication, setSelectedApplication] = useLocalStorage<
     ApplicationType | undefined
-  >(APP_SETTING_KEYS.ALARM_LAST_SELECTED_APPLICATION, undefined);
+  >(APP_SETTING_KEYS.CONFIG_LAST_SELECTED_APPLICATION, undefined);
   const [isEditable, setEditable] = React.useState(false);
   const [currentDeletingTarget, setCurrentDeletingTarget] = React.useState<Webhook.WebhookData>();
   const [currentTargetWebhookData, setCurrentTargetWebhookData] =
