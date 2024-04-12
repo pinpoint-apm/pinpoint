@@ -182,7 +182,7 @@
         <spring.boot.version>${spring.boot3.version}</spring.boot.version>
 
         <!-- spring boot3 dependency -->
-        <spring6.version>6.0.16</spring6.version>
+        <spring6.version>6.1.5</spring6.version>
         <spring.boot3.version>3.1.8</spring.boot3.version>
         <jakarta.servlet5.version>5.0.0</jakarta.servlet5.version>
         <jakarta.servlet6.version>6.0.0</jakarta.servlet6.version>
