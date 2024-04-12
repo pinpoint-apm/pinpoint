@@ -22,6 +22,15 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.IdentityHashMap;
@@ -63,10 +72,24 @@ public abstract class AbstractLoggerAdapter {
         put(map, BigDecimal.class);
         put(map, StringBuffer.class);
         put(map, BigInteger.class);
-        put(map, java.util.Date.class);
         put(map, Class.class);
+
+        put(map, java.util.Date.class);
         put(map, Calendar.class);
         put(map, GregorianCalendar.class);
+
+        put(map, LocalDate.class);
+        put(map, LocalTime.class);
+        put(map, LocalDateTime.class);
+
+        put(map, OffsetTime.class);
+        put(map, OffsetDateTime.class);
+        put(map, ZonedDateTime.class);
+
+        put(map, Instant.class);
+        put(map, Duration.class);
+        put(map, Period.class);
+
         put(map, URL.class);
         put(map, Object.class);
 

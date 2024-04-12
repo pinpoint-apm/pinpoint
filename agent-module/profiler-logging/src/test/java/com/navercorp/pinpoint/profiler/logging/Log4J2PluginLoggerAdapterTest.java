@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.logging;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,8 +44,10 @@ public class Log4J2PluginLoggerAdapterTest {
 
     @Test
     public void isSimpleType() {
-        assertTrue(Log4J2PluginLoggerAdapter.isSimpleType(new Integer(1)));
+        assertTrue(Log4J2PluginLoggerAdapter.isSimpleType(1));
         assertTrue(Log4J2PluginLoggerAdapter.isSimpleType(Boolean.TRUE));
+
+        assertTrue(Log4J2PluginLoggerAdapter.isSimpleType(LocalDateTime.now()));
 
         // array, object
         assertFalse(Log4J2PluginLoggerAdapter.isSimpleType(new int[1]));
