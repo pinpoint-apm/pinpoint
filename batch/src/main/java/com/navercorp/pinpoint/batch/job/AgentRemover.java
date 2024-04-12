@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -40,7 +40,7 @@ public class AgentRemover implements ItemWriter<String> {
     }
 
     @Override
-    public void write(@Nonnull List<? extends String> serAgentKeys) throws Exception {
+    public void write(@Nonnull Chunk<? extends String> serAgentKeys) throws Exception {
         for (String serKey: serAgentKeys) {
             logger.info("Removing agent: {}", serKey);
             ClusterKey key = ClusterKey.parse(serKey);

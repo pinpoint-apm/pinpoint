@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.batch.item.Chunk;
 
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +76,7 @@ public class AlarmWriterIsolationTest {
         mockingAlarmMessageSender(checker);
 
         // when
-        writer.write(List.of(new AppAlarmChecker(checkers)));
+        writer.write(Chunk.of(new AppAlarmChecker(checkers)));
 
         // then
         verify(alarmMessageSender).sendSms(checker, 1);
@@ -95,7 +96,7 @@ public class AlarmWriterIsolationTest {
         mockingAlarmMessageSender(checker);
 
         // when
-        writer.write(List.of(new AppAlarmChecker(checkers)));
+        writer.write(Chunk.of(new AppAlarmChecker(checkers)));
 
         // then
         verify(alarmMessageSender, never()).sendSms(checker, 1);

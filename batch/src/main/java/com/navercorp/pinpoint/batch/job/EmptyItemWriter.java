@@ -19,16 +19,15 @@ package com.navercorp.pinpoint.batch.job;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
-
-import java.util.List;
 
 public class EmptyItemWriter<T> implements ItemWriter<T> {
 
     private static final Logger logger = LogManager.getLogger(EmptyItemWriter.class);
 
     @Override
-    public void write(@Nonnull List<? extends T> items) throws Exception {
+    public void write(@Nonnull Chunk<? extends T> items) throws Exception {
         logger.info("Write items: {}", items);
     }
 }

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.batch.alarm;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.pinot.alarm.DefaultPinotAlarmWriterInterceptor;
 import com.navercorp.pinpoint.pinot.alarm.PinotAlarmWriterInterceptor;
 import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmChecker;
@@ -7,26 +8,21 @@ import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers;
 import com.navercorp.pinpoint.pinot.alarm.service.PinotAlarmService;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmHistory;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
+import jakarta.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-public class UriStatAlarmWriter implements ItemWriter<PinotAlarmCheckers>, StepExecutionListener {
+public class UriStatAlarmWriter implements ItemWriter<PinotAlarmCheckers> {
     private final Logger logger = LogManager.getLogger(UriStatAlarmWriter.class);
 
     private final PinotAlarmService alarmService;
     private final AlarmMessageSender alarmMessageSender;
     private final PinotAlarmWriterInterceptor interceptor;
-    private StepExecution stepExecution;
 
     public UriStatAlarmWriter(AlarmMessageSender alarmMessageSender,
                               PinotAlarmService alarmService,
@@ -37,29 +33,20 @@ public class UriStatAlarmWriter implements ItemWriter<PinotAlarmCheckers>, StepE
     }
 
     @Override
-    public void beforeStep(StepExecution stepExecution) {
-        this.stepExecution = stepExecution;
-    }
-
-    @Override
-    public ExitStatus afterStep(@Nonnull StepExecution stepExecution) {
-        return null;
-    }
-
-    @Override
-    public void write(List<? extends PinotAlarmCheckers> checkersList) throws Exception {
-        interceptor.before(checkersList);
-        if (CollectionUtils.isEmpty(checkersList)) {
+    public void write(Chunk<? extends PinotAlarmCheckers> checkersList) throws Exception {
+        final List<? extends PinotAlarmCheckers> items = checkersList.getItems();
+        interceptor.before(items);
+        if (checkersList.isEmpty()) {
             return;
         }
-        for (PinotAlarmCheckers alarmCheckers : checkersList) {
+        for (PinotAlarmCheckers alarmCheckers : items) {
             List<PinotAlarmChecker<? extends Number>> children = alarmCheckers.getChildren();
             if (CollectionUtils.isEmpty(children)) {
                 return;
             }
             execute(children);
         }
-        interceptor.after(checkersList);
+        interceptor.after(items);
     }
 
     private void execute(List<PinotAlarmChecker<? extends Number>> alarmCheckers) {

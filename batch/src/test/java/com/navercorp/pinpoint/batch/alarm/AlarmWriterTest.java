@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.batch.item.Chunk;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -55,7 +56,7 @@ public class AlarmWriterTest {
         };
 
         List<AlarmChecker<?>> checkers = List.of(checker);
-        writer.write(List.of(new AppAlarmChecker(checkers)));
+        writer.write(Chunk.of(new AppAlarmChecker(checkers)));
     }
 
     @Disabled
@@ -75,7 +76,7 @@ public class AlarmWriterTest {
         };
 
         List<AlarmChecker<?>> checkers = List.of(checker);
-        writer.write(List.of(new AppAlarmChecker(checkers)));
+        writer.write(Chunk.of(new AppAlarmChecker(checkers)));
     }
 
 }
