@@ -57,7 +57,7 @@ export const AlarmPage = ({
   const { t } = useTranslation();
   const [selectedApplication, setSelectedApplication] = useLocalStorage<
     ApplicationType | undefined
-  >(APP_SETTING_KEYS.ALARM_LAST_SELECTED_APPLICATION, undefined);
+  >(APP_SETTING_KEYS.CONFIG_LAST_SELECTED_APPLICATION, undefined);
   const [isEditable, setEditable] = React.useState(false);
   const [currentDeletingTarget, setCurrentDeletingTarget] =
     React.useState<AlarmRule.AlarmRuleData>();
