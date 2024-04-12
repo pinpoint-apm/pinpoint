@@ -174,7 +174,7 @@
         <spring.batch.version>4.3.7</spring.batch.version>
 
 <!--        <spring.security.version>5.8.1</spring.security.version>-->
-        <spring.security.version>6.1.4</spring.security.version>
+        <spring.security.version>6.1.8</spring.security.version>
         <spring-boot2.version>2.7.13</spring-boot2.version>
         <spring.kafka.version>3.0.13</spring.kafka.version>
 
