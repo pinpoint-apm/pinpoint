@@ -48,6 +48,7 @@
 
         <spring-boot.version>${spring-boot2.version}</spring-boot.version>
         <spring.version>${spring5.version}</spring.version>
+        <spring-cloud.version>${spring-cloud3.version}</spring-cloud.version>
     </properties>
 
     <modules>
