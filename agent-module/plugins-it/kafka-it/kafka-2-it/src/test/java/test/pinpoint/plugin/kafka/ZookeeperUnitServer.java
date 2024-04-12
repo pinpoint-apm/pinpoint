@@ -59,7 +59,7 @@ public class ZookeeperUnitServer {
             try {
                 FileUtils.deleteDirectory(snapshotDir);
                 FileUtils.deleteDirectory(logDir);
-            } catch (IOException ioe) {}
+            } catch (IOException ignore) {}
         }));
 
         try {

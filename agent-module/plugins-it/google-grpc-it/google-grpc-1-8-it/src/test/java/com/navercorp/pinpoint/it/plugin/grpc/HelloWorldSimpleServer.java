@@ -80,7 +80,7 @@ public class HelloWorldSimpleServer implements HelloWorldServer {
                 System.err.println("*** shutting down gRPC server since JVM is shutting down");
                 try {
                     HelloWorldSimpleServer.this.stop();
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignore) {
                 }
                 System.err.println("*** server shut down");
             }
