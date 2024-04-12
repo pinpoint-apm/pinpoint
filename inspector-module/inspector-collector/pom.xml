@@ -59,5 +59,11 @@
             </exclusions>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.pinot</groupId>
+            <artifactId>pinot-segment-spi</artifactId>
+            <version>${pinot.client.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -40,7 +40,7 @@ public class InspectorKafkaConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<Long, AgentStatV2> kafkaAgentStatV2Template(@Qualifier("kafkaProducerLongKeyFactory") ProducerFactory producerFactory) {
+    public KafkaTemplate<byte[], AgentStatV2> kafkaAgentStatV2Template(@Qualifier("kafkaProducerByteArrayKeyFactory") ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 

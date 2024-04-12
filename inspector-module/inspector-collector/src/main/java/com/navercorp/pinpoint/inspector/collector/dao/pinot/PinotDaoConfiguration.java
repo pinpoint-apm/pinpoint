@@ -54,13 +54,13 @@ import java.util.function.Function;
 public class PinotDaoConfiguration {
 
     private final KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate;
-    private final KafkaTemplate<Long, AgentStatV2> kafkaAgentStatV2Template;
+    private final KafkaTemplate<byte[], AgentStatV2> kafkaAgentStatV2Template;
     private final KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate;
     private final String agentStatTopic;
     private final String applicationStatTopic;
     private final TenantProvider tenantProvider;
 
-    public PinotDaoConfiguration(KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<Long, AgentStatV2> kafkaAgentStatV2Template,  KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, @Value("${kafka.inspector.topic.agent}") String agentStatTopic, @Value("${kafka.inspector.topic.application}") String applicationStatTopic, TenantProvider tenantProvider) {
+    public PinotDaoConfiguration(KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<byte[], AgentStatV2> kafkaAgentStatV2Template,  KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, @Value("${kafka.inspector.topic.agent}") String agentStatTopic, @Value("${kafka.inspector.topic.application}") String applicationStatTopic, TenantProvider tenantProvider) {
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
         this.kafkaAgentStatV2Template = Objects.requireNonNull(kafkaAgentStatV2Template, "kafkaAgentStatV2Template");
         this.kafkaApplicationStatTemplate = Objects.requireNonNull(kafkaApplicationStatTemplate, "kafkaApplicationStatTemplate");

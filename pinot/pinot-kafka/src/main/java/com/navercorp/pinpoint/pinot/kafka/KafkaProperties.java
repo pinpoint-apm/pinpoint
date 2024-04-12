@@ -1,14 +1,14 @@
 package com.navercorp.pinpoint.pinot.kafka;
 
 import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
-import org.apache.kafka.common.serialization.LongSerializer;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 public class KafkaProperties {
     private String bootstrapServers;
     private String keySerializer = StringSerializer.class.getName();
-    private String longKeySerializer = LongSerializer.class.getName();
+    private String byteArrayKeySerializer = ByteArraySerializer.class.getName();
     private String valueSerializer = JsonSerializer.class.getName();
     private String partitionerClass = DefaultPartitioner.class.getName();
     private String acks = "1";
@@ -31,8 +31,8 @@ public class KafkaProperties {
         this.keySerializer = keySerializer;
     }
 
-    public String getLongKeySerializer() {
-        return longKeySerializer;
+    public String getByteArrayKeySerializer() {
+        return byteArrayKeySerializer;
     }
 
     public String getValueSerializer() {
