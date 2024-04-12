@@ -225,11 +225,11 @@
         <resilience4j-jdk8.version>1.7.1</resilience4j-jdk8.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.97.Final</netty4.version>
+        <netty4.version>4.1.100.Final</netty4.version>
 
-        <grpc.version>1.59.0</grpc.version>
-        <protobuf-java.version>3.24.0</protobuf-java.version>
-        <protoc.version>3.24.0</protoc.version>
+        <grpc.version>1.62.2</grpc.version>
+        <protobuf-java.version>3.25.1</protobuf-java.version>
+        <protoc.version>${protobuf-java.version}</protoc.version>
 
         <guava.version>32.1.2-jre</guava.version>
         <guice.version>7.0.0</guice.version>
@@ -1148,6 +1148,13 @@
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <version>${netty4.version}</version>
                 <classifier>linux-x86_64</classifier>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>1.62.2</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>
