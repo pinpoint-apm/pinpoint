@@ -21,7 +21,7 @@
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
         <spring.version>${spring6.version}</spring.version>
-        <spring.boot.version>${spring.boot3.version}</spring.boot.version>
+        <spring-boot.version>${spring-boot3.version}</spring-boot.version>
         <jakarta.annotation-api.version>${jakarta.annotation-api2.version}</jakarta.annotation-api.version>
         <jaxb.version>${jaxb4.version}</jaxb.version>
 
@@ -33,7 +33,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
+                <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

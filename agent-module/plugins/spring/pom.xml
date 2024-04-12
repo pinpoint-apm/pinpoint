@@ -14,7 +14,7 @@
 
     <properties>
         <spring.version>${spring4.version}</spring.version>
-        <spring.boot.version>${spring.boot2.version}</spring.boot.version>
+        <spring-boot.version>${spring-boot2.version}</spring-boot.version>
     </properties>
 
     <dependencies>

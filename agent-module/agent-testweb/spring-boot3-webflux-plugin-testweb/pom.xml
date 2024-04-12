@@ -24,7 +24,7 @@
         </pinpoint.agent.jvmargument>
 
         <spring.version>${spring6.version}</spring.version>
-        <spring.boot.version>${spring.boot3.version}</spring.boot.version>
+        <spring-boot.version>${spring-boot3.version}</spring-boot.version>
         <jakarta.annotation-api.version>${jakarta.annotation-api2.version}</jakarta.annotation-api.version>
         <jaxb.version>${jaxb4.version}</jaxb.version>
         <jakarta.validation-api.version>${jakarta.validation-api3.version}</jakarta.validation-api.version>
