@@ -99,7 +99,7 @@
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-redis</artifactId>
-                <version>1.1.1.RELEASE</version>
+                <version>${spring-data2.version}</version>
             </dependency>
 
             <dependency>

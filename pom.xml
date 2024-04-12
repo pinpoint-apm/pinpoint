@@ -190,6 +190,10 @@
         <spring-cloud4.version>4.1.2</spring-cloud4.version>
         <spring-cloud.version>${spring-cloud4.version}</spring-cloud.version>
 
+        <spring-data2.version>2.7.18</spring-data2.version>
+        <spring-data3.version>3.2.4</spring-data3.version>
+        <spring-data.version>${spring-data3.version}</spring-data.version>
+
         <jakarta.servlet5.version>5.0.0</jakarta.servlet5.version>
         <jakarta.servlet6.version>6.0.0</jakarta.servlet6.version>
         <jakarta.annotation-api2.version>2.1.1</jakarta.annotation-api2.version>
