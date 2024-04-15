@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 
-import java.util.Calendar;
 import java.util.Objects;
 
 /**
@@ -62,13 +62,6 @@ public class MetricDataName {
     }
 
     public static long createSaveTime() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.clear(Calendar.MINUTE);
-        calendar.clear(Calendar.SECOND);
-        calendar.clear(Calendar.MILLISECOND);
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
-
-        return calendar.getTimeInMillis();
+        return DateTimeUtils.previousOrSameSundayToMillis();
     }
 }

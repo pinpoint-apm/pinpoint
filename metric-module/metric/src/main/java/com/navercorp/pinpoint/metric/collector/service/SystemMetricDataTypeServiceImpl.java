@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
+import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
@@ -52,7 +53,9 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
         }
 
         if (systemMetric instanceof DoubleMetric) {
-            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE, MetricDataName.createSaveTime()));
+            long saveTime = DateTimeUtils.previousOrSameSundayToMillis();
+            MetricData metric = new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE, saveTime);
+            metricDataTypeCache.saveMetricDataType(metricDataName, metric);
         } else {
             logger.error("can not find metric data type.  systemMetric : {}", systemMetric);
         }
