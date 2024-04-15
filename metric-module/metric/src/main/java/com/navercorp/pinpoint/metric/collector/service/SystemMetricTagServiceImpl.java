@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
+import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
@@ -26,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -111,13 +111,6 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
     }
 
     private long getSaveTime() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.clear(Calendar.MINUTE);
-        calendar.clear(Calendar.SECOND);
-        calendar.clear(Calendar.MILLISECOND);
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
-
-        return calendar.getTimeInMillis();
+        return DateTimeUtils.previousOrSameSundayToMillis();
     }
 }

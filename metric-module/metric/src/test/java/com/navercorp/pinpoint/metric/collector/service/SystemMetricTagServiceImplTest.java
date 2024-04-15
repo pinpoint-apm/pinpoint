@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
+import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -214,14 +214,7 @@ public class SystemMetricTagServiceImplTest {
     }
 
     private long getSaveTime() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.clear(Calendar.MINUTE);
-        calendar.clear(Calendar.SECOND);
-        calendar.clear(Calendar.MILLISECOND);
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
-
-        return calendar.getTimeInMillis();
+        return DateTimeUtils.previousOrSameSundayToMillis();
     }
 
 }
