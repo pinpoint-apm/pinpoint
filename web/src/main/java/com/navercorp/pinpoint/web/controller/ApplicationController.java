@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Period;
 import java.util.Objects;
 
 /**
@@ -62,7 +63,8 @@ public class ApplicationController {
         int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
         durationDays = ObjectUtils.defaultIfNull(durationDays, AgentInfoService.NO_DURATION);
 
-        return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDays);
+        Period durationDaysPeriod = Period.ofDays(durationDays);
+        return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDaysPeriod);
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")

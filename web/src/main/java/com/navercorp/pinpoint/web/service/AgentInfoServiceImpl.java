@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
@@ -55,8 +56,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
+import java.time.Period;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -175,18 +176,19 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays) {
+    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, Period durationDays) {
         if (offset <= 0) {
             throw new IllegalArgumentException("offset must be greater than 0");
         }
         if (limit <= 0) {
             throw new IllegalArgumentException("limit must be greater than 0");
         }
+        Objects.requireNonNull(durationDays, "durationDays");
 
         return getApplicationAgentHostList0(offset, limit, durationDays);
     }
 
-    private ApplicationAgentHostList getApplicationAgentHostList0(int offset, int limit, int durationDays) {
+    private ApplicationAgentHostList getApplicationAgentHostList0(int offset, int limit, Period durationDays) {
         List<String> applicationNameList = getApplicationNameList(applicationIndexDao.selectAllApplicationNames());
         if (offset > applicationNameList.size()) {
             ApplicationAgentHostList.Builder builder = newBuilder(offset, offset, applicationNameList.size());
@@ -213,25 +215,23 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return ApplicationAgentHostList.newBuilder(offset, endIndex, totalApplications);
     }
 
-    private List<String> getAgentIdList(String applicationName, int durationDays) {
+    private List<String> getAgentIdList(String applicationName, Period durationDays) {
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
-
-        if (durationDays <= 0) {
+        if (durationDays.isNegative()) {
             return agentIds;
         }
 
-        List<String> activeAgentIdList = new ArrayList<>();
+        Instant now = DateTimeUtils.epochMilli();
+        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, now.toEpochMilli());
 
-        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, durationDays * -1);
-        final long fromTimestamp = cal.getTimeInMillis();
+        Instant from =  now.minus(durationDays);
+        final long fromTimestamp = from.toEpochMilli();
         Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
 
+        List<String> activeAgentIdList = new ArrayList<>();
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
