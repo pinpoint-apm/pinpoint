@@ -17,14 +17,13 @@ export const ErrorAnalysisSidebar = () => {
       <ErrorAnalysisGroupBy />
       <Separator />
       <AgentSearchList
-        className="max-h-[calc(100%-10.25rem)]"
         selectedAgentId={agentId}
         onClickAgent={(agent) => {
           navigate(
             `${getErrorAnalysisPath(application)}?${convertParamsToQueryString({
               ...getFormattedDateRange(dateRange),
               groupBy,
-              agentId: agentId === agent.agentId ? '' : agent.agentId,
+              agentId: agentId === agent?.agentId ? '' : agent?.agentId,
             })}`,
           );
         }}

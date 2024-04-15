@@ -7,7 +7,7 @@ import { cn } from '../../lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 
-export interface AgentListFetcherProps {
+export interface AgentListFetcherProps extends Pick<React.HTMLAttributes<HTMLDivElement>, 'style'> {
   className?: string;
   sortBy?: AGENT_LIST_SORT;
   isCollapsible?: boolean;
@@ -15,7 +15,7 @@ export interface AgentListFetcherProps {
   selectedAgentId?: string;
   emptyMessage?: React.ReactNode;
   agentRenderer?: (agent: SearchApplication.Instance) => React.ReactNode;
-  onClickAgent?: (agent: SearchApplication.Instance) => void;
+  onClickAgent?: (agent?: SearchApplication.Instance) => void;
 }
 
 export const AgentListFetcher = ({
@@ -27,6 +27,7 @@ export const AgentListFetcher = ({
   emptyMessage = 'No Agents',
   agentRenderer,
   onClickAgent,
+  style,
 }: AgentListFetcherProps) => {
   const { data } = useGetAgentList({ sortBy });
   const [openStates, setOpenStates] = React.useState<boolean[]>([]);
@@ -54,7 +55,7 @@ export const AgentListFetcher = ({
   }, [filteredList, isCollapsible]);
 
   return (
-    <div className={className}>
+    <div className={className} style={style}>
       {filteredList && filteredList.length > 0 ? (
         filteredList?.map((group, i) => {
           const isOpen = isCollapsible ? openStates[i] : true;

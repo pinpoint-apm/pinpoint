@@ -4,7 +4,7 @@ import { useGetSystemMetricHostData } from '@pinpoint-fe/hooks';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 
-export interface HostListFetcherProps {
+export interface HostListFetcherProps extends Pick<React.HTMLAttributes<HTMLDivElement>, 'style'> {
   className?: string;
   filterKeyword?: string;
   selectedHost?: string;
@@ -18,6 +18,7 @@ export const HostListFetcher = ({
   filterKeyword = '',
   emptyMessage = 'No hosts',
   onClickHost,
+  style,
 }: HostListFetcherProps) => {
   const { data } = useGetSystemMetricHostData();
   const filteredList = React.useMemo(
@@ -34,7 +35,7 @@ export const HostListFetcher = ({
   }, [data]);
 
   return (
-    <div className={className}>
+    <div className={className} style={style}>
       {filteredList && filteredList.length > 0 ? (
         <TooltipProvider>
           {filteredList?.map((host, i) => {

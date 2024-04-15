@@ -52,17 +52,22 @@ const Sidebar = ({ children, header }: SideNavigationProps) => {
       }}
     >
       <div
-        className={cn('relative h-32 min-h-[8rem] flex items-center pl-5 hover:bg-[--blue-700]', {
-          'justify-center pl-0 text-center': collapsed,
-        })}
+        className={cn(
+          'relative h-16 min-h-[4rem] flex items-center pl-6 hover:bg-[--blue-700] mb-2',
+          {
+            'justify-center pl-0 text-center': collapsed,
+          },
+        )}
       >
         {typeof header === 'function' ? header(collapsed) : header}
-        <button
-          className="scale-button-wrapper hidden opacity-50 hover:opacity-100 items-center justify-center absolute top-2 right-2 w-6 h-6 cursor-pointer rounded hover:font-semibold hover:bg-[var(--blue-900)]"
-          onClick={() => collapseSidebar()}
-        >
-          {collapsed ? <LuChevronLast /> : <LuChevronFirst />}
-        </button>
+        <div className="absolute hidden scale-button-wrapper top-1 right-1">
+          <button
+            className="flex items-center justify-center w-6 h-6 opacity-50 cursor-pointer hover:opacity-100 hover:font-semibold "
+            onClick={() => collapseSidebar()}
+          >
+            {collapsed ? <LuChevronLast /> : <LuChevronFirst />}
+          </button>
+        </div>
       </div>
       <React.Fragment>{children}</React.Fragment>
     </ProSidebar>

@@ -18,7 +18,7 @@ export const InspectorSidebar = () => {
           navigate(
             `${getInspectorPath(application)}?${convertParamsToQueryString({
               ...getFormattedDateRange(dateRange),
-              agentId: agentId === agent.agentId ? '' : agent.agentId,
+              agentId: agentId === agent?.agentId ? '' : agent?.agentId,
               version,
             })}`,
           );
