@@ -54,7 +54,7 @@ public class LogFileKeyMapSupplier implements Supplier<Map<String, List<FileKey>
     private Map<String, List<FileKey>> groupByHostGroupName(List<FileKey> fileKeys) {
         Map<String, List<FileKey>> result = new HashMap<>(fileKeys.size() * 3);
         for (FileKey fileKey: fileKeys) {
-            result.computeIfAbsent(fileKey.getHostKey().getHostGroupName(), k -> new ArrayList<>(2)).add(fileKey);
+            result.computeIfAbsent(fileKey.hostKey().hostGroupName(), k -> new ArrayList<>(2)).add(fileKey);
         }
         return result;
     }

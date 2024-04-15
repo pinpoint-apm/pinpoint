@@ -16,52 +16,23 @@
 package com.navercorp.pinpoint.log.vo;
 
 import java.text.ParseException;
-import java.util.Objects;
 
 /**
  * @author youngjin.kim2
  */
-public class FileKey {
-
-    private final HostKey hostKey;
-    private final String fileName;
-
-    public FileKey(HostKey hostKey, String fileName) {
-        this.hostKey = hostKey;
-        this.fileName = fileName;
-    }
-
-    public HostKey getHostKey() {
-        return hostKey;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
+public record FileKey(HostKey hostKey, String fileName) {
 
     public static FileKey of(String hostGroupName, String hostName, String fileName) {
         return new FileKey(HostKey.of(hostGroupName, hostName), fileName);
     }
 
     public static FileKey parse(String s) throws ParseException {
-        String[] words = s.split(":");
+        String[] words = s.split(":", 3);
         if (words.length != 3) {
             throw new ParseException(s, s.length());
         }
-        return new FileKey(HostKey.of(words[0], words[1]), words[2]);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FileKey fileKey = (FileKey) o;
-        return Objects.equals(hostKey, fileKey.hostKey) && Objects.equals(fileName, fileKey.fileName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(hostKey, fileName);
+        HostKey hostKey = HostKey.of(words[0], words[1]);
+        return new FileKey(hostKey, words[2]);
     }
 
     @Override
