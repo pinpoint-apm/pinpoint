@@ -39,11 +39,6 @@ export const InspectorAgentInfoFetcher = () => {
           value: data.agentVersion,
         },
         {
-          key: 'agentId',
-          label: 'Agent Id',
-          value: data.agentId,
-        },
-        {
           key: 'pid',
           label: 'PID',
           value: data.pid,
@@ -109,7 +104,7 @@ export const InspectorAgentInfoFetcher = () => {
         <CollapsibleTrigger className="mr-auto cursor-pointer" asChild>
           <div className="flex items-center gap-1">
             {isOpen ? <RxChevronDown /> : <RxChevronRight />}
-            <span className="font-semibold">Information</span>{' '}
+            <span className="font-semibold">{data?.agentId}</span>{' '}
           </div>
         </CollapsibleTrigger>
       </div>

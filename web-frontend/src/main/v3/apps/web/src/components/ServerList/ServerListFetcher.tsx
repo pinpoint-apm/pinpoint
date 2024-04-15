@@ -8,7 +8,7 @@ import {
   currentServerAgentIdAtom,
 } from '@pinpoint-fe/atoms';
 import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/constants';
-import { convertParamsToQueryString, getParsedDate, getV2InspectorUrl } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
 import { useSearchParameters, swrConfigs } from '@pinpoint-fe/hooks';
 import { getInspectorPath } from '@pinpoint-fe/utils';
 import { ServerList as SL, ServerListProps } from '@pinpoint-fe/ui';
@@ -97,10 +97,9 @@ export const ServerListFetcher = ({ disableFetch }: ServerListFetcherProps) => {
       groupNameRenderer={renderGroupName}
       itemRenderer={renderItem}
       onClickInspectorLink={(agentId) => {
-        window.open(`${getV2InspectorUrl(currentTargetData, searchParameters)}/${agentId}`);
-        // window.open(
-        //   `${BASE_PATH}${getInspectorPath(currentTargetData, searchParameters)}&agentId=${agentId}`,
-        // );
+        window.open(
+          `${BASE_PATH}${getInspectorPath(currentTargetData, searchParameters)}&agentId=${agentId}`,
+        );
       }}
     ></SL>
   );
