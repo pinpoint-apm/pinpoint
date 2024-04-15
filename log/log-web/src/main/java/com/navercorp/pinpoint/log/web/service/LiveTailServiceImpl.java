@@ -103,11 +103,11 @@ public class LiveTailServiceImpl implements LiveTailService {
         List<FileKey> fileKeys = this.getFileKeys(hostGroupName);
         List<FileKey> result = new ArrayList<>(fileKeys.size());
         for (FileKey candidate: fileKeys) {
-            if (hostNames != null && !hostNames.contains(candidate.getHostKey().getHostName())) {
+            if (hostNames != null && !hostNames.contains(candidate.hostKey().hostName())) {
                 continue;
             }
 
-            if (fileNames != null && !fileNames.contains(candidate.getFileName())) {
+            if (fileNames != null && !fileNames.contains(candidate.fileName())) {
                 continue;
             }
 

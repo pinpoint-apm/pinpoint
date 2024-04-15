@@ -29,8 +29,8 @@ public record LogHostGroupInfo(List<String> hosts, List<String> files) {
         List<String> hosts = new ArrayList<>(fileKeys.size());
         List<String> files = new ArrayList<>(fileKeys.size());
         for (FileKey fileKey: fileKeys) {
-            hosts.add(fileKey.getHostKey().getHostName());
-            files.add(fileKey.getFileName());
+            hosts.add(fileKey.hostKey().hostName());
+            files.add(fileKey.fileName());
         }
         return new LogHostGroupInfo(
                 hosts.stream().distinct().toList(),

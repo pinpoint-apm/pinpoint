@@ -15,44 +15,13 @@
  */
 package com.navercorp.pinpoint.log.vo;
 
-import java.util.Objects;
-
 /**
  * @author youngjin.kim2
  */
-public class HostKey {
-
-    private final String hostGroupName;
-    private final String hostName;
-
-    private HostKey(String hostGroupName, String hostName) {
-        this.hostGroupName = hostGroupName;
-        this.hostName = hostName;
-    }
+public record HostKey(String hostGroupName, String hostName) {
 
     public static HostKey of(String hostGroupName, String hostName) {
         return new HostKey(hostGroupName, hostName);
-    }
-
-    public String getHostGroupName() {
-        return hostGroupName;
-    }
-
-    public String getHostName() {
-        return hostName;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        HostKey hostKey = (HostKey) o;
-        return Objects.equals(hostGroupName, hostKey.hostGroupName) && Objects.equals(hostName, hostKey.hostName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(hostGroupName, hostName);
     }
 
     @Override
