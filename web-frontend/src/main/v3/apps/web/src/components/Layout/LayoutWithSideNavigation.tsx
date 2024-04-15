@@ -4,18 +4,11 @@ import {
   LayoutWithSideNavigationProps as LayoutWithSideNavigationComponentProps,
   SideNavigationMenuItem,
 } from '@pinpoint-fe/ui';
-import {
-  FaBug,
-  FaChartBar,
-  // FaChartLine,
-  FaCog,
-  FaNetworkWired,
-  FaServer,
-} from 'react-icons/fa';
+import { FaBug, FaChartBar, FaChartLine, FaCog, FaNetworkWired, FaServer } from 'react-icons/fa';
 import { useSearchParameters } from '@pinpoint-fe/hooks';
 import {
   getErrorAnalysisPath,
-  // getInspectorPath,
+  getInspectorPath,
   getServerMapPath,
   getSystemMetricPath,
   getUrlStatPath,
@@ -41,12 +34,12 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       href: getServerMapPath(application, searchParameters),
       show: true,
     },
-    // {
-    //   icon: <FaChartLine />,
-    //   name: 'Inspector',
-    //   path: APP_PATH.INSPECTOR,
-    //   href: getInspectorPath(application, searchParameters),
-    // },
+    {
+      icon: <FaChartLine />,
+      name: 'Inspector',
+      path: APP_PATH.INSPECTOR,
+      href: getInspectorPath(application, searchParameters),
+    },
     {
       icon: <FaChartBar />,
       name: 'URL Statistic',

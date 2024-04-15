@@ -40,7 +40,10 @@ export const InspectorPage = () => {
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <FaChartLine /> Inspector
+            <FaChartLine />
+            <span className="relative">
+              Inspector <span className="relative text-xs italic text-primary -top-2">Beta</span>
+            </span>
           </div>
         }
       >
