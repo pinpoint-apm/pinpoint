@@ -27,9 +27,7 @@ import com.navercorp.pinpoint.test.plugin.PluginTest;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.http.Header;
-import org.apache.http.HttpHost;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.jupiter.api.AfterEach;
@@ -54,9 +52,10 @@ public class ElasticsearchIT_6_0_x_IT extends ElasticsearchITBase {
     @BeforeEach
     public void setup() {
         ES_PORT = Integer.parseInt(System.getProperty("PORT"));
-        restHighLevelClient = new RestHighLevelClient(
-                RestClient.builder(
-                        new HttpHost(getEsHost(), getEsPort(), "http")));
+
+        RestClientBuilderOption option = new RestClientBuilderOption(getEsHost(), getEsPort());
+
+        restHighLevelClient = new RestHighLevelClient(option.build());
     }
 
     @AfterEach
