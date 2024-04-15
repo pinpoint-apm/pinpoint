@@ -227,7 +227,7 @@ public class ASMMethod implements InstrumentMethod {
             final Interceptor interceptor = InterceptorRegistry.getInterceptor(interceptorId);
             if (interceptor == null) {
                 // defense code
-                throw new InstrumentException("not found interceptor " + interceptor.getClass().getName() + " to " + this.methodNode.getLongName());
+                throw new InstrumentException("not found interceptor " + interceptorId + " to " + this.methodNode.getLongName());
             }
             try {
                 addInterceptor0(interceptor.getClass(), interceptorId);
