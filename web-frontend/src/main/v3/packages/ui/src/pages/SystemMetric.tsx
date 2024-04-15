@@ -47,11 +47,6 @@ export const SystemMetricPage = () => {
           inputPlaceHolder={t('METRIC.INPUT_HOST_GROUP')}
           onClickHostGroup={(hostGroup) => navigate(getSystemMetricPath(hostGroup))}
         />
-        {hostGroupName && hostName && (
-          <div className="flex items-center gap-1 ml-4 text-sm font-semibold truncate">
-            <div className="truncate">({hostName})</div>
-          </div>
-        )}
         <div className="ml-auto">
           {hostGroupName && (
             <DatetimePicker

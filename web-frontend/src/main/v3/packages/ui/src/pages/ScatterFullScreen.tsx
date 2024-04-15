@@ -65,9 +65,6 @@ export const ScatterFullScreenPage = () => {
         }
       >
         <ApplicationCombinedList selectedApplication={application} disabled />
-        <div className="flex items-center gap-1 ml-4 text-sm font-semibold truncate">
-          <div className="truncate">({agentId ? agentId : 'all'})</div>
-        </div>
         <div className="ml-auto">
           {application && (
             <DatetimePicker
@@ -83,8 +80,12 @@ export const ScatterFullScreenPage = () => {
           )}
         </div>
       </MainHeader>
-      <div className="relative flex items-center justify-center flex-1 overflow-x-hidden">
-        <div className="max-w-7xl w-full p-10 aspect-[1.618]">
+      <div className="flex items-center justify-center flex-1 overflow-x-hidden ">
+        <div className="relative max-w-7xl w-full p-10 aspect-[1.618]">
+          {agentId && (
+            <div className="absolute text-sm font-semibold top-4">Agent ID: {agentId}</div>
+          )}
+
           {application && (
             <ScatterChart
               agentId={agentId}
@@ -94,6 +95,7 @@ export const ScatterFullScreenPage = () => {
             />
           )}
         </div>
+        {/* </div> */}
       </div>
     </div>
   );

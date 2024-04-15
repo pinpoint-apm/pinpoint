@@ -78,11 +78,6 @@ export const ErrorAnalysisPage = () => {
           selectedApplication={application}
           onClickApplication={(application) => navigate(getErrorAnalysisPath(application))}
         />
-        {application && (
-          <div className="flex items-center gap-1 ml-4 text-sm font-semibold truncate">
-            <div className="truncate">({agentId ? agentId : 'all'})</div>
-          </div>
-        )}
         <div className="ml-auto">
           {application && (
             <DatetimePicker

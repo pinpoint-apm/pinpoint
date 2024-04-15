@@ -18,7 +18,7 @@ export const UrlSidebar = () => {
           navigate(
             `${getUrlStatPath(application)}?${convertParamsToQueryString({
               ...getFormattedDateRange(dateRange),
-              agentId: agentId === agent.agentId ? '' : agent.agentId,
+              agentId: agentId === agent?.agentId ? '' : agent?.agentId,
             })}`,
           );
         }}
