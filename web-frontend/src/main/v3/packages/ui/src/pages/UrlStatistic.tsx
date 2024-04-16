@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ApplicationCombinedList,
+  ApplicationCombinedListProps,
   DatetimePicker,
   DatetimePickerChangeHandler,
   LayoutWithContentSidebar,
@@ -15,7 +16,13 @@ import { useUrlStatSearchParameters } from '@pinpoint-fe/hooks';
 import { useTranslation } from 'react-i18next';
 import { FaChartBar } from 'react-icons/fa';
 
-export const UrlStatisticPage = () => {
+export interface UrlStatisticPageProps {
+  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+}
+
+export const UrlStatisticPage = ({
+  ApplicationList = ApplicationCombinedList,
+}: UrlStatisticPageProps) => {
   const navigate = useNavigate();
   const { searchParameters, application, agentId } = useUrlStatSearchParameters();
   const { t } = useTranslation();
@@ -41,7 +48,7 @@ export const UrlStatisticPage = () => {
           </div>
         }
       >
-        <ApplicationCombinedList
+        <ApplicationList
           open={!application}
           selectedApplication={application}
           onClickApplication={(application) => navigate(getUrlStatPath(application))}

@@ -17,6 +17,7 @@ import {
   DatetimePicker,
   LayoutWithContentSidebar,
   ApplicationCombinedList,
+  ApplicationCombinedListProps,
 } from '../components';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -35,7 +36,13 @@ import { FaBug } from 'react-icons/fa';
 import { LuExternalLink } from 'react-icons/lu';
 import { FaChevronRight } from 'react-icons/fa6';
 
-export const ErrorAnalysisPage = () => {
+export interface ErrorAnalysisPageProps {
+  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+}
+
+export const ErrorAnalysisPage = ({
+  ApplicationList = ApplicationCombinedList,
+}: ErrorAnalysisPageProps) => {
   const navigate = useNavigate();
 
   const {
@@ -73,7 +80,7 @@ export const ErrorAnalysisPage = () => {
           </div>
         }
       >
-        <ApplicationCombinedList
+        <ApplicationList
           open={!application}
           selectedApplication={application}
           onClickApplication={(application) => navigate(getErrorAnalysisPath(application))}
