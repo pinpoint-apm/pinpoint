@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.junit5.descriptor;
 
+import com.navercorp.pinpoint.test.plugin.PluginForkedTestInstance;
 import com.navercorp.pinpoint.test.plugin.junit5.engine.support.PluginForkedTestThrowableCollector;
 import com.navercorp.pinpoint.test.plugin.junit5.engine.support.PluginTestReport;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -23,17 +24,25 @@ import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 public class PluginForkedTestMethodTestDescriptor extends TestMethodTestDescriptor {
 
+    private final PluginForkedTestInstance pluginTestInstance;
+    private final MethodSource source;
     private PluginTestReport testReport;
 
-    public PluginForkedTestMethodTestDescriptor(UniqueId uniqueId, Class<?> testClass, Method testMethod, JupiterConfiguration configuration) {
+
+    public PluginForkedTestMethodTestDescriptor(UniqueId uniqueId, Class<?> testClass, Method testMethod, JupiterConfiguration configuration, PluginForkedTestInstance pluginTestInstance) {
         super(uniqueId, testClass, testMethod, configuration);
+        this.pluginTestInstance = pluginTestInstance;
+        this.source = MethodSource.from(testClass.getName(), testMethod.getName() + "[" + pluginTestInstance.getTestId() + "]");
     }
 
     @Override
@@ -83,5 +92,10 @@ public class PluginForkedTestMethodTestDescriptor extends TestMethodTestDescript
             return SkipResult.skip("");
         }
         return SkipResult.doNotSkip();
+    }
+
+    @Override
+    public Optional<TestSource> getSource() {
+        return Optional.of(source);
     }
 }

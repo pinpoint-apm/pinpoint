@@ -20,17 +20,22 @@ import com.navercorp.pinpoint.test.plugin.PluginTestInstance;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
+import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.support.descriptor.MethodSource;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 public class PluginTestMethodTestDescriptor extends TestMethodTestDescriptor {
 
     private final PluginTestInstance pluginTestInstance;
+    private final MethodSource source;
 
     public PluginTestMethodTestDescriptor(UniqueId uniqueId, Class<?> testClass, Method testMethod, JupiterConfiguration configuration, PluginTestInstance pluginTestInstance) {
         super(uniqueId, testClass, testMethod, configuration);
         this.pluginTestInstance = pluginTestInstance;
+        this.source = MethodSource.from(testClass.getName(), testMethod.getName() + "[" + pluginTestInstance.getTestId() + "]");
     }
 
     @Override
@@ -47,5 +52,8 @@ public class PluginTestMethodTestDescriptor extends TestMethodTestDescriptor {
         }, true);
     }
 
-
+    @Override
+    public Optional<TestSource> getSource() {
+        return Optional.of(source);
+    }
 }
