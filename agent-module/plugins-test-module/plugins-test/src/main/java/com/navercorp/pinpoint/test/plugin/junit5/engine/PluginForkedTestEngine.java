@@ -133,7 +133,7 @@ public class PluginForkedTestEngine extends HierarchicalTestEngine<JupiterEngine
             for (TestDescriptor descriptor : testDescriptor.getChildren()) {
                 if (descriptor instanceof TestMethodTestDescriptor) {
                     final Method method = ((TestMethodTestDescriptor) descriptor).getTestMethod();
-                    final PluginForkedTestMethodTestDescriptor pluginTestMethodTestDescriptor = toPluginTestMethodTestDescriptor(configuration, pluginTestClassTestDescriptor, method);
+                    final PluginForkedTestMethodTestDescriptor pluginTestMethodTestDescriptor = toPluginTestMethodTestDescriptor(configuration, pluginTestClassTestDescriptor, pluginTestInstance, method);
                     pluginTestClassTestDescriptor.addChild(pluginTestMethodTestDescriptor);
                 }
             }
@@ -150,11 +150,11 @@ public class PluginForkedTestEngine extends HierarchicalTestEngine<JupiterEngine
         return new PluginForkedTestClassTestDescriptor(parentTestDescriptor.getUniqueId().append(ClassTestDescriptor.SEGMENT_TYPE, testClass.getName()), testClass, configuration);
     }
 
-    private static PluginForkedTestMethodTestDescriptor toPluginTestMethodTestDescriptor(JupiterConfiguration configuration, PluginForkedTestClassTestDescriptor parentTestDescriptor, Method method) {
+    private static PluginForkedTestMethodTestDescriptor toPluginTestMethodTestDescriptor(JupiterConfiguration configuration, PluginForkedTestClassTestDescriptor parentTestDescriptor, PluginForkedTestInstance pluginForkedTestInstance, Method method) {
         final Class<?> testClass = parentTestDescriptor.getTestClass();
         final Method testMethod = method;
         String methodId = String.format("%s(%s)", method.getName(), ClassUtils.nullSafeToString(method.getParameterTypes()));
-        return new PluginForkedTestMethodTestDescriptor(parentTestDescriptor.getUniqueId().append(TestMethodTestDescriptor.SEGMENT_TYPE, methodId), testClass, testMethod, configuration);
+        return new PluginForkedTestMethodTestDescriptor(parentTestDescriptor.getUniqueId().append(TestMethodTestDescriptor.SEGMENT_TYPE, methodId), testClass, testMethod, configuration, pluginForkedTestInstance);
     }
 
     TestDescriptor addPluginJunitTestDescriptor(TestDescriptor testDescriptor, JupiterConfiguration configuration) {

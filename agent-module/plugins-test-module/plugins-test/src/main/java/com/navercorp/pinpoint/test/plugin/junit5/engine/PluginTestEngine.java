@@ -181,7 +181,7 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
                     for (TestDescriptor descriptor : testDescriptor.getChildren()) {
                         if (descriptor instanceof TestMethodTestDescriptor) {
                             final Method method = ((TestMethodTestDescriptor) descriptor).getTestMethod();
-                            final PluginForkedTestMethodTestDescriptor pluginTestMethodTestDescriptor = toPluginForkedTestMethodTestDescriptor(configuration, pluginTestClassTestDescriptor, method);
+                            final PluginForkedTestMethodTestDescriptor pluginTestMethodTestDescriptor = toPluginForkedTestMethodTestDescriptor(configuration, pluginTestClassTestDescriptor, pluginTestInstance, method);
                             pluginTestClassTestDescriptor.addChild(pluginTestMethodTestDescriptor);
                         }
                     }
@@ -259,12 +259,12 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
         }
     }
 
-    private static PluginForkedTestMethodTestDescriptor toPluginForkedTestMethodTestDescriptor(JupiterConfiguration configuration, PluginForkedTestClassTestDescriptor parentTestDescriptor, Method method) {
+    private static PluginForkedTestMethodTestDescriptor toPluginForkedTestMethodTestDescriptor(JupiterConfiguration configuration, PluginForkedTestClassTestDescriptor parentTestDescriptor, PluginForkedTestInstance pluginTestInstance, Method method) {
         try {
             final Class<?> testClass = parentTestDescriptor.getTestClass();
             final Method testMethod = ReflectionUtils.findMethod(testClass, method.getName(), method.getParameterTypes()).orElseThrow(() -> new IllegalStateException("not found method"));
             String methodId = String.format("%s(%s)", method.getName(), ClassUtils.nullSafeToString(method.getParameterTypes()));
-            return new PluginForkedTestMethodTestDescriptor(parentTestDescriptor.getUniqueId().append(TestMethodTestDescriptor.SEGMENT_TYPE, methodId), testClass, testMethod, configuration);
+            return new PluginForkedTestMethodTestDescriptor(parentTestDescriptor.getUniqueId().append(TestMethodTestDescriptor.SEGMENT_TYPE, methodId), testClass, testMethod, configuration, pluginTestInstance);
         } catch (Throwable t) {
             System.out.println(t.getMessage());
             return null;
