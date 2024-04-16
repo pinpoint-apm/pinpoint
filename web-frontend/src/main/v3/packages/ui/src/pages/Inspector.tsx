@@ -14,11 +14,18 @@ import {
   InspectorAgentStatusTimeline,
   InspectorApplicationStatusTimeline,
   ApplicationCombinedList,
+  ApplicationCombinedListProps,
 } from '../components';
 import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/utils';
 import { FaChartLine } from 'react-icons/fa';
 
-export const InspectorPage = () => {
+export interface InspectorPageProps {
+  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+}
+
+export const InspectorPage = ({
+  ApplicationList = ApplicationCombinedList,
+}: InspectorPageProps) => {
   const navigate = useNavigate();
   const { searchParameters, application, agentId, version } = useInspectorSearchParameters();
   const { t } = useTranslation();
@@ -47,7 +54,7 @@ export const InspectorPage = () => {
           </div>
         }
       >
-        <ApplicationCombinedList
+        <ApplicationList
           open={!application}
           selectedApplication={application}
           onClickApplication={(application) =>
