@@ -1,0 +1,9 @@
+spring:
+  main:
+#    allow-bean-definition-overriding: true
+    log-startup-info: false
+  application:
+    name: Hbase Schema Manager
+
+cloud-manager:
+  hbase-schema-path: classpath:hbase-schema/hbase-schema.xml
