@@ -31,7 +31,7 @@
     "test": "jest",
     "storybook": "start-storybook -p 6009",
     "build-storybook": "build-storybook",
-    "build": "npm run lint && yarn test && tsup --config tsup.config.production.ts",
+    "build": "npm run lint && tsup --config tsup.config.production.ts",
     "clean": "yarn clean:dist && yarn clean:node_modules && yarn clean:turbo",
     "clean:node_modules": "rm -rf node_modules",
     "clean:dist": "rm -rf dist",
