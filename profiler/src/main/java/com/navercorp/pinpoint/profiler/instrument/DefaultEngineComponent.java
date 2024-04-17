@@ -65,10 +65,14 @@ public class DefaultEngineComponent implements EngineComponent {
         return objectBinderFactory;
     }
 
-
     @Override
     public int addInterceptor(Interceptor interceptor) {
-        return  interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
+        return interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
+    }
+
+    @Override
+    public int addInterceptor() {
+        return interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor();
     }
 
     @Override
@@ -76,6 +80,5 @@ public class DefaultEngineComponent implements EngineComponent {
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
         return apiMetaDataService.cacheApi(methodDescriptor);
     }
-
 }
 

@@ -15,24 +15,18 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
-import com.navercorp.pinpoint.profiler.instrument.mock.ApiIdAwareInterceptor;
-import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
-import com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum;
-import com.navercorp.pinpoint.profiler.instrument.mock.BasicInterceptor;
-import com.navercorp.pinpoint.profiler.instrument.mock.ExceptionInterceptor;
-import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
+import com.navercorp.pinpoint.profiler.instrument.mock.*;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -43,23 +37,22 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ASMMethodNodeAdapterAddInterceptorTest {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
     private ASMClassNodeLoader.TestClassLoader classLoader;
+    private AtomicInteger interceptorIdCounter = new AtomicInteger();
 
     private ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
 
     @BeforeAll
     public static void beforeClass() {
         interceptorRegistryBinder.bind();
+        InterceptorRegistry.setInterceptorHolderEnable(true);
     }
 
     @AfterAll
@@ -74,26 +67,22 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
 
     @Test
     public void addArgsArrayInterceptor() throws Exception {
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ArgsArrayInterceptor());
-        addInterceptor(interceptorId, ArgsArrayInterceptor.class);
+        addInterceptor(new ArgsArrayInterceptor());
     }
 
     @Test
     public void addStaticInterceptor() throws Exception {
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new StaticInterceptor());
-        addInterceptor(interceptorId, StaticInterceptor.class);
+        addInterceptor(new StaticInterceptor());
     }
 
     @Test
     public void addApiIdAwareInterceptor() throws Exception {
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ApiIdAwareInterceptor());
-        addInterceptor(interceptorId, ApiIdAwareInterceptor.class);
+        addInterceptor(new ApiIdAwareInterceptor());
     }
 
     @Test
     public void addBasicInterceptor() throws Exception {
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new BasicInterceptor());
-        addInterceptor(interceptorId, BasicInterceptor.class);
+        addInterceptor(new BasicInterceptor());
     }
 
     @Disabled
@@ -101,35 +90,34 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
     public void addExceptionInterceptor() throws Exception {
         ExceptionHandler exceptionHandler = exceptionHandlerFactory.getExceptionHandler();
         ExceptionHandleAroundInterceptor interceptor = new ExceptionHandleAroundInterceptor(new ExceptionInterceptor(), exceptionHandler);
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
-        addInterceptor(interceptorId, ExceptionHandleAroundInterceptor.class);
+        addInterceptor(interceptor);
     }
 
-    private void addInterceptor(int interceptorId, Class<?> interceptorClass) throws Exception {
+    private void addInterceptor(Interceptor interceptor) throws Exception {
         // method
-        checkMethod(interceptorId, interceptorClass);
+        checkMethod(interceptor);
 
         // constructor
-        checkConstructor(interceptorId, interceptorClass);
+        checkConstructor(interceptor);
 
         // arguments
-        checkArguments(interceptorId, interceptorClass);
+        checkArguments(interceptor);
 
         // return
-        checkReturn(interceptorId, interceptorClass);
+        checkReturn(interceptor);
 
         // exception
-        checkMethodException(interceptorId, interceptorClass);
-        checkConstructorException(interceptorId, interceptorClass);
+        checkMethodException(interceptor);
+        checkConstructorException(interceptor);
 
         // extend
-        checkExtends(interceptorId, interceptorClass);
+        checkExtends(interceptor);
     }
 
-    private void checkMethod(int interceptorId, Class<?> interceptorClass) throws Exception {
+    private void checkMethod(Interceptor interceptor) throws Exception {
         // method
-        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.MethodClass", interceptorClass);
-
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.MethodClass", interceptor);
+        Class<?> interceptorClass = interceptor.getClass();
         Class<?>[] parameterTypes = new Class[0];
         Object[] args = new Object[0];
         invokeMethod(clazz, "publicMethod", interceptorClass, parameterTypes, args, null, false);
@@ -141,9 +129,9 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "publicStaticFinalSynchronizedMethod", interceptorClass, parameterTypes, args, null, false);
     }
 
-    private void checkConstructor(int interceptorId, Class<?> interceptorClass) throws Exception {
-        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorClass", interceptorClass);
-
+    private void checkConstructor(Interceptor interceptor) throws Exception {
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ConstructorClass", interceptor);
+        Class<?> interceptorClass = interceptor.getClass();
         invokeMethod(clazz, "<init>", interceptorClass, new Class[0], new Object[0], null, false);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{byte.class}, new Object[]{Byte.parseByte("0")}, null, false);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{short.class}, new Object[]{Short.parseShort("0")}, null, false);
@@ -206,8 +194,9 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class, byte.class, Object.class, Enum.class, char.class, float.class, long.class}, new Object[]{"foo", 1, Byte.parseByte("0"), new Object(), BaseEnum.AGENT, 'a', 1.1f, 1l}, null, false);
     }
 
-    private void checkArguments(int interceptorId, Class<?> interceptorClass) throws Exception {
-        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass", interceptorClass);
+    private void checkArguments(Interceptor interceptor) throws Exception {
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass", interceptor);
+        Class<?> interceptorClass = interceptor.getClass();
 
         invokeMethod(clazz, "arg", interceptorClass, new Class[0], new Object[0], null, false);
         invokeMethod(clazz, "argByteType", interceptorClass, new Class[]{byte.class}, new Object[]{Byte.parseByte("0")}, null, false);
@@ -243,8 +232,9 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "argInterface", interceptorClass, new Class[]{Map.class, Map.class, Map.class}, new Object[]{new HashMap(), new HashMap<String, String>(), new HashMap<Object, Object>()}, null, false);
     }
 
-    private void checkReturn(int interceptorId, Class<?> interceptorClass) throws Exception {
-        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ReturnClass", interceptorClass);
+    private void checkReturn(Interceptor interceptor) throws Exception {
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ReturnClass", interceptor);
+        Class<?> interceptorClass = interceptor.getClass();
 
         invokeMethod(clazz, "voidType", interceptorClass, new Class[0], new Object[0], null, false);
         invokeMethod(clazz, "returnByte", interceptorClass, new Class[0], new Object[0], Byte.parseByte("0"), false);
@@ -261,8 +251,9 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "returnEnum", interceptorClass, new Class[0], new Object[0], BaseEnum.AGENT, false);
     }
 
-    private void checkMethodException(int interceptorId, Class<?> interceptorClass) throws Exception {
-        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ExceptionClass", interceptorClass);
+    private void checkMethodException(Interceptor interceptor) throws Exception {
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ExceptionClass", interceptor);
+        Class<?> interceptorClass = interceptor.getClass();
 
         invokeMethod(clazz, "throwable", interceptorClass, new Class[]{}, new Object[]{}, null, true);
         invokeMethod(clazz, "exception", interceptorClass, new Class[]{}, new Object[]{}, null, true);
@@ -272,17 +263,20 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "condition", interceptorClass, new Class[]{}, new Object[]{}, null, true);
     }
 
-    private void checkConstructorException(int interceptorId, Class<?> interceptorClass) throws Exception {
-        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorExceptionClass", interceptorClass);
+    private void checkConstructorException(Interceptor interceptor) throws Exception {
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ConstructorExceptionClass", interceptor);
+        Class<?> interceptorClass = interceptor.getClass();
 
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class}, new Object[]{"foo", 0}, null, true);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{Boolean.class}, new Object[]{Boolean.TRUE}, null, true);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{Boolean.class}, new Object[]{Boolean.FALSE}, null, false);
     }
 
-    private void checkExtends(int interceptorId, Class<?> interceptorClass) throws Exception {
-        addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorParentClass", interceptorClass);
-        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", interceptorClass);
+    private void checkExtends(Interceptor interceptor) throws Exception {
+        addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ConstructorParentClass", interceptor);
+        Class<?> interceptorClass = interceptor.getClass();
+
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", interceptor);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{}, new Object[]{}, null, false);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class}, new Object[]{"foo"}, null, false);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class}, new Object[]{"foo", 1}, null, false);
@@ -480,8 +474,8 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         }
     }
 
-    private Class<?> addInterceptor(final int interceptorId, final String targetClassName, final Class<?> interceptorClass) {
-        final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(interceptorClass);
+    private Class<?> addInterceptor0(final String targetClassName, Interceptor interceptor) {
+        final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(interceptor.getClass());
         try {
             classLoader.setTrace(false);
             classLoader.setVerify(false);
@@ -498,6 +492,12 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                         ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
                         if (methodNodeAdapter.isAbstract() || methodNodeAdapter.isNative()) {
                             continue;
+                        }
+                        int interceptorId = interceptorIdCounter.incrementAndGet();
+                        try {
+                            ASMInterceptorHolder.create(interceptorId, classLoader, interceptor);
+                        } catch (InstrumentException e) {
+                            throw new RuntimeException(e);
                         }
                         methodNodeAdapter.addBeforeInterceptor(interceptorId, interceptorDefinition, 99);
                         methodNodeAdapter.addAfterInterceptor(interceptorId, interceptorDefinition, 99);

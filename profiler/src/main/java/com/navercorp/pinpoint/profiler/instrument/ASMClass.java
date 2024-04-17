@@ -433,7 +433,7 @@ public class ASMClass implements InstrumentClass {
         Objects.requireNonNull(filterTypeName, "type of @TargetFilter");
 
         ObjectBinderFactory objectBinderFactory = engineComponent.getObjectBinderFactory();
-        final InterceptorArgumentProvider interceptorArgumentProvider = objectBinderFactory.newInterceptorArgumentProvider(this);
+        final InterceptorArgumentProvider interceptorArgumentProvider = objectBinderFactory.newInterceptorArgumentProvider();
         final AutoBindingObjectFactory filterFactory = objectBinderFactory.newAutoBindingObjectFactory(pluginContext, classNode.getClassLoader(), interceptorArgumentProvider);
         final ObjectFactory objectFactory = ObjectFactory.byConstructor(filterTypeName, (Object[]) annotation.constructorArguments());
         final MethodFilter filter = (MethodFilter) filterFactory.createInstance(objectFactory);

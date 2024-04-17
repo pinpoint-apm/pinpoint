@@ -33,6 +33,11 @@ public final class EmptyRegistryAdaptor implements InterceptorRegistryAdaptor {
 
 
     @Override
+    public int addInterceptor() {
+        return 0;
+    }
+
+    @Override
     public int addInterceptor(Interceptor interceptor) {
         return -1;
     }

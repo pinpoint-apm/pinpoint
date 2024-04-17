@@ -30,6 +30,8 @@ public final class InterceptorRegistry {
 
     private static InterceptorRegistryAdaptor REGISTRY = EmptyRegistryAdaptor.EMPTY;
 
+    private static boolean interceptorHolderEnable = true;
+
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
         Objects.requireNonNull(interceptorRegistryAdaptor, "interceptorRegistryAdaptor");
 
@@ -50,5 +52,13 @@ public final class InterceptorRegistry {
 
     public static Interceptor getInterceptor(int key) {
         return REGISTRY.getInterceptor(key);
+    }
+
+    public static void setInterceptorHolderEnable(boolean enable) {
+        interceptorHolderEnable = enable;
+    }
+
+    public static boolean isInterceptorHolderEnable() {
+        return interceptorHolderEnable;
     }
 }

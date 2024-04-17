@@ -38,11 +38,12 @@ public class DefaultInterceptorRegistryBinder implements InterceptorRegistryBind
     private final InterceptorRegistryAdaptor interceptorRegistryAdaptor;
 
     public DefaultInterceptorRegistryBinder() {
-        this(DEFAULT_MAX);
+        this(DEFAULT_MAX, true);
     }
 
-    public DefaultInterceptorRegistryBinder(int maxRegistrySize) {
+    public DefaultInterceptorRegistryBinder(int maxRegistrySize, boolean interceptorHolderEnable) {
         this.interceptorRegistryAdaptor = new DefaultInterceptorRegistryAdaptor(maxRegistrySize);
+        InterceptorRegistry.setInterceptorHolderEnable(interceptorHolderEnable);
     }
 
     @Override

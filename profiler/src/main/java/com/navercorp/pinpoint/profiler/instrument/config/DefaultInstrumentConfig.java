@@ -38,6 +38,9 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
     @Value("${profiler.interceptorregistry.size}")
     private int interceptorRegistrySize = 1024 * 8;
 
+    @Value("${profiler.interceptor.holder.enable}")
+    private boolean interceptorHolderEnable = true;
+
     private List<String> allowJdkClassNames = Collections.emptyList();
 
     @Value("${profiler.pinpoint.base-package}")
@@ -64,6 +67,11 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
     @Override
     public int getInterceptorRegistrySize() {
         return interceptorRegistrySize;
+    }
+
+    @Override
+    public boolean getInterceptorHolderEnable() {
+        return interceptorHolderEnable;
     }
 
     @Override
@@ -183,10 +191,13 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
                 "profileInstrumentEngine='" + profileInstrumentEngine + '\'' +
                 ", instrumentMatcherEnable=" + instrumentMatcherEnable +
                 ", interceptorRegistrySize=" + interceptorRegistrySize +
+                ", interceptorHolderEnable=" + interceptorHolderEnable +
                 ", allowJdkClassNames=" + allowJdkClassNames +
                 ", pinpointBasePackage='" + pinpointBasePackage + '\'' +
                 ", pinpointExcludePackage='" + pinpointExcludePackage + '\'' +
                 ", callStackMaxDepth=" + callStackMaxDepth +
+                ", callStackMaxSequence=" + callStackMaxSequence +
+                ", callStackOverflowLogRation=" + callStackOverflowLogRation +
                 ", profilableClassFilter=" + profilableClassFilter +
                 ", applicationServerType='" + applicationServerType + '\'' +
                 ", propagateInterceptorException=" + propagateInterceptorException +
