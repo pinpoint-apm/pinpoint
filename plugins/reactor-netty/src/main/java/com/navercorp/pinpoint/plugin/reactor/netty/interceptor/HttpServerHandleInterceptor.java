@@ -22,10 +22,11 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
@@ -48,22 +49,19 @@ import reactor.netty.http.server.HttpServerResponse;
 /**
  * @author jaehong.kim
  */
-public class HttpServerHandleInterceptor implements AroundInterceptor {
+public class HttpServerHandleInterceptor implements ApiIdAwareAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+
     private final boolean enableAsyncEndPoint;
     private final ServletRequestListener<HttpServerRequest> servletRequestListener;
     private final ServletResponseListener<HttpServerResponse> servletResponseListener;
     private final ConnectionObserverAdaptor connectionObserver;
 
-    public HttpServerHandleInterceptor(TraceContext traceContext,
-                                       MethodDescriptor descriptor,
-                                       RequestRecorderFactory<HttpServerRequest> requestRecorderFactory,
+    public HttpServerHandleInterceptor(TraceContext traceContext, RequestRecorderFactory<HttpServerRequest> requestRecorderFactory,
                                        int version) {
         this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
 
         final ReactorNettyPluginConfig config = new ReactorNettyPluginConfig(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServerRequest> requestAdaptor = new HttpRequestAdaptor();
@@ -88,14 +86,14 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
         try {
             if (connectionObserver.isReceived(args)) {
-                beforeReceived(args);
+                beforeReceived(apiId, args);
             } else if (connectionObserver.isClosed(args)) {
                 closed(args);
             }
@@ -104,7 +102,7 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
         }
     }
 
-    private void beforeReceived(final Object[] args) {
+    private void beforeReceived(int apiId, final Object[] args) {
         final HttpServerRequest request = ArrayArgumentUtils.getArgument(args, 0, HttpServerRequest.class);
         if (request == null) {
             return;
@@ -114,8 +112,9 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
             return;
         }
 
-        this.servletRequestListener.initialized(request, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, this.methodDescriptor);
-        this.servletResponseListener.initialized(response, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, this.methodDescriptor); //must after request listener due to trace block begin
+        final MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
+        this.servletRequestListener.initialized(request, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, methodDescriptor);
+        this.servletResponseListener.initialized(response, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, methodDescriptor); //must after request listener due to trace block begin
 
         // Set end-point
         final Trace trace = this.traceContext.currentRawTraceObject();
@@ -144,7 +143,7 @@ public class HttpServerHandleInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

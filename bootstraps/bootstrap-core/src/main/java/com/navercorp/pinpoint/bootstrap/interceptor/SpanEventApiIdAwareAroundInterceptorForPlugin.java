@@ -16,42 +16,37 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-
-import java.util.Objects;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  */
-public abstract class SpanEventSimpleAroundInterceptorForPlugin extends AbstractSpanEventInterceptorForPlugin implements AroundInterceptor {
-    protected final MethodDescriptor methodDescriptor;
+public abstract class SpanEventApiIdAwareAroundInterceptorForPlugin extends AbstractSpanEventInterceptorForPlugin implements ApiIdAwareAroundInterceptor {
 
-    protected SpanEventSimpleAroundInterceptorForPlugin(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    protected SpanEventApiIdAwareAroundInterceptorForPlugin(TraceContext traceContext) {
         super(traceContext);
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logBeforeInterceptor(target, args);
         }
 
-        prepareBeforeTrace(target, args);
+        prepareBeforeTrace(target, apiId, args);
 
         final Trace trace = currentTrace();
         if (trace == null) {
             return;
         }
-
+        
         try {
             final SpanEventRecorder recorder = trace.traceBlockBegin();
-            beforeTrace(trace, recorder, target, args);
-            doInBeforeTrace(recorder, target, args);
+            beforeTrace(trace, recorder, target, apiId, args);
+            doInBeforeTrace(recorder, target, apiId, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
@@ -59,21 +54,21 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin extends Abstract
         }
     }
 
-    protected void prepareBeforeTrace(Object target, Object[] args) {
+    protected void prepareBeforeTrace(Object target, int apiId, Object[] args) {
     }
 
-    protected void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+    protected void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
-    protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args) throws Exception;
+    protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final int apiId, final Object[] args) throws Exception;
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logAfterInterceptor(target, args, result, throwable);
         }
 
-        prepareAfterTrace(target, args, result, throwable);
+        prepareAfterTrace(target, apiId, args, result, throwable);
 
         final Trace trace = currentTrace();
         if (trace == null) {
@@ -81,8 +76,8 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin extends Abstract
         }
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            afterTrace(trace, recorder, target, args, result, throwable);
-            doInAfterTrace(recorder, target, args, result, throwable);
+            afterTrace(trace, recorder, target, apiId, args, result, throwable);
+            doInAfterTrace(recorder, target, apiId, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
@@ -92,15 +87,11 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin extends Abstract
         }
     }
 
-    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
+    protected void prepareAfterTrace(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 
-    protected void afterTrace(final Trace trace, final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, final Throwable throwable) {
+    protected void afterTrace(final Trace trace, final SpanEventRecorder recorder, final Object target, final int apiId, final Object[] args, final Object result, final Throwable throwable) {
     }
 
-    protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable) throws Exception;
-
-    protected MethodDescriptor getMethodDescriptor() {
-        return methodDescriptor;
-    }
+    protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final int apiId, final Object[] args, final Object result, Throwable throwable) throws Exception;
 }

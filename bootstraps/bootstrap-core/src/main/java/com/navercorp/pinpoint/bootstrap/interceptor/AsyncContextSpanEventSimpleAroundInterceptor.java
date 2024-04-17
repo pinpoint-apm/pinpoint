@@ -15,28 +15,20 @@
  */
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
 import java.util.Objects;
 
-public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements AroundInterceptor {
-    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
-    protected final boolean isTrace = logger.isTraceEnabled();
-    protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
-
+public abstract class AsyncContextSpanEventSimpleAroundInterceptor extends AbstractAsyncContextSpanEventInterceptor implements AroundInterceptor {
     protected final MethodDescriptor methodDescriptor;
 
     public AsyncContextSpanEventSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        Objects.requireNonNull(traceContext, "traceContext");
+        super(traceContext);
         this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
@@ -128,37 +120,4 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
-
-    protected AsyncContext getAsyncContext(Object target, Object[] args) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
-
-    protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
-
-    private Trace getAsyncTrace(AsyncContext asyncContext) {
-        final Trace trace = asyncContext.continueAsyncTraceObject();
-        if (trace == null) {
-            if (isDebug) {
-                logger.debug("Failed to continue async trace. 'result is null'");
-            }
-            return null;
-        }
-        if (isDebug) {
-            logger.debug("getAsyncTrace() trace {}, asyncContext={}", trace, asyncContext);
-        }
-
-        return trace;
-    }
-
-    private void deleteAsyncContext(final Trace trace, AsyncContext asyncContext) {
-        if (isDebug) {
-            logger.debug("Delete async trace {}.", trace);
-        }
-
-        trace.close();
-        asyncContext.close();
-    }
-
 }

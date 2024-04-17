@@ -44,9 +44,8 @@ public class RequestContextImplRedirectInterceptorTest {
 
     @Test
     public void doInAfterTrace() {
-        interceptor = new RequestContextImplRedirectInterceptor(traceContext, descriptor);
-        interceptor.doInAfterTrace(recorder, null, null, null, e);
-        verify(recorder).recordApi(descriptor);
+        interceptor = new RequestContextImplRedirectInterceptor(traceContext);
+        interceptor.doInAfterTrace(recorder, null, 1,null, null, e);
         verify(recorder).recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
         verify(recorder).recordException(e);
     }

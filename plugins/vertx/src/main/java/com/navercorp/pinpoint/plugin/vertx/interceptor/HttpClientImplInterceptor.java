@@ -15,27 +15,26 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
 /**
  * @author jaehong.kim
  */
-public class HttpClientImplInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
-    public HttpClientImplInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+public class HttpClientImplInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
+    public HttpClientImplInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
         recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
     }

@@ -17,11 +17,9 @@
 package com.navercorp.pinpoint.plugin.akka.http.interceptor;
 
 import akka.http.javadsl.server.Complete;
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointApiAwareInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
 import scala.Option;
@@ -29,18 +27,18 @@ import scala.concurrent.Future;
 import scala.util.Failure;
 import scala.util.Success;
 
-public class RequestContextImplCompleteInterceptor extends AsyncContextSpanEventEndPointInterceptor {
+public class RequestContextImplCompleteInterceptor extends AsyncContextSpanEventEndPointApiAwareInterceptor {
 
-    public RequestContextImplCompleteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public RequestContextImplCompleteInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         try {
             if (result instanceof Future && ((Future) result).isCompleted()) {
                 Option value = ((Future) result).value();
@@ -68,10 +66,9 @@ public class RequestContextImplCompleteInterceptor extends AsyncContextSpanEvent
                 }
             }
         } finally {
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
             recorder.recordException(throwable);
         }
     }
-
 }

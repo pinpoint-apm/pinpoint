@@ -16,12 +16,11 @@
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointApiAwareInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import io.vertx.core.http.HttpServerResponse;
@@ -29,23 +28,23 @@ import io.vertx.core.http.HttpServerResponse;
 /**
  * @author jaehong.kim
  */
-public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndPointInterceptor {
+public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndPointApiAwareInterceptor {
 
     private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
-    public HttpServerResponseImplInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
-        super(traceContext, methodDescriptor);
+    public HttpServerResponseImplInterceptor(TraceContext traceContext) {
+        super(traceContext);
         this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
             recorder.recordException(throwable);
         }
@@ -58,6 +57,6 @@ public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndP
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

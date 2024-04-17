@@ -18,20 +18,19 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import reactor.netty.channel.ChannelOperations;
 
-public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
-    public ChannelOperationsOnInboundCompleteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+    public ChannelOperationsOnInboundCompleteMethodInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
         if (((ChannelOperations) target).receiveObject() instanceof AsyncContextAccessor) {
             AsyncContextAccessor asyncContextAccessor = (AsyncContextAccessor) ((ChannelOperations) target).receiveObject();
             asyncContextAccessor._$PINPOINT$_setAsyncContext(asyncContext);
@@ -42,8 +41,8 @@ public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncCo
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApiId(apiId);
         recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
         recorder.recordException(throwable);
     }

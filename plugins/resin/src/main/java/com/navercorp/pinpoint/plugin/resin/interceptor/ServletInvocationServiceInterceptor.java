@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.plugin.resin.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
@@ -46,18 +47,15 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author jaehong.kim
  */
-public class ServletInvocationServiceInterceptor implements AroundInterceptor {
+public class ServletInvocationServiceInterceptor implements ApiIdAwareAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MethodDescriptor methodDescriptor;
     private final Validator validator;
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
 
-    public ServletInvocationServiceInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
-        this.methodDescriptor = methodDescriptor;
-
+    public ServletInvocationServiceInterceptor(TraceContext traceContext, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
         this.validator = buildValidator();
         final ResinConfig config = new ResinConfig(traceContext.getProfilerConfig());
 
@@ -88,7 +86,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -106,16 +104,17 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
                 return;
             }
 
-            this.servletRequestListener.initialized(request, ResinConstants.RESIN_METHOD, this.methodDescriptor);
+            final MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
+            this.servletRequestListener.initialized(request, ResinConstants.RESIN_METHOD, methodDescriptor);
             final HttpServletResponse response = (HttpServletResponse) args[1];
-            this.servletResponseListener.initialized(response, ResinConstants.RESIN_METHOD, this.methodDescriptor); //must after request listener due to trace block begin
+            this.servletResponseListener.initialized(response, ResinConstants.RESIN_METHOD, methodDescriptor); //must after request listener due to trace block begin
         } catch (Throwable t) {
-             logger.info("Failed to servlet request event handle.", t);
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.plugin.weblogic.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
@@ -40,17 +41,14 @@ import weblogic.servlet.internal.ServletResponseImpl;
  * @author andyspan
  * @author jaehong.kim
  */
-public class WebAppServletContextExecuteInterceptor implements AroundInterceptor {
+public class WebAppServletContextExecuteInterceptor implements ApiIdAwareAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private final MethodDescriptor methodDescriptor;
     private final ServletRequestListener<ServletRequestImpl> servletRequestListener;
 
-    public WebAppServletContextExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, RequestRecorderFactory<ServletRequestImpl> requestRecorderFactory) {
-
-        this.methodDescriptor = methodDescriptor;
+    public WebAppServletContextExecuteInterceptor(TraceContext traceContext, RequestRecorderFactory<ServletRequestImpl> requestRecorderFactory) {
         final WeblogicConfiguration config = new WeblogicConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<ServletRequestImpl> requestAdaptor = new ServletRequestImplAdaptor();
         ParameterRecorder<ServletRequestImpl> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
@@ -69,7 +67,7 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -80,7 +78,8 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
 
         try {
             final ServletRequestImpl request = (ServletRequestImpl) args[0];
-            this.servletRequestListener.initialized(request, WeblogicConstants.WEBLOGIC_METHOD, this.methodDescriptor);
+            MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
+            this.servletRequestListener.initialized(request, WeblogicConstants.WEBLOGIC_METHOD, methodDescriptor);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
@@ -89,7 +88,7 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

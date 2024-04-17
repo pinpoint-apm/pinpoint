@@ -17,11 +17,10 @@ package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
@@ -31,19 +30,19 @@ import io.vertx.core.http.impl.HttpClientResponseImpl;
 /**
  * @author jaehong.kim
  */
-public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     private final boolean statusCode;
 
-    public HttpClientRequestImplDoHandleResponseInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public HttpClientRequestImplDoHandleResponseInterceptor(TraceContext traceContext) {
+        super(traceContext);
 
         final VertxHttpClientConfig config = new VertxHttpClientConfig(traceContext.getProfilerConfig());
         this.statusCode = config.isStatusCode();
     }
 
     @Override
-    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
         if (trace.canSampled()) {
             if (!validate(args)) {
                 return;
@@ -59,7 +58,7 @@ public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncConte
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     private boolean validate(final Object[] args) {
@@ -76,15 +75,15 @@ public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncConte
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
             recorder.recordException(throwable);
         }
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

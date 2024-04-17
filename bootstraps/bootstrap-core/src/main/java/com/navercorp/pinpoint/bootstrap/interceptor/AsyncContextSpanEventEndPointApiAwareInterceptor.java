@@ -17,27 +17,22 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
-import java.util.Objects;
-
 /**
  * @author jaehong.kim
  */
-public abstract class AsyncContextSpanEventEndPointInterceptor extends AbstractAsyncContextSpanEventEndPointInterceptor implements AroundInterceptor {
-    protected final MethodDescriptor methodDescriptor;
+public abstract class AsyncContextSpanEventEndPointApiAwareInterceptor extends AbstractAsyncContextSpanEventEndPointInterceptor implements ApiIdAwareAroundInterceptor {
 
-    public AsyncContextSpanEventEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public AsyncContextSpanEventEndPointApiAwareInterceptor(TraceContext traceContext) {
         super(traceContext);
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -62,8 +57,8 @@ public abstract class AsyncContextSpanEventEndPointInterceptor extends AbstractA
         try {
             // trace event for default & async.
             final SpanEventRecorder recorder = trace.traceBlockBegin();
-            beforeTrace(asyncContext, trace, recorder, target, args);
-            doInBeforeTrace(recorder, target, args);
+            beforeTrace(asyncContext, trace, recorder, target, apiId, args);
+            doInBeforeTrace(recorder, target, apiId, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
@@ -71,13 +66,13 @@ public abstract class AsyncContextSpanEventEndPointInterceptor extends AbstractA
         }
     }
 
-    protected void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+    protected void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
     }
 
-    protected abstract void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args);
+    protected abstract void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args);
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -107,8 +102,8 @@ public abstract class AsyncContextSpanEventEndPointInterceptor extends AbstractA
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            afterTrace(asyncContext, trace, recorder, target, args, result, throwable);
-            doInAfterTrace(recorder, target, args, result, throwable);
+            afterTrace(asyncContext, trace, recorder, target, apiId, args, result, throwable);
+            doInAfterTrace(recorder, target, apiId, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
@@ -122,8 +117,8 @@ public abstract class AsyncContextSpanEventEndPointInterceptor extends AbstractA
         }
     }
 
-    protected void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 
-    protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
+    protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable);
 }
