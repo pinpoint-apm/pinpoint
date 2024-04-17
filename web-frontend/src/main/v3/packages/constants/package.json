@@ -24,7 +24,7 @@
     "@pinpoint-fe/configs": "*",
     "@pinpoint-fe/tsconfig": "*",
     "eslint": "^8.15.0",
-    "tsup": "^7.2.0",
+    "tsup": "7.2.0",
     "typescript": "^5.2.2"
   }
 }
