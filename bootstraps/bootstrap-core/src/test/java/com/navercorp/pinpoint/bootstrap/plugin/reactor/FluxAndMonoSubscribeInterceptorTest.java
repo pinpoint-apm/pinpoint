@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,6 @@ import static org.mockito.Mockito.mock;
 
 public class FluxAndMonoSubscribeInterceptorTest {
     final TraceContext mockTraceContext = mock(TraceContext.class);
-    final MethodDescriptor mockMethodDescriptor = mock(MethodDescriptor.class);
     final ServiceType mockServiceType = mock(ServiceType.class);
 
     @Test
@@ -37,7 +35,7 @@ public class FluxAndMonoSubscribeInterceptorTest {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Set asyncContext to target
         target._$PINPOINT$_setReactorContext(mockAsyncContext);
@@ -59,7 +57,7 @@ public class FluxAndMonoSubscribeInterceptorTest {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Set asyncContext to target
         target._$PINPOINT$_setAsyncContext(mockAsyncContext);
@@ -83,7 +81,7 @@ public class FluxAndMonoSubscribeInterceptorTest {
     public void targetNotContainAsyncContext() {
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Not set asyncContext to target
         // before
@@ -105,7 +103,7 @@ public class FluxAndMonoSubscribeInterceptorTest {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Set asyncContext to target
         arg0._$PINPOINT$_setReactorContext(mockAsyncContext);
@@ -128,7 +126,7 @@ public class FluxAndMonoSubscribeInterceptorTest {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
         MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockMethodDescriptor, mockServiceType);
+        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
 
         // Not set asyncContext to target
         // before

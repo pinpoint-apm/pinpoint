@@ -86,7 +86,7 @@ public class InvokeMethodInterceptorTest {
     @Mock
     private RequestRecorderFactory<HttpServletRequest> requestRecorderFactory;
 
-    
+
     /**
      * Before.
      */
@@ -142,15 +142,16 @@ public class InvokeMethodInterceptorTest {
         lenient().when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, requestRecorderFactory);
+        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, requestRecorderFactory);
+        final int apiId = 1;
 
-        interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.before("target", apiId, new Object[]{request, response});
+        interceptor.after("target", apiId, new Object[]{request, response}, new Object(), null);
 
         verify(traceContext).newAsyncTraceObject(anyString());
 
-        interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.before("target", apiId, new Object[]{request, response});
+        interceptor.after("target", apiId, new Object[]{request, response}, new Object(), null);
 
         verify(traceContext, times(2)).newAsyncTraceObject(anyString());
     }
@@ -173,17 +174,19 @@ public class InvokeMethodInterceptorTest {
         lenient().when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, requestRecorderFactory);
-        interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, requestRecorderFactory);
+        final int apiId = 1;
+
+        interceptor.before("target", apiId, new Object[]{request, response});
+        interceptor.after("target", apiId, new Object[]{request, response}, new Object(), null);
 
         verify(traceContext, never()).newTraceObject(anyString());
         verify(traceContext, never()).disableSampling();
         verify(traceContext, never()).continueTraceObject(any(TraceId.class));
 
 
-        interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.before("target", apiId, new Object[]{request, response});
+        interceptor.after("target", apiId, new Object[]{request, response}, new Object(), null);
 
         verify(traceContext, never()).newTraceObject(anyString());
         verify(traceContext, never()).disableSampling();
@@ -210,15 +213,16 @@ public class InvokeMethodInterceptorTest {
         lenient().when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, requestRecorderFactory);
+        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, requestRecorderFactory);
+        final int apiId = 1;
 
-        interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.before("target", apiId, new Object[]{request, response});
+        interceptor.after("target", apiId, new Object[]{request, response}, new Object(), null);
 
         verify(traceContext).continueAsyncTraceObject((any(TraceId.class)));
 
-        interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.before("target", apiId, new Object[]{request, response});
+        interceptor.after("target", apiId, new Object[]{request, response}, new Object(), null);
 
         verify(traceContext, times(2)).continueAsyncTraceObject(any(TraceId.class));
     }

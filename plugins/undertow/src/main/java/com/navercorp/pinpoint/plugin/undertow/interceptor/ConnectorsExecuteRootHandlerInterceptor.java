@@ -19,10 +19,11 @@ package com.navercorp.pinpoint.plugin.undertow.interceptor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
@@ -45,18 +46,17 @@ import io.undertow.server.HttpServerExchange;
 /**
  * @author jaehong.kim
  */
-public class ConnectorsExecuteRootHandlerInterceptor implements AroundInterceptor {
+public class ConnectorsExecuteRootHandlerInterceptor implements ApiIdAwareAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MethodDescriptor methodDescriptor;
     private final Validator validator;
     private final UndertowHttpHeaderFilter httpHeaderFilter;
     private final ServletRequestListener<HttpServerExchange> servletRequestListener;
     private final ServletResponseListener<HttpServerExchange> servletResponseListener;
 
-    public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerExchange> requestRecorderFactory) {
-        this.methodDescriptor = descriptor;
+    public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, RequestRecorderFactory<HttpServerExchange> requestRecorderFactory) {
         final UndertowConfig config = new UndertowConfig(traceContext.getProfilerConfig());
 
         this.validator = buildValidator(config);
@@ -91,7 +91,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -102,8 +102,9 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
 
         try {
             final HttpServerExchange request = (HttpServerExchange) args[1];
-            this.servletRequestListener.initialized(request, UndertowConstants.UNDERTOW_METHOD, this.methodDescriptor);
-            this.servletResponseListener.initialized(request, UndertowConstants.UNDERTOW_METHOD, this.methodDescriptor); //must after request listener due to trace block begin
+            MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
+            this.servletRequestListener.initialized(request, UndertowConstants.UNDERTOW_METHOD, methodDescriptor);
+            this.servletResponseListener.initialized(request, UndertowConstants.UNDERTOW_METHOD, methodDescriptor); //must after request listener due to trace block begin
             this.httpHeaderFilter.filter(request);
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
@@ -111,7 +112,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

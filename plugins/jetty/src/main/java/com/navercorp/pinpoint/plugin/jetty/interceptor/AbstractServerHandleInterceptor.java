@@ -17,10 +17,12 @@
 package com.navercorp.pinpoint.plugin.jetty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
@@ -44,20 +46,17 @@ import javax.servlet.http.HttpServletResponse;
  * @author Chaein Jung
  * @author jaehong.kim
  */
-public abstract class AbstractServerHandleInterceptor implements AroundInterceptor {
+
+public abstract class AbstractServerHandleInterceptor implements ApiIdAwareAroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
 
-    private final MethodDescriptor methodDescriptor;
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
 
-    public AbstractServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor,
-                                           RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
-
-        this.methodDescriptor = descriptor;
+    public AbstractServerHandleInterceptor(TraceContext traceContext, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
         final JettyConfiguration config = new JettyConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
@@ -84,7 +83,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     abstract HttpServletResponse toHttpServletResponse(Object[] args);
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -97,16 +96,17 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                 }
                 return;
             }
-            this.servletRequestListener.initialized(request, JettyConstants.JETTY_METHOD, this.methodDescriptor);
+            MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
+            this.servletRequestListener.initialized(request, JettyConstants.JETTY_METHOD, methodDescriptor);
             final HttpServletResponse response = toHttpServletResponse(args);
-            this.servletResponseListener.initialized(response, JettyConstants.JETTY_METHOD, this.methodDescriptor); //must after request listener due to trace block begin
+            this.servletResponseListener.initialized(response, JettyConstants.JETTY_METHOD, methodDescriptor); //must after request listener due to trace block begin
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
         }
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

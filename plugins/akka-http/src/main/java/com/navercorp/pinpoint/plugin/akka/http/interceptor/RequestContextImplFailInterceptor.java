@@ -16,21 +16,20 @@
 
 package com.navercorp.pinpoint.plugin.akka.http.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointApiAwareInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
 
-public class RequestContextImplFailInterceptor extends AsyncContextSpanEventEndPointInterceptor {
+public class RequestContextImplFailInterceptor extends AsyncContextSpanEventEndPointApiAwareInterceptor {
 
-    public RequestContextImplFailInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public RequestContextImplFailInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
         Throwable th = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
         if (th != null) {
             recorder.recordException(th);
@@ -38,8 +37,8 @@ public class RequestContextImplFailInterceptor extends AsyncContextSpanEventEndP
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApiId(apiId);
         recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
     }
 }

@@ -17,28 +17,27 @@
 package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 
 /**
  * @author jaehong.kim
  */
-public class HttpClientOperationsOnOutboundCompleteInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class HttpClientOperationsOnOutboundCompleteInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
 
-    public HttpClientOperationsOnOutboundCompleteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public HttpClientOperationsOnOutboundCompleteInterceptor(TraceContext traceContext) {
+        super(traceContext);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApi(methodDescriptor);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
         recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }

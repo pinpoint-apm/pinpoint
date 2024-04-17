@@ -15,12 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
@@ -45,19 +44,17 @@ import io.netty.handler.codec.http.HttpRequest;
 /**
  * @author jaehong.kim
  */
-public class HttpClientStreamInterceptor implements AroundInterceptor {
+public class HttpClientStreamInterceptor implements ApiIdAwareAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
-    private MethodDescriptor descriptor;
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
 
-    public HttpClientStreamInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public HttpClientStreamInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.descriptor = descriptor;
 
         final VertxHttpClientConfig config = new VertxHttpClientConfig(traceContext.getProfilerConfig());
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
@@ -71,7 +68,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -127,7 +124,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -140,7 +137,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
         try {
             if (trace.canSampled()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordApi(descriptor);
+                recorder.recordApiId(apiId);
                 recorder.recordException(throwable);
                 recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
 

@@ -33,8 +33,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class Jetty9xServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
-    public Jetty9xServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory requestRecorderFactory) {
-        super(traceContext, descriptor, requestRecorderFactory);
+    public Jetty9xServerHandleInterceptor(TraceContext traceContext, RequestRecorderFactory requestRecorderFactory) {
+        super(traceContext, requestRecorderFactory);
     }
 
     @Override

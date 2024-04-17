@@ -14,11 +14,10 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.javax.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptorHelper;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 import com.navercorp.pinpoint.plugin.tomcat.javax.TomcatAsyncListenerAdaptor;
@@ -29,14 +28,14 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class RequestStartAsyncInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
 
-    public RequestStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        super(context, descriptor);
+    public RequestStartAsyncInterceptor(TraceContext context) {
+        super(context);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
 
     }
 
@@ -46,7 +45,7 @@ public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundIntercept
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) throws Exception {
         if (validate(target, result, throwable)) {
             com.navercorp.pinpoint.bootstrap.context.AsyncContext nextAsyncContext = recorder.recordNextAsyncContext(true);
 
@@ -65,7 +64,7 @@ public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundIntercept
             }
         }
         recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
-        recorder.recordApi(methodDescriptor);
+        recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }
 

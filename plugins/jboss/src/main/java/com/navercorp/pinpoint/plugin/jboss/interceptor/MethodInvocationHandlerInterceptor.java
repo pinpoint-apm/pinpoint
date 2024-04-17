@@ -16,23 +16,21 @@
 
 package com.navercorp.pinpoint.plugin.jboss.interceptor;
 
-import java.lang.reflect.Method;
-
-import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
-import org.jboss.as.security.remoting.RemotingContext;
-import org.jboss.remoting3.Connection;
-
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.MethodInvocationHandlerMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.util.JbossUtility;
+import org.jboss.as.security.remoting.RemotingContext;
+import org.jboss.remoting3.Connection;
+
+import java.lang.reflect.Method;
 
 /**
  * The Class MethodInvocationHandlerInterceptor.
@@ -40,42 +38,43 @@ import com.navercorp.pinpoint.plugin.jboss.util.JbossUtility;
  * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
  * @author jaehong.kim
  */
-public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
+public class MethodInvocationHandlerInterceptor implements ApiIdAwareAroundInterceptor {
 
-    /** The Constant METHOD_INVOCATION_HANDLER_API_TAG. */
+    /**
+     * The Constant METHOD_INVOCATION_HANDLER_API_TAG.
+     */
     public static final MethodInvocationHandlerMethodDescriptor METHOD_INVOCATION_HANDLER_API_TAG = new MethodInvocationHandlerMethodDescriptor();
 
     /** The logger. */
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    /** The is debug. */
+    /**
+     * The is debug.
+     */
     private final boolean isDebug = logger.isDebugEnabled();
 
-    /** The method descriptor. */
-    private final MethodDescriptor methodDescriptor;
-
-    /** The trace context. */
+    /**
+     * The trace context.
+     */
     private final TraceContext traceContext;
 
     /**
      * Instantiates a new invoke context interceptor.
      *
      * @param traceContext the trace context
-     * @param descriptor the descriptor
      */
-    public MethodInvocationHandlerInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
+    public MethodInvocationHandlerInterceptor(final TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
         traceContext.cacheApi(METHOD_INVOCATION_HANDLER_API_TAG);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#before(java.lang.Object, java.lang.Object[])
      */
     @Override
-    public void before(final Object target, final Object[] args) {
+    public void before(final Object target, final int apiId, final Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -97,7 +96,7 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
      * Creates the trace.
      *
      * @param target the target
-     * @param args the args
+     * @param args   the args
      * @return the trace
      */
     private Trace createTrace(final Object target, final Object[] args) {
@@ -142,8 +141,8 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
     /**
      * Record root span.
      *
-     * @param recorder the recorder
-     * @param rpcName the rpc name
+     * @param recorder      the recorder
+     * @param rpcName       the rpc name
      * @param remoteAddress
      */
     private void recordRootSpan(final SpanRecorder recorder, final String rpcName, final String remoteAddress) {
@@ -162,12 +161,12 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#after(java.lang.Object, java.lang.Object[],
      * java.lang.Object, java.lang.Throwable)
      */
     @Override
-    public void after(final Object target, final Object[] args, final Object result, final Throwable throwable) {
+    public void after(final Object target, final int apiId, final Object[] args, final Object result, final Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -183,7 +182,7 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
         }
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(methodDescriptor);
+            recorder.recordApiId(apiId);
             recorder.recordException(throwable);
         } catch (final Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -195,5 +194,4 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
             traceContext.removeTraceObject();
         }
     }
-
 }
