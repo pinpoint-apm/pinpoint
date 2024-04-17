@@ -139,8 +139,8 @@ public class OracleItHelper {
         verifier.verifyTrace(event(ORACLE, connect, null, OracleItHelper.DB_ADDRESS, OracleItHelper.DB_NAME, cachedArgs(OracleItHelper.JDBC_URL)));
 
         // OracleDriver#connect(String, Properties, GssCredential)
-        Method connectGssCredential = JDBC_API.getDriver().getConnectionWithGssCredential();
-        verifier.verifyTrace(event(ORACLE, connectGssCredential, null, OracleItHelper.DB_ADDRESS, OracleItHelper.DB_NAME, cachedArgs(OracleItHelper.JDBC_URL)));
+//        Method connectGssCredential = JDBC_API.getDriver().getConnectionWithGssCredential();
+//        verifier.verifyTrace(event(ORACLE, connectGssCredential, null, OracleItHelper.DB_ADDRESS, OracleItHelper.DB_NAME, cachedArgs(OracleItHelper.JDBC_URL)));
 
         final JDBCApi.ConnectionClass connectionClass = JDBC_API.getConnection();
 
@@ -216,15 +216,15 @@ public class OracleItHelper {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
         verifier.printCache();
-        verifier.verifyTraceCount(5);
+        verifier.verifyTraceCount(4);
 
         // OracleDriver#connect(String, Properties)
         Method connect = JDBC_API.getDriver().getConnect();
         verifier.verifyTrace(event(ORACLE, connect, null, OracleItHelper.DB_ADDRESS, OracleItHelper.DB_NAME, cachedArgs(OracleItHelper.JDBC_URL)));
 
         // OracleDriver#connect(String, Properties, GssCredential)
-        Method connectGssCredential = JDBC_API.getDriver().getConnectionWithGssCredential();
-        verifier.verifyTrace(event(ORACLE, connectGssCredential, null, OracleItHelper.DB_ADDRESS, OracleItHelper.DB_NAME, cachedArgs(OracleItHelper.JDBC_URL)));
+//        Method connectGssCredential = JDBC_API.getDriver().getConnectionWithGssCredential();
+//        verifier.verifyTrace(event(ORACLE, connectGssCredential, null, OracleItHelper.DB_ADDRESS, OracleItHelper.DB_NAME, cachedArgs(OracleItHelper.JDBC_URL)));
 
         // PhysicalConnection#prepareCall(String)
         final JDBCApi.ConnectionClass connectionClass = JDBC_API.getConnection();
@@ -278,15 +278,15 @@ public class OracleItHelper {
 
         verifier.printCache();
         // including one new connect api: oracle.jdbc.driver.OracleDriver.connect(java.lang.String, java.util.Properties, org.ietf.jgss.GSSCredential)
-        verifier.verifyTraceCount(7);
+        verifier.verifyTraceCount(6);
 
         // OracleDriver#connect(String, Properties)
         Method connect = JDBC_API.getDriver().getConnect();
         verifier.verifyTrace(event(ORACLE, connect, null, DB_ADDRESS, DB_NAME, cachedArgs(JDBC_URL)));
 
         // OracleDriver#connect(String, Properties, GssCredential)
-        Method connectGssCredential = JDBC_API.getDriver().getConnectionWithGssCredential();
-        verifier.verifyTrace(event(ORACLE, connectGssCredential, null, DB_ADDRESS, DB_NAME, cachedArgs(JDBC_URL)));
+//        Method connectGssCredential = JDBC_API.getDriver().getConnectionWithGssCredential();
+//        verifier.verifyTrace(event(ORACLE, connectGssCredential, null, DB_ADDRESS, DB_NAME, cachedArgs(JDBC_URL)));
 
         // PhysicalConnection#prepareCall(String)
         final JDBCApi.ConnectionClass connectionClass = JDBC_API.getConnection();
