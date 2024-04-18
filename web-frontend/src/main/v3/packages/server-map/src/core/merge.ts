@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { Node, Edge, MergedNode, MergedEdge } from '../types';
-import { getTransactionStatusSVGString } from '../ui/template/node';
+import { getNodeSVGString } from '../ui/template/node';
+import { ServerMapProps } from '../ui';
 type GroupBySource = { [key: string]: string[] };
 
 const mergeNodes = ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => {
@@ -105,7 +106,10 @@ const groupByType = (groupBySource: GroupBySource, nodes: Node[]) => {
   );
 };
 
-export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
+export const getMergedData = (
+  data: { nodes: Node[]; edges: Edge[] },
+  renderNode?: ServerMapProps['renderNode'],
+) => {
   const { edges, nodes } = data;
   const mergedTypes = new Set<string>();
   const targetNodeIds = edges.map((edge) => edge.target);
@@ -314,7 +318,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }) => {
         return {
           data: {
             ...node,
-            imgArr: [node?.imgPath, getTransactionStatusSVGString(node)],
+            imgArr: [node?.imgPath, getNodeSVGString(node, renderNode)],
           },
         };
       }),

@@ -71,7 +71,7 @@ export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
       'text-halign': 'center',
       'text-margin-y': 4,
       'overlay-opacity': 0,
-      'font-family': 'Helvetica, Arial, avn85, NanumGothic, ng, dotum, AppleGothic, sans-serif',
+      'font-family': 'Arial, Helvetica, sans-serif',
       'font-size': 12,
       'font-weight': 'normal',
       'text-wrap': 'wrap',
@@ -92,8 +92,9 @@ export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
   edge: {
     default: {
       width: 1.5,
-      'font-size': '12px',
+      'font-size': 12,
       'font-weight': 'normal',
+      'font-family': 'Arial, Helvetica, sans-serif',
       'line-color': '#C0C3C8',
       'target-arrow-color': '#C0C3C8',
       'target-arrow-shape': 'triangle',

@@ -1,5 +1,6 @@
 import { Node } from '../../types';
 import { defaultTheme } from '../../constants/style/theme';
+import { ServerMapProps } from '../ServerMap';
 
 type TransactionInfo = Node['transactionInfo'];
 
@@ -7,13 +8,15 @@ const MIN_ARC_RATIO = 0.05;
 const RADIUS = 47;
 const DIAMETER = 2 * Math.PI * RADIUS;
 
-export const getTransactionStatusSVGString = (nodeData: Node): string => {
+export const getNodeSVGString = (nodeData: Node, renderNode?: ServerMapProps['renderNode']) => {
   const { transactionInfo } = nodeData;
+  const transactionStatusSVGString = getTransactionStatusSVGCircle(transactionInfo, !transactionInfo);
+
   return (
     'data:image/svg+xml;charset=utf-8,' +
     encodeURIComponent(`
     <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" xmlns:xlink="http://www.w3.org/1999/xlink">
-      ${getTransactionStatusSVGCircle(transactionInfo, !transactionInfo)}
+      ${renderNode ? renderNode(nodeData, transactionStatusSVGString) : transactionStatusSVGString}
     </svg>
   `)
   );

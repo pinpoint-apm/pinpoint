@@ -29,6 +29,7 @@ export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'c
   onDataMerged?: (mergeInfo: MergeInfo) => void;
   renderNodeLabel?: (node: MergedNode) => string | undefined;
   renderEdgeLabel?: (edge: MergedEdge) => string | undefined;
+  renderNode?: (node: MergedNode, transactionStatusSVGString: string) => string;
   cy?: (cy: cytoscape.Core) => void;
 }
 
@@ -42,6 +43,7 @@ export const ServerMap = ({
   onDataMerged,
   renderNodeLabel,
   renderEdgeLabel,
+  renderNode,
   className,
   style,
   cy,
@@ -110,7 +112,7 @@ export const ServerMap = ({
     if (data) {
       const cy = cyRef.current;
       if (cy) {
-        const { nodes: newNodes, edges: newEdges, mergeInfo } = getMergedData(data);
+        const { nodes: newNodes, edges: newEdges, mergeInfo } = getMergedData(data, renderNode);
         let addedNodes: cytoscape.CollectionReturnValue[] | undefined;
         onDataMerged?.(mergeInfo);
 
