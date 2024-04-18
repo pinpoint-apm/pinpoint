@@ -52,7 +52,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
         final List<Tag> tagList = systemMetric.getTags();
         final long saveTime = getSaveTime();
 
-        MetricTagCollection metricTagCollection = metricTagCache.getMetricTag(new MetricTagKey(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime));
+        MetricTagCollection metricTagCollection = metricTagCache.getMetricTag(new MetricTagKey(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime));//
 
         if (metricTagCollection == null) {
             MetricTagKey metricTagKey = new MetricTagKey(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime);

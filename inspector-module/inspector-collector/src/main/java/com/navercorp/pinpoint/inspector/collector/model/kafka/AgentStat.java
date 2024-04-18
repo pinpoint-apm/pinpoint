@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.inspector.collector.model.kafka;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagListSerializer;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +30,8 @@ import java.util.List;
  */
 public class AgentStat {
 
+    private static final List<Tag> EMPTY_TAGS = Collections.emptyList();
+    private static final String EMPTY_JSON_TAGS = TagListSerializer.serialize(EMPTY_TAGS);;
     private final String tenantId;
     private final String sortKey;
     private final String applicationName;
@@ -38,12 +41,13 @@ public class AgentStat {
     private final double fieldValue;
     private final List<Tag> tags;
     private final long eventTime;
+    private final String jsonTags;
 
     public AgentStat(String tenantId, String sortKey, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime) {
-        this(tenantId, sortKey, applicationName, agentId, metricName, fieldName, fieldValue, eventTime, Collections.emptyList());
+        this(tenantId, sortKey, applicationName, agentId, metricName, fieldName, fieldValue, eventTime, EMPTY_TAGS, EMPTY_JSON_TAGS);
     }
 
-    public AgentStat(String tenantId, String sortKey, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime, List<Tag> tags) {
+    public AgentStat(String tenantId, String sortKey, String applicationName, String agentId, String metricName, String fieldName, double fieldValue, long eventTime, List<Tag> tags, String jsonTags) {
         this.tenantId = tenantId;
         this.sortKey = sortKey;
         this.applicationName = applicationName;
@@ -53,6 +57,7 @@ public class AgentStat {
         this.fieldValue = fieldValue;
         this.eventTime = eventTime;
         this.tags = tags;
+        this.jsonTags = jsonTags;
     }
 
     public String getTenantId() {
@@ -90,6 +95,10 @@ public class AgentStat {
 
     public String getSortKey() {
         return sortKey;
+    }
+
+    public String getJsonTags() {
+        return jsonTags;
     }
 
 
