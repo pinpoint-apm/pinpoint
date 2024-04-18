@@ -30,11 +30,9 @@ export const inspectorRouteLoader = ({ params, request }: LoaderFunctionArgs) =>
       from: format(defaultParsedDateRange.from, DATE_FORMAT),
       to: format(defaultParsedDateRange.to, DATE_FORMAT),
     };
-    // const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
-    // const defaultDestination = `${basePath}?${defaultDatesQueryString}`;
     const defaultDestination = `${basePath}?${convertParamsToQueryString({
-      ...defaultFormattedDateRange,
       ...queryParam,
+      ...defaultFormattedDateRange,
     })}`;
 
     if (conditions.length === 0) {
