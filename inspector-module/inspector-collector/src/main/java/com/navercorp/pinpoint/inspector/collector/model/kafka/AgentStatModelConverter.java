@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagListSerializer;
 import org.apache.commons.math3.util.Precision;
 
 import java.util.List;
@@ -49,7 +50,6 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
     public static final String  DATASOUCE_TAG_SERVICE_TYPE_CODE_KEY = "serviceTypeCode";
     public static final String  DATASOUCE_TAG_DATABASE_NAME_KEY = "databaseName";
     public static final String  DATASOUCE_TAG_JDBC_URL_KEY = "jdbcUrl";
-
 
     public static List<AgentStat> convertCpuLoadToAgentStat(List<CpuLoadBo> cpuLoadBoList, String tenantId) {
         List<AgentStat> agentStatList = cpuLoadBoList.stream()
@@ -344,13 +344,15 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
                                     new Tag(DATASOUCE_TAG_JDBC_URL_KEY, dataSourceBo.getJdbcUrl())
                                 );
 
+                                String jsonTags = TagListSerializer.serialize(tags);
+
                                 AgentStat activeConnectionSize = new AgentStat(tenantId, sortKey, dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(),
                                         AgentStatType.DATASOURCE.getChartType(), AgentStatField.DATASOURCE_ACTIVE_CONNECTION_SIZE.getFieldName(),
-                                        dataSourceBo.getActiveConnectionSize(), dataSourceListBo.getTimestamp(), tags);
+                                        dataSourceBo.getActiveConnectionSize(), dataSourceListBo.getTimestamp(), tags, jsonTags);
 
                                 AgentStat maxConnectionSize = new AgentStat(tenantId, sortKey, dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(),
                                         AgentStatType.DATASOURCE.getChartType(), AgentStatField.DATASOURCE_MAX_CONNECTION_SIZE.getFieldName(),
-                                        dataSourceBo.getMaxConnectionSize(), dataSourceListBo.getTimestamp(), tags);
+                                        dataSourceBo.getMaxConnectionSize(), dataSourceListBo.getTimestamp(), tags, jsonTags);
 
                                 builder.add(activeConnectionSize);
                                 builder.add(maxConnectionSize);

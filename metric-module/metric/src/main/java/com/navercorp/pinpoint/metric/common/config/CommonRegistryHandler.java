@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.mybatis.MetricDataTypeHandler;
+import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagListTypeHandler;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
@@ -34,14 +35,14 @@ public class CommonRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias(MetricTag.class);
         typeAliasRegistry.registerAlias(MetricTagKey.class);
         typeAliasRegistry.registerAlias(MetricDataTypeHandler.class);
-        typeAliasRegistry.registerAlias(com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler.class);
+        typeAliasRegistry.registerAlias(TagListTypeHandler.class);
     }
 
 
     @Override
     public void registerTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
         typeHandlerRegistry.register(MetricDataType.class, MetricDataTypeHandler.class);
-        typeHandlerRegistry.register(List.class, com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler.class);
+        typeHandlerRegistry.register(List.class, TagListTypeHandler.class);
     }
 
 }
