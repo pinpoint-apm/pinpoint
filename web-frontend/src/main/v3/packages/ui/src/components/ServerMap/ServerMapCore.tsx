@@ -5,9 +5,10 @@ import {
   Edge,
   ServerMap as ServerMapComponent,
   ServerMapProps as ServerMapComponentProps,
+  MergedEdge,
 } from '@pinpoint-fe/server-map';
 import { FilteredMap, GetServerMap } from '@pinpoint-fe/constants';
-import { getServerImagePath } from '@pinpoint-fe/utils';
+import { addCommas, getServerImagePath } from '@pinpoint-fe/utils';
 import {
   ServerMapMenu,
   SERVERMAP_MENU_CONTENT_TYPE,
@@ -114,6 +115,7 @@ export const ServerMapCore = ({
       target: link.to,
       transactionInfo: {
         totalCount: link.totalCount,
+        avgResponseTime: link.responseStatistics.Avg,
       },
     }));
 
@@ -134,6 +136,7 @@ export const ServerMapCore = ({
         }, 0),
         slow: node.histogram?.Slow,
         bad: node.histogram?.Error,
+        instanceCount: node.instanceCount,
       };
     }
   };
@@ -363,8 +366,28 @@ export const ServerMapCore = ({
             <ServerMapComponent
               baseNodeId={baseNodeId}
               data={serverMapData}
-              renderEdgeLabel={(edge: Edge) => {
-                return edge?.transactionInfo?.totalCount;
+              renderNode={(node, transactionStatusSVGString) => {
+                return `
+                  ${transactionStatusSVGString}
+                  ${
+                    node.transactionInfo?.instanceCount &&
+                    `<text 
+                      x="50" y="80"
+                      font-size="smaller"
+                      dominant-baseline="middle"
+                      text-anchor="middle"
+                      font-family="Arial, Helvetica, sans-serif"
+                    >${node.transactionInfo?.instanceCount}</text>`
+                  }
+                `;
+              }}
+              renderEdgeLabel={(edge: MergedEdge) => {
+                if (edge?.transactionInfo?.totalCount) {
+                  return `${addCommas(edge?.transactionInfo?.totalCount)}${edge.transactionInfo?.avgResponseTime ? ` (${edge.transactionInfo.avgResponseTime} ms)` : ''}`;
+                } else if (edge?.edges) {
+                  return `${edge.edges.reduce((acc, curr) => acc + curr.transactionInfo?.totalCount, 0)}`;
+                }
+                return '';
               }}
               onClickBackground={handleClickBackground}
               onClickNode={handleClickNode}
