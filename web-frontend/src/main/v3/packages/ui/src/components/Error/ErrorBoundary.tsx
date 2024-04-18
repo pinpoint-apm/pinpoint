@@ -8,15 +8,24 @@ import { ErrorDetailDialog } from './ErrorDetailDialog';
 import { toast } from '../Toast';
 import { ErrorResponse } from '@pinpoint-fe/constants';
 import { ErrorToast } from './ErrorToast';
+import { useSearchParameters } from '@pinpoint-fe/hooks';
 
 export type ErrorBoundaryProps = Partial<ErrorBoundaryPropsWithRender> & {
   errorMessage?: React.ReactNode | ((message?: string) => React.ReactNode);
 };
 
-export const ErrorBoundary = ({ fallbackRender, children, errorMessage }: ErrorBoundaryProps) => {
+export const ErrorBoundary = ({
+  fallbackRender,
+  children,
+  errorMessage,
+  resetKeys,
+}: ErrorBoundaryProps) => {
   const { t } = useTranslation();
+  const { search } = useSearchParameters();
+
   return (
     <ErrorBoundaryComponent
+      resetKeys={[search, ...(resetKeys || [])]}
       onError={(props) => {
         const error = props as unknown as ErrorResponse;
         toast.error(<ErrorToast error={error} />, {
@@ -24,42 +33,43 @@ export const ErrorBoundary = ({ fallbackRender, children, errorMessage }: ErrorB
           autoClose: false,
         });
       }}
-      fallbackRender={
-        (({ error, resetErrorBoundary }) => {
-          return (
-            <div className="flex flex-col items-center justify-center w-full h-full gap-5 p-3">
-              <div className="w-full text-center max-w-[28rem]">
-                {errorMessage ? (
-                  typeof errorMessage === 'function' ? (
-                    errorMessage(error?.message)
-                  ) : (
-                    errorMessage
-                  )
+      fallbackRender={({ error, resetErrorBoundary }) => {
+        if (fallbackRender) {
+          return fallbackRender({ error, resetErrorBoundary });
+        }
+        return (
+          <div className="flex flex-col items-center justify-center w-full h-full gap-5 p-3">
+            <div className="w-full text-center max-w-[28rem]">
+              {errorMessage ? (
+                typeof errorMessage === 'function' ? (
+                  errorMessage(error?.message)
                 ) : (
-                  <p className="mb-2 text-sm truncate">
-                    {error?.message || t('COMMON.SOMETHING_WENT_WRONG')}
-                  </p>
-                )}
-                <ErrorDetailDialog error={error} />
-              </div>
-              <div className="flex gap-2">
-                <Button className="text-xs" variant="outline" onClick={resetErrorBoundary}>
-                  {t('COMMON.TRY_AGAIN')}
-                </Button>
-                <Button
-                  className="text-xs"
-                  variant="outline"
-                  onClick={() => {
-                    location.reload();
-                  }}
-                >
-                  {t('COMMON.PAGE_REFRESH')}
-                </Button>
-              </div>
+                  errorMessage
+                )
+              ) : (
+                <p className="mb-2 text-sm truncate">
+                  {error?.message || t('COMMON.SOMETHING_WENT_WRONG')}
+                </p>
+              )}
+              <ErrorDetailDialog error={error} />
             </div>
-          );
-        }) || ((param) => fallbackRender?.(param))
-      }
+            <div className="flex gap-2">
+              <Button className="text-xs" variant="outline" onClick={resetErrorBoundary}>
+                {t('COMMON.TRY_AGAIN')}
+              </Button>
+              <Button
+                className="text-xs"
+                variant="outline"
+                onClick={() => {
+                  location.reload();
+                }}
+              >
+                {t('COMMON.PAGE_REFRESH')}
+              </Button>
+            </div>
+          </div>
+        );
+      }}
     >
       {children}
     </ErrorBoundaryComponent>
