@@ -21,6 +21,7 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
     showLoading = false;
     errorMessage: string;
     emptyText$: Observable<string>;
+    memberLabel$: Observable<string>;
 
     constructor(
         private translateService: TranslateService,
@@ -30,6 +31,7 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
     ) {}
     ngOnInit() {
         this.emptyText$ = this.translateService.get('COMMON.EMPTY');
+        this.memberLabel$ = this.translateService.get('CONFIGURATION.USER_GROUP.MEMBER');
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP).subscribe((param: any) => {
             this.currentUserGroupId = param;
             if (this.isValidUserGroupId()) {

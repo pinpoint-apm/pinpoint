@@ -16,6 +16,8 @@ export class UserGroupContainerComponent implements OnInit {
     private userId = '';
     i18nLabel = {
         NAME_LABEL: '',
+        GROUP_TITLE_LABEL: '',
+        SUBMIT_LABEL: '',
     };
     i18nGuide: { [key: string]: IFormFieldErrorType };
     i18nText = {
@@ -56,8 +58,11 @@ export class UserGroupContainerComponent implements OnInit {
             this.translateService.get('COMMON.REQUIRED'),
             this.translateService.get('CONFIGURATION.COMMON.NAME'),
             this.translateService.get('CONFIGURATION.USER_GROUP.VALIDATION'),
-            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
-        ).subscribe(([minLengthMessage, requiredMessage, nameLabel, validationGuide, emptyText]: string[]) => {
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH'),
+            this.translateService.get('CONFIGURATION.USER_GROUP.TITLE'),
+            this.translateService.get('COMMON.SUBMIT'),
+        ).subscribe(([minLengthMessage, requiredMessage, nameLabel, validationGuide,
+                                 emptyText, groupTitleLabel, submitLabel]: string[]) => {
             this.i18nGuide = {
                 userGroupName: {
                     required: this.translateReplaceService.replace(requiredMessage, nameLabel),
@@ -69,6 +74,8 @@ export class UserGroupContainerComponent implements OnInit {
             this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.SEARCH_MIN_LENGTH);
             this.i18nText.EMPTY = emptyText;
             this.i18nLabel.NAME_LABEL = nameLabel;
+            this.i18nLabel.GROUP_TITLE_LABEL = groupTitleLabel;
+            this.i18nLabel.SUBMIT_LABEL = submitLabel;
         });
     }
 

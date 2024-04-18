@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewEncapsulation, EventEmitter, Input, Output } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
+import { forkJoin } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'pp-removable-agent-list',
@@ -10,12 +12,28 @@ import { GridOptions } from 'ag-grid-community';
 export class RemovableAgentListComponent implements OnInit {
     @Input() rowData: any[];
     @Output() outSelectAgent = new EventEmitter<string>();
-
+    i18nText: {[key: string]: string} = {
+        removeButton: '',
+        removableTitleLabel: '',
+    };
     gridOptions: GridOptions;
 
-    constructor() {}
+    constructor(
+        private translateService: TranslateService,
+    ) {}
     ngOnInit() {
+        this.initI18NText();
         this.initGridOptions();
+    }
+
+    private initI18NText(): void {
+        forkJoin(
+            this.translateService.get('COMMON.REMOVE'),
+            this.translateService.get('CONFIGURATION.AGENT_MANAGEMENT.REMOVABLE_TITLE')
+        ).subscribe(([removeBtnLabel, removableTitleLabel]: string[]) => {
+            this.i18nText.removeButton = removeBtnLabel;
+            this.i18nText.removableTitleLabel = removableTitleLabel;
+        });
     }
 
     private initGridOptions(): void {
@@ -38,10 +56,10 @@ export class RemovableAgentListComponent implements OnInit {
     private makeColumnDefs(): {[key: string]: any} {
         return [
             {
-                headerName: 'Removable Agent List',
+                headerName: this.i18nText.removableTitleLabel,
                 children: [
                     {
-                        headerName: 'REMOVE',
+                        headerName: this.i18nText.removeButton,
                         field: 'agentId',
                         width: 110,
                         cellRenderer: (param: any) => {

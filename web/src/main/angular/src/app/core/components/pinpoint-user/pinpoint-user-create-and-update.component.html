@@ -1,6 +1,6 @@
 <div class="l-wrapper">
     <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
-    <h1 class="l-title">Pinpoint User</h1> 
+    <h1 class="l-title">{{ i18nLabel.PINPOINT_USER_LABEL }}</h1>
     <form class="l-form" [formGroup]="pinpointUserForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div class="l-field-wrapper">
             <label class="l-label" for="userId">{{i18nLabel.USER_ID_LABEL}} <span class="l-required-icon">*</span></label>
@@ -47,6 +47,6 @@
                 [errorMessage]="i18nGuide['email']">
             </pp-form-field-error-message>
         </div>
-        <button type="submit" class="btn btn-blue l-create" [disabled]="!allowedUserEdit">OK</button>
+        <button type="submit" class="btn btn-blue l-create" [disabled]="!allowedUserEdit">{{ i18nLabel.SUBMIT_LABEL }}</button>
     </form>
 </div>

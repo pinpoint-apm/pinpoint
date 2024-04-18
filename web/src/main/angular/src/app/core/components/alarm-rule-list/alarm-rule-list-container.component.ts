@@ -37,6 +37,11 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         THRESHOLD_LABEL: '',
         TYPE_LABEL: '',
         NOTES_LABEL: '',
+        ALARM_TITLE_LABEL: '',
+        RULE_NAME_LABEL: '',
+        EDIT_LABEL: '',
+        ADD_LABEL: '',
+        SUBMIT_LABEL: '',
     };
     i18nTemplateGuide = {
         APP_NOT_SELECTED: '',
@@ -115,8 +120,15 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             this.translateService.get('CONFIGURATION.COMMON.TYPE'),
             this.translateService.get('CONFIGURATION.COMMON.NOTES'),
             this.translateService.get('CONFIGURATION.ALARM.EMPTY'),
-            this.translateService.get('COMMON.SELECT_YOUR_APP')
-        ).subscribe(([requiredMessage, checkerLabel, userGroupLabel, thresholdLabel, typeLabel, notesLabel, alarmEmpty, selectApp]: string[]) => {
+            this.translateService.get('COMMON.SELECT_YOUR_APP'),
+            this.translateService.get('CONFIGURATION.ALARM.TITLE'),
+            this.translateService.get('CONFIGURATION.ALARM.RULE_NAME'),
+            this.translateService.get('CONFIGURATION.ALARM.EDIT_TITLE'),
+            this.translateService.get('CONFIGURATION.ALARM.ADD_TITLE'),
+            this.translateService.get('COMMON.SUBMIT'),
+        ).subscribe(([requiredMessage, checkerLabel, userGroupLabel, thresholdLabel, typeLabel,
+                                 notesLabel, alarmEmpty, selectApp, alarmLabel, ruleNameLabel,
+                                 editAlarmLabel, addAlarmLabel, submitLabel]: string[]) => {
             this.i18nFormGuide = {
                 checkerName: { required: this.translateReplaceService.replace(requiredMessage, checkerLabel) },
                 userGroupId: { required: this.translateReplaceService.replace(requiredMessage, userGroupLabel) },
@@ -132,6 +144,11 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             this.i18nLabel.THRESHOLD_LABEL = thresholdLabel;
             this.i18nLabel.TYPE_LABEL = typeLabel;
             this.i18nLabel.NOTES_LABEL = notesLabel;
+            this.i18nLabel.ALARM_TITLE_LABEL = alarmLabel;
+            this.i18nLabel.RULE_NAME_LABEL = ruleNameLabel;
+            this.i18nLabel.EDIT_LABEL = editAlarmLabel;
+            this.i18nLabel.ADD_LABEL = addAlarmLabel;
+            this.i18nLabel.SUBMIT_LABEL = submitLabel;
 
             this.i18nTemplateGuide.NO_ALARM_RESGISTERED = alarmEmpty;
             this.i18nTemplateGuide.APP_NOT_SELECTED = selectApp;

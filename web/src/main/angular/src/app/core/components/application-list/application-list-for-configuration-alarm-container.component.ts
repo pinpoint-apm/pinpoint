@@ -31,7 +31,8 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
     SEARCH_MIN_LENGTH = 2;
     i18nText = {
         SEARCH_INPUT_GUIDE: '',
-        EMPTY: ''
+        EMPTY: '',
+        APPLICATION_LABEL: '',
     };
     isEmpty: boolean;
     useDisable = true;
@@ -68,10 +69,12 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
     private initI18nText(): void {
         forkJoin(
             this.translateService.get('COMMON.INPUT_APP_NAME_PLACE_HOLDER'),
-            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
-        ).subscribe(([placeholderText, emptyText]: string[]) => {
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH'),
+            this.translateService.get('COMMON.APPLICATION'),
+        ).subscribe(([placeholderText, emptyText, applicationLabel]: string[]) => {
             this.i18nText.SEARCH_INPUT_GUIDE = placeholderText;
             this.i18nText.EMPTY = emptyText;
+            this.i18nText.APPLICATION_LABEL = applicationLabel;
         });
     }
 
