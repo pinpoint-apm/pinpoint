@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping(value = "/uriStat")
 public class UriStatController {
+    private static final long MAX_TIME_RANGE = TimeUnit.DAYS.toMillis(28);
     private final UriStatSummaryService uriStatService;
     private final TenantProvider tenantProvider;
     private final UriStatChartService uriStatChartService;
@@ -59,6 +60,13 @@ public class UriStatController {
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
+    private void checkTimeRange(long from, long to) {
+        long timeDifferenceInMillis = to - from;
+        if (timeDifferenceInMillis > MAX_TIME_RANGE) {
+            throw new IllegalArgumentException("Search duration may not be greater than 28 days.");
+        }
+    }
+
     @GetMapping("summary")
     public List<UriStatSummary> getUriStatPagedSummary(
             @RequestParam("applicationName") String applicationName,
@@ -69,6 +77,7 @@ public class UriStatController {
             @RequestParam("isDesc") boolean isDesc,
             @RequestParam("count") int count
     ) {
+        checkTimeRange(from, to);
         UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
@@ -94,6 +103,7 @@ public class UriStatController {
             @RequestParam("from") long from,
             @RequestParam("to") long to
     ) {
+        checkTimeRange(from, to);
         UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
@@ -118,6 +128,7 @@ public class UriStatController {
             @RequestParam("to") long to,
             @RequestParam(value = "type", required = false) String type
     ) {
+        checkTimeRange(from, to);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         UriStatChartQueryParameter query = new UriStatChartQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
