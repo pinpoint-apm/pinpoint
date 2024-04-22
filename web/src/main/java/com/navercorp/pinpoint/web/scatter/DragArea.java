@@ -20,7 +20,7 @@ public class DragArea {
     public static DragArea normalize(long x1, long x2, long y1, long y2) {
         final LongPair xPair = normalize(x1, x2);
         final LongPair yPair = normalize(y1, y2);
-        return new DragArea(xPair.getFirst(), xPair.getSecond(), yPair.getFirst(), yPair.getSecond());
+        return new DragArea(xPair.first(), xPair.second(), yPair.first(), yPair.second());
     }
 
     public long getXHigh() {

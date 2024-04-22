@@ -12,11 +12,11 @@ public class IntegerValuePair {
         this.second = second;
     }
 
-    public int getFirst() {
+    public int first() {
         return first;
     }
 
-    public int getSecond() {
+    public int second() {
         return second;
     }
 

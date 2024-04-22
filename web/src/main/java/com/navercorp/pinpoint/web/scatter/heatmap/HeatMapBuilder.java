@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.web.scatter.heatmap;
 
 import com.navercorp.pinpoint.common.server.util.pair.IntegerValuePair;
-import com.navercorp.pinpoint.common.server.util.pair.LongPair;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,9 +17,9 @@ public class HeatMapBuilder {
     private long oldestAcceptedTime = Long.MAX_VALUE;
     private long latestAcceptedTime = Long.MIN_VALUE;
 
-    private Map<LongPair, IntegerValuePair> map = newMap();
+    private Map<Point2D, IntegerValuePair> map = newMap();
 
-    private Map<LongPair, IntegerValuePair> newMap() {
+    private Map<Point2D, IntegerValuePair> newMap() {
         return new HashMap<>(128);
     }
 
@@ -91,7 +90,7 @@ public class HeatMapBuilder {
         this.oldestAcceptedTime = Math.min(oldestAcceptedTime, x);
         this.latestAcceptedTime = Math.max(latestAcceptedTime, x);
 
-        final LongPair key = new LongPair(xTick, yTick);
+        final Point2D key = new Point2D(xTick, yTick);
         IntegerValuePair counter = this.map.computeIfAbsent(key, longPair -> new IntegerValuePair(0, 0));
         if (success) {
             counter.addFirst(1);
@@ -102,7 +101,7 @@ public class HeatMapBuilder {
 
 
     public HeatMap build() {
-        final Map<LongPair, IntegerValuePair> copy = this.map;
+        final Map<Point2D, IntegerValuePair> copy = this.map;
         this.map = newMap();
 
         long success = 0;
@@ -110,16 +109,16 @@ public class HeatMapBuilder {
 
 
         final List<Point> list = new ArrayList<>(copy.size());
-        for (Map.Entry<LongPair, IntegerValuePair> entry : copy.entrySet()) {
-            LongPair key = entry.getKey();
+        for (Map.Entry<Point2D, IntegerValuePair> entry : copy.entrySet()) {
+            Point2D key = entry.getKey();
             IntegerValuePair value = entry.getValue();
 
-            success += value.getFirst();
-            fail += value.getSecond();
+            success += value.first();
+            fail += value.second();
 
-            final long acceptedTime = key.getFirst();
+            final long acceptedTime = key.x();
 
-            Point point = new Point(acceptedTime, key.getSecond(), value.getFirst(), value.getSecond());
+            Point point = new Point(acceptedTime, key.y(), value.first(), value.second());
 
             list.add(point);
         }
@@ -135,5 +134,8 @@ public class HeatMapBuilder {
     private static final Comparator<Point> COMPARATOR = Comparator.comparingLong(Point::x)
                                                                     .reversed()
                                                                     .thenComparingLong(Point::y);
+
+    record Point2D(long x, long y) {
+    }
 
 }
