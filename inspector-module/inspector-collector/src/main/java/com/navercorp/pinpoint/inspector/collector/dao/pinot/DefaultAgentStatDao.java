@@ -76,11 +76,12 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
             kafkaAgentStatTemplate.send(agentStatTopic, agentStat.getSortKey(), agentStat);
         }
 
-        List<AgentStatV2> agentStatV2List = convertToKafkaAgentStatV2Model(agentStatList);
-        byte[] kafkaKey = generateKafkaKey(agentStatV2List);
-        for (AgentStatV2 agentStatV2 : agentStatV2List) {
-            kafkaAgentStatV2Template.send(agentStatTopicV2, kafkaKey, agentStatV2);
-        }
+//After completing the performance comparison, temporarily comment out the code.
+//        List<AgentStatV2> agentStatV2List = convertToKafkaAgentStatV2Model(agentStatList);
+//        byte[] kafkaKey = generateKafkaKey(agentStatV2List);
+//        for (AgentStatV2 agentStatV2 : agentStatV2List) {
+//            kafkaAgentStatV2Template.send(agentStatTopicV2, kafkaKey, agentStatV2);
+//        }
 
         List<ApplicationStat> applicationStatList = convertToKafkaApplicationStatModel(agentStatList);
         for (ApplicationStat applicationStat : applicationStatList) {
