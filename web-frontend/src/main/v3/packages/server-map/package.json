@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint": "npm run format && eslint ./src/**/*.ts --config .eslintrc.cjs",
+    "lint": "yarn format && eslint ./src/**/*.ts --config .eslintrc.cjs",
     "test": "jest",
     "storybook": "start-storybook -p 6008",
     "build-storybook": "build-storybook",
