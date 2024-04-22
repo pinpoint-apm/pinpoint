@@ -55,8 +55,8 @@ public class OneByteFuzzyRowKeyFactory implements FuzzyRowKeyFactory<Byte> {
     @Override
     public List<Byte> getRangeKey(long y1, long y2) {
         LongPair pair = arrange(y1, y2);
-        Byte high = getKey(pair.getFirst());
-        Byte low = getKey(pair.getSecond());
+        Byte high = getKey(pair.first());
+        Byte low = getKey(pair.second());
         List<Byte> result = new ArrayList<>();
         for (int i = low; i <= high; i++) {
             result.add((byte) i);
