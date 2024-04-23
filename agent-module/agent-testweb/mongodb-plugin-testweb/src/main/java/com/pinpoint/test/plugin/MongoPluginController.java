@@ -18,7 +18,6 @@ package com.pinpoint.test.plugin;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -29,8 +28,8 @@ import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+import com.pinpoint.test.common.view.ApiLinkPage;
+import com.pinpoint.test.common.view.HrefTag;
 import org.bson.BsonArray;
 import org.bson.BsonBinary;
 import org.bson.BsonBinarySubType;
@@ -55,13 +54,20 @@ import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import static com.mongodb.client.model.Filters.and;
@@ -84,20 +90,32 @@ public class MongoPluginController {
     private static final String DATABASE_NAME_2 = "myMongoDb2";
     private static final String COLLECTION_NAME = "customers";
 
+    @Autowired
     private MongoClient mongoClient;
 
-    @PostConstruct
-    public void start() {
-        final String connectionString = MongoServer.getUri();
-        this.mongoClient = MongoClients.create(connectionString);
+
+    private final RequestMappingHandlerMapping handlerMapping;
+
+    @Autowired
+    public MongoPluginController(RequestMappingHandlerMapping handlerMapping) {
+        this.handlerMapping = handlerMapping;
     }
 
-    @PreDestroy
-    public void shutdown() {
-        if (mongoClient != null) {
-            mongoClient.close();
+    @GetMapping("/")
+    String welcome() {
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = this.handlerMapping.getHandlerMethods();
+        List<HrefTag> list = new ArrayList<>();
+        for (RequestMappingInfo info : handlerMethods.keySet()) {
+            for (String path : info.getDirectPaths()) {
+                list.add(HrefTag.of(path));
+            }
         }
+        list.sort(Comparator.comparing(HrefTag::getPath));
+        return new ApiLinkPage("mongodb-reactive-plugin-testweb")
+                .addHrefTag(list)
+                .build();
     }
+
 
     @RequestMapping(value = "/mongodb/insert")
     public String insert() {

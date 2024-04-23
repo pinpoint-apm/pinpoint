@@ -18,13 +18,11 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.mongo.HostListAccessor;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
@@ -47,25 +45,18 @@ public class MongoCollectionImplReadOperationInterceptor extends SpanEventSimple
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordApi(methodDescriptor);
-
-        if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            return;
+        MongoDatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
+        if (target instanceof HostListAccessor) {
+            final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
+            if (hostList != null) {
+                databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY, null, null, hostList, databaseInfo.getDatabaseId(), databaseInfo.getCollectionName(), databaseInfo.getReadPreference(), databaseInfo.getWriteConcern());
+            }
         }
+        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
+        recorder.recordEndPoint(databaseInfo.getMultipleHost());
+        recorder.recordDestinationId(databaseInfo.getDatabaseId());
 
-        final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
-        if (hostList == null) {
-            return;
-        }
-
-        final DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
-        final MongoDatabaseInfo mongoDatabaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
-                null, null, hostList, databaseInfo.getDatabaseId(), ((MongoDatabaseInfo) databaseInfo).getCollectionName(), ((MongoDatabaseInfo) databaseInfo).getReadPreference(), ((MongoDatabaseInfo) databaseInfo).getWriteConcern());
-
-        recorder.recordServiceType(mongoDatabaseInfo.getExecuteQueryType());
-        recorder.recordEndPoint(mongoDatabaseInfo.getMultipleHost());
-        recorder.recordDestinationId(mongoDatabaseInfo.getDatabaseId());
-
-        MongoUtil.recordMongoCollection(recorder, mongoDatabaseInfo.getCollectionName(), mongoDatabaseInfo.getReadPreference());
+        MongoUtil.recordMongoCollection(recorder, databaseInfo.getCollectionName(), databaseInfo.getReadPreference());
     }
 
     @Override

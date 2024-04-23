@@ -234,6 +234,12 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             if (constructorMethod12 != null) {
                 constructorMethod12.addInterceptor(MongoClientConstructorInterceptor.class);
             }
+            // 4.2
+            // MongoClient(final MongoClientSettings settings, @Nullable final MongoClientOptions options, @Nullable final MongoDriverInformation mongoDriverInformation)
+            final InstrumentMethod constructorMethod13 = target.getConstructor("com.mongodb.MongoClientSettings", "com.mongodb.MongoClientOptions", "com.mongodb.MongoDriverInformation");
+            if (constructorMethod13 != null) {
+                constructorMethod13.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
 
             final InstrumentMethod getDatabaseMethod = target.getDeclaredMethod("getDatabase", "java.lang.String");
             if (getDatabaseMethod != null) {

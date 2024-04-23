@@ -24,8 +24,6 @@ import org.junit.Test;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.concurrent.TimeUnit;
-
 @Ignore
 public class MongodbTest {
     private static MongoDBContainer container;
@@ -50,6 +48,5 @@ public class MongodbTest {
     @Test
     public void test() throws Exception {
         System.out.println("TEST");
-        TimeUnit.HOURS.sleep(8);
     }
 }
