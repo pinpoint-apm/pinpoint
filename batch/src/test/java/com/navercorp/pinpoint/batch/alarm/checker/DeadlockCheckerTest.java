@@ -67,7 +67,7 @@ public class DeadlockCheckerTest {
     public void checkTest1() {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, false, "");
 
-        Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
+        Range range = Range.reverse(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_1, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_1, createEventTimestamp(), AgentEventType.AGENT_CLOSED_BY_SERVER)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_DEADLOCK_DETECTED)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));
@@ -88,7 +88,7 @@ public class DeadlockCheckerTest {
     public void checkTest2() {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, false, "");
 
-        Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
+        Range range = Range.reverse(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_1, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_1, createEventTimestamp(), AgentEventType.AGENT_CLOSED_BY_SERVER)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_SHUTDOWN)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));

@@ -72,7 +72,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
 
     @Override
     public void collect() {
-        Range range = Range.newUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
         try {
             Map<String, List<TagInformation>> agentTagInformation = getAgentTagInformation(range);
 

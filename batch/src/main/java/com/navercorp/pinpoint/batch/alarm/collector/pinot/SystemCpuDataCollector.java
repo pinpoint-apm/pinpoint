@@ -53,7 +53,7 @@ public class SystemCpuDataCollector extends DataCollector implements SystemCpuDa
 
     @Override
     public void collect() {
-        Range range = Range.newUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
         List<AgentUsageCount> agentUsageCountList = alarmDao.selectSumCount(application.getName(), METRIC_NAME, FIELD_NAME, range);
 
         for (AgentUsageCount agentUsageCount : agentUsageCountList) {

@@ -59,7 +59,7 @@ public class RangeTest {
         Range range2 = Range.between(0, 1);
         assertThat(range2.toString()).contains(" < ");
 
-        Range range3 = Range.newUncheckedRange(1, 0);
+        Range range3 = Range.reverse(1, 0);
         assertThat(range3.toString()).contains(" > ");
     }
 

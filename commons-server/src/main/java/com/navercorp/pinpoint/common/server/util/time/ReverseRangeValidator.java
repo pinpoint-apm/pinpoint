@@ -14,17 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.util;
+package com.navercorp.pinpoint.common.server.util.time;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
+import java.time.Duration;
 import java.time.Instant;
 
 /**
  * @author emeroad
  */
-public interface Limiter {
-    void limit(Instant from, Instant to);
+public class ReverseRangeValidator implements RangeValidator {
 
-    void limit(Range range);
+    private final RangeValidator validator;
+
+    public ReverseRangeValidator(Duration limitDay) {
+        this.validator = new ForwardRangeValidator(limitDay);
+    }
+
+    @Override
+    public void validate(Instant from, Instant to) {
+        validator.validate(to, from);
+    }
+
+    @Override
+    public void validate(Range range) {
+        // Range already inverted
+        validator.validate(range.getToInstant(), range.getFromInstant());
+    }
 }

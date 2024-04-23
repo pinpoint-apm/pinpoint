@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory;
 import com.navercorp.pinpoint.common.server.profile.StandardEnvironmentLogger;
+import com.navercorp.pinpoint.common.server.util.time.RangeValidatorConfiguration;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.web.applicationmap.config.ApplicationMapModule;
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
@@ -28,6 +29,7 @@ import org.springframework.core.env.StandardEnvironment;
         WebAppPropertySources.class,
         CommonsServerConfiguration.class,
         ComponentConfiguration.class,
+        RangeValidatorConfiguration.class,
 
         WebServerConfig.class,
         WebMvcConfig.class,

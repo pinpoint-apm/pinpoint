@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.pinot.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.pinot.alarm.collector.PinotDataCollector;
 import com.navercorp.pinpoint.pinot.alarm.condition.AlarmCondition;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -144,7 +144,7 @@ public abstract class PinotAlarmChecker<T extends Number> implements PinotAlarmC
     }
 
     public boolean[] check(long timeSlotEndTime) {
-        Range range = Range.newUncheckedRange(timeSlotEndTime - SLOT_INTERVAL_FIVE_MIN, timeSlotEndTime);
+        Range range = Range.reverse(timeSlotEndTime - SLOT_INTERVAL_FIVE_MIN, timeSlotEndTime);
         collectedValue = dataCollector.collect(serviceName, applicationName, target, range);
 
         for (int i = 0; i < rules.size(); i++) {

@@ -17,13 +17,13 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
 import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
@@ -55,13 +55,13 @@ public class ResponseTimeController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ResponseTimeHistogramService responseTimeHistogramService;
-    private final Limiter dateLimit;
+    private final RangeValidator rangeValidator;
     private final ApplicationFactory applicationFactory;
 
     public ResponseTimeController(ResponseTimeHistogramService responseTimeHistogramService,
-                                  Limiter dateLimit, ApplicationFactory applicationFactory) {
+                                  RangeValidator rangeValidator, ApplicationFactory applicationFactory) {
         this.responseTimeHistogramService = Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
-        this.dateLimit = Objects.requireNonNull(dateLimit, "dateLimit");
+        this.rangeValidator = Objects.requireNonNull(rangeValidator, "dateLimit");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
     }
 
@@ -74,7 +74,7 @@ public class ResponseTimeController {
             @RequestParam("to") @PositiveOrZero long to
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
@@ -93,7 +93,7 @@ public class ResponseTimeController {
             @RequestParam("to") @PositiveOrZero long to
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
@@ -125,7 +125,7 @@ public class ResponseTimeController {
             @PathVariable("type") String type
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
@@ -145,7 +145,7 @@ public class ResponseTimeController {
             @RequestParam("to") @PositiveOrZero long to
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
@@ -172,7 +172,7 @@ public class ResponseTimeController {
             @RequestBody ApplicationPairs applicationPairs
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createOptionBuilder(application, range, applicationPairs)
@@ -192,7 +192,7 @@ public class ResponseTimeController {
             @RequestBody ApplicationPairs applicationPairs
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createOptionBuilder(application, range, applicationPairs)
@@ -214,7 +214,7 @@ public class ResponseTimeController {
             @RequestBody ApplicationPairs applicationPairs
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
@@ -238,7 +238,7 @@ public class ResponseTimeController {
             @RequestParam("to") @PositiveOrZero long to
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
 
         Application fromApplication = createApplication(fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
         Application toApplication = createApplication(toApplicationName, toServiceTypeCode, toServiceTypeName);
@@ -262,7 +262,7 @@ public class ResponseTimeController {
             @PathVariable("type") String type
     ) {
         final Range range = Range.between(from, to);
-        dateLimit.limit(range);
+        this.rangeValidator.validate(range);
 
         Application fromApplication = createApplication(fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
         Application toApplication = createApplication(toApplicationName, toServiceTypeCode, toServiceTypeName);
