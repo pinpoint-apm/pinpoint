@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,17 +45,17 @@ import java.util.Objects;
 @RequestMapping("/getAgentStatV2")
 public class AgentStatV2Controller {
 
-    AgentStatService agentStatService;
-
-    ApdexStatService apdexStatService;
-
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(5000L, 200);
+    private final AgentStatService agentStatService;
+    private final ApdexStatService apdexStatService;
     private final TenantProvider tenantProvider;
+    private final RangeValidator rangeValidator;
 
-    public AgentStatV2Controller(AgentStatService agentStatService, ApdexStatService apdexStatService, TenantProvider tenantProvider) {
+    public AgentStatV2Controller(AgentStatService agentStatService, ApdexStatService apdexStatService, TenantProvider tenantProvider, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
         this.agentStatService = Objects.requireNonNull(agentStatService, "agentStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
+        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
     }
 
     // TODO : (minwoo) tenantId should be considered. The collector side should also be considered.
@@ -65,8 +67,11 @@ public class AgentStatV2Controller {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam(value="version", defaultValue="1") int version) {
+        Range range = Range.newRange(from, to);
+        rangeValidator.validate(range.getFromInstant(), range.getToInstant());
+
         String tenantId = tenantProvider.getTenantId();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        TimeWindow timeWindow = getTimeWindow(range);
         InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow, version);
 
         InspectorMetricData inspectorMetricData = agentStatService.selectAgentStat(inspectorDataSearchKey, timeWindow);
@@ -82,6 +87,9 @@ public class AgentStatV2Controller {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam(value="version", defaultValue="1") int version) {
+        Range range = Range.newRange(from, to);
+        rangeValidator.validate(range.getFromInstant(), range.getToInstant());
+
         InspectorMetricData inspectorMetricData = apdexStatService.selectAgentStat(applicationName, serviceTypeName, metricDefinitionId, agentId, from, to);
         return new InspectorMetricView(inspectorMetricData);
     }
@@ -94,11 +102,18 @@ public class AgentStatV2Controller {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam(value="version", defaultValue="1") int version) {
+        Range range = Range.newRange(from, to);
+        rangeValidator.validate(range.getFromInstant(), range.getToInstant());
+
         String tenantId = tenantProvider.getTenantId();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        TimeWindow timeWindow = getTimeWindow(range);
         InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow, version);
 
         InspectorMetricGroupData inspectorMetricGroupData = agentStatService.selectAgentStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
+    }
+
+    private TimeWindow getTimeWindow(Range range) {
+        return new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
     }
 }

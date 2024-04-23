@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.inspector.web.controller;
 
 
+import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
@@ -14,6 +15,7 @@ import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,19 +26,17 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/getApplicationStatV2")
 public class ApplicationStatV2Controller {
-
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(5000L, 200);
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER_30M = new TimeWindowSlotCentricSampler(30000L, 200);
-
     private final TenantProvider tenantProvider;
     private final ApplicationStatService applicationStatService;
-
     private final ApdexStatService apdexStatService;
+    private final RangeValidator rangeValidator;
 
-public ApplicationStatV2Controller(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService) {
+public ApplicationStatV2Controller(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
         this.applicationStatService = Objects.requireNonNull(applicationStatService, "applicationStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
+        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
     }
 
     @GetMapping(value = "/chart")
@@ -45,16 +45,15 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
+        Range range = Range.newRange(from, to);
+        rangeValidator.validate(range.getFromInstant(), range.getToInstant());
+
         String tenantId = tenantProvider.getTenantId();
-        TimeWindow timeWindow = getTimeWindow(from, to);
+        TimeWindow timeWindow = getTimeWindow(range);
         InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
 
         InspectorMetricData inspectorMetricData =  applicationStatService.selectApplicationStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
-    }
-
-    private TimeWindow getTimeWindow(long from, long to) {
-        return new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER_30M);
     }
 
     @GetMapping(value = "/chart", params = "metricDefinitionId=apdex")
@@ -64,6 +63,9 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
+        Range range = Range.newRange(from, to);
+        rangeValidator.validate(range.getFromInstant(), range.getToInstant());
+
         InspectorMetricData inspectorMetricData = apdexStatService.selectApplicationStat(applicationName, serviceTypeName, metricDefinitionId, from, to);
         return new InspectorMetricView(inspectorMetricData);
     }
@@ -74,11 +76,18 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
+        Range range = Range.newRange(from, to);
+        rangeValidator.validate(range.getFromInstant(), range.getToInstant());
+
         String tenantId = tenantProvider.getTenantId();
-        TimeWindow timeWindow = getTimeWindow(from, to);
+        TimeWindow timeWindow = getTimeWindow(range);
         InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
 
         InspectorMetricGroupData inspectorMetricGroupData =  applicationStatService.selectApplicationStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
+    }
+
+    private TimeWindow getTimeWindow(Range range) {
+        return new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER_30M);
     }
 }

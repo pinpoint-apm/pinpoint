@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.metric.common.model;
 
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,6 +48,14 @@ public class Range {
         return from;
     }
 
+    public Instant getFromInstant() {
+        return toInstant(from);
+    }
+
+    public Instant getToInstant() {
+        return toInstant(to);
+    }
+
     public String getFromDateTime() {
         return DateTimeFormatUtils.formatSimple(from);
     }
@@ -67,6 +76,10 @@ public class Range {
         if (range.to < range.from) {
             throw new IllegalArgumentException("invalid range:" + range);
         }
+    }
+
+    private Instant toInstant(long timestamp) {
+        return Instant.ofEpochMilli(timestamp);
     }
 
     @Override
