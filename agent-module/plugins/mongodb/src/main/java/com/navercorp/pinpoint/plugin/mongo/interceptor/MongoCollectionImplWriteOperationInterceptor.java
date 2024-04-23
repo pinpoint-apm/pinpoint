@@ -44,7 +44,7 @@ public class MongoCollectionImplWriteOperationInterceptor extends SpanEventSimpl
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordApi(methodDescriptor);
-        MongoDatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
+        MongoDatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, MongoDatabaseInfo.UNKNOWN_MONGO_DATABASE_INFO);
         if (target instanceof HostListAccessor) {
             final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
             if (hostList != null) {
