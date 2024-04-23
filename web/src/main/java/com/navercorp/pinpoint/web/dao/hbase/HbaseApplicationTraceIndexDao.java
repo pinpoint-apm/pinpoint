@@ -263,7 +263,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
 
-        final Range range = Range.newUncheckedRange(dragArea.getXLow(), dragArea.getXHigh());
+        final Range range = Range.reverse(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceIndex range:{}", range);
         final Scan scan = newFuzzyScanner(applicationName, dragArea, range);
 
@@ -323,7 +323,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
 
         DragArea dragArea = dragAreaQuery.getDragArea();
-        Range range = Range.newUncheckedRange(dragArea.getXLow(), dragArea.getXHigh());
+        Range range = Range.reverse(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceScatterData-range:{}", range);
 
         LastRowAccessor lastRowAccessor = new LastRowAccessor();

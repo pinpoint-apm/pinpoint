@@ -60,7 +60,7 @@ public class ResponseTimeDataCollector extends DataCollector {
             return;
         }
 
-        Range range = Range.newUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
         List<ResponseTime> responseTimes = responseDao.selectResponseTime(application, range);
 
         for (ResponseTime responseTime : responseTimes) {

@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.util;
-
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
-import org.springframework.stereotype.Component;
+package com.navercorp.pinpoint.common.server.util.time;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -27,37 +23,32 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-@Component
-public class DateLimiter implements Limiter {
+public class ForwardRangeValidator implements RangeValidator {
 
     private final Duration limitDay;
 
-    public DateLimiter() {
-        this(Duration.ofDays(2));
-    }
-
-    public DateLimiter(Duration limitDay) {
+    public ForwardRangeValidator(Duration limitDay) {
         this.limitDay = Objects.requireNonNull(limitDay, "limitDay");
     }
 
     @Override
-    public void limit(Instant from, Instant to) {
+    public void validate(Instant from, Instant to) {
         Objects.requireNonNull(from, "from");
         Objects.requireNonNull(to, "to");
 
         Duration duration = Duration.between(from, to);
         if (duration.isNegative()) {
-            throw new  IllegalArgumentException("to - from < 0 from:" + from + " to:" + to);
+            throw new IllegalArgumentException("to - from < 0 from:" + from + " to:" + to);
         }
 
-        if (limitDay.toMillis() < duration.toMillis()) {
+        if (limitDay.minus(duration).isNegative()) {
             throw new IllegalArgumentException("limitDay:"+ limitDay + " from:" + from + " to:" + to);
         }
     }
 
     @Override
-    public void limit(Range range) {
+    public void validate(Range range) {
         Objects.requireNonNull(range, "range");
-        limit(range.getFromInstant(), range.getToInstant());
+        validate(range.getFromInstant(), range.getToInstant());
     }
 }
