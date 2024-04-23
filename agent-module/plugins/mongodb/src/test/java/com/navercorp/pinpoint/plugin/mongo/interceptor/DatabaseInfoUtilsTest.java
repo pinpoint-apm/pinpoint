@@ -37,7 +37,7 @@ public class DatabaseInfoUtilsTest {
         DatabaseInfo defaultDatabaseInfo = mock(MongoDatabaseInfo.class);
         when(databaseInfoAccessor._$PINPOINT$_getDatabaseInfo()).thenReturn(defaultDatabaseInfo);
 
-        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, MongoDatabaseInfo.UNKNOWN_MONGO_DATABASE_INFO);
 
         Assertions.assertEquals(databaseInfo, defaultDatabaseInfo);
     }
@@ -47,15 +47,15 @@ public class DatabaseInfoUtilsTest {
         DatabaseInfoAccessor databaseInfoAccessor = mock(DatabaseInfoAccessor.class);
         when(databaseInfoAccessor._$PINPOINT$_getDatabaseInfo()).thenReturn(null);
 
-        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
-        Assertions.assertEquals(databaseInfo, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, MongoDatabaseInfo.UNKNOWN_MONGO_DATABASE_INFO);
+        Assertions.assertEquals(databaseInfo, MongoDatabaseInfo.UNKNOWN_MONGO_DATABASE_INFO);
     }
 
     @Test
     public void getDatabaseInfo_unknown() {
-        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(new Object(), MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(new Object(), MongoDatabaseInfo.UNKNOWN_MONGO_DATABASE_INFO);
 
-        Assertions.assertEquals(databaseInfo, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
+        Assertions.assertEquals(databaseInfo, MongoDatabaseInfo.UNKNOWN_MONGO_DATABASE_INFO);
     }
 
 }
