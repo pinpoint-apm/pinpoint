@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManage
 import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.metric.web.view.SystemMetricView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,17 +50,20 @@ public class SystemMetricController {
     private final SystemMetricHostInfoService systemMetricHostInfoService;
     private final YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager;
     private final TenantProvider tenantProvider;
-
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, 200);
+    private final RangeValidator rangeValidator;
     
     public SystemMetricController(SystemMetricDataService systemMetricDataService,
                                   SystemMetricHostInfoService systemMetricHostInfoService,
                                   YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager,
-                                  TenantProvider tenantProvider) {
+                                  TenantProvider tenantProvider,
+                                  @Qualifier("rangeValidator30d") RangeValidator rangeValidator
+                                  ) {
         this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
+        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
     }
 
     @GetMapping(value = "/hostGroup")
@@ -94,6 +99,9 @@ public class SystemMetricController {
                                                    @RequestParam("from") long from,
                                                    @RequestParam("to") long to,
                                                    @RequestParam(value = "tags", required = false) String tags) {
+        Range range = Range.newRange(from, to);
+        rangeValidator.validate(range.getFromInstant(), range.getToInstant());
+
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(tenantId, hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
