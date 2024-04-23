@@ -1,4 +1,5 @@
-import { useLocalStorage as useLocalStorageTS, useUpdateEffect } from 'usehooks-ts';
+import React from 'react';
+import { useLocalStorage as useLocalStorageTS } from 'usehooks-ts';
 import { APP_SETTING_KEYS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/constants';
 import { getCompatibleLocalStorageValue } from '@pinpoint-fe/utils';
 
@@ -11,11 +12,11 @@ export const useLocalStorage = <T>(
 
   const [data, setData] = useLocalStorageTS<T>(key, initValue);
 
-  useUpdateEffect(() => {
+  React.useEffect(() => {
     if (data !== undefined && data !== null) {
       window.localStorage.setItem(v2Key, JSON.stringify(data));
     }
-  }, [data]);
+  }, [data, v2Key]);
 
   return [data, setData] as [T, React.Dispatch<React.SetStateAction<T>>];
 };

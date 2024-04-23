@@ -6,12 +6,12 @@ import { RxChevronLeft, RxChevronRight, RxPlay, RxTrackNext, RxStop } from 'reac
 import { RichDatetimePicker, RichDatetimePickerProps } from '@pinpoint-fe/datetime-picker';
 import Marquee from 'react-fast-marquee';
 
-import { DATE_FORMAT } from '@pinpoint-fe/constants';
+import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
 import { getParsedDateRange, isValidDateRange } from '@pinpoint-fe/utils';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 import { toast } from '../Toast';
-import { useLanguage, useSearchParameters } from '@pinpoint-fe/hooks';
+import { useDateFormat, useLanguage, useSearchParameters } from '@pinpoint-fe/hooks';
 
 export type DateState = {
   dates?: {
@@ -48,8 +48,8 @@ const genDateState = (from: number | Date, to: number | Date): DateState => {
       to: newTo,
     },
     formattedDates: {
-      from: format(newFrom, DATE_FORMAT),
-      to: format(newTo, DATE_FORMAT),
+      from: format(newFrom, SEARCH_PARAMETER_DATE_FORMAT),
+      to: format(newTo, SEARCH_PARAMETER_DATE_FORMAT),
     },
   };
 };
@@ -68,6 +68,7 @@ export const DatetimePicker = React.memo(
   }: DatetimePickerProps) => {
     const { application } = useSearchParameters();
     const [language] = useLanguage();
+    const [dateFormat] = useDateFormat();
     const [input, setInput] = React.useState('');
     const parsedDate = getParsedDateRange({ from, to }, isValidDateRange(maxDateRangeDays));
     const parsedFromTimestamp = parsedDate.from.getTime();
@@ -110,15 +111,16 @@ export const DatetimePicker = React.memo(
       <>
         <div className={cn('flex h-8 gap-1 items-center', className)}>
           {isRealtime ? (
-            <div className="flex items-center h-full border rounded w-90 border-input">
+            <div className="flex items-center h-full border rounded w-[26rem] border-input">
               <Marquee speed={80} className="text-sm italic opacity-40">
                 REAL TIME MONITORING
               </Marquee>
             </div>
           ) : (
             <RichDatetimePicker
+              dateFormat={dateFormat}
               disable={isRealtime}
-              className="w-90"
+              className="w-[26rem]"
               seamToken="~"
               localeKey={language}
               startDate={parsedDate.from}

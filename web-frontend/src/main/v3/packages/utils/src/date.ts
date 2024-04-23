@@ -1,7 +1,6 @@
-import { parse, isValid, differenceInDays, format } from 'date-fns';
-import { DATE_FORMAT } from '@pinpoint-fe/constants';
-
-type DateRangeType = { from: Date; to: Date };
+import { parse, isValid, differenceInDays } from 'date-fns';
+import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
+import { format, getCurrentFormat } from './format';
 
 export const getParsedDateRange = (
   dates: {
@@ -16,10 +15,10 @@ export const getParsedDateRange = (
   let parsedTo = dates?.to || currentDate;
 
   if (typeof parsedFrom === 'string') {
-    parsedFrom = parse(parsedFrom, DATE_FORMAT, currentDate);
+    parsedFrom = parse(parsedFrom, SEARCH_PARAMETER_DATE_FORMAT, currentDate);
   }
   if (typeof parsedTo === 'string') {
-    parsedTo = parse(parsedTo, DATE_FORMAT, currentDate);
+    parsedTo = parse(parsedTo, SEARCH_PARAMETER_DATE_FORMAT, currentDate);
   }
   if (!validateDateRange({ from: parsedFrom, to: parsedTo })) {
     parsedFrom = new Date(currentDate.getTime() - defaultGap);
@@ -37,7 +36,7 @@ export const getFormattedDateRange = (
     from: Date;
     to: Date;
   },
-  dateFormat = DATE_FORMAT,
+  dateFormat = SEARCH_PARAMETER_DATE_FORMAT,
 ) => {
   return {
     from: format(dateRange.from, dateFormat),
@@ -47,7 +46,7 @@ export const getFormattedDateRange = (
 
 export const getParsedDate = (date: string) => {
   const currentDate = new Date();
-  const result = parse(date, DATE_FORMAT, new Date());
+  const result = parse(date, SEARCH_PARAMETER_DATE_FORMAT, new Date());
   if (isValid(result)) {
     return result;
   }
@@ -57,6 +56,8 @@ export const getParsedDate = (date: string) => {
 export const getParsedDates = (from: string, to: string): [number, number] => {
   return [getParsedDate(from).getTime(), getParsedDate(to).getTime()];
 };
+
+type DateRangeType = { from: Date; to: Date };
 
 export const isValidDateRange =
   (dateRangeDays: number) =>
@@ -88,4 +89,19 @@ export const convertToTimeUnit = (milliseconds = 0) => {
   } else {
     return `${seconds}s`;
   }
+};
+
+export const spilitDateStringByHour = (dateString: string) => {
+  const delimiter = /(?<=\s)hh/i;
+  const splitArray = dateString.split(delimiter);
+  // return splitArray;
+  const firstPart = splitArray[0].trim();
+  const secondPart = dateString.slice(firstPart.length).trim();
+  return [firstPart, secondPart];
+};
+
+export const formatNewLinedDateString = (date: Date | number) => {
+  const [firstFormat, secondFormat] = spilitDateStringByHour(getCurrentFormat());
+
+  return `${format(date, firstFormat)}\n${format(date, secondFormat)}`;
 };

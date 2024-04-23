@@ -5,8 +5,8 @@ import colors from 'tailwindcss/colors';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { addCommas, numberInInteger } from '@pinpoint-fe/utils';
-import { format, isValid } from 'date-fns';
+import { addCommas, formatNewLinedDateString, numberInInteger } from '@pinpoint-fe/utils';
+import { isValid } from 'date-fns';
 import { UrlStatChart as UrlStatChartApi } from '@pinpoint-fe/constants';
 import { cn } from '../../../lib';
 
@@ -57,7 +57,7 @@ export const UrlStatLatencyChart = ({
           show: false,
           format: (date: Date) => {
             if (isValid(date)) {
-              return `${format(date, 'MM.dd')}\n${format(date, 'HH:mm')}`;
+              return `${formatNewLinedDateString(date)}`;
             }
             return '';
           },

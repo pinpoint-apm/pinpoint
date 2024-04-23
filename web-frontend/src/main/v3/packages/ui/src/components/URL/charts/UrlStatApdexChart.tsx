@@ -5,10 +5,10 @@ import colors from 'tailwindcss/colors';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { format, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import { UrlStatChart as UrlStatChartApi } from '@pinpoint-fe/constants';
 import { cn } from '../../../lib';
-import { numberInDecimal } from '@pinpoint-fe/utils';
+import { formatNewLinedDateString, numberInDecimal } from '@pinpoint-fe/utils';
 
 export interface UrlStatApdexChartProps {
   data: UrlStatChartApi.Response | undefined;
@@ -57,7 +57,7 @@ export const UrlStatApdexChart = ({
           show: false,
           format: (date: Date) => {
             if (isValid(date)) {
-              return `${format(date, 'MM.dd')}\n${format(date, 'HH:mm')}`;
+              return `${formatNewLinedDateString(date)}`;
             }
             return '';
           },

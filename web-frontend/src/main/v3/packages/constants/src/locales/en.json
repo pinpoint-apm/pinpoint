@@ -60,7 +60,9 @@
   },
   "CONFIGURATION": {
     "GENERAL": {
-      "DESC": "User configuration is stored in browser cache. Server-side storage will be supported in a future release."
+      "DESC": "User configuration is stored in browser cache. Server-side storage will be supported in a future release.",
+      "LANGUAGE": "Language",
+      "DATE_FORMAT": "Date Format"
     },
     "EXPERIMENTAL": {
       "DESC": "You may try the experimental features."

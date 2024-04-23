@@ -1,4 +1,4 @@
-import { BASE_PATH, DATE_FORMAT, TransactionInfo } from '@pinpoint-fe/constants';
+import { BASE_PATH, SEARCH_PARAMETER_DATE_FORMAT, TransactionInfo } from '@pinpoint-fe/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import {
@@ -242,8 +242,8 @@ const MethodCell = (props: {
       const startTime = parentData[metaData.callStackIndex.begin];
       const endTime = parentData[metaData.callStackIndex.end];
       const baseTime = (startTime + endTime) / 2;
-      const from = format(baseTime - 150000, DATE_FORMAT);
-      const to = format(baseTime + 150000, DATE_FORMAT);
+      const from = format(baseTime - 150000, SEARCH_PARAMETER_DATE_FORMAT);
+      const to = format(baseTime + 150000, SEARCH_PARAMETER_DATE_FORMAT);
       const href = `${BASE_PATH}${getErrorAnalysisPath(application)}?${convertParamsToQueryString({
         from,
         to,

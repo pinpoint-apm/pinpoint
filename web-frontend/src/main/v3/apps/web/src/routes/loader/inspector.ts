@@ -1,4 +1,4 @@
-import { APP_PATH, DATE_FORMAT } from '@pinpoint-fe/constants';
+import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/utils';
 import {
   getApplicationTypeAndName,
@@ -21,14 +21,14 @@ export const inspectorRouteLoader = ({ params, request }: LoaderFunctionArgs) =>
 
     const currentDate = new Date();
     const parsedDateRange = {
-      from: parse(from, DATE_FORMAT, currentDate),
-      to: parse(to, DATE_FORMAT, currentDate),
+      from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
+      to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
     };
     const validateDateRange = isValidDateRange(28);
     const defaultParsedDateRange = getParsedDateRange({ from, to }, validateDateRange);
     const defaultFormattedDateRange = {
-      from: format(defaultParsedDateRange.from, DATE_FORMAT),
-      to: format(defaultParsedDateRange.to, DATE_FORMAT),
+      from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
+      to: format(defaultParsedDateRange.to, SEARCH_PARAMETER_DATE_FORMAT),
     };
     const defaultDestination = `${basePath}?${convertParamsToQueryString({
       ...queryParam,
