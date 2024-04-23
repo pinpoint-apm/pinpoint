@@ -55,11 +55,11 @@ jobs:
         
       - name: Build Docker Images
         run: |
-          mvn docker:build -pl agent
+          mvn docker:build -pl agent-module/agent
           mvn docker:build -pl flink
           mvn docker:build -pl hbase/hbase-docker
-          mvn verify spring-boot:build-image -DskipTests=true -pl metric-module/collector-starter
-          mvn verify spring-boot:build-image -DskipTests=true -pl metric-module/web-starter
+          mvn verify spring-boot:build-image -DskipTests=true -pl collector-starter
+          mvn verify spring-boot:build-image -DskipTests=true -pl web-starter
           mvn verify spring-boot:build-image -DskipTests=true -pl batch
           mvn verify spring-boot:build-image -DskipTests=true -pl collector
           mvn verify spring-boot:build-image -DskipTests=true -pl web
