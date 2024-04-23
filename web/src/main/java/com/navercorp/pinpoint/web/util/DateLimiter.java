@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
-
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -47,10 +46,10 @@ public class DateLimiter implements Limiter {
 
         Duration duration = Duration.between(from, to);
         if (duration.isNegative()) {
-            throw new  IllegalArgumentException("to - from < 0 from:" + from + " to:" + to);
+            throw new IllegalArgumentException("to - from < 0 from:" + from + " to:" + to);
         }
 
-        if (limitDay.toMillis() < duration.toMillis()) {
+        if (limitDay.minus(duration).isNegative()) {
             throw new IllegalArgumentException("limitDay:"+ limitDay + " from:" + from + " to:" + to);
         }
     }

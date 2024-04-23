@@ -80,4 +80,14 @@ public class DateLimiterTest {
     private Instant ofDays(long days) {
         return Instant.EPOCH.plus(Duration.ofDays(days));
     }
+
+    @Test
+    public void checkRange_Nanos() {
+        Limiter limiter = new DateLimiter(Duration.ofNanos(1));
+
+        Assertions.assertThrows(Exception.class, () -> {
+            limiter.limit(Instant.EPOCH, Instant.EPOCH.plusNanos(2L));
+        });
+
+    }
 }
