@@ -1,8 +1,7 @@
 name: Create and push dockerfiles
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch
 
 jobs:
   latest:
@@ -24,7 +23,7 @@ jobs:
       - name: Tag Latest Release
         run: |
           # Get the latest release tag
-          latest_tag=$(git describe --tags --abbrev=0)
+          latest_tag=$(git describe --tags --abbrev=0 --always)
         
           # Get the commit hash of the latest release
           latest_commit=$(git rev-list -n 1 $latest_tag)
