@@ -1,3 +1,4 @@
+import { DATE_FORMATS } from '@pinpoint-fe/constants';
 import {
   Select,
   SelectContent,
@@ -7,14 +8,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components';
-import { useLanguage, SupportLanguageType } from '@pinpoint-fe/hooks';
+import { useLanguage, SupportLanguageType, useDateFormat } from '@pinpoint-fe/hooks';
+import { format } from '@pinpoint-fe/utils';
 import { useTranslation } from 'react-i18next';
 
 export interface GeneralPageProps {}
 
 export const GeneralPage = () => {
   const [language, setLanguage] = useLanguage();
+  const [dateFormat, setDateFormat] = useDateFormat();
   const { t } = useTranslation();
+  const now = new Date();
 
   return (
     <div className="space-y-6">
@@ -29,7 +33,7 @@ export const GeneralPage = () => {
       ></div>
       <div className="space-y-2">
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Language
+          {t('CONFIGURATION.GENERAL.LANGUAGE')}
         </label>
         <Select
           value={language}
@@ -40,7 +44,7 @@ export const GeneralPage = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Languages</SelectLabel>
+              <SelectLabel>{t('CONFIGURATION.GENERAL.LANGUAGE')}</SelectLabel>
               <SelectItem value="en">English</SelectItem>
               <SelectItem value="ko">한국어</SelectItem>
             </SelectGroup>
@@ -50,6 +54,35 @@ export const GeneralPage = () => {
           This is your public display name. It can be your real name or a pseudonym. You can only
           change this once every 30 days.
         </p> */}
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          {t('CONFIGURATION.GENERAL.DATE_FORMAT')}
+        </label>
+        <Select
+          value={dateFormat}
+          onValueChange={(value: keyof typeof DATE_FORMATS) => {
+            setDateFormat(DATE_FORMATS[value]);
+          }}
+        >
+          <SelectTrigger className="w-60">
+            <SelectValue placeholder="Select language" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>{t('CONFIGURATION.GENERAL.DATE_FORMAT')}</SelectLabel>
+              {Object.keys(DATE_FORMATS)
+                .filter((v) => isNaN(Number(v)))
+                .map((key, i) => {
+                  return (
+                    <SelectItem key={i} value={key}>
+                      {format(now, key)}
+                    </SelectItem>
+                  );
+                })}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

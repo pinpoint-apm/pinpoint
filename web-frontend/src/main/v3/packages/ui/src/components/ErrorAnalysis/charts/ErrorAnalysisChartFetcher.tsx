@@ -4,8 +4,8 @@ import bb, { ChartOptions, line } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { abbreviateNumber } from '@pinpoint-fe/utils';
-import { format, isValid } from 'date-fns';
+import { abbreviateNumber, formatNewLinedDateString } from '@pinpoint-fe/utils';
+import { isValid } from 'date-fns';
 import { cn } from '../../../lib';
 
 export interface ErrorAnalysisChartFetcherProps {
@@ -43,7 +43,7 @@ export const ErrorAnalysisChartFetcher = ({
           show: false,
           format: (date: Date) => {
             if (isValid(date)) {
-              return `${format(date, 'MM.dd')}\n${format(date, 'HH:mm')}`;
+              return `${formatNewLinedDateString(date)}`;
             }
             return '';
           },

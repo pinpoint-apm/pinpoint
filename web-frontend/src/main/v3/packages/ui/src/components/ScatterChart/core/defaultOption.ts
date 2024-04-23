@@ -1,6 +1,5 @@
-import { format } from 'date-fns';
 import { ScatterChartOption } from '@pinpoint-fe/scatter-chart';
-import { addCommas } from '@pinpoint-fe/utils';
+import { addCommas, formatNewLinedDateString } from '@pinpoint-fe/utils';
 
 export const getDefaultOption = ({ x, y }: { x: [number, number]; y: [number, number] }) =>
   ({
@@ -10,11 +9,8 @@ export const getDefaultOption = ({ x, y }: { x: [number, number]; y: [number, nu
         min: x[0],
         max: x[1],
         tick: {
-          format: (value) => {
-            return `${format(value as number, 'yyy:MM:dd')}\n${format(
-              value as number,
-              'HH:mm:ss',
-            )}`;
+          format: (value: number) => {
+            return `${formatNewLinedDateString(value)}`;
           },
         },
       },

@@ -1,9 +1,8 @@
-import { format } from 'date-fns';
 import { ColumnDef } from '@tanstack/react-table';
 import { RxCross2 } from 'react-icons/rx';
 import { Badge } from '../../ui';
 import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/constants';
-import { addCommas } from '@pinpoint-fe/utils';
+import { addCommas, format } from '@pinpoint-fe/utils';
 // import { cn } from '../../../lib';
 
 interface ErrorGroupedTableColumnProps {
@@ -67,7 +66,7 @@ export const errorGroupedTableColumns = ({
     header: 'First Occured',
     cell: (props) => {
       const timestamp = props.getValue() as number;
-      return format(timestamp, 'MMM d hh:mm a');
+      return format(timestamp, 'MMM do HH:mm');
     },
     meta: {
       headerClassName: 'w-32',
@@ -78,7 +77,7 @@ export const errorGroupedTableColumns = ({
     header: 'Last Occured',
     cell: (props) => {
       const timestamp = props.getValue() as number;
-      return format(timestamp, 'MMM d hh:mm a');
+      return format(timestamp, 'MMM do HH:mm');
     },
     meta: {
       headerClassName: 'w-32',

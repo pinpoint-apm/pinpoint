@@ -1,4 +1,4 @@
-import { SERVER_MAP_DATE_FORMAT, APP_PATH } from '@pinpoint-fe/constants';
+import { SEARCH_PARAMETER_DATE_FORMAT, APP_PATH } from '@pinpoint-fe/constants';
 import {
   getApplicationTypeAndName,
   getParsedDateRange,
@@ -19,13 +19,13 @@ export const scatterFullScreenLoader = ({ params, request }: LoaderFunctionArgs)
 
     const currentDate = new Date();
     const parsedDateRange = {
-      from: parse(from, SERVER_MAP_DATE_FORMAT, currentDate),
-      to: parse(to, SERVER_MAP_DATE_FORMAT, currentDate),
+      from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
+      to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
     };
     const defaultParsedDateRange = getParsedDateRange({ from, to });
     const defaultFormattedDateRange = {
-      from: format(defaultParsedDateRange.from, SERVER_MAP_DATE_FORMAT),
-      to: format(defaultParsedDateRange.to, SERVER_MAP_DATE_FORMAT),
+      from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
+      to: format(defaultParsedDateRange.to, SEARCH_PARAMETER_DATE_FORMAT),
     };
     const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
     const defaultDestination = `${basePath}?${defaultDatesQueryString}`;

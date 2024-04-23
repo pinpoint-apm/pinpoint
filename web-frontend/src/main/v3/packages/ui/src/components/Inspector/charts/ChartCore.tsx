@@ -1,12 +1,13 @@
 import React from 'react';
 import bb, { ChartOptions } from 'billboard.js';
-import { format, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import deepmerge from 'deepmerge';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
 import { cn, DEFAULT_CHART_CONFIG } from '../../../lib';
 import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/constants';
+import { formatNewLinedDateString } from '@pinpoint-fe/utils';
 
 export interface ChartCoreProps {
   data: InspectorAgentChart.Response | InspectorApplicationChart.Response;
@@ -46,7 +47,7 @@ export const ChartCore = ({
           count: DEFAULT_CHART_CONFIG.X_AXIS_TICK_COUNT,
           format: (date: Date) => {
             if (isValid(date)) {
-              return `${format(date, 'MM.dd')}\n${format(date, 'HH:mm')}`;
+              return `${formatNewLinedDateString(date)}`;
             }
             return '';
           },

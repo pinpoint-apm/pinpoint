@@ -5,7 +5,7 @@ import bb, { ChartOptions, line } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { format, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import { cn } from '../../../lib';
 import {
   Card,
@@ -22,7 +22,7 @@ import {
   SelectItem,
   Separator,
 } from '../../ui';
-import { getFormat } from '@pinpoint-fe/utils';
+import { formatNewLinedDateString, getFormat } from '@pinpoint-fe/utils';
 
 export interface SystemMetricChartFetcherProps {
   chartInfo: SystemMetricMetricInfo.MetricInfoData;
@@ -72,7 +72,7 @@ export const SystemMetricChartFetcher = ({
           count: 4,
           format: (date: Date) => {
             if (isValid(date)) {
-              return `${format(date, 'MM.dd')}\n${format(date, 'HH:mm')}`;
+              return `${formatNewLinedDateString(date)}`;
             }
             return '';
           },

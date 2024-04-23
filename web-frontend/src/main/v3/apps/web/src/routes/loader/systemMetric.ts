@@ -1,4 +1,4 @@
-import { APP_PATH, DATE_FORMAT } from '@pinpoint-fe/constants';
+import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
 import { isValidDateRange } from '@pinpoint-fe/utils';
 import { getParsedDateRange } from '@pinpoint-fe/utils';
 import { parse, format } from 'date-fns';
@@ -17,13 +17,13 @@ export const systemMetricRouteLoader = ({ params, request }: LoaderFunctionArgs)
 
     const currentDate = new Date();
     const parsedDateRange = {
-      from: parse(from, DATE_FORMAT, currentDate),
-      to: parse(to, DATE_FORMAT, currentDate),
+      from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
+      to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
     };
     const defaultParsedDateRange = getParsedDateRange({ from, to });
     const defaultFormattedDateRange = {
-      from: format(defaultParsedDateRange.from, DATE_FORMAT),
-      to: format(defaultParsedDateRange.to, DATE_FORMAT),
+      from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
+      to: format(defaultParsedDateRange.to, SEARCH_PARAMETER_DATE_FORMAT),
     };
     const validateDateRange = isValidDateRange(28);
     const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();

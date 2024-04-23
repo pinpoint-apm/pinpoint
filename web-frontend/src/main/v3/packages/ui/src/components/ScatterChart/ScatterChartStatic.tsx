@@ -9,7 +9,7 @@ import {
 import {
   ApplicationType,
   SCATTER_DATA_TOTAL_KEY,
-  SERVER_MAP_DATE_FORMAT,
+  SEARCH_PARAMETER_DATE_FORMAT,
   BASE_PATH,
 } from '@pinpoint-fe/constants';
 import { format } from 'date-fns';
@@ -91,8 +91,8 @@ export const ScatterChartStatic = ({
           onClick: () => {
             window.open(
               `${BASE_PATH}${getScatterFullScreenPath(application)}?${convertParamsToQueryString({
-                from: format(range[0], SERVER_MAP_DATE_FORMAT),
-                to: format(range[1], SERVER_MAP_DATE_FORMAT),
+                from: format(range[0], SEARCH_PARAMETER_DATE_FORMAT),
+                to: format(range[1], SEARCH_PARAMETER_DATE_FORMAT),
                 agentId: selectedAgentId === SCATTER_DATA_TOTAL_KEY ? undefined : selectedAgentId,
               })}`,
             );

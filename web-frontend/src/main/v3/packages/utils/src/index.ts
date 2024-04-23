@@ -1,5 +1,6 @@
 export * from './date';
 export * from './dom';
+export * from './format';
 export * from './functions';
 export * from './helper';
 export * from './localStorage';

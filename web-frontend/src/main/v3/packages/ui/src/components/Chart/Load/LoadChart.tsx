@@ -97,7 +97,7 @@ export const LoadChart = ({
             show: false,
             format: (date: Date) => {
               if (isValid(date)) {
-                return `${format(date, 'MM.dd')}\n${format(date, 'mm:ss')}`;
+                return `${format(date, 'MM.dd')}\n${format(date, 'HH:mm')}`;
               }
               return '';
             },
