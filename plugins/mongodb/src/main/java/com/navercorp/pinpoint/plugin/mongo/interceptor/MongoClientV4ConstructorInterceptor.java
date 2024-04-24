@@ -16,22 +16,21 @@
 
 package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
-import com.mongodb.ServerAddress;
+import com.mongodb.MongoClientSettings;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.mongo.HostListAccessor;
+import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class MongoClientConstructorInterceptor implements AroundInterceptor {
+public class MongoClientV4ConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public MongoClientConstructorInterceptor() {
+    public MongoClientV4ConstructorInterceptor() {
     }
 
     @Override
@@ -53,28 +52,12 @@ public class MongoClientConstructorInterceptor implements AroundInterceptor {
         }
 
         try {
-            final List<String> hostList = new ArrayList<>();
-            // arg0 is ServerAddress
-            final ServerAddress serverAddress = ArrayArgumentUtils.getArgument(args, 0, ServerAddress.class);
-            if (serverAddress != null) {
-                final String hostAddress = HostAndPort.toHostAndPortString(serverAddress.getHost(), serverAddress.getPort());
-                hostList.add(hostAddress);
-                setHostList(target, hostList);
+            // over 4.2
+            final MongoClientSettings mongoClientSettings = ArrayArgumentUtils.getArgument(args, 0, MongoClientSettings.class);
+            if (mongoClientSettings != null) {
+                List<String> list = MongoUtil.getHostList(mongoClientSettings);
+                setHostList(target, list);
                 return;
-            }
-
-            // arg0 is List<ServerAddress>
-            final List<?> list = ArrayArgumentUtils.getArgument(args, 0, List.class);
-            if (list != null) {
-                for (Object o : list) {
-                    if (o instanceof ServerAddress) {
-                        // Set multi address.
-                        final ServerAddress address = (ServerAddress) o;
-                        final String hostAddress = HostAndPort.toHostAndPortString(address.getHost(), address.getPort());
-                        hostList.add(hostAddress);
-                    }
-                }
-                setHostList(target, hostList);
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
