@@ -65,7 +65,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
 
     @BeforeEach
     public void before() {
-        Range range = Range.reverse(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
+        Range range = Range.between(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
 
         List<DataSourceListBo> dataSourceListBoList = List.of(
                 createDataSourceListBo(1, 30, 40, 3),

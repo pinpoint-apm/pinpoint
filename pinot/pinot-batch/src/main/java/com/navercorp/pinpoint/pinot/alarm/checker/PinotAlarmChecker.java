@@ -144,7 +144,7 @@ public abstract class PinotAlarmChecker<T extends Number> implements PinotAlarmC
     }
 
     public boolean[] check(long timeSlotEndTime) {
-        Range range = Range.reverse(timeSlotEndTime - SLOT_INTERVAL_FIVE_MIN, timeSlotEndTime);
+        Range range = Range.between(timeSlotEndTime - SLOT_INTERVAL_FIVE_MIN, timeSlotEndTime);
         collectedValue = dataCollector.collect(serviceName, applicationName, target, range);
 
         for (int i = 0; i < rules.size(); i++) {

@@ -60,7 +60,7 @@ public class HeatMapController {
         final DragArea dragArea = DragArea.normalize(x1, x2, y1, y2);
 
         // TODO range check verification exception occurs. "from" is bigger than "to"
-        final Range range = Range.reverse(x1, x2);
+        final Range range = Range.unchecked(x1, x2);
         logger.debug("drag scatter data. RANGE={}, LIMIT={}", range, limit);
         final Dot.Status dotStatus = toDotStatus(boolDotStatus);
         final DragAreaQuery query = new DragAreaQuery(dragArea, agentId, dotStatus);
@@ -134,7 +134,7 @@ public class HeatMapController {
             @RequestParam("to") @PositiveOrZero long to) {
 
         // TODO range check verification exception occurs. "from" is bigger than "to"
-        final Range range = Range.reverse(from, to);
+        final Range range = Range.unchecked(from, to);
         logger.debug("fetch getHeatMapData. RANGE={}, ", range);
 
         final LimitedScanResult<HeatMap> scanResult =

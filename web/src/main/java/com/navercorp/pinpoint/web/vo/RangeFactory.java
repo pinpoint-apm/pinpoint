@@ -44,7 +44,7 @@ public class RangeFactory {
         // In this case, the Range is reversed, so we instead subtract 1 from the startTime.
         final long startTime = timeSlot.getTimeSlot(range.getFrom()) - 1;
         final long endTime = timeSlot.getTimeSlot(range.getTo());
-        return Range.reverse(startTime, endTime);
+        return Range.unchecked(startTime, endTime);
     }
 
 }

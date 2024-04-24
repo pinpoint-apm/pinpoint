@@ -53,7 +53,7 @@ public class FileDescriptorDataCollector extends DataCollector implements FileDe
 
     @Override
     public void collect() {
-        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
         List<AgentUsage> agentUsageList = alarmDao.selectAvg(application.getName(), METRIC_NAME, FIELD_NAME, range);
 
         for (AgentUsage agentUsage : agentUsageList) {

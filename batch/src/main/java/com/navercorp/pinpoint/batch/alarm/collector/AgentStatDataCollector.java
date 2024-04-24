@@ -66,7 +66,7 @@ public class AgentStatDataCollector extends DataCollector implements HeapDataGet
             return;
         }
 
-        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
 
         for(String agentId : agentIds) {
             List<JvmGcBo> jvmGcBos = jvmGcDao.getAgentStatList(agentId, range);

@@ -14,7 +14,7 @@ class ReverseRangeValidatorTest {
 
         rangeValidator.validate(ofDays(2), Instant.EPOCH);
 
-        rangeValidator.validate(Range.reverse(ofDays(2).toEpochMilli(), Instant.EPOCH.toEpochMilli()));
+        rangeValidator.validate(Range.unchecked(ofDays(2).toEpochMilli(), Instant.EPOCH.toEpochMilli()));
     }
 
     @Test

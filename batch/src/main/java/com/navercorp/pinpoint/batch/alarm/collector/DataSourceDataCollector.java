@@ -64,7 +64,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
             return;
         }
 
-        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
 
         for (String agentId : agentIds) {
             List<DataSourceListBo> dataSourceListBos = dataSourceDao.getAgentStatList(agentId, range);

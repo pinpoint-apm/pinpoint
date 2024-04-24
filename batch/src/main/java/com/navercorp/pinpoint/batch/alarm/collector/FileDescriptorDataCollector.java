@@ -58,7 +58,7 @@ public class FileDescriptorDataCollector extends DataCollector implements FileDe
             return;
         }
 
-        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
 
         for(String agentId : agentIds) {
             List<FileDescriptorBo> fileDescriptorBoList = fileDescriptorDao.getAgentStatList(agentId, range);
