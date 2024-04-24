@@ -24,7 +24,7 @@ export const inspectorRouteLoader = ({ params, request }: LoaderFunctionArgs) =>
       from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
       to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
     };
-    const validateDateRange = isValidDateRange(28);
+    const validateDateRange = isValidDateRange(14);
     const defaultParsedDateRange = getParsedDateRange({ from, to }, validateDateRange);
     const defaultFormattedDateRange = {
       from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),

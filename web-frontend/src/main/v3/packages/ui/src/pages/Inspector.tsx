@@ -71,11 +71,11 @@ export const InspectorPage = ({
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
-              maxDateRangeDays={28}
+              maxDateRangeDays={14}
               outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                maxSearchPeriod: 28,
+                maxSearchPeriod: 14,
               })}
-              timeUnits={['5m', '20m', '1h', '12h', '1d', '7d', '14d', '28d']}
+              timeUnits={['5m', '20m', '1h', '12h', '1d', '7d', '14d']}
             />
           )}
         </div>
