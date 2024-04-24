@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
@@ -23,7 +25,6 @@ import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParamet
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionTraceView;
-import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
@@ -33,6 +34,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,13 +63,19 @@ public class ExceptionTraceController {
 
     private final ExceptionTraceService exceptionTraceService;
     private final TenantProvider tenantProvider;
+    private final RangeValidator rangeValidator;
 
     @Value("${pinpoint.modules.web.exceptiontrace.table:exceptionTrace}")
     private String tableName;
 
-    public ExceptionTraceController(ExceptionTraceService exceptionTraceService, TenantProvider tenantProvider) {
+    public ExceptionTraceController(
+            ExceptionTraceService exceptionTraceService,
+            TenantProvider tenantProvider,
+            @Qualifier("rangeValidator7d") RangeValidator rangeValidator
+    ) {
         this.exceptionTraceService = Objects.requireNonNull(exceptionTraceService, "exceptionTraceService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
+        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
     }
 
     @GetMapping("/transactionInfo")
@@ -105,12 +113,15 @@ public class ExceptionTraceController {
             @RequestParam("isDesc") boolean isDesc,
             @RequestParam("count") int count
     ) {
+        Range range = Range.between(from, to);
+        rangeValidator.validate(range);
+
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
-                .setRange(Range.newRange(from, to))
+                .setRange(range)
                 .setTimePrecision(DETAILED_TIME_PRECISION)
                 .setHardLimit(count)
                 .setOrderBy(orderBy)
@@ -130,12 +141,15 @@ public class ExceptionTraceController {
 
             @RequestParam("groupBy") List<String> groupByList
     ) {
+        Range range = Range.between(from, to);
+        rangeValidator.validate(range);
+
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
-                .setRange(Range.newRange(from, to))
+                .setRange(Range.between(from, to))
                 .setTimePrecision(DETAILED_TIME_PRECISION)
                 .addAllGroupByList(groupByList)
                 .build();
@@ -155,7 +169,8 @@ public class ExceptionTraceController {
     ) {
         String groupName = (groupByList == null) ? "total error occurs" : "top5 error occurs";
 
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        rangeValidator.validate(timeWindow.getWindowRange());
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.inspector.web.controller;
 
-
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
@@ -9,7 +9,6 @@ import com.navercorp.pinpoint.inspector.web.service.ApdexStatService;
 import com.navercorp.pinpoint.inspector.web.service.ApplicationStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
-import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
@@ -32,7 +31,7 @@ public class ApplicationStatV2Controller {
     private final ApdexStatService apdexStatService;
     private final RangeValidator rangeValidator;
 
-public ApplicationStatV2Controller(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
+    public ApplicationStatV2Controller(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
         this.applicationStatService = Objects.requireNonNull(applicationStatService, "applicationStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
@@ -45,14 +44,14 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        Range range = Range.newRange(from, to);
+        Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = getTimeWindow(range);
         InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
 
-        InspectorMetricData inspectorMetricData =  applicationStatService.selectApplicationStat(inspectorDataSearchKey, timeWindow);
+        InspectorMetricData inspectorMetricData = applicationStatService.selectApplicationStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
     }
 
@@ -63,7 +62,7 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        Range range = Range.newRange(from, to);
+        Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         InspectorMetricData inspectorMetricData = apdexStatService.selectApplicationStat(applicationName, serviceTypeName, metricDefinitionId, from, to);
@@ -76,14 +75,14 @@ public ApplicationStatV2Controller(ApplicationStatService applicationStatService
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        Range range = Range.newRange(from, to);
+        Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = getTimeWindow(range);
         InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
 
-        InspectorMetricGroupData inspectorMetricGroupData =  applicationStatService.selectApplicationStatWithGrouping(inspectorDataSearchKey, timeWindow);
+        InspectorMetricGroupData inspectorMetricGroupData = applicationStatService.selectApplicationStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }
 

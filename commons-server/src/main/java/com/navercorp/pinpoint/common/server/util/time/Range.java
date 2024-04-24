@@ -106,6 +106,11 @@ public final class Range {
         return DateTimeFormatUtils.formatSimple(to);
     }
 
+    @JsonIgnore
+    public long getRange() {
+        return to.toEpochMilli() - from.toEpochMilli();
+    }
+
     public long durationMillis() {
         return duration().toMillis();
     }

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.uristat.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
-import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
@@ -65,7 +65,7 @@ public class UriStatController {
     }
 
     private Range checkTimeRange(long from, long to) {
-        Range range = Range.newRange(from, to);
+        Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
         return range;
     }

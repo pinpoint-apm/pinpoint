@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.metric.common.util;
 
 import com.navercorp.pinpoint.common.util.MathUtils;
-import com.navercorp.pinpoint.metric.common.model.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author minwoo-jung

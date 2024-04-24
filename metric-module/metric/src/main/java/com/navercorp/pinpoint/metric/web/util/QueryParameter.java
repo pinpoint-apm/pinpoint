@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.util;
 
-import com.navercorp.pinpoint.metric.common.model.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 public abstract class QueryParameter {
     protected static final int TAG_SET_COUNT = 10;
