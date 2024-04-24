@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
 
@@ -75,7 +76,7 @@ public class TimeWindow implements Iterable<Long> {
     private Range createWindowRange() {
         long from = refineTimestamp(range.getFrom());
         long to = refineTimestamp(range.getTo());
-        return Range.newRange(from, to);
+        return Range.between(from, to);
     }
 
     public int getWindowIndex(long time) {

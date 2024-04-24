@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.metric.web.config;
 
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
-import com.navercorp.pinpoint.metric.common.model.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.dao.model.HostInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;

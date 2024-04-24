@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.metric.web.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
-import com.navercorp.pinpoint.metric.common.model.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
@@ -99,11 +99,11 @@ public class SystemMetricController {
                                                    @RequestParam("from") long from,
                                                    @RequestParam("to") long to,
                                                    @RequestParam(value = "tags", required = false) String tags) {
-        Range range = Range.newRange(from, to);
+        Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         String tenantId = tenantProvider.getTenantId();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(tenantId, hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
         List<Tag> tagList = TagUtils.parseTags(tags);
 

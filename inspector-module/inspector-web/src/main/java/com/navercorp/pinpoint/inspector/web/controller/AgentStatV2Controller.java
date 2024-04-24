@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.inspector.web.service.AgentStatService;
 import com.navercorp.pinpoint.inspector.web.service.ApdexStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
-import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
@@ -66,8 +66,8 @@ public class AgentStatV2Controller {
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestParam(value="version", defaultValue="1") int version) {
-        Range range = Range.newRange(from, to);
+            @RequestParam(value = "version", defaultValue = "1") int version) {
+        Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         String tenantId = tenantProvider.getTenantId();
@@ -86,8 +86,8 @@ public class AgentStatV2Controller {
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestParam(value="version", defaultValue="1") int version) {
-        Range range = Range.newRange(from, to);
+            @RequestParam(value = "version", defaultValue = "1") int version) {
+        Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         InspectorMetricData inspectorMetricData = apdexStatService.selectAgentStat(applicationName, serviceTypeName, metricDefinitionId, agentId, from, to);
@@ -101,8 +101,8 @@ public class AgentStatV2Controller {
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestParam(value="version", defaultValue="1") int version) {
-        Range range = Range.newRange(from, to);
+            @RequestParam(value = "version", defaultValue = "1") int version) {
+        Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         String tenantId = tenantProvider.getTenantId();

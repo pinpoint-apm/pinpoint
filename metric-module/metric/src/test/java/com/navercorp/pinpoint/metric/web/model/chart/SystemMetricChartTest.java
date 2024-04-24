@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.model.chart;
 
-import com.navercorp.pinpoint.metric.common.model.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.chart.Point;
@@ -39,7 +39,7 @@ public class SystemMetricChartTest {
     @Test
     public void createSystemMetricChartTest() {
         long time = System.currentTimeMillis();
-        Range range = Range.newRange(time, time + 30000);
+        Range range = Range.between(time, time + 30000);
         TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
         TimeWindow timeWindow = new TimeWindow(range, sampler);
 
