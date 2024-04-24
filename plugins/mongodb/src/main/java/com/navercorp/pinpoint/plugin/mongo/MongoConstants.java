@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.mongo;
 
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -24,9 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 /**
  * @author Roy Kim
@@ -86,6 +83,4 @@ public final class MongoConstants {
     public static final ServiceType MONGODB = ServiceTypeFactory.of(2650, "MONGO", TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType MONGO_EXECUTE_QUERY = ServiceTypeFactory.of(2651, "MONGO_EXECUTE_QUERY", "MONGO", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
     public static final ServiceType MONGO_REACTIVE = ServiceTypeFactory.of(2652, "MONGO_REACTIVE", "MONGO");
-
-    public static final MongoDatabaseInfo UNKNOWN_MONGO_DATABASE_INFO = new MongoDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", Arrays.asList("unknown"), "unknown", "unknown", false, "unknown", "unknown");
 }

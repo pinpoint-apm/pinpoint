@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,6 +28,7 @@ import java.util.Objects;
  */
 public class MongoDatabaseInfo implements DatabaseInfo {
 
+    public static final MongoDatabaseInfo UNKNOWN_MONGO_DATABASE_INFO = new MongoDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", Arrays.asList("unknown"), "unknown", "unknown", false, "unknown", "unknown");
     private final ServiceType type;
     private final ServiceType executeQueryType;
     private final String databaseId;
