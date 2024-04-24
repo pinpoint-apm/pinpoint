@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Repository
 public interface AgentStatDao<T extends AgentStatDataPoint> {
-    void insert(String agentId, List<T> agentStatDataPoints);
+    void insert(String applicationName, String agentId, List<T> agentStatDataPoints);
 
     void dispatch(AgentStatBo agentStatBo);
 }

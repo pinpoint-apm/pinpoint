@@ -24,8 +24,10 @@ import org.springframework.context.annotation.PropertySources;
  */
 
 @PropertySources({
-        @PropertySource(name = "InspectorPropertySources-KAFKA", value = { InspectorPropertySources.KAFKA_TOPIC}),
+        @PropertySource(name = "InspectorPropertySources-KAFKA", value = { InspectorPropertySources.KAFKA_TOPIC, InspectorPropertySources.COLLECTOR_CONFIG}),
 })
 public class InspectorPropertySources {
     public static final String KAFKA_TOPIC = "classpath:inspector/collector/kafka-topic-inspector.properties";
+
+    public static final String COLLECTOR_CONFIG = "classpath:inspector/collector/profiles/${pinpoint.profiles.active:release}/inspector-collector.properties";
 }

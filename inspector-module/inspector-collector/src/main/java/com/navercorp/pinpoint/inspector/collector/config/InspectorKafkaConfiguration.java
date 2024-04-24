@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.inspector.collector.config;
 
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
-import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStatV2;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
 import com.navercorp.pinpoint.pinot.kafka.KafkaConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,7 +39,7 @@ public class InspectorKafkaConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<byte[], AgentStatV2> kafkaAgentStatV2Template(@Qualifier("kafkaProducerByteArrayKeyFactory") ProducerFactory producerFactory) {
+    public KafkaTemplate<String, AgentStat> kafkaAgentStatV2Template(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 

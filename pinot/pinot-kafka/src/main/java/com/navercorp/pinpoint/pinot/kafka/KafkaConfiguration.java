@@ -43,6 +43,7 @@ public class KafkaConfiguration {
         return new DefaultKafkaProducerFactory<>(config);
     }
 
+    @Deprecated
     @Bean
     public ProducerFactory kafkaProducerByteArrayKeyFactory(KafkaProperties properties) {
         logger.info("kafka {}:{}", ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getBootstrapServers());
