@@ -64,7 +64,7 @@ public class AgentEventDataCollector extends DataCollector {
             return;
         }
 
-        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
 
         for (String agentId : agentIds) {
             List<AgentEventBo> agentEventBoList = agentEventDao.getAgentEvents(agentId, range, Collections.emptySet());

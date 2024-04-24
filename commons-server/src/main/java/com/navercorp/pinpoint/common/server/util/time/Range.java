@@ -64,20 +64,20 @@ public final class Range {
         return Range.between(toTimestamp - durationMillis, toTimestamp);
     }
 
-    public static Range reverse(long from, long to) {
-        return reverse(toInstant(from), toInstant(to));
+    public static Range unchecked(long from, long to) {
+        return unchecked(toInstant(from), toInstant(to));
     }
 
-    public static Range reverse(Instant from, Instant to) {
+    public static Range unchecked(Instant from, Instant to) {
         return new Range(from, to);
     }
 
     /**
-     * @deprecated Since 3.0.0 Use {@link #reverse(long, long)}
+     * @deprecated Since 3.0.0 Use {@link #unchecked(long, long)}
      */
     @Deprecated
     public static Range newUncheckedRange(long from, long to) {
-        return reverse(from, to);
+        return unchecked(from, to);
     }
 
     public long getFrom() {
@@ -119,6 +119,7 @@ public final class Range {
             throw new IllegalArgumentException("invalid range:" + this);
         }
     }
+
 
     @Override
     public boolean equals(Object o) {

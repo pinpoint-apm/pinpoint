@@ -122,7 +122,7 @@ public class ScatterChartController {
         final int limit = LimitUtils.checkRange(limitParam);
 
         // TODO: range check verification exception occurs. "from" is bigger than "to"
-        final Range range = Range.reverse(from, to);
+        final Range range = Range.unchecked(from, to);
         logger.debug(
                 "fetch scatter data. RANGE: {}, X-Group-Unit: {}, Y-Group-Unit: {}, LIMIT: {}, " +
                         "BACKWARD_DIRECTION: {}, FILTER: {}",

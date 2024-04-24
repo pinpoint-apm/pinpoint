@@ -56,7 +56,7 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
 
     @Override
     public void collect() {
-        Range range = Range.reverse(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
         List<AgentFieldUsage> agentFieldUsageList = alarmDao.selectSumGroupByField(application.getName(), METRIC_NAME, fieldList, range);
         Map<String, AgentHeapUsage> agentHeapUsageMap = new HashMap<>();
 
