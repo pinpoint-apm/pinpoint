@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,14 +27,13 @@ public final class DatabaseInfoUtils {
     private DatabaseInfoUtils() {
     }
 
-    public static DatabaseInfo getDatabaseInfo(Object target, DatabaseInfo defaultDatabaseInfo) {
+    public static MongoDatabaseInfo getDatabaseInfo(Object target, MongoDatabaseInfo defaultDatabaseInfo) {
         if (target instanceof DatabaseInfoAccessor) {
             final DatabaseInfo databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
-            if (databaseInfo != null) {
-                return databaseInfo;
+            if (databaseInfo instanceof MongoDatabaseInfo) {
+                return (MongoDatabaseInfo) databaseInfo;
             }
         }
         return defaultDatabaseInfo;
     }
-
 }
