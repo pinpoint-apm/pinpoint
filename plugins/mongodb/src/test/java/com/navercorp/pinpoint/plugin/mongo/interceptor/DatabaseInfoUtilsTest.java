@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
+import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,10 +34,10 @@ public class DatabaseInfoUtilsTest {
     @Test
     public void getDatabaseInfo() {
         DatabaseInfoAccessor databaseInfoAccessor = mock(DatabaseInfoAccessor.class);
-        DatabaseInfo defaultDatabaseInfo = mock(DatabaseInfo.class);
+        DatabaseInfo defaultDatabaseInfo = mock(MongoDatabaseInfo.class);
         when(databaseInfoAccessor._$PINPOINT$_getDatabaseInfo()).thenReturn(defaultDatabaseInfo);
 
-        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, UnKnownDatabaseInfo.MONGO_INSTANCE);
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
 
         Assertions.assertEquals(databaseInfo, defaultDatabaseInfo);
     }
@@ -46,15 +47,15 @@ public class DatabaseInfoUtilsTest {
         DatabaseInfoAccessor databaseInfoAccessor = mock(DatabaseInfoAccessor.class);
         when(databaseInfoAccessor._$PINPOINT$_getDatabaseInfo()).thenReturn(null);
 
-        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, UnKnownDatabaseInfo.MONGO_INSTANCE);
-        Assertions.assertEquals(databaseInfo, UnKnownDatabaseInfo.MONGO_INSTANCE);
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
+        Assertions.assertEquals(databaseInfo, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
     }
 
     @Test
     public void getDatabaseInfo_unknown() {
-        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(new Object(), UnKnownDatabaseInfo.MONGO_INSTANCE);
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(new Object(), MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
 
-        Assertions.assertEquals(databaseInfo, UnKnownDatabaseInfo.MONGO_INSTANCE);
+        Assertions.assertEquals(databaseInfo, MongoConstants.UNKNOWN_MONGO_DATABASE_INFO);
     }
 
 }
