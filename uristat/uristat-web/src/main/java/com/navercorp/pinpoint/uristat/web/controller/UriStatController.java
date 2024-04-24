@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.metric.common.model.Range;
 import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.uristat.web.service.UriStatSummaryService;
 import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
 import com.navercorp.pinpoint.uristat.web.view.UriStatView;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,28 +45,29 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping(value = "/uriStat")
 public class UriStatController {
-    private static final long MAX_TIME_RANGE = TimeUnit.DAYS.toMillis(28);
     private final UriStatSummaryService uriStatService;
     private final TenantProvider tenantProvider;
     private final UriStatChartService uriStatChartService;
     private final UriStatChartTypeFactory chartTypeFactory;
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
+    private final RangeValidator rangeValidator;
 
     public UriStatController(UriStatSummaryService uriStatService,
                              UriStatChartService uriStatChartService,
                              TenantProvider tenantProvider,
-                             UriStatChartTypeFactory chartTypeFactory) {
+                             UriStatChartTypeFactory chartTypeFactory,
+                             @Qualifier("rangeValidator30d") RangeValidator rangeValidator) {
         this.uriStatService = Objects.requireNonNull(uriStatService);
         this.uriStatChartService = Objects.requireNonNull(uriStatChartService);
         this.chartTypeFactory = Objects.requireNonNull(chartTypeFactory);
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
+        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
     }
 
-    private void checkTimeRange(long from, long to) {
-        long timeDifferenceInMillis = to - from;
-        if (timeDifferenceInMillis > MAX_TIME_RANGE) {
-            throw new IllegalArgumentException("Search duration may not be greater than 28 days.");
-        }
+    private Range checkTimeRange(long from, long to) {
+        Range range = Range.newRange(from, to);
+        rangeValidator.validate(range.getFromInstant(), range.getToInstant());
+        return range;
     }
 
     @GetMapping("summary")
@@ -77,12 +80,12 @@ public class UriStatController {
             @RequestParam("isDesc") boolean isDesc,
             @RequestParam("count") int count
     ) {
-        checkTimeRange(from, to);
+        Range range = checkTimeRange(from, to);
         UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
-                .setRange(Range.newRange(from, to))
+                .setRange(range)
                 .setOrderby(column)
                 .setDesc(isDesc)
                 .setLimit(count)
@@ -103,12 +106,12 @@ public class UriStatController {
             @RequestParam("from") long from,
             @RequestParam("to") long to
     ) {
-        checkTimeRange(from, to);
+        Range range = checkTimeRange(from, to);
         UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
-                .setRange(Range.newRange(from, to))
+                .setRange(range)
                 .build();
 
         if (query.isApplicationStat()) {
@@ -128,8 +131,8 @@ public class UriStatController {
             @RequestParam("to") long to,
             @RequestParam(value = "type", required = false) String type
     ) {
-        checkTimeRange(from, to);
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        Range range = checkTimeRange(from, to);
+        TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
         UriStatChartQueryParameter query = new UriStatChartQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
                 .setApplicationName(applicationName)
