@@ -16,22 +16,20 @@
 
 package com.navercorp.pinpoint.inspector.collector.dao.pinot;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
+import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicNameManager;
+import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicNameManager.AgentStatTopic;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
-import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStatV2;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import org.apache.kafka.common.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -48,68 +46,60 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     private final BiFunction<List<T>, String, List<AgentStat>> convertToKafkaAgentStatModelFunction;
     private final Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStatModelFunction;
     private final KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate;
-    private final KafkaTemplate<byte[], AgentStatV2> kafkaAgentStatV2Template;
+    private final KafkaTemplate<String, AgentStat> kafkaAgentStatV2Template;
     private final KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate;
-    private final String agentStatTopic;
-    private final String agentStatTopicV2;
-    private final String applicationStatTopic;
+    private final String agentStatTopicName;
+    private final int agentStatTopicCount;
+    private final String applicationStatTopicName;
     private final TenantProvider tenantProvider;
-    private final HashFunction hashFunction = Hashing.murmur3_128();
 
-    public DefaultAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<byte[], AgentStatV2> kafkaAgentStatV2Template, KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, BiFunction<List<T>, String, List<AgentStat>> convertToKafkaAgentStatModelFunction, Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStatModelFunction, String agentStatTopic, String applicationStatTopic, TenantProvider tenantProvider) {
+    public DefaultAgentStatDao(Function<AgentStatBo,
+                               List<T>> dataPointFunction,
+                               KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate,
+                               KafkaTemplate<String, AgentStat> kafkaAgentStatV2Template,
+                               KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate,
+                               BiFunction<List<T>, String, List<AgentStat>> convertToKafkaAgentStatModelFunction,
+                               Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStatModelFunction,
+                               String agentStatTopicName,
+                               int agentStatTopicCount,
+                               String applicationStatTopicName,
+                               TenantProvider tenantProvider) {
         this.dataPointFunction = Objects.requireNonNull(dataPointFunction, "dataPointFunction");
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
-        this.kafkaAgentStatV2Template = Objects.requireNonNull(kafkaAgentStatV2Template, "kafkaAgentStatTemplate");
+        this.kafkaAgentStatV2Template = Objects.requireNonNull(kafkaAgentStatV2Template, "kafkaAgentStatV2Template");
         this.kafkaApplicationStatTemplate = Objects.requireNonNull(kafkaApplicationStatTemplate, "kafkaApplicationStatTemplate");
         this.convertToKafkaAgentStatModelFunction = Objects.requireNonNull(convertToKafkaAgentStatModelFunction, "convertToKafkaAgentStatModelFunction");
         this.convertToKafkaApplicationStatModelFunction = Objects.requireNonNull(convertToKafkaApplicationStatModelFunction, "convertToKafkaApplicationStatModelFunction");
-        this.agentStatTopic = Objects.requireNonNull(agentStatTopic, "agentStatTopic");
-        this.agentStatTopicV2 = Objects.requireNonNull(agentStatTopic + "-v2", "agentStatTopicV2");
-        this.applicationStatTopic = Objects.requireNonNull(applicationStatTopic, "applicationStatTopic");
+        this.agentStatTopicName = StringPrecondition.requireHasLength(agentStatTopicName, "agentStatTopic");
+        this.agentStatTopicCount = agentStatTopicCount;
+        this.applicationStatTopicName = StringPrecondition.requireHasLength(applicationStatTopicName, "applicationStatTopic");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
     @Override
-    public void insert(String agentId, List<T> agentStatData) {
+    public void insert(String applicationName, String agentId, List<T> agentStatData) {
         List<AgentStat> agentStatList = convertToKafkaAgentStatModel(agentStatData);
         for (AgentStat agentStat : agentStatList) {
-            kafkaAgentStatTemplate.send(agentStatTopic, agentStat.getSortKey(), agentStat);
+            kafkaAgentStatTemplate.send(agentStatTopicName, agentStat.getSortKey(), agentStat);
         }
 
-//After completing the performance comparison, temporarily comment out the code.
-//        List<AgentStatV2> agentStatV2List = convertToKafkaAgentStatV2Model(agentStatList);
-//        byte[] kafkaKey = generateKafkaKey(agentStatV2List);
-//        for (AgentStatV2 agentStatV2 : agentStatV2List) {
-//            kafkaAgentStatV2Template.send(agentStatTopicV2, kafkaKey, agentStatV2);
-//        }
+
+        String topicName = getAgentStatTopicName(applicationName);
+        for (AgentStat agentStat : agentStatList) {
+            kafkaAgentStatV2Template.send(topicName, agentStat.getSortKey(), agentStat);
+        }
 
         List<ApplicationStat> applicationStatList = convertToKafkaApplicationStatModel(agentStatList);
         for (ApplicationStat applicationStat : applicationStatList) {
-            kafkaApplicationStatTemplate.send(applicationStatTopic, applicationStat.getSortKey(), applicationStat);
+            kafkaApplicationStatTemplate.send(applicationStatTopicName, applicationStat.getSortKey(), applicationStat);
         }
 
     }
 
-    private byte[] generateKafkaKey(List<AgentStatV2> agentStatV2List) {
-        if (agentStatV2List.isEmpty()) {
-            return new byte[0];
-        }
-
-        return agentStatV2List.get(0).getSortKey().toString().getBytes(StandardCharsets.UTF_8);
-    }
-
-    private List<AgentStatV2> convertToKafkaAgentStatV2Model(List<AgentStat> agentStatList) {
-        if (agentStatList.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<AgentStatV2> agentStatV2List = new ArrayList<>(agentStatList.size());
-        Long sortKey = hashFunction.hashString(agentStatList.get(0).getSortKey(), StandardCharsets.UTF_8).asLong();
-        for (AgentStat agentStat : agentStatList) {
-            agentStatV2List.add(new AgentStatV2(agentStat, sortKey));
-        }
-
-        return agentStatV2List;
+    private String getAgentStatTopicName(String applicationName) {
+        int hashValue = Utils.toPositive(Utils.murmur2(applicationName.getBytes())) % agentStatTopicCount;
+        AgentStatTopic agentStatTopic = AgentStatTopicNameManager.getAgentStatTopic(hashValue);
+        return agentStatTopic.getTopicName();
     }
 
     private List<AgentStat> convertToKafkaAgentStatModel(List<T> AgentStatDataPointList) {
@@ -125,6 +115,6 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     public void dispatch(AgentStatBo agentStatBo) {
         Objects.requireNonNull(agentStatBo, "agentStatBo");
         List<T> dataPointList = this.dataPointFunction.apply(agentStatBo);
-        insert(agentStatBo.getAgentId(), dataPointList);
+        insert(agentStatBo.getApplicationName(), agentStatBo.getAgentId(), dataPointList);
     }
 }

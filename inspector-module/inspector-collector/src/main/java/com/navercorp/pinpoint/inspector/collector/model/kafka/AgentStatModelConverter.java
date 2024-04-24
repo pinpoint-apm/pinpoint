@@ -344,15 +344,13 @@ public class AgentStatModelConverter<T extends AgentStatDataPoint> {
                                     new Tag(DATASOUCE_TAG_JDBC_URL_KEY, dataSourceBo.getJdbcUrl())
                                 );
 
-                                String jsonTags = TagListSerializer.serialize(tags);
-
                                 AgentStat activeConnectionSize = new AgentStat(tenantId, sortKey, dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(),
                                         AgentStatType.DATASOURCE.getChartType(), AgentStatField.DATASOURCE_ACTIVE_CONNECTION_SIZE.getFieldName(),
-                                        dataSourceBo.getActiveConnectionSize(), dataSourceListBo.getTimestamp(), tags, jsonTags);
+                                        dataSourceBo.getActiveConnectionSize(), dataSourceListBo.getTimestamp(), tags);
 
                                 AgentStat maxConnectionSize = new AgentStat(tenantId, sortKey, dataSourceListBo.getApplicationName(), dataSourceListBo.getAgentId(),
                                         AgentStatType.DATASOURCE.getChartType(), AgentStatField.DATASOURCE_MAX_CONNECTION_SIZE.getFieldName(),
-                                        dataSourceBo.getMaxConnectionSize(), dataSourceListBo.getTimestamp(), tags, jsonTags);
+                                        dataSourceBo.getMaxConnectionSize(), dataSourceListBo.getTimestamp(), tags);
 
                                 builder.add(activeConnectionSize);
                                 builder.add(maxConnectionSize);
