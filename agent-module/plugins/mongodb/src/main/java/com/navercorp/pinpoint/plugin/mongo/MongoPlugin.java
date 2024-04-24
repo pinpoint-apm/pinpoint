@@ -57,6 +57,7 @@ import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientConstructorInt
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientGetDatabaseInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientImplConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientImplGetDatabaseInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientV4ConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientsInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCollectionImplConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCollectionImplReadOperationInterceptor;
@@ -238,7 +239,7 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             // MongoClient(final MongoClientSettings settings, @Nullable final MongoClientOptions options, @Nullable final MongoDriverInformation mongoDriverInformation)
             final InstrumentMethod constructorMethod13 = target.getConstructor("com.mongodb.MongoClientSettings", "com.mongodb.MongoClientOptions", "com.mongodb.MongoDriverInformation");
             if (constructorMethod13 != null) {
-                constructorMethod13.addInterceptor(MongoClientConstructorInterceptor.class);
+                constructorMethod13.addInterceptor(MongoClientV4ConstructorInterceptor.class);
             }
 
             final InstrumentMethod getDatabaseMethod = target.getDeclaredMethod("getDatabase", "java.lang.String");
