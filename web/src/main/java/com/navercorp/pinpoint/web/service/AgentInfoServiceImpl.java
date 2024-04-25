@@ -55,6 +55,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
@@ -65,7 +66,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -225,11 +225,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         Instant now = DateTimeUtils.epochMilli();
-        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, now.toEpochMilli());
+        Instant before = now.minus(Duration.ofHours(1));
+        Range fastRange = Range.between(before, now);
 
-        Instant from =  now.minus(durationDays);
-        final long fromTimestamp = from.toEpochMilli();
-        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
+        Instant queryFrom =  now.minus(durationDays);
+        Instant queryTo = before.plusMillis(1);
+        Range queryRange = Range.between(queryFrom, queryTo);
 
         List<String> activeAgentIdList = new ArrayList<>();
         for (String agentId : agentIds) {

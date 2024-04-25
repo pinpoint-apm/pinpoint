@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -12,17 +13,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ApdexScoreServiceImplTest {
-    private static final long MINUTES_MILLIS = 60 * 1000;
 
     private final Application testApplication = new Application("testApplication", ServiceType.STAND_ALONE);
     private final List<String> agentIdList = List.of("agentId1", "agentId2", "agentId3");
@@ -32,12 +34,13 @@ public class ApdexScoreServiceImplTest {
 
     @BeforeEach
     public void mockResponseDao() {
-        long endTimestamp = (System.currentTimeMillis() / MINUTES_MILLIS) * MINUTES_MILLIS;
-        testRange = Range.newRange(TimeUnit.MINUTES, 5, endTimestamp);
+        Instant endTimestamp = DateTimeUtils.epochMilli().truncatedTo(ChronoUnit.MINUTES);
+        testRange = Range.between(endTimestamp.minus(Duration.ofMinutes(5)), endTimestamp);
 
         List<ResponseTime> responseTimeList = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
-            responseTimeList.add(createResponseTime(endTimestamp - (MINUTES_MILLIS * i)));
+            Instant timestamp = endTimestamp.minus(Duration.ofMinutes(i));
+            responseTimeList.add(createResponseTime(timestamp.toEpochMilli()));
         }
 
         MapResponseDao mapResponseDao = mock(MapResponseDao.class);
