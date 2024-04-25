@@ -27,10 +27,10 @@ import java.io.IOException;
  */
 public class TimeCountSerializer extends JsonSerializer<ResponseTimeViewModel.TimeCount> {
     @Override
-    public void serialize(ResponseTimeViewModel.TimeCount value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(ResponseTimeViewModel.TimeCount count, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartArray();
-        jgen.writeNumber(value.getTime());
-        jgen.writeNumber(value.getCount());
+        jgen.writeNumber(count.time());
+        jgen.writeNumber(count.count());
         jgen.writeEndArray();
     }
 }

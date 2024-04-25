@@ -88,44 +88,15 @@ public class HeatMapController {
         return Dot.Status.FAILED;
     }
 
-    public static class ResultView {
-        private final List<DotMetaDataView> metaDataList;
-        private final PagingStatus status;
-
-        public ResultView(List<DotMetaDataView> metaDataList, PagingStatus status) {
-            this.metaDataList = Objects.requireNonNull(metaDataList, "metaDataList");
-            this.status = Objects.requireNonNull(status, "status");
-        }
-
-        public List<DotMetaDataView> getMetadata() {
-            return metaDataList;
-        }
-
+    public record ResultView(List<DotMetaDataView> metadata, PagingStatus status) {
         @JsonUnwrapped
-        public PagingStatus getStatus() {
+        public PagingStatus status() {
             return status;
         }
     }
 
-
-    public static class PagingStatus {
-        private final boolean complete;
-        private final long resultFrom;
-
-        public PagingStatus(boolean complete, long resultFrom) {
-            this.complete = complete;
-            this.resultFrom = resultFrom;
-        }
-
-        public boolean getComplete() {
-            return complete;
-        }
-
-        public long getResultFrom() {
-            return resultFrom;
-        }
+    public record PagingStatus(boolean complete, long resultFrom) {
     }
-
 
     @GetMapping(value = "/get")
     public HeatMapController.HeatMapViewModel getHeatMapData(

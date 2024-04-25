@@ -169,39 +169,6 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
         return acceptApplicationCache.computeIfAbsent(cacheKey, acceptApplicationCacheKey -> acceptApplications);
     }
 
-    private static class AcceptApplicationCacheKey {
-        private final Application application;
-        private final Range range;
-
-        private AcceptApplicationCacheKey(Application application, Range range) {
-            this.application = application;
-            this.range = range;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            AcceptApplicationCacheKey cacheKey = (AcceptApplicationCacheKey) o;
-
-            if (application != null ? !application.equals(cacheKey.application) : cacheKey.application != null)
-                return false;
-            return range != null ? range.equals(cacheKey.range) : cacheKey.range == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = application != null ? application.hashCode() : 0;
-            result = 31 * result + (range != null ? range.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "CacheKey{" + "application=" + application +
-                    ", range=" + range +
-                    '}';
-        }
+    private record AcceptApplicationCacheKey(Application application, Range range) {
     }
 }

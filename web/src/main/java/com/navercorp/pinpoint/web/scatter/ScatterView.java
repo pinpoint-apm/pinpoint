@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.web.scatter;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-
 import java.util.Objects;
 
 public class ScatterView {
@@ -12,24 +11,15 @@ public class ScatterView {
         return new ResultView(dotView, status);
     }
 
-    public static class ResultView {
+    public record ResultView(DotView dotView, Status status) {
 
-        private final DotView dotViewV1;
-
-        private final Status status;
-
-        public ResultView(DotView dotViewV1, Status status) {
-            this.dotViewV1 = Objects.requireNonNull(dotViewV1, "dotResultV1");
-            this.status = Objects.requireNonNull(status, "status");
+        @JsonUnwrapped
+        public DotView dotView() {
+            return dotView;
         }
 
         @JsonUnwrapped
-        public DotView getDotView() {
-            return dotViewV1;
-        }
-
-        @JsonUnwrapped
-        public Status getStatus() {
+        public Status status() {
             return status;
         }
     }

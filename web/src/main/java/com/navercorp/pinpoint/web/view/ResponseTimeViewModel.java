@@ -45,24 +45,8 @@ public class ResponseTimeViewModel implements TimeViewModel {
         return columnValue;
     }
 
-    @JsonSerialize(using=TimeCountSerializer.class)
-    public static class TimeCount {
-
-        private final long time;
-        private final long count;
-
-        public TimeCount(long time, long count) {
-            this.time = time;
-            this.count = count;
-        }
-
-        public long getTime() {
-            return time;
-        }
-
-        public long getCount() {
-            return count;
-        }
+    @JsonSerialize(using = TimeCountSerializer.class)
+    public record TimeCount(long time, long count) {
     }
 
 }

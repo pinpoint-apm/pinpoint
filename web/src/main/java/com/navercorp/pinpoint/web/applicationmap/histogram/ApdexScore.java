@@ -15,23 +15,9 @@ public class ApdexScore {
 
     private final double apdexScore;
 
-    @JsonProperty
     private final ApdexFormula apdexFormula;
 
-    private static class ApdexFormula {
-
-        @JsonProperty
-        private final long satisfiedCount;
-        @JsonProperty
-        private final long toleratingCount;
-        @JsonProperty
-        private final long totalSamples;
-
-        public ApdexFormula(long satisfiedCount, long toleratingCount, long totalSamples) {
-            this.satisfiedCount = satisfiedCount;
-            this.toleratingCount = toleratingCount;
-            this.totalSamples = totalSamples;
-        }
+    public record ApdexFormula(long satisfiedCount, long toleratingCount, long totalSamples) {
     }
 
     public static double toDoubleFromHistogram(Histogram histogram) {
@@ -79,6 +65,10 @@ public class ApdexScore {
         return this.apdexScore;
     }
 
+    @JsonProperty
+    public ApdexFormula getApdexFormula() {
+        return apdexFormula;
+    }
 
     @Override
     public String toString() {

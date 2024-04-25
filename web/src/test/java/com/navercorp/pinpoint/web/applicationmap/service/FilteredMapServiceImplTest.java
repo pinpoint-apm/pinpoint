@@ -355,14 +355,14 @@ public class FilteredMapServiceImplTest {
                 for (ResponseTimeViewModel.TimeCount expectedTimeCount : expectedTimeCounts) {
                     boolean expectedTimeCountExists = false;
                     for (ResponseTimeViewModel.TimeCount actualTimeCount : histogram.getColumnValue()) {
-                        if (expectedTimeCount.getTime() == actualTimeCount.getTime()) {
+                        if (expectedTimeCount.time() == actualTimeCount.time()) {
                             expectedTimeCountExists = true;
-                            Assertions.assertEquals(expectedTimeCount.getCount(), actualTimeCount.getCount(), "TimeCount mismatch for slot : " + slotName);
+                            Assertions.assertEquals(expectedTimeCount.count(), actualTimeCount.count(), "TimeCount mismatch for slot : " + slotName);
                             break;
                         }
                     }
                     if (!expectedTimeCountExists) {
-                        fail("Expected TimeCount for " + slotName + " not found, time : " + expectedTimeCount.getTime() + ", count : " + expectedTimeCount.getCount());
+                        fail("Expected TimeCount for " + slotName + " not found, time : " + expectedTimeCount.time() + ", count : " + expectedTimeCount.count());
                     }
                 }
                 return;

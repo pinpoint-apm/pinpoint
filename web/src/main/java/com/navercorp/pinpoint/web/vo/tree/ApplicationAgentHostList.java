@@ -129,7 +129,7 @@ public class ApplicationAgentHostList {
         private List<ApplicationInfo> buildApplicationInfo(Map<String, List<AgentHost>> map) {
             List<ApplicationInfo> applications = map.entrySet().stream()
                     .map(Builder::newApplication)
-                    .sorted(Comparator.comparing(ApplicationInfo::getApplicationName))
+                    .sorted(Comparator.comparing(ApplicationInfo::applicationName))
                     .collect(Collectors.toList());
             return applications;
         }
@@ -139,58 +139,16 @@ public class ApplicationAgentHostList {
             String applicationName = entry.getKey();
 
             List<AgentHost> agentHosts = entry.getValue();
-            agentHosts.sort(Comparator.comparing(AgentHost::getAgentId));
+            agentHosts.sort(Comparator.comparing(AgentHost::agentId));
 
             return new ApplicationInfo(applicationName, agentHosts);
         }
     }
 
-    public static class ApplicationInfo {
-        private final String applicationName;
-        private final List<AgentHost> agents;
-
-        public ApplicationInfo(String applicationName, List<AgentHost> agents) {
-            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-            this.agents = Objects.requireNonNull(agents, "agents");
-        }
-
-        public String getApplicationName() {
-            return applicationName;
-        }
-
-        public List<AgentHost> getAgents() {
-            return agents;
-        }
+    public record ApplicationInfo(String applicationName, List<AgentHost> agents) {
     }
 
-    public static class AgentHost {
-        private final String agentId;
-        private final String hostName;
-        private final String ip;
-        private final String serviceType;
-
-        public AgentHost(String agentId, String hostName, String ip, String serviceType) {
-            this.agentId = Objects.requireNonNull(agentId, "agentId");
-            this.hostName = Objects.requireNonNull(hostName, "hostName");
-            this.ip = Objects.requireNonNull(ip, "ip");
-            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
-        }
-
-        public String getAgentId() {
-            return agentId;
-        }
-
-        public String getHostName() {
-            return hostName;
-        }
-
-        public String getIp() {
-            return ip;
-        }
-
-        public String getServiceType() {
-            return serviceType;
-        }
+    public record AgentHost(String agentId, String hostName, String ip, String serviceType) {
     }
 
 }
