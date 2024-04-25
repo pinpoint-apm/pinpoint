@@ -1,11 +1,24 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroup;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
+import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
+import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.view.tree.StaticTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.ApplicationPair;
+import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
@@ -13,15 +26,21 @@ import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.tree.InstancesList;
+import com.navercorp.pinpoint.web.vo.tree.InstancesListMap;
 import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,11 +53,22 @@ import java.util.Optional;
 @Validated
 public class AgentListController {
     private final AgentInfoService agentInfoService;
-
+    private final ServiceTypeRegistryService registry;
+    private final ApplicationFactory applicationFactory;
+    private final ResponseTimeHistogramService responseTimeHistogramService;
     private final SortByAgentInfo.Rules DEFAULT_SORT_BY = SortByAgentInfo.Rules.AGENT_ID_ASC;
 
-    public AgentListController(AgentInfoService agentInfoService) {
+    public AgentListController(
+            AgentInfoService agentInfoService,
+            ServiceTypeRegistryService registry,
+            ApplicationFactory applicationFactory,
+            ResponseTimeHistogramService responseTimeHistogramService
+    ) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.registry = Objects.requireNonNull(registry, "registry");
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.responseTimeHistogramService =
+                Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
     }
 
     @GetMapping(value = "/search-all")
@@ -71,13 +101,14 @@ public class AgentListController {
     @GetMapping(value = "/search-application", params = {"application"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
         final long timestamp = System.currentTimeMillis();
         final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
                 AgentStatusFilters.running(),
-                AgentInfoFilters.exactServiceTypeName(serviceTypeName),
+                AgentInfoFilters.exactServiceType(serviceTypeCode, serviceTypeName),
                 applicationName,
                 Range.between(timestamp, timestamp),
                 paramSortBy
@@ -88,19 +119,99 @@ public class AgentListController {
     @GetMapping(value = "/search-application", params = {"application", "from", "to"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy) {
+            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy
+    ) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
         final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
                 AgentStatusFilters.recentRunning(from),
-                AgentInfoFilters.exactServiceTypeName(serviceTypeName),
+                AgentInfoFilters.exactServiceType(serviceTypeCode, serviceTypeName),
                 applicationName,
                 Range.between(from, to),
                 paramSortBy
         );
         return treeView(list);
+    }
+
+    @GetMapping(value = "/search-application", params = {"application", "from", "to", "applicationPairs"})
+    public TreeView<InstancesList<AgentStatusAndLink>> getAgentsListWithVirtualNodes(
+            @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy,
+            @RequestParam(value = "applicationPairs", required = false) ApplicationPairs applicationPairs
+    ) {
+        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+        if (serviceType.isWas()) {
+            return getAgentsList(
+                    applicationName, serviceTypeCode, serviceTypeName, from, to, sortBy
+            );
+        }
+
+        final Application application = applicationFactory.createApplication(applicationName, serviceType.getCode());
+
+        final List<Application> fromApplications =
+                pairsToList(applicationPairs.getFromApplications());
+        final List<Application> toApplications =
+                pairsToList(applicationPairs.getToApplications());
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
+                .Builder(application, Range.between(from, to),
+                fromApplications, toApplications)
+                .build();
+
+        final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(
+                option
+        );
+
+        final AgentsMapByHost list = extractVirtualNode(nodeHistogramSummary);
+        return treeView(list);
+    }
+
+    private List<Application> pairsToList(List<ApplicationPair> applicationPairs) {
+        if (CollectionUtils.isEmpty(applicationPairs)) {
+            return Collections.emptyList();
+        }
+        final List<Application> applications = new ArrayList<>(applicationPairs.size());
+        for (ApplicationPair applicationPair : applicationPairs) {
+            final String applicationName = applicationPair.getApplicationName();
+            final short serviceTypeCode = applicationPair.getServiceTypeCode();
+            final Application application = this.applicationFactory.createApplication(applicationName, serviceTypeCode);
+            applications.add(application);
+        }
+        return applications;
+    }
+
+    private AgentsMapByHost extractVirtualNode(NodeHistogramSummary nodeHistogramSummary) {
+        List<InstancesList<AgentStatusAndLink>> listMap = new ArrayList<>();
+        List<ServerGroup> groups = nodeHistogramSummary.getServerGroupList().getServerGroupList();
+        for (ServerGroup group : groups) {
+            List<AgentStatusAndLink> agents = new ArrayList<>();
+            for (ServerInstance instance : group.getInstanceList()) {
+                AgentInfo agentInfo = new AgentInfo();
+                agentInfo.setAgentId(instance.getName());
+                agentInfo.setAgentName(instance.getAgentName());
+                agentInfo.setServiceType(instance.getServiceType());
+
+                AgentStatus agentStatus = new AgentStatus(instance.getName(), instance.getStatus(), 0);
+
+                agents.add(
+                        new AgentStatusAndLink(
+                                agentInfo,
+                                agentStatus,
+                                group.getLinkList()
+                        )
+                );
+            }
+            InstancesList<AgentStatusAndLink> instancesList = new InstancesList<>(group.getHostName(), agents);
+
+            listMap.add(instancesList);
+        }
+        return new AgentsMapByHost(new InstancesListMap<AgentStatusAndLink>(listMap));
     }
 
     private static TreeView<InstancesList<AgentStatusAndLink>> treeView(AgentsMapByHost agentsMapByHost) {

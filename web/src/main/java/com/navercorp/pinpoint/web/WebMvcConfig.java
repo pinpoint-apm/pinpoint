@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.web.interceptor.AdminAuthInterceptor;
+import com.navercorp.pinpoint.web.vo.ApplicationPairsConverter;
 import com.navercorp.pinpoint.web.vo.tree.SortByRequestConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -125,5 +126,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         WebMvcConfigurer.super.addFormatters(registry);
         registry.addConverter(new SortByRequestConverter());
+        registry.addConverter(new ApplicationPairsConverter());
     }
 }

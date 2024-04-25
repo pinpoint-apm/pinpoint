@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.vo.agent;
 
+import java.util.Objects;
+
 /**
  * @author youngjin.kim2
  */
@@ -26,11 +28,8 @@ public class AgentInfoFilters {
         return ACCEPT_ALL;
     }
 
-    public static AgentInfoFilter exactServiceTypeName(String serviceTypeName) {
-        if (serviceTypeName == null) {
-            return ACCEPT_ALL;
-        }
-        return new ExactServiceTypeName(serviceTypeName);
+    public static AgentInfoFilter exactServiceType(Short serviceTypeCode, String serviceTypeName) {
+        return new ExactServiceType(serviceTypeCode, serviceTypeName);
     }
 
     private static class AcceptAll implements AgentInfoFilter {
@@ -40,13 +39,20 @@ public class AgentInfoFilters {
         }
     }
 
-    private record ExactServiceTypeName(String serviceTypeName) implements AgentInfoFilter {
+    private record ExactServiceType(Short serviceTypeCode, String serviceTypeName) implements AgentInfoFilter {
         @Override
         public boolean test(AgentInfo agentInfo) {
             if (agentInfo == null) {
                 return false;
             }
-            return agentInfo.getServiceType().getName().equals(serviceTypeName);
+            if (serviceTypeCode != null) {
+                return agentInfo.getServiceType().getCode() == serviceTypeCode;
+            }
+            if (serviceTypeName != null) {
+                return Objects.equals(agentInfo.getServiceType().getName(), serviceTypeName);
+            }
+            // pass when given conditions are null
+            return true;
         }
     }
 

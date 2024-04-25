@@ -22,7 +22,7 @@ public class AgentsMapByHost {
     private static final Comparator<String> CONTAINER_GOES_UP = Comparator.comparing((String s) -> !s.equals(CONTAINER))
             .thenComparing(Comparator.naturalOrder());
 
-    private AgentsMapByHost(InstancesListMap<AgentStatusAndLink> instancesListMap) {
+    public AgentsMapByHost(InstancesListMap<AgentStatusAndLink> instancesListMap) {
         this.instancesListMap = Objects.requireNonNull(instancesListMap, "agentsListMap");
     }
 

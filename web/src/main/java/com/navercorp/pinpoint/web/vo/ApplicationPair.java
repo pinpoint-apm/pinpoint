@@ -47,10 +47,9 @@ public class ApplicationPair {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ApplicationPair{");
-        sb.append("applicationName='").append(applicationName).append('\'');
-        sb.append(", serviceTypeCode=").append(serviceTypeCode);
-        sb.append('}');
-        return sb.toString();
+        return "ApplicationPair{" +
+                "applicationName='" + applicationName + '\'' +
+                ", serviceTypeCode=" + serviceTypeCode +
+                '}';
     }
 }
