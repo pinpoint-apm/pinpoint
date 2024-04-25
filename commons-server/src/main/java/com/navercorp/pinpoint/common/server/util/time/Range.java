@@ -55,6 +55,10 @@ public final class Range {
         return range;
     }
 
+    /**
+     * @deprecated Since 3.0.0 Use {@link #between(Instant, Instant)}
+     */
+    @Deprecated
     public static Range newRange(TimeUnit timeUnit, long duration, long toTimestamp) {
         Assert.isTrue(duration > 0, "duration must be '> 0'");
         Assert.isTrue(toTimestamp > 0, "toTimestamp must be '> 0'");
