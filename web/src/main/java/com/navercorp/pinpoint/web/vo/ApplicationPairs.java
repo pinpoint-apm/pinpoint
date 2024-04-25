@@ -54,10 +54,9 @@ public class ApplicationPairs {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ApplicationPairs{");
-        sb.append("fromApplications=").append(fromApplications);
-        sb.append(", toApplications=").append(toApplications);
-        sb.append('}');
-        return sb.toString();
+        return "ApplicationPairs{" +
+                "fromApplications=" + fromApplications +
+                ", toApplications=" + toApplications +
+                '}';
     }
 }
