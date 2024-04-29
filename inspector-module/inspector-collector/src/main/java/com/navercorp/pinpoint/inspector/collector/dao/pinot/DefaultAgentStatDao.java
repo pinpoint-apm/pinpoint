@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.collector.dao.pinot;
 
-import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicNameManager;
-import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicNameManager.AgentStatTopic;
+import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicAndTableNameManager;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
@@ -25,7 +24,6 @@ import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import org.apache.kafka.common.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -84,7 +82,7 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
         }
 
 
-        String topicName = getAgentStatTopicName(applicationName);
+        String topicName = AgentStatTopicAndTableNameManager.getAgentStatTopicName(applicationName, agentStatTopicCount);
         for (AgentStat agentStat : agentStatList) {
             kafkaAgentStatV2Template.send(topicName, agentStat.getSortKey(), agentStat);
         }
@@ -94,12 +92,6 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
             kafkaApplicationStatTemplate.send(applicationStatTopicName, applicationStat.getSortKey(), applicationStat);
         }
 
-    }
-
-    private String getAgentStatTopicName(String applicationName) {
-        int hashValue = Utils.toPositive(Utils.murmur2(applicationName.getBytes())) % agentStatTopicCount;
-        AgentStatTopic agentStatTopic = AgentStatTopicNameManager.getAgentStatTopic(hashValue);
-        return agentStatTopic.getTopicName();
     }
 
     private List<AgentStat> convertToKafkaAgentStatModel(List<T> AgentStatDataPointList) {

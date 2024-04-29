@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.inspector.web;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.navercorp.pinpoint.common.server.config.YamlConfiguration;
+import com.navercorp.pinpoint.inspector.web.config.InspectorPropertySources;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebPinotDaoConfiguration;
+import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
 import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +45,7 @@ import java.io.InputStream;
         "com.navercorp.pinpoint.inspector.web.service",
 })
 @Import({
+        InspectorPropertySources.class,
         InspectorWebPinotDaoConfiguration.class,
         YamlConfiguration.class
 })
@@ -67,6 +70,11 @@ public class InspectorWebConfig {
         InputStream stream = inspectorMetric.getInputStream();
 
         return mapper.readValue(stream, Mappings.class);
+    }
+
+    @Bean
+    public InspectorWebProperties inspectorWebProperties() {
+        return new InspectorWebProperties();
     }
 
 }
