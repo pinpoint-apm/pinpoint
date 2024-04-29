@@ -32,26 +32,28 @@ import java.util.Objects;
 public class InspectorQueryParameterV2 {
 
     private final String tenantId;
+    private final String tableName;
     private final String applicationName;
+    private final String sortKey;
     private final String agentId;
     private final String metricName;
     private final String fieldName;
     private final List<Tag> tagList;
-
     private final Range range;
     private final TimePrecision timePrecision;
     private final long limit;
 
-    private final long sortKey;
 
-    public InspectorQueryParameterV2(InspectorDataSearchKey inspectorDataSearchKey, long sortKey, String metricName, String fieldName) {
-        this(inspectorDataSearchKey, sortKey, metricName, fieldName, Collections.emptyList());
+
+    public InspectorQueryParameterV2(InspectorDataSearchKey inspectorDataSearchKey, String tableName, String sortKey, String metricName, String fieldName) {
+        this(inspectorDataSearchKey, tableName, sortKey, metricName, fieldName, Collections.emptyList());
     }
 
-    public InspectorQueryParameterV2(InspectorDataSearchKey inspectorDataSearchKey, long sortKey, String metricName, String fieldName, List<Tag> tagList) {
+    public InspectorQueryParameterV2(InspectorDataSearchKey inspectorDataSearchKey, String tableName, String sortKey, String metricName, String fieldName, List<Tag> tagList) {
         Objects.requireNonNull(inspectorDataSearchKey, "inspectorDataSearchKey");
 
         this.tenantId = inspectorDataSearchKey.getTenantId();
+        this.tableName = tableName;
         this.sortKey = sortKey;
         this.applicationName = inspectorDataSearchKey.getApplicationName();
         this.agentId = inspectorDataSearchKey.getAgentId();
@@ -65,6 +67,10 @@ public class InspectorQueryParameterV2 {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 
     public String getAgentId() {
@@ -99,15 +105,30 @@ public class InspectorQueryParameterV2 {
         return applicationName;
     }
 
-    public long getSortKey() {
+    public String getSortKey() {
         return sortKey;
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InspectorQueryParameterV2 that = (InspectorQueryParameterV2) o;
+        return limit == that.limit && Objects.equals(tenantId, that.tenantId) && Objects.equals(tableName, that.tableName) && Objects.equals(applicationName, that.applicationName) && Objects.equals(sortKey, that.sortKey) && Objects.equals(agentId, that.agentId) && Objects.equals(metricName, that.metricName) && Objects.equals(fieldName, that.fieldName) && Objects.equals(tagList, that.tagList) && Objects.equals(range, that.range) && Objects.equals(timePrecision, that.timePrecision);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tenantId, tableName, applicationName, sortKey, agentId, metricName, fieldName, tagList, range, timePrecision, limit);
+    }
+
+    @Override
     public String toString() {
-        return "InspectorQueryParameter{" +
+        return "InspectorQueryParameterV2{" +
                 "tenantId='" + tenantId + '\'' +
+                ", tableName='" + tableName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
+                ", sortKey='" + sortKey + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
@@ -115,12 +136,6 @@ public class InspectorQueryParameterV2 {
                 ", range=" + range +
                 ", timePrecision=" + timePrecision +
                 ", limit=" + limit +
-                ", sortKey='" + sortKey + '\'' +
                 '}';
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(tenantId, applicationName, agentId, metricName, fieldName, tagList, range, timePrecision, limit, sortKey);
     }
 }

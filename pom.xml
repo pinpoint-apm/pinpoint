@@ -177,6 +177,7 @@
         <spring.security.version>6.1.8</spring.security.version>
         <spring-boot2.version>2.7.13</spring-boot2.version>
         <spring.kafka.version>3.0.13</spring.kafka.version>
+        <kafka.client.version>3.3.2</kafka.client.version>
 
         <spring.version>${spring6.version}</spring.version>
         <spring-boot.version>${spring-boot3.version}</spring-boot.version>
@@ -1595,6 +1596,12 @@
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
                 <version>6.3.2.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.client.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

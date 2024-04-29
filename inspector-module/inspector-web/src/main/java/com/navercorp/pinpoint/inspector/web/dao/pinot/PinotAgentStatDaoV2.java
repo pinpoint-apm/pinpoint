@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.inspector.web.dao.pinot;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicAndTableNameManager;
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
+import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameterV2;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
@@ -44,40 +46,38 @@ import java.util.concurrent.CompletableFuture;
 public class PinotAgentStatDaoV2 implements AgentStatDao {
 
     private static final String NAMESPACE = PinotAgentStatDaoV2.class.getName() + ".";
-    private final HashFunction hashFunction = Hashing.murmur3_128();
-
     private final PinotAsyncTemplate asyncTemplate;
     private final SqlSessionTemplate syncTemplate;
+    private final int agentStatTopicCount;
 
-
-
-
-    public PinotAgentStatDaoV2(@Qualifier("inspectorPinotAsyncTemplate") PinotAsyncTemplate asyncTemplate, @Qualifier("inspectorPinotTemplate") SqlSessionTemplate syncTemplate) {
+    public PinotAgentStatDaoV2(@Qualifier("inspectorPinotAsyncTemplate") PinotAsyncTemplate asyncTemplate, @Qualifier("inspectorPinotTemplate") SqlSessionTemplate syncTemplate, InspectorWebProperties inspectorWebProperties) {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
         this.syncTemplate = Objects.requireNonNull(syncTemplate, "syncTemplate");
+        Objects.requireNonNull(inspectorWebProperties, "inspectorWebProperties");
+        this.agentStatTopicCount = inspectorWebProperties.getAgentStatTopicCount();
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxData", inspectorQueryParameter);
     }
 
     @Override
     public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumData", inspectorQueryParameter);
     }
 
     @Override
     public List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName());
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName());
         return syncTemplate.selectList(NAMESPACE + "selectTagInfo", inspectorQueryParameter);
     }
 
@@ -85,13 +85,16 @@ public class PinotAgentStatDaoV2 implements AgentStatDao {
     public TagInformation getTagInfoContainedSpecificTag(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field, Tag tag) {
         List<Tag> tagList = new ArrayList<Tag>();
         tagList.add(tag);
-        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), tagList);
+        InspectorQueryParameterV2 inspectorQueryParameter = new InspectorQueryParameterV2(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), tagList);
 
         return syncTemplate.selectOne(NAMESPACE + "selectTagInfoContainedSpecificTag", inspectorQueryParameter);
     }
 
-    private long generateKeyForAgentStat(InspectorDataSearchKey inspectorDataSearchKey, String metricName) {
-        String sortKey = SortKeyUtils.generateKeyForAgentStat(inspectorDataSearchKey.getApplicationName(), inspectorDataSearchKey.getAgentId(), metricName);
-        return hashFunction.hashString(sortKey, StandardCharsets.UTF_8).asLong();
+    private String generateKeyForAgentStat(InspectorDataSearchKey inspectorDataSearchKey, String metricName) {
+        return SortKeyUtils.generateKeyForAgentStat(inspectorDataSearchKey.getApplicationName(), inspectorDataSearchKey.getAgentId(), metricName);
+    }
+
+    private String getTableName(InspectorDataSearchKey inspectorDataSearchKey) {
+        return AgentStatTopicAndTableNameManager.getAgentStatTableName(inspectorDataSearchKey.getApplicationName(), agentStatTopicCount);
     }
 }
