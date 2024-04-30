@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-@PluginTest
+@PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.oracle.database.jdbc:ojdbc8:[19,19.9)", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
 @SharedDependency({"com.oracle.database.jdbc:ojdbc8:23.2.0.0", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
