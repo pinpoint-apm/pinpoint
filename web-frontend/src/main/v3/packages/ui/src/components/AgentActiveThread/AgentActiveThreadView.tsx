@@ -15,6 +15,7 @@ import {
 import { cn } from '../../lib';
 import { useSearchParameters } from '@pinpoint-fe/hooks';
 import { RxExternalLink, RxDrawingPinFilled, RxDrawingPin } from 'react-icons/rx';
+import { BASE_PATH } from '@pinpoint-fe/constants';
 
 export interface AgentActiveThreadViewProps {
   applicationLocked?: boolean;
@@ -197,7 +198,7 @@ export const AgentActiveThreadView = ({
                       className="text-muted-foreground p-0 w-4 h-4 mr-1.5"
                       variant="ghost"
                       onClick={() => {
-                        window.open(`${getThreadDumpPath(application)}?agentId=${key}`);
+                        window.open(`${BASE_PATH}${getThreadDumpPath(application)}?agentId=${key}`);
                       }}
                     >
                       <RxExternalLink />
