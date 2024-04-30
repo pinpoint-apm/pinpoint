@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test.plugin.shared;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.tinylog.TaggedLogger;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -37,6 +38,8 @@ public class SharedTestExecutor {
     private final ExecutorService executor;
     private final String testClazzName;
     private final ClassLoader testClassLoader;
+    private Class<?> sharedTestLifeCycleClass;
+    private Object sharedTestLifeCycleObject;
 
     private volatile SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper;
 
@@ -59,12 +62,12 @@ public class SharedTestExecutor {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.warn("{} interrupt error {}", action, testClazzName, e);
-            throw new IllegalStateException(action + " interrupt error "  + testClazzName, e);
+            throw new IllegalStateException(action + " interrupt error " + testClazzName, e);
         } catch (ExecutionException e) {
             logger.warn("{} execution error {}", action, testClazzName, e);
-            throw new IllegalStateException(action + " execution error "  + testClazzName, e);
+            throw new IllegalStateException(action + " execution error " + testClazzName, e);
         } catch (TimeoutException e) {
-            logger.warn("{} timeout {}", action,  testClazzName);
+            logger.warn("{} timeout {}", action, testClazzName);
             // testcase interrupt
             future.cancel(true);
             throw new IllegalStateException(action + " timeout " + testClazzName);
@@ -83,19 +86,22 @@ public class SharedTestExecutor {
 
 
     private void beforeAll() {
-        Class<?> testClazz = loadClass();
-
-        logger.debug("Execute testClazz:{} cl:{}", testClazz.getName(), testClazz.getClassLoader());
-
-        sharedTestLifeCycleWrapper = SharedTestLifeCycleWrapper.newSharedTestLifeCycleWrapper(testClazz);
-        if (sharedTestLifeCycleWrapper != null) {
-            sharedTestLifeCycleWrapper.beforeAll();
+        try {
+            this.sharedTestLifeCycleClass = loadClass();
+            this.sharedTestLifeCycleObject = sharedTestLifeCycleClass.newInstance();
+            Method method = sharedTestLifeCycleClass.getMethod("beforeAll");
+            method.invoke(this.sharedTestLifeCycleObject);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     private void afterAll() {
-        if (sharedTestLifeCycleWrapper != null) {
-            sharedTestLifeCycleWrapper.afterAll();
+        try {
+            Method method = sharedTestLifeCycleClass.getMethod("afterAll");
+            method.invoke(this.sharedTestLifeCycleObject);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

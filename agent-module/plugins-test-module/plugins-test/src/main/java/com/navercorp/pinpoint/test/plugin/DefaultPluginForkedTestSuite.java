@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.ConfigurationProperties;
@@ -27,13 +28,9 @@ import org.tinylog.TaggedLogger;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,6 +48,8 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
 
     private final String[] repositories;
     private final String[] dependencies;
+    private final Class<?> sharedClass;
+    private final String[] sharedDependencies;
 
     private final String libraryPath;
     private final String[] librarySubDirs;
@@ -76,18 +75,13 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
         this.classLoding = getClassLoding(onClassLoader);
 
-        Set<String> dependenySet = new HashSet<>();
         Dependency deps = testClass.getAnnotation(Dependency.class);
-        if(deps != null) {
-            dependenySet.addAll(Arrays.asList(deps.value()));
-        }
-        SharedDependency sharedDependency = testClass.getAnnotation(SharedDependency.class);
-        if(sharedDependency != null) {
-            dependenySet.addAll(Arrays.asList(sharedDependency.value()));
-        }
-        this.dependencies = dependenySet.toArray(new String[dependenySet.size()]);
+        this.dependencies = deps == null ? null : deps.value();
+        SharedTestLifeCycleClass sharedTestLifeCycleClass = testClass.getAnnotation(SharedTestLifeCycleClass.class);
+        this.sharedClass = sharedTestLifeCycleClass == null ? null : sharedTestLifeCycleClass.value();
+        SharedDependency sharedDeps = testClass.getAnnotation(SharedDependency.class);
+        this.sharedDependencies = sharedDeps == null ? null : sharedDeps.value();
         TestRoot lib = testClass.getAnnotation(TestRoot.class);
-
         if (lib == null) {
             this.libraryPath = null;
             this.librarySubDirs = null;
@@ -121,14 +115,28 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
 
     @Override
     protected List<PluginForkedTestInstance> createTestCases(PluginForkedTestContext context) throws Exception {
-        if (dependencies != null) {
-            return createSharedCasesWithDependencies(context);
-        }
-        return createCasesWithJdkOnly(context);
+        return createSharedCasesWithDependencies(context);
     }
 
     private List<PluginForkedTestInstance> createSharedCasesWithDependencies(PluginForkedTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
         DependencyResolver resolver = getDependencyResolver(this.repositories);
+        List<String> sharedLibs = new ArrayList<>();
+        sharedLibs.add(context.getTestClassLocation());
+        sharedLibs.addAll(context.getSharedLibraries());
+        if (sharedDependencies != null) {
+            Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(sharedDependencies);
+            for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
+                final String testId = artifactEntry.getKey();
+                final List<Artifact> artifacts = artifactEntry.getValue();
+                try {
+                    sharedLibs.addAll(resolveArtifactsAndDependencies(resolver, artifacts));
+                } catch (DependencyResolutionException ignored) {
+                    logger.warn(ignored, "resolveArtifactsAndDependencies failed testId={}", testId);
+                }
+            }
+        }
+        final String sharedClassName = sharedClass == null ? null : sharedClass.getName();
+        SharedProcessManager sharedProcessManager = new SharedProcessManager(context, sharedClassName, sharedLibs);
 
         Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(dependencies);
         if (logger.isDebugEnabled()) {
@@ -136,9 +144,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
                 logger.debug("{} {}", entry.getKey(), entry.getValue());
             }
         }
-
         List<PluginForkedTestInstance> cases = new ArrayList<>();
-        SharedProcessManager sharedProcessManager = new SharedProcessManager(context);
         for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
             final String testId = artifactEntry.getKey();
             final List<Artifact> artifacts = artifactEntry.getValue();
@@ -175,10 +181,4 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         }
         return new SharedPluginForkedTestInstance(context, testId, libs, false, sharedProcessManager);
     }
-
-    private List<PluginForkedTestInstance> createCasesWithJdkOnly(PluginForkedTestContext context) throws ClassNotFoundException {
-        DefaultPluginForkedTestInstance testInstance = new DefaultPluginForkedTestInstance(context, "", Collections.emptyList(), classLoding);
-        return Collections.singletonList(testInstance);
-    }
-
 }

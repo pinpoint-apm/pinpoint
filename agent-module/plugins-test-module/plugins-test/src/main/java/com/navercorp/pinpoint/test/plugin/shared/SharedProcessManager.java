@@ -52,11 +52,15 @@ public class SharedProcessManager implements ProcessManager {
 
     private final PluginForkedTestContext context;
     private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<>();
+    private final String sharedClassName;
+    private final List<String> sharedLibs;
 
     private Process process = null;
 
-    public SharedProcessManager(PluginForkedTestContext context) {
+    public SharedProcessManager(PluginForkedTestContext context, String sharedClassName, List<String> sharedLibs) {
         this.context = Objects.requireNonNull(context, "context");
+        this.sharedClassName = sharedClassName;
+        this.sharedLibs = sharedLibs;
     }
 
     @Override
@@ -150,6 +154,13 @@ public class SharedProcessManager implements ProcessManager {
 
         final String mavenDependencyResolverClassPaths = join(context.getMavenDependencyLibraries());
         option.addSystemProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS, mavenDependencyResolverClassPaths);
+        if (sharedLibs != null) {
+            final String sharedDependencyResolverClassPaths = join(sharedLibs);
+            option.addSystemProperty(SharedPluginTestConstants.SHARED_DEPENDENCY_RESOLVER_CLASS_PATHS, sharedDependencyResolverClassPaths);
+        }
+        if (sharedClassName != null) {
+            option.addSystemProperty(SharedPluginTestConstants.SHARED_CLASS_NAME, sharedClassName);
+        }
         final String repositoryUrlString = join(context.getRepositoryUrls());
         option.addSystemProperty(SharedPluginTestConstants.TEST_REPOSITORY_URLS, repositoryUrlString);
         option.addSystemProperty(SharedPluginTestConstants.TEST_LOCATION, context.getTestClassLocation());

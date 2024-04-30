@@ -40,7 +40,6 @@ public class OracleServer implements SharedTestLifeCycle {
 
 //        System.setProperty("DB_NAME", oracle.getDatabaseName());
         System.setProperty("DB_ADDRESS", oracle.getHost());
-
         return DatabaseContainers.toProperties(oracle);
     }
 
