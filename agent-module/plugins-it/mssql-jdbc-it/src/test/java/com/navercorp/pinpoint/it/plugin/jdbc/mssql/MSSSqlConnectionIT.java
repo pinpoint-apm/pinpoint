@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.PluginTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
@@ -54,7 +54,7 @@ import java.util.Properties;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@PluginForkedTest
+@PluginTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.microsoft.sqlserver:mssql-jdbc:[7.0.0.jre8]", PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
 @PinpointConfig("pinpoint-mssql.config")

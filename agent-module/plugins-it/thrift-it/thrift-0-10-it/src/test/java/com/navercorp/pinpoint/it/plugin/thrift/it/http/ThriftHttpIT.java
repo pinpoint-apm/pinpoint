@@ -26,13 +26,13 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.PluginTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author HyunGil Jeong
  */
-@PluginForkedTest
+@PluginTest
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @Dependency({ ThriftVersion.VERSION_0_09, "org.eclipse.jetty:jetty-server:9.2.11.v20150529",

@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 @Dependency({"com.oracle.database.jdbc:ojdbc10:[19,19.9)", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
 @JvmVersion(11)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-oracle-jdbc-driver-plugin")
-@SharedDependency({"com.oracle.database.jdbc:ojdbc8:19.9.0.0", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
+@SharedDependency({"com.oracle.database.jdbc:ojdbc8:23.2.0.0", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
 @SharedTestLifeCycleClass(OracleServer19x.class)
 public class Oracle19_Ojdbc10_IT_ConnectWithGssCredential_IT extends Oracle_IT_Base {
     private final Logger logger = LogManager.getLogger(Oracle19_Ojdbc10_IT_ConnectWithGssCredential_IT.class);

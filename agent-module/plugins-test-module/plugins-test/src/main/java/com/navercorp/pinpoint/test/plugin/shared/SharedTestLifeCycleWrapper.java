@@ -10,21 +10,9 @@ public class SharedTestLifeCycleWrapper {
     private final SharedTestLifeCycle sharedTestLifecycle;
     private Properties lifeCycleResult;
 
-    private static Class<? extends SharedTestLifeCycle> getSharedTestLifeCycle(final Class<?> testClazz) {
-        SharedTestLifeCycleClass sharedTestLifeCycleClass = testClazz.getAnnotation(SharedTestLifeCycleClass.class);
-        if (sharedTestLifeCycleClass == null) {
-            return null;
-        }
-        return sharedTestLifeCycleClass.value();
-    }
-
     public static SharedTestLifeCycleWrapper newSharedTestLifeCycleWrapper(final Class<?> testClazz) {
-        Class<? extends SharedTestLifeCycle> versionTestClazz = getSharedTestLifeCycle(testClazz);
-        if (versionTestClazz == null) {
-            return null;
-        }
         try {
-            return new SharedTestLifeCycleWrapper(versionTestClazz.newInstance());
+            return new SharedTestLifeCycleWrapper((SharedTestLifeCycle) testClazz.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

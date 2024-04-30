@@ -15,7 +15,7 @@ public final class PluginClassLoading {
             "hamcrest", // for JUnit
             "assertj-core",
             "pinpoint-plugins-test", // pinpoint-test-{VERSION}.jar
-            Paths.get("agent-module", "plugins-test", "target", "classes").toString(),
+            Paths.get("agent-module", "plugins-test-module", "plugins-test", "target", "classes").toString(),
 //            "/test/target/classes", // pinpoint-test build output directory
             Paths.get("testcase", "target", "classes").toString(),
             "pinpoint-testcase",
@@ -28,8 +28,29 @@ public final class PluginClassLoading {
             "tinylog-impl",
     };
 
+    private static final String[] CLASS_PATHS_TO_SHARED = new String[]{
+            "junit", // JUnit
+            "opentest4",
+            "hamcrest", // for JUnit
+            "assertj-core",
+            "pinpoint-plugins-test", // pinpoint-test-{VERSION}.jar
+            Paths.get("agent-module", "plugins-test-module", "plugins-test", "target", "classes").toString(),
+//            "/test/target/classes", // pinpoint-test build output directory
+            Paths.get("testcase", "target", "classes").toString(),
+            "pinpoint-testcase",
+//            "/testcase/target/classes",
+            // logger for bootstrap classloader
+            "tinylog-api",
+            "tinylog-impl",
+    };
+
+
     public static String[] getContainsCheckClassPath() {
         return CLASS_PATHS_TO_CHECK_AS_CONTAINS;
+    }
+
+    public static String[] getContainsCheckSharedClassPath() {
+        return CLASS_PATHS_TO_SHARED;
     }
 
     private static final String[] CLASS_PATHS_TO_CHECK_AS_GLOB_MATCHES = new String[]{
@@ -55,7 +76,7 @@ public final class PluginClassLoading {
             "guava",
             "plexus",
             "pinpoint-plugins-test",
-            Paths.get("agent-module", "plugins-test", "target", "classes").toString(),
+            Paths.get("agent-module", "plugins-test-module", "plugins-test", "target", "classes").toString(),
 //            "/test/target/classes", // pinpoint-test build output directory
 
             // logger for child classloader

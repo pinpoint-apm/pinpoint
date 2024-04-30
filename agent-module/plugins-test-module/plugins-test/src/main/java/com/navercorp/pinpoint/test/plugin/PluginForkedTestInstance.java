@@ -16,25 +16,5 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import java.io.File;
-import java.util.List;
-import java.util.Scanner;
-
-public interface PluginForkedTestInstance {
-    String getTestId();
-
-    List<String> getClassPath();
-
-    List<String> getVmArgs();
-
-    String getMainClass();
-
-    List<String> getAppArgs();
-
-    File getWorkingDirectory();
-
-    Scanner startTest() throws Throwable;
-
-    void endTest() throws Throwable;
-
+public interface PluginForkedTestInstance extends PinpointPluginTestInstance {
 }

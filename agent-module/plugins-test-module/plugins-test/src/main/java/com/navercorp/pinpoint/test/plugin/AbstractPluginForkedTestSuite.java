@@ -58,6 +58,7 @@ public abstract class AbstractPluginForkedTestSuite {
     private final boolean debug;
     private final Class<?> testClass;
     private final List<String> importPluginIds;
+    private final List<String> sharedLibList;
 
     protected abstract List<PluginForkedTestInstance> createTestCases(PluginForkedTestContext context) throws Exception;
 
@@ -110,9 +111,10 @@ public abstract class AbstractPluginForkedTestSuite {
                 logger.debug("mavenDependencyLibraries: {}", mavenDependencyLibrary);
             }
         }
-
+        final LibraryFilter sharedLibraryFilter = new LibraryFilter(
+                LibraryFilter.createContainsMatcher(PluginClassLoading.getContainsCheckSharedClassPath()));
+        this.sharedLibList = filterLibs(libs, sharedLibraryFilter);
         this.testClassLocation = resolveTestClassLocation(testClass);
-
         this.debug = isDebugMode();
     }
 
@@ -381,7 +383,7 @@ public abstract class AbstractPluginForkedTestSuite {
                 }
 
                 PluginForkedTestContext context = new PluginForkedTestContext(agentJar, profile,
-                        configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, repositoryUrls,
+                        configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, sharedLibList, repositoryUrls,
                         testClass, testClassLocation,
                         jvmArguments, debug, ver, javaExe, importPluginIds, null, true, null);
 

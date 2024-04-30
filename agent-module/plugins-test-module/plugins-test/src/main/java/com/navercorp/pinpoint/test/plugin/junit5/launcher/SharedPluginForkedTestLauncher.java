@@ -65,6 +65,8 @@ public class SharedPluginForkedTestLauncher {
             logger.error("mavenDependencyResolverClassPaths must not be empty");
             return;
         }
+        final String sharedDependencyResolverClassPaths = System.getProperty(SharedPluginTestConstants.SHARED_DEPENDENCY_RESOLVER_CLASS_PATHS);
+        final String sharedClazzName = System.getProperty(SharedPluginTestConstants.SHARED_CLASS_NAME);
 
         final String repositoryUrlString = System.getProperty(SharedPluginTestConstants.TEST_REPOSITORY_URLS);
         if (repositoryUrlString == null) {
@@ -104,30 +106,41 @@ public class SharedPluginForkedTestLauncher {
         }
 
         String[] mavenDependencyResolverClassPathArray = mavenDependencyResolverClassPaths.split(File.pathSeparator);
+        String[] sharedDependencyResolverClassPathArray = null;
+        if (sharedDependencyResolverClassPaths != null) {
+            sharedDependencyResolverClassPathArray = sharedDependencyResolverClassPaths.split(File.pathSeparator);
+        }
+
         String[] repositoryUrls = repositoryUrlString.split(",");
         TestParameterParser parser = new TestParameterParser();
         List<TestParameter> testParameters = parser.parse(args);
         SharedPluginForkedTestLauncher pluginTest = new SharedPluginForkedTestLauncher(testClazzName, testLocation, testLogger,
-                mavenDependencyResolverClassPathArray, repositoryUrls, testParameters, System.out);
+                mavenDependencyResolverClassPathArray, sharedClazzName, sharedDependencyResolverClassPathArray, repositoryUrls, testParameters, System.out);
         pluginTest.execute();
-
     }
 
     private final String testClazzName;
     private final String testLocation;
     private final boolean testLogger;
     private final String[] mavenDependencyResolverClassPaths;
+    private final String sharedClazzName;
+    private final String[] sharedDependencyResolverClassPaths;
     private final String[] repositoryUrls;
     private final List<TestParameter> testParameters;
     private final PrintStream out;
 
     public SharedPluginForkedTestLauncher(String testClazzName, String testLocation, boolean testLogger,
-                                          String[] mavenDependencyResolverClassPaths, String[] repositoryUrls,
+                                          String[] mavenDependencyResolverClassPaths,
+                                          String sharedClassName,
+                                          String[] sharedDependencyResolverClassPaths,
+                                          String[] repositoryUrls,
                                           List<TestParameter> testParameters, PrintStream out) {
         this.testClazzName = testClazzName;
         this.testLocation = testLocation;
         this.testLogger = testLogger;
         this.mavenDependencyResolverClassPaths = mavenDependencyResolverClassPaths;
+        this.sharedClazzName = sharedClassName;
+        this.sharedDependencyResolverClassPaths = sharedDependencyResolverClassPaths;
         this.repositoryUrls = repositoryUrls;
         this.testParameters = testParameters;
         this.out = out;
@@ -224,19 +237,22 @@ public class SharedPluginForkedTestLauncher {
             return;
         }
 
-        TestInfo firstTestInfo = testInfos.get(0);
-        final ClassLoader sharedClassLoader = createTestClassLoader(firstTestInfo);
-        SharedTestExecutor sharedTestExecutor = new SharedTestExecutor(testClazzName, sharedClassLoader);
+        SharedTestExecutor sharedTestExecutor = null;
+        SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper = null;
+        if (sharedClazzName != null && sharedDependencyResolverClassPaths != null) {
+            final ClassLoader sharedClassLoader = new ChildFirstClassLoader(URLUtils.fileToUrls(sharedDependencyResolverClassPaths));
+            sharedTestExecutor = new SharedTestExecutor(sharedClazzName, sharedClassLoader);
+            sharedTestExecutor.startBefore(10, TimeUnit.MINUTES);
+            sharedTestLifeCycleWrapper = sharedTestExecutor.getSharedClassWrapper();
+        }
 
-        sharedTestExecutor.startBefore(10, TimeUnit.MINUTES);
-
-
-        final SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper = sharedTestExecutor.getSharedClassWrapper();
         for (TestInfo testInfo : testInfos) {
             execute(testInfo, sharedTestLifeCycleWrapper);
         }
 
-        sharedTestExecutor.startAfter(5, TimeUnit.MINUTES);
+        if (sharedTestLifeCycleWrapper != null) {
+            sharedTestExecutor.startAfter(5, TimeUnit.MINUTES);
+        }
     }
 
     private ClassLoader createTestClassLoader(TestInfo testInfo) {
@@ -259,16 +275,14 @@ public class SharedPluginForkedTestLauncher {
                 public void run() {
                     final Class<?> testClazz = loadClass();
                     boolean manageTraceObject = !testClazz.isAnnotationPresent(TraceObjectManagable.class);
-
                     SharedTestBeforeAllInvoker invoker = new SharedTestBeforeAllInvoker(testClazz);
                     try {
-                        if(sharedTestLifeCycleWrapper != null) {
+                        if (sharedTestLifeCycleWrapper != null) {
                             invoker.invoke(sharedTestLifeCycleWrapper.getLifeCycleResult());
                         }
                     } catch (Throwable th) {
                         logger.error(th, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
                     }
-
                     try {
                         listener.executionStarted();
                         LauncherConfig launcherConfig = LauncherConfig.builder()

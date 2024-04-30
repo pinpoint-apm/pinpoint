@@ -28,6 +28,8 @@ public class PluginForkedTestContext {
 
     private final List<String> requiredLibraries;
     private final List<String> mavenDependencyLibraries;
+    private final List<String> sharedLibraries;
+
     private final List<String> repositoryUrls;
     private final Class<?> testClass;
     private final String testClassLocation;
@@ -44,14 +46,14 @@ public class PluginForkedTestContext {
     private final boolean manageTraceObject;
 
     public PluginForkedTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
-                                   List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> repositoryUrls,
+                                   List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> sharedLibraries, List<String> repositoryUrls,
                                    Class<?> testClass, String testClassLocation, List<String> jvmArguments,
                                    boolean debug, List<String> importPluginIds, List<String> pluginLibList, boolean manageTraceObject, List<String> transformIncludeList) {
-        this(agentJar, profile, configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, repositoryUrls, testClass, testClassLocation, jvmArguments, debug, -1, "", importPluginIds, pluginLibList, manageTraceObject, transformIncludeList);
+        this(agentJar, profile, configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, sharedLibraries, repositoryUrls, testClass, testClassLocation, jvmArguments, debug, -1, "", importPluginIds, pluginLibList, manageTraceObject, transformIncludeList);
     }
 
     public PluginForkedTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
-                                   List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> repositoryUrls,
+                                   List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> sharedLibraries, List<String> repositoryUrls,
                                    Class<?> testClass, String testClassLocation, List<String> jvmArguments,
                                    boolean debug, int jvmVersion,
                                    String javaExecutable, List<String> importPluginIds, List<String> pluginLibList, boolean manageTraceObject, List<String> transformIncludeList) {
@@ -61,6 +63,7 @@ public class PluginForkedTestContext {
         this.logLocationConfig = logLocationConfig;
         this.requiredLibraries = requiredLibraries;
         this.mavenDependencyLibraries = mavenDependencyLibraries;
+        this.sharedLibraries = sharedLibraries;
         this.repositoryUrls = repositoryUrls;
         this.testClass = testClass;
         this.testClassLocation = testClassLocation;
@@ -80,6 +83,10 @@ public class PluginForkedTestContext {
 
     public List<String> getMavenDependencyLibraries() {
         return mavenDependencyLibraries;
+    }
+
+    public List<String> getSharedLibraries() {
+        return sharedLibraries;
     }
 
     public List<String> getRepositoryUrls() {
@@ -144,13 +151,14 @@ public class PluginForkedTestContext {
 
     @Override
     public String toString() {
-        return "PluginTestContext{" +
+        return "PluginForkedTestContext{" +
                 "agentJar='" + agentJar + '\'' +
                 ", profile='" + profile + '\'' +
                 ", configFile='" + configFile + '\'' +
                 ", logLocationConfig='" + logLocationConfig + '\'' +
                 ", requiredLibraries=" + requiredLibraries +
                 ", mavenDependencyLibraries=" + mavenDependencyLibraries +
+                ", sharedLibraries=" + sharedLibraries +
                 ", repositoryUrls=" + repositoryUrls +
                 ", testClass=" + testClass +
                 ", testClassLocation='" + testClassLocation + '\'' +
@@ -160,6 +168,7 @@ public class PluginForkedTestContext {
                 ", javaExecutable='" + javaExecutable + '\'' +
                 ", importPluginIds=" + importPluginIds +
                 ", pluginLibList=" + pluginLibList +
+                ", transformIncludeList=" + transformIncludeList +
                 ", manageTraceObject=" + manageTraceObject +
                 '}';
     }
