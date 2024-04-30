@@ -22,12 +22,17 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.plugin.spring.tx.SpringTxConfig;
 import com.navercorp.pinpoint.plugin.spring.tx.SpringTxConstants;
 
 public class ReactiveTransactionSupportInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
+    private final boolean markError;
+
     public ReactiveTransactionSupportInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        final SpringTxConfig config = new SpringTxConfig(traceContext.getProfilerConfig());
+        this.markError = config.isMarkError();
     }
 
     @Override
@@ -37,7 +42,7 @@ public class ReactiveTransactionSupportInterceptor extends SpanEventSimpleAround
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordServiceType(SpringTxConstants.SPRING_TX);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
         recorder.recordApi(methodDescriptor);
 
         if (throwable != null) {
