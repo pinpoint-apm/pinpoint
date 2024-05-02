@@ -24,9 +24,9 @@ import io.grpc.Metadata;
  */
 public class LogAgentHeader {
 
-    public static Metadata.Key<String> HOST_GROUP_NAME_KEY = keyOf("hostgroupname");
-    public static Metadata.Key<String> HOST_NAME_KEY = keyOf("hostname");
-    public static Metadata.Key<String> FILE_NAME_KEY = keyOf("filename");
+    public static final Metadata.Key<String> HOST_GROUP_NAME_KEY = keyOf("hostgroupname");
+    public static final Metadata.Key<String> HOST_NAME_KEY = keyOf("hostname");
+    public static final Metadata.Key<String> FILE_NAME_KEY = keyOf("filename");
 
     public static final Context.Key<LogAgentHeader> LOG_AGENT_HEADER_KEY = Context.key("logagentheader");
 
