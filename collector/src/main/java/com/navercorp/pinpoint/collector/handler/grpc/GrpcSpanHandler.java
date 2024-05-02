@@ -21,7 +21,8 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.sampler.Sampler;
 import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
 import com.navercorp.pinpoint.collector.service.TraceService;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.hbase.RequestNotPermittedException;
+import com.navercorp.pinpoint.common.profiler.logging.LogSampler;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
@@ -52,7 +53,8 @@ import java.util.Objects;
 public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final Logger logger = LogManager.getLogger(getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getLogger(logger, 1000);
+    private final LogSampler infoLog = new LogSampler(1000);
+    private final LogSampler warnLog = new LogSampler(100);
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceService[] traceServices;
@@ -95,15 +97,17 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
             if (isDebug) {
                 logger.debug("unsampled PSpan={}", createSimpleSpanLog(span));
             } else {
-                tLogger.info("unsampled PSpan={}", createSimpleSpanLog(span));
+                infoLog.log(() -> logger.info("unsampled PSpan={}", createSimpleSpanLog(span)));
             }
             return;
         }
         for (TraceService traceService : traceServices) {
             try {
                 traceService.insertSpan(spanBo);
+            } catch (RequestNotPermittedException notPermitted) {
+                warnLog.log((c) -> logger.warn("Failed to handle Span RequestNotPermitted:{} {}", notPermitted.getMessage(), c));
             } catch (Throwable e) {
-                logger.warn("Failed to handle span={}", MessageFormatUtils.debugLog(span), e);
+                logger.warn("Failed to handle Span={}", MessageFormatUtils.debugLog(span), e);
             }
         }
     }

@@ -6,7 +6,8 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.sampler.Sampler;
 import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
 import com.navercorp.pinpoint.collector.service.TraceService;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.hbase.RequestNotPermittedException;
+import com.navercorp.pinpoint.common.profiler.logging.LogSampler;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
@@ -36,7 +37,8 @@ import java.util.Objects;
 public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final Logger logger = LogManager.getLogger(getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getLogger(logger, 1000);
+    private final LogSampler infoLog = new LogSampler(1000);
+    private final LogSampler warnLog = new LogSampler(100);
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceService[] traceServices;
@@ -81,15 +83,17 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
             if (isDebug) {
                 logger.debug("unsampled PSpanChunk={}", createSimpleSpanChunkLog(spanChunk));
             } else {
-                tLogger.info("unsampled PSpanChunk={}", createSimpleSpanChunkLog(spanChunk));
+                infoLog.log(() -> logger.info("unsampled PSpanChunk={}", createSimpleSpanChunkLog(spanChunk)));
             }
             return;
         }
         for (TraceService traceService : traceServices) {
             try {
                 traceService.insertSpanChunk(spanChunkBo);
-            } catch (Exception e) {
-                logger.warn("Failed to handle spanChunk={}", MessageFormatUtils.debugLog(spanChunk), e);
+            } catch (RequestNotPermittedException notPermitted) {
+                warnLog.log(c -> logger.warn("Failed to handle SpanChunk RequestNotPermitted:{} {}", notPermitted.getMessage(), c));
+            } catch (Throwable e) {
+                logger.warn("Failed to handle SpanChunk={}", MessageFormatUtils.debugLog(spanChunk), e);
             }
         }
     }
