@@ -83,7 +83,11 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
             if (isDebug) {
                 logger.debug("unsampled PSpanChunk={}", createSimpleSpanChunkLog(spanChunk));
             } else {
-                infoLog.log(() -> logger.info("unsampled PSpanChunk={}", createSimpleSpanChunkLog(spanChunk)));
+                infoLog.log(() -> {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("unsampled PSpanChunk={}", createSimpleSpanChunkLog(spanChunk));
+                    }
+                });
             }
             return;
         }

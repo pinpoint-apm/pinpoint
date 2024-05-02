@@ -97,7 +97,11 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
             if (isDebug) {
                 logger.debug("unsampled PSpan={}", createSimpleSpanLog(span));
             } else {
-                infoLog.log(() -> logger.info("unsampled PSpan={}", createSimpleSpanLog(span)));
+                infoLog.log(() -> {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("unsampled PSpan={}", createSimpleSpanLog(span));
+                    }
+                });
             }
             return;
         }
