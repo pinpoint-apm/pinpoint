@@ -28,10 +28,12 @@ import com.navercorp.pinpoint.common.hbase.async.AsyncHbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.BatchAsyncHbasePutWriter;
+import com.navercorp.pinpoint.common.hbase.async.ConcurrencyDecorator;
 import com.navercorp.pinpoint.common.hbase.async.DefaultAsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncCacheConfiguration;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
+import com.navercorp.pinpoint.common.hbase.async.HbasePutWriterDecorator;
 import com.navercorp.pinpoint.common.hbase.async.LoggingHbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.util.DefaultScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
@@ -118,18 +120,28 @@ public class HbaseTemplateConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "hbase.client.put-writer", havingValue = "asyncTable")
-    public HbasePutWriter asyncHbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory) {
+    public HbasePutWriter asyncHbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                              @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
         AsyncHbasePutWriter writer = new AsyncHbasePutWriter(asyncTableFactory);
-        logger.info("HbasePutWriter {}", writer);
-        return new LoggingHbasePutWriter(writer);
+        HbasePutWriter putWriter = decorator.decorator(writer);
+        logger.info("HbasePutWriter {}", putWriter);
+        return new LoggingHbasePutWriter(putWriter);
     }
 
     @Bean
+    public HbasePutWriterDecorator concurrencyDecorator(@Value("${hbase.client.put-writer.concurrency-limit:1000000}") int concurrency) {
+        return new ConcurrencyDecorator(concurrency);
+    }
+
+
+    @Bean
     @ConditionalOnProperty(name = "hbase.client.put-writer", havingValue = "asyncBufferedMutator", matchIfMissing = true)
-    public HbasePutWriter batchHbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory) {
+    public HbasePutWriter batchHbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                              @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
         BatchAsyncHbasePutWriter writer = new BatchAsyncHbasePutWriter(asyncTableFactory);
-        logger.info("HbasePutWriter {}", writer);
-        return new LoggingHbasePutWriter(writer);
+        HbasePutWriter putWriter = decorator.decorator(writer);
+        logger.info("HbasePutWriter {}", putWriter);
+        return new LoggingHbasePutWriter(putWriter);
     }
 
     @Bean
