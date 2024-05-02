@@ -30,8 +30,6 @@ public class LogMarkerMethodDescriptor implements MethodDescriptor {
 
     private final String methodName;
 
-    private String apiDescriptor;
-
     public LogMarkerMethodDescriptor(LogMarkerToken logMarkerToken) {
         this.className = logMarkerToken.component();
         this.methodName = logMarkerToken.action();
@@ -85,7 +83,7 @@ public class LogMarkerMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getApiDescriptor() {
-        return apiDescriptor;
+        return null;
     }
 
     public int getType() {

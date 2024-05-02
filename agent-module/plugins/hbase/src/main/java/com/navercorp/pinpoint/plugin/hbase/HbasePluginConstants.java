@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
@@ -130,8 +131,8 @@ public final class HbasePluginConstants {
      * getScanner is skipped. (not related to data size)
      */
     public static final List<String> mutationMethodNames = Arrays.asList("append", "increment", "put", "checkAndPut", "delete", "checkAndDelete", "checkAndMutate");
-    public static final List<String> rowMutationMethodNames = Arrays.asList("mutateRow");
-    public static final List<String> getResultMethodNames = Arrays.asList("get");
+    public static final List<String> rowMutationMethodNames = Collections.singletonList("mutateRow");
+    public static final List<String> getResultMethodNames = Collections.singletonList("get");
 
     /**
      * The constant adminMethodNames.

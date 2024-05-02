@@ -105,8 +105,7 @@ public class NetworkAvailabilityChecker {
     }
 
     private static void loadFileProperties(Properties properties, Path filePath) {
-        try {
-            InputStream inputStream = Files.newInputStream(filePath);
+        try (InputStream inputStream = Files.newInputStream(filePath)) {
             properties.load(inputStream);
         } catch (IOException e) {
             throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()), e);

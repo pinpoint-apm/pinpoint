@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.dao.pinot;
 
 import org.apache.kafka.common.utils.Utils;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author minwoo-jung
  */
@@ -48,7 +50,8 @@ public class AgentStatTopicAndTableNameManager {
     }
 
     private static int getHashValue(String applicationName, int agentStatTopicCount) {
-        return Utils.toPositive(Utils.murmur2(applicationName.getBytes())) % agentStatTopicCount;
+        int hash = Utils.murmur2(applicationName.getBytes(StandardCharsets.UTF_8));
+        return Utils.toPositive(hash) % agentStatTopicCount;
     }
 
     private enum AgentStatTopicAndTable {

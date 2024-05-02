@@ -78,6 +78,24 @@ public class MetricData {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MetricData data = (MetricData) o;
+        return saveTime == data.saveTime && Objects.equals(metricName, data.metricName) && Objects.equals(fieldName, data.fieldName) && metricDataType == data.metricDataType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(metricName);
+        result = 31 * result + Objects.hashCode(fieldName);
+        result = 31 * result + Objects.hashCode(metricDataType);
+        result = 31 * result + Long.hashCode(saveTime);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "MetricData{" +
                 "metricName='" + metricName + '\'' +
@@ -85,13 +103,5 @@ public class MetricData {
                 ", metricDataType=" + metricDataType +
                 ", saveTime=" + saveTime +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MetricData that = (MetricData) o;
-        return saveTime == that.saveTime && metricName.equals(that.metricName) && fieldName.equals(that.fieldName) && metricDataType == that.metricDataType;
     }
 }

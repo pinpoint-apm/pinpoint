@@ -220,7 +220,7 @@ public class ASMInterceptorHolder {
         }
     }
 
-    class RenameClassAdapter extends ClassVisitor {
+    static class RenameClassAdapter extends ClassVisitor {
         private final String newInternalName;
 
         public RenameClassAdapter(ClassVisitor classVisitor, String name) {
@@ -289,7 +289,7 @@ public class ASMInterceptorHolder {
         }
     }
 
-    class RenameInnerClassAdapter extends ClassVisitor {
+    static class RenameInnerClassAdapter extends ClassVisitor {
         private final String newInternalName;
 
         public RenameInnerClassAdapter(ClassVisitor classVisitor, String name) {

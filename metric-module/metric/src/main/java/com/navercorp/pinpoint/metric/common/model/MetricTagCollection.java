@@ -68,6 +68,26 @@ public class MetricTagCollection {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MetricTagCollection that = (MetricTagCollection) o;
+        return tenantId.equals(that.tenantId) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName) && metricTagList.equals(that.metricTagList);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = tenantId.hashCode();
+        result = 31 * result + hostGroupName.hashCode();
+        result = 31 * result + hostName.hashCode();
+        result = 31 * result + metricName.hashCode();
+        result = 31 * result + fieldName.hashCode();
+        result = 31 * result + metricTagList.hashCode();
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "MetricTagCollection{" +
                 "tenantId='" + tenantId + '\'' +
@@ -78,13 +98,4 @@ public class MetricTagCollection {
                 ", metricTagList=" + metricTagList +
                 '}';
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MetricTagCollection that = (MetricTagCollection) o;
-        return tenantId.equals(that.tenantId) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName) && metricTagList.equals(that.metricTagList);
-    }
-
 }
