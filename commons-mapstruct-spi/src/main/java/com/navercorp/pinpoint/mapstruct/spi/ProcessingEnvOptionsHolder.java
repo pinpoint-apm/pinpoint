@@ -41,12 +41,12 @@ public class ProcessingEnvOptionsHolder extends AbstractProcessor {
 
     static final String ENUM_POSTFIX_OVERRIDES = "mapstructSpi.enumPostfixOverrides";
 
-    private static Map<String, String> OPTIONS;
+    private Map<String, String> options;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        OPTIONS = ImmutableMap.copyOf(processingEnv.getOptions());
+        options = ImmutableMap.copyOf(processingEnv.getOptions());
     }
 
     @Override
@@ -59,17 +59,17 @@ public class ProcessingEnvOptionsHolder extends AbstractProcessor {
         return SourceVersion.latestSupported();
     }
 
-    static boolean containsKey(String key) {
-        if (OPTIONS == null) {
+    public boolean containsKey(String key) {
+        if (options == null) {
             throw new IllegalStateException("ProcessingEnvOptionsHolder not initialized yet.");
         }
-        return OPTIONS.containsKey(key);
+        return options.containsKey(key);
     }
 
-    static String getOption(String key) {
-        if (OPTIONS == null) {
+    public String getOption(String key) {
+        if (options == null) {
             throw new IllegalStateException("ProcessingEnvOptionsHolder not initialized yet.");
         }
-        return OPTIONS.get(key);
+        return options.get(key);
     }
 }
