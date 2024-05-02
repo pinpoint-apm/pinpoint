@@ -1,20 +1,19 @@
 package com.navercorp.pinpoint.collector.sampler;
 
-public class TrueSampler implements Sampler<Object> {
+public class TrueSampler<T> implements Sampler<T> {
 
-    @SuppressWarnings("rawtypes")
-    public static final Sampler INSTANCE = new TrueSampler();
+    public static final Sampler<?> INSTANCE = new TrueSampler<>();
 
     @SuppressWarnings("unchecked")
     public static <T> Sampler<T> instance() {
-        return INSTANCE;
+        return (Sampler<T>) INSTANCE;
     }
 
     private TrueSampler() {
     }
 
     @Override
-    public boolean isSampling(Object target) {
+    public boolean isSampling(T target) {
         return true;
     }
 }

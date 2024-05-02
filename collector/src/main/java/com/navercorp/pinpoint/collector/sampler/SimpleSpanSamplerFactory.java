@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -44,12 +44,12 @@ public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
         return TrueSampler.instance();
     }
 
-    private Function<BasicSpan, Number> createBasicFunction() {
+    private ToLongFunction<BasicSpan> createBasicFunction() {
         return (span -> span.getTransactionId().getTransactionSequence());
     }
 
     private Sampler<BasicSpan> createPercentageSampler(String spanSamplerPercentageStr,
-                                                       Function<BasicSpan, Number> function) {
+                                                       ToLongFunction<BasicSpan> function) {
         long spanSamplerPercentage = PercentRateSampler.parseSamplingRateString(spanSamplerPercentageStr);
         if (spanSamplerPercentage == 0) {
             return FalseSampler.instance();
@@ -60,7 +60,7 @@ public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
     }
 
     private Sampler<BasicSpan> createModSampler(long spanModSamplerRate,
-                                                Function<BasicSpan, Number> function) {
+                                                ToLongFunction<BasicSpan> function) {
         if (spanModSamplerRate == 1) {
             return TrueSampler.instance();
         }
