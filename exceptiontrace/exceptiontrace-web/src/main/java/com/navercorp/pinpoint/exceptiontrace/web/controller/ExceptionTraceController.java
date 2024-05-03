@@ -169,8 +169,10 @@ public class ExceptionTraceController {
     ) {
         String groupName = (groupByList == null) ? "total error occurs" : "top5 error occurs";
 
-        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        rangeValidator.validate(timeWindow.getWindowRange());
+        Range range = Range.between(from, to);
+        rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
+
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setTableName(tableName)
                 .setTenantId(tenantProvider.getTenantId())
