@@ -67,8 +67,7 @@ public class ResponseTime {
     private Histogram getHistogram(String agentId) {
         Objects.requireNonNull(agentId, "agentId");
 
-        TimeHistogram histogram = responseHistogramMap.computeIfAbsent(agentId, k -> new TimeHistogram(applicationServiceType, timeStamp));
-        return histogram;
+        return responseHistogramMap.computeIfAbsent(agentId, k -> new TimeHistogram(applicationServiceType, timeStamp));
     }
 
     public void addResponseTime(String agentId, short slotNumber, long count) {
@@ -105,12 +104,10 @@ public class ResponseTime {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ResponseTime{");
-        sb.append("applicationName='").append(applicationName).append('\'');
-        sb.append(", applicationServiceType=").append(applicationServiceType);
-        sb.append(", timeStamp=").append(timeStamp);
-        sb.append(", responseHistogramMap=").append(responseHistogramMap);
-        sb.append('}');
-        return sb.toString();
+        return "ResponseTime{" + "applicationName='" + applicationName + '\'' +
+                ", applicationServiceType=" + applicationServiceType +
+                ", timeStamp=" + timeStamp +
+                ", responseHistogramMap=" + responseHistogramMap +
+                '}';
     }
 }

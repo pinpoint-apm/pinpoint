@@ -28,7 +28,7 @@ import java.util.Objects;
  * @author netspider
  * 
  */
-public class TimeWindow implements Iterable<Long> {
+public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
 
     private final long windowSlotSize;
 
@@ -57,9 +57,9 @@ public class TimeWindow implements Iterable<Long> {
      * @param timestamp
      * @return
      */
+    @Override
     public long refineTimestamp(long timestamp) {
-        long time = (timestamp / windowSlotSize) * windowSlotSize;
-        return time;
+        return (timestamp / windowSlotSize) * windowSlotSize;
     }
 
     public Range getWindowRange() {
