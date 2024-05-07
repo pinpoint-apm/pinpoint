@@ -49,6 +49,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final OrderByAttributes orderBy;
     private final String isDesc;
     private final List<GroupByAttributes> groupByAttributes;
+    private final FilterByAttributes filterByAttributes;
 
     private final long timeWindowRangeCount;
 
@@ -67,6 +68,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         this.orderBy = builder.orderBy;
         this.isDesc = builder.isDesc;
         this.groupByAttributes = builder.groupByAttributes;
+        this.filterByAttributes = builder.filterByAttributes;
         this.timeWindowRangeCount = builder.timeWindowRangeCount;
     }
 
@@ -94,6 +96,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private OrderByAttributes orderBy;
         private String isDesc;
         private final List<GroupByAttributes> groupByAttributes = new ArrayList<>();
+        private final FilterByAttributes filterByAttributes = new FilterByAttributes();
 
         private long timeWindowRangeCount = 0;
 
@@ -182,8 +185,19 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
                             GroupByAttributes::fromValue
                     )
                     .filter(Objects::nonNull)
-                    .distinct().sorted().collect(Collectors.toList());
+                    .distinct().sorted().toList();
             this.groupByAttributes.addAll(groupByAttributesList);
+            return self();
+        }
+
+        public Builder addAllFilters(Collection<String> strings) {
+            if (strings == null) {
+                return self();
+            }
+            for (String string : strings) {
+                String[] tag = string.split(":", 2);
+                filterByAttributes.put(tag[0], tag[1]);
+            }
             return self();
         }
 
@@ -216,7 +230,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     @Override
     public String toString() {
         return "ExceptionTraceQueryParameter{" +
-                "tenantId='" + tenantId + '\'' +
+                "tableName='" + tableName + '\'' +
+                ", tenantId='" + tenantId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", transactionId='" + transactionId + '\'' +
@@ -226,6 +241,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
                 ", orderBy=" + orderBy +
                 ", isDesc='" + isDesc + '\'' +
                 ", groupByAttributes=" + groupByAttributes +
+                ", filterByAttributes=" + filterByAttributes +
                 ", timeWindowRangeCount=" + timeWindowRangeCount +
                 '}';
     }

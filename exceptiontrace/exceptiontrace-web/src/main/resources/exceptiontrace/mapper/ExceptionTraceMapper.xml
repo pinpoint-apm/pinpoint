@@ -20,6 +20,12 @@
         </foreach>
     </sql>
 
+    <sql id="filterByGivenColumnsAndValue">
+        <foreach collection="filterByAttributes.getMap()"  item="value" index="key" separator="">
+            AND ${key.column.name}=#{value}
+        </foreach>
+    </sql>
+
     <sql id="getGroupedFieldNameEntity">
         <choose>
             <when test="!groupByAttributes.isEmpty()">
@@ -125,11 +131,7 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        <if test="transactionId != null">
-            AND transactionId = #{transactionId}
-            AND spanId = #{spanId}
-            AND exceptionId = #{exceptionId}
-        </if>
+        <include refid="filterByGivenColumnsAndValue"></include>
         ORDER BY ${orderBy.getAttributeName} ${isDesc}
         LIMIT ${limit}
     </select>
