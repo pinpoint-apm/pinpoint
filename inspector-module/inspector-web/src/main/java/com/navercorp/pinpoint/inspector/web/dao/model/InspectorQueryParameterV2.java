@@ -134,6 +134,8 @@ public class InspectorQueryParameterV2 {
                 ", fieldName='" + fieldName + '\'' +
                 ", tagList=" + tagList +
                 ", range=" + range +
+                ", rangefrom=" + range.getFrom() +
+                ", rangeTo=" + range.getTo() +
                 ", timePrecision=" + timePrecision +
                 ", limit=" + limit +
                 '}';

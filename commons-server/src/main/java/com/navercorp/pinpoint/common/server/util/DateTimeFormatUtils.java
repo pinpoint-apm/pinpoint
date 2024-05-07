@@ -38,7 +38,7 @@ public class DateTimeFormatUtils {
     private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT).withZone(DEFAULT_ZONE_ID);
 
     public static final String SIMPLE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-        private static final DateTimeFormatter SIMPLE_DATE_FORMATTER = DateTimeFormatter.ofPattern(SIMPLE_DATE_FORMAT).withZone(DEFAULT_ZONE_ID);
+    private static final DateTimeFormatter SIMPLE_DATE_FORMATTER = DateTimeFormatter.ofPattern(SIMPLE_DATE_FORMAT).withZone(DEFAULT_ZONE_ID);
 
     public static final String ABSOLUTE_DATE_FORMAT = "HH:mm:ss SSS";
     private static final DateTimeFormatter ABSOLUTE_DATE_FORMATTER = DateTimeFormatter.ofPattern(ABSOLUTE_DATE_FORMAT).withZone(DEFAULT_ZONE_ID);
