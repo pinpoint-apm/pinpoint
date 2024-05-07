@@ -113,6 +113,8 @@ public class InspectorQueryParameter {
                 ", fieldName='" + fieldName + '\'' +
                 ", tagList=" + tagList +
                 ", range=" + range +
+                ", rangefrom=" + range.getFrom() +
+                ", rangeTo=" + range.getTo() +
                 ", timePrecision=" + timePrecision +
                 ", limit=" + limit +
                 ", sortKey='" + sortKey + '\'' +

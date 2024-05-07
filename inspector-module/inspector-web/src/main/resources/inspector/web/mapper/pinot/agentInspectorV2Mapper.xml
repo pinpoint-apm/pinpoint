@@ -30,9 +30,6 @@
       <!--  tenantId = #{tenantId}
             AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
-            AND applicationName = #{applicationName}
-            AND agentId = #{agentId}
-            AND metricName = #{metricName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -52,9 +49,6 @@
             <!--  tenantId = #{tenantId}
                   AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
-            AND applicationName = #{applicationName}
-            AND agentId = #{agentId}
-            AND metricName = #{metricName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -74,9 +68,6 @@
             <!--  tenantId = #{tenantId}
                   AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
-            AND applicationName = #{applicationName}
-            AND agentId = #{agentId}
-            AND metricName = #{metricName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -92,9 +83,6 @@
         FROM ${tableName}
         WHERE
             sortKey = #{sortKey}
-            AND applicationName = #{applicationName}
-            AND agentId = #{agentId}
-            AND metricName = #{metricName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
     </select>
@@ -104,9 +92,6 @@
         FROM ${tableName}
         WHERE
             sortKey = #{sortKey}
-            AND applicationName = #{applicationName}
-            AND agentId = #{agentId}
-            AND metricName = #{metricName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
