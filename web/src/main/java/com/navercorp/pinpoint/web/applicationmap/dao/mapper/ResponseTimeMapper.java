@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -33,8 +33,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
@@ -42,18 +40,18 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-@Component
 public class ResponseTimeMapper implements RowMapper<ResponseTime> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ServiceTypeRegistryService registry;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final RowKeyDistributorByHashPrefix rowKeyDistributor;
 
-    public ResponseTimeMapper(ServiceTypeRegistryService registry, @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    public ResponseTimeMapper(ServiceTypeRegistryService registry,
+                              RowKeyDistributorByHashPrefix rowKeyDistributor) {
         this.registry = Objects.requireNonNull(registry, "registry");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
     @Override
@@ -100,6 +98,6 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
     }
 
     private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
+        return rowKeyDistributor.getOriginalKey(rowKey);
     }
 }

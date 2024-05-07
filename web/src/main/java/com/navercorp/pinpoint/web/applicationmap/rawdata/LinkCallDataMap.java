@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
-import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Collection;
@@ -35,17 +35,17 @@ public class LinkCallDataMap {
 //    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Map<LinkKey, LinkCallData> linkDataMap = new HashMap<>();
-    private final TimeWindow timeWindow;
+    private final TimeWindowFunction timeWindow;
 
     public LinkCallDataMap() {
-        this(null);
+        this(TimeWindowFunction.identity());
     }
 
-    public LinkCallDataMap(TimeWindow timeWindow) {
-        this.timeWindow = timeWindow;
+    public LinkCallDataMap(TimeWindowFunction timeWindow) {
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
     }
     
-    public TimeWindow getTimeWindow() {
+    public TimeWindowFunction getTimeWindow() {
         return this.timeWindow;
     }
 

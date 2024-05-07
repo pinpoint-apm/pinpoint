@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.util.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
@@ -35,9 +36,6 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
@@ -47,29 +45,33 @@ import java.util.Objects;
  * @author netspider
  * 
  */
-@Component
 public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final LinkFilter filter;
 
-    @Autowired
-    private ServiceTypeRegistryService registry;
+    private final ServiceTypeRegistryService registry;
 
-    @Autowired
-    private ApplicationFactory applicationFactory;
+    private final ApplicationFactory applicationFactory;
 
-    @Autowired
-    @Qualifier("statisticsCalleeRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    public MapStatisticsCalleeMapper() {
-        this(LinkFilter::skip);
-    }
+    private final RowKeyDistributorByHashPrefix rowKeyDistributor;
 
-    public MapStatisticsCalleeMapper(LinkFilter filter) {
+    private final TimeWindowFunction timeWindowFunction;
+
+
+    public MapStatisticsCalleeMapper(ServiceTypeRegistryService registry,
+                                     ApplicationFactory applicationFactory,
+                                     RowKeyDistributorByHashPrefix rowKeyDistributor,
+                                     LinkFilter filter,
+                                     TimeWindowFunction timeWindowFunction) {
+        this.registry = Objects.requireNonNull(registry, "registry");
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+
         this.filter = Objects.requireNonNull(filter, "filter");
+        this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
     }
 
     @Override
@@ -83,9 +85,9 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
 
         final Buffer row = new FixedBuffer(rowKey);
         final Application calleeApplication = readCalleeApplication(row);
-        final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
+        final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
 
-        final LinkDataMap linkDataMap = new LinkDataMap();
+        final LinkDataMap linkDataMap = new LinkDataMap(timeWindowFunction);
         for (Cell cell : result.rawCells()) {
 
             final byte[] qualifier = CellUtil.cloneQualifier(cell);
@@ -142,6 +144,6 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
     }
 
     private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
+        return rowKeyDistributor.getOriginalKey(rowKey);
     }
 }

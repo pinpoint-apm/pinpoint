@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Objects;
@@ -35,16 +35,17 @@ public class LinkData {
     private final Application toApplication;
 
     private LinkCallDataMap linkCallDataMap;
-    private final TimeWindow timeWindow;
+    private final TimeWindowFunction timeWindow;
 
     public LinkData(Application fromApplication, Application toApplication) {
-        this(fromApplication, toApplication, null);
+        this(fromApplication, toApplication, TimeWindowFunction.identity());
     }
-    public LinkData(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
+
+    public LinkData(Application fromApplication, Application toApplication, TimeWindowFunction timeWindow) {
         this.fromApplication = Objects.requireNonNull(fromApplication, "fromApplication");
         this.toApplication = Objects.requireNonNull(toApplication, "toApplication");
 
-        this.timeWindow = timeWindow;
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.linkCallDataMap = new LinkCallDataMap(timeWindow);
     }
 

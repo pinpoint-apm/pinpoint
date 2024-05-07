@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
-import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Collection;
@@ -27,14 +27,14 @@ import java.util.Objects;
 
 public class LinkDataMap {
     private final Map<LinkKey, LinkData> linkDataMap = new HashMap<>();
-    private TimeWindow timeWindow;
+    private final TimeWindowFunction timeWindow;
 
     public LinkDataMap() {
-        this(null);
+        this(TimeWindowFunction.identity());
     }
 
-    public LinkDataMap(TimeWindow timeWindow) {
-        this.timeWindow = timeWindow;
+    public LinkDataMap(TimeWindowFunction timeWindow) {
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
     }
 
 
@@ -93,11 +93,8 @@ public class LinkDataMap {
         return this.linkDataMap.get(findLinkKey);
     }
 
-    public TimeWindow getTimeWindow() {
+    public TimeWindowFunction getTimeWindow() {
         return timeWindow;
     }
 
-    public void setTimeWindow(TimeWindow timeWindow) {
-        this.timeWindow = timeWindow;
-    }
 }
