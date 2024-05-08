@@ -6,6 +6,7 @@ import {
   currentServerAtom,
   currentNodeStatisticsAtom,
   currentServerAgentIdAtom,
+  serverMapDataAtom,
 } from '@pinpoint-fe/atoms';
 import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/constants';
 import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
@@ -18,20 +19,42 @@ export interface ServerListFetcherProps extends ServerListProps {
 }
 
 export const ServerListFetcher = ({ disableFetch }: ServerListFetcherProps) => {
-  const { search, searchParameters } = useSearchParameters();
+  const { searchParameters } = useSearchParameters();
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
   const currentNodeStatistics = useAtomValue(currentNodeStatisticsAtom);
   const setCurrentServer = useSetAtom(currentServerAtom);
   const currentServerAgent = useAtomValue(currentServerAgentIdAtom);
+  const serverMapData = useAtomValue(serverMapDataAtom);
+  const applicationPairs = serverMapData?.applicationMapData?.linkDataArray.reduce(
+    (acc, curr) => {
+      if (curr.from === currentTargetData?.key) {
+        acc?.to.push([curr.targetInfo.applicationName, curr.targetInfo.serviceTypeCode]);
+      } else if (curr.to === currentTargetData?.key) {
+        acc?.from.push([curr.sourceInfo.applicationName, curr.sourceInfo.serviceTypeCode]);
+      }
+      return acc;
+    },
+    { from: [], to: [] } as { from: [string, number][]; to: [string, number][] },
+  );
 
-  const [queryParams, setQueryParams] = React.useState<SearchApplication.Parameters>({
+  const queryParams: SearchApplication.Parameters = {
     application: currentTargetData?.applicationName,
+    serviceTypeName: currentTargetData?.serviceType,
+    serviceTypeCode: currentTargetData?.serviceTypeCode,
     sortBy: 'AGENT_ID_ASC',
     from: getParsedDate(searchParameters.from).getTime(),
     to: getParsedDate(searchParameters.to).getTime(),
-  });
+    applicationPairs: JSON.stringify(applicationPairs),
+  };
   const getQueryString = React.useCallback(() => {
-    if (queryParams.from && queryParams.to && queryParams.application && queryParams.sortBy) {
+    if (
+      queryParams.from &&
+      queryParams.to &&
+      queryParams.application &&
+      queryParams.sortBy &&
+      queryParams.serviceTypeCode &&
+      queryParams.applicationPairs
+    ) {
       return '?' + convertParamsToQueryString(queryParams);
     }
 
@@ -43,21 +66,6 @@ export const ServerListFetcher = ({ disableFetch }: ServerListFetcherProps) => {
       : null,
     swrConfigs,
   );
-
-  React.useEffect(() => {
-    setQueryParams((prev: SearchApplication.Parameters) => ({
-      ...prev,
-      from: getParsedDate(searchParameters.from).getTime(),
-      to: getParsedDate(searchParameters.to).getTime(),
-    }));
-  }, [search]);
-
-  React.useEffect(() => {
-    setQueryParams((prev: SearchApplication.Parameters) => ({
-      ...prev,
-      application: currentTargetData?.applicationName,
-    }));
-  }, [currentTargetData]);
 
   React.useEffect(() => {
     if (data) {
