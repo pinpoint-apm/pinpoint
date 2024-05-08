@@ -3,6 +3,9 @@ export namespace SearchApplication {
 
   export interface Parameters {
     application: string;
+    serviceTypeName?: string;
+    serviceTypeCode?: number;
+    applicationPairs?: string;
     from: number;
     to: number;
     sortBy: string;
