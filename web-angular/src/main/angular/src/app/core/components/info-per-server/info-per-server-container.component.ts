@@ -131,6 +131,14 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
             this.newUrlStateNotificationService.getStartTimeToNumber(),
             this.newUrlStateNotificationService.getEndTimeToNumber(),
           ];
+          const applicationPairs = this.serverMapData.getOriginalLinkList().reduce((acc, curr) => {
+            if (curr.from === this.selectedTarget.node[0]) {
+              acc.to.push([curr.targetInfo.applicationName, curr.targetInfo.serviceTypeCode])
+            } else if (curr.to === this.selectedTarget.node[0]) {
+              acc.from.push([curr.sourceInfo.applicationName, curr.sourceInfo.serviceTypeCode])
+            }
+            return acc;
+          }, {from: [], to: []} as {from: [string, number][], to: [string, number][]})
 
           return this.agentHistogramDataService
             .getData(this.serverMapData, range, node)
@@ -140,6 +148,8 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                   isWas: node.isWas,
                   app: node.applicationName,
                   serviceTypeName: node.serviceType,
+                  serviceTypeCode: node.serviceTypeCode,
+                  applicationPairs: JSON.stringify(applicationPairs),
                   ...histogramData,
                 };
                 this.selectedAgent = this.selectedAgent

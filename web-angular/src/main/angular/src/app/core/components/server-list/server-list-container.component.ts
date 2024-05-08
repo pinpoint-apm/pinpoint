@@ -29,7 +29,7 @@ import { isEmpty } from "app/core/utils/util";
 })
 export class ServerListContainerComponent implements OnInit, OnDestroy {
   @Input()
-  set data({ agentHistogram, app, serviceTypeName, isWas }: any) {
+  set data({ agentHistogram, app, serviceTypeName, serviceTypeCode, applicationPairs, isWas }: any) {
     if (agentHistogram) {
       const urlService = this.newUrlStateNotificationService;
       const range = [
@@ -43,7 +43,7 @@ export class ServerListContainerComponent implements OnInit, OnDestroy {
           tap(() => (this.showLoading = true)),
           switchMap(() => {
             return this.serverAndAgentListDataService
-              .getData(app, serviceTypeName, range)
+              .getData(app, range, undefined, serviceTypeName, serviceTypeCode, applicationPairs)
               .pipe(
                 tap((data: IServerAndAgentDataV2[]) => {
                   this.cachedData = data;

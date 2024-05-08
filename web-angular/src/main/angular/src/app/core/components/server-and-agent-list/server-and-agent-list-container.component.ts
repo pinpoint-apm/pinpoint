@@ -55,8 +55,8 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
   private _query = "";
   private previousParams: {
     app: string;
-    serviceTypeName: string;
     range: number[];
+    serviceTypeName: string;
   };
   private cachedData = {} as { [key in SortOption]: IServerAndAgentDataV2[] };
 
@@ -186,10 +186,10 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
               isPeriodChanged ||
               isRealTimeMode,
             this.serverAndAgentListDataService
-              .getData(app, serviceTypeName, range, this.selectedSortOptionKey)
+              .getData(app, range, this.selectedSortOptionKey, serviceTypeName)
               .pipe(
                 tap(() => {
-                  this.previousParams = { app, serviceTypeName, range };
+                  this.previousParams = { app, range, serviceTypeName };
                   this.cachedData = {} as {
                     [key in SortOption]: IServerAndAgentDataV2[];
                   };
@@ -403,7 +403,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const { app, serviceTypeName, range } = this.previousParams;
+    const { app, range, serviceTypeName } = this.previousParams;
 
     of(optionKey)
       .pipe(
@@ -415,7 +415,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
             this.showLoading = true;
 
             return this.serverAndAgentListDataService
-              .getData(app, serviceTypeName, range, optionKey)
+              .getData(app, range, optionKey, serviceTypeName)
               .pipe(
                 tap((data: IServerAndAgentDataV2[]) => {
                   this.useDisable = false;
