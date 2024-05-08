@@ -61,6 +61,7 @@ public class RateLimiterPutWriter implements HbasePutWriter {
 
     private void acquire(int size, TableName tableName) {
         if (!this.limiter.acquire(size)) {
+            this.limiter.release(size);
             throw new RequestNotPermittedException("max concurrent requests reached. table:" + tableName, false);
         }
     }

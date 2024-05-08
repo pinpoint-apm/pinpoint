@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -81,5 +82,24 @@ class RateLimiterPutWriterTest {
             writer.put(tableName, new Put(new byte[10]));
         });
         assertEquals(0, helper.count());
+    }
+
+
+    @Test
+    void put_acquire() {
+        when(putWriter.put(any(TableName.class), any(Put.class)))
+                .then((Answer<CompletableFuture<Void>>) invocation -> new CompletableFuture<>());
+
+        ConcurrencyLimiterHelper helper = new ConcurrencyLimiterHelper(1);
+        RateLimiterPutWriter writer = new RateLimiterPutWriter(putWriter, helper);
+
+        CompletableFuture<Void> future = writer.put(tableName, new Put(new byte[10]));
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            writer.put(tableName, new Put(new byte[10]));
+        });
+        assertEquals(1, helper.count());
+        future.complete(null);
+        assertEquals(0, helper.count());
+
     }
 }
