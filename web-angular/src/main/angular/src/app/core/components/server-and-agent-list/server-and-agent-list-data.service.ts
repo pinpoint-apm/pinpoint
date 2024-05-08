@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 
 import { SortOption } from "./server-and-agent-list-container.component";
@@ -19,40 +19,54 @@ export class ServerAndAgentListDataService {
 
   getData(
     applicationName: string,
-    serviceTypeName: string,
     range: number[],
-    sortOption: SortOption = SortOption.ID
+    sortOption: SortOption = SortOption.ID,
+    serviceTypeName?: string,
+    serviceTypeCode?: number,
+    applicationPairs?: string,
   ): Observable<IServerAndAgentDataV2[]> {
     return this.http.get<IServerAndAgentDataV2[]>(
       this.url,
       this.makeRequestOptionsArgs(
         applicationName,
-        serviceTypeName,
         range,
-        sortOption
+        sortOption,
+        serviceTypeName,
+        serviceTypeCode,
+        applicationPairs,
       )
     );
   }
 
   private makeRequestOptionsArgs(
     application: string,
-    serviceTypeName: string,
     [from, to]: number[],
-    sortOption: SortOption
+    sortOption: SortOption,
+    serviceTypeName: string,
+    serviceTypeCode: number,
+    applicationPairs: string,
   ): object {
-    return {
-      params: {
-        application,
-        serviceTypeName,
-        from,
-        to,
-        sortBy:
-          sortOption === SortOption.ID
-            ? SortOptionParamKey.ID
-            : sortOption === SortOption.NAME
-            ? SortOptionParamKey.NAME
-            : SortOptionParamKey.RECENT,
-      },
-    };
+    const sortBy = sortOption === SortOption.ID
+      ? SortOptionParamKey.ID
+      : sortOption === SortOption.NAME
+      ? SortOptionParamKey.NAME
+      : SortOptionParamKey.RECENT
+    
+    let params = new HttpParams()
+      .set('application', application)
+      .set('serviceTypeName', serviceTypeName)
+      .set('from', `${from}`)
+      .set('to', `${to}`)
+      .set('sortBy', sortBy)
+
+    if (serviceTypeCode) {
+      params = params.set('serviceTypeCode', `${serviceTypeCode}`)
+    }
+
+    if (applicationPairs) {
+      params = params.set('applicationPairs', applicationPairs)
+    }
+
+    return {params}
   }
 }

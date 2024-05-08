@@ -124,10 +124,22 @@ export class InfoPerServerForFilteredMapContainerComponent
             isWas,
             applicationName: app,
             serviceType: serviceTypeName,
+            serviceTypeCode,
           }: INodeInfo) => {
+            const applicationPairs = this.serverMapData.getOriginalLinkList().reduce((acc, curr) => {
+              if (curr.from === this.selectedTarget.node[0]) {
+                acc.to.push([curr.targetInfo.applicationName, curr.targetInfo.serviceTypeCode])
+              } else if (curr.to === this.selectedTarget.node[0]) {
+                acc.from.push([curr.sourceInfo.applicationName, curr.sourceInfo.serviceTypeCode])
+              }
+              return acc;
+            }, {from: [], to: []} as {from: [string, number][], to: [string, number][]})
+
             this.agentHistogramData = {
               app,
               serviceTypeName,
+              serviceTypeCode,
+              applicationPairs: JSON.stringify(applicationPairs),
               serverList,
               agentHistogram,
               agentTimeSeriesHistogram,
