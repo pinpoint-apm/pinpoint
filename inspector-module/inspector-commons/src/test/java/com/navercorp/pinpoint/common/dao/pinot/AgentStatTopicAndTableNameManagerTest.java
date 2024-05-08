@@ -35,13 +35,13 @@ import java.util.Date;
 @Disabled
 class AgentStatTopicAndTableNameManagerTest {
 
-    private final Logger LOGGER = LogManager.getLogger(AgentStatTopicAndTableNameManagerTest.class.getName());
+    private final Logger logger = LogManager.getLogger(AgentStatTopicAndTableNameManagerTest.class.getName());
     @Test
     public void getAgentStatTopicName() {
         String applicationName = "pinpointApplication";
         int agentStatTopicCount = 16;
         String agentStatTopicName = AgentStatTopicAndTableNameManager.getAgentStatTopicName(applicationName, agentStatTopicCount);
-        LOGGER.info(agentStatTopicName);
+        logger.info(agentStatTopicName);
 //        assertEquals("inspector-stat-agent-00", agentStatTopicName);
     }
 
@@ -51,7 +51,7 @@ class AgentStatTopicAndTableNameManagerTest {
         StringSerializer keySerializer = new StringSerializer();
         byte[] keyBytes = keySerializer.serialize("inspector-stat", "pub-vpc-nas-api#avnas-mcweb01.ncp3#directBuffer");
         int partition = BuiltInPartitioner.partitionForKey(keyBytes, numPartitions);
-        LOGGER.info(partition);
+        logger.info(partition);
 //        assertEquals(54, partition);
     }
 
@@ -64,10 +64,10 @@ class AgentStatTopicAndTableNameManagerTest {
 
         Date startTimeDate = simpleDateFormat.parse(startTime);
         long startTimeInMillis = startTimeDate.getTime();
-        LOGGER.info("start time value : " + startTimeInMillis);
+        logger.info("start time value : " + startTimeInMillis);
         Date endTimeDate = simpleDateFormat.parse(endTime);
         long endTimeInMillis = endTimeDate.getTime();
-        LOGGER.info("end time value : " + endTimeInMillis);
+        logger.info("end time value : " + endTimeInMillis);
     }
 
 }
