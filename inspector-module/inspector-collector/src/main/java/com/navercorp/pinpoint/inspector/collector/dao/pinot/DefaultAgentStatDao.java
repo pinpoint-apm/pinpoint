@@ -28,6 +28,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -76,6 +79,10 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
 
     @Override
     public void insert(String applicationName, String agentId, List<T> agentStatData) {
+        if (!validateTime(agentStatData)) {
+            return;
+        };
+
         List<AgentStat> agentStatList = convertToKafkaAgentStatModel(agentStatData);
         for (AgentStat agentStat : agentStatList) {
             kafkaAgentStatTemplate.send(agentStatTopicName, agentStat.getSortKey(), agentStat);
@@ -92,6 +99,23 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
             kafkaApplicationStatTemplate.send(applicationStatTopicName, applicationStat.getSortKey(), applicationStat);
         }
 
+    }
+
+    private boolean validateTime(List<T> agentStatData) {
+        if (agentStatData.isEmpty()) {
+            return false;
+        }
+
+        T agentStat = agentStatData.get(0);
+        Instant collectedTime = Instant.ofEpochMilli(agentStat.getTimestamp());
+        Instant validTime = Instant.now().minus(Duration.ofMinutes(10));
+
+        if (validTime.isBefore(collectedTime)) {
+            return true;
+        }
+
+        logger.info("AgentStat data is invalid. applicationName: {}, agentId: {}, time: {}", agentStat.getApplicationName(), agentStat.getAgentId(), new Date(agentStat.getTimestamp()));
+        return false;
     }
 
     private List<AgentStat> convertToKafkaAgentStatModel(List<T> AgentStatDataPointList) {
