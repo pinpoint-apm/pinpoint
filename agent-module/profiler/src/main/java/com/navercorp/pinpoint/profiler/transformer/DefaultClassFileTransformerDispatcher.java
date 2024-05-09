@@ -81,7 +81,7 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
             return null;
         }
 
-        final ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classLoader, internalName, classFileBuffer);
+        final ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classLoader, internalName, protectionDomain, classFileBuffer);
         if (transformer == null) {
             return null;
         }

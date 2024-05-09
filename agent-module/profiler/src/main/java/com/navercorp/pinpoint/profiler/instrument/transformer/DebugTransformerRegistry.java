@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
 import java.util.Objects;
 
 /**
@@ -36,12 +37,12 @@ public class DebugTransformerRegistry implements TransformerRegistry {
     }
 
     @Override
-    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) {
-        return findTransformer(classLoader, classInternalName, classFileBuffer, null);
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
+        return findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer, null);
     }
 
     @Override
-    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
         Objects.requireNonNull(classInternalName, "classInternalName");
 
         if (this.debugTargetFilter.filter(classInternalName)) {

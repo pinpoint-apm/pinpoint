@@ -21,16 +21,19 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.VersionMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.resttemplate.field.accessor.TraceFutureFlagAccessor;
 import com.navercorp.pinpoint.plugin.resttemplate.interceptor.AsyncHttpRequestInterceptor;
 import com.navercorp.pinpoint.plugin.resttemplate.interceptor.ClientHttpResponseInterceptor;
@@ -45,33 +48,38 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 /**
  * @author Taejin Koo
  */
-public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAware {
+public class RestTemplatePlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
-    private TransformTemplate transformTemplate;
+    private MatchableTransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         RestTemplateConfig config = new RestTemplateConfig(context.getConfig());
+        final MatcherOperand versionMatcherOperand = new VersionMatcherOperand("[,5.max]", config.isVersionForcedMatch());
         if (!config.isPluginEnable()) {
-            logger.info("{} disabled {}", this.getClass().getSimpleName(), "'profiler.resttemplate=false'");
+            logger.info("Disabled {}, version {}, config:{}", this.getClass().getSimpleName(), versionMatcherOperand, config);
             return;
         }
-        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+        logger.info("{}, version {}, config:{}", this.getClass().getSimpleName(), versionMatcherOperand, config);
 
-        transformRequest();
-        transformResponse();
+        transformRequest(versionMatcherOperand);
+        transformResponse(versionMatcherOperand);
     }
 
-    private void transformRequest() {
-        transformTemplate.transform("org.springframework.web.client.RestTemplate", RestTemplateTransformer.class);
-        transformTemplate.transform("org.springframework.http.client.AbstractClientHttpRequest", HttpRequestTransformer.class);
-        transformTemplate.transform("org.springframework.http.client.AbstractAsyncClientHttpRequest", AsyncHttpRequestTransformer.class);
-        transformTemplate.transform("org.springframework.util.concurrent.SettableListenableFuture", ListenableFutureTransformer.class);
+    private void transformRequest(MatcherOperand versionMatcherOperand) {
+        final Matcher restTemplateTransformerMatcher = Matchers.newClassBasedMatcher("org.springframework.web.client.RestTemplate", versionMatcherOperand);
+        transformTemplate.transform(restTemplateTransformerMatcher, RestTemplateTransformer.class);
+        final Matcher httpRequestTransformerMatcher = Matchers.newClassBasedMatcher("org.springframework.http.client.AbstractClientHttpRequest", versionMatcherOperand);
+        transformTemplate.transform(httpRequestTransformerMatcher, HttpRequestTransformer.class);
+        final Matcher asyncHttpRequestTransformerMatcher = Matchers.newClassBasedMatcher("org.springframework.http.client.AbstractAsyncClientHttpRequest", versionMatcherOperand);
+        transformTemplate.transform(asyncHttpRequestTransformerMatcher, AsyncHttpRequestTransformer.class);
+        final Matcher listenableFutureTransformerMatcher = Matchers.newClassBasedMatcher("org.springframework.util.concurrent.SettableListenableFuture", versionMatcherOperand);
+        transformTemplate.transform(listenableFutureTransformerMatcher, ListenableFutureTransformer.class);
     }
 
-    private void transformResponse() {
+    private void transformResponse(MatcherOperand versionMatcherOperand) {
         String[] list = new String[]{
                 "org.springframework.http.client.BufferingClientHttpResponseWrapper",
                 "org.springframework.http.client.SimpleClientHttpResponse",
@@ -82,12 +90,13 @@ public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAwar
                 "org.springframework.http.client.Netty4ClientHttpResponse",
         };
         for (String i : list) {
-            transformTemplate.transform(i, ClientHttpResponseTransformer.class);
+            final Matcher clientHttpResponseTransformerMatcher = Matchers.newClassBasedMatcher(i, versionMatcherOperand);
+            transformTemplate.transform(clientHttpResponseTransformerMatcher, ClientHttpResponseTransformer.class);
         }
     }
 
     @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
+    public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
         this.transformTemplate = transformTemplate;
     }
 
@@ -116,10 +125,9 @@ public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAwar
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            InstrumentMethod executeMethod = InstrumentUtils.findMethod(target, "execute");
+            InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                final int springVersion = SpringVersion.getVersion(classLoader);
-                executeMethod.addScopedInterceptor(HttpRequestInterceptor.class, va(springVersion), RestTemplateConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+                executeMethod.addScopedInterceptor(HttpRequestInterceptor.class, RestTemplateConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
 
             return target.toBytecode();
@@ -132,7 +140,7 @@ public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAwar
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            InstrumentMethod executeAsyncMethod = InstrumentUtils.findMethod(target, "executeAsync");
+            InstrumentMethod executeAsyncMethod = target.getDeclaredMethod("executeAsync");
             if (executeAsyncMethod != null) {
                 executeAsyncMethod.addScopedInterceptor(AsyncHttpRequestInterceptor.class, RestTemplateConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
@@ -150,10 +158,9 @@ public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAwar
             target.addField(AsyncContextAccessor.class);
             target.addField(TraceFutureFlagAccessor.class);
 
-            InstrumentMethod method = InstrumentUtils.findMethod(target, "set", "java.lang.Object");
+            InstrumentMethod method = target.getDeclaredMethod("set", "java.lang.Object");
             if (method != null) {
-                final int springVersion = SpringVersion.getVersion(classLoader);
-                method.addInterceptor(ListenableFutureInterceptor.class, va(springVersion));
+                method.addInterceptor(ListenableFutureInterceptor.class);
             }
             return target.toBytecode();
         }
@@ -164,14 +171,11 @@ public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAwar
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
             final List<InstrumentMethod> constructors = target.getDeclaredConstructors();
             if (constructors != null && constructors.size() == 1) { //only intercept one-constructor response, no overloading
-                final int springVersion = SpringVersion.getVersion(classLoader);
                 for (InstrumentMethod constructor : constructors) {
-                    constructor.addScopedInterceptor(ClientHttpResponseInterceptor.class, va(springVersion), "HttpResponse", ExecutionPolicy.BOUNDARY);
+                    constructor.addScopedInterceptor(ClientHttpResponseInterceptor.class, "HttpResponse", ExecutionPolicy.BOUNDARY);
                 }
             }
 

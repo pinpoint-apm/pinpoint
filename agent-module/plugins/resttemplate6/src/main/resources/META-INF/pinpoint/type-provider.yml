@@ -1,0 +1,9 @@
+serviceTypes:
+    - code: 9141
+      name: 'REST_TEMPLATE6'
+      desc: 'REST_TEMPLATE'
+      property:
+        recordStatistics: true
+      matcher:
+        type: 'exact'
+        code: 46 # http.status.code

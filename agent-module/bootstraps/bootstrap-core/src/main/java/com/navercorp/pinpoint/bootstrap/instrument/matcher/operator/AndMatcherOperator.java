@@ -18,14 +18,12 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher.operator;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.AbstractMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public class AndMatcherOperator extends AbstractMatcherOperand implements MatcherOperator {
     private final MatcherOperand leftOperand;
     private final MatcherOperand rightOperand;

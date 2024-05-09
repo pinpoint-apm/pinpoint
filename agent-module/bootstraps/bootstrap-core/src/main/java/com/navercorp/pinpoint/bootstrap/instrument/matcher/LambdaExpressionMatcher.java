@@ -1,3 +1,18 @@
+/*
+ * Copyright 2024 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
@@ -13,6 +28,10 @@ public class LambdaExpressionMatcher implements PackageBasedMatcher {
     private final MatcherOperand matcherOperand;
 
     public LambdaExpressionMatcher(String baseClassName, String functionalInterfaceName) {
+        this(baseClassName, functionalInterfaceName, null);
+    }
+
+    public LambdaExpressionMatcher(String baseClassName, String functionalInterfaceName, final MatcherOperand additional) {
         Objects.requireNonNull(baseClassName, "baseClassName");
         if (!StringUtils.hasText(baseClassName)) {
             throw new IllegalArgumentException("baseClassName must not be empty");
@@ -22,10 +41,18 @@ public class LambdaExpressionMatcher implements PackageBasedMatcher {
             throw new IllegalArgumentException("functionalInterfaceName must not be empty");
         }
         this.basePackageName = baseClassName + LAMBDA_INSTANCE_NAME_PREFIX;
+        this.matcherOperand = getMatcherOperand(functionalInterfaceName, additional);
+    }
 
-        final MatcherOperand operand = new PackageInternalNameMatcherOperand(basePackageName);
+    private MatcherOperand getMatcherOperand(String functionalInterfaceName, final MatcherOperand additional) {
         final MatcherOperand functionalInterfaceMatcherOperand = new InterfaceInternalNameMatcherOperand(functionalInterfaceName, false);
-        this.matcherOperand = operand.and(functionalInterfaceMatcherOperand);
+        MatcherOperand operand = new PackageInternalNameMatcherOperand(basePackageName);
+        operand = operand.and(functionalInterfaceMatcherOperand);
+        if (additional != null) {
+            // class AND additional
+            operand = operand.and(additional);
+        }
+        return operand;
     }
 
     @Override

@@ -40,6 +40,7 @@
         <module>httpclient5</module>
         <module>ning-asynchttpclient</module>
         <module>resttemplate</module>
+        <module>resttemplate6</module>
         <module>gson</module>
         <module>netty</module>
         <module>jackson</module>
@@ -71,6 +72,7 @@
         <module>spring</module>
         <module>spring-boot</module>
         <module>spring-webflux</module>
+        <module>spring-webflux6</module>
         <module>ibatis</module>
         <module>mybatis</module>
         <module>okhttp</module>
@@ -116,7 +118,6 @@
         <module>resilience4j</module>
         <module>clickhouse-jdbc</module>
         <module>spring-cloud-sleuth</module>
-        <module>spring-stub</module>
     </modules>
 
 

@@ -26,13 +26,19 @@ public class RestTemplateConfig {
     static final String PLUGIN_ENABLE = "profiler.resttemplate";
 
     private final boolean pluginEnable;
+    private final boolean versionForcedMatch;
 
     public RestTemplateConfig(ProfilerConfig config) {
         pluginEnable = config.readBoolean(PLUGIN_ENABLE, false);
+        this.versionForcedMatch = config.readBoolean("profiler.resttemplate.version.forced.match", false);
     }
 
     public boolean isPluginEnable() {
         return pluginEnable;
+    }
+
+    public boolean isVersionForcedMatch() {
+        return versionForcedMatch;
     }
 
     @Override

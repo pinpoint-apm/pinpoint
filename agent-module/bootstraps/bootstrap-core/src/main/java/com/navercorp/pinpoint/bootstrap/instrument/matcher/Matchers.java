@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 import java.util.List;
 
@@ -26,7 +25,6 @@ import java.util.List;
  *
  * @author emeroad
  */
-@InterfaceStability.Unstable
 public final class Matchers {
 
     private Matchers() {
@@ -74,5 +72,9 @@ public final class Matchers {
 
     public static Matcher newLambdaExpressionMatcher(String baseClassName, String functionalInterfaceName) {
         return new LambdaExpressionMatcher(baseClassName, functionalInterfaceName);
+    }
+
+    public static Matcher newLambdaExpressionMatcher(String baseClassName, String functionalInterfaceName, MatcherOperand additional) {
+        return new LambdaExpressionMatcher(baseClassName, functionalInterfaceName, additional);
     }
 }

@@ -24,7 +24,6 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public class OrMatcherOperator extends AbstractMatcherOperand implements MatcherOperator {
     private final MatcherOperand leftOperand;
     private final MatcherOperand rightOperand;
