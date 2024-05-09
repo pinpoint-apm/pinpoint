@@ -4,6 +4,10 @@ export namespace GetResponseTimeHistogram {
     serviceTypeCode?: number;
     from?: number;
     to?: number;
+    fromApplicationNames?: string;
+    fromServiceTypeCodes?: string;
+    toApplicationNames?: string;
+    toServiceTypeCodes?: string;
   }
 
   export interface Response {
