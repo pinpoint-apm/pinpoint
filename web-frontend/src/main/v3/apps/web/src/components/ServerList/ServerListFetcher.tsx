@@ -10,7 +10,7 @@ import {
 } from '@pinpoint-fe/atoms';
 import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/constants';
 import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
-import { useSearchParameters, swrConfigs } from '@pinpoint-fe/hooks';
+import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/hooks';
 import { getInspectorPath } from '@pinpoint-fe/utils';
 import { ServerList as SL, ServerListProps } from '@pinpoint-fe/ui';
 
@@ -25,17 +25,20 @@ export const ServerListFetcher = ({ disableFetch }: ServerListFetcherProps) => {
   const setCurrentServer = useSetAtom(currentServerAtom);
   const currentServerAgent = useAtomValue(currentServerAgentIdAtom);
   const serverMapData = useAtomValue(serverMapDataAtom);
-  const applicationPairs = serverMapData?.applicationMapData?.linkDataArray.reduce(
-    (acc, curr) => {
-      if (curr.from === currentTargetData?.key) {
-        acc?.to.push([curr.targetInfo.applicationName, curr.targetInfo.serviceTypeCode]);
-      } else if (curr.to === currentTargetData?.key) {
-        acc?.from.push([curr.sourceInfo.applicationName, curr.sourceInfo.serviceTypeCode]);
-      }
-      return acc;
-    },
-    { from: [], to: [] } as { from: [string, number][]; to: [string, number][] },
-  );
+  const serverMapLinkedData = useServerMapLinkedData({
+    serverMapData: serverMapData?.applicationMapData as GetServerMap.ApplicationMapData,
+    currentTargetData,
+  });
+  const applicationPairs = {
+    from: serverMapLinkedData?.from.map(({ applicationName, serviceTypeCode }) => [
+      applicationName,
+      serviceTypeCode,
+    ]),
+    to: serverMapLinkedData?.to.map(({ applicationName, serviceTypeCode }) => [
+      applicationName,
+      serviceTypeCode,
+    ]),
+  };
 
   const queryParams: SearchApplication.Parameters = {
     application: currentTargetData?.applicationName,

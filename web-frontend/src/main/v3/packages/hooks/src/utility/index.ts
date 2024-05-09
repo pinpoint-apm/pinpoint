@@ -5,5 +5,6 @@ export * from './useExperimentals';
 export * from './useHeightToBottom';
 export * from './useLanguage';
 export * from './useLocalStorage';
+export * from './useServerMapLinkedData';
 export * from './useTabFocus';
 // export * from './useSearchParameters';
