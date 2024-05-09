@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.resttemplate.RestTemplateConstants;
-import com.navercorp.pinpoint.plugin.resttemplate.interceptor.util.HttpStatusProvider;
-import com.navercorp.pinpoint.plugin.resttemplate.interceptor.util.HttpStatusProviderFactory;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
@@ -33,12 +31,8 @@ import java.io.IOException;
  */
 public class HttpRequestInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private final HttpStatusProvider statusCodeProvider;
-
-    public HttpRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor,
-                                  int springVersion) {
+    public HttpRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
-        this.statusCodeProvider = HttpStatusProviderFactory.getHttpStatusProvider(springVersion);
     }
 
     @Override
@@ -53,7 +47,7 @@ public class HttpRequestInterceptor extends SpanEventSimpleAroundInterceptorForP
 
         if (result instanceof ClientHttpResponse) {
             ClientHttpResponse clientHttpResponse = (ClientHttpResponse) result;
-            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeProvider.getStatusCode(clientHttpResponse));
+            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, clientHttpResponse.getRawStatusCode());
         }
     }
 

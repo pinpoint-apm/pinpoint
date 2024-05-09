@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.VersionMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
@@ -61,34 +63,43 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             return;
         }
 
-        logger.info("{} version range=[5.0.0.RELEASE, 5.2.1.RELEASE], config:{}", this.getClass().getSimpleName(), config);
+        final MatcherOperand versionMatcherOperand = new VersionMatcherOperand("[,5.max]", config.isVersionForcedMatch());
+        logger.info("{}, version {}, config:{}", this.getClass().getSimpleName(), versionMatcherOperand, config);
         // Server
-        transformTemplate.transform("org.springframework.web.reactive.DispatcherHandler", DispatchHandlerTransform.class,
+        final Matcher dispatchHandlerTransformMatcher = Matchers.newClassBasedMatcher("org.springframework.web.reactive.DispatcherHandler", versionMatcherOperand);
+        transformTemplate.transform(dispatchHandlerTransformMatcher, DispatchHandlerTransform.class,
                 TransformCallbackParametersBuilder.newBuilder()
                         .addBoolean(config.isUriStatEnable())
                         .addBoolean(config.isUriStatUseUserInput())
                         .toParameters());
-        final Matcher invokeMatcher = Matchers.newLambdaExpressionMatcher("org.springframework.web.reactive.DispatcherHandler", "java.util.function.Function");
-        transformTemplate.transform(invokeMatcher, DispatchHandlerInvokeHandlerTransform.class);
+        final Matcher dispatchHandlerInvokeHandlerTransformMatcher = Matchers.newLambdaExpressionMatcher("org.springframework.web.reactive.DispatcherHandler", "java.util.function.Function", versionMatcherOperand);
+        transformTemplate.transform(dispatchHandlerInvokeHandlerTransformMatcher, DispatchHandlerInvokeHandlerTransform.class);
 
-        transformTemplate.transform("org.springframework.web.server.adapter.DefaultServerWebExchange", ServerWebExchangeTransform.class);
-        transformTemplate.transform("org.springframework.web.reactive.result.method.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
+        final Matcher serverWebExchangeTransformMatcher = Matchers.newClassBasedMatcher("org.springframework.web.server.adapter.DefaultServerWebExchange", versionMatcherOperand);
+        transformTemplate.transform(serverWebExchangeTransformMatcher, ServerWebExchangeTransform.class);
+        final Matcher invocableHandlerMethodTransformMatcher = Matchers.newClassBasedMatcher("org.springframework.web.reactive.result.method.InvocableHandlerMethod", versionMatcherOperand);
+        transformTemplate.transform(invocableHandlerMethodTransformMatcher, InvocableHandlerMethodTransform.class);
 
         // Client
         if (Boolean.TRUE == config.isClientEnable()) {
             // If there is a conflict with Reactor-Netty, set it to false.
-            transformTemplate.transform("org.springframework.web.reactive.function.client.DefaultWebClient$DefaultRequestBodyUriSpec", DefaultWebClientTransform.class);
-            transformTemplate.transform("org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction", ExchangeFunctionTransform.class);
-            transformTemplate.transform("org.springframework.web.reactive.function.client.DefaultClientRequestBuilder$BodyInserterRequest", BodyInserterRequestTransform.class);
+            final Matcher defaultWebClientTransformMatcher = Matchers.newClassBasedMatcher("org.springframework.web.reactive.function.client.DefaultWebClient$DefaultRequestBodyUriSpec", versionMatcherOperand);
+            transformTemplate.transform(defaultWebClientTransformMatcher, DefaultWebClientTransform.class);
+            final Matcher exchangeFunctionTransformMatcher = Matchers.newClassBasedMatcher("org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction", versionMatcherOperand);
+            transformTemplate.transform(exchangeFunctionTransformMatcher, ExchangeFunctionTransform.class);
+            final Matcher bodyInserterRequestTransformMatcher = Matchers.newClassBasedMatcher("org.springframework.web.reactive.function.client.DefaultClientRequestBuilder$BodyInserterRequest", versionMatcherOperand);
+            transformTemplate.transform(bodyInserterRequestTransformMatcher, BodyInserterRequestTransform.class);
         }
 
         // uri stat
         if (config.isUriStatEnable()) {
-            transformTemplate.transform("org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class,
+            final Matcher abstractHandlerMethodMappingTransformMatcher = Matchers.newClassBasedMatcher("org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping", versionMatcherOperand);
+            transformTemplate.transform(abstractHandlerMethodMappingTransformMatcher, AbstractHandlerMethodMappingTransform.class,
                     TransformCallbackParametersBuilder.newBuilder()
                             .addBoolean(config.isUriStatCollectMethod())
                             .toParameters());
-            transformTemplate.transform("org.springframework.web.reactive.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class,
+            final Matcher abstractUrlHandlerMappingTransformMatcher = Matchers.newClassBasedMatcher("org.springframework.web.reactive.handler.AbstractUrlHandlerMapping", versionMatcherOperand);
+            transformTemplate.transform(abstractUrlHandlerMappingTransformMatcher, AbstractUrlHandlerMappingTransform.class,
                     TransformCallbackParametersBuilder.newBuilder()
                             .addBoolean(config.isUriStatCollectMethod())
                             .toParameters());
@@ -201,8 +212,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
 
             final InstrumentMethod logResponseMethod = target.getDeclaredMethod("logResponse", "org.springframework.http.client.reactive.ClientHttpResponse", "java.lang.String");
             if (logResponseMethod != null) {
-                final int springVersion = SpringVersion.getVersion(loader);
-                logResponseMethod.addInterceptor(ClientResponseFunctionInterceptor.class, va(springVersion));
+                logResponseMethod.addInterceptor(ClientResponseFunctionInterceptor.class);
             }
 
             return target.toBytecode();

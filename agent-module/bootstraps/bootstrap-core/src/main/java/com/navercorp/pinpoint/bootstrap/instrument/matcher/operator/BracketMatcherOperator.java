@@ -18,12 +18,10 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher.operator;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.AbstractMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public class BracketMatcherOperator extends AbstractMatcherOperand implements MatcherOperator {
     @Override
     public int getPrecedence() {

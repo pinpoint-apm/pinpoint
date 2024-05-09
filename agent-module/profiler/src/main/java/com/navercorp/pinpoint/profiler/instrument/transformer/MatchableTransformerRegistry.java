@@ -29,6 +29,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +52,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     private final DefaultTransformerRegistry defaultTransformerRegistry;
 
     // class matcher operand.
-    private final Map<String, IndexValue> classNameBasedIndex = new HashMap<>(64);
+    private final Map<String, Set<IndexValue>> classNameBasedIndex = new HashMap<>(64);
     // package matcher operand.
     private final Map<String, Set<IndexValue>> packageNameBasedIndex;
 
@@ -79,23 +81,22 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         }
 
         this.transformerMatcher = new DefaultTransformerMatcher(instrumentMatcherCacheConfig);
-
     }
 
     @Override
-    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) {
-        return findTransformer(classLoader, classInternalName, classFileBuffer, null);
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
+        return findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer, null);
     }
 
     @Override
-    public ClassFileTransformer findTransformer(final ClassLoader classLoader, final String classInternalName, final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
+    public ClassFileTransformer findTransformer(final ClassLoader classLoader, final String classInternalName, final ProtectionDomain protectionDomain, final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
         // find default.
-        final ClassFileTransformer transformer = this.defaultTransformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer);
+        final ClassFileTransformer transformer = this.defaultTransformerRegistry.findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer);
         if (transformer != null) {
             return transformer;
         }
 
-        final ClassMetadataWrapper classMetadataWrapper = new ClassMetadataWrapper(classFileBuffer, classMetadata);
+        final ClassMetadataWrapper classMetadataWrapper = new ClassMetadataWrapper(protectionDomain, classFileBuffer, classMetadata);
         // find class name based.
         if (!this.classNameBasedIndex.isEmpty()) {
             final ClassFileTransformer classBaseTransformer = findClassBasedTransformer(classLoader, classInternalName, classMetadataWrapper);
@@ -117,13 +118,16 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     }
 
     private ClassFileTransformer findClassBasedTransformer(final ClassLoader classLoader, final String classInternalName, final ClassMetadataWrapper classMetadataWrapper) {
-        IndexValue indexValue = this.classNameBasedIndex.get(classInternalName);
-        if (indexValue != null) {
+        Set<IndexValue> indexValueSet = this.classNameBasedIndex.get(classInternalName);
+        if (indexValueSet == null) {
+            return null;
+        }
+
+        for (IndexValue indexValue : indexValueSet) {
             if (indexValue.operand instanceof ClassInternalNameMatcherOperand) {
                 // single operand.
                 return indexValue.transformer;
             }
-
             ClassFileTransformer transformer = match(classLoader, indexValue, classMetadataWrapper);
             if (transformer != null) {
                 return transformer;
@@ -202,15 +206,12 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
             throw new IllegalArgumentException("invalid matcher - not found index operand. condition=" + condition);
         }
 
-        boolean indexed;
+        boolean indexed = false;
         final IndexValue indexValue = new IndexValue(condition, transformer);
         for (MatcherOperand operand : indexedMatcherOperands) {
             if (operand instanceof ClassInternalNameMatcherOperand) {
                 ClassInternalNameMatcherOperand classInternalNameMatcherOperand = (ClassInternalNameMatcherOperand) operand;
-                final IndexValue prev = classNameBasedIndex.put(classInternalNameMatcherOperand.getClassInternalName(), indexValue);
-                if (prev != null) {
-                    throw new IllegalStateException("Transformer already exist. class=" + classInternalNameMatcherOperand.getClassInternalName() + ", new=" + indexValue + ", prev=" + prev);
-                }
+                addIndexData(classInternalNameMatcherOperand.getClassInternalName(), indexValue, this.classNameBasedIndex);
                 indexed = true;
             } else if (operand instanceof PackageInternalNameMatcherOperand) {
                 PackageInternalNameMatcherOperand packageInternalNameMatcherOperand = (PackageInternalNameMatcherOperand) operand;
@@ -219,19 +220,14 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
             } else {
                 throw new IllegalArgumentException("invalid matcher or execution planner - unknown operand. condition=" + condition + ", unknown operand=" + operand);
             }
-
-            if (!indexed) {
-                throw new IllegalArgumentException("invalid matcher or execution planner - no such indexed operand. operand=" + condition);
-            }
+        }
+        if (Boolean.FALSE == indexed) {
+            throw new IllegalArgumentException("invalid matcher or execution planner - no such indexed operand. operand=" + condition);
         }
     }
 
     private void addIndexData(final String key, final IndexValue indexValue, final Map<String, Set<IndexValue>> index) {
-        Set<IndexValue> indexValueSet = index.get(key);
-        if (indexValueSet == null) {
-            indexValueSet = new HashSet<>();
-            index.put(key, indexValueSet);
-        }
+        Set<IndexValue> indexValueSet = index.computeIfAbsent(key, k -> new HashSet<>());
         indexValueSet.add(indexValue);
     }
 
@@ -253,10 +249,12 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     }
 
     class ClassMetadataWrapper {
+        final ProtectionDomain protectionDomain;
         private final byte[] classFileBuffer;
         private InternalClassMetadata classMetadata;
 
-        ClassMetadataWrapper(final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
+        ClassMetadataWrapper(final ProtectionDomain protectionDomain, final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
+            this.protectionDomain = protectionDomain;
             this.classFileBuffer = classFileBuffer;
             this.classMetadata = classMetadata;
         }
@@ -265,6 +263,10 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
             if (this.classMetadata == null) {
                 try {
                     this.classMetadata = InternalClassMetadataReader.readInternalClassMetadata(this.classFileBuffer);
+                    final CodeSource codeSource = protectionDomain.getCodeSource();
+                    if (codeSource != null) {
+                        this.classMetadata.setCodeSourceLocation(codeSource.getLocation());
+                    }
                 } catch (Exception e) {
                     if (logger.isInfoEnabled()) {
                         logger.info("Failed to read metadata of class bytes.", e);

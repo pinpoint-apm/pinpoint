@@ -19,14 +19,15 @@ package com.navercorp.pinpoint.profiler.instrument.transformer;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
 
 /**
  * @author emeroad
  */
 public interface TransformerRegistry {
 
-    ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer);
+    ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer);
 
-    ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer, InternalClassMetadata classMetadata);
+    ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer, InternalClassMetadata classMetadata);
 
 }

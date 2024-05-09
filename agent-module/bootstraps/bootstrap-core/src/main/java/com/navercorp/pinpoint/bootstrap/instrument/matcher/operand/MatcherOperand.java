@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.matcher.operand;
 
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public interface MatcherOperand {
 
     boolean isOperator();

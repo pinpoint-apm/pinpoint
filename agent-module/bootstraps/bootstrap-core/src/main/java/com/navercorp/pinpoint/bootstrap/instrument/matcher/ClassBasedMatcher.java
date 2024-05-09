@@ -15,12 +15,9 @@
  */
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 interface ClassBasedMatcher extends BasedMatcher {
     String getBaseClassName();
 }

@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
@@ -28,7 +27,6 @@ import java.util.List;
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher {
     private final List<String> basePackageNames;
     private final MatcherOperand matcherOperand;
@@ -41,7 +39,6 @@ public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher
         if (CollectionUtils.isEmpty(basePackageNames)) {
             throw new IllegalArgumentException("basePackageNames must not be empty");
         }
-
         final List<String> buildBasePackageName = buildBasePackageNameList(basePackageNames);
         final MatcherOperand operand = joinOr(buildBasePackageName);
         if (operand == null) {
@@ -102,10 +99,9 @@ public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultMultiPackageBasedMatcher{");
-        sb.append("basePackageNames=").append(basePackageNames);
-        sb.append(", matcherOperand=").append(matcherOperand);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultMultiPackageBasedMatcher{" +
+                ", basePackageNames=" + basePackageNames +
+                ", matcherOperand=" + matcherOperand +
+                '}';
     }
 }

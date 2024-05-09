@@ -80,14 +80,14 @@ public class DefaultPluginSetup implements PluginSetup {
             }
             final TransformTemplate transformTemplate = new TransformTemplate(guardInstrumentContext);
             ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
-        } else if(plugin instanceof MatchableTransformTemplateAware) {
+        } else if (plugin instanceof MatchableTransformTemplateAware) {
             if (logger.isDebugEnabled()) {
                 logger.debug("{}.setTransformTemplate", plugin.getClass().getName());
             }
+
             final MatchableTransformTemplate transformTemplate = new MatchableTransformTemplate(guardInstrumentContext);
             ((MatchableTransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
         }
         return guardInstrumentContext;
     }
-
 }

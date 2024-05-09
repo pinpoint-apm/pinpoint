@@ -24,12 +24,10 @@ import java.util.Objects;
  * @author emeroad
  */
 public class DefaultMultiClassNameMatcher implements MultiClassNameMatcher {
-
     private final List<String> classNameList;
 
     DefaultMultiClassNameMatcher(List<String> classNameMatcherList) {
         Objects.requireNonNull(classNameMatcherList, "classNameMatcherList");
-        
         this.classNameList = Collections.unmodifiableList(classNameMatcherList);
     }
 
@@ -52,5 +50,12 @@ public class DefaultMultiClassNameMatcher implements MultiClassNameMatcher {
     @Override
     public int hashCode() {
         return classNameList.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultMultiClassNameMatcher{" +
+                ", classNameList=" + classNameList +
+                '}';
     }
 }

@@ -23,6 +23,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -251,6 +253,19 @@ public class SpringWebfluxPluginController {
             System.out.println("ERROR=" + throwable.getMessage());
             return throwable != null;
         }).subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/client/resttemplate")
+    public Mono<String> clientRestTemplate(ServerWebExchange exchange) {
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl
+                = "http://httpbin.org";
+        ResponseEntity<String> response
+                = restTemplate.getForEntity(fooResourceUrl + "/", String.class);
+        System.out.println(response.getStatusCode());
+        System.out.println(response.getBody());
 
         return Mono.just("OK");
     }
