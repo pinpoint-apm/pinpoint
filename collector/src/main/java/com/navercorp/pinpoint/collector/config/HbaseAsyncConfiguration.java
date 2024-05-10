@@ -36,19 +36,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 
 import java.util.List;
 
 @Configuration
-@Import(CommonCacheManagerConfiguration.class)
+@Import({
+        CommonCacheManagerConfiguration.class,
+        HbaseAsyncConfiguration.TableMultiplexerConfig.class
+})
 public class HbaseAsyncConfiguration {
 
     private final Logger logger = LogManager.getLogger(HbaseAsyncConfiguration.class);
-
-    @Bean
-    public HbaseMultiplexerProperties hbaseMultiplexerProperties() {
-        return new HbaseMultiplexerProperties();
-    }
 
     @Bean
     public HbaseBatchPerformanceCounter batchPerformanceCounter() {
@@ -60,16 +59,43 @@ public class HbaseAsyncConfiguration {
         return new HBaseAsyncOperationMetrics(hBaseAsyncOperationList);
     }
 
-    @Bean
+    @Configuration
     @ConditionalOnProperty(name = "hbase.client.put-writer", havingValue = "tableMultiplexer")
-    public HbasePutWriter tableMultiplexerBatchWriter(@Qualifier("batchConnectionFactory") Connection connection,
-                                                           HbaseBatchPerformanceCounter counter,
-                                                           HbaseMultiplexerProperties properties) throws Exception {
-        HBaseTableMultiplexerFactory factory = new HBaseTableMultiplexerFactory(connection, counter);
-        factory.setHbaseMultiplexerProperties(properties);
-        HbasePutWriter writer = factory.getObject();
-        logger.info("HbasePutWriter:{}", writer);
-        return new LoggingHbasePutWriter(writer);
+    public static class TableMultiplexerConfig {
+        private final Logger logger = LogManager.getLogger(TableMultiplexerConfig.class);
+
+        @Bean
+        public HbaseMultiplexerProperties hbaseMultiplexerProperties() {
+            return new HbaseMultiplexerProperties();
+        }
+
+        @Primary
+        @Bean
+        public HbasePutWriter hbasePutWriter(@Qualifier("batchConnectionFactory") Connection connection,
+                                             HbaseBatchPerformanceCounter counter,
+                                             HbaseMultiplexerProperties properties) throws Exception {
+            HbasePutWriter writer = newPutWriter(connection, counter, properties);
+            logger.info("HbaseSpanPutWriter:{}", writer);
+            return writer;
+        }
+
+        @Bean
+        public HbasePutWriter spanPutWriter(@Qualifier("batchConnectionFactory") Connection connection,
+                                             HbaseBatchPerformanceCounter counter,
+                                             HbaseMultiplexerProperties properties) throws Exception {
+            HbasePutWriter writer = newPutWriter(connection, counter, properties);
+            logger.info("HbaseSpanPutWriter:{}", writer);
+            return writer;
+        }
+
+        private HbasePutWriter newPutWriter(Connection connection, HbaseBatchPerformanceCounter counter,
+                                            HbaseMultiplexerProperties properties) throws Exception {
+            HBaseTableMultiplexerFactory factory = new HBaseTableMultiplexerFactory(connection, counter);
+            factory.setHbaseMultiplexerProperties(properties);
+            HbasePutWriter writer = factory.getObject();
+            return new LoggingHbasePutWriter(writer);
+        }
+
     }
 
 

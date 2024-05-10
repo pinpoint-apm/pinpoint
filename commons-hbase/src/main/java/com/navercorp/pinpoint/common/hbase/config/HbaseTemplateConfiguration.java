@@ -54,7 +54,12 @@ import org.springframework.context.annotation.Primary;
 import java.util.Optional;
 
 @org.springframework.context.annotation.Configuration
-@Import(HbaseAsyncCacheConfiguration.class)
+@Import({
+        HbaseAsyncCacheConfiguration.class,
+
+        HbaseTemplateConfiguration.AsyncBufferedHbasePutWriterConfig.class,
+        HbaseTemplateConfiguration.AsyncHbasePutWriterConfig.class,
+})
 public class HbaseTemplateConfiguration {
     private final Logger logger = LogManager.getLogger(HbaseTemplateConfiguration.class);
 
@@ -118,30 +123,91 @@ public class HbaseTemplateConfiguration {
         return template2;
     }
 
-    @Bean
+    @org.springframework.context.annotation.Configuration
     @ConditionalOnProperty(name = "hbase.client.put-writer", havingValue = "asyncTable")
-    public HbasePutWriter asyncHbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
-                                              @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
-        AsyncHbasePutWriter writer = new AsyncHbasePutWriter(asyncTableFactory);
-        HbasePutWriter putWriter = decorator.decorator(writer);
-        logger.info("HbasePutWriter {}", putWriter);
-        return new LoggingHbasePutWriter(putWriter);
+    public static class AsyncHbasePutWriterConfig {
+        private final Logger logger = LogManager.getLogger(AsyncHbasePutWriterConfig.class);
+
+        public AsyncHbasePutWriterConfig() {
+            logger.info("Install {}", AsyncHbasePutWriterConfig.class.getSimpleName());
+        }
+
+        @Primary
+        @Bean
+        public HbasePutWriter hbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                                  @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
+            HbasePutWriter putWriter = newPutWriter(asyncTableFactory, decorator);
+            logger.info("hbasePutWriter {}", putWriter);
+            return putWriter;
+        }
+
+        @Bean
+        public HbasePutWriterDecorator concurrencyDecorator(@Value("${hbase.client.put-writer.concurrency-limit:100000}") int concurrency) {
+            return new ConcurrencyDecorator(concurrency);
+        }
+
+        @Bean
+        public HbasePutWriter spanPutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                             @Qualifier("spanConcurrencyDecorator") HbasePutWriterDecorator decorator) {
+            HbasePutWriter putWriter = newPutWriter(asyncTableFactory, decorator);
+            logger.info("hbaseSpanPutWriter {}", putWriter);
+            return putWriter;
+        }
+
+        @Bean
+        public HbasePutWriterDecorator spanConcurrencyDecorator(@Value("${hbase.client.span-put-writer.concurrency-limit:1000000}") int concurrency) {
+            return new ConcurrencyDecorator(concurrency);
+        }
+
+        private HbasePutWriter newPutWriter(AsyncTableFactory asyncTableFactory, HbasePutWriterDecorator decorator) {
+            HbasePutWriter writer = new AsyncHbasePutWriter(asyncTableFactory);
+            HbasePutWriter putWriter = decorator.decorator(writer);
+            return new LoggingHbasePutWriter(putWriter);
+        }
     }
 
-    @Bean
-    public HbasePutWriterDecorator concurrencyDecorator(@Value("${hbase.client.put-writer.concurrency-limit:1000000}") int concurrency) {
-        return new ConcurrencyDecorator(concurrency);
-    }
 
-
-    @Bean
+    @org.springframework.context.annotation.Configuration
     @ConditionalOnProperty(name = "hbase.client.put-writer", havingValue = "asyncBufferedMutator", matchIfMissing = true)
-    public HbasePutWriter batchHbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
-                                              @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
-        BatchAsyncHbasePutWriter writer = new BatchAsyncHbasePutWriter(asyncTableFactory);
-        HbasePutWriter putWriter = decorator.decorator(writer);
-        logger.info("HbasePutWriter {}", putWriter);
-        return new LoggingHbasePutWriter(putWriter);
+    public static class AsyncBufferedHbasePutWriterConfig {
+        private final Logger logger = LogManager.getLogger(AsyncBufferedHbasePutWriterConfig.class);
+
+        public AsyncBufferedHbasePutWriterConfig() {
+            logger.info("Install {}", AsyncBufferedHbasePutWriterConfig.class.getSimpleName());
+        }
+
+        @Primary
+        @Bean
+        public HbasePutWriter hbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                                  @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
+            HbasePutWriter hbasePutWriter = newPutWriter(asyncTableFactory, decorator);
+            logger.info("hbasePutWriter {}", hbasePutWriter);
+            return hbasePutWriter;
+        }
+
+        @Bean
+        public HbasePutWriterDecorator concurrencyDecorator(@Value("${hbase.client.put-writer.concurrency-limit:100000}") int concurrency) {
+            return new ConcurrencyDecorator(concurrency);
+        }
+
+        @Bean
+        public HbasePutWriter spanPutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                             @Qualifier("spanConcurrencyDecorator") HbasePutWriterDecorator decorator) {
+            HbasePutWriter hbasePutWriter = newPutWriter(asyncTableFactory, decorator);
+            logger.info("HbaseSpanPutWriter {}", hbasePutWriter);
+            return hbasePutWriter;
+        }
+
+        @Bean
+        public HbasePutWriterDecorator spanConcurrencyDecorator(@Value("${hbase.client.span-put-writer.concurrency-limit:1000000}") int concurrency) {
+            return new ConcurrencyDecorator(concurrency);
+        }
+
+        private HbasePutWriter newPutWriter(AsyncTableFactory asyncTableFactory, HbasePutWriterDecorator decorator) {
+            HbasePutWriter writer = new BatchAsyncHbasePutWriter(asyncTableFactory);
+            HbasePutWriter putWriter = decorator.decorator(writer);
+            return new LoggingHbasePutWriter(putWriter);
+        }
     }
 
     @Bean

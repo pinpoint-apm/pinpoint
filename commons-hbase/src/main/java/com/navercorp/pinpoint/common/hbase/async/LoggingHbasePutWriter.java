@@ -55,4 +55,10 @@ public class LoggingHbasePutWriter implements HbasePutWriter {
     }
 
 
+    @Override
+    public String toString() {
+        return "LoggingHbasePutWriter{" +
+                "delegate=" + delegate +
+                '}';
+    }
 }
