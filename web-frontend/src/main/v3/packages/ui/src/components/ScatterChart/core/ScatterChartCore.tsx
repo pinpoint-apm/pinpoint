@@ -137,7 +137,7 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
     React.useEffect(() => {
       const wrapperElement = wrapperRef.current;
       const sc = scatterRef.current;
-      if (!sc && wrapperElement?.clientWidth) {
+      if (!sc && wrapperElement) {
         scatterRef.current = new SC(wrapperElement as HTMLElement, getOption({ x, y }));
 
         addEventListeners();
