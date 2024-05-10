@@ -27,12 +27,14 @@ import java.util.Objects;
 public final class LinkKey {
     private final Application from;
     private final Application to;
-    
-    private int hash;
+
+    // Precalculate hashCode
+    private final int hashCode;
 
     public LinkKey(Application from, Application to) {
         this.from = Objects.requireNonNull(from, "from");
         this.to = Objects.requireNonNull(to, "to");
+        this.hashCode = hashCode0();
     }
 
     public static LinkKey of(String fromApplication, ServiceType fromServiceType, String toApplication, ServiceType toServiceType) {
@@ -64,13 +66,12 @@ public final class LinkKey {
 
     @Override
     public int hashCode() {
-        final int hash = this.hash;
-        if (hash != 0) {
-            return hash;
-        }
+        return hashCode;
+    }
+
+    private int hashCode0() {
         int result = from.hashCode();
         result = 31 * result + to.hashCode();
-        this.hash = result;
         return result;
     }
 
