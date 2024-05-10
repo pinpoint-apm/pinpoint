@@ -62,7 +62,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private final RowKeyEncoder<TransactionId> rowKeyEncoder;
     private final HbasePutWriter putWriter;
 
-    public HbaseTraceDaoV2(HbasePutWriter putWriter,
+    public HbaseTraceDaoV2(@Qualifier("spanPutWriter")
+                           HbasePutWriter putWriter,
                            TableNameProvider tableNameProvider,
                            @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
                            SpanSerializerV2 spanSerializer,
