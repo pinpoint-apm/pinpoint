@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.web.applicationmap.config;
 
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
@@ -28,6 +30,18 @@ import com.navercorp.pinpoint.common.hbase.config.ParallelScan;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCalleeDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapStatisticsCalleeDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.vo.RangeFactory;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.Connection;
@@ -38,7 +52,6 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
@@ -46,14 +59,12 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 @org.springframework.context.annotation.Configuration
-@ComponentScan({
-        "com.navercorp.pinpoint.web.applicationmap.dao.hbase",
-})
 @Import({
         MapMapperConfiguration.class
 })
 public class MapHbaseConfiguration {
     private final Logger logger = LogManager.getLogger(MapHbaseConfiguration.class);
+
     private final HbaseTemplateConfiguration config = new HbaseTemplateConfiguration();
 
     public MapHbaseConfiguration() {
@@ -62,7 +73,7 @@ public class MapHbaseConfiguration {
 
     @Bean
     public FactoryBean<ExecutorService> mapHbaseThreadPool(@Qualifier("hbaseExecutorCustomizer") ExecutorCustomizer<ThreadPoolExecutorFactoryBean> executorCustomizer,
-                                                        @Qualifier("hbaseClientExecutorProperties") ExecutorProperties properties) {
+                                                           @Qualifier("hbaseClientExecutorProperties") ExecutorProperties properties) {
         ThreadPoolExecutorFactoryBean factory = new ThreadPoolExecutorFactoryBean();
         executorCustomizer.customize(factory, properties);
         factory.setThreadNamePrefix("Map-" + factory.getThreadNamePrefix());
@@ -71,8 +82,8 @@ public class MapHbaseConfiguration {
 
     @Bean
     public FactoryBean<Connection> mapHbaseConnection(Configuration configuration,
-                                                   User user,
-                                                   @Qualifier("mapHbaseThreadPool") ExecutorService executorService) {
+                                                      User user,
+                                                      @Qualifier("mapHbaseThreadPool") ExecutorService executorService) {
         return new ConnectionFactoryBean(configuration, user, executorService);
     }
 
@@ -103,5 +114,45 @@ public class MapHbaseConfiguration {
         return config.hbaseTemplate(configurable, tableFactory, asyncTableFactory, parallelScan, nativeAsync, reporter);
     }
 
+    @Bean
+    public MapScanFactory mapScanFactory(RangeFactory rangeFactory) {
+        return new MapScanFactory(rangeFactory);
+    }
+
+    @Bean
+    public MapResponseDao hbaseMapResponseTimeDao(@Qualifier("mapHbaseTemplate")
+                                                  HbaseTemplate hbaseTemplate,
+                                                  TableNameProvider tableNameProvider,
+                                                  @Qualifier("responseTimeMapper")
+                                                  RowMapper<ResponseTime> responseTimeMapper,
+                                                  MapScanFactory mapScanFactory,
+                                                  @Qualifier("statisticsSelfRowKeyDistributor")
+                                                  RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return new HbaseMapResponseTimeDao(hbaseTemplate, tableNameProvider, responseTimeMapper, mapScanFactory, rowKeyDistributor);
+    }
+
+    @Bean
+    public MapStatisticsCalleeDao hbaseMapStatisticsCalleeDao(@Qualifier("mapHbaseTemplate")
+                                                              HbaseTemplate hbaseTemplate,
+                                                              TableNameProvider tableNameProvider,
+                                                              @Qualifier("mapCalleeMapper")
+                                                              RowMapperFactory<LinkDataMap> calleeMapper,
+                                                              MapScanFactory mapScanFactory,
+                                                              @Qualifier("statisticsCalleeRowKeyDistributor")
+                                                              RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return new HbaseMapStatisticsCalleeDao(hbaseTemplate, tableNameProvider, calleeMapper, mapScanFactory, rowKeyDistributor);
+    }
+
+    @Bean
+    public MapStatisticsCallerDao hbaseMapStatisticsCallerDao(@Qualifier("mapHbaseTemplate")
+                                                              HbaseTemplate hbaseTemplate,
+                                                              TableNameProvider tableNameProvider,
+                                                              @Qualifier("mapCallerMapper")
+                                                              RowMapperFactory<LinkDataMap> callerMapper,
+                                                              MapScanFactory mapScanFactory,
+                                                              @Qualifier("statisticsCallerRowKeyDistributor")
+                                                              RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return new HbaseMapStatisticsCallerDao(hbaseTemplate, tableNameProvider, callerMapper, mapScanFactory, rowKeyDistributor);
+    }
 }
 
