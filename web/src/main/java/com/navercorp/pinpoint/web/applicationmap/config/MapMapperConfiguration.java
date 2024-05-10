@@ -7,9 +7,9 @@ import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.MapStatisticsCalleeMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.MapStatisticsCallerMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResponseTimeMapper;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.web.util.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,33 +20,18 @@ import org.springframework.context.annotation.Configuration;
 public class MapMapperConfiguration {
 
     @Bean
-    public RowMapper<LinkDataMap> mapStatisticsCallerMapper(ApplicationFactory applicationFactory,
-                                                            @Qualifier("statisticsCallerRowKeyDistributor")
-                                                            RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new MapStatisticsCallerMapper(applicationFactory, rowKeyDistributor, LinkFilter::skip, TimeWindowFunction.identity());
+    public RowMapperFactory<LinkDataMap> mapCallerMapper(ApplicationFactory applicationFactory,
+                                                         @Qualifier("statisticsCallerRowKeyDistributor")
+                                         RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return (windowFunction) -> new MapStatisticsCallerMapper(applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
     }
 
     @Bean
-    public RowMapper<LinkDataMap> mapStatisticsCallerTimeAggregatedMapper(ApplicationFactory applicationFactory,
-                                                                          @Qualifier("statisticsCallerRowKeyDistributor")
-                                                                          RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new MapStatisticsCallerMapper(applicationFactory, rowKeyDistributor, LinkFilter::skip, TimeWindowFunction.ALL_IN_ONE);
-    }
-
-    @Bean
-    public RowMapper<LinkDataMap> mapStatisticsCalleeMapper(ServiceTypeRegistryService registry,
-                                                            ApplicationFactory applicationFactory,
-                                                            @Qualifier("statisticsCalleeRowKeyDistributor")
-                                                            RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new MapStatisticsCalleeMapper(registry, applicationFactory, rowKeyDistributor, LinkFilter::skip, TimeWindowFunction.identity());
-    }
-
-    @Bean
-    public RowMapper<LinkDataMap> mapStatisticsCalleeTimeAggregatedMapper(ServiceTypeRegistryService registry,
-                                                                          ApplicationFactory applicationFactory,
-                                                                          @Qualifier("statisticsCalleeRowKeyDistributor")
-                                                                          RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new MapStatisticsCalleeMapper(registry, applicationFactory, rowKeyDistributor, LinkFilter::skip, TimeWindowFunction.ALL_IN_ONE);
+    public RowMapperFactory<LinkDataMap> mapCalleeMapper(ServiceTypeRegistryService registry,
+                                                         ApplicationFactory applicationFactory,
+                                                         @Qualifier("statisticsCalleeRowKeyDistributor")
+                                         RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return (windowFunction) -> new MapStatisticsCalleeMapper(registry, applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
     }
 
     @Bean

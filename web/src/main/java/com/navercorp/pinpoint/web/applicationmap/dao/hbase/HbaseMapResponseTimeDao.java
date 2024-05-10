@@ -20,18 +20,15 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -51,27 +48,25 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private static final HbaseColumnFamily.SelfStatMap DESCRIPTOR = HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER;
 
-    private int scanCacheSize = 40;
-
     private final RowMapper<ResponseTime> responseTimeMapper;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
-    private final RangeFactory rangeFactory;
+    private final MapScanFactory scanFactory;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final RowKeyDistributorByHashPrefix rowKeyDistributor;
 
-    public HbaseMapResponseTimeDao(@Qualifier("mapHbaseTemplate") HbaseOperations hbaseOperations,
+    public HbaseMapResponseTimeDao(HbaseOperations hbaseOperations,
                                    TableNameProvider tableNameProvider,
-                                   @Qualifier("responseTimeMapper") RowMapper<ResponseTime> responseTimeMapper,
-                                   RangeFactory rangeFactory,
-                                   @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+                                   RowMapper<ResponseTime> responseTimeMapper,
+                                   MapScanFactory scanFactory,
+                                   RowKeyDistributorByHashPrefix rowKeyDistributor) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.responseTimeMapper = Objects.requireNonNull(responseTimeMapper, "responseTimeMapper");
-        this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+        this.scanFactory = Objects.requireNonNull(scanFactory, "scanFactory");
+        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
 
@@ -83,36 +78,16 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
             logger.debug("selectResponseTime applicationName:{}, {}", application, range);
         }
 
-        Scan scan = createScan(application, range, DESCRIPTOR.getName());
+        Scan scan = scanFactory.createScan("MapSelfScan", application, range, DESCRIPTOR.getName());
 
         TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<ResponseTime> responseTimeList = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
+        List<ResponseTime> responseTimeList = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
 
         if (responseTimeList.isEmpty()) {
             return new ArrayList<>();
         }
 
         return responseTimeList;
-    }
-
-    private Scan createScan(Application application, Range range, byte[] family) {
-        range = rangeFactory.createStatisticsRange(range);
-        if (logger.isDebugEnabled()) {
-            logger.debug("scan time:{} ", range.prettyToString());
-        }
-
-        // start key is replaced by end key because timestamp has been reversed
-        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
-        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
-
-        final Scan scan = new Scan();
-        scan.setCaching(this.scanCacheSize);
-        scan.withStartRow(startKey);
-        scan.withStopRow(endKey);
-        scan.addFamily(family);
-        scan.setId("ApplicationSelfScan");
-
-        return scan;
     }
 
 }
