@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
@@ -32,16 +31,14 @@ import java.util.Objects;
  */
 public class ApplicationTimeHistogram {
     private final Application application;
-    private final Range range;
     private final List<TimeHistogram> histogramList;
 
-    public ApplicationTimeHistogram(Application application, Range range) {
-        this(application, range, Collections.emptyList());
+    public ApplicationTimeHistogram(Application application) {
+        this(application, Collections.emptyList());
     }
 
-    public ApplicationTimeHistogram(Application application, Range range, List<TimeHistogram> histogramList) {
+    public ApplicationTimeHistogram(Application application, List<TimeHistogram> histogramList) {
         this.application = Objects.requireNonNull(application, "application");
-        this.range = Objects.requireNonNull(range, "range");
         this.histogramList = Objects.requireNonNull(histogramList, "histogramList");
     }
 

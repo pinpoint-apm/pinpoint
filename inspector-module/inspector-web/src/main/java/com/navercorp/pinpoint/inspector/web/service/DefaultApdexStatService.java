@@ -77,7 +77,7 @@ public class DefaultApdexStatService implements ApdexStatService {
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        AgentApdexScoreChart agentApdexScoreChart = (AgentApdexScoreChart) apdexScoreService.selectAgentChart(application, range, timeWindow, agentId);
+        AgentApdexScoreChart agentApdexScoreChart = (AgentApdexScoreChart) apdexScoreService.selectAgentChart(application, timeWindow, agentId);
 
         return convertToInspectorMetricData(metricDefinition, agentApdexScoreChart);
     }
@@ -88,7 +88,7 @@ public class DefaultApdexStatService implements ApdexStatService {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-        ApplicationApdexScoreChart applicationApdexScoreChart = (ApplicationApdexScoreChart) apdexScoreService.selectApplicationChart(application, range, timeWindow);
+        ApplicationApdexScoreChart applicationApdexScoreChart = (ApplicationApdexScoreChart) apdexScoreService.selectApplicationChart(application, timeWindow);
 
         return convertToInspectorMetricData(metricDefinition, applicationApdexScoreChart);
     }

@@ -39,7 +39,9 @@ public class MapResponseNodeHistogramDataSource implements WasNodeHistogramDataS
     @Override
     public NodeHistogram createNodeHistogram(Application application, Range range) {
         List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
-        final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseTimes);
-        return nodeHistogram;
+
+        NodeHistogram.Builder builder = NodeHistogram.newBuilder(application, range);
+        builder.setResponseHistogram(responseTimes);
+        return builder.build();
     }
 }

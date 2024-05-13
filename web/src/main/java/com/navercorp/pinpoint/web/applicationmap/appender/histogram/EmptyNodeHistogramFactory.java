@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
-import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
+import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  * @author HyunGil Jeong
@@ -28,26 +28,26 @@ public class EmptyNodeHistogramFactory implements NodeHistogramFactory {
 
     @Override
     public NodeHistogram createWasNodeHistogram(Application wasApplication, Range range) {
-        return new NodeHistogram(wasApplication, range);
+        return NodeHistogram.empty(wasApplication, range);
     }
 
     @Override
     public NodeHistogram createTerminalNodeHistogram(Application terminalApplication, Range range, LinkList linkList) {
-        return new NodeHistogram(terminalApplication, range);
+        return NodeHistogram.empty(terminalApplication, range);
     }
 
     @Override
     public NodeHistogram createUserNodeHistogram(Application userApplication, Range range, LinkList linkList) {
-        return new NodeHistogram(userApplication, range);
+        return NodeHistogram.empty(userApplication, range);
     }
 
     @Override
     public NodeHistogram createQueueNodeHistogram(Application queueApplication, Range range, LinkList linkList) {
-        return new NodeHistogram(queueApplication, range);
+        return NodeHistogram.empty(queueApplication, range);
     }
 
     @Override
     public NodeHistogram createEmptyNodeHistogram(Application application, Range range) {
-        return new NodeHistogram(application, range);
+        return NodeHistogram.empty(application, range);
     }
 }

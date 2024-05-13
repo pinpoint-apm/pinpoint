@@ -85,9 +85,10 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
     }
 
     @Override
-    public StatChart selectApplicationChart(Application application, Range range, TimeWindow timeWindow) {
+    public StatChart<?> selectApplicationChart(Application application, TimeWindow timeWindow) {
+        Range range = timeWindow.getWindowRange();
         List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
-        AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, range, timeWindow, responseTimeList);
+        AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, timeWindow, responseTimeList);
 
         List<DoubleApplicationStatPoint> applicationStatPoints = timeHistogram.getApplicationApdexScoreList(timeWindow);
 
@@ -95,17 +96,17 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
     }
 
     @Override
-    public StatChart selectAgentChart(Application application, Range range, TimeWindow timeWindow, String agentId) {
+    public StatChart<?> selectAgentChart(Application application, TimeWindow timeWindow, String agentId) {
+        Range range = timeWindow.getWindowRange();
         List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
-        AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, range, timeWindow, responseTimeList);
+        AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, timeWindow, responseTimeList);
 
         List<SampledApdexScore> sampledPoints = timeHistogram.getSampledAgentApdexScoreList(agentId);
         return new AgentApdexScoreChart(timeWindow, sampledPoints);
     }
 
-    private AgentTimeHistogram createAgentTimeHistogram(Application application, Range range, TimeWindow timeWindow, List<ResponseTime> responseHistogramList) {
-        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(application, range, timeWindow);
-        AgentTimeHistogram timeHistogram = builder.build(responseHistogramList);
-        return timeHistogram;
+    private AgentTimeHistogram createAgentTimeHistogram(Application application, TimeWindow timeWindow, List<ResponseTime> responseHistogramList) {
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(application, timeWindow);
+        return builder.build(responseHistogramList);
     }
 }

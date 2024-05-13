@@ -100,7 +100,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     @Override
     public ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range) {
         List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
-        return new ApplicationTimeHistogramViewModel(application, range, new AgentHistogramList(application, responseTimes));
+        return new ApplicationTimeHistogramViewModel(application, new AgentHistogramList(application, responseTimes));
     }
 
     @Override
@@ -177,7 +177,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     private NodeHistogramSummary createEmptyNodeHistogramSummary(ServerGroupListFactory serverGroupListFactory, Application application, Range range) {
         ServerGroupList serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
-        NodeHistogram emptyNodeHistogram = new NodeHistogram(application, range);
+        NodeHistogram emptyNodeHistogram = NodeHistogram.empty(application, range);
         return new NodeHistogramSummary(application, serverGroupList, emptyNodeHistogram);
     }
 
