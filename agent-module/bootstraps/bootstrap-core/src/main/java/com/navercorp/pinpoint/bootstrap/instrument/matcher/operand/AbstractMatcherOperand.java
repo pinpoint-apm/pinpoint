@@ -18,12 +18,10 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher.operand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOperator;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.NotMatcherOperator;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.OrMatcherOperator;
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public abstract class AbstractMatcherOperand implements MatcherOperand {
     public boolean isOperator() {
         return false;

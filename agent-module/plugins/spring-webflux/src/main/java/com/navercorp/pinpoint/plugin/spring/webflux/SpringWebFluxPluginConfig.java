@@ -34,10 +34,13 @@ public class SpringWebFluxPluginConfig {
     private final boolean uriStatEnable;
     private final boolean uriStatUseUserInput;
     private final boolean uriStatCollectMethod;
+    private final boolean versionForcedMatch;
+
     public SpringWebFluxPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
 
-        this.enable = config.readBoolean("profiler.spring.webflux.enable", true);
+        this.enable = config.readBoolean("profiler.spring.webflux5.enable", true);
+        this.versionForcedMatch = config.readBoolean("profiler.spring.webflux5.version.forced.match", false);
 
         // Client
         this.clientEnable = config.readBoolean("profiler.spring.webflux.client.enable", false);
@@ -80,15 +83,21 @@ public class SpringWebFluxPluginConfig {
         return uriStatUseUserInput;
     }
 
+    public boolean isVersionForcedMatch() {
+        return versionForcedMatch;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpringWebFluxPluginConfig{");
-        sb.append("enable=").append(enable);
-        sb.append(", param=").append(param);
-        sb.append(", httpDumpConfig=").append(httpDumpConfig);
-        sb.append(", uriStatEnable=").append(uriStatEnable);
-        sb.append(", uriStatUseUserInput=").append(uriStatUseUserInput);
-        sb.append('}');
-        return sb.toString();
+        return "SpringWebFluxPluginConfig{" +
+                "enable=" + enable +
+                ", param=" + param +
+                ", httpDumpConfig=" + httpDumpConfig +
+                ", clientEnable=" + clientEnable +
+                ", uriStatEnable=" + uriStatEnable +
+                ", uriStatUseUserInput=" + uriStatUseUserInput +
+                ", uriStatCollectMethod=" + uriStatCollectMethod +
+                ", versionForcedMatch=" + versionForcedMatch +
+                '}';
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
     private final boolean isAnnotation;
     private final boolean isSynthetic;
     private final boolean isInnerClass;
+    private URL codeSourceLocation;
 
     public DefaultInternalClassMetadata(final String classInternalName, final String superClassInternalName, final List<String> interfaceInternalNames, final List<String> annotationInternalNames, final boolean isInterface, final boolean isAnnotation, final boolean isSynthetic, final boolean isInnerClass) {
         this.classInternalName = classInternalName;
@@ -95,18 +97,26 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
         return isInnerClass;
     }
 
+    public URL getCodeSourceLocation() {
+        return codeSourceLocation;
+    }
+
+    public void setCodeSourceLocation(URL codeLocation) {
+        this.codeSourceLocation = codeLocation;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("classInternalName='").append(classInternalName).append('\'');
-        sb.append(", superClassInternalName='").append(superClassInternalName).append('\'');
-        sb.append(", interfaceInternalNames=").append(interfaceInternalNames);
-        sb.append(", annotationInternalNames=").append(annotationInternalNames);
-        sb.append(", isInterface=").append(isInterface);
-        sb.append(", isAnnotation=").append(isAnnotation);
-        sb.append(", isSynthetic=").append(isSynthetic);
-        sb.append(", isInnerClass=").append(isInnerClass);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultInternalClassMetadata{" +
+                "classInternalName='" + classInternalName + '\'' +
+                ", superClassInternalName='" + superClassInternalName + '\'' +
+                ", interfaceInternalNames=" + interfaceInternalNames +
+                ", annotationInternalNames=" + annotationInternalNames +
+                ", isInterface=" + isInterface +
+                ", isAnnotation=" + isAnnotation +
+                ", isSynthetic=" + isSynthetic +
+                ", isInnerClass=" + isInnerClass +
+                ", codeSourceLocation=" + codeSourceLocation +
+                '}';
     }
 }

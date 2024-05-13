@@ -51,9 +51,8 @@ public class DefaultClassNameMatcher implements ClassNameMatcher {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultClassNameMatcher{");
-        sb.append(className);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultClassNameMatcher{" +
+                ", className='" + className + '\'' +
+                '}';
     }
 }

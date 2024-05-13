@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Objects;
@@ -25,7 +24,6 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public class DefaultPackageBasedMatcher implements PackageBasedMatcher {
     private final String basePackageName;
     private final MatcherOperand matcherOperand;
@@ -61,10 +59,9 @@ public class DefaultPackageBasedMatcher implements PackageBasedMatcher {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultPackageBasedMatcher{");
-        sb.append("basePackageName='").append(basePackageName).append('\'');
-        sb.append(", matcherOperand=").append(matcherOperand);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultPackageBasedMatcher{" +
+                ", basePackageName='" + basePackageName + '\'' +
+                ", matcherOperand=" + matcherOperand +
+                '}';
     }
 }

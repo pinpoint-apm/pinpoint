@@ -58,6 +58,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-resttemplate6-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-netty-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -219,6 +224,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-spring-webflux-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-spring-webflux6-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

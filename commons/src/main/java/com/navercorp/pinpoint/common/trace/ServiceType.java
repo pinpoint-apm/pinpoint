@@ -169,6 +169,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>5053</td><td>SPRING_WEBFLUX</td></tr>
  * <tr><td>5054</td><td>SPRING_TX</td></tr>
  * <tr><td>5055</td><td>SPRING_CLOUD_SLEUTH</td></tr>
+ * <tr><td>5056</td><td>SPRING_WEBFLUX6</td></tr>
  * <tr><td>5061</td><td><i>RESERVED</i></td></tr>
  * <tr><td>5071</td><td>SPRING_BEAN</td></tr>
  * <tr><td>5500</td><td>IBATIS</td></tr>
@@ -264,12 +265,14 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>9130</td><td>VERTX_HTTP_CLIENT</td></tr>
  * <tr><td>9131</td><td>VERTX_HTTP_CLIENT_INTERNAL</td></tr>
  * <tr><td>9140</td><td>REST_TEMPLATE</td></tr>
+ * <tr><td>9141</td><td>REST_TEMPLATE6</td></tr>
  * <tr><td>9150</td><td>NETTY</td></tr>
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
  * <tr><td>9153</td><td>SPRING_WEBFLUX_CLIENT</td></tr>
  * <tr><td>9154</td><td>REACTOR_NETTY_CLIENT</td></tr>
  * <tr><td>9155</td><td>REACTOR_NETTY_CLIENT_INTERNAL</td></tr>
+ * <tr><td>9156</td><td>SPRING_WEBFLUX6_CLIENT</td></tr>
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>

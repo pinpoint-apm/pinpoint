@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.List;
@@ -25,7 +24,6 @@ import java.util.List;
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public class DefaultMultiClassBasedMatcher implements MultiClassBasedMatcher {
     private final List<String> baseClassNames;
     private final MatcherOperand matcherOperand;
@@ -39,7 +37,6 @@ public class DefaultMultiClassBasedMatcher implements MultiClassBasedMatcher {
             throw new IllegalArgumentException("basePackageNames must not be empty");
         }
         this.baseClassNames = baseClassNames;
-
         this.matcherOperand = getMatcherOperand(baseClassNames, additional);
     }
 
@@ -82,10 +79,9 @@ public class DefaultMultiClassBasedMatcher implements MultiClassBasedMatcher {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultMultiClassBasedMatcher{");
-        sb.append("baseClassNames=").append(baseClassNames);
-        sb.append(", matcherOperand=").append(matcherOperand);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultMultiClassBasedMatcher{" +
+                ", baseClassNames=" + baseClassNames +
+                ", matcherOperand=" + matcherOperand +
+                '}';
     }
 }

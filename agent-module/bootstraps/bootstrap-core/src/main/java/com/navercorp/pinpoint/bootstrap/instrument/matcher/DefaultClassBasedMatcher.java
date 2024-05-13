@@ -17,14 +17,12 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public class DefaultClassBasedMatcher implements ClassBasedMatcher {
     private final String baseClassName;
     private final MatcherOperand matcherOperand;
@@ -35,7 +33,6 @@ public class DefaultClassBasedMatcher implements ClassBasedMatcher {
 
     DefaultClassBasedMatcher(final String baseClassName, final MatcherOperand additional) {
         this.baseClassName = Objects.requireNonNull(baseClassName, "baseClassName");
-
         this.matcherOperand = getMatcherOperand(baseClassName, additional);
     }
 
@@ -60,10 +57,9 @@ public class DefaultClassBasedMatcher implements ClassBasedMatcher {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultClassBasedMatcher{");
-        sb.append("baseClassName='").append(baseClassName).append('\'');
-        sb.append(", matcherOperand=").append(matcherOperand);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultClassBasedMatcher{" +
+                ", baseClassName='" + baseClassName + '\'' +
+                ", matcherOperand=" + matcherOperand +
+                '}';
     }
 }

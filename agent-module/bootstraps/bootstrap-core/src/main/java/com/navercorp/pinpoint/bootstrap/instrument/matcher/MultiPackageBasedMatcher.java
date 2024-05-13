@@ -15,14 +15,11 @@
  */
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-
 import java.util.List;
 
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 interface MultiPackageBasedMatcher extends BasedMatcher {
     List<String> getBasePackageNames();
 }

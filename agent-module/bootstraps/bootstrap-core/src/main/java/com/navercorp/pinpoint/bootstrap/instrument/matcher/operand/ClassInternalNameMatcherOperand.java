@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.bootstrap.instrument.matcher.operand;
 
-import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import com.navercorp.pinpoint.common.util.ClassUtils;
 
 import java.util.Objects;
@@ -23,7 +22,6 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Unstable
 public class ClassInternalNameMatcherOperand extends AbstractMatcherOperand {
     private final String classInternalName;
 
