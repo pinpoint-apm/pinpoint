@@ -54,6 +54,7 @@ mappings:
   - definitionId: "cpu"
     metricName: "cpuLoad"
     title: "JVM/System CPU Usage"
+    postProcess: "percentageScale"
     fields:
       - fieldName: "jvm"
         matchingRule: EXACT_ONE
