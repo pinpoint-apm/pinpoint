@@ -239,7 +239,8 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             // Add attribute listener.
             final InstrumentMethod lookupHandlerMethod = target.getDeclaredMethod("lookupHandlerMethod", "org.springframework.web.server.ServerWebExchange");
             if (lookupHandlerMethod != null) {
-                lookupHandlerMethod.addInterceptor(AbstractHandlerMethodMappingInterceptor.class, va(uriStatCollectMethod));
+                final int springVersion = SpringVersion.getVersion(classLoader);
+                lookupHandlerMethod.addInterceptor(AbstractHandlerMethodMappingInterceptor.class, va(uriStatCollectMethod, springVersion));
             }
             return target.toBytecode();
         }
@@ -259,7 +260,8 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             // Add attribute listener.
             final InstrumentMethod exposePathWithinMapping = target.getDeclaredMethod("lookupHandler", "org.springframework.http.server.PathContainer", "org.springframework.web.server.ServerWebExchange");
             if (exposePathWithinMapping != null) {
-                exposePathWithinMapping.addInterceptor(AbstractUrlHandlerMappingInterceptor.class, va(uriStatCollectMethod));
+                final int springVersion = SpringVersion.getVersion(classLoader);
+                exposePathWithinMapping.addInterceptor(AbstractUrlHandlerMappingInterceptor.class, va(uriStatCollectMethod, springVersion));
             }
             return target.toBytecode();
         }
