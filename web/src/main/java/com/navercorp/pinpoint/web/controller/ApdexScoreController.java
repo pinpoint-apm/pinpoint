@@ -96,7 +96,7 @@ public class ApdexScoreController {
 
         Application application = applicationFactory.createApplication(applicationId, serviceTypeCode);
 
-        return apdexScoreService.selectApplicationChart(application, range, timeWindow);
+        return apdexScoreService.selectApplicationChart(application, timeWindow);
     }
 
     @GetMapping(value = "/getApplicationStat/apdexScore/chart", params = "serviceTypeName")
@@ -110,7 +110,7 @@ public class ApdexScoreController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationId, serviceTypeName);
 
-        return apdexScoreService.selectApplicationChart(application, range, timeWindow);
+        return apdexScoreService.selectApplicationChart(application, timeWindow);
     }
 
     @GetMapping(value = "/getAgentStat/apdexScore/chart")
@@ -125,7 +125,7 @@ public class ApdexScoreController {
 
         Application application = applicationFactory.createApplication(applicationId, serviceTypeCode);
 
-        return apdexScoreService.selectAgentChart(application, range, timeWindow, agentId);
+        return apdexScoreService.selectAgentChart(application, timeWindow, agentId);
     }
 
     @GetMapping(value = "/getAgentStat/apdexScore/chart", params = "serviceTypeName")
@@ -140,6 +140,6 @@ public class ApdexScoreController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationId, serviceTypeName);
 
-        return apdexScoreService.selectAgentChart(application, range, timeWindow, agentId);
+        return apdexScoreService.selectAgentChart(application, timeWindow, agentId);
     }
 }

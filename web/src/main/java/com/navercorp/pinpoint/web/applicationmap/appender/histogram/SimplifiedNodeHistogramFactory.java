@@ -37,7 +37,7 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
     @Override
     public NodeHistogram createTerminalNodeHistogram(Application terminalApplication, Range range, LinkList linkList) {
         // for Terminal nodes, add all links pointing to the application and create the histogram
-        final NodeHistogram nodeHistogram = new NodeHistogram(terminalApplication, range);
+        NodeHistogram.Builder builder = NodeHistogram.newBuilder(terminalApplication, range);
 
         // create applicationHistogram
         final List<Link> toLinkList = linkList.findToLink(terminalApplication);
@@ -47,7 +47,7 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
         for (Link link : toLinkList) {
             applicationHistogram.add(link.getHistogram());
         }
-        nodeHistogram.setApplicationHistogram(applicationHistogram);
+        builder.setApplicationHistogram(applicationHistogram);
 
         // create Agent histogram map for StatisticsAgentState
         if (terminalService.isTerminal() || terminalService.isAlias()) {
@@ -63,17 +63,16 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
                     }
                     find.add(histogram.getHistogram());
                 }
-                nodeHistogram.setAgentHistogramMap(agentHistogramMap);
+                builder.setAgentHistogramMap(agentHistogramMap);
             }
         }
 
-        return nodeHistogram;
+        return builder.build();
     }
 
     @Override
     public NodeHistogram createUserNodeHistogram(Application userApplication, Range range, LinkList linkList) {
         // for User nodes, find its source link and create the histogram
-        final NodeHistogram nodeHistogram = new NodeHistogram(userApplication, range);
         final List<Link> fromLink = linkList.findFromLink(userApplication);
         if (fromLink.isEmpty()) {
             logger.warn("from UserNode not found:{}", userApplication);
@@ -83,32 +82,32 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
             logger.warn("Invalid from UserNode:{}", linkList.getLinkList());
         }
         final Link sourceLink = fromLink.get(0);
-        nodeHistogram.setApplicationHistogram(sourceLink.getHistogram());
 
-        return nodeHistogram;
+        NodeHistogram.Builder builder = NodeHistogram.newBuilder(userApplication, range);
+        builder.setApplicationHistogram(sourceLink.getHistogram());
+        return builder.build();
     }
 
     @Override
     public NodeHistogram createQueueNodeHistogram(Application queueApplication, Range range, LinkList linkList) {
         final List<Link> toLinkList = linkList.findToLink(queueApplication);
         if (toLinkList.isEmpty()) {
-            return new NodeHistogram(queueApplication, range);
+            return NodeHistogram.empty(queueApplication, range);
         }
-
-        final NodeHistogram nodeHistogram = new NodeHistogram(queueApplication, range);
 
         // create applicationHistogram
         final Histogram applicationHistogram = new Histogram(queueApplication.getServiceType());
         for (Link link : toLinkList) {
             applicationHistogram.add(link.getHistogram());
         }
-        nodeHistogram.setApplicationHistogram(applicationHistogram);
 
-        return nodeHistogram;
+        NodeHistogram.Builder builder = NodeHistogram.newBuilder(queueApplication, range);
+        builder.setApplicationHistogram(applicationHistogram);
+        return builder.build();
     }
 
     @Override
     public NodeHistogram createEmptyNodeHistogram(Application application, Range range) {
-        return new NodeHistogram(application, range);
+        return NodeHistogram.empty(application, range);
     }
 }

@@ -83,7 +83,7 @@ public class AgentTimeHistogramTest {
         Application app = new Application("test", ServiceType.STAND_ALONE);
         Range range = Range.between(0L, 1000L * 60);
         TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
-        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, range, timeWindow);
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, timeWindow);
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test3", "test4");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
@@ -102,7 +102,7 @@ public class AgentTimeHistogramTest {
         Application app = new Application("test", ServiceType.STAND_ALONE);
         Range range = Range.between(0L, 1000L * 60);
         TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
-        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, range, timeWindow);
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, timeWindow);
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test5", "test6");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 

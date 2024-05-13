@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -53,18 +52,15 @@ public class AgentTimeHistogram {
             = Comparator.comparing(AgentResponseTimeViewModel::getAgentName);
 
     private final Application application;
-    private final Range range;
     private final AgentHistogramList agentHistogramList;
 
-    public AgentTimeHistogram(Application application, Range range) {
+    public AgentTimeHistogram(Application application) {
         this.application = Objects.requireNonNull(application, "application");
-        this.range = Objects.requireNonNull(range, "range");
         this.agentHistogramList = new AgentHistogramList();
     }
 
-    public AgentTimeHistogram(Application application, Range range, AgentHistogramList agentHistogramList) {
+    public AgentTimeHistogram(Application application, AgentHistogramList agentHistogramList) {
         this.application = Objects.requireNonNull(application, "application");
-        this.range = Objects.requireNonNull(range, "range");
         this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
     }
 
@@ -97,8 +93,7 @@ public class AgentTimeHistogram {
 
     private AgentResponseTimeViewModel createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
         List<TimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList, timeHistogramFormat);
-        AgentResponseTimeViewModel agentResponseTimeViewModel = new AgentResponseTimeViewModel(agentName, responseTimeViewModel);
-        return agentResponseTimeViewModel;
+        return new AgentResponseTimeViewModel(agentName, responseTimeViewModel);
     }
 
     private List<TimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {

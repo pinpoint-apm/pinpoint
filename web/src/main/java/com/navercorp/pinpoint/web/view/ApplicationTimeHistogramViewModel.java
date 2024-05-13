@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +33,11 @@ import java.util.List;
 public class ApplicationTimeHistogramViewModel {
 
     private final Application application;
-    private final Range range;
     private final AgentHistogramList agentHistogramList;
     private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
-    public ApplicationTimeHistogramViewModel(Application application, Range range, AgentHistogramList agentHistogramList) {
+    public ApplicationTimeHistogramViewModel(Application application, AgentHistogramList agentHistogramList) {
         this.application = application;
-        this.range = range;
         this.agentHistogramList = agentHistogramList;
     }
 
@@ -59,9 +56,8 @@ public class ApplicationTimeHistogramViewModel {
     }
 
     public List<AgentResponseTimeViewModel> getTimeSeriesViewModel() {
-        AgentTimeHistogram histogram = new AgentTimeHistogram(application, range, agentHistogramList);
-        List<AgentResponseTimeViewModel> timeSeriesViewModelList = histogram.createViewModel(timeHistogramFormat);
-        return timeSeriesViewModelList;
+        AgentTimeHistogram histogram = new AgentTimeHistogram(application, agentHistogramList);
+        return histogram.createViewModel(timeHistogramFormat);
     }
 
 }

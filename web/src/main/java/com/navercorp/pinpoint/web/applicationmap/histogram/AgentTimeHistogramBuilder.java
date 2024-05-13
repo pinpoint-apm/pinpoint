@@ -36,18 +36,15 @@ import java.util.Objects;
 public class AgentTimeHistogramBuilder {
 
     private final Application application;
-    private final Range range;
     private final TimeWindow window;
 
     public AgentTimeHistogramBuilder(Application application, Range range) {
         this.application = Objects.requireNonNull(application, "application");
-        this.range = Objects.requireNonNull(range, "range");
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
     }
 
-    public AgentTimeHistogramBuilder(Application application, Range range, TimeWindow window) {
+    public AgentTimeHistogramBuilder(Application application, TimeWindow window) {
         this.application = Objects.requireNonNull(application, "application");
-        this.range = Objects.requireNonNull(range, "range");
         this.window = Objects.requireNonNull(window, "window");
     }
 
@@ -71,7 +68,7 @@ public class AgentTimeHistogramBuilder {
 
     private AgentTimeHistogram build(AgentHistogramList agentHistogramList) {
         AgentHistogramList histogramList = interpolation(agentHistogramList, window);
-        return new AgentTimeHistogram(application, range, histogramList);
+        return new AgentTimeHistogram(application, histogramList);
     }
 
 

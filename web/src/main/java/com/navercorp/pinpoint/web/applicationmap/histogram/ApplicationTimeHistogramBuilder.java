@@ -16,17 +16,21 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -35,14 +39,11 @@ public class ApplicationTimeHistogramBuilder {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Application application;
-    private final Range range;
     private final TimeWindow window;
-
 
 
     public ApplicationTimeHistogramBuilder(Application application, Range range) {
         this.application = Objects.requireNonNull(application, "application");
-        this.range = Objects.requireNonNull(range, "range");
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
     }
 
@@ -71,8 +72,7 @@ public class ApplicationTimeHistogramBuilder {
                 logger.trace("applicationLevel histogram:{}", histogram);
             }
         }
-        ApplicationTimeHistogram applicationTimeHistogram = new ApplicationTimeHistogram(application, range, histogramList);
-        return applicationTimeHistogram;
+        return new ApplicationTimeHistogram(application, histogramList);
     }
 
     public ApplicationTimeHistogram build(Collection<LinkCallData> linkCallDataMapList) {
@@ -95,8 +95,7 @@ public class ApplicationTimeHistogramBuilder {
                 logger.trace("applicationLevel histogram:{}", histogram);
             }
         }
-        ApplicationTimeHistogram applicationTimeHistogram = new ApplicationTimeHistogram(application, range, histogramList);
-        return applicationTimeHistogram;
+        return new ApplicationTimeHistogram(application, histogramList);
 
     }
 

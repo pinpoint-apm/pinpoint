@@ -114,7 +114,7 @@ public class NodeHistogramAppenderTest {
         Node node = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
         nodeList.addNode(node);
 
-        NodeHistogram nodeHistogram = new NodeHistogram(node.getApplication(), range);
+        NodeHistogram nodeHistogram = NodeHistogram.empty(node.getApplication(), range);
         when(wasNodeHistogramDataSource.createNodeHistogram(node.getApplication(), range)).thenReturn(nodeHistogram);
         // When
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);

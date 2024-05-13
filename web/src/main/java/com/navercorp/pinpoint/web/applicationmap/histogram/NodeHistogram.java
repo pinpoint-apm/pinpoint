@@ -48,41 +48,56 @@ public class NodeHistogram {
     private final Range range;
 
     // ApplicationLevelHistogram
-    private Histogram applicationHistogram;
+    private final Histogram applicationHistogram;
 
     // key is agentId
-    private Map<String, Histogram> agentHistogramMap;
+    private final Map<String, Histogram> agentHistogramMap;
 
-    private ApplicationTimeHistogram applicationTimeHistogram;
+    private final ApplicationTimeHistogram applicationTimeHistogram;
 
-    private AgentTimeHistogram agentTimeHistogram;
+    private final AgentTimeHistogram agentTimeHistogram;
 
 
-    public NodeHistogram(Application application, Range range) {
+    NodeHistogram(Application application, Range range) {
         this.application = Objects.requireNonNull(application, "application");
         this.range = Objects.requireNonNull(range, "range");
 
         this.applicationHistogram = new Histogram(this.application.getServiceType());
-        this.agentHistogramMap = new HashMap<>();
+        this.agentHistogramMap = Collections.emptyMap();
 
-        this.applicationTimeHistogram = new ApplicationTimeHistogram(this.application, this.range);
-        this.agentTimeHistogram = new AgentTimeHistogram(this.application, this.range);
+        this.applicationTimeHistogram = new ApplicationTimeHistogram(this.application);
+        this.agentTimeHistogram = new AgentTimeHistogram(this.application);
     }
 
-    public NodeHistogram(Application application, Range range, List<ResponseTime> responseHistogramList) {
-        this.application = Objects.requireNonNull(application, "application");
-        this.range = Objects.requireNonNull(range, "range");
+    NodeHistogram(Builder builder) {
+        Objects.requireNonNull(builder, "builder");
 
-        Objects.requireNonNull(responseHistogramList, "responseHistogramList");
+        this.application = builder.application;
+        this.range = builder.range;
 
-        this.agentTimeHistogram = createAgentLevelTimeSeriesResponseTime(responseHistogramList);
-        this.applicationTimeHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
+        if (builder.applicationHistogram == null) {
+            this.applicationHistogram = new Histogram(this.application.getServiceType());
+        } else {
+            this.applicationHistogram = builder.applicationHistogram;
+        }
+        if (builder.agentHistogramMap == null) {
+            this.agentHistogramMap = Collections.emptyMap();
+        } else {
+            this.agentHistogramMap = builder.agentHistogramMap;
+        }
 
-        this.agentHistogramMap = createAgentLevelResponseTime(responseHistogramList);
-        this.applicationHistogram = createApplicationLevelResponseTime(responseHistogramList);
 
+        if (builder.applicationTimeHistogram == null) {
+            this.applicationTimeHistogram = new ApplicationTimeHistogram(this.application);
+        } else {
+            this.applicationTimeHistogram = builder.applicationTimeHistogram;
+        }
+        if (builder.agentTimeHistogram == null) {
+            this.agentTimeHistogram = new AgentTimeHistogram(this.application);
+        } else {
+            this.agentTimeHistogram = builder.agentTimeHistogram;
+        }
     }
-
 
     public Histogram getApplicationHistogram() {
         return applicationHistogram;
@@ -90,28 +105,6 @@ public class NodeHistogram {
 
     public ApplicationTimeHistogram getApplicationTimeHistogram() {
         return applicationTimeHistogram;
-    }
-
-    public void setApplicationTimeHistogram(ApplicationTimeHistogram applicationTimeHistogram) {
-        this.applicationTimeHistogram = applicationTimeHistogram;
-    }
-
-    public void setApplicationHistogram(Histogram applicationHistogram) {
-        this.applicationHistogram = Objects.requireNonNull(applicationHistogram, "applicationHistogram");
-    }
-
-    public void setApplicationHistogram(List<ResponseTime> responseTimeList) {
-        Objects.requireNonNull(responseTimeList, "responseTimeList");
-        this.applicationHistogram = createApplicationLevelResponseTime(responseTimeList);
-    }
-
-    public void setAgentHistogramMap(Map<String, Histogram> agentHistogramMap) {
-        this.agentHistogramMap = agentHistogramMap;
-    }
-
-    public void setAgentHistogramMap(List<ResponseTime> responseTimeList) {
-        Objects.requireNonNull(responseTimeList, "responseTimeList");
-        this.agentHistogramMap = createAgentLevelResponseTime(responseTimeList);
     }
 
     public Map<String, Histogram> getAgentHistogramMap() {
@@ -137,10 +130,6 @@ public class NodeHistogram {
         return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel(timeHistogramFormat));
     }
 
-    public void setAgentTimeHistogram(AgentTimeHistogram agentTimeHistogram) {
-        this.agentTimeHistogram = agentTimeHistogram;
-    }
-
     public List<HistogramView> createAgentHistogramViewList() {
         Map<String, List<TimeHistogram>> agentTimeHistogramMap = agentTimeHistogram.getTimeHistogramMap();
         List<HistogramView> result = new ArrayList<>();
@@ -156,48 +145,114 @@ public class NodeHistogram {
         return result;
     }
 
-    private ApplicationTimeHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
-        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(application, range);
-        return builder.build(responseHistogramList);
-    }
-
-
-    private AgentTimeHistogram createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
-        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(application, range);
-        AgentTimeHistogram histogram = builder.build(responseHistogramList);
-        return histogram;
-    }
-
-
-    private Map<String, Histogram> createAgentLevelResponseTime(List<ResponseTime> responseHistogramList) {
-        Map<String, Histogram> agentHistogramMap = new HashMap<>();
-        for (ResponseTime responseTime : responseHistogramList) {
-            for (Map.Entry<String, TimeHistogram> entry : responseTime.getAgentHistogram()) {
-                addAgentLevelHistogram(agentHistogramMap, entry.getKey(), entry.getValue());
-            }
-        }
-        return agentHistogramMap;
-    }
-
-    private void addAgentLevelHistogram(Map<String, Histogram> agentHistogramMap, String agentId, TimeHistogram histogram) {
-        Histogram agentHistogram = agentHistogramMap.get(agentId);
-        if (agentHistogram == null) {
-            agentHistogram = new Histogram(application.getServiceType());
-            agentHistogramMap.put(agentId, agentHistogram);
-        }
-        agentHistogram.add(histogram);
-    }
-
-    private Histogram createApplicationLevelResponseTime(List<ResponseTime> responseHistogram) {
-        final Histogram applicationHistogram = new Histogram(this.application.getServiceType());
-        for (ResponseTime responseTime : responseHistogram) {
-            final Collection<TimeHistogram> histogramList = responseTime.getAgentResponseHistogramList();
-            applicationHistogram.addAll(histogramList);
-        }
-        return applicationHistogram;
-    }
-
     public Range getRange() {
         return range;
+    }
+
+    public static Builder newBuilder(Application application, Range range) {
+        return new Builder(application, range);
+    }
+
+
+    public static NodeHistogram empty(Application application, Range range) {
+        return new NodeHistogram(application, range);
+    }
+
+    public static class Builder {
+
+        final Application application;
+        final Range range;
+
+        // ApplicationLevelHistogram
+        Histogram applicationHistogram;
+
+        // key is agentId
+        Map<String, Histogram> agentHistogramMap = Collections.emptyMap();
+
+        ApplicationTimeHistogram applicationTimeHistogram;
+
+        AgentTimeHistogram agentTimeHistogram;
+
+        Builder(Application application, Range range) {
+            this.application = Objects.requireNonNull(application, "application");
+            this.range = Objects.requireNonNull(range, "range");
+        }
+
+        public void setApplicationTimeHistogram(ApplicationTimeHistogram applicationTimeHistogram) {
+            this.applicationTimeHistogram = applicationTimeHistogram;
+        }
+
+        public void setApplicationHistogram(Histogram applicationHistogram) {
+            this.applicationHistogram = Objects.requireNonNull(applicationHistogram, "applicationHistogram");
+        }
+
+        public void setAgentTimeHistogram(AgentTimeHistogram agentTimeHistogram) {
+            this.agentTimeHistogram = agentTimeHistogram;
+        }
+
+        public void setAgentHistogramMap(Map<String, Histogram> agentHistogramMap) {
+            this.agentHistogramMap = agentHistogramMap;
+        }
+
+        public void setApplicationHistogram(List<ResponseTime> responseTimeList) {
+            Objects.requireNonNull(responseTimeList, "responseTimeList");
+            this.applicationHistogram = createApplicationLevelResponseTime(responseTimeList);
+        }
+
+        public void setAgentHistogramMap(List<ResponseTime> responseTimeList) {
+            Objects.requireNonNull(responseTimeList, "responseTimeList");
+            this.agentHistogramMap = createAgentLevelResponseTime(responseTimeList);
+        }
+
+        public void setResponseHistogram(List<ResponseTime> responseHistogramList) {
+            this.agentTimeHistogram = createAgentLevelTimeSeriesResponseTime(responseHistogramList);
+            this.agentHistogramMap = createAgentLevelResponseTime(responseHistogramList);
+
+            this.applicationTimeHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
+            this.applicationHistogram = createApplicationLevelResponseTime(responseHistogramList);
+        }
+
+        private ApplicationTimeHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
+            ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(application, range);
+            return builder.build(responseHistogramList);
+        }
+
+
+        private AgentTimeHistogram createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
+            AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(application, range);
+            return builder.build(responseHistogramList);
+        }
+
+        private Histogram createApplicationLevelResponseTime(List<ResponseTime> responseHistogram) {
+            final Histogram applicationHistogram = new Histogram(this.application.getServiceType());
+            for (ResponseTime responseTime : responseHistogram) {
+                final Collection<TimeHistogram> histogramList = responseTime.getAgentResponseHistogramList();
+                applicationHistogram.addAll(histogramList);
+            }
+            return applicationHistogram;
+        }
+
+        private Map<String, Histogram> createAgentLevelResponseTime(List<ResponseTime> responseHistogramList) {
+            Map<String, Histogram> agentHistogramMap = new HashMap<>();
+            for (ResponseTime responseTime : responseHistogramList) {
+                for (Map.Entry<String, TimeHistogram> entry : responseTime.getAgentHistogram()) {
+                    addAgentLevelHistogram(agentHistogramMap, entry.getKey(), entry.getValue());
+                }
+            }
+            return agentHistogramMap;
+        }
+
+        private void addAgentLevelHistogram(Map<String, Histogram> agentHistogramMap, String agentId, TimeHistogram histogram) {
+            Histogram agentHistogram = agentHistogramMap.get(agentId);
+            if (agentHistogram == null) {
+                agentHistogram = new Histogram(application.getServiceType());
+                agentHistogramMap.put(agentId, agentHistogram);
+            }
+            agentHistogram.add(histogram);
+        }
+
+        public NodeHistogram build() {
+            return new NodeHistogram(this);
+        }
     }
 }
