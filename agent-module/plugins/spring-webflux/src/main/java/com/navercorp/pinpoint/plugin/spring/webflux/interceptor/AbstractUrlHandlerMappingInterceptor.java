@@ -9,16 +9,20 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.util.HttpMethodProvider;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.util.HttpMethodProviderFactory;
 import org.springframework.web.server.ServerWebExchange;
 
 public class AbstractUrlHandlerMappingInterceptor implements AroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final TraceContext traceContext;
     private final Boolean uriStatCollectMethod;
+    private final HttpMethodProvider httpMethodProvider;
 
-    public AbstractUrlHandlerMappingInterceptor(TraceContext traceContext, Boolean uriStatCollectMethod) {
+    public AbstractUrlHandlerMappingInterceptor(TraceContext traceContext, Boolean uriStatCollectMethod, int springVersion) {
         this.traceContext = traceContext;
         this.uriStatCollectMethod = uriStatCollectMethod;
+        this.httpMethodProvider = HttpMethodProviderFactory.getHttpMethodProvider(springVersion);
     }
 
     @Override
@@ -43,7 +47,7 @@ public class AbstractUrlHandlerMappingInterceptor implements AroundInterceptor {
                 }
 
                 if (uriStatCollectMethod) {
-                    final String method = webExchange.getRequest().getMethodValue();
+                    final String method = httpMethodProvider.getMethod(webExchange.getRequest());
                     if (StringUtils.hasLength(method)) {
                         spanRecorder.recordUriHttpMethod(method);
                     }
