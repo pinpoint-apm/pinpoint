@@ -17,6 +17,12 @@ package com.navercorp.pinpoint.channel;
 
 /**
  * @author youngjin.kim2
+ *
+ * ChannelProvider provides PubChannel, and SubChannel by the key.
+ * <br>
+ * In distributed system, A pair of PubChannel, and SubChannel are connected each other if they have the same key.
+ * In the other word, even if the two processes are located at the different side of the network, they can communicate
+ * with each other if they have the same key.
  */
 public interface ChannelProvider extends PubChannelProvider, SubChannelProvider {
     static ChannelProvider pair(PubChannelProvider pub, SubChannelProvider sub) {

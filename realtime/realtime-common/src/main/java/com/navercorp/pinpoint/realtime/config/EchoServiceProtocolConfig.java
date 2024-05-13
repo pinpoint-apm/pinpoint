@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.realtime.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.navercorp.pinpoint.channel.legacy.DemandMessage;
-import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConfig;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConstants;
 import com.navercorp.pinpoint.channel.serde.JacksonSerde;
@@ -47,24 +45,6 @@ public class EchoServiceProtocolConfig {
         SimpleModule jacksonModule = new SimpleModule();
         jacksonModule.addDeserializer(ClusterKey.class, new ClusterKeyDeserializer());
         return jacksonModule;
-    }
-
-    @Bean
-    MonoChannelServiceProtocol<DemandMessage<Echo>, SupplyMessage<Echo>> echoLegacyProtocol(
-            ObjectMapper objectMapper,
-            @Qualifier("clusterKeyDeserializer") SimpleModule clusterKeyJacksonModule
-    ) {
-        objectMapper.registerModule(clusterKeyJacksonModule);
-        return ChannelServiceProtocol.<DemandMessage<Echo>, SupplyMessage<Echo>>builder()
-                .setDemandSerde(JacksonSerde.byParameterized(objectMapper, DemandMessage.class, Echo.class))
-                .setDemandPubChannelURIProvider(
-                        demand -> URI.create(RedisPubSubConstants.SCHEME + ":demand:echo:" + demand.getId().getValue()))
-                .setDemandSubChannelURI(URI.create(RedisPubSubConstants.SCHEME + ":demand:echo:*"))
-                .setSupplySerde(JacksonSerde.byParameterized(objectMapper, SupplyMessage.class, Echo.class))
-                .setSupplyChannelURIProvider(
-                        demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:echo:" + demand.getId().getValue()))
-                .setRequestTimeout(Duration.ofSeconds(3))
-                .buildMono();
     }
 
     @Bean

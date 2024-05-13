@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.realtime.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.navercorp.pinpoint.channel.legacy.DemandMessage;
-import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConfig;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConstants;
 import com.navercorp.pinpoint.channel.serde.JacksonSerde;
@@ -41,25 +39,6 @@ import java.time.Duration;
 @Configuration(proxyBeanMethods = false)
 @Import(RedisPubSubConfig.class)
 public class ATDServiceProtocolConfig {
-
-    @Bean
-    MonoChannelServiceProtocol<DemandMessage<ATDDemand>, SupplyMessage<ATDSupply>> atdLegacyProtocol(
-            ObjectMapper objectMapper,
-            @Qualifier("clusterKeyDeserializer") SimpleModule clusterKeyJacksonModule
-    ) {
-        objectMapper.registerModule(clusterKeyJacksonModule);
-        return ChannelServiceProtocol.<DemandMessage<ATDDemand>, SupplyMessage<ATDSupply>>builder()
-                .setDemandSerde(JacksonSerde.byParameterized(objectMapper, DemandMessage.class, ATDDemand.class))
-                .setDemandPubChannelURIProvider(
-                        demand -> URI.create(RedisPubSubConstants.SCHEME + ":demand:atd:" + demand.getId().getValue()))
-                .setDemandSubChannelURI(URI.create(RedisPubSubConstants.SCHEME + ":demand:atd:*"))
-                .setSupplySerde(JacksonSerde.byParameterized(objectMapper, SupplyMessage.class, ATDSupply.class))
-                .setSupplyChannelURIProvider(
-                        demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atd:" + demand.getId().getValue()))
-                .setRequestTimeout(Duration.ofSeconds(3))
-                .buildMono();
-
-    }
 
     @Bean
     MonoChannelServiceProtocol<ATDDemand, ATDSupply> atdProtocol(

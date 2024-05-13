@@ -17,6 +17,11 @@ package com.navercorp.pinpoint.channel;
 
 /**
  * @author youngjin.kim2
+ *
+ * PubChannel publishes the byte array parameter into the connected SubChannel.
+ *
+ * @see Channel
+ * @see SubChannel
  */
 public interface PubChannel {
 

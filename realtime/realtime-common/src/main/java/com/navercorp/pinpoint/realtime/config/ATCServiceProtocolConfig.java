@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.realtime.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.ChannelSpringConfig;
-import com.navercorp.pinpoint.channel.legacy.DemandMessage;
-import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConfig;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConstants;
 import com.navercorp.pinpoint.channel.serde.JacksonSerde;
@@ -40,24 +38,6 @@ import java.time.Duration;
 @Configuration(proxyBeanMethods = false)
 @Import({ RedisPubSubConfig.class, ChannelSpringConfig.class })
 public class ATCServiceProtocolConfig {
-
-    @Bean
-    FluxChannelServiceProtocol<DemandMessage<ATCDemand>, SupplyMessage<ATCSupply>> atcLegacyProtocol(
-            ObjectMapper objectMapper
-    ) {
-        return ChannelServiceProtocol.<DemandMessage<ATCDemand>, SupplyMessage<ATCSupply>>builder()
-                .setDemandSerde(JacksonSerde.byParameterized(objectMapper, DemandMessage.class, ATCDemand.class))
-                .setDemandPubChannelURIProvider(
-                        demand -> URI.create(RedisPubSubConstants.SCHEME + ":demand:atc:" + demand.getId().getValue()))
-                .setDemandSubChannelURI(URI.create(RedisPubSubConstants.SCHEME + ":demand:atc:*"))
-                .setSupplySerde(JacksonSerde.byParameterized(objectMapper, SupplyMessage.class, ATCSupply.class))
-                .setSupplyChannelURIProvider(
-                        demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atc:" + demand.getId().getValue()))
-                .setDemandInterval(Duration.ofSeconds(10))
-                .setBufferSize(4)
-                .setChannelStateFn(supply -> ChannelState.ALIVE)
-                .buildFlux();
-    }
 
     @Bean
     FluxChannelServiceProtocol<ATCDemand, ATCSupply> atcProtocol(ObjectMapper objectMapper) {

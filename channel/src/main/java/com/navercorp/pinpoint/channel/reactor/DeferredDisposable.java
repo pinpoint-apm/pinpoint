@@ -21,6 +21,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author youngjin.kim2
+ *
+ * Ensure delegated disposable is run at least once.
+ * <br>
+ * Even if the delegated disposable is set after the DeferredDisposable is disposed,
+ * the delegated disposable is executed.
  */
 public class DeferredDisposable implements Disposable {
 

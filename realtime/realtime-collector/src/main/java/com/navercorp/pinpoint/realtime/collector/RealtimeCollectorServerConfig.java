@@ -16,10 +16,6 @@
 package com.navercorp.pinpoint.realtime.collector;
 
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
-import com.navercorp.pinpoint.channel.legacy.DemandMessage;
-import com.navercorp.pinpoint.channel.legacy.LegacyFluxBackendAdaptor;
-import com.navercorp.pinpoint.channel.legacy.LegacyMonoBackendAdaptor;
-import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
 import com.navercorp.pinpoint.channel.service.FluxChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.server.ChannelServiceServer;
@@ -61,19 +57,6 @@ public class RealtimeCollectorServerConfig {
     }
 
     @Bean
-    public ChannelServiceServer legacyATCServer(
-            ChannelProviderRepository channelProviderRepository,
-            FluxChannelServiceProtocol<DemandMessage<ATCDemand>, SupplyMessage<ATCSupply>> protocol,
-            ActiveThreadCountService service
-    ) {
-        return ChannelServiceServer.buildFlux(
-                channelProviderRepository,
-                protocol,
-                new LegacyFluxBackendAdaptor<>(service::requestAsync)
-        );
-    }
-
-    @Bean
     public ChannelServiceServer ATCServer(
             ChannelProviderRepository channelProviderRepository,
             FluxChannelServiceProtocol<ATCDemand, ATCSupply> protocol,
@@ -87,19 +70,6 @@ public class RealtimeCollectorServerConfig {
     }
 
     @Bean
-    public ChannelServiceServer legacyATDServer(
-            ChannelProviderRepository channelProviderRepository,
-            MonoChannelServiceProtocol<DemandMessage<ATDDemand>, SupplyMessage<ATDSupply>> protocol,
-            ActiveThreadDumpService service
-    ) {
-        return ChannelServiceServer.buildMono(
-                channelProviderRepository,
-                protocol,
-                new LegacyMonoBackendAdaptor<>(service::getDump)
-        );
-    }
-
-    @Bean
     public ChannelServiceServer ATDServer(
             ChannelProviderRepository channelProviderRepository,
             MonoChannelServiceProtocol<ATDDemand, ATDSupply> protocol,
@@ -109,19 +79,6 @@ public class RealtimeCollectorServerConfig {
                 channelProviderRepository,
                 protocol,
                 service::getDump
-        );
-    }
-
-    @Bean
-    public ChannelServiceServer legacyEchoServer(
-            ChannelProviderRepository channelProviderRepository,
-            MonoChannelServiceProtocol<DemandMessage<Echo>, SupplyMessage<Echo>> protocol,
-            EchoService service
-    ) {
-        return ChannelServiceServer.buildMono(
-                channelProviderRepository,
-                protocol,
-                new LegacyMonoBackendAdaptor<>(service::echo)
         );
     }
 

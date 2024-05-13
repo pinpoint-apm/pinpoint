@@ -19,6 +19,10 @@ import java.util.Objects;
 
 /**
  * @author youngjin.kim2
+ *
+ * A pair for registration of ChannelProvider.
+ *
+ * @see ChannelProviderRepository
  */
 public class ChannelProviderRegistry {
 
