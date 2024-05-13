@@ -19,6 +19,14 @@ import java.net.URI;
 
 /**
  * @author youngjin.kim2
+ *
+ * Client-side protocol for the channel service. It must provide following information.
+ * <br>
+ * 1. The way to serialize and deserialize the demand and supply objects.
+ * 2. Which channel to send the demand.
+ * 3. Which channel to listen for the supply.
+ *
+ * @see com.navercorp.pinpoint.channel.service.ChannelServiceProtocol
  */
 public interface ChannelServiceClientProtocol<D, S> {
 

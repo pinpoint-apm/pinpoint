@@ -20,6 +20,18 @@ import com.navercorp.pinpoint.channel.service.server.ChannelServiceServerProtoco
 
 /**
  * @author youngjin.kim2
+ *
+ * This protocol should contain the information which must be shared between server and client
+ * for communication through channel.
+ * <br>
+ * At the channel service, there always be a demand from client, and supplies from server. The demand are
+ * carried through channel, and listened by server. The supplies are sent through channel, and received by client.
+ * <br>
+ * By the number of supplies, the channel service can be classified into two types: Mono and Flux.
+ * Mono is a channel service which sends only one supply, and Flux is a channel service which sends multiple supplies.
+ *
+ * @see ChannelServiceServerProtocol
+ * @see ChannelServiceClientProtocol
  */
 public interface ChannelServiceProtocol<D, S> extends
         ChannelServiceServerProtocol<D, S>, ChannelServiceClientProtocol<D, S> {

@@ -17,6 +17,16 @@ package com.navercorp.pinpoint.channel;
 
 /**
  * @author youngjin.kim2
+ *
+ * Channel is publishable channel, and subscribable channel at the same time.
+ * If a pair of PubChannel, and SubChannel are bound in a single channel interface, the two channel
+ * should be able to communicate with each other.
+ * <br>
+ * In most cases, A paired PubChannel, and SubChannel are located at the different side of the network, and
+ * implemented with distributed systems like Redis, Kafka, etc.
+ *
+ * @see PubChannel
+ * @see SubChannel
  */
 public interface Channel extends PubChannel, SubChannel {
 }

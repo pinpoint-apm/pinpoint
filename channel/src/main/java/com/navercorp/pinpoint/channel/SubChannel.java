@@ -17,6 +17,11 @@ package com.navercorp.pinpoint.channel;
 
 /**
  * @author youngjin.kim2
+ *
+ * SubChannel registers, or de-register the handler for the incoming byte array from PubChannel.
+ *
+ * @see Channel
+ * @see PubChannel
  */
 public interface SubChannel {
 

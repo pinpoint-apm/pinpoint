@@ -17,6 +17,10 @@ package com.navercorp.pinpoint.channel;
 
 /**
  * @author youngjin.kim2
+ *
+ * Handler object for the byte array from SubChannel
+ *
+ * @see SubChannel
  */
 public interface SubConsumer {
 

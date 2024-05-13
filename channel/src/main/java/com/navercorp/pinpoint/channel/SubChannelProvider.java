@@ -17,6 +17,10 @@ package com.navercorp.pinpoint.channel;
 
 /**
  * @author youngjin.kim2
+ *
+ * Provide the SubChannel by the key.
+ *
+ * @see ChannelProvider
  */
 public interface SubChannelProvider {
 

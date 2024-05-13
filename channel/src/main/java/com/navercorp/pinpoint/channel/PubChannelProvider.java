@@ -17,6 +17,10 @@ package com.navercorp.pinpoint.channel;
 
 /**
  * @author youngjin.kim2
+ *
+ * Provides the PubChannel by the key.
+ *
+ * @see ChannelProvider
  */
 public interface PubChannelProvider {
 

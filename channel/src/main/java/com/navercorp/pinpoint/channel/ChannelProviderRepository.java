@@ -21,6 +21,19 @@ import java.util.Map;
 
 /**
  * @author youngjin.kim2
+ *
+ * The channels are provided by the URI key with the formats like below:
+ * <br>
+ * <pre>
+ *     scheme://key
+ *     e.g. redis://hello-world-topic?param1=value1&param2=value2
+ *     e.g. kafka://hello-world-topic?param1=value1&param2=value2
+ * </pre>
+ *
+ * If a pair of PubChannel, and SubChannel are obtained by the same key, they can communicate with each other.
+ *
+ * @see ChannelProvider
+ * @see Channel
  */
 public class ChannelProviderRepository {
 

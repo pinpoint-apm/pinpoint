@@ -16,9 +16,6 @@
 package com.navercorp.pinpoint.web.realtime.activethread.dump;
 
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
-import com.navercorp.pinpoint.channel.legacy.DemandMessage;
-import com.navercorp.pinpoint.channel.legacy.LegacyMonoClientAdaptor;
-import com.navercorp.pinpoint.channel.legacy.SupplyMessage;
 import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.client.ChannelServiceClient;
 import com.navercorp.pinpoint.channel.service.client.MonoChannelServiceClient;
@@ -44,12 +41,9 @@ public class WebActiveThreadDumpConfig {
     @Bean
     MonoChannelServiceClient<ATDDemand, ATDSupply> atdClient(
             ChannelProviderRepository channelProviderRepository,
-            MonoChannelServiceProtocol<DemandMessage<ATDDemand>, SupplyMessage<ATDSupply>> protocol
+            MonoChannelServiceProtocol<ATDDemand, ATDSupply> protocol
     ) {
-        return new LegacyMonoClientAdaptor<>(
-                ChannelServiceClient.buildMono(channelProviderRepository, protocol),
-                d -> d.getId()
-        );
+        return ChannelServiceClient.buildMono(channelProviderRepository, protocol);
     }
 
     @Bean
