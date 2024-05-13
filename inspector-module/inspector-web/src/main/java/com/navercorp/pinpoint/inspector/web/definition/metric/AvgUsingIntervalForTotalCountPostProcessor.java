@@ -33,7 +33,7 @@ public class AvgUsingIntervalForTotalCountPostProcessor extends AvgUsingInterval
 
     @Override
     public String getName() {
-        return "AvgUsingCollectIntervalForTotalCount";
+        return "avgUsingCollectIntervalForTotalCount";
     }
 
     @Override

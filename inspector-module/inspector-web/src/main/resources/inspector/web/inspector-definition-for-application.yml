@@ -20,6 +20,7 @@ mappings:
   - definitionId: "jvmCpu"
     metricName: "cpuLoad"
     title: "JVM CPU Usage"
+    postProcess: "percentageScale"
     fields:
       - fieldName: "jvm"
         matchingRule: EXACT_ONE
@@ -29,6 +30,7 @@ mappings:
   - definitionId: "systemCpu"
     metricName: "cpuLoad"
     title: "System CPU Usage"
+    postProcess: "percentageScale"
     fields:
       - fieldName: "system"
         matchingRule: EXACT_ONE
@@ -38,7 +40,7 @@ mappings:
   - definitionId: "transaction"
     metricName: "transaction"
     title: "Transactions Per Second"
-    postProcess: "AvgUsingCollectIntervalForTotalCount"
+    postProcess: "avgUsingCollectIntervalForTotalCount"
     fields:
       - fieldName: "totalCount"
         matchingRule: EXACT_ONE
