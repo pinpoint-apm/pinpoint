@@ -35,7 +35,7 @@ jobs:
           git push origin latest
 
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
           
       - name: Set JAVA_HOME
         run: |
