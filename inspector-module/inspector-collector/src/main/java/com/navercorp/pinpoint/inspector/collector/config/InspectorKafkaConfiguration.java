@@ -39,11 +39,6 @@ public class InspectorKafkaConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<String, AgentStat> kafkaAgentStatV2Template(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
-    }
-
-    @Bean
     public KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }

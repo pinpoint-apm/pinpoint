@@ -65,14 +65,13 @@ public class AgentStatV2Controller {
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam(value = "version", defaultValue = "1") int version) {
+            @RequestParam("to") long to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = getTimeWindow(range);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow, version);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow);
 
         InspectorMetricData inspectorMetricData = agentStatService.selectAgentStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
@@ -85,8 +84,7 @@ public class AgentStatV2Controller {
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam(value = "version", defaultValue = "1") int version) {
+            @RequestParam("to") long to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
@@ -100,14 +98,13 @@ public class AgentStatV2Controller {
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam(value = "version", defaultValue = "1") int version) {
+            @RequestParam("to") long to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = getTimeWindow(range);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow, version);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow);
 
         InspectorMetricGroupData inspectorMetricGroupData = agentStatService.selectAgentStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);

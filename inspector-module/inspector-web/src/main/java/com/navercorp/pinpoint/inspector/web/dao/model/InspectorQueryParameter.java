@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.dao.model;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -31,33 +32,43 @@ import java.util.Objects;
 // TODO : (minwoo) Need to integrate with com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey of metric module
 public class InspectorQueryParameter {
 
+    private final static String DEFAULT_TABLE_NAME = "tableName";
     private final String tenantId;
+    private final String tableName;
     private final String applicationName;
+    private final String sortKey;
     private final String agentId;
     private final String metricName;
     private final String fieldName;
     private final List<Tag> tagList;
-
     private final Range range;
     private final TimePrecision timePrecision;
     private final long limit;
 
-    private final String sortKey;
 
     public InspectorQueryParameter(InspectorDataSearchKey inspectorDataSearchKey, String sortKey, String metricName, String fieldName) {
-        this(inspectorDataSearchKey, sortKey, metricName, fieldName, Collections.emptyList());
+        this(inspectorDataSearchKey, DEFAULT_TABLE_NAME, sortKey, metricName, fieldName, Collections.emptyList());
+    }
+
+    public InspectorQueryParameter(InspectorDataSearchKey inspectorDataSearchKey, String tableName, String sortKey, String metricName, String fieldName) {
+        this(inspectorDataSearchKey, tableName, sortKey, metricName, fieldName, Collections.emptyList());
     }
 
     public InspectorQueryParameter(InspectorDataSearchKey inspectorDataSearchKey, String sortKey, String metricName, String fieldName, List<Tag> tagList) {
+        this(inspectorDataSearchKey, DEFAULT_TABLE_NAME, sortKey, metricName, fieldName, tagList);
+    }
+
+    public InspectorQueryParameter(InspectorDataSearchKey inspectorDataSearchKey, String tableName, String sortKey, String metricName, String fieldName, List<Tag> tagList) {
         Objects.requireNonNull(inspectorDataSearchKey, "inspectorDataSearchKey");
 
         this.tenantId = inspectorDataSearchKey.getTenantId();
-        this.sortKey = sortKey;
+        this.tableName = StringPrecondition.requireHasLength(tableName, "tableName");
+        this.sortKey = StringPrecondition.requireHasLength(sortKey, "sortKey");
         this.applicationName = inspectorDataSearchKey.getApplicationName();
         this.agentId = inspectorDataSearchKey.getAgentId();
-        this.metricName = metricName;
-        this.fieldName = fieldName;
-        this.tagList = tagList;
+        this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+        this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
+        this.tagList = Objects.requireNonNull(tagList, "tagList");
         this.range = inspectorDataSearchKey.getRange();
         this.timePrecision = inspectorDataSearchKey.getTimePrecision();
         this.limit = inspectorDataSearchKey.getLimit();
@@ -65,6 +76,10 @@ public class InspectorQueryParameter {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 
     public String getAgentId() {
@@ -104,10 +119,25 @@ public class InspectorQueryParameter {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InspectorQueryParameter that = (InspectorQueryParameter) o;
+        return limit == that.limit && Objects.equals(tenantId, that.tenantId) && Objects.equals(tableName, that.tableName) && Objects.equals(applicationName, that.applicationName) && Objects.equals(sortKey, that.sortKey) && Objects.equals(agentId, that.agentId) && Objects.equals(metricName, that.metricName) && Objects.equals(fieldName, that.fieldName) && Objects.equals(tagList, that.tagList) && Objects.equals(range, that.range) && Objects.equals(timePrecision, that.timePrecision);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tenantId, tableName, applicationName, sortKey, agentId, metricName, fieldName, tagList, range, timePrecision, limit);
+    }
+
+    @Override
     public String toString() {
-        return "InspectorQueryParameter{" +
+        return "InspectorQueryParameterV2{" +
                 "tenantId='" + tenantId + '\'' +
+                ", tableName='" + tableName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
+                ", sortKey='" + sortKey + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
@@ -117,12 +147,6 @@ public class InspectorQueryParameter {
                 ", rangeTo=" + range.getTo() +
                 ", timePrecision=" + timePrecision +
                 ", limit=" + limit +
-                ", sortKey='" + sortKey + '\'' +
                 '}';
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(tenantId, applicationName, agentId, metricName, fieldName, tagList, range, timePrecision, limit, sortKey);
     }
 }

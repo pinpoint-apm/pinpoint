@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.inspector.web.config;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.dao.pinot.MultiValueTagTypeHandler;
 import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameter;
-import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameterV2;
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
@@ -52,7 +51,6 @@ public class InspectorRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias(MinMaxMetricPoint.class);
         typeAliasRegistry.registerAlias(AvgMinMetricPoint.class);
         typeAliasRegistry.registerAlias(InspectorQueryParameter.class);
-        typeAliasRegistry.registerAlias(InspectorQueryParameterV2.class);
         typeAliasRegistry.registerAlias("DoubleHandler", DoubleTypeHandler.class);
         typeAliasRegistry.registerAlias(TagInformation.class);
         typeAliasRegistry.registerAlias(MultiValueTagTypeHandler.class);
