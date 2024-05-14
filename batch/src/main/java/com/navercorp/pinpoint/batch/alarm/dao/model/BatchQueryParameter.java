@@ -29,97 +29,94 @@ import java.util.Objects;
  * @author minwoo-jung
  */
 public class BatchQueryParameter {
-    private final String EMPTY_STRING = "";
+
+    private final static String DEFAULT_AGENT_ID = "agentId";
+    private final static String DEFAULT_FIELD_NAME = "fieldName";
+    private final String tableName;
     private final String applicationName;
     private final String agentId;
     private final String metricName;
     private final String sortKey;
     private final List<String> fieldList;
-
     private final List<Tag> tagList;
     private final String fieldName;
     private final Range range;
 
+    public BatchQueryParameter(String tableName,
+                               String applicationName,
+                               String agentId,
+                               String metricName,
+                               String fieldName,
+                               List<Tag> tagList,
+                               Range range) {
+        this(tableName, applicationName, agentId, metricName, fieldName, Collections.EMPTY_LIST, tagList, range);
+    }
 
-    public BatchQueryParameter(String applicationName, String metricName, List<String> fieldList, Range range) {
-        StringPrecondition.requireHasLength(applicationName, "applicationName");
-        this.applicationName = applicationName;
-        this.agentId = EMPTY_STRING;
-        StringPrecondition.requireHasLength(metricName, "metricName");
-        this.metricName = metricName;
+    public BatchQueryParameter(String tableName,
+                               String applicationName,
+                               String agentId,
+                               String metricName,
+                               List<String> fieldList,
+                               List<Tag> tagList,
+                               Range range) {
+        this(tableName, applicationName, agentId, metricName, DEFAULT_FIELD_NAME, fieldList, tagList, range);
+    }
+
+    public BatchQueryParameter(String tableName,
+                               String applicationName,
+                               String agentId,
+                               String metricName,
+                               String fieldName,
+                               Range range) {
+        this(tableName, applicationName, agentId, metricName, fieldName, Collections.EMPTY_LIST, Collections.EMPTY_LIST, range);
+    }
+
+    public BatchQueryParameter(String tableName,
+                               String applicationName,
+                               String metricName,
+                               List<String> fieldList,
+                               List<Tag> tagList,
+                               Range range) {
+        this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, DEFAULT_FIELD_NAME, fieldList, tagList, range);
+    }
+
+    public BatchQueryParameter(String tableName,
+                               String applicationName,
+                               String metricName,
+                               String fieldName,
+                               Range range) {
+        this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, fieldName, Collections.EMPTY_LIST, Collections.EMPTY_LIST, range);
+    }
+
+    public BatchQueryParameter(String tableName,
+                               String applicationName,
+                               String metricName,
+                               List<String> fieldList,
+                               Range range) {
+        this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, DEFAULT_FIELD_NAME, fieldList, Collections.EMPTY_LIST, range);
+    }
+
+    private BatchQueryParameter(String tableName,
+                                String applicationName,
+                                String agentId,
+                                String metricName,
+                                String fieldName,
+                                List<String> fieldList,
+                                List<Tag> tagList,
+                                Range range) {
+        this.tableName = StringPrecondition.requireHasLength(tableName, "tableName");
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
+        this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
+        this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
         this.fieldList = Objects.requireNonNull(fieldList, "fieldList");
-        this.tagList = Collections.EMPTY_LIST;
-        this.fieldName = EMPTY_STRING;
-        this.range = Objects.requireNonNull(range, "range");
-    }
-
-    public BatchQueryParameter(String applicationName, String metricName, String fieldName, Range range) {
-        StringPrecondition.requireHasLength(applicationName, "applicationName");
-        this.applicationName = applicationName;
-        this.agentId = EMPTY_STRING;
-        StringPrecondition.requireHasLength(metricName, "metricName");
-        this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
-        this.fieldList = Collections.EMPTY_LIST;
-        this.tagList = Collections.EMPTY_LIST;
-        this.fieldName = fieldName;
-        this.range = Objects.requireNonNull(range, "range");
-    }
-
-    public BatchQueryParameter(String applicationName, String metricName, List<String> fieldList, List<Tag> tagList, Range range) {
-        StringPrecondition.requireHasLength(applicationName, "applicationName");
-        this.applicationName = applicationName;
-        this.agentId = EMPTY_STRING;
-        StringPrecondition.requireHasLength(metricName, "metricName");
-        this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
-        this.fieldList = Objects.requireNonNull(fieldList, "fieldList");
-        this.tagList = Objects.requireNonNull(tagList, "tagList");
-        this.fieldName = EMPTY_STRING;
-        this.range = Objects.requireNonNull(range, "range");
-    }
-
-    public BatchQueryParameter(String applicationName, String agentId, String metricName, String fieldName, Range range) {
-        StringPrecondition.requireHasLength(applicationName, "applicationName");
-        this.applicationName = applicationName;
-        StringPrecondition.requireHasLength(agentId, "agentId");
-        this.agentId = agentId;
-        StringPrecondition.requireHasLength(metricName, "metricName");
-        this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
-        this.fieldList = Collections.EMPTY_LIST;
-        this.tagList = Collections.EMPTY_LIST;
-        this.fieldName = fieldName;
-        this.range = Objects.requireNonNull(range, "range");
-    }
-
-    public BatchQueryParameter(String applicationName, String agentId, String metricName, List<String> fieldList, List<Tag> tagList, Range range) {
-        StringPrecondition.requireHasLength(applicationName, "applicationName");
-        this.applicationName = applicationName;
-        StringPrecondition.requireHasLength(agentId, "agentId");
-        this.agentId = agentId;
-        StringPrecondition.requireHasLength(metricName, "metricName");
-        this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
-        this.fieldName = EMPTY_STRING;
-        this.fieldList = Objects.requireNonNull(fieldList, "fieldList");;
         this.tagList = Objects.requireNonNull(tagList, "tagList");
         this.range = Objects.requireNonNull(range, "range");
     }
 
-    public BatchQueryParameter(String applicationName, String agentId, String metricName, String fieldName, List<Tag> tagList, Range range) {
-        StringPrecondition.requireHasLength(applicationName, "applicationName");
-        this.applicationName = applicationName;
-        StringPrecondition.requireHasLength(agentId, "agentId");
-        this.agentId = agentId;
-        StringPrecondition.requireHasLength(metricName, "metricName");
-        this.metricName = metricName;
-        this.sortKey = SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName);
-        this.fieldName = fieldName;
-        this.fieldList = Collections.EMPTY_LIST;
-        this.tagList = Objects.requireNonNull(tagList, "tagList");
-        this.range = Objects.requireNonNull(range, "range");
+    public String getTableName() {
+        return tableName;
     }
 
     public String getApplicationName() {
@@ -154,13 +151,26 @@ public class BatchQueryParameter {
         return sortKey;
     }
 
+    public BatchQueryParameter(String tableName, String applicationName, String agentId, String metricName, String sortKey, List<String> fieldList, List<Tag> tagList, String fieldName, Range range) {
+        this.tableName = tableName;
+        this.applicationName = applicationName;
+        this.agentId = agentId;
+        this.metricName = metricName;
+        this.sortKey = sortKey;
+        this.fieldList = fieldList;
+        this.tagList = tagList;
+        this.fieldName = fieldName;
+        this.range = range;
+    }
+
     @Override
     public String toString() {
         return "BatchQueryParameter{" +
-                "EMPTY_STRING='" + EMPTY_STRING + '\'' +
+                "tableName='" + tableName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", metricName='" + metricName + '\'' +
+                ", sortKey='" + sortKey + '\'' +
                 ", fieldList=" + fieldList +
                 ", tagList=" + tagList +
                 ", fieldName='" + fieldName + '\'' +
