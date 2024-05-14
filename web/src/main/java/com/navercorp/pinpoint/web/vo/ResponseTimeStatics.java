@@ -1,11 +1,9 @@
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.applicationmap.histogram.StatisticsHistogram;
-import com.navercorp.pinpoint.web.view.ResponseTimeStatisticsSerializer;
 
-@JsonSerialize(using = ResponseTimeStatisticsSerializer.class)
-public class ResponseTimeStatics {
+public record ResponseTimeStatics(long totalCount, long sumTime, long avgTime, long maxTime) {
 
     public static final String RESPONSE_STATISTICS = "responseStatistics";
 
@@ -19,66 +17,35 @@ public class ResponseTimeStatics {
 
     public static final String MAX_ELAPSED_TIME = "Max";
 
-    private long totalCount;
-
-    private long sumTime;
-
-    private long avgTime;
-
-    private long maxTime;
-
-    public ResponseTimeStatics() {
-    }
-
-    public ResponseTimeStatics(long totalCount, long sumTime, long avgTime, long maxTime) {
-        this.totalCount = totalCount;
-        this.sumTime = sumTime;
-        this.avgTime = avgTime;
-        this.maxTime = maxTime;
-    }
-
     public static ResponseTimeStatics fromHistogram(StatisticsHistogram histogram) {
-        ResponseTimeStatics responseTimeStatics = new ResponseTimeStatics();
         if (histogram == null) {
-            return responseTimeStatics;
+            return new ResponseTimeStatics(0, 0, 0, 0);
         }
-        responseTimeStatics.setTotalCount(histogram.getTotalCount());
-        responseTimeStatics.setSumTime(histogram.getSumElapsed());
-        responseTimeStatics.setAvgTime(histogram.getAvgElapsed());
-        responseTimeStatics.setMaxTime(histogram.getMaxElapsed());
-        return responseTimeStatics;
+        return new ResponseTimeStatics(histogram.getTotalCount(), histogram.getSumElapsed(), histogram.getAvgElapsed(), histogram.getMaxElapsed());
     }
 
-    public long getTotalCount() {
+    @JsonProperty(TOTAL_COUNT)
+    @Override
+    public long totalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(long totalCount) {
-        this.totalCount = totalCount;
-    }
-
-    public long getSumTime() {
+    @JsonProperty(SUM_ELAPSED_TIME)
+    @Override
+    public long sumTime() {
         return sumTime;
     }
 
-    public void setSumTime(long sumTime) {
-        this.sumTime = sumTime;
-    }
-
-    public long getAvgTime() {
+    @JsonProperty(AVG_ELAPSED_TIME)
+    @Override
+    public long avgTime() {
         return avgTime;
     }
 
-    public void setAvgTime(long avgTime) {
-        this.avgTime = avgTime;
-    }
-
-    public long getMaxTime() {
+    @JsonProperty(MAX_ELAPSED_TIME)
+    @Override
+    public long maxTime() {
         return maxTime;
-    }
-
-    public void setMaxTime(long maxTime) {
-        this.maxTime = maxTime;
     }
 
     @Override
