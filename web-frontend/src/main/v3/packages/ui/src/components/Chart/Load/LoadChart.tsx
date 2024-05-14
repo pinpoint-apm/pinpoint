@@ -6,6 +6,8 @@ import bb, { areaStep, ChartOptions } from 'billboard.js';
 import BillboardJS, { IChart } from '@billboard.js/react';
 import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/utils';
 import { format, isValid } from 'date-fns';
+import { cn } from '../../../lib/utils';
+import { colors } from '../../../constant/theme';
 
 export type LoadChartDataType = {
   dates?: number[];
@@ -16,8 +18,8 @@ export interface LoadChartProps {
   /**
    * The key value of datas and the key value of color match each other.
    */
-  datas: LoadChartDataType | ((colors: LoadChartProps['colors']) => LoadChartDataType);
-  colors?: {
+  datas: LoadChartDataType | ((colors: LoadChartProps['chartColors']) => LoadChartDataType);
+  chartColors?: {
     [key: string]: string;
   };
   title?: React.ReactNode;
@@ -29,50 +31,53 @@ export const LoadChart = ({
   datas = {
     dates: [],
   },
-  colors = {
-    '1s': '#34b994',
-    '3s': '#51afdf',
-    '5s': '#ffba00',
-    Slow: '#e67f22',
-    Error: '#e95459',
+  chartColors = {
+    '1s': colors.fast,
+    '100ms': colors.fast,
+    '3s': colors.normal,
+    '300ms': colors.normal,
+    '5s': colors.delay,
+    '500ms': colors.delay,
+    Slow: colors.slow,
+    Error: colors.error,
   },
   title,
   className,
   emptyMessage = 'No Data',
 }: LoadChartProps) => {
-  const chartData = typeof datas === 'function' ? datas?.(colors) : datas;
+  const chartData = typeof datas === 'function' ? datas?.(chartColors) : datas;
   const chartComponent = React.useRef<IChart>(null);
+  const prevData = React.useRef<LoadChartDataType>({} as LoadChartDataType);
 
   React.useEffect(() => {
     const chart = chartComponent.current?.instance;
     const newColumns = getColumns();
+    const prevKeys = Object.keys(prevData.current).slice(1);
+    const currKeys = Object.keys(chartData).slice(1);
+    const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
+    const unload = prevKeys.length === 0 ? false : removedKeys.length !== 0;
 
-    chart?.config('data.color', getColorOption());
     chart?.config('data.groups', getGroupsOption());
     chart?.config('axis.y.max', getMaxTickValue(getColumns() as number[][], 1));
-    chart?.load({ columns: newColumns });
-  }, [datas, colors]);
+    chart?.load({ columns: newColumns, colors: chartColors, unload });
+
+    prevData.current = chartData;
+  }, [datas, chartColors]);
 
   const getColumns = () => {
     const keys = Object.keys(chartData);
     return keys.map((key) => [key, ...(chartData[key] || [])]);
   };
 
-  const getColorOption = () => {
-    return (defaultColor: string, { id }: { id: string }) => {
-      return colors?.[id] ? colors?.[id] : defaultColor;
-    };
-  };
-
   const getGroupsOption = () => {
-    return [Object.keys(datas).filter((key) => key !== 'dates')];
+    return [Object.keys(chartData).filter((key) => key !== 'dates')];
   };
 
   const getInitialOptions = (): ChartOptions => {
     return {
       data: {
         color: (defaultColor, { id }) => {
-          return colors?.[id] ? colors?.[id] : defaultColor;
+          return chartColors?.[id] ? chartColors?.[id] : defaultColor;
         },
         columns: getColumns(),
         empty: {
@@ -81,6 +86,7 @@ export const LoadChart = ({
           },
         },
         groups: getGroupsOption(),
+        order: null,
         type: areaStep(),
         x: 'dates',
       },
@@ -135,6 +141,9 @@ export const LoadChart = ({
           value: (v: number) => addCommas(v.toString()),
         },
       },
+      transition: {
+        duration: 0,
+      },
     };
   };
 
@@ -142,7 +151,7 @@ export const LoadChart = ({
     <div className="w-full h-full">
       {title}
       <BillboardJS
-        className={className}
+        className={cn(`[&_.bb-line]:stroke-0`, className)}
         bb={bb}
         ref={chartComponent}
         options={getInitialOptions()}
