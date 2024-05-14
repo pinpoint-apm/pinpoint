@@ -12,27 +12,27 @@ public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final boolean spanSamplerEnable;
-    private final SamplerType spanSamplerType;
-    private final long spanModSamplerRate;
-    private final String spanPercentageSamplerRate;
+    private final String spanSamplerType;
+    private final long spanModSamplingRate;
+    private final String spanPercentSamplingRateStr;
 
     public SimpleSpanSamplerFactory(CollectorProperties collectorProperties) {
         Objects.requireNonNull(collectorProperties, "collectorProperties");
         this.spanSamplerEnable = collectorProperties.isSpanSamplingEnable();
-        this.spanSamplerType = SamplerType.of(collectorProperties.getSpanSamplingType());
-        this.spanModSamplerRate = collectorProperties.getSpanSamplingRate();
-        this.spanPercentageSamplerRate = collectorProperties.getSpanSamplingPercent();
+        this.spanSamplerType = collectorProperties.getSpanSamplingType();
+        this.spanModSamplingRate = collectorProperties.getSpanModSamplingRate();
+        this.spanPercentSamplingRateStr = collectorProperties.getSpanPercentSamplingRate();
     }
 
     @Override
     public Sampler<BasicSpan> createBasicSpanSampler() {
         if (spanSamplerEnable) {
             try {
-                switch (spanSamplerType) {
+                switch (SamplerType.of(spanSamplerType)) {
                     case PERCENT:
-                        return createPercentageSampler(spanPercentageSamplerRate, createBasicFunction());
+                        return createPercentageSampler(spanPercentSamplingRateStr, createBasicSpanSamplingFunction());
                     case MOD:
-                        return createModSampler(spanModSamplerRate, createBasicFunction());
+                        return createModSampler(spanModSamplingRate, createBasicSpanSamplingFunction());
                     default:
                         break;
                 }
@@ -44,26 +44,26 @@ public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
         return TrueSampler.instance();
     }
 
-    private ToLongFunction<BasicSpan> createBasicFunction() {
+    private ToLongFunction<BasicSpan> createBasicSpanSamplingFunction() {
         return (span -> span.getTransactionId().getTransactionSequence());
     }
 
-    private Sampler<BasicSpan> createPercentageSampler(String spanSamplerPercentageStr,
+    private Sampler<BasicSpan> createPercentageSampler(String percentSamplingRateStr,
                                                        ToLongFunction<BasicSpan> function) {
-        long spanSamplerPercentage = PercentRateSampler.parseSamplingRateString(spanSamplerPercentageStr);
-        if (spanSamplerPercentage == 0) {
-            return FalseSampler.instance();
-        } else if (spanSamplerPercentage == PercentRateSampler.MAX) {
+        long percentSamplingRate = PercentRateSampler.parseSamplingRateString(percentSamplingRateStr);
+        if (percentSamplingRate >= PercentRateSampler.MAX) {
             return TrueSampler.instance();
+        } else if (percentSamplingRate <= 0) {
+            return FalseSampler.instance();
         }
-        return new PercentRateSampler<>(spanSamplerPercentage, function);
+        return new PercentRateSampler<>(percentSamplingRate, function);
     }
 
-    private Sampler<BasicSpan> createModSampler(long spanModSamplerRate,
+    private Sampler<BasicSpan> createModSampler(long modSamplingRate,
                                                 ToLongFunction<BasicSpan> function) {
-        if (spanModSamplerRate == 1) {
+        if (modSamplingRate == 1) {
             return TrueSampler.instance();
         }
-        return new ModSampler<>(spanModSamplerRate, function);
+        return new ModSampler<>(modSamplingRate, function);
     }
 }

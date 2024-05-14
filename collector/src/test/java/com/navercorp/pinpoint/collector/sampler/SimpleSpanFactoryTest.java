@@ -24,8 +24,8 @@ public class SimpleSpanFactoryTest {
         CollectorProperties mockProperties = mock(CollectorProperties.class);
         when(mockProperties.isSpanSamplingEnable()).thenReturn(false);
         when(mockProperties.getSpanSamplingType()).thenReturn(SamplerType.MOD.name());
-        when(mockProperties.getSpanSamplingRate()).thenReturn(1L);
-        when(mockProperties.getSpanSamplingPercent()).thenReturn("0");
+        when(mockProperties.getSpanModSamplingRate()).thenReturn(1L);
+        when(mockProperties.getSpanPercentSamplingRate()).thenReturn("0");
 
         this.mockProperties = mockProperties;
     }
@@ -34,7 +34,7 @@ public class SimpleSpanFactoryTest {
     public void TransactionIdSampleTest() {
         when(mockProperties.isSpanSamplingEnable()).thenReturn(true);
         when(mockProperties.getSpanSamplingType()).thenReturn(SamplerType.MOD.name());
-        when(mockProperties.getSpanSamplingRate()).thenReturn(5L);
+        when(mockProperties.getSpanModSamplingRate()).thenReturn(5L);
         SpanSamplerFactory spanSamplerFactory = new SimpleSpanSamplerFactory(mockProperties);
         Sampler<BasicSpan> sampler = spanSamplerFactory.createBasicSpanSampler();
 
@@ -71,7 +71,7 @@ public class SimpleSpanFactoryTest {
     public void modSamplerTest() {
         when(mockProperties.isSpanSamplingEnable()).thenReturn(true);
         when(mockProperties.getSpanSamplingType()).thenReturn(SamplerType.MOD.name());
-        when(mockProperties.getSpanSamplingRate()).thenReturn(5L);
+        when(mockProperties.getSpanModSamplingRate()).thenReturn(5L);
         SpanSamplerFactory spanSamplerFactory = new SimpleSpanSamplerFactory(mockProperties);
         Sampler<?> sampler = spanSamplerFactory.createBasicSpanSampler();
 
@@ -82,7 +82,7 @@ public class SimpleSpanFactoryTest {
     public void percentageSamplerTest() {
         when(mockProperties.isSpanSamplingEnable()).thenReturn(true);
         when(mockProperties.getSpanSamplingType()).thenReturn(SamplerType.PERCENT.name());
-        when(mockProperties.getSpanSamplingPercent()).thenReturn("20");
+        when(mockProperties.getSpanPercentSamplingRate()).thenReturn("20");
         SpanSamplerFactory spanSamplerFactory = new SimpleSpanSamplerFactory(mockProperties);
         Sampler<?> sampler = spanSamplerFactory.createBasicSpanSampler();
 
@@ -93,7 +93,7 @@ public class SimpleSpanFactoryTest {
     public void trueSamplerTest1() {
         when(mockProperties.isSpanSamplingEnable()).thenReturn(true);
         when(mockProperties.getSpanSamplingType()).thenReturn(SamplerType.MOD.name());
-        when(mockProperties.getSpanSamplingRate()).thenReturn(1L);
+        when(mockProperties.getSpanModSamplingRate()).thenReturn(1L);
         SpanSamplerFactory spanSamplerFactory = new SimpleSpanSamplerFactory(mockProperties);
         Sampler<?> sampler = spanSamplerFactory.createBasicSpanSampler();
 
@@ -104,7 +104,7 @@ public class SimpleSpanFactoryTest {
     public void trueSamplerTest2() {
         when(mockProperties.isSpanSamplingEnable()).thenReturn(true);
         when(mockProperties.getSpanSamplingType()).thenReturn(SamplerType.PERCENT.name());
-        when(mockProperties.getSpanSamplingPercent()).thenReturn("100");
+        when(mockProperties.getSpanPercentSamplingRate()).thenReturn("100");
         SpanSamplerFactory spanSamplerFactory = new SimpleSpanSamplerFactory(mockProperties);
         Sampler<?> sampler = spanSamplerFactory.createBasicSpanSampler();
 
@@ -115,7 +115,7 @@ public class SimpleSpanFactoryTest {
     public void falseSamplerTest1() {
         when(mockProperties.isSpanSamplingEnable()).thenReturn(true);
         when(mockProperties.getSpanSamplingType()).thenReturn(SamplerType.PERCENT.name());
-        when(mockProperties.getSpanSamplingPercent()).thenReturn("0");
+        when(mockProperties.getSpanPercentSamplingRate()).thenReturn("0");
         SpanSamplerFactory spanSamplerFactory = new SimpleSpanSamplerFactory(mockProperties);
         Sampler<?> sampler = spanSamplerFactory.createBasicSpanSampler();
 

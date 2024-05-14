@@ -46,9 +46,9 @@ public class CollectorProperties {
     @Value("${collector.span.sampling.type:MOD}")
     private String spanSamplingType;
     @Value("${collector.span.sampling.mod.sampling-rate:1}")
-    private long spanSamplingRate;
+    private long spanModSamplingRate;
     @Value("${collector.span.sampling.percent.sampling-rate:100}")
-    private String spanSamplingPercent;
+    private String spanPercentSamplingRate;
 
     @Value("${collector.stat.uri:false}")
     private boolean uriStatEnable;
@@ -97,20 +97,20 @@ public class CollectorProperties {
         this.spanSamplingType = spanSamplingType;
     }
 
-    public void setSpanSamplingRate(int spanSamplingRate) {
-        this.spanSamplingRate = spanSamplingRate;
+    public void setSpanModSamplingRate(int spanModSamplingRate) {
+        this.spanModSamplingRate = spanModSamplingRate;
     }
 
-    public long getSpanSamplingRate() {
-        return spanSamplingRate;
+    public long getSpanModSamplingRate() {
+        return spanModSamplingRate;
     }
 
-    public String getSpanSamplingPercent() {
-        return spanSamplingPercent;
+    public String getSpanPercentSamplingRate() {
+        return spanPercentSamplingRate;
     }
 
-    public void setSpanSamplingPercent(String spanSamplingPercent) {
-        this.spanSamplingPercent = spanSamplingPercent;
+    public void setSpanPercentSamplingRate(String spanPercentSamplingRate) {
+        this.spanPercentSamplingRate = spanPercentSamplingRate;
     }
 
     public boolean isUriStatEnable() {
