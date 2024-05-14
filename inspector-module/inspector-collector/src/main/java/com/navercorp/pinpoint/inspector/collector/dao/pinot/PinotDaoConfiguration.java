@@ -41,26 +41,22 @@ import java.util.function.Function;
 public class PinotDaoConfiguration {
 
     private final KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate;
-    private final KafkaTemplate<String, AgentStat> kafkaAgentStatV2Template;
     private final KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate;
-    private final String agentStatTopicName;
     private final int agentStatTopicCount;
     private final String applicationStatTopicName;
     private final TenantProvider tenantProvider;
 
-    public PinotDaoConfiguration(KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<String, AgentStat> kafkaAgentStatV2Template, KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, InspectorCollectorProperties inspectorCollectorProperties, TenantProvider tenantProvider) {
+    public PinotDaoConfiguration(KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, InspectorCollectorProperties inspectorCollectorProperties, TenantProvider tenantProvider) {
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
-        this.kafkaAgentStatV2Template = Objects.requireNonNull(kafkaAgentStatV2Template, "kafkaAgentStatV2Template");
         this.kafkaApplicationStatTemplate = Objects.requireNonNull(kafkaApplicationStatTemplate, "kafkaApplicationStatTemplate");
         Objects.requireNonNull(inspectorCollectorProperties, "inspectorCollectorProperties");
-        this.agentStatTopicName = inspectorCollectorProperties.getAgentStatTopicName();
         this.agentStatTopicCount = inspectorCollectorProperties.getAgentStatTopicCount();
         this.applicationStatTopicName = inspectorCollectorProperties.getApplicationStatTopicName();
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
     private <T extends AgentStatDataPoint> AgentStatDao<T> newAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, BiFunction<List<T>, String, List<AgentStat>> convertToAgentStat, Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStat) {
-        return new DefaultAgentStatDao(dataPointFunction, kafkaAgentStatTemplate, kafkaAgentStatV2Template, kafkaApplicationStatTemplate, convertToAgentStat, convertToKafkaApplicationStat, agentStatTopicName, agentStatTopicCount, applicationStatTopicName, tenantProvider);
+        return new DefaultAgentStatDao(dataPointFunction, kafkaAgentStatTemplate, kafkaApplicationStatTemplate, convertToAgentStat, convertToKafkaApplicationStat, agentStatTopicCount, applicationStatTopicName, tenantProvider);
     }
 
     @Bean

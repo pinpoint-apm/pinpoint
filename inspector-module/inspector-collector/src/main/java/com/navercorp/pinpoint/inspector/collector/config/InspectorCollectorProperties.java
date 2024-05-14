@@ -25,16 +25,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class InspectorCollectorProperties {
 
-    @Value("${kafka.inspector.agent.topic.name}")
-    private String agentStatTopicName;
     @Value("${kafka.inspector.agent.topic.count}")
     private int agentStatTopicCount;
     @Value("${kafka.inspector.application.topic.name}")
     private String applicationStatTopicName;
-
-    public String getAgentStatTopicName() {
-        return agentStatTopicName;
-    }
 
     public int getAgentStatTopicCount() {
         return agentStatTopicCount;

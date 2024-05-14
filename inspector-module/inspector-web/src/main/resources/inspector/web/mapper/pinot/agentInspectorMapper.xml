@@ -25,7 +25,7 @@
         SELECT
             AVG(fieldValue) AS avgValue,
             DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
-        FROM inspectorStat
+        FROM ${tableName}
         WHERE
       <!--  tenantId = #{tenantId}
             AND serviceName = #{serviceName} -->
@@ -35,25 +35,25 @@
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
-            GROUP BY avgTime
-            ORDER BY avgTime asc
-            LIMIT ${limit}
+        GROUP BY avgTime
+        ORDER BY avgTime asc
+        LIMIT ${limit}
     </select>
 
     <select id="selectInspectorMaxData" parameterType="inspectorQueryParameter" resultMap="inspectorMetricPointResultMap" >
         SELECT
         MAX(fieldValue) AS avgValue,
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
-        FROM inspectorStat
+        FROM ${tableName}
         WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
-        sortKey = #{sortKey}
-        AND fieldName = #{fieldName}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
-        <foreach collection="tagList" item="tag" separator=" ">
-            AND tags = #{tag}
-        </foreach>
+            <!--  tenantId = #{tenantId}
+                  AND serviceName = #{serviceName} -->
+            sortKey = #{sortKey}
+            AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            <foreach collection="tagList" item="tag" separator=" ">
+                AND tags = #{tag}
+            </foreach>
         GROUP BY avgTime
         ORDER BY avgTime asc
         LIMIT ${limit}
@@ -63,16 +63,16 @@
         SELECT
         SUM(fieldValue) AS avgValue,
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
-        FROM inspectorStat
+        FROM ${tableName}
         WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
-        sortKey = #{sortKey}
-        AND fieldName = #{fieldName}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
-        <foreach collection="tagList" item="tag" separator=" ">
-            AND tags = #{tag}
-        </foreach>
+            <!--  tenantId = #{tenantId}
+                  AND serviceName = #{serviceName} -->
+            sortKey = #{sortKey}
+            AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            <foreach collection="tagList" item="tag" separator=" ">
+                AND tags = #{tag}
+            </foreach>
         GROUP BY avgTime
         ORDER BY avgTime asc
         LIMIT ${limit}
@@ -80,7 +80,7 @@
 
     <select id="selectTagInfo" parameterType="inspectorQueryParameter" resultType="Tag">
         SELECT DISTINCT(tags)
-        FROM inspectorStat
+        FROM ${tableName}
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
@@ -89,7 +89,7 @@
 
     <select id="selectTagInfoContainedSpecificTag" parameterType="inspectorQueryParameter" resultMap="tagInfoMap">
         SELECT applicationName, agentId, metricName, fieldName, tags
-        FROM inspectorStat
+        FROM ${tableName}
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}

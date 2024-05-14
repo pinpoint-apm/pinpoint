@@ -47,9 +47,7 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     private final BiFunction<List<T>, String, List<AgentStat>> convertToKafkaAgentStatModelFunction;
     private final Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStatModelFunction;
     private final KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate;
-    private final KafkaTemplate<String, AgentStat> kafkaAgentStatV2Template;
     private final KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate;
-    private final String agentStatTopicName;
     private final int agentStatTopicCount;
     private final String applicationStatTopicName;
     private final TenantProvider tenantProvider;
@@ -57,21 +55,17 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     public DefaultAgentStatDao(Function<AgentStatBo,
                                List<T>> dataPointFunction,
                                KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate,
-                               KafkaTemplate<String, AgentStat> kafkaAgentStatV2Template,
                                KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate,
                                BiFunction<List<T>, String, List<AgentStat>> convertToKafkaAgentStatModelFunction,
                                Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStatModelFunction,
-                               String agentStatTopicName,
                                int agentStatTopicCount,
                                String applicationStatTopicName,
                                TenantProvider tenantProvider) {
         this.dataPointFunction = Objects.requireNonNull(dataPointFunction, "dataPointFunction");
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
-        this.kafkaAgentStatV2Template = Objects.requireNonNull(kafkaAgentStatV2Template, "kafkaAgentStatV2Template");
         this.kafkaApplicationStatTemplate = Objects.requireNonNull(kafkaApplicationStatTemplate, "kafkaApplicationStatTemplate");
         this.convertToKafkaAgentStatModelFunction = Objects.requireNonNull(convertToKafkaAgentStatModelFunction, "convertToKafkaAgentStatModelFunction");
         this.convertToKafkaApplicationStatModelFunction = Objects.requireNonNull(convertToKafkaApplicationStatModelFunction, "convertToKafkaApplicationStatModelFunction");
-        this.agentStatTopicName = StringPrecondition.requireHasLength(agentStatTopicName, "agentStatTopic");
         this.agentStatTopicCount = agentStatTopicCount;
         this.applicationStatTopicName = StringPrecondition.requireHasLength(applicationStatTopicName, "applicationStatTopic");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
@@ -84,14 +78,10 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
         };
 
         List<AgentStat> agentStatList = convertToKafkaAgentStatModel(agentStatData);
-        for (AgentStat agentStat : agentStatList) {
-            kafkaAgentStatTemplate.send(agentStatTopicName, agentStat.getSortKey(), agentStat);
-        }
-
-
         String topicName = AgentStatTopicAndTableNameManager.getAgentStatTopicName(applicationName, agentStatTopicCount);
+
         for (AgentStat agentStat : agentStatList) {
-            kafkaAgentStatV2Template.send(topicName, agentStat.getSortKey(), agentStat);
+            kafkaAgentStatTemplate.send(topicName, agentStat.getSortKey(), agentStat);
         }
 
         List<ApplicationStat> applicationStatList = convertToKafkaApplicationStatModel(agentStatList);

@@ -38,11 +38,9 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
 
     private final static String JDBC_URL = "jdbcUrl";
     private final AgentStatDao agentStatDao;
-    private final AgentStatDao agentStatDaoV2;
 
-    public UsingDataSourceTagForAgentPreProcessor(@Qualifier("pinotAgentStatDao")AgentStatDao agentStatDao, @Qualifier("pinotAgentStatDaoV2")AgentStatDao agentStatDaoV2) {
+    public UsingDataSourceTagForAgentPreProcessor(@Qualifier("pinotAgentStatDao")AgentStatDao agentStatDao) {
         this.agentStatDao = Objects.requireNonNull(agentStatDao, "agentStatDao");
-        this.agentStatDaoV2 = Objects.requireNonNull(agentStatDaoV2, "agentStatDaoV2");
     }
 
 
@@ -80,18 +78,10 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
     }
 
     private TagInformation getTagInformation(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition, Field field, Tag filteredTag) {
-        if (inspectorDataSearchKey.getVersion() == 2) {
-            return agentStatDaoV2.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
-        } else {
-            return agentStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
-        }
+        return agentStatDao.getTagInfoContainedSpecificTag(inspectorDataSearchKey, metricDefinition.getMetricName(), field, filteredTag);
     }
 
     private List<Tag> getTagList(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition, Field field) {
-        if (inspectorDataSearchKey.getVersion() == 2) {
-            return agentStatDaoV2.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-        } else {
-            return agentStatDao.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-        }
+        return agentStatDao.getTagInfo(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
     }
 }
