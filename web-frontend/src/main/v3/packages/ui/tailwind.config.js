@@ -64,6 +64,11 @@ export default {
         'status-good': 'hsl(var(--ui-primary))',
         'status-warn': colors.orange[500],
         'status-fail': colors.red[500],
+        fast: colors.emerald[300],
+        normal: colors.blue[300],
+        delay: colors.orange[300],
+        slow: colors.orange[500],
+        error: colors.red[500],
       },
       borderWidth: {
         1: '1px',

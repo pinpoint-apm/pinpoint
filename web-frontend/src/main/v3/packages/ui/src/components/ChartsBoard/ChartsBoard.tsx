@@ -3,6 +3,7 @@ import { GetServerMap } from '@pinpoint-fe/constants';
 import { ResponseSummaryChart, ResponseAvgMaxChart, LoadChart, LoadChartProps } from '../Chart';
 import { cn } from '../../lib';
 import { Separator } from '..';
+import { colors } from '../../constant/theme';
 
 export interface ChartsBoardProps {
   className?: string;
@@ -92,8 +93,8 @@ export const ChartsBoard = ({
               <LoadChart
                 className="h-40"
                 title={<div className="flex items-center h-12 font-semibold">Load</div>}
-                datas={(colors: LoadChartProps['colors']) => {
-                  const keys = Object.keys(colors!);
+                datas={(chartColors: LoadChartProps['chartColors']) => {
+                  const keys = Object.keys(chartColors!);
 
                   return {
                     dates: nodeData?.timeSeriesHistogram?.[0]?.values?.map((v) => v[0]),
@@ -102,10 +103,12 @@ export const ChartsBoard = ({
                         ({ key }: { key: string }) => key === curr,
                       );
 
-                      return {
-                        ...prev,
-                        [curr]: matchedHistogram?.values?.map?.((v) => v[1]),
-                      };
+                      return matchedHistogram
+                        ? {
+                            ...prev,
+                            [curr]: matchedHistogram?.values?.map?.((v) => v[1]),
+                          }
+                        : prev;
                     }, {}),
                   };
                 }}
@@ -117,9 +120,9 @@ export const ChartsBoard = ({
               <LoadChart
                 className="h-40"
                 title={<div className="flex items-center h-12 font-semibold">Load Avg & Max</div>}
-                colors={{
-                  Avg: '#97E386',
-                  Max: '#13B6E7',
+                chartColors={{
+                  Avg: colors.green[300],
+                  Max: colors.sky[500],
                 }}
                 datas={{
                   dates: nodeData?.timeSeriesHistogram?.[0]?.values?.map((v) => v[0]),
