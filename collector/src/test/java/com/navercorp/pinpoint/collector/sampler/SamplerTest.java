@@ -62,7 +62,8 @@ public class SamplerTest {
 
     @Test
     public void percentageSamplerTest() {
-        long samplingRate = 500; // 5%
+        String percentSamplingRateStr = "5.0"; // 5%
+        long samplingRate = PercentRateSampler.parseSamplingRateString(percentSamplingRateStr);
 
         Sampler<Long> sampler = new PercentRateSampler<>(samplingRate, identityFunction);
         for (long i = 0L; i < 10L; i++) {
