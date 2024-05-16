@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
@@ -206,7 +207,8 @@ public class MapController {
         final Application application =
                 applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return responseTimeHistogramService.selectResponseTimeHistogramData(application, range);
+        AgentHistogramList responseTimes = responseTimeHistogramService.selectResponseTimeHistogramData(application, range);
+        return new ApplicationTimeHistogramViewModel(application, responseTimes);
     }
 
     @PostMapping(value = "/getResponseTimeHistogramDataV2")

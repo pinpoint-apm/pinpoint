@@ -15,49 +15,67 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
-@JsonSerialize(using = ApplicationTimeHistogramViewModelSerializer.class)
 public class ApplicationTimeHistogramViewModel {
 
+    private final TimeHistogramFormat format;
     private final Application application;
     private final AgentHistogramList agentHistogramList;
-    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public ApplicationTimeHistogramViewModel(Application application, AgentHistogramList agentHistogramList) {
-        this.application = application;
-        this.agentHistogramList = agentHistogramList;
+        this(TimeHistogramFormat.V1, application, agentHistogramList);
     }
 
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        this.timeHistogramFormat = timeHistogramFormat;
+    public ApplicationTimeHistogramViewModel(TimeHistogramFormat format, Application application, AgentHistogramList agentHistogramList) {
+        this.format = Objects.requireNonNull(format, "format");
+        this.application = Objects.requireNonNull(application, "application");
+        this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
     }
 
-    public List<AgentTimeHistogramSummary> getSummaryList() {
-        List<AgentTimeHistogramSummary> agentTimeHistogramSummaryList = new ArrayList<>(agentHistogramList.size());
-
+    /**
+     * @return JsonFields(String:AgentId, Histogram)
+     */
+    public JsonFields<String, Histogram> getSummary() {
+        JsonFields.Builder<String, Histogram> builder = JsonFields.newBuilder();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-            agentTimeHistogramSummaryList.add(AgentTimeHistogramSummary.createSummary(agentHistogram));
+            String agentName = agentHistogram.getAgentId().getName();
+            Histogram histogram = agentHistogram.getHistogram();
+            builder.addField(agentName, histogram);
         }
-
-        return agentTimeHistogramSummaryList;
+        return builder.build();
     }
 
-    public List<AgentResponseTimeViewModel> getTimeSeriesViewModel() {
+    /**
+     * @return JsonFields(String:AgentId, value:List<TimeViewModel>)
+     */
+    public JsonFields<String, List<TimeViewModel>> getTimeSeries() {
+        List<AgentResponseTimeViewModel> timeSeriesViewModel = getTimeSeriesViewModel();
+
+        JsonFields.Builder<String, List<TimeViewModel>> builder = JsonFields.newBuilder();
+        for (AgentResponseTimeViewModel model : timeSeriesViewModel) {
+            String agentName = model.getAgentName();
+            List<TimeViewModel> responseTimeViewModel = model.getResponseTimeViewModel();
+            builder.addField(agentName, responseTimeViewModel);
+        }
+        return builder.build();
+    }
+
+    private List<AgentResponseTimeViewModel> getTimeSeriesViewModel() {
         AgentTimeHistogram histogram = new AgentTimeHistogram(application, agentHistogramList);
-        return histogram.createViewModel(timeHistogramFormat);
+        return histogram.createViewModel(format);
     }
 
 }
