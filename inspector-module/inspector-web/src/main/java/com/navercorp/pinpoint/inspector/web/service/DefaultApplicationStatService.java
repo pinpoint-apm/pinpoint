@@ -190,8 +190,8 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         }
 
         List<InspectorMetricValue> inspectorMetricValueList = new ArrayList<>(2);
-        inspectorMetricValueList.add(new InspectorMetricValue("AVG", field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
         inspectorMetricValueList.add(new InspectorMetricValue("MIN", field.getTags(), field.getChartType(), field.getUnit(), minValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue("AVG", field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
         return inspectorMetricValueList;
     }
 
@@ -210,8 +210,8 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         }
 
         List<InspectorMetricValue> inspectorMetricValueList = new ArrayList<>(3);
-        inspectorMetricValueList.add(new InspectorMetricValue("AVG", field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
         inspectorMetricValueList.add(new InspectorMetricValue("MIN", field.getTags(), field.getChartType(), field.getUnit(), minValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue("AVG", field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
         inspectorMetricValueList.add(new InspectorMetricValue("MAX", field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
         return inspectorMetricValueList;
     }

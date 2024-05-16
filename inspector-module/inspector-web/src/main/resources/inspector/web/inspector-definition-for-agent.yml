@@ -219,6 +219,7 @@ mappings:
     title: "Data Source"
     grouping: "TAG"
     preProcess: "usingDataSourceTagForAgent"
+    postProcess: "matchingServiceType"
     fields:
       - fieldName: "activeConnectionSize"
         fieldAlias: "activeAvg"
