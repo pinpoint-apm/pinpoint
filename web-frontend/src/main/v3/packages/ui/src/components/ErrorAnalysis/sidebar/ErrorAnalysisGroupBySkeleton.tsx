@@ -19,7 +19,7 @@ export const ErorrAnalysisGroupBySkeleton = (props: ErorrAnalysisGroupBySkeleton
   return (
     <ContentLoader
       speed={2}
-      className="h-fit"
+      className="h-40"
       viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
       {...props}
     >
