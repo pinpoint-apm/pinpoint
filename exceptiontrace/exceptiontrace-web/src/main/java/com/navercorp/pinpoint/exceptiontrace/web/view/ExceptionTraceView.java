@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.view;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceGroup;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
-import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;

@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.service.appmetric;
 
 import com.navercorp.pinpoint.web.service.stat.ChartTypeSupport;
-import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.springframework.stereotype.Service;
 

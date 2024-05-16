@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledDataSourceResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import org.springframework.stereotype.Repository;

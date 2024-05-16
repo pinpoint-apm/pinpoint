@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.uristat.web.model;
 
 import com.navercorp.pinpoint.common.server.util.ObjectUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;

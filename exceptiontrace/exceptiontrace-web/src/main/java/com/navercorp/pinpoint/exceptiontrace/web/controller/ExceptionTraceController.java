@@ -25,9 +25,9 @@ import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParamet
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionTraceView;
-import com.navercorp.pinpoint.metric.common.model.TimeWindow;
-import com.navercorp.pinpoint.metric.common.util.TimeWindowSampler;
-import com.navercorp.pinpoint.metric.common.util.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.constraints.NotBlank;

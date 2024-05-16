@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.AgentStatSamplingHandler;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.EagerSamplingHandler;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;

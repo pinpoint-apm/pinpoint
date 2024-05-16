@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
 import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;

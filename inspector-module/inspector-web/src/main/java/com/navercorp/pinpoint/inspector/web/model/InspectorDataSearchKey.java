@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.inspector.web.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
 import java.util.Objects;

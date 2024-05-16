@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.uristat.web.view;
 
-import com.navercorp.pinpoint.metric.common.model.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.model.UriStatGroup;
