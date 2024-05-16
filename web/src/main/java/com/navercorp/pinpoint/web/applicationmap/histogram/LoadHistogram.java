@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.LoadHistogramSerializer;
 
+import java.io.IOException;
 import java.util.Objects;
 
-@JsonSerialize(using = LoadHistogramSerializer.class)
+@JsonSerialize(using = LoadHistogram.Serializer.class)
 public class LoadHistogram {
-    private Histogram histogram;
+    private final Histogram histogram;
 
     public LoadHistogram(final Histogram histogram) {
         this.histogram = Objects.requireNonNull(histogram, "histogram");
@@ -63,5 +66,25 @@ public class LoadHistogram {
 
     public long getTotalCount() {
         return histogram.getTotalCount();
+    }
+
+
+    public static class Serializer extends JsonSerializer<LoadHistogram> {
+
+        @Override
+        public void serialize(final LoadHistogram histogram, final JsonGenerator jgen, final SerializerProvider serializerProvider) throws IOException {
+            // 1s, 3s, 5s, Slow, Error, Avg, Max, Sum, Tot
+            jgen.writeStartArray();
+            jgen.writeNumber(histogram.getFastCount());
+            jgen.writeNumber(histogram.getNormalCount());
+            jgen.writeNumber(histogram.getSlowCount());
+            jgen.writeNumber(histogram.getVerySlowCount());
+            jgen.writeNumber(histogram.getTotalErrorCount());
+            jgen.writeNumber(histogram.getAvgValue());
+            jgen.writeNumber(histogram.getMaxValue());
+            jgen.writeNumber(histogram.getSumValue());
+            jgen.writeNumber(histogram.getTotalCount());
+            jgen.writeEndArray();
+        }
     }
 }
