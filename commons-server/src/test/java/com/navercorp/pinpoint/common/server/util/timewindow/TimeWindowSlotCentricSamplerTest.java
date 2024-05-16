@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.util;
+package com.navercorp.pinpoint.common.server.util.timewindow;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler.DEFAULT_IDEAL_NUM_TIMESLOTS;
-import static com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler.DEFAULT_MINIMUM_TIMESLOT;
+import static com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler.DEFAULT_IDEAL_NUM_TIMESLOTS;
+import static com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler.DEFAULT_MINIMUM_TIMESLOT;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**

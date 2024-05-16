@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.inspector.web.service;
 
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
-import com.navercorp.pinpoint.metric.common.model.TimeWindow;
 
 /**
  * @author minwoo-jung

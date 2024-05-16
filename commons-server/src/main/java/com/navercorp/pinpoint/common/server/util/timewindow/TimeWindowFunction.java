@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.util;
+package com.navercorp.pinpoint.common.server.util.timewindow;
 
 
 @FunctionalInterface

@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.util;
+package com.navercorp.pinpoint.common.server.util.timewindow;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author emeroad
  */
-public class FixedTimeWindowSampler implements TimeWindowSampler {
-    private final long interval;
+public class TimeWindowOneMinuteSampler implements TimeWindowSampler {
 
-    public FixedTimeWindowSampler(long interval) {
-        this.interval = interval;
-    }
+    public static final TimeWindowSampler SAMPLER = new TimeWindowOneMinuteSampler();
 
+    @Override
     public long getWindowSize(Range range) {
-        return interval;
+        return 1000*60;
     }
 }
