@@ -8,12 +8,15 @@ import {
   getFormattedDateRange,
 } from '@pinpoint-fe/utils';
 import { useNavigate } from 'react-router-dom';
+import { ApplicationLinkButton } from '../../Button/ApplicationLinkButton';
 
 export const ErrorAnalysisSidebar = () => {
   const navigate = useNavigate();
   const { agentId, groupBy, application, dateRange } = useErrorAnalysisSearchParameters();
   return (
     <div className="w-60 min-w-[15rem] border-r-1 h-full">
+      <ApplicationLinkButton />
+      <Separator />
       <ErrorAnalysisGroupBy />
       <Separator />
       <AgentSearchList

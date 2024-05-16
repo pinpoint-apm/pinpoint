@@ -1,0 +1,37 @@
+import { Link } from 'react-router-dom';
+import { ApplicationType } from '@pinpoint-fe/constants';
+import { getServerImagePath } from '@pinpoint-fe/utils';
+import { useSearchParameters } from '@pinpoint-fe/hooks';
+import { Button } from '../ui';
+import { cn } from '../../lib';
+
+export const ApplicationLinkButton = () => {
+  const { application, searchParameters, pathname } = useSearchParameters();
+  const selectedAgentId = searchParameters.agentId;
+
+  const removeAgentIdFromPath = () => {
+    const urlSearchParams = new URLSearchParams(searchParameters);
+    urlSearchParams.delete('agentId');
+
+    return `${pathname}?${urlSearchParams.toString()}`;
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      asChild
+      className="flex items-center w-full h-10 gap-1 px-1 rounded-none shrink-0 justify-normal"
+    >
+      <Link to={removeAgentIdFromPath()}>
+        <img src={getServerImagePath(application as ApplicationType)} width={30} />
+        <div
+          className={cn('text-sm font-semibold truncate', {
+            'text-primary': !selectedAgentId,
+          })}
+        >
+          {application?.applicationName}
+        </div>
+      </Link>
+    </Button>
+  );
+};

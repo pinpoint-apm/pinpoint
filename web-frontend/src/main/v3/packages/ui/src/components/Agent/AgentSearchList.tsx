@@ -21,10 +21,10 @@ export const AgentSearchList = ({
 }: AgentSearchListProps) => {
   const [sortBy] = useAgentListSortBy();
   const listContainerRef = React.useRef(null);
-  const height = useHeightToBottom({ ref: listContainerRef, offset: 0 });
+  const height = useHeightToBottom({ ref: listContainerRef });
 
   return (
-    <div className={cn('p-5 pb-6 text-sm space-y-2', className)}>
+    <div className={cn('p-5 text-sm space-y-2', className)}>
       <div className="flex items-center">
         <span className="font-semibold">Agent List</span>
         <AgentListSortBySelector
@@ -35,7 +35,7 @@ export const AgentSearchList = ({
       {selectedAgentId && (
         <Badge
           variant={'outline'}
-          className="flex items-center justify-between gap-2 py-1 font-normal font-semibold truncate cursor-pointer bg-secondary"
+          className="flex items-center justify-between gap-2 py-1 font-semibold truncate cursor-pointer bg-secondary"
           onClick={() => onClickAgent?.(undefined)}
         >
           <div className="truncate">{selectedAgentId}</div>
