@@ -80,12 +80,8 @@ public class NodeHistogram {
         } else {
             this.applicationHistogram = builder.applicationHistogram;
         }
-        if (builder.agentHistogramMap == null) {
-            this.agentHistogramMap = Collections.emptyMap();
-        } else {
-            this.agentHistogramMap = builder.agentHistogramMap;
-        }
 
+        this.agentHistogramMap = Objects.requireNonNullElseGet(builder.agentHistogramMap, Collections::emptyMap);
 
         if (builder.applicationTimeHistogram == null) {
             this.applicationTimeHistogram = new ApplicationTimeHistogram(this.application);

@@ -51,23 +51,28 @@ public class SimplifiedNodeHistogramFactory implements NodeHistogramFactory {
 
         // create Agent histogram map for StatisticsAgentState
         if (terminalService.isTerminal() || terminalService.isAlias()) {
-            final Map<String, Histogram> agentHistogramMap = new HashMap<>();
-            for (Link link : toLinkList) {
-                LinkCallDataMap inLink = link.getInLink();
-                AgentHistogramList targetList = inLink.getOutLinkList();
-                for (AgentHistogram histogram : targetList.getAgentHistogramList()) {
-                    Histogram find = agentHistogramMap.get(histogram.getId());
-                    if (find == null) {
-                        find = new Histogram(histogram.getServiceType());
-                        agentHistogramMap.put(histogram.getId(), find);
-                    }
-                    find.add(histogram.getHistogram());
-                }
-                builder.setAgentHistogramMap(agentHistogramMap);
-            }
+            final Map<String, Histogram> agentHistogramMap = getAgentHistogramMap(toLinkList);
+            builder.setAgentHistogramMap(agentHistogramMap);
         }
 
         return builder.build();
+    }
+
+    private Map<String, Histogram> getAgentHistogramMap(List<Link> toLinkList) {
+        final Map<String, Histogram> agentHistogramMap = new HashMap<>();
+        for (Link link : toLinkList) {
+            LinkCallDataMap inLink = link.getInLink();
+            AgentHistogramList targetList = inLink.getOutLinkList();
+            for (AgentHistogram histogram : targetList.getAgentHistogramList()) {
+                Histogram find = agentHistogramMap.get(histogram.getId());
+                if (find == null) {
+                    find = new Histogram(histogram.getServiceType());
+                    agentHistogramMap.put(histogram.getId(), find);
+                }
+                find.add(histogram.getHistogram());
+            }
+        }
+        return agentHistogramMap;
     }
 
     @Override
