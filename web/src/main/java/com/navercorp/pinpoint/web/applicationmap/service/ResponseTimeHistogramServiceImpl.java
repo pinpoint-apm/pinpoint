@@ -49,7 +49,6 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
-import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.LogManager;
@@ -98,9 +97,9 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     }
 
     @Override
-    public ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range) {
+    public AgentHistogramList selectResponseTimeHistogramData(Application application, Range range) {
         List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
-        return new ApplicationTimeHistogramViewModel(application, new AgentHistogramList(application, responseTimes));
+        return new AgentHistogramList(application, responseTimes);
     }
 
     @Override

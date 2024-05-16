@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
-import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.Application;
 
 /**
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.vo.Application;
  */
 public interface ResponseTimeHistogramService {
 
-    ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range);
+    AgentHistogramList selectResponseTimeHistogramData(Application application, Range range);
 
     NodeHistogramSummary selectNodeHistogramData(ResponseTimeHistogramServiceOption option);
 
