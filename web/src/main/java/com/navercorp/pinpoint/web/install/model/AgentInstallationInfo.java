@@ -16,15 +16,11 @@
 
 package com.navercorp.pinpoint.web.install.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.AgentInstallationInfoSerializer;
-
 import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
-@JsonSerialize(using = AgentInstallationInfoSerializer.class)
 public class AgentInstallationInfo {
 
     private static final String PINPOINT_JAVA_AGENT_ARGUMENT = "-javaagent:${pinpointPath}/pinpoint-bootstrap-%s.jar";
@@ -45,7 +41,7 @@ public class AgentInstallationInfo {
         return agentDownloadInfo.getDownloadUrl();
     }
 
-    public String getJavaInstallationInfo() {
+    public String getInstallationArgument() {
         return javaInstallationInfo;
     }
 
