@@ -57,16 +57,9 @@ public class TransactionInfoViewModel {
                                     LogLinkView logLinkView) {
         this.transactionId = transactionId;
         this.spanId = spanId;
-        if (nodes == null) {
-            this.nodes = Collections.EMPTY_LIST;
-        } else {
-            this.nodes = nodes;
-        }
-        if (links == null) {
-            this.links = Collections.EMPTY_LIST;
-        } else {
-            this.links = links;
-        }
+        this.nodes = Objects.requireNonNullElseGet(nodes, Collections::emptyList);
+        this.links = Objects.requireNonNullElseGet(links, Collections::emptyList);
+
         this.recordSet = recordSet;
         this.completeState = state;
         this.logLinkView = Objects.requireNonNull(logLinkView, "logLinkView");
