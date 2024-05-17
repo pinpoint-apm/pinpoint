@@ -27,7 +27,7 @@ public class LoadTimeViewModel implements TimeViewModel {
     private final LoadHistogram histogram;
 
     public LoadTimeViewModel(long timestamp, LoadHistogram histogram) {
-        this.timestamp = Objects.requireNonNull(timestamp, "timestamp");
+        this.timestamp = timestamp;
         this.histogram = Objects.requireNonNull(histogram, "histogram");
     }
 
