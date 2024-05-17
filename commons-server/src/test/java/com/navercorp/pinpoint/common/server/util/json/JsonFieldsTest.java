@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ class JsonFieldsTest {
     }
 
     @Test
-    void testStringKey() throws Exception {
+    void stringKey() throws Exception {
 
         Map<String, String> map = new LinkedHashMap<>();
         map.put("key1", "value1");
@@ -87,7 +88,35 @@ class JsonFieldsTest {
     }
 
     @Test
-    public void jsonNodeFactory_sample() throws Exception {
+    void testSort() {
+        JsonFields.Builder<Integer, Integer> builder = JsonFields.newBuilder();
+        builder.comparator(Comparator.comparing(JsonField::name));
+
+        JsonFields<Integer, Integer> fields = builder
+                .addField(3, 3)
+                .addField(2, 2)
+                .addField(1, 1)
+                .addField(0, 0)
+                .build();
+
+        for (int i = 0; i < fields.size(); i++) {
+            JsonField<Integer, Integer> field = fields.get(i);
+            Assertions.assertEquals(i, field.name());
+        }
+    }
+
+    @Test
+    void throwIfDuplicateKeys()  {
+        JsonFields.Builder<String, String> builder = JsonFields.newBuilder();
+        builder.throwIfDuplicateKeys(true);
+
+        builder.addField("a", "1");
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.addField("a", "2"));
+    }
+
+    @Test
+    void jsonNodeFactory_sample() throws Exception {
         JsonNodeFactory factory = JsonNodeFactory.instance;
         ObjectNode jsonNodes = factory.objectNode();
         jsonNodes.set("string", factory.pojoNode("value"));
@@ -96,4 +125,6 @@ class JsonFieldsTest {
         String json = mapper.writeValueAsString(jsonNodes);
         logger.debug("json {}", json);
     }
+
+
 }

@@ -4,41 +4,56 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.collect.Iterators;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.RandomAccess;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @JsonSerialize(using = JsonFields.Serializer.class)
-public class JsonFields<K, V> implements Iterable<JsonField<String, V>>{
+public class JsonFields<K, V> implements Iterable<JsonField<K, V>>, RandomAccess {
 
-    private final Map<K, V> node;
+    private final JsonField<K, V>[] fields;
     private final Function<K, String> nameMapper;
 
-    JsonFields(Map<K, V> node, Function<K, String> nameMapper) {
-        this.node = Objects.requireNonNull(node, "node");
+    JsonFields(JsonField<K, V>[] fields, Function<K, String> nameMapper) {
+        this.fields = Objects.requireNonNull(fields, "node");
         this.nameMapper = Objects.requireNonNull(nameMapper, "nameMapper");
     }
 
-    @Override
-    public String toString() {
-        return node.toString();
+    public int size() {
+        return fields.length;
+    }
+
+    public JsonField<K, V> get(int index) {
+        Objects.checkIndex(index, fields.length);
+        return fields[index];
+    }
+
+    public boolean isEmpty() {
+        return fields.length == 0;
     }
 
     @Override
-    public Iterator<JsonField<String, V>> iterator() {
-        return Iterators.transform(node.entrySet().iterator(), this::toJsonField);
+    public Iterator<JsonField<K, V>> iterator() {
+        return stream().iterator();
     }
 
-    private JsonField<String, V> toJsonField(Map.Entry<K, V> entry) {
-        K key = entry.getKey();
-        String name = this.nameMapper.apply(key);
-        return new JsonStringField<>(name, entry.getValue());
+    public Stream<JsonField<K, V>> stream() {
+        return Arrays.stream(fields);
     }
+
+    public Stream<JsonField<String, V>> nameStream() {
+        return stream()
+                .map(f -> JsonField.of(nameMapper.apply(f.name()), f.value()));
+    }
+
 
     public static class Serializer<K, V> extends JsonSerializer<JsonFields<K, V>> {
         @Override
@@ -46,10 +61,10 @@ public class JsonFields<K, V> implements Iterable<JsonField<String, V>>{
             final Function<K, String> nameMapper = fields.nameMapper;
 
             gen.writeStartObject();
-            for (Map.Entry<K, V> entry : fields.node.entrySet()) {
-                String name = nameMapper.apply(entry.getKey());
+            for (JsonField<K, V> entry : fields.fields) {
+                String name = nameMapper.apply(entry.name());
                 gen.writeFieldName(name);
-                gen.writeObject(entry.getValue());
+                gen.writeObject(entry.value());
             }
             gen.writeEndObject();
         }
@@ -59,13 +74,24 @@ public class JsonFields<K, V> implements Iterable<JsonField<String, V>>{
         return new Builder<>(Object::toString);
     }
 
-    public static <K, V> Builder<K, V> newBuilder(Function<K, String> keyMapper) {
-        return new Builder<>(keyMapper);
+    /**
+     * @param nameMapper nameMapper does not guarantee uniqueness.
+     */
+    public static <K, V> Builder<K, V> newBuilder(Function<K, String> nameMapper) {
+        return new Builder<>(nameMapper);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(fields);
     }
 
     public static class Builder<K, V> {
         private final Map<K, V> node;
         private final Function<K, String> nameMapper;
+        // optional
+        private boolean throwIfDuplicateKeys = false;
+        private Comparator<JsonField<K, V>> comparator;
 
         Builder(Function<K, String> nameMapper) {
             this.node = new LinkedHashMap<>();
@@ -74,18 +100,43 @@ public class JsonFields<K, V> implements Iterable<JsonField<String, V>>{
 
         public Builder<K, V> addField(K name, V value) {
             Objects.requireNonNull(name, "name");
-            node.put(name, value);
+            final V duplicateKey = node.put(name, value);
+            if (throwIfDuplicateKeys) {
+                if (duplicateKey != null) {
+                    throw new IllegalArgumentException("Duplicate key: " + name);
+                }
+            }
             return this;
         }
 
         public Builder<K, V> addField(JsonField<K, V> field) {
             Objects.requireNonNull(field, "field");
-            node.put(field.name(), field.value());
+
+            this.addField(field.name(), field.value());
+            return this;
+        }
+
+        public Builder<K, V> throwIfDuplicateKeys(boolean enable) {
+            this.throwIfDuplicateKeys = enable;
+            return this;
+        }
+
+        public Builder<K, V> comparator(Comparator<JsonField<K, V>> comparator) {
+            this.comparator = Objects.requireNonNull(comparator, "comparator");
             return this;
         }
 
         public JsonFields<K, V> build() {
-            return new JsonFields<>(node, nameMapper);
+            @SuppressWarnings("unchecked")
+            JsonField<K, V>[] fields = new JsonField[node.size()];
+            int index = 0;
+            for (Map.Entry<K, V> entry : node.entrySet()) {
+                fields[index++] = JsonField.of(entry.getKey(), entry.getValue());
+            }
+            if (comparator != null) {
+                Arrays.sort(fields, comparator);
+            }
+            return new JsonFields<>(fields, nameMapper);
         }
     }
 
