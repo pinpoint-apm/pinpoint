@@ -7,7 +7,7 @@ export default defineConfig({
   minify: true,
   esbuildOptions(options) {
     options.define = {
-      'process.env.BASE_PATH': JSON.stringify('/v3'),
+      'process.env.BASE_PATH': JSON.stringify(''),
     };
   },
 });

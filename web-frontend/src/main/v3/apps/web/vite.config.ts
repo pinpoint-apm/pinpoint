@@ -6,7 +6,7 @@ import { BASE_PATH } from '@pinpoint-fe/constants';
 
 const isDev = process.env.NODE_ENV === 'development';
 const target = isDev ? 'http://localhost:8080' : 'http://localhost:8080';
-const basePath = isDev ? '/' : BASE_PATH;
+const basePath = isDev ? '/' : BASE_PATH || '/';
 
 // https://vitejs.dev/config/
 export default defineConfig({
