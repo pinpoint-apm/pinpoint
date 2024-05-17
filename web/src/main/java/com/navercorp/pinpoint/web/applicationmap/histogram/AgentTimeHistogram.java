@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.google.common.collect.Ordering;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -28,7 +29,6 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -51,6 +51,8 @@ public class AgentTimeHistogram {
     private static final Comparator<AgentResponseTimeViewModel> AGENT_NAME_COMPARATOR
             = Comparator.comparing(AgentResponseTimeViewModel::getAgentName);
 
+    private static final Ordering<TimeHistogram> histogramOrdering = Ordering.from(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
+
     private final Application application;
     private final AgentHistogramList agentHistogramList;
 
@@ -69,7 +71,7 @@ public class AgentTimeHistogram {
         final List<AgentResponseTimeViewModel> result = new ArrayList<>();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             Application agentId = agentHistogram.getAgentId();
-            List<TimeHistogram> timeList = sortTimeHistogram(agentHistogram.getTimeHistogram());
+            List<TimeHistogram> timeList = histogramOrdering.sortedCopy(agentHistogram.getTimeHistogram());
             AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(agentId, timeList, timeHistogramFormat);
             result.add(model);
         }
@@ -80,16 +82,12 @@ public class AgentTimeHistogram {
     public Map<String, List<TimeHistogram>> getTimeHistogramMap() {
         Map<String, List<TimeHistogram>> result = new HashMap<>();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-            result.put(agentHistogram.getAgentId().getName(), sortTimeHistogram(agentHistogram.getTimeHistogram()));
+            List<TimeHistogram> histogram = histogramOrdering.sortedCopy(agentHistogram.getTimeHistogram());
+            result.put(agentHistogram.getAgentId().getName(), histogram);
         }
         return result;
     }
 
-    private List<TimeHistogram> sortTimeHistogram(Collection<TimeHistogram> timeMap) {
-        List<TimeHistogram> timeList = new ArrayList<>(timeMap);
-        timeList.sort(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
-        return timeList;
-    }
 
     private AgentResponseTimeViewModel createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
         List<TimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList, timeHistogramFormat);

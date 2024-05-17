@@ -15,15 +15,15 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Ordering;
+import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
 
 /**
  * @author Taejin Koo
@@ -41,7 +41,7 @@ public class ScatterData {
     private final long latestAcceptedTime;
 
     private static final Comparator<DotGroups> REVERSE = Comparator.comparingLong(DotGroups::getXCoordinates).reversed();
-
+    private static final Ordering<DotGroups> reverseOrdering = Ordering.from(REVERSE);
 
     public ScatterData(long from,
                        long to,
@@ -77,9 +77,7 @@ public class ScatterData {
     }
 
     public List<DotGroups> getScatterData() {
-        List<DotGroups> list = new ArrayList<>(scatterData.values());
-        list.sort(REVERSE);
-        return list;
+        return reverseOrdering.sortedCopy(scatterData.values());
     }
 
     public int getDotSize() {
