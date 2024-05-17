@@ -1,7 +1,6 @@
 import 'billboard.js/dist/billboard.css';
 import React from 'react';
 import bb, { ChartOptions, bar } from 'billboard.js';
-import colors from 'tailwindcss/colors';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
@@ -9,6 +8,7 @@ import { abbreviateNumber, formatNewLinedDateString } from '@pinpoint-fe/utils';
 import { isValid } from 'date-fns';
 import { UrlStatChart as UrlStatChartApi } from '@pinpoint-fe/constants';
 import { cn } from '../../../lib';
+import { colors } from '../../../constant/theme';
 
 export interface UrlStatFailureCountChartProps {
   data: UrlStatChartApi.Response | undefined;
