@@ -97,7 +97,7 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       ),
       name: 'Go to Pinpoint v2',
       path: 'gotoV2',
-      aHref: '/main',
+      aHref: '/v2',
       show: true,
     },
   ];

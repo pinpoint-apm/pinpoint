@@ -13,7 +13,7 @@
     "clean:node_modules": "rm -rf node_modules",
     "clean:dist": "rm -rf dist",
     "clean:turbo": "rm -rf .turbo",
-    "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/v3\""
+    "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\""
   },
   "dependencies": {
     "@pinpoint-fe/atoms": "*",
