@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
-import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -118,12 +116,9 @@ public class NodeHistogram {
         return map;
     }
 
-    public List<TimeViewModel> getApplicationTimeHistogram(TimeHistogramFormat timeHistogramFormat) {
-        return applicationTimeHistogram.createViewModel(timeHistogramFormat);
-    }
 
-    public AgentResponseTimeViewModelList getAgentTimeHistogram(TimeHistogramFormat timeHistogramFormat) {
-        return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel(timeHistogramFormat));
+    public AgentTimeHistogram getAgentTimeHistogram() {
+        return agentTimeHistogram;
     }
 
     public List<HistogramView> createAgentHistogramViewList() {

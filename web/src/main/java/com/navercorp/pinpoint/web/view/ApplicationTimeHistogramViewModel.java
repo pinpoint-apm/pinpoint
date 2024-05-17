@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
@@ -48,10 +49,10 @@ public class ApplicationTimeHistogramViewModel {
     /**
      * @return JsonFields(String:AgentId, Histogram)
      */
-    public JsonFields<String, Histogram> getSummary() {
-        JsonFields.Builder<String, Histogram> builder = JsonFields.newBuilder();
+    public JsonFields<AgentNameView, Histogram> getSummary() {
+        JsonFields.Builder<AgentNameView, Histogram> builder = JsonFields.newBuilder();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-            String agentName = agentHistogram.getAgentId().getName();
+            AgentNameView agentName = AgentNameView.of(agentHistogram.getAgentId());
             Histogram histogram = agentHistogram.getHistogram();
             builder.addField(agentName, histogram);
         }
@@ -61,19 +62,7 @@ public class ApplicationTimeHistogramViewModel {
     /**
      * @return JsonFields(String:AgentId, value:List<TimeViewModel>)
      */
-    public JsonFields<String, List<TimeViewModel>> getTimeSeries() {
-        List<AgentResponseTimeViewModel> timeSeriesViewModel = getTimeSeriesViewModel();
-
-        JsonFields.Builder<String, List<TimeViewModel>> builder = JsonFields.newBuilder();
-        for (AgentResponseTimeViewModel model : timeSeriesViewModel) {
-            String agentName = model.getAgentName();
-            List<TimeViewModel> responseTimeViewModel = model.getResponseTimeViewModel();
-            builder.addField(agentName, responseTimeViewModel);
-        }
-        return builder.build();
-    }
-
-    private List<AgentResponseTimeViewModel> getTimeSeriesViewModel() {
+    public JsonFields<AgentNameView, List<TimeViewModel>> getTimeSeries() {
         AgentTimeHistogram histogram = new AgentTimeHistogram(application, agentHistogramList);
         return histogram.createViewModel(format);
     }

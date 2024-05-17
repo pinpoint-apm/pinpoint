@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
@@ -30,9 +31,9 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
-import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.LinkSerializer;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Collection;
@@ -213,11 +214,12 @@ public class Link {
         this.outLink.addLinkDataMap(outLinkCallDataMap);
     }
 
-    public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
+    public JsonFields<AgentNameView, List<TimeViewModel>> getSourceAgentTimeSeriesHistogram() {
         // we need Target (to)'s time since time in link is RPC-based
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(inLink);
-        return new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel(timeHistogramFormat));
+
+        return applicationTimeSeriesHistogram.createViewModel(timeHistogramFormat);
     }
 
     public AgentTimeHistogram getTargetAgentTimeHistogram() {
