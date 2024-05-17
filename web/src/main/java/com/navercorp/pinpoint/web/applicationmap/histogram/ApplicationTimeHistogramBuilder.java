@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.google.common.collect.Ordering;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowDownSampler;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +37,8 @@ import java.util.Objects;
  */
 public class ApplicationTimeHistogramBuilder {
     private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final Ordering<TimeHistogram> histogramOrdering = Ordering.from(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
 
     private final Application application;
     private final TimeWindow window;
@@ -115,10 +117,7 @@ public class ApplicationTimeHistogramBuilder {
             windowHistogram.add(timeHistogram);
         }
 
-
-        List<TimeHistogram> resultList = new ArrayList<>(resultMap.values());
-        resultList.sort(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
-        return resultList;
+        return histogramOrdering.sortedCopy(resultMap.values());
     }
 
 }

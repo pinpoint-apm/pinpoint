@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.activethread;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Ordering;
 import com.navercorp.pinpoint.web.view.AgentActiveThreadDumpListSerializer;
 
 import java.util.ArrayList;
@@ -29,6 +30,10 @@ import java.util.List;
  */
 @JsonSerialize(using = AgentActiveThreadDumpListSerializer.class)
 public class AgentActiveThreadDumpList {
+
+    private static final Ordering<AgentActiveThreadDump> ordering
+            = Ordering.from(Comparator.comparingLong(AgentActiveThreadDump::getStartTime));
+
 
     public static final AgentActiveThreadDumpList EMPTY_INSTANCE = new AgentActiveThreadDumpList(0);
 
@@ -47,9 +52,7 @@ public class AgentActiveThreadDumpList {
     }
 
     public List<AgentActiveThreadDump> getSortOldestAgentActiveThreadDumpRepository() {
-        List<AgentActiveThreadDump> copied = new ArrayList<>(agentActiveThreadDumpRepository);
-        copied.sort(Comparator.comparingLong(AgentActiveThreadDump::getStartTime));
-        return Collections.unmodifiableList(copied);
+        return ordering.immutableSortedCopy(agentActiveThreadDumpRepository);
     }
 
 }
