@@ -20,53 +20,61 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.LoadHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public interface TimeViewModel {
 
-    class TimeViewModelBuilder {
+    static Builder newBuilder(TimeHistogramFormat format) {
+        return new Builder(format);
+    }
+
+    class Builder {
+        private final TimeHistogramFormat format;
+
+        public Builder(TimeHistogramFormat format) {
+            this.format = Objects.requireNonNull(format, "format");
+        }
+
+        public List<TimeViewModel> build(Application application, List<TimeHistogram> histogramList) {
+            if (TimeHistogramFormat.V1 == format) {
+                return new ResponseTimeViewModelList(application, histogramList).build();
+            }
+            return new LoadTimeViewModelList(histogramList).build();
+        }
+    }
+
+    class ResponseTimeViewModelList implements TimeViewModel {
         private final Application application;
         private final List<TimeHistogram> histogramList;
-        private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
-        public TimeViewModelBuilder(Application application, List<TimeHistogram> histogramList) {
+        public ResponseTimeViewModelList(Application application, List<TimeHistogram> histogramList) {
             this.application = application;
             this.histogramList = histogramList;
         }
 
-        public TimeViewModelBuilder setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-            this.timeHistogramFormat = timeHistogramFormat;
-            return this;
-        }
-
         public List<TimeViewModel> build() {
-            if (TimeHistogramFormat.V1 == timeHistogramFormat) {
-                return createViewModelV1();
-            }
-            return createViewModelV2();
-        }
-
-        List<TimeViewModel> createViewModelV1() {
-            final List<TimeViewModel> value = new ArrayList<>(9);
+            final List<TimeViewModel> result = new ArrayList<>(9);
             ServiceType serviceType = application.getServiceType();
             HistogramSchema schema = serviceType.getHistogramSchema();
-            value.add(new ResponseTimeViewModel(schema.getFastSlot().getSlotName(), getColumnValue(histogramList, SlotType.FAST)));
-            value.add(new ResponseTimeViewModel(schema.getNormalSlot().getSlotName(), getColumnValue(histogramList, SlotType.NORMAL)));
-            value.add(new ResponseTimeViewModel(schema.getSlowSlot().getSlotName(), getColumnValue(histogramList, SlotType.SLOW)));
-            value.add(new ResponseTimeViewModel(schema.getVerySlowSlot().getSlotName(), getColumnValue(histogramList, SlotType.VERY_SLOW)));
-            value.add(new ResponseTimeViewModel(schema.getErrorSlot().getSlotName(), getColumnValue(histogramList, SlotType.ERROR)));
-            value.add(new ResponseTimeViewModel(ResponseTimeStatics.AVG_ELAPSED_TIME, getAvgValue(histogramList)));
-            value.add(new ResponseTimeViewModel(ResponseTimeStatics.MAX_ELAPSED_TIME, getColumnValue(histogramList, SlotType.MAX_STAT)));
-            value.add(new ResponseTimeViewModel(ResponseTimeStatics.SUM_ELAPSED_TIME, getColumnValue(histogramList, SlotType.SUM_STAT)));
-            value.add(new ResponseTimeViewModel(ResponseTimeStatics.TOTAL_COUNT, getTotalCount(histogramList)));
 
-            return value;
+            result.add(new ResponseTimeViewModel(schema.getFastSlot().getSlotName(), getColumnValue(histogramList, SlotType.FAST)));
+            result.add(new ResponseTimeViewModel(schema.getNormalSlot().getSlotName(), getColumnValue(histogramList, SlotType.NORMAL)));
+            result.add(new ResponseTimeViewModel(schema.getSlowSlot().getSlotName(), getColumnValue(histogramList, SlotType.SLOW)));
+            result.add(new ResponseTimeViewModel(schema.getVerySlowSlot().getSlotName(), getColumnValue(histogramList, SlotType.VERY_SLOW)));
+            result.add(new ResponseTimeViewModel(schema.getErrorSlot().getSlotName(), getColumnValue(histogramList, SlotType.ERROR)));
+            result.add(new ResponseTimeViewModel(ResponseTimeStatics.AVG_ELAPSED_TIME, getAvgValue(histogramList)));
+            result.add(new ResponseTimeViewModel(ResponseTimeStatics.MAX_ELAPSED_TIME, getColumnValue(histogramList, SlotType.MAX_STAT)));
+            result.add(new ResponseTimeViewModel(ResponseTimeStatics.SUM_ELAPSED_TIME, getColumnValue(histogramList, SlotType.SUM_STAT)));
+            result.add(new ResponseTimeViewModel(ResponseTimeStatics.TOTAL_COUNT, getTotalCount(histogramList)));
+
+            return result;
         }
 
         List<ResponseTimeViewModel.TimeCount> getColumnValue(List<TimeHistogram> histogramList, SlotType slotType) {
@@ -105,8 +113,16 @@ public interface TimeViewModel {
         long getCount(TimeHistogram timeHistogram, SlotType slotType) {
             return timeHistogram.getCount(slotType);
         }
+    }
 
-        public List<TimeViewModel> createViewModelV2() {
+    class LoadTimeViewModelList implements TimeViewModel {
+        private final List<TimeHistogram> histogramList;
+
+        public LoadTimeViewModelList(List<TimeHistogram> histogramList) {
+            this.histogramList = Objects.requireNonNull(histogramList, "histogramList");
+        }
+
+        public List<TimeViewModel> build() {
             final List<TimeViewModel> loadTimeViewModelList = new ArrayList<>(histogramList.size());
             for (TimeHistogram timeHistogram : histogramList) {
                 if (timeHistogram.getTimeStamp() <= 0) {

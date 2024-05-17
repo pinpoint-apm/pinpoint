@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class    AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentActiveThreadDumpList> {
+public class AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentActiveThreadDumpList> {
 
     @Override
     public void serialize(AgentActiveThreadDumpList agentActiveThreadDumpList, JsonGenerator jgen, SerializerProvider serializers) throws IOException {

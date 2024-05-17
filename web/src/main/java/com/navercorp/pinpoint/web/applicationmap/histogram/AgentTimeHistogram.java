@@ -97,7 +97,8 @@ public class AgentTimeHistogram {
     }
 
     private List<TimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
-        return new TimeViewModel.TimeViewModelBuilder(application, timeHistogramList).setTimeHistogramFormat(timeHistogramFormat).build();
+        TimeViewModel.Builder format = TimeViewModel.newBuilder(timeHistogramFormat);
+        return format.build(application, timeHistogramList);
     }
 
     public List<SampledApdexScore> getSampledAgentApdexScoreList(String agentName) {

@@ -43,7 +43,8 @@ public class ApplicationTimeHistogram {
     }
 
     public List<TimeViewModel> createViewModel(TimeHistogramFormat timeHistogramFormat) {
-        return new TimeViewModel.TimeViewModelBuilder(application, histogramList).setTimeHistogramFormat(timeHistogramFormat).build();
+        TimeViewModel.Builder format = TimeViewModel.newBuilder(timeHistogramFormat);
+        return format.build(application, histogramList);
     }
 
     public TimeSeriesView createTimeSeriesView(TimeHistogramType timeHistogramType) {

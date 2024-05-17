@@ -37,8 +37,7 @@ public class LinkHistogramSummary {
     private final Link link;
 
     public LinkHistogramSummary(Link link) {
-        Objects.requireNonNull(link, "link");
-        this.link = link;
+        this.link = Objects.requireNonNull(link, "link");
     }
 
     public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
