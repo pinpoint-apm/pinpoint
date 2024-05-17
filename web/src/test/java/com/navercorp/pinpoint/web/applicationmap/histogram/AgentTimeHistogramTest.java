@@ -16,18 +16,18 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
+import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
+import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
@@ -37,7 +37,6 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,21 +60,11 @@ public class AgentTimeHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
-        List<AgentResponseTimeViewModel> viewModel = histogram.createViewModel(TimeHistogramFormat.V1);
+        JsonFields<AgentNameView, List<TimeViewModel>> viewModel = histogram.createViewModel(TimeHistogramFormat.V1);
         logger.debug("{}", viewModel);
 
-        JsonFactory jsonFactory = mapper.getFactory();
-        StringWriter stringWriter = new StringWriter();
-        JsonGenerator jsonGenerator = jsonFactory.createGenerator(stringWriter);
-        jsonGenerator.writeStartObject();
-        for (AgentResponseTimeViewModel agentResponseTimeViewModel : viewModel) {
-            jsonGenerator.writeObject(agentResponseTimeViewModel);
-        }
-        jsonGenerator.writeEndObject();
-        jsonGenerator.flush();
-        jsonGenerator.close();
-        logger.debug(stringWriter.toString());
-
+        String json = mapper.writeValueAsString(viewModel);
+        logger.debug(json);
     }
 
     @Test

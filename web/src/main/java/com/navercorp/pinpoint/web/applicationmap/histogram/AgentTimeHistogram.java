@@ -17,12 +17,14 @@
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.google.common.collect.Ordering;
+import com.navercorp.pinpoint.common.server.util.json.JsonField;
+import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
@@ -48,8 +50,8 @@ public class AgentTimeHistogram {
     private static final Double DEFAULT_MAX_APDEX_SCORE = -2D;
     private static final String DEFAULT_AGENT_ID = "defaultAgentId";
 
-    private static final Comparator<AgentResponseTimeViewModel> AGENT_NAME_COMPARATOR
-            = Comparator.comparing(AgentResponseTimeViewModel::getAgentName);
+    private static final Comparator<JsonField<AgentNameView, List<TimeViewModel>>> AGENT_NAME_COMPARATOR
+            = Comparator.comparing((jsonField) -> jsonField.name().agentName());
 
     private static final Ordering<TimeHistogram> histogramOrdering = Ordering.from(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
 
@@ -66,17 +68,17 @@ public class AgentTimeHistogram {
         this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
     }
 
+    public JsonFields<AgentNameView, List<TimeViewModel>> createViewModel(TimeHistogramFormat timeHistogramFormat) {
 
-    public List<AgentResponseTimeViewModel> createViewModel(TimeHistogramFormat timeHistogramFormat) {
-        final List<AgentResponseTimeViewModel> result = new ArrayList<>();
+        JsonFields.Builder<AgentNameView, List<TimeViewModel>> builder = JsonFields.newBuilder();
+        builder.comparator(AGENT_NAME_COMPARATOR);
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             Application agentId = agentHistogram.getAgentId();
             List<TimeHistogram> timeList = histogramOrdering.sortedCopy(agentHistogram.getTimeHistogram());
-            AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(agentId, timeList, timeHistogramFormat);
-            result.add(model);
+            JsonField<AgentNameView, List<TimeViewModel>> model = createAgentResponseTimeViewModel(agentId, timeList, timeHistogramFormat);
+            builder.addField(model);
         }
-        result.sort(AGENT_NAME_COMPARATOR);
-        return result;
+        return builder.build();
     }
 
     public Map<String, List<TimeHistogram>> getTimeHistogramMap() {
@@ -89,9 +91,9 @@ public class AgentTimeHistogram {
     }
 
 
-    private AgentResponseTimeViewModel createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
+    private JsonField<AgentNameView, List<TimeViewModel>> createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
         List<TimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList, timeHistogramFormat);
-        return new AgentResponseTimeViewModel(agentName, responseTimeViewModel);
+        return JsonField.of(AgentNameView.of(agentName), responseTimeViewModel);
     }
 
     private List<TimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {

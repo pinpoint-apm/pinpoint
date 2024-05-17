@@ -21,12 +21,17 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
+import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
@@ -39,6 +44,8 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 public class NodeSerializer extends JsonSerializer<Node> {
+
+    public static final String AGENT_TIME_SERIES_HISTOGRAM = "agentTimeSeriesHistogram";
 
     @Override
     public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException {
@@ -177,7 +184,10 @@ public class NodeSerializer extends JsonSerializer<Node> {
         if (!NodeViews.Simplified.inView(activeView)) {
             // FIXME isn't this all ServiceTypes that can be a node?
             if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
-                List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());
+                final TimeHistogramFormat format = node.getTimeHistogramFormat();
+
+                ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
+                List<TimeViewModel> applicationTimeSeriesHistogram = applicationTimeHistogram.createViewModel(format);
                 if (applicationTimeSeriesHistogram == null) {
                     JacksonWriterUtils.writeEmptyArray(jgen, "timeSeriesHistogram");
                 } else {
@@ -185,8 +195,10 @@ public class NodeSerializer extends JsonSerializer<Node> {
                 }
 
                 if (NodeViews.Detailed.inView(activeView)) {
-                    AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(node.getTimeHistogramFormat());
-                    jgen.writeObject(agentTimeSeriesHistogram);
+                    AgentTimeHistogram agentTimeHistogram = nodeHistogram.getAgentTimeHistogram();
+                    JsonFields<AgentNameView, List<TimeViewModel>> agentFields = agentTimeHistogram.createViewModel(format);
+                    jgen.writeFieldName(AGENT_TIME_SERIES_HISTOGRAM);
+                    jgen.writeObject(agentFields);
                 }
             }
         }
