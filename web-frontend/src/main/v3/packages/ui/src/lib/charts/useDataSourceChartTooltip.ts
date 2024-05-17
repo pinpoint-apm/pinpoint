@@ -4,18 +4,13 @@ type TooltipContentsData = {
   id: string;
   values: Record<string, unknown>[];
   color: string;
+  name?: string;
 };
 
 export const useDataSourceChartTooltip = (
   tooltipData: InspectorAgentDataSourceChart.MetricValueGroup[] = [],
 ) => {
-  const tooltipTitleList = [
-    'Jdbc URL',
-    'ServiceType Code',
-    'Active Avg',
-    'Active Max',
-    'Total Max',
-  ];
+  const tooltipTitleList = ['Jdbc URL', 'ServiceType', 'Active Avg', 'Active Max', 'Total Max'];
 
   const getTooltipData = (focusIndex: number) =>
     tooltipData.map(({ metricValues, tags }) => {
@@ -28,7 +23,7 @@ export const useDataSourceChartTooltip = (
         )?.valueList[focusIndex];
       return {
         jdbcUrl: getTagValue('jdbcUrl'),
-        serviceTypeCode: getTagValue('serviceTypeCode'),
+        serviceType: getTagValue('serviceType'),
         activeAvg: getMetricValue('activeAvg'),
         activeMax: getMetricValue('activeMax'),
         totalMax: getMetricValue('totalMax'),
@@ -43,10 +38,10 @@ export const useDataSourceChartTooltip = (
       .join('');
     const body = contentsData
       .map((d, i) => {
-        const { id, values, color } = d;
+        const { id, values, name, color } = d;
         return `
           <tr class="bb-tooltip-name-${id}">
-            <td class="name"><span style="background-color:${color}"></span>${id}</td>
+            <td class="name"><span style="background-color:${color}"></span>${name}</td>
             ${Object.values(values[i])
               ?.map(
                 (value) =>

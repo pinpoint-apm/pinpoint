@@ -19,15 +19,16 @@ export const useDataSourceChartConfig = (data?: InspectorAgentDataSourceChart.Re
     title: data.title,
     timestamp: data.timestamp,
     metricValues: data.metricValueGroups.map(({ metricValues, tags }, index) => {
-      const newFieldName =
-        tags.find(({ name }) => name === 'databaseName')?.value || `Database ${index}`;
+      const id = tags.find(({ name }) => name === 'id')?.value ?? index;
+      const databaseName = tags.find(({ name }) => name === 'databaseName')?.value ?? `Database`;
+      const newFieldName = `${databaseName}-${id}`;
 
-      return { ...metricValues[0], fieldName: newFieldName };
+      return { ...metricValues[0], fieldName: newFieldName, dataLabel: databaseName };
     }),
   };
 
   const chartDataOptions = chartData.metricValues.reduce(
-    (acc, { fieldName, chartType, unit }) => {
+    (acc, { fieldName, chartType, unit, dataLabel }) => {
       return {
         types: {
           ...acc.types,
@@ -37,11 +38,16 @@ export const useDataSourceChartConfig = (data?: InspectorAgentDataSourceChart.Re
           ...acc.axes,
           [fieldName]: getDataAxis(unit),
         },
+        names: {
+          ...acc.names,
+          [fieldName]: dataLabel,
+        },
       };
     },
     {
       types: {},
       axes: {},
+      names: {},
     },
   );
 
@@ -74,11 +80,12 @@ export const useDataSourceChartConfig = (data?: InspectorAgentDataSourceChart.Re
       contents: (d, defaultTitleFormat, _, color) => {
         const focusIndex = d[0].index;
         const titleList = [defaultTitleFormat(d[0].x) as string, ...tooltipTitleList];
-        const tooltipData = d.map(({ id }) => {
+        const tooltipData = d.map(({ id, name }) => {
           return {
             id,
             values: getTooltipData(focusIndex),
             color: color(id),
+            name,
           };
         });
         const tooltipStr = getTooltipStr(titleList, tooltipData);
