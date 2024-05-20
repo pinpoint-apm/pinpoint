@@ -42,8 +42,8 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping("/inspector/getAgentStat")
-public class AgentStatController {
+@RequestMapping("/inspector/agentStat")
+public class AgentInspectorStatController {
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(5000L, 200);
     private final AgentStatService agentStatService;
@@ -51,7 +51,7 @@ public class AgentStatController {
     private final TenantProvider tenantProvider;
     private final RangeValidator rangeValidator;
 
-    public AgentStatController(AgentStatService agentStatService, ApdexStatService apdexStatService, TenantProvider tenantProvider, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
+    public AgentInspectorStatController(AgentStatService agentStatService, ApdexStatService apdexStatService, TenantProvider tenantProvider, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
         this.agentStatService = Objects.requireNonNull(agentStatService, "agentStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
