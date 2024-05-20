@@ -41,7 +41,7 @@ public class DefaultExceptionRecorderFactory implements ExceptionRecorderFactory
     }
 
     @Override
-    public ExceptionRecorder newService(TraceRoot traceRoot) {
+    public ExceptionRecorder newRecorder(TraceRoot traceRoot) {
         Objects.requireNonNull(traceRoot, "traceRoot");
         ExceptionContext exceptionContext = this.exceptionContextFactory.newExceptionContext(traceRoot);
         return new DefaultExceptionRecorder(exceptionChainSampler, exceptionWrapperFactory, exceptionContext);

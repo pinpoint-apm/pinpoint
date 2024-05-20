@@ -88,9 +88,10 @@ public class BufferedExceptionStorage implements ExceptionStorage {
 
     @Override
     public String toString() {
-        return "ExceptionTraceStorage{" +
+        return "BufferedExceptionStorage{" +
                 "buffer=" + buffer +
                 ", dataSender=" + dataSender +
+                ", factory=" + factory +
                 '}';
     }
 }

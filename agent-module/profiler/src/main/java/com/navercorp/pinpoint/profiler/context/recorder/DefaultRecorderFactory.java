@@ -65,7 +65,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
     public SpanRecorder newSpanRecorder(Span span) {
         Objects.requireNonNull(span, "span");
 
-        ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newService(span.getTraceRoot());
+        ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(span.getTraceRoot());
         return new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
     }
 
@@ -88,7 +88,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(traceRoot, "traceRoot");
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newService(traceRoot);
+        ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
 
         return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory,
                 stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
@@ -100,7 +100,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(asyncState, "asyncState");
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newService(traceRoot);
+        ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
 
         return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, asyncState,
                 stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
@@ -111,7 +111,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(traceRoot, "traceRoot");
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newService(traceRoot);
+        ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
 
         return new ChildTraceSpanEventRecorder(traceRoot, asyncContextFactory,
                 stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);

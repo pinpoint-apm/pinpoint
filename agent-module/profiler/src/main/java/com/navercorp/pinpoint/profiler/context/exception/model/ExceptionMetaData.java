@@ -55,7 +55,7 @@ public class ExceptionMetaData implements MetaDataType {
 
     @Override
     public int hashCode() {
-        return exceptionWrappers != null ? exceptionWrappers.hashCode() : 0;
+        return exceptionWrappers.hashCode();
     }
 
     @Override
