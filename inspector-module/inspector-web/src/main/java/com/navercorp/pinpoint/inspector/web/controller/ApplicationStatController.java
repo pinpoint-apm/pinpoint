@@ -23,15 +23,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/getApplicationStatV2")
-public class ApplicationStatV2Controller {
+@RequestMapping("/inspector/getApplicationStat")
+public class ApplicationStatController {
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER_30M = new TimeWindowSlotCentricSampler(30000L, 200);
     private final TenantProvider tenantProvider;
     private final ApplicationStatService applicationStatService;
     private final ApdexStatService apdexStatService;
     private final RangeValidator rangeValidator;
 
-    public ApplicationStatV2Controller(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
+    public ApplicationStatController(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
         this.applicationStatService = Objects.requireNonNull(applicationStatService, "applicationStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
