@@ -81,13 +81,13 @@ export const SYSTEM_METRIC_METRIC_INFO = `${LOCAL_API_PATH}/systemMetric/hostGro
 export const SYSTEM_METRIC_TAGS = `${LOCAL_API_PATH}/systemMetric/hostGroup/host/collectedTags`;
 export const SYSTEM_METRIC_CHART = `${LOCAL_API_PATH}/systemMetric/hostGroup/host/collectedMetricData`;
 
-export const INSPECTOR_AGENT_CHART = `${LOCAL_API_PATH}/getAgentStatV2/chart`;
-export const INSPECTOR_AGENT_DATA_SOURCE_CHART = `${LOCAL_API_PATH}/getAgentStatV2/chartList`;
+export const INSPECTOR_AGENT_CHART = `${LOCAL_API_PATH}/inspector/agentStat/chart`;
+export const INSPECTOR_AGENT_DATA_SOURCE_CHART = `${LOCAL_API_PATH}/inspector/agentStat/chartList`;
 export const INSPECTOR_AGENT_EVENTS = `${LOCAL_API_PATH}/getAgentEvents`;
 export const INSPECTOR_AGENT_INFO = `${LOCAL_API_PATH}/getDetailedAgentInfo`;
 export const INSPECTOR_AGENT_STATUS_TIMELINE = `${LOCAL_API_PATH}/getAgentStatusTimeline`;
-export const INSPECTOR_APPLICATION_CHART = `${LOCAL_API_PATH}/getApplicationStatV2/chart`;
-export const INSPECTOR_APPLICATION_DATA_SOURCE_CHART = `${LOCAL_API_PATH}/getApplicationStatV2/chartList`;
+export const INSPECTOR_APPLICATION_CHART = `${LOCAL_API_PATH}/inspector/applicationStat/chart`;
+export const INSPECTOR_APPLICATION_DATA_SOURCE_CHART = `${LOCAL_API_PATH}/inspector/applicationStat/chartList`;
 
 export const CONFIG_APPLICATION_DUPLICATION_CHECK = `${LOCAL_API_PATH}/isAvailableApplicationName`;
 export const CONFIG_AGENT_DUPLICATION_CHECK = `${LOCAL_API_PATH}/isAvailableAgentId`;
