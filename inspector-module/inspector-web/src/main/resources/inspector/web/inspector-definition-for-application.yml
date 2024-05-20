@@ -76,6 +76,7 @@ mappings:
         chartType: "spline"
         unit: "time"
       - fieldName: "max"
+        fieldAlias: "MAX"
         matchingRule: EXACT_ONE
         aggregationFunction: MAX
         chartType: "spline"
