@@ -28,20 +28,19 @@ import java.util.List;
  */
 public class DisabledExceptionContext implements ExceptionContext {
 
-    public static final DisabledExceptionContext INSTANCE = new DisabledExceptionContext();
-
     @Override
     public void store(List<ExceptionWrapper> wrappers) {
-
+        // do nothing
     }
 
     @Override
     public void flush() {
-
+        // do nothing
     }
 
     @Override
     public void update(Throwable throwable, long startTime, ExceptionChainSampler.SamplingState samplingState) {
+        // do nothing
     }
 
     @Override
@@ -51,6 +50,7 @@ public class DisabledExceptionContext implements ExceptionContext {
 
     @Override
     public void cleanContext() {
+        // do nothing
     }
 
     @Override

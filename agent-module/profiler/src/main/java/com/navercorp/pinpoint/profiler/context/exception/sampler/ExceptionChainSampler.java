@@ -28,11 +28,9 @@ public class ExceptionChainSampler {
     public static final long INITIAL_EXCEPTION_ID = 1L;
 
     private final RateLimiter rateLimiter;
-
     private final AtomicLong exceptionChainId = new AtomicLong(INITIAL_EXCEPTION_ID);
 
-
-    public final static SamplingState DISABLED = new SamplingState() {
+    public static final SamplingState DISABLED = new SamplingState() {
         @Override
         public boolean isSampling() {
             return false;

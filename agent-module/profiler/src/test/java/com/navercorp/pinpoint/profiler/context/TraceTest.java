@@ -80,7 +80,6 @@ public class TraceTest {
 
         SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
         WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
-        ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
 
         Storage storage = mock(Storage.class);
 
@@ -111,7 +110,6 @@ public class TraceTest {
 
         SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
         WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
-        ExceptionContext exceptionContext = DisabledExceptionContext.INSTANCE;
 
         Storage storage = mock(Storage.class);
 

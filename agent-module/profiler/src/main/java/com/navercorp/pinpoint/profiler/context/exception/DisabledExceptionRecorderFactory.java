@@ -28,7 +28,7 @@ public class DisabledExceptionRecorderFactory implements ExceptionRecorderFactor
     }
 
     @Override
-    public ExceptionRecorder newService(TraceRoot traceRoot) {
+    public ExceptionRecorder newRecorder(TraceRoot traceRoot) {
         return DisabledExceptionRecorder.INSTANCE;
     }
 }

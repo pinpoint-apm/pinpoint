@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapperFactory;
 import com.navercorp.pinpoint.profiler.context.exception.sampler.ExceptionChainSampler;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,7 +44,7 @@ public enum ExceptionRecordingState {
     CONTINUED {
         @Override
         public List<ExceptionWrapper> toWrappers(ExceptionContext context, ExceptionWrapperFactory factory) {
-            return null;
+            return Collections.emptyList();
         }
 
         @Override
@@ -56,7 +57,7 @@ public enum ExceptionRecordingState {
         public List<ExceptionWrapper> toWrappers(
                 ExceptionContext context, ExceptionWrapperFactory factory
         ) {
-            return null;
+            return Collections.emptyList();
         }
 
         @Override
@@ -120,7 +121,6 @@ public enum ExceptionRecordingState {
         this.update(context, current, currentStartTime, samplingState);
     }
 
-
     private void push(
             ExceptionContext context,
             ExceptionChainSampler.SamplingState samplingState,
@@ -135,7 +135,6 @@ public enum ExceptionRecordingState {
             }
         }
     }
-
 
     public void update(
             ExceptionContext context,

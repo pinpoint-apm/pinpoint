@@ -22,5 +22,5 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
  */
 public interface ExceptionRecorderFactory {
 
-    ExceptionRecorder newService(TraceRoot traceRoot);
+    ExceptionRecorder newRecorder(TraceRoot traceRoot);
 }

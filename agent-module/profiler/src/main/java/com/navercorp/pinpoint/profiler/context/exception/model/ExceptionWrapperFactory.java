@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.exception.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class ExceptionWrapperFactory {
 
     public List<ExceptionWrapper> newExceptionWrappers(ExceptionContext context) {
         if (context == null) {
-            return null;
+            return Collections.emptyList();
         }
         return traverseAndWrap(
                 context.getContextValue(), context.getExceptionId()
@@ -46,13 +47,12 @@ public class ExceptionWrapperFactory {
         for (ExceptionContextValue curr = topExceptionContextValue;
              curr.getPrevious() != null;
              curr = curr.getPrevious()) {
-            int newDepth = addAllExceptionWrappers(
+            depth = addAllExceptionWrappers(
                     exceptionWrappers,
                     curr.getThrowable(), curr.getPrevious().getThrowable(),
                     curr.getStartTime(), exceptionId,
                     depth
             );
-            depth = newDepth;
         }
 
         return exceptionWrappers;

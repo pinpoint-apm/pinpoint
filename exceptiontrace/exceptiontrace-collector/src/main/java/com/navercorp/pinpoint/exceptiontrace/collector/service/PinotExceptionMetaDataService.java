@@ -42,13 +42,13 @@ import java.util.stream.Collectors;
 @Service
 @ConditionalOnProperty(name = "pinpoint.modules.collector.exceptiontrace.enabled", havingValue = "true")
 @Validated
-public class PinotExceptionTraceService implements ExceptionMetaDataService {
+public class PinotExceptionMetaDataService implements ExceptionMetaDataService {
     private final ExceptionTraceDao exceptionTraceDao;
     private final ServiceTypeRegistryService registry;
     private final TenantProvider tenantProvider;
 
 
-    public PinotExceptionTraceService(
+    public PinotExceptionMetaDataService(
             ExceptionTraceDao exceptionTraceDao,
             ServiceTypeRegistryService registry,
             TenantProvider tenantProvider

@@ -27,11 +27,11 @@ public class DisabledExceptionRecorder implements ExceptionRecorder {
 
     @Override
     public void recordException(SpanEvent spanEvent, Throwable throwable) {
-
+        // do nothing
     }
 
     @Override
     public void close() {
-
+        // do nothing
     }
 }
