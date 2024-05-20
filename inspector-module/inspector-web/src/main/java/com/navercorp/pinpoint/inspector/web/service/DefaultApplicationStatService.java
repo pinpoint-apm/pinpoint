@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,9 @@ import java.util.stream.Collectors;
 @Service
 public class DefaultApplicationStatService implements ApplicationStatService {
 
+    private static final String MIN = "MIN";
+    private static final String AVG = "AVG";
+    private static final String MAX = "MAX";
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final YMLInspectorManager ymlInspectorManager;
@@ -84,8 +88,31 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         }
 
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(metricDefinition, metricValueList);
+        processedMetricValueList = sortingMetricValueList(processedMetricValueList);
         List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
         return new InspectorMetricData(metricDefinition.getTitle(), timeStampList, processedMetricValueList);
+    }
+
+    private List<InspectorMetricValue> sortingMetricValueList(List<InspectorMetricValue> processedMetricValueList) {
+        InspectorMetricValue[] sortedMetricValues = new InspectorMetricValue[3];
+
+        for (InspectorMetricValue value : processedMetricValueList) {
+            switch (value.getFieldName()) {
+                case MIN:
+                    sortedMetricValues[0] = value;
+                    break;
+                case AVG:
+                    sortedMetricValues[1] = value;
+                    break;
+                case MAX:
+                    sortedMetricValues[2] = value;
+                    break;
+                default:
+                    throw new RuntimeException("not supported field name : " + value.getFieldName());
+            }
+        }
+
+        return Arrays.asList(sortedMetricValues);
     }
 
     @Override
@@ -122,8 +149,17 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(newMetricDefinition, metricValueList);
         List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
         Map<List<Tag>,List<InspectorMetricValue>> metricValueGroups = groupingMetricValue(processedMetricValueList, metricDefinition);
-
+        metricValueGroups = sortingMetricValueGroups(metricValueGroups);
         return new InspectorMetricGroupData(metricDefinition.getTitle(), timeStampList, metricValueGroups);
+    }
+
+    private Map<List<Tag>, List<InspectorMetricValue>> sortingMetricValueGroups(Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups) {
+        return metricValueGroups.entrySet().stream()
+                                            .collect(Collectors.toMap(
+                                                                        Map.Entry::getKey,
+                                                                        entry -> sortingMetricValueList(entry.getValue())
+                                                                    )
+                                            );
     }
 
     private Map<List<Tag>,List<InspectorMetricValue>> groupingMetricValue(List<InspectorMetricValue> processedMetricValueList, MetricDefinition metricDefinition) {
@@ -171,8 +207,8 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         }
 
         List<InspectorMetricValue> inspectorMetricValueList = new ArrayList<>(2);
-        inspectorMetricValueList.add(new InspectorMetricValue("MIN", field.getTags(), field.getChartType(), field.getUnit(), minValueList));
-        inspectorMetricValueList.add(new InspectorMetricValue("MAX", field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), minValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue(MAX, field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
         return inspectorMetricValueList;
     }
 
@@ -190,8 +226,8 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         }
 
         List<InspectorMetricValue> inspectorMetricValueList = new ArrayList<>(2);
-        inspectorMetricValueList.add(new InspectorMetricValue("MIN", field.getTags(), field.getChartType(), field.getUnit(), minValueList));
-        inspectorMetricValueList.add(new InspectorMetricValue("AVG", field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), minValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue(AVG, field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
         return inspectorMetricValueList;
     }
 
@@ -210,9 +246,9 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         }
 
         List<InspectorMetricValue> inspectorMetricValueList = new ArrayList<>(3);
-        inspectorMetricValueList.add(new InspectorMetricValue("MIN", field.getTags(), field.getChartType(), field.getUnit(), minValueList));
-        inspectorMetricValueList.add(new InspectorMetricValue("AVG", field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
-        inspectorMetricValueList.add(new InspectorMetricValue("MAX", field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), minValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue(AVG, field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
+        inspectorMetricValueList.add(new InspectorMetricValue(MAX, field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
         return inspectorMetricValueList;
     }
 

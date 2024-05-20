@@ -52,6 +52,9 @@ import java.util.Objects;
 public class DefaultApdexStatService implements ApdexStatService {
 
     private static final TimeWindowSampler APDEX_SCORE_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(60 * 1000, 200);
+    public static final String MIN = "MIN";
+    public static final String AVG = "AVG";
+    public static final String MAX = "MAX";
 
     private final ApplicationFactory applicationFactory;
 
@@ -114,9 +117,9 @@ public class DefaultApdexStatService implements ApdexStatService {
 
         Field field = metricDefinition.getFields().get(0);
         List<InspectorMetricValue> metricValueList = new ArrayList<>(3);
-        metricValueList.add(new InspectorMetricValue("AVG", field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
-        metricValueList.add(new InspectorMetricValue("MIN", field.getTags(), field.getChartType(), field.getUnit(), minValueList));
-        metricValueList.add(new InspectorMetricValue("MAX", field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
+        metricValueList.add(new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), minValueList));
+        metricValueList.add(new InspectorMetricValue(AVG, field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
+        metricValueList.add(new InspectorMetricValue(MAX, field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
 
         return new InspectorMetricData(metricDefinition.getTitle(), timestampList, metricValueList);
     }
