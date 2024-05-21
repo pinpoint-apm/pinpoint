@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.dao.pinot;
 
-import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicAndTableNameManager;
+import com.navercorp.pinpoint.common.dao.pinot.AgentStatTableNameManager;
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;
@@ -46,12 +46,14 @@ public class PinotAgentStatDao implements AgentStatDao {
     private final PinotAsyncTemplate asyncTemplate;
     private final SqlSessionTemplate syncTemplate;
     private final int agentStatTopicCount;
+    private final AgentStatTableNameManager agentStatTableNameManager;
 
     public PinotAgentStatDao(@Qualifier("inspectorPinotAsyncTemplate") PinotAsyncTemplate asyncTemplate, @Qualifier("inspectorPinotTemplate") SqlSessionTemplate syncTemplate, InspectorWebProperties inspectorWebProperties) {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
         this.syncTemplate = Objects.requireNonNull(syncTemplate, "syncTemplate");
         Objects.requireNonNull(inspectorWebProperties, "inspectorWebProperties");
-        this.agentStatTopicCount = inspectorWebProperties.getAgentStatTopicCount();
+        this.agentStatTopicCount = inspectorWebProperties.getAgentStatTableCount();
+        this.agentStatTableNameManager = new AgentStatTableNameManager(inspectorWebProperties.getAgentStatTablePrefix(), inspectorWebProperties.getAgentStatTablePaddingLength());
     }
 
     @Override
@@ -92,6 +94,6 @@ public class PinotAgentStatDao implements AgentStatDao {
     }
 
     private String getTableName(InspectorDataSearchKey inspectorDataSearchKey) {
-        return AgentStatTopicAndTableNameManager.getAgentStatTableName(inspectorDataSearchKey.getApplicationName(), agentStatTopicCount);
+        return agentStatTableNameManager.getAgentStatTableName(inspectorDataSearchKey.getApplicationName(), agentStatTopicCount);
     }
 }

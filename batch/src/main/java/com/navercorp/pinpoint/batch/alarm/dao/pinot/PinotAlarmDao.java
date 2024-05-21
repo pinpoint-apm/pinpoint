@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsageCount;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
-import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicAndTableNameManager;
+import com.navercorp.pinpoint.common.dao.pinot.AgentStatTableNameManager;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -46,12 +46,14 @@ public class PinotAlarmDao implements AlarmDao {
     private final PinotAsyncTemplate asyncTemplate;
     private final SqlSessionTemplate syncTemplate;
     private final int tableCount;
+    private final AgentStatTableNameManager agentStatTableNameManager;
 
     public PinotAlarmDao(@Qualifier("batchPinotAsyncTemplate") PinotAsyncTemplate asyncTemplate, @Qualifier("batchPinotTemplate") SqlSessionTemplate syncTemplate, BatchProperties batchProperties) {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
         this.syncTemplate = Objects.requireNonNull(syncTemplate, "syncTemplate");
         Objects.requireNonNull(batchProperties, "batchProperties");
         this.tableCount = batchProperties.getAlarmAgentInspectorStatTableCount();
+        this.agentStatTableNameManager = new AgentStatTableNameManager(batchProperties.getAgentInspectorStatTablePrefix(), batchProperties.getAgentInspectorStatTablePaddingLength());
     }
 
     @Override
@@ -91,6 +93,6 @@ public class PinotAlarmDao implements AlarmDao {
     }
 
     private String getTableName(String applicationName) {
-        return AgentStatTopicAndTableNameManager.getAgentStatTableName(applicationName, tableCount);
+        return agentStatTableNameManager.getAgentStatTableName(applicationName, tableCount);
     }
 }

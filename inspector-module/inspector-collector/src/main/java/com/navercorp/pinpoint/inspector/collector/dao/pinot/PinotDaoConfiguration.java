@@ -42,21 +42,18 @@ public class PinotDaoConfiguration {
 
     private final KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate;
     private final KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate;
-    private final int agentStatTopicCount;
-    private final String applicationStatTopicName;
+    InspectorCollectorProperties inspectorCollectorProperties;
     private final TenantProvider tenantProvider;
 
     public PinotDaoConfiguration(KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate, KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate, InspectorCollectorProperties inspectorCollectorProperties, TenantProvider tenantProvider) {
         this.kafkaAgentStatTemplate = Objects.requireNonNull(kafkaAgentStatTemplate, "kafkaAgentStatTemplate");
         this.kafkaApplicationStatTemplate = Objects.requireNonNull(kafkaApplicationStatTemplate, "kafkaApplicationStatTemplate");
-        Objects.requireNonNull(inspectorCollectorProperties, "inspectorCollectorProperties");
-        this.agentStatTopicCount = inspectorCollectorProperties.getAgentStatTopicCount();
-        this.applicationStatTopicName = inspectorCollectorProperties.getApplicationStatTopicName();
+        this.inspectorCollectorProperties = Objects.requireNonNull(inspectorCollectorProperties, "inspectorCollectorProperties");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
     private <T extends AgentStatDataPoint> AgentStatDao<T> newAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, BiFunction<List<T>, String, List<AgentStat>> convertToAgentStat, Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStat) {
-        return new DefaultAgentStatDao(dataPointFunction, kafkaAgentStatTemplate, kafkaApplicationStatTemplate, convertToAgentStat, convertToKafkaApplicationStat, agentStatTopicCount, applicationStatTopicName, tenantProvider);
+        return new DefaultAgentStatDao(dataPointFunction, kafkaAgentStatTemplate, kafkaApplicationStatTemplate, convertToAgentStat, convertToKafkaApplicationStat, inspectorCollectorProperties, tenantProvider);
     }
 
     @Bean

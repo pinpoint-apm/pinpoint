@@ -27,32 +27,26 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author minwoo-jung
  */
 
 
 @Disabled
-class AgentStatTopicAndTableNameManagerTest {
+class AgentStatNameManagerTest {
 
-    private final Logger logger = LogManager.getLogger(AgentStatTopicAndTableNameManagerTest.class.getName());
-    @Test
-    public void getAgentStatTopicName() {
-        String applicationName = "pinpointApplication";
-        int agentStatTopicCount = 16;
-        String agentStatTopicName = AgentStatTopicAndTableNameManager.getAgentStatTopicName(applicationName, agentStatTopicCount);
-        logger.info(agentStatTopicName);
-//        assertEquals("inspector-stat-agent-00", agentStatTopicName);
-    }
+    private final Logger logger = LogManager.getLogger(AgentStatNameManagerTest.class.getName());
 
     @Test
     public void kafkaPartitionForStringSortKeyTest() {
         int numPartitions = 32;
         StringSerializer keySerializer = new StringSerializer();
-        byte[] keyBytes = keySerializer.serialize("inspector-stat", "pub-vpc-nas-api#avnas-mcweb01.ncp3#directBuffer");
+        byte[] keyBytes = keySerializer.serialize("inspector-stat", "applicationName#AgentId#directBuffer");
         int partition = BuiltInPartitioner.partitionForKey(keyBytes, numPartitions);
         logger.info(partition);
-//        assertEquals(54, partition);
+//        assertEquals(17, partition);
     }
 
 
