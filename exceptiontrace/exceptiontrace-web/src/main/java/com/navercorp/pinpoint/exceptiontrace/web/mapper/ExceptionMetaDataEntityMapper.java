@@ -99,7 +99,7 @@ public interface ExceptionMetaDataEntityMapper {
                 case URI_TEMPLATE -> groupedFieldName.setUriTemplate(checkIfNull(entity.getUriTemplate()));
                 case ERROR_CLASS_NAME -> groupedFieldName.setErrorClassName(checkIfNull(entity.getErrorClassName()));
                 case ERROR_MESSAGE_LOG_TYPE ->
-                        groupedFieldName.setErrorMessage_logtype(checkIfNull(selectErrorMessage(entity)));
+                        groupedFieldName.setErrorMessage_logtype(checkIfNull(entity.getErrorMessage_logtype()));
             }
         }
         summary.setRawFieldName(groupedFieldName);
