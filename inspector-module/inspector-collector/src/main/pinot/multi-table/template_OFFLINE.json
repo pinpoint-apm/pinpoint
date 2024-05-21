@@ -1,9 +1,9 @@
 {
-  "tableName": "inspectorStatAgent00",
+  "tableName": "inspectorStatAgent${NUM}",
   "tableType": "OFFLINE",
   "segmentsConfig": {
     "timeType": "MILLISECONDS",
-    "schemaName": "inspectorStatAgent00",
+    "schemaName": "inspectorStatAgent${NUM}",
     "retentionTimeUnit": "DAYS",
     "retentionTimeValue": "14",
     "replication": "3",
