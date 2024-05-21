@@ -15,7 +15,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 
@@ -33,4 +35,6 @@ public interface ApplicationMap {
     @JsonProperty("linkDataArray")
     Collection<Link> getLinks();
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    Range getRange();
 }

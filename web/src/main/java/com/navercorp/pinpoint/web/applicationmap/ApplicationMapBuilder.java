@@ -95,7 +95,7 @@ public class ApplicationMapBuilder {
         NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, emptyLinkList, timeoutMillis);
 
-        return new DefaultApplicationMap(range, nodeList, emptyLinkList);
+        return DefaultApplicationMap.build(nodeList, emptyLinkList, range);
     }
 
     public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, long timeoutMillis) {
@@ -122,7 +122,7 @@ public class ApplicationMapBuilder {
         ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverGroupListFactory);
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutWatcher.remainingTimeMillis());
 
-        return new DefaultApplicationMap(range, nodeList, linkList);
+        return DefaultApplicationMap.build(nodeList, linkList, range);
     }
 
     private static class TimeoutWatcher {

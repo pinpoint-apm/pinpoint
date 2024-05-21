@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
+import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
@@ -210,7 +211,8 @@ public class FilteredMapServiceImplTest {
 
         // When
         final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(Collections.emptyList(), originalRange, 1, 1, Filter.acceptAllFilter(), 0).build();
-        ApplicationMap applicationMap = filteredMapService.selectApplicationMapWithScatterData(option);
+        FilterMapWithScatter filterMapWithScatter = filteredMapService.selectApplicationMapWithScatterData(option);
+        ApplicationMap applicationMap = filterMapWithScatter.getApplicationMap();
 
         // Then
         Collection<Node> nodes = applicationMap.getNodes();
