@@ -37,6 +37,7 @@ export * from './SystemMetricHost';
 export * from './SystemMetricHostGroup';
 export * from './SystemMetricMetricInfo';
 export * from './SystemMetricTags';
+export * from './TraceViewerData';
 export * from './TransactionInfo';
 export * from './UrlStatChart';
 export * from './UrlStatSummary';
