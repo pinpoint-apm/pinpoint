@@ -1,5 +1,5 @@
 {
-  "schemaName": "inspectorStatAgent00",
+  "schemaName": "inspectorStatAgent${NUM}",
   "dimensionFieldSpecs": [
     {
       "name": "tenantId",
