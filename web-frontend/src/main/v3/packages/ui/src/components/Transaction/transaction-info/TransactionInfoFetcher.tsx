@@ -17,6 +17,7 @@ import { RxExternalLink } from 'react-icons/rx';
 import { transactionInfoDatasAtom } from '@pinpoint-fe/atoms';
 import { cn } from '../../../lib';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui';
+import { Timeline } from '../timeline/Timeline';
 
 export interface TransactionInfoFetcherProps {
   disableHeader?: boolean;
@@ -25,6 +26,7 @@ export interface TransactionInfoFetcherProps {
 const tabList = [
   { id: 'callTree', display: 'Call Tree' },
   { id: 'serverMap', display: 'Server Map' },
+  { id: 'timeline', display: 'Timeline' },
 ];
 
 export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcherProps) => {
@@ -136,12 +138,14 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
               disableMenu
             />
           );
+        } else if (tab.id === 'timeline') {
+          Content = <Timeline transactionInfo={data} />;
         }
         return (
           <TabsContent
             key={tab.id}
             value={tab.id}
-            className={cn('mt-0 h-[calc(100%-5.5625rem)]', {
+            className={cn('mt-0 h-[calc(100%-6.25rem)]', {
               'h-[calc(100%-3.75rem)]': disableHeader,
             })}
           >
