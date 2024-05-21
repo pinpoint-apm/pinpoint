@@ -52,6 +52,12 @@ public class BatchProperties {
     @Value("${job.alarm.agent.inspector.stat.table.count}")
     private int alarmAgentInspectorStatTableCount;
 
+    @Value("${job.alarm.agent.inspector.stat.table.prefix}")
+    private String agentInspectorStatTablePrefix;
+
+    @Value("${job.alarm.agent.inspector.stat.table.padding.length}")
+    private int agentInspectorStatTablePaddingLength;
+
     @Value("${job.agent.count.enable:true}")
     private boolean agentCountJobEnable;
 
@@ -184,6 +190,14 @@ public class BatchProperties {
         return alarmAgentInspectorStatTableCount;
     }
 
+    public String getAgentInspectorStatTablePrefix() {
+        return agentInspectorStatTablePrefix;
+    }
+
+    public int getAgentInspectorStatTablePaddingLength() {
+        return agentInspectorStatTablePaddingLength;
+    }
+
     @Override
     public String toString() {
         return "BatchProperties{" +
@@ -193,6 +207,8 @@ public class BatchProperties {
                 ", alarmJobEnable=" + alarmJobEnable +
                 ", alarmJobCron='" + alarmJobCron + '\'' +
                 ", alarmAgentInspectorStatTableCount=" + alarmAgentInspectorStatTableCount +
+                ", agentInspectorStatTablePrefix='" + agentInspectorStatTablePrefix + '\'' +
+                ", agentInspectorStatTablePaddingLength=" + agentInspectorStatTablePaddingLength +
                 ", agentCountJobEnable=" + agentCountJobEnable +
                 ", agentCountJobCron='" + agentCountJobCron + '\'' +
                 ", flinkCheckJobEnable=" + flinkCheckJobEnable +

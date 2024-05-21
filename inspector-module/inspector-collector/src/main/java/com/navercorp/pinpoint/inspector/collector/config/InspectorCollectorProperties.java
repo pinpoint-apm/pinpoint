@@ -27,6 +27,10 @@ public class InspectorCollectorProperties {
 
     @Value("${kafka.inspector.agent.topic.count}")
     private int agentStatTopicCount;
+    @Value("${kafka.inspector.agent.topic.prefix}")
+    private String agentStatTopicPrefix;
+    @Value("${kafka.inspector.agent.topic.padding.length}")
+    private int agentStatTopicPaddingLength;
     @Value("${kafka.inspector.application.topic.name}")
     private String applicationStatTopicName;
 
@@ -36,5 +40,13 @@ public class InspectorCollectorProperties {
 
     public String getApplicationStatTopicName() {
         return applicationStatTopicName;
+    }
+
+    public String getAgentStatTopicPrefix() {
+        return agentStatTopicPrefix;
+    }
+
+    public int getAgentStatTopicPaddingLength() {
+        return agentStatTopicPaddingLength;
     }
 }

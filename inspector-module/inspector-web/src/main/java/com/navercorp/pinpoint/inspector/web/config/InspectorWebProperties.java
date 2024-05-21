@@ -23,10 +23,22 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class InspectorWebProperties {
 
-    @Value("${kafka.inspector.agent.topic.count}")
-    private int agentStatTopicCount;
+    @Value("${pinot.inspector.agent.table.count}")
+    private int agentStatTableCount;
+    @Value("${pinot.inspector.agent.table.prefix}")
+    private String agentStatTablePrefix;
+    @Value("${pinot.inspector.agent.table.padding.length}")
+    private int agentStatTablePaddingLength;
 
-    public int getAgentStatTopicCount() {
-        return agentStatTopicCount;
+    public int getAgentStatTableCount() {
+        return agentStatTableCount;
+    }
+
+    public String getAgentStatTablePrefix() {
+        return agentStatTablePrefix;
+    }
+
+    public int getAgentStatTablePaddingLength() {
+        return agentStatTablePaddingLength;
     }
 }
