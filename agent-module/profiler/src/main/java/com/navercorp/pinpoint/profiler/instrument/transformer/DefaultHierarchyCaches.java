@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument.transformer;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.navercorp.pinpoint.profiler.cache.CaffeineBuilder;
 
 /**
  * @author jaehong.kim
@@ -38,7 +39,7 @@ public class DefaultHierarchyCaches implements HierarchyCaches {
 
         this.cacheEntrySize = getCacheEntrySize(entrySize);
 
-        this.caches = Caffeine.newBuilder()
+        this.caches = CaffeineBuilder.newBuilder()
                 .maximumSize(this.cacheSize)
                 .initialCapacity(this.cacheSize)
                 .build(this::loadEntry);

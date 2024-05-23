@@ -40,7 +40,7 @@ public class SimpleCache<T> implements Cache<T, Result<Integer>> {
     }
 
     private ConcurrentMap<T, Result<Integer>> createCache(int maxCacheSize) {
-        final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
+        final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
         com.github.benmanes.caffeine.cache.Cache<T, Result<Integer>> localCache = cacheBuilder.build();

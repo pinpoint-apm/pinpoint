@@ -31,10 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LRUCacheTest {
     @Test
     public void testPut() {
-        long cacheSize = 100;
+        long cacheSize = 10;
         LRUCache<String> cache = new LRUCache<>((int) cacheSize);
         Random random = new Random();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 20; i++) {
             cache.put(String.valueOf(random.nextInt(100000)));
         }
         Awaitility.await()

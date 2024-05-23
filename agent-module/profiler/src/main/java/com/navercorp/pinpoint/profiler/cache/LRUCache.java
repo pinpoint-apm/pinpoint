@@ -35,7 +35,7 @@ public class LRUCache<T> implements com.navercorp.pinpoint.profiler.cache.Cache<
 
 
     public LRUCache(int maxCacheSize) {
-        final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
+        final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
         Cache<T, Object> localCache = cacheBuilder.build();
