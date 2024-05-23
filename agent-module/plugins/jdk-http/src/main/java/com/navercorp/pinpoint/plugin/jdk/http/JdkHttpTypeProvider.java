@@ -28,6 +28,7 @@ public class JdkHttpTypeProvider implements TraceMetadataProvider {
     @Override
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(JdkHttpConstants.SERVICE_TYPE, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
+        context.addServiceType(JdkHttpConstants.SERVICE_TYPE_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_INTERNAL_DISPLAY));
     }
 
 }

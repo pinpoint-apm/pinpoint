@@ -36,12 +36,10 @@ public class JdkHttpClientResponseAdaptor implements ResponseAdaptor<HttpURLConn
 
     @Override
     public void setHeader(HttpURLConnection response, String name, String value) {
-
     }
 
     @Override
     public void addHeader(HttpURLConnection response, String name, String value) {
-
     }
 
     @Override

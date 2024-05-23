@@ -26,10 +26,8 @@ import java.net.URL;
  */
 public class JdkHttpClientRequestAdaptor implements ClientRequestAdaptor<HttpURLConnection> {
 
-
     public JdkHttpClientRequestAdaptor() {
     }
-
 
     @Override
     public String getDestinationId(HttpURLConnection httpURLConnection) {
@@ -39,12 +37,12 @@ public class JdkHttpClientRequestAdaptor implements ClientRequestAdaptor<HttpURL
             final int port = url.getPort();
             return getEndpoint(host, port);
         }
-        return "Unknown";
+        return "UNKNOWN";
     }
 
-    public static String getEndpoint(final String host, final int port) {
+    String getEndpoint(final String host, final int port) {
         if (host == null) {
-            return "Unknown";
+            return "UNKNOWN";
         }
         if (port < 0) {
             return host;

@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
@@ -32,19 +31,12 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseHeaderRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.response.ServerResponseHeaderRecorder;
-import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
-import com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.HttpURLConnectionClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientRequestAdaptor;
-import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientResponseAdaptor;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
-import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPlugin;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
 
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 /**
  * @author netspider
@@ -53,17 +45,16 @@ import java.net.URL;
  */
 public abstract class AbstractHttpURLConnectionInterceptor implements AroundInterceptor {
     private static final Object TRACE_BLOCK_BEGIN_MARKER = new Object();
-    private static final String TRACE_SCOPE_NAME_RESPONSE = "_JdkHttpInputStreamRespRecording";
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorScope scope;
-    private final ClientRequestRecorder<HttpURLConnection> clientRequestRecorder;
-    private final ServerResponseHeaderRecorder<HttpURLConnection> responseHeaderRecorder;
 
+    private final ClientRequestRecorder<HttpURLConnection> clientRequestRecorder;
     private final RequestTraceWriter<HttpURLConnection> requestTraceWriter;
+    private final ClientRequestAdaptor<HttpURLConnection> clientRequestAdaptor = new JdkHttpClientRequestAdaptor();
 
     public AbstractHttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
@@ -71,16 +62,10 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
         this.scope = scope;
 
         final JdkHttpPluginConfig config = new JdkHttpPluginConfig(traceContext.getProfilerConfig());
-
-        ClientRequestAdaptor<HttpURLConnection> clientRequestAdaptor = new JdkHttpClientRequestAdaptor();
         this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
-        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new JdkHttpClientResponseAdaptor());
-
-        ClientHeaderAdaptor<HttpURLConnection> clientHeaderAdaptor = new HttpURLConnectionClientHeaderAdaptor();
+        final ClientHeaderAdaptor<HttpURLConnection> clientHeaderAdaptor = new HttpURLConnectionClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
-
-    abstract boolean isConnected(Object target);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -88,51 +73,43 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
             logger.beforeInterceptor(target, args);
         }
 
-        if (target == null) {
-            return;
-        }
-
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
-        final boolean interceptingGetInputStream = isInterceptingGetInputStream();
-        final boolean recordingResponse = isRecordingResponse(trace);
-        if (recordingResponse) {
-            if (interceptingGetInputStream) {
-                return;
-            } else {
-                clearRecordingResponseStatus(trace);
-            }
-        }
-
-        boolean connected = isConnected(target);
-        boolean connecting = false;
-        if (target instanceof ConnectingGetter) {
-            connecting = ((ConnectingGetter) target)._$PINPOINT$_isConnecting();
-        }
-
-        boolean addRequestHeader = !connected && !connecting;
-        if (isInterceptingHttps()) {
-            addRequestHeader = addRequestHeader && isInterceptingConnect();
-        }
-
-        final HttpURLConnection request = (HttpURLConnection) target;
-        final boolean canSample = trace.canSampled();
-        if (canSample) {
-            scope.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(JdkHttpConstants.SERVICE_TYPE);
-            if (addRequestHeader) {
+        try {
+            final HttpURLConnection request = (HttpURLConnection) target;
+            final boolean canSample = trace.canSampled();
+            if (canSample) {
                 final TraceId nextId = trace.getTraceId().getNextTraceId();
+                String host = this.clientRequestAdaptor.getDestinationId(request);
+                try {
+                    this.requestTraceWriter.write(request, nextId, host);
+                } catch (Exception e) {
+                    // It happens if it is already connected or connected.
+                    if(isDebug) {
+                        logger.debug("Failed to requestTraceWriter, already connected or connected");
+                    }
+                    return;
+                }
+                scope.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
+                final SpanEventRecorder recorder = trace.traceBlockBegin();
+                recorder.recordServiceType(JdkHttpConstants.SERVICE_TYPE);
                 recorder.recordNextSpanId(nextId.getSpanId());
-                String host = getHost(request);
-                this.requestTraceWriter.write(request, nextId, host);
+            } else {
+                try {
+                    this.requestTraceWriter.write(request);
+                } catch (Exception ignored) {
+                    // It happens if it is already connected or connected.
+                    if(isDebug) {
+                        logger.debug("Failed to requestTraceWriter, already connected or connected");
+                    }
+                }
             }
-        } else {
-            if (addRequestHeader) {
-                this.requestTraceWriter.write(request);
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
@@ -143,22 +120,14 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
             // do not log result
             logger.afterInterceptor(target, args);
         }
-        if (target == null) {
-            return;
-        }
 
         Trace trace = traceContext.currentTraceObject();
-        if (trace == null || !trace.canSampled()) {
+        if (trace == null) {
             return;
         }
 
         final InterceptorScopeInvocation currentInvocation = scope.getCurrentInvocation();
         if (TRACE_BLOCK_BEGIN_MARKER != currentInvocation.getAttachment()) {
-            return;
-        }
-
-        final boolean interceptingGetInputStream = isInterceptingGetInputStream();
-        if (interceptingGetInputStream && isRecordingResponse(trace)) {
             return;
         }
 
@@ -168,67 +137,13 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             this.clientRequestRecorder.record(recorder, request, throwable);
-            if (interceptingGetInputStream) {
-                if (startRecordingResponse(trace)) {
-                    this.responseHeaderRecorder.recordHeader(recorder, request);
-                }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         } finally {
             currentInvocation.removeAttachment();
             trace.traceBlockEnd();
         }
     }
-
-    private String getHost(HttpURLConnection httpURLConnection) {
-        final URL url = httpURLConnection.getURL();
-        if (url != null) {
-            final String host = url.getHost();
-            final int port = url.getPort();
-            if (host != null) {
-                return JdkHttpClientRequestAdaptor.getEndpoint(host, port);
-            }
-        }
-        return null;
-    }
-
-    private boolean isInterceptingGetInputStream() {
-        return "getInputStream".contentEquals(this.descriptor.getMethodName());
-    }
-
-    private boolean isInterceptingConnect() {
-        return "connect".contentEquals(this.descriptor.getMethodName());
-    }
-
-    private boolean isInterceptingHttps() {
-        return JdkHttpPlugin.INTERCEPT_HTTPS_CLASS_NAME.contentEquals(this.descriptor.getClassName());
-    }
-
-    private boolean isRecordingResponse(Trace trace) {
-        return ScopeUtils.isEndScope(trace, TRACE_SCOPE_NAME_RESPONSE);
-    }
-
-    private boolean startRecordingResponse(Trace trace) {
-        TraceScope scope = trace.getScope(TRACE_SCOPE_NAME_RESPONSE);
-        if (scope == null) {
-            trace.addScope(TRACE_SCOPE_NAME_RESPONSE);
-            scope = trace.getScope(TRACE_SCOPE_NAME_RESPONSE);
-        }
-        if (scope != null) {
-            final boolean ok = scope.tryEnter();
-            if (!ok) {
-                logger.warn("Try to startRecording response failed, tryEnter scope failed");
-            }
-            return ok;
-        } else {
-            logger.warn("Try to startRecording response failed, getOrAdd scope failed");
-            return false;
-        }
-    }
-
-    private void clearRecordingResponseStatus(Trace trace) {
-        if (!ScopeUtils.leaveScope(trace, TRACE_SCOPE_NAME_RESPONSE)) {
-            logger.warn("Try to  learRecordingResponseStatus failed, canLeave scope returned false");
-        }
-    }
-
 }

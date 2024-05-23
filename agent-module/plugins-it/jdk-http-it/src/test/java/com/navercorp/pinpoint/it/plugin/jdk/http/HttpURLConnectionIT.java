@@ -35,7 +35,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.notNull;
 
@@ -71,14 +70,11 @@ public class HttpURLConnectionIT {
         verifier.printMethod();
 
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
-        Method getInputStream = targetClass.getMethod("getInputStream");
+        Method getInputStream = targetClass.getMethod("connect");
 
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
         verifier.verifyTraceCount(2);
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId,
-                annotation("http.url", httpUrl),
-                annotation("http.resp.header", anyAnnotationValue())));
     }
 
     @Test
@@ -94,16 +90,13 @@ public class HttpURLConnectionIT {
 
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method connect = targetClass.getMethod("connect");
-        Method getInputStream = targetClass.getMethod("getInputStream");
+        Method getInputStream = targetClass.getMethod("getHeaderField", int.class);
 
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
-        verifier.verifyTraceCount(2);
+        verifier.verifyTraceCount(3);
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, destinationId,
                 annotation("http.url", httpUrl)));
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId,
-                annotation("http.url", httpUrl),
-                annotation("http.resp.header", anyAnnotationValue())));
     }
 
     @Test
@@ -134,9 +127,8 @@ public class HttpURLConnectionIT {
         Method getInputStream = targetClass.getMethod("connect");
 
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", notNull(""), annotation("http.url", "http://no.such.url")));
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", notNull(""), annotation("http.url", "http://no.such.url")));
 
         verifier.printMethod();
-        verifier.verifyTraceCount(0);
+        verifier.verifyTraceCount(2);
     }
 }

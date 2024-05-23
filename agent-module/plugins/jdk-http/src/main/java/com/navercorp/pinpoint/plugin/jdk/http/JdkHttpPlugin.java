@@ -1,4 +1,3 @@
-package com.navercorp.pinpoint.plugin.jdk.http;
 /*
  * Copyright 2014 NAVER Corp.
  *
@@ -14,34 +13,34 @@ package com.navercorp.pinpoint.plugin.jdk.http;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.plugin.jdk.http;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionGetHeaderFieldInterceptor;
+import com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionGetInputStreamInterceptor;
 import com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor;
+import com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionPlainConnect0Interceptor;
 import com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpsURLConnectionImplInterceptor;
 
 import java.security.ProtectionDomain;
 
 /**
- * 
  * @author Jongho Moon
  * @author yjqg6666
- *
  */
-public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class JdkHttpPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
 
-    private TransformTemplate transformTemplate;
+    private MatchableTransformTemplate transformTemplate;
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
@@ -64,20 +63,22 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            target.addGetter(ConnectedGetter.class, "connected");
-
-            if (target.hasField("connecting", "boolean")) {
-                target.addGetter(ConnectingGetter.class, "connecting");
+            final InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
+            if (connectMethod != null) {
+                connectMethod.addScopedInterceptor(HttpURLConnectionInterceptor.class, "HttpURLConnectionInterceptor");
             }
-
-            final InstrumentMethod connectMethod = InstrumentUtils.findMethod(target, "connect");
-            connectMethod.addScopedInterceptor(HttpURLConnectionInterceptor.class, "HttpURLConnectionConnect", ExecutionPolicy.ALWAYS);
-
-            final InstrumentMethod getInputStreamMethod = InstrumentUtils.findMethod(target, "getInputStream");
-            getInputStreamMethod.addScopedInterceptor(HttpURLConnectionInterceptor.class, "HttpURLConnectionInput", ExecutionPolicy.BOUNDARY);
-
-            final InstrumentMethod getOutputStreamMethod = InstrumentUtils.findMethod(target, "getOutputStream");
-            getOutputStreamMethod.addScopedInterceptor(HttpURLConnectionInterceptor.class, "HttpURLConnectionOutput", ExecutionPolicy.BOUNDARY);
+            final InstrumentMethod plainConnect0Method = target.getDeclaredMethod("plainConnect0");
+            if (plainConnect0Method != null) {
+                plainConnect0Method.addInterceptor(HttpURLConnectionPlainConnect0Interceptor.class);
+            }
+            final InstrumentMethod getHeaderFieldMethod = target.getDeclaredMethod("getHeaderField", "int");
+            if (getHeaderFieldMethod != null) {
+                getHeaderFieldMethod.addInterceptor(HttpURLConnectionGetHeaderFieldInterceptor.class);
+            }
+            final InstrumentMethod getInputStreamMethod = target.getDeclaredMethod("getInputStream");
+            if (getInputStreamMethod != null) {
+                getInputStreamMethod.addInterceptor(HttpURLConnectionGetInputStreamInterceptor.class);
+            }
 
             return target.toBytecode();
         }
@@ -89,23 +90,17 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            target.addGetter(DelegateGetter.class, "delegate");
-
-            final InstrumentMethod connectMethod = InstrumentUtils.findMethod(target, "connect");
-            connectMethod.addScopedInterceptor(HttpsURLConnectionImplInterceptor.class, "HttpURLConnectionConnect", ExecutionPolicy.ALWAYS);
-
-            final InstrumentMethod getInputStreamMethod = InstrumentUtils.findMethod(target, "getInputStream");
-            getInputStreamMethod.addScopedInterceptor(HttpsURLConnectionImplInterceptor.class, "HttpURLConnectionInput", ExecutionPolicy.BOUNDARY);
-
-            final InstrumentMethod getOutputStreamMethod = InstrumentUtils.findMethod(target, "getOutputStream");
-            getOutputStreamMethod.addScopedInterceptor(HttpsURLConnectionImplInterceptor.class, "HttpURLConnectionOutput", ExecutionPolicy.BOUNDARY);
+            final InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
+            if (connectMethod != null) {
+                connectMethod.addScopedInterceptor(HttpsURLConnectionImplInterceptor.class, "HttpURLConnectionInterceptor");
+            }
 
             return target.toBytecode();
         }
     }
 
     @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
+    public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
         this.transformTemplate = transformTemplate;
     }
 }

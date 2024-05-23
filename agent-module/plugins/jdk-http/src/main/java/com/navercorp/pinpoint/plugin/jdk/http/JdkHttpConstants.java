@@ -28,4 +28,7 @@ public final class JdkHttpConstants {
     }
 
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", RECORD_STATISTICS);
+    public static final ServiceType SERVICE_TYPE_INTERNAL = ServiceTypeFactory.of(9067, "JDK_HTTPURLCONNECTOR_INTERNAL", "JDK_HTTPCONNECTOR");
+
+    public static final String TRACE_SCOPE_NAME_GET_INPUT_STREAM = "_GetInputStream";
 }
