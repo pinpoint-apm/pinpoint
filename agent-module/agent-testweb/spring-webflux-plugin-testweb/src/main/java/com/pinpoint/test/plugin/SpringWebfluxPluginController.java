@@ -21,15 +21,19 @@ import com.pinpoint.test.common.view.HrefTag;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -40,6 +44,13 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.client.HttpClientRequest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -253,5 +264,122 @@ public class SpringWebfluxPluginController {
         }).subscribe();
 
         return Mono.just("OK");
+    }
+
+    @GetMapping("/client/resttemplate")
+    public Mono<String> clientRestTemplate(ServerWebExchange exchange) {
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl
+                = "http://httpbin.org";
+        ResponseEntity<String> response
+                = restTemplate.getForEntity(fooResourceUrl + "/", String.class);
+        System.out.println(response.getStatusCode());
+        System.out.println(response.getBody());
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/client/resttemplate/https")
+    public Mono<String> clientRestTemplateHttps(ServerWebExchange exchange) {
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl
+                = "https://naver.com";
+        ResponseEntity<String> response
+                = restTemplate.getForEntity(fooResourceUrl + "/", String.class);
+        System.out.println(response.getStatusCode());
+        System.out.println(response.getBody());
+
+        return Mono.just("OK");
+    }
+
+    @RequestMapping(value = "/jdk/connect")
+    public String get() {
+
+        final URL url = newURL("http://httpbin.org");
+        try {
+            URLConnection connection = url.openConnection();
+            connection.connect();
+        } catch (IOException e) {
+            return "fail";
+        }
+
+        return "OK";
+    }
+    @RequestMapping(value = "/jdk/connect/https")
+    public String getHttps() {
+
+        final URL url = newURL("https://naver.com");
+        try {
+            URLConnection connection = url.openConnection();
+            connection.connect();
+        } catch (IOException e) {
+            return "fail";
+        }
+
+        return "OK";
+    }
+    @RequestMapping(value = "/jdk/connect/duplicated")
+    public String getDuplicated() {
+
+        final URL url = newURL("http://httpbin.org");
+        try {
+            URLConnection connection = url.openConnection();
+            connection.connect();
+            connection.connect();
+        } catch (IOException e) {
+            return "fail";
+        }
+
+        return "OK";
+    }
+
+    @RequestMapping(value = "/jdk/connect2")
+    public String get2() {
+
+        final URL url = newURL("http://httpbin.org");
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+
+            final int responseCode = connection.getResponseCode();
+            final List<String> contents = readStream(connection);
+        } catch (IOException e) {
+            return "fail";
+        }
+
+
+        return "OK";
+    }
+
+    @RequestMapping(value = "/jdk/connect2/https")
+    public String get2Https() {
+
+        final URL url = newURL("https://naver.com");
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+
+            final int responseCode = connection.getResponseCode();
+            final List<String> contents = readStream(connection);
+        } catch (IOException e) {
+            return "fail";
+        }
+
+
+        return "OK";
+    }
+
+    private List<String> readStream(HttpURLConnection connection) throws IOException {
+        try (InputStream inputStream = connection.getInputStream()) {
+            return IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
+        }
+    }
+
+    private URL newURL(String spec) {
+        try {
+            return new URL(spec);
+        } catch (MalformedURLException exception) {
+            throw new IllegalArgumentException("invalid url" + spec, exception);
+        }
     }
 }

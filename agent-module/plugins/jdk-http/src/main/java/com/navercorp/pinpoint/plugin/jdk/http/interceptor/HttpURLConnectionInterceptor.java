@@ -19,19 +19,9 @@ package com.navercorp.pinpoint.plugin.jdk.http.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
 
 public class HttpURLConnectionInterceptor extends AbstractHttpURLConnectionInterceptor {
     public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         super(traceContext, descriptor, scope);
-    }
-
-    @Override
-    boolean isConnected(Object target) {
-        if (target instanceof ConnectedGetter) {
-            final boolean connected = ((ConnectedGetter) target)._$PINPOINT$_isConnected();
-            return connected;
-        }
-        return false;
     }
 }
