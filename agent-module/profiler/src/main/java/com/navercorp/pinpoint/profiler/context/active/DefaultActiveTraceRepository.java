@@ -21,6 +21,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
+import com.navercorp.pinpoint.profiler.cache.CaffeineBuilder;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 import org.apache.logging.log4j.LogManager;
@@ -62,7 +63,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     }
 
     private ConcurrentMap<ActiveTraceHandle, ActiveTrace> createCache(int maxActiveTraceSize) {
-        final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
+        final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
         cacheBuilder.initialCapacity(maxActiveTraceSize);
         cacheBuilder.maximumSize(maxActiveTraceSize);
 

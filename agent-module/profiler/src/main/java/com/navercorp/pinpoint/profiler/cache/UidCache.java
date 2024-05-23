@@ -19,7 +19,7 @@ public class UidCache implements Cache<String, Result<byte[]>> {
     }
 
     private ConcurrentMap<String, Result<byte[]>> createCache(int maxCacheSize) {
-        final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
+        final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
         com.github.benmanes.caffeine.cache.Cache<String, Result<byte[]>> localCache = cacheBuilder.build();
