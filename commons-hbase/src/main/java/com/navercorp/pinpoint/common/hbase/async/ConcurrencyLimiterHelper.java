@@ -17,59 +17,55 @@
 
 package com.navercorp.pinpoint.common.hbase.async;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.Semaphore;
 import java.util.function.BiConsumer;
 
 public class ConcurrencyLimiterHelper implements LimiterHelper {
-    private final AtomicLong counter = new AtomicLong();
+    private final Semaphore semaphore;
     private final long maxCurrent;
 
-    public ConcurrencyLimiterHelper(long maxCurrent) {
+    public ConcurrencyLimiterHelper(int maxCurrent) {
+        this.semaphore = new Semaphore(maxCurrent);
         this.maxCurrent = maxCurrent;
     }
 
     @Override
     public boolean acquire(int permits) {
-        final long concurrency = counter.addAndGet(permits);
-        if (concurrency > maxCurrent) {
-            return false;
-        }
-        return true;
+        return semaphore.tryAcquire(permits);
     }
 
     public long count() {
-        return counter.get();
+        return maxCurrent - semaphore.availablePermits();
     }
 
 
     @Override
     public void release(int permits) {
-        this.counter.addAndGet(-permits);
+        semaphore.release(permits);
     }
 
 
     @Override
     public <R> BiConsumer<R, Throwable> release() {
-        return new Release<>(counter);
+        return new Release<>(semaphore);
     }
 
     private static class Release<R> implements BiConsumer<R, Throwable> {
-        private final AtomicLong counter;
-        public Release(AtomicLong counter) {
+        private final Semaphore counter;
+        public Release(Semaphore counter) {
             this.counter = counter;
         }
 
         @Override
         public void accept(R result, Throwable throwable) {
-            counter.decrementAndGet();
+            counter.release();
         }
     }
 
     @Override
     public String toString() {
         return "ConcurrencyLimiterHelper{" +
-                "counter=" + counter +
-                ", maxCurrent=" + maxCurrent +
+                "counter=" + semaphore +
                 '}';
     }
 }

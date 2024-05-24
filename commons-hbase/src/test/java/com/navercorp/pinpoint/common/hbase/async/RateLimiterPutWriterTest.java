@@ -27,9 +27,8 @@ class RateLimiterPutWriterTest {
 
     @Test
     void put() {
-        CompletableFuture<Void> future = new CompletableFuture<>();
         when(putWriter.put(any(TableName.class), any(Put.class)))
-                .thenReturn(future);
+                .thenReturn(new CompletableFuture<>());
 
         ConcurrencyLimiterHelper helper = new ConcurrencyLimiterHelper(1);
         RateLimiterPutWriter writer = new RateLimiterPutWriter(putWriter, helper);
@@ -38,6 +37,9 @@ class RateLimiterPutWriterTest {
         Assertions.assertThrows(RequestNotPermittedException.class, () -> {
             writer.put(tableName, new Put(new byte[10]));
         });
+
+        Assertions.assertEquals(1, helper.count());
+
     }
 
     @Test
