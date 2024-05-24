@@ -32,13 +32,14 @@ public class LRUCache<T> implements com.navercorp.pinpoint.profiler.cache.Cache<
     public static final int DEFAULT_CACHE_SIZE = 1024;
 
     private final ConcurrentMap<T, Object> cache;
+    private final Cache<T, Object> localCache;
 
 
     public LRUCache(int maxCacheSize) {
         final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
-        Cache<T, Object> localCache = cacheBuilder.build();
+        this.localCache = cacheBuilder.build();
         this.cache = localCache.asMap();
     }
 
@@ -46,10 +47,14 @@ public class LRUCache<T> implements com.navercorp.pinpoint.profiler.cache.Cache<
         this(DEFAULT_CACHE_SIZE);
     }
 
-
+    @Override
     public Boolean put(T value) {
         Object oldValue = cache.putIfAbsent(value, V);
         return oldValue == null;
+    }
+
+    public void cleanUp() {
+        localCache.cleanUp();
     }
 
     public long getSize() {

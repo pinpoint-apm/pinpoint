@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.cache;
 
-import org.awaitility.Awaitility;
-import org.awaitility.core.ConditionFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,14 +29,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LRUCacheTest {
     @Test
     public void testPut() {
-        long cacheSize = 10;
+        long cacheSize = 100;
         LRUCache<String> cache = new LRUCache<>((int) cacheSize);
         Random random = new Random();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 1000; i++) {
             cache.put(String.valueOf(random.nextInt(100000)));
         }
-        Awaitility.await()
-                .untilAsserted(() -> assertThat(cache.getSize()).isEqualTo(cacheSize));
+        cache.cleanUp();
+        assertThat(cache.getSize()).isEqualTo(cacheSize);
     }
 
     @Test
@@ -54,8 +52,9 @@ public class LRUCacheTest {
 
         boolean hit2 = cache.put(sqlObject);
         Assertions.assertFalse(hit2);
-        ConditionFactory await = Awaitility.await();
-        await.untilAsserted(() -> assertThat(cache.getSize()).isEqualTo(1));
+
+        cache.cleanUp();
+        assertThat(cache.getSize()).isEqualTo(1);
 //        "23 123";
 //        "DCArMlhwQO 7"
         cache.put("23 123");
@@ -63,6 +62,7 @@ public class LRUCacheTest {
         cache.put("3");
         cache.put("4");
 
-        await.untilAsserted(() -> assertThat(cache.getSize()).isEqualTo(2));
+        cache.cleanUp();
+        assertThat(cache.getSize()).isEqualTo(2);
     }
 }
