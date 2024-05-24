@@ -12,7 +12,6 @@ class ConcurrencyLimiterHelperTest {
         limiter.acquire(1);
         Assertions.assertFalse(limiter.acquire(1));
 
-        limiter.release().accept(null, null);
         limiter.release(1);
 
         Assertions.assertEquals(0, limiter.count());
