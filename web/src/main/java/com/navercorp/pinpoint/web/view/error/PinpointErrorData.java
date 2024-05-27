@@ -38,7 +38,7 @@ public class PinpointErrorData {
         public RequestInfo(WebRequest request) {
             if (request instanceof ServletWebRequest webRequest) {
                 this.method = webRequest.getRequest().getMethod();
-                this.url = String.valueOf(webRequest.getRequest().getRequestURL());
+                this.url = String.valueOf(webRequest.getAttribute("jakarta.servlet.error.request_uri", 0));
                 this.headers = getRequestHeader(webRequest);
                 this.parameters = request.getParameterMap();
             } else {
