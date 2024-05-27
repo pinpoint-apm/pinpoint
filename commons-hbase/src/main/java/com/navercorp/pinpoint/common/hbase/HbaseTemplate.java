@@ -97,6 +97,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     private boolean enableParallelScan = false;
     private int maxThreads = DEFAULT_MAX_THREADS_FOR_PARALLEL_SCANNER;
     private int maxThreadsPerParallelScan = DEFAULT_MAX_THREADS_PER_PARALLEL_SCAN;
+    private int maxConcurrentAsyncScanner = 256;
 
 
     private final FutureDecorator futureDecorator = new FutureLoggingDecorator(logger);
@@ -106,7 +107,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
     private ScanMetricReporter scanMetric = new EmptyScanMetricReporter();
 
-    private final ResultScannerFactory scannerFactory = new ResultScannerFactory(1024 * 2);
+    private ResultScannerFactory scannerFactory;
 
     public HbaseTemplate() {
     }
@@ -125,6 +126,10 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
     public void setMaxThreadsPerParallelScan(int maxThreadsPerParallelScan) {
         this.maxThreadsPerParallelScan = maxThreadsPerParallelScan;
+    }
+
+    public void setMaxConcurrentAsyncScanner(int maxConcurrentAsyncScanner) {
+        this.maxConcurrentAsyncScanner = maxConcurrentAsyncScanner;
     }
 
     public void setNativeAsync(boolean nativeAsync) {
@@ -149,6 +154,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         } else {
             this.executor = ExecutorFactory.newFixedThreadPool(this.maxThreads, 1024, parallelScannerThreadFactory);
         }
+        this.scannerFactory = new ResultScannerFactory(maxConcurrentAsyncScanner);
     }
 
     @Override

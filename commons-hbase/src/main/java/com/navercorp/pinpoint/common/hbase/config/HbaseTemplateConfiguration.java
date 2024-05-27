@@ -115,6 +115,7 @@ public class HbaseTemplateConfiguration {
             template2.setEnableParallelScan(true);
             template2.setMaxThreads(scan.getMaxThreads());
             template2.setMaxThreadsPerParallelScan(scan.getMaxThreadsPerParallelScan());
+            template2.setMaxConcurrentAsyncScanner(scan.getMaxConcurrentAsyncScanner());
         }
 
         template2.setAsyncTableFactory(asyncTableFactory);

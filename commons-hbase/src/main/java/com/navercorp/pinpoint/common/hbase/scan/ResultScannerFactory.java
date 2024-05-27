@@ -31,6 +31,7 @@ public class ResultScannerFactory {
         return newScanner0(table::getScanner, scans);
     }
 
+    @SuppressWarnings("resource")
     private <T> Scanner<T> newScanner0(Function<Scan, ResultScanner> table, Scan[] scans) {
         final int scansLength = scans.length;
         ResultScannerSupplier[] scanners = new ResultScannerSupplier[scansLength];
