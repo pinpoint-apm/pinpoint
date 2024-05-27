@@ -1,19 +1,38 @@
 import React from 'react';
-import { getRandomColor, getDarkenHexColor, getContrastingTextColor } from '../../../lib/colors';
-import { FlameNode as FlameNodeType } from './FlameGraph';
+import { getRandomColor, getDarkenHexColor, getContrastingTextColor } from '../../lib/colors';
+
+export interface FlameNodeType<T> {
+  id: string;
+  name: string;
+  duration: number;
+  start: number;
+  nodeStyle?: React.CSSProperties;
+  textStyle?: React.CSSProperties;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  detail: T;
+  children: FlameNodeType<T>[];
+}
+
+export type FlameNodeClickHandler<T> = (node: FlameNodeType<T | unknown>) => void;
 
 export interface FlameNodeProps<T> {
   node: FlameNodeType<T>;
   svgRef?: React.RefObject<SVGSVGElement>;
-  onClickNode?: (e: React.MouseEvent, node: FlameNodeType<T>) => void;
+  onClickNode?: FlameNodeClickHandler<T>;
 }
 
-export const FlameNode = <T,>({ node, svgRef, onClickNode }: FlameNodeProps<T>) => {
+export const FlameNode = React.memo(<T,>({ node, svgRef, onClickNode }: FlameNodeProps<T>) => {
   const { x = 0, y = 0, width = 1, height = 1, name, nodeStyle, textStyle } = node;
   const colorMap = React.useRef<{ [key: string]: { color: string; hoverColor: string } }>({});
   const color = colorMap.current[name]?.color || getRandomColor();
   const hoverColor = colorMap.current[name]?.hoverColor || getDarkenHexColor(color);
-  const ellipsizedText = getEllipsizedText(name, width, svgRef);
+  const ellipsizedText = React.useMemo(
+    () => getEllipsizedText(name, width, svgRef),
+    [name, width, svgRef],
+  );
   const [isHover, setHover] = React.useState(false);
 
   if (!colorMap.current[name]) colorMap.current[name] = { color, hoverColor };
@@ -24,9 +43,8 @@ export const FlameNode = <T,>({ node, svgRef, onClickNode }: FlameNodeProps<T>) 
         className="cursor-pointer"
         onMouseOver={() => setHover(true)}
         onMouseOut={() => setHover(false)}
-        onClick={(e) => {
-          console.log(e);
-          onClickNode?.(e, node);
+        onClick={() => {
+          onClickNode?.(node);
         }}
       >
         <rect
@@ -51,12 +69,17 @@ export const FlameNode = <T,>({ node, svgRef, onClickNode }: FlameNodeProps<T>) 
         </text>
       </g>
       {node.children &&
-        node.children.map((node, i) => (
-          <FlameNode key={i} node={node} svgRef={svgRef} onClickNode={onClickNode} />
+        node.children.map((childNode, i) => (
+          <FlameNode
+            key={i}
+            node={childNode as FlameNodeType<T>}
+            svgRef={svgRef}
+            onClickNode={onClickNode}
+          />
         ))}
     </>
   );
-};
+});
 
 const getEllipsizedText = (text: string, maxWidth = 1, svgRef?: React.RefObject<SVGSVGElement>) => {
   if (!svgRef?.current) return text;
@@ -69,12 +92,27 @@ const getEllipsizedText = (text: string, maxWidth = 1, svgRef?: React.RefObject<
     svg.appendChild(textElement);
 
     let ellipsizedText = text;
-    while (textElement.getComputedTextLength() > maxWidth && ellipsizedText.length > 0) {
-      ellipsizedText = ellipsizedText.slice(0, -1);
-      textElement.textContent = `${ellipsizedText}...`;
+
+    if (maxWidth < textElement.getComputedTextLength()) {
+      let low = 0;
+      let high = text.length;
+
+      while (low < high) {
+        const mid = Math.floor((low + high) / 2);
+        const candidateText = text.slice(0, mid);
+        textElement.textContent = candidateText;
+
+        if (textElement.getComputedTextLength() <= maxWidth) {
+          low = mid + 1;
+        } else {
+          high = mid;
+        }
+      }
+
+      ellipsizedText = text.slice(0, low - 1) + '...';
     }
 
     svg.removeChild(textElement);
-    return textElement.textContent;
+    return ellipsizedText;
   }
 };

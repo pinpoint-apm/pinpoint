@@ -1,9 +1,10 @@
 import React from 'react';
 import { useGetTraceViewerData, useTransactionSearchParameters } from '@pinpoint-fe/hooks';
 import { TraceViewerData, TransactionInfo } from '@pinpoint-fe/constants';
-import { FlameNode, FlameGraph } from './FlameGraph';
+import { FlameGraph } from '../../FlameGraph';
 import { cn } from '../../../lib';
 import { TimelineDetail } from './TimelineDetail';
+import { FlameNodeType } from '../../FlameGraph/FlameNode';
 
 export interface TimelineFetcherProps {
   transactionInfo?: TransactionInfo.Response;
@@ -11,7 +12,8 @@ export interface TimelineFetcherProps {
 
 export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
   const { transactionInfo: transactionSearchParams } = useTransactionSearchParameters();
-  const [selectedNode, setSelectedNode] = React.useState<FlameNode<TraceViewerData.TraceEvent>>();
+  const [selectedNode, setSelectedNode] =
+    React.useState<FlameNodeType<TraceViewerData.TraceEvent>>();
 
   const { data } = useGetTraceViewerData({
     traceId: transactionInfo?.transactionId,
@@ -25,23 +27,31 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
     setSelectedNode(undefined);
   }, [transactionInfo]);
 
+  console.log(transactionInfo);
+
   return (
     <div className={cn('h-full flex')}>
       <FlameGraph<TraceViewerData.TraceEvent>
         data={flameGraphData}
         start={transactionInfo?.callStackStart}
         end={transactionInfo?.callStackEnd}
-        onClickNode={(_, node) => setSelectedNode(node)}
+        onClickNode={(node) => {
+          setSelectedNode(node as FlameNodeType<TraceViewerData.TraceEvent>);
+        }}
       />
       {selectedNode && (
-        <TimelineDetail node={selectedNode} onClose={() => setSelectedNode(undefined)} />
+        <TimelineDetail
+          start={transactionInfo?.callStackStart || 0}
+          node={selectedNode}
+          onClose={() => setSelectedNode(undefined)}
+        />
       )}
     </div>
   );
 };
 
 const genFlameGraphData = (data?: TraceViewerData.Response) => {
-  let result: FlameNode<TraceViewerData.TraceEvent>[] = [];
+  let result: FlameNodeType<TraceViewerData.TraceEvent>[] = [];
   if (data) {
     const traceEvents = data?.traceEvents || [];
     const mapByTid: { [key: number]: TraceViewerData.TraceEvent[] } = {};
@@ -58,8 +68,8 @@ const genFlameGraphData = (data?: TraceViewerData.Response) => {
     });
 
     result = Object.values(mapByTid).map((traceEventsByTid) => {
-      let root!: FlameNode<TraceViewerData.TraceEvent>;
-      const map: { [key: string]: FlameNode<TraceViewerData.TraceEvent> } = {};
+      let root!: FlameNodeType<TraceViewerData.TraceEvent>;
+      const map: { [key: string]: FlameNodeType<TraceViewerData.TraceEvent> } = {};
 
       traceEventsByTid.forEach((item) => {
         const { name } = item;
