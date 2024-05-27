@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.util.CpuUtils;
 public class ParallelScan {
     private int maxThreads = CpuUtils.workerCount() * 4;
     private int maxThreadsPerParallelScan = CpuUtils.workerCount();
+    private int maxConcurrentAsyncScanner = 256;
 
 
     public ParallelScan() {
@@ -43,11 +44,21 @@ public class ParallelScan {
         this.maxThreadsPerParallelScan = maxThreadsPerParallelScan;
     }
 
+
+    public int getMaxConcurrentAsyncScanner() {
+        return this.maxConcurrentAsyncScanner;
+    }
+
+    public void setMaxConcurrentAsyncScanner(int maxConcurrentAsyncScanner) {
+        this.maxConcurrentAsyncScanner = maxConcurrentAsyncScanner;
+    }
+
     @Override
     public String toString() {
         return "ParallelScan{" +
                 "maxThreads=" + maxThreads +
                 ", maxThreadsPerParallelScan=" + maxThreadsPerParallelScan +
+                ", maxConcurrentAsyncScanner=" + maxConcurrentAsyncScanner +
                 '}';
     }
 }
