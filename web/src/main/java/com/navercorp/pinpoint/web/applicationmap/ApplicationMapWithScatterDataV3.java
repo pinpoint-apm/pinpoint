@@ -17,6 +17,9 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -67,18 +70,35 @@ public class ApplicationMapWithScatterDataV3 implements ApplicationMap {
     public List<HistogramView> getNodeHistogramData() {
         final List<HistogramView> result = new ArrayList<>();
         for (Node node : applicationMap.getNodes()) {
-            result.add(new HistogramView(node.getNodeName(), node.getNodeHistogram()));
+            HistogramView view = getNodeHistogramView(node);
+            result.add(view);
         }
         return result;
+    }
+
+    private HistogramView getNodeHistogramView(Node node) {
+        String nodeName = node.getNodeName().getName();
+        NodeHistogram nodeHistogram = node.getNodeHistogram();
+        Histogram histogram = nodeHistogram.getApplicationHistogram();
+        List<TimeHistogram> histogramList = nodeHistogram.getApplicationTimeHistogram().getHistogramList();
+        return new HistogramView(nodeName, histogram, histogramList);
     }
 
     @JsonIgnore
     public List<HistogramView> getLinkHistogramData() {
         final List<HistogramView> result = new ArrayList<>();
         for (Link link : applicationMap.getLinks()) {
-            result.add(new HistogramView(link.getLinkName(), link.getHistogram(), link.getLinkApplicationTimeHistogram()));
+            HistogramView view = getLinkHistogramView(link);
+            result.add(view);
         }
         return result;
+    }
+
+    private HistogramView getLinkHistogramView(Link link) {
+        String linkName = link.getLinkName().getName();
+        Histogram histogram = link.getHistogram();
+        List<TimeHistogram> histogramList = link.getLinkApplicationTimeHistogram().getHistogramList();
+        return new HistogramView(linkName, histogram, histogramList);
     }
 
     @JsonIgnore
