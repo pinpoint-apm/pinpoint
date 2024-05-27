@@ -16,30 +16,37 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.view.FilterMapWrapSerializer;
+import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
+import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
+import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.vo.Application;
+
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
-@JsonSerialize(using = FilterMapWrapSerializer.class)
 public class FilterMapWrap {
     private final ApplicationMap applicationMap;
     private Long lastFetchedTimestamp;
+    private boolean filteredHistogram = false;
+
+    private Map<Application, ScatterData> scatterDataMap;
 
     public FilterMapWrap(ApplicationMap applicationMap, TimeHistogramFormat timeHistogramFormat) {
-        this.applicationMap = applicationMap;
+        this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
 
-        if(timeHistogramFormat == TimeHistogramFormat.V2) {
-            for (Node node : applicationMap.getNodes()) {
-                node.setTimeHistogramFormat(timeHistogramFormat);
-            }
-            for(Link link : applicationMap.getLinks()) {
-                link.setTimeHistogramFormat(timeHistogramFormat);
-            }
+        for (Node node : applicationMap.getNodes()) {
+            node.setTimeHistogramFormat(timeHistogramFormat);
+        }
+        for (Link link : applicationMap.getLinks()) {
+            link.setTimeHistogramFormat(timeHistogramFormat);
         }
     }
 
@@ -47,12 +54,37 @@ public class FilterMapWrap {
         this.lastFetchedTimestamp = lastFetchedTimestamp;
     }
 
-    public ApplicationMap getApplicationMap() {
+    public ApplicationMap getApplicationMapData() {
         return applicationMap;
     }
 
     public Long getLastFetchedTimestamp() {
         return lastFetchedTimestamp;
+    }
+
+    public void setFilteredHistogram(boolean filteredHistogram) {
+        this.filteredHistogram = filteredHistogram;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Map<String, ScatterDataMapView.ScatterDataView> getApplicationScatterData() {
+        if (scatterDataMap == null) {
+            return null;
+        }
+        return new ScatterDataMapView(scatterDataMap).getDataMap();
+    }
+
+    public void setScatterDataMap(Map<Application, ScatterData> scatterDataMap) {
+        this.scatterDataMap = scatterDataMap;
+    }
+
+    @JsonUnwrapped
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public FilteredHistogramView getFilteredHistogramView() {
+        if (filteredHistogram) {
+            return new FilteredHistogramView(applicationMap);
+        }
+        return null;
     }
 
 }

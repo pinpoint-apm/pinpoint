@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
@@ -146,7 +147,8 @@ public class FilteredMapController {
                 .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
-        final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(option);
+        final FilterMapWithScatter scatter = filteredMapService.selectApplicationMapWithScatterData(option);
+        ApplicationMap map = scatter.getApplicationMap();
 
         if (logger.isDebugEnabled()) {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}",
@@ -155,6 +157,7 @@ public class FilteredMapController {
 
         final FilterMapWrap mapWrap = new FilterMapWrap(map, getTimeHistogramFormat(useLoadHistogramFormat));
         mapWrap.setLastFetchedTimestamp(lastScanTime);
+        mapWrap.setScatterDataMap(scatter.getScatterDataMap());
         return mapWrap;
     }
 
@@ -232,15 +235,16 @@ public class FilteredMapController {
                 .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
-        final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterDataV3(option);
+        final FilterMapWithScatter map = filteredMapService.selectApplicationMapWithScatterData(option);
 
         if (logger.isDebugEnabled()) {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        FilterMapWrap mapWrap;
-        mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V1);
+        FilterMapWrap mapWrap = new FilterMapWrap(map.getApplicationMap(), TimeHistogramFormat.V1);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
+        mapWrap.setFilteredHistogram(true);
+        mapWrap.setScatterDataMap(map.getScatterDataMap());
         return mapWrap;
     }
 }
