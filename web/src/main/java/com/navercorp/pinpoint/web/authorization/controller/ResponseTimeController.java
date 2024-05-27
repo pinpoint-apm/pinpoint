@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
@@ -251,7 +252,10 @@ public class ResponseTimeController {
     }
 
     public HistogramView newHistogramView(LinkHistogramSummary summary) {
-        return new HistogramView(summary.getLinkName(), summary.getHistogram(), summary.getLinkApplicationTimeHistogram());
+        String linkName = summary.getLinkName().getName();
+        Histogram histogram = summary.getHistogram();
+        List<TimeHistogram> appHistogram = summary.getLinkApplicationTimeHistogram().getHistogramList();
+        return new HistogramView(linkName, histogram, appHistogram);
     }
 
     @GetMapping(value = "/getLink/{type}/chart")
