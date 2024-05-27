@@ -188,16 +188,17 @@ function mergeTimeSeriesHistogram(
           return;
         }
         if (obj.key === 'Max') {
-          obj.values.forEach((chartValue, innerIndex: number) => {
-            old.timeSeriesHistogram[outerIndex].values[innerIndex][1] = Math.max(
-              old.timeSeriesHistogram[outerIndex].values[innerIndex][1],
-              chartValue[1],
+          old.timeSeriesHistogram[outerIndex].values.forEach((value) => {
+            value[1] = Math.max(
+              value[1],
+              obj.values.find((chartValue) => chartValue[0] === value[0])?.[1] || 0,
             );
           });
+
           return;
         }
-        obj.values.forEach((chartValue, innerIndex: number) => {
-          old.timeSeriesHistogram[outerIndex].values[innerIndex][1] += chartValue[1];
+        old.timeSeriesHistogram[outerIndex].values.forEach((value) => {
+          value[1] += obj.values.find((chartValue) => chartValue[0] === value[0])?.[1] || 0;
         });
       });
       updateAvgTimeSeriesHistogram(old.timeSeriesHistogram);
@@ -252,16 +253,17 @@ function mergeAgentTimeSeriesHistogramByType(
               return;
             }
             if (obj.key === 'Max') {
-              obj.values.forEach((chartValue, innerIndex) => {
-                old[agentId][outerIndex].values[innerIndex][1] = Math.max(
-                  old[agentId][outerIndex].values[innerIndex][1],
-                  chartValue[1],
+              old[agentId][outerIndex].values.forEach((value) => {
+                value[1] = Math.max(
+                  value[1],
+                  obj.values.find((chartValue) => chartValue[0] === value[0])?.[1] || 0,
                 );
               });
+
               return;
             }
-            obj.values.forEach((chartValue, innerIndex) => {
-              old[agentId][outerIndex].values[innerIndex][1] += chartValue[1];
+            old[agentId][outerIndex].values.forEach((value) => {
+              value[1] += obj.values.find((chartValue) => chartValue[0] === value[0])?.[1] || 0;
             });
           });
           updateAvgTimeSeriesHistogram(old[agentId]);

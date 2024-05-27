@@ -11,7 +11,7 @@ export const getBaseNodeId = ({
     const nodeList = applicationMapData.nodeDataArray;
     const baseNodeId = `${application?.applicationName}^${application?.serviceType}`;
 
-    return nodeList.some(({ key }: { key: string }) => key === baseNodeId)
+    return nodeList.length === 0 || nodeList.some(({ key }: { key: string }) => key === baseNodeId)
       ? baseNodeId
       : baseNodeId.replace(/(.*)\^(.*)/i, '$1^UNAUTHORIZED');
   }

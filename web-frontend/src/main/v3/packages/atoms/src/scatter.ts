@@ -53,7 +53,9 @@ export const scatterDataByApplicationKeyAtom = atom(
       const mergedKeys = newData ? getMergedKeys(prevData, newData) : undefined;
       const resultData = mergedKeys?.reduce((acc, key) => {
         const prevScatterData = prevData?.[key];
-        const newScatterData = getScatterData(newData[key], prevScatterData);
+        const newScatterData = newData[key]
+          ? getScatterData(newData[key], prevScatterData)
+          : prevScatterData;
         return {
           ...acc,
           [key]: newScatterData,
