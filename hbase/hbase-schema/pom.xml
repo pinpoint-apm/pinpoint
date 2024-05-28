@@ -22,7 +22,7 @@
     <parent>
         <artifactId>pinpoint-hbase</artifactId>
         <groupId>com.navercorp.pinpoint</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
 
 
