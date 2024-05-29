@@ -29,7 +29,6 @@
         <jdk.version>9</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
         <maven.compiler.release>9</maven.compiler.release>
-
     </properties>
 
     <artifactId>pinpoint-bootstrap-java9</artifactId>
@@ -109,4 +108,36 @@
         </plugins>
     </build>
 
+
+    <profiles>
+        <profile>
+            <id>maven.central.release</id>
+            <properties>
+                <env>release</env>
+                <spring.profiles.active>release</spring.profiles.active>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${plugin.javadoc.version}</version>
+                        <configuration>
+                            <doclint>none</doclint>
+                            <source>8</source>
+                            <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
