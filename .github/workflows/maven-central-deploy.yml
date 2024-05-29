@@ -60,7 +60,7 @@ jobs:
     - name: Java Environment
       run: env | grep '^JAVA'
     - name: Publish package
-      run: ./mvnw --batch-mode deploy --file ./agent-module/bootstrap/pom.xml -DskipTests=true -Pmaven.central.release
+      run: ./mvnw --batch-mode deploy --file ./agent-module/bootstraps/pom.xml -DskipTests=true -Pmaven.central.release
       env:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
