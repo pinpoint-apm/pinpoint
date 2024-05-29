@@ -28,7 +28,7 @@
     <properties>
         <jdk.version>9</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
-        <maven.compiler.release>9</maven.compiler.release>
+<!--        <maven.compiler.release>9</maven.compiler.release>-->
     </properties>
 
     <artifactId>pinpoint-bootstrap-java9</artifactId>
