@@ -1955,7 +1955,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.4.0</version>
+                        <version>3.6.3</version>
                         <configuration>
                             <doclint>none</doclint>
 <!--                            <detectOfflineLinks>false</detectOfflineLinks>-->
