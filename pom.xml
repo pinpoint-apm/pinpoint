@@ -263,6 +263,7 @@
         <plugin.jar.version>3.3.0</plugin.jar.version>
         <plugin.antrun.version>3.0.0</plugin.antrun.version>
         <plugin.build-helper.version>3.4.0</plugin.build-helper.version>
+        <plugin.javadoc.version>3.6.3</plugin.javadoc.version>
 
         <plugin.spotbugs.version>4.7.3.6</plugin.spotbugs.version>
         <plugin.pmd.version>3.21.2</plugin.pmd.version>
@@ -1955,7 +1956,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.4.0</version>
+                        <version>${plugin.javadoc.version}</version>
                         <configuration>
                             <doclint>none</doclint>
 <!--                            <detectOfflineLinks>false</detectOfflineLinks>-->
@@ -1995,7 +1996,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.8</version>
+                        <version>1.6.13</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
