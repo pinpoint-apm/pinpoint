@@ -140,8 +140,7 @@ Pinot compatibility table:
 
 ## Community
 
-[Github issues](https://github.com/pinpoint-apm/pinpoint/issues)  
-[Google group](https://groups.google.com/forum/#!forum/pinpoint_user)  
+[Github issues](https://github.com/pinpoint-apm/pinpoint/issues)   
 [Gitter](https://gitter.im/naver/pinpoint)  
 
 We have Chinese community now, welcome to join!
