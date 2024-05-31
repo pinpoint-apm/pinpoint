@@ -5,7 +5,7 @@ on:
 
 jobs:
   pullrequest_IT:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       PR_NUMBER: ${{ github.event.client_payload.github.payload.issue.number }}
       PR_P: ${{ github.event.issue.number }}
