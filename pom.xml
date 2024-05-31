@@ -139,7 +139,7 @@
         <maven.compiler.executable>${jdk.home}/bin/javac</maven.compiler.executable>
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-        <maven.source.skip>false</maven.source.skip>
+        <maven.source.skip>true</maven.source.skip>
 
         <docker.repository.name>pinpointdocker</docker.repository.name>
 
