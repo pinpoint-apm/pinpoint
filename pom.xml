@@ -139,6 +139,7 @@
         <maven.compiler.executable>${jdk.home}/bin/javac</maven.compiler.executable>
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <maven.source.skip>false</maven.source.skip>
 
         <docker.repository.name>pinpointdocker</docker.repository.name>
 
@@ -1753,6 +1754,19 @@
 
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
@@ -1948,22 +1962,10 @@
             <properties>
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
+                <maven.source.skip>false</maven.source.skip>
             </properties>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
