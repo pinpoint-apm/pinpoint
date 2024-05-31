@@ -119,37 +119,22 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <legacyMode>true</legacyMode>
+                    <additionalOptions>
+                        <additionalOption>--add-exports</additionalOption>
+                        <additionalOption>java.base/jdk.internal.loader=ALL-UNNAMED</additionalOption>
+                        <additionalOption>--add-exports</additionalOption>
+                        <additionalOption>java.base/jdk.internal.module=ALL-UNNAMED</additionalOption>
+                        <additionalOption>--add-exports</additionalOption>
+                        <additionalOption>java.base/jdk.internal.misc=ALL-UNNAMED</additionalOption>
+                    </additionalOptions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>maven.central.release</id>
-            <properties>
-                <env>release</env>
-                <spring.profiles.active>release</spring.profiles.active>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <configuration>
-                            <doclint>none</doclint>
-                            <source>8</source>
-                            <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
