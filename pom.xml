@@ -140,6 +140,7 @@
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <maven.source.skip>true</maven.source.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
 
         <docker.repository.name>pinpointdocker</docker.repository.name>
 
@@ -1901,6 +1902,25 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${plugin.javadoc.version}</version>
+                <configuration>
+                    <doclint>none</doclint>
+                    <!-- <detectOfflineLinks>false</detectOfflineLinks>-->
+                    <!-- <detectJavaApiLink>false</detectJavaApiLink>-->
+                    <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -1966,24 +1986,6 @@
             </properties>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <configuration>
-                            <doclint>none</doclint>
-<!--                            <detectOfflineLinks>false</detectOfflineLinks>-->
-<!--                            <detectJavaApiLink>false</detectJavaApiLink>-->
-                            <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
