@@ -1983,6 +1983,7 @@
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
                 <maven.source.skip>false</maven.source.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
             </properties>
             <build>
                 <plugins>
