@@ -41,11 +41,9 @@ jobs:
         key: ${{ runner.os }}-node_install-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-node_install-
-    - name: Set up JDK 7
+    - name: Set Publish Environment
       uses: actions/setup-java@v3
       with:
-        distribution: 'zulu'
-        java-version: '7'
         server-id: ossrh
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
