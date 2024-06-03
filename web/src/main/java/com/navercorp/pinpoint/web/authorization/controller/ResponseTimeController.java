@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
@@ -246,7 +247,11 @@ public class ResponseTimeController {
         LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
 
-        return linkHistogramSummary.getHistogramView();
+        return newHistogramView(linkHistogramSummary);
+    }
+
+    public HistogramView newHistogramView(LinkHistogramSummary summary) {
+        return new HistogramView(summary.getLinkName(), summary.getHistogram(), summary.getLinkApplicationTimeHistogram());
     }
 
     @GetMapping(value = "/getLink/{type}/chart")
@@ -271,7 +276,8 @@ public class ResponseTimeController {
         LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
 
-        return linkHistogramSummary.getTimeHistogram(timeHistogramType);
+        ApplicationTimeHistogram histogram = linkHistogramSummary.getLinkApplicationTimeHistogram();
+        return histogram.createTimeSeriesView(timeHistogramType);
     }
 
     private ResponseTimeHistogramServiceOption.Builder createOptionBuilder(Application application, Range range,
@@ -304,6 +310,6 @@ public class ResponseTimeController {
             }
         }
         logger.error("can not create application. applicationName: {}, serviceTypeCode: {}, serviceTypeName: {}", applicationName, serviceTypeCode, serviceTypeName);
-        throw new IllegalArgumentException("can not create application. applicationName: " + serviceTypeName);
+        throw new IllegalArgumentException("can not create application. applicationName: " + applicationName);
     }
 }

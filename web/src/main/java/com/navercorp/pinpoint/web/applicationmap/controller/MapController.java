@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramSe
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
+import com.navercorp.pinpoint.web.view.LinkHistogramSummaryView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
@@ -316,7 +317,7 @@ public class MapController {
     }
 
     @GetMapping(value = "/getLinkTimeHistogramData")
-    public LinkHistogramSummary getLinkTimeHistogramData(
+    public LinkHistogramSummaryView getLinkTimeHistogramData(
             @RequestParam(value = "fromApplicationName", required = false) @NullOrNotBlank String fromApplicationName,
             @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
             @RequestParam(value = "toApplicationName", required = false) @NullOrNotBlank String toApplicationName,
@@ -333,10 +334,16 @@ public class MapController {
         final Application toApplication = this.createApplication(toApplicationName, toServiceTypeCode);
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
+
+        TimeHistogramFormat format = getTimeHistogramFormat(useLoadHistogramFormat);
+        return new LinkHistogramSummaryView(linkHistogramSummary, format);
+    }
+
+    private TimeHistogramFormat getTimeHistogramFormat(boolean useLoadHistogramFormat) {
         if (useLoadHistogramFormat) {
-            linkHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
+            return TimeHistogramFormat.V2;
         }
-        return linkHistogramSummary;
+        return TimeHistogramFormat.V1;
     }
 
     @Nullable
