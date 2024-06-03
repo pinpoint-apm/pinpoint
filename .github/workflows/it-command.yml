@@ -61,14 +61,14 @@ jobs:
           ./mvnw --batch-mode -Pit-module -DskipTests clean install
       - name: Whole Integration Test
         if: github.event.client_payload.slash_command.args.all == ''
-        working-directory: ./plugins-it
-        run: ../mvnw --batch-mode clean install -Pit-module  -Dmaven.test.failure.ignore=true
+        working-directory: ./agent-module/plugins-it
+        run: ../../mvnw --batch-mode clean install -Pit-module  -Dmaven.test.failure.ignore=true
       - name: Integration Test
         if: github.event.client_payload.slash_command.args.all != ''
-        working-directory: ./plugins-it
-        run: ../mvnw --batch-mode clean install -Pit-module -pl ${{ github.event.client_payload.slash_command.args.all }} -Dmaven.test.failure.ignore=true
+        working-directory: ./agent-module/plugins-it
+        run: ../../mvnw --batch-mode clean install -Pit-module -pl ${{ github.event.client_payload.slash_command.args.all }} -Dmaven.test.failure.ignore=true
       - name: Collect reports
-        working-directory: ./plugins-it
+        working-directory: ./agent-module/plugins-it
         run: |
           mkdir -p ./temp
           find . -regex ".*/target/failsafe-reports/TEST.*\.xml" -exec cp "{}" ./temp \;
@@ -79,7 +79,7 @@ jobs:
         with:
           name: pinpoint-test-results
           reporter: java-junit
-          path: "./plugins-it/temp/TEST-*.xml"
+          path: "./agent-module/plugins-it/temp/TEST-*.xml"
           fail-on-error: "false"
       - name: Update  comment
         uses: peter-evans/create-or-update-comment@v1
