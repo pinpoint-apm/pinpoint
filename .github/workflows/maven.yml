@@ -16,12 +16,6 @@ jobs:
     steps:
     - name: Git checkout
       uses: actions/checkout@v4
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
     - name: Cache node modules
       uses: actions/cache@v4
       with:
@@ -44,6 +38,11 @@ jobs:
         echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
     - name: Java Environment
       run: env | grep '^JAVA'
+    - name : Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        cache: 'maven'
     - name: Build with Maven
       run: ./mvnw --batch-mode -Pcode.coverage package --file pom.xml
     - name: Code coverage report
