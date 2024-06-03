@@ -16,27 +16,8 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-      - name: Delete existing latest tag (if exists)
-        run: |
-          git push --delete origin latest || true
-          git tag -d latest || true
-        
-      - name: Tag Latest Release
-        run: |
-          # Get the latest release tag
-          latest_tag=$(git describe --tags --abbrev=0)
-        
-          # Get the commit hash of the latest release
-          latest_commit=$(git rev-list -n 1 $latest_tag)
-        
-          # Create a new tag based on the latest commit
-          git tag -a latest -m "Latest release" $latest_commit
-        
-          # Push the new tag to the repository
-          git push origin latest
-
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN  }}
           
       - name: Set JAVA_HOME
         run: |
