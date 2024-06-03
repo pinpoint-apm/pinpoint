@@ -20,24 +20,24 @@ jobs:
           body: |
             > Action has been started. [Click here to see the action](${{ steps.vars.outputs.run-url }})
       - name: Git checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: 'refs/pull/${{ env.PR_NUMBER }}/merge'
       - name: Cache node modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Cache node install
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: 'node_install'
           key: ${{ runner.os }}-node_install-${{ hashFiles('**/pom.xml') }}
