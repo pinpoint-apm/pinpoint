@@ -16,32 +16,20 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.view.LinkHistogramSummarySerializer;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
-import com.navercorp.pinpoint.web.view.TimeViewModel;
-import com.navercorp.pinpoint.web.view.histogram.HistogramView;
-import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = LinkHistogramSummarySerializer.class)
 public class LinkHistogramSummary {
 
     private final Link link;
 
     public LinkHistogramSummary(Link link) {
         this.link = Objects.requireNonNull(link, "link");
-    }
-
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        link.setTimeHistogramFormat(timeHistogramFormat);
     }
 
     public LinkName getLinkName() {
@@ -52,16 +40,8 @@ public class LinkHistogramSummary {
         return link.getHistogram();
     }
 
-    public List<TimeViewModel> getTimeSeriesHistogram() {
-        return link.getLinkApplicationTimeSeriesHistogram();
-    }
-
-    public TimeSeriesView getTimeHistogram(TimeHistogramType timeHistogramType) {
-        return link.getLinkApplicationTimeHistogram().createTimeSeriesView(timeHistogramType);
-    }
-
-    public HistogramView getHistogramView() {
-        return new HistogramView(link.getLinkName(), link.getHistogram(), link.getLinkApplicationTimeHistogram());
+    public ApplicationTimeHistogram getLinkApplicationTimeHistogram() {
+        return link.getLinkApplicationTimeHistogram();
     }
 
     @Override
