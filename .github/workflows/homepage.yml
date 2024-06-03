@@ -6,7 +6,7 @@ on:
 
 jobs:
   repository-dispatch-event:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Repository Dispatch    
         uses: peter-evans/repository-dispatch@v1
