@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
@@ -97,7 +98,8 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
 
     private CompletableFuture<Void> getServerGroupListFuture(Range range, Node node, LinkDataDuplexMap linkDataDuplexMap, AtomicBoolean stopSign) {
         CompletableFuture<ServerGroupList> serverGroupListFuture;
-        ServiceType nodeServiceType = node.getServiceType();
+        final Application application = node.getApplication();
+        final ServiceType nodeServiceType = application.getServiceType();
         if (nodeServiceType.isWas()) {
             final Instant to = range.getToInstant();
             serverGroupListFuture = CompletableFuture.supplyAsync(new Supplier<ServerGroupList>() {
@@ -111,14 +113,14 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
             }, executor);
         } else if (nodeServiceType.isTerminal() || nodeServiceType.isAlias()) {
             // extract information about the terminal node
-            serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap));
+            serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createTerminalNodeInstanceList(application, linkDataDuplexMap));
         } else if (nodeServiceType.isQueue()) {
-            serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap));
+            serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createQueueNodeInstanceList(application, linkDataDuplexMap));
         } else if (nodeServiceType.isUser()) {
             serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createUserNodeInstanceList());
         } else {
             serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createEmptyNodeInstanceList());
         }
         return serverGroupListFuture.thenAccept(node::setServerGroupList);
-    }
+}
 }

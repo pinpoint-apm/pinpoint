@@ -104,9 +104,9 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     @Override
     public NodeHistogramSummary selectNodeHistogramData(ResponseTimeHistogramServiceOption option) {
-        Node node = new Node(option.getApplication());
-        Application application = option.getApplication();
-        ServiceType applicationServiceType = application.getServiceType();
+        final Application application = option.getApplication();
+        final Range range = option.getRange();
+        final ServiceType applicationServiceType = application.getServiceType();
 
         List<Application> sourceApplications = option.getFromApplications();
         List<Application> destinationApplications = option.getToApplications();
@@ -115,58 +115,59 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option);
 
         if (applicationServiceType.isWas()) {
-            NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(option.getApplication(), option.getRange());
+            NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(application, range);
+            Node node = new Node(application);
             node.setNodeHistogram(nodeHistogram);
-            ServerGroupList serverGroupList = serverGroupListFactory.createWasNodeInstanceList(node, option.getRange().getToInstant());
+            ServerGroupList serverGroupList = serverGroupListFactory.createWasNodeInstanceList(node, range.getToInstant());
             return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else if (isTerminal(applicationServiceType)) {
             if (sourceApplications.isEmpty()) {
-                return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
+                return createEmptyNodeHistogramSummary(serverGroupListFactory, application, range);
             }
-            LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(option.getApplication());
+            LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(application);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
-            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, option.getRange(), 1, 0);
+            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, range, 1, 0);
 
             ServerGroupList serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
             if (applicationServiceType.isTerminal() || applicationServiceType.isAlias()) {
-                serverGroupList = serverGroupListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap);
+                serverGroupList = serverGroupListFactory.createTerminalNodeInstanceList(application, linkDataDuplexMap);
             }
 
             NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
-            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, option.getRange());
-            NodeHistogram nodeHistogram = nodeHistogramFactory.createTerminalNodeHistogram(option.getApplication(), option.getRange(), linkList);
+            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, range);
+            NodeHistogram nodeHistogram = nodeHistogramFactory.createTerminalNodeHistogram(application, range, linkList);
             return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else if (applicationServiceType.isQueue()) {
             if (sourceApplications.isEmpty()) {
                 //scan callee from queue node to find sourceApplication out of serverMap search bound is possible
-                return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
+                return createEmptyNodeHistogramSummary(serverGroupListFactory, application, range);
             }
-            LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(option.getApplication());
+            LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(application);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
-            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, option.getRange(), 1, 0);
+            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, range, 1, 0);
 
-            ServerGroupList serverGroupList = serverGroupListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap);
+            ServerGroupList serverGroupList = serverGroupListFactory.createQueueNodeInstanceList(application, linkDataDuplexMap);
 
             NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
-            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, option.getRange());
-            NodeHistogram nodeHistogram = nodeHistogramFactory.createQueueNodeHistogram(option.getApplication(), option.getRange(), linkList);
+            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, range);
+            NodeHistogram nodeHistogram = nodeHistogramFactory.createQueueNodeHistogram(application, range, linkList);
             return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else if (applicationServiceType.isUser()) {
             if (destinationApplications.isEmpty()) {
-                return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
+                return createEmptyNodeHistogramSummary(serverGroupListFactory, application, range);
             }
-            LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(option.getApplication());
+            LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(application);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);
-            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(destinationApplications, option.getRange(), 0, 1);
+            LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(destinationApplications, range, 0, 1);
 
             ServerGroupList serverGroupList = serverGroupListFactory.createUserNodeInstanceList();
 
             NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
-            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, option.getRange());
-            NodeHistogram nodeHistogram = nodeHistogramFactory.createUserNodeHistogram(option.getApplication(), option.getRange(), linkList);
+            LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, range);
+            NodeHistogram nodeHistogram = nodeHistogramFactory.createUserNodeHistogram(application, range, linkList);
             return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
         } else {
-            return createEmptyNodeHistogramSummary(serverGroupListFactory, option.getApplication(), option.getRange());
+            return createEmptyNodeHistogramSummary(serverGroupListFactory, application, range);
         }
     }
 

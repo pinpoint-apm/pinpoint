@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.time.Instant;
 
@@ -33,12 +34,12 @@ public class EmptyServerGroupListFactory implements ServerGroupListFactory {
     }
 
     @Override
-    public ServerGroupList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
+    public ServerGroupList createTerminalNodeInstanceList(Application terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
         return ServerGroupList.empty();
     }
 
     @Override
-    public ServerGroupList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
+    public ServerGroupList createQueueNodeInstanceList(Application queueNode, LinkDataDuplexMap linkDataDuplexMap) {
         return ServerGroupList.empty();
     }
 

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.time.Instant;
 
@@ -29,9 +30,9 @@ public interface ServerGroupListFactory {
 
     ServerGroupList createWasNodeInstanceList(Node wasNode, Instant timestamp);
 
-    ServerGroupList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap);
+    ServerGroupList createTerminalNodeInstanceList(Application terminalNode, LinkDataDuplexMap linkDataDuplexMap);
 
-    ServerGroupList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap);
+    ServerGroupList createQueueNodeInstanceList(Application queueNode, LinkDataDuplexMap linkDataDuplexMap);
 
     ServerGroupList createUserNodeInstanceList();
 

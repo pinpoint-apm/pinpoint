@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -44,12 +44,12 @@ public class DefaultServerGroupListFactory implements ServerGroupListFactory {
     }
 
     @Override
-    public ServerGroupList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
+    public ServerGroupList createTerminalNodeInstanceList(Application terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
         // extract information about the terminal node
         ServerBuilder builder = new ServerBuilder();
         for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
             Application toApplication = linkData.getToApplication();
-            if (terminalNode.getApplication().equals(toApplication)) {
+            if (terminalNode.equals(toApplication)) {
                 builder.addCallHistogramList(linkData.getTargetList());
             }
         }
@@ -57,7 +57,7 @@ public class DefaultServerGroupListFactory implements ServerGroupListFactory {
     }
 
     @Override
-    public ServerGroupList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
+    public ServerGroupList createQueueNodeInstanceList(Application queueNode, LinkDataDuplexMap linkDataDuplexMap) {
         return createEmptyNodeInstanceList();
     }
 
