@@ -8,7 +8,7 @@ export const HelpDocument = () => {
     ko: [
       {
         title: 'Pinpoint 개발자가 작성한 Pinpoint 기술문서',
-        href: 'http://helloworld.naver.com/helloworld/1194202',
+        href: 'https://d2.naver.com/helloworld/1194202',
       },
       {
         title: '설치 가이드 동영상 강좌 1',
