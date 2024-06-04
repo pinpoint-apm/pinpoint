@@ -110,7 +110,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         spanEvent.addAnnotation(sqlAnnotation);
 
         if (spanEvent.isExecuteQueryType()) {
-            sqlCountService.recordSqlCount(this.traceRoot);
+            sqlCountService.recordSqlCount(this.traceRoot.getShared());
         }
     }
 

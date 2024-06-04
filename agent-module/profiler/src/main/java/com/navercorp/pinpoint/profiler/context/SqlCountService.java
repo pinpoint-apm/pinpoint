@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 
 public interface SqlCountService {
-    void recordSqlCount(TraceRoot traceRoot);
+    void recordSqlCount(Shared shared);
 }
