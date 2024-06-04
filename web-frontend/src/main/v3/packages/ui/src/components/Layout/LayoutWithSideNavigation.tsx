@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '..';
 import { useDebounce, useHover } from 'usehooks-ts';
 
 export type SideNavigationMenuItem = {
-  show?: boolean;
+  hide?: boolean;
   path: string | string[];
   name?: string;
   href?: string;
@@ -72,32 +72,28 @@ export const LayoutWithSideNavigation = ({
     }, [collapsed]);
 
     return (
-      item.show && (
-        <SubMenu
-          ref={hoverRef}
-          label={item.name}
-          icon={item.icon}
-          active={isActive}
-          defaultOpen={isActive}
-          onClick={(e) => {
-            if (collapsed) {
-              e.stopPropagation();
-              e.preventDefault();
-              return;
-            }
-          }}
-        >
-          {collapsed && (
-            <MenuItemComponent
-              className="bg-[var(--blue-800)] pointer-events-none"
-              active={isActive}
-            >
-              {item.name}
-            </MenuItemComponent>
-          )}
-          {item.childItems?.map((childItem) => MenuItem({ item: childItem, className: 'text-sm' }))}
-        </SubMenu>
-      )
+      <SubMenu
+        className={`${item.hide && 'hidden'}`}
+        ref={hoverRef}
+        label={item.name}
+        icon={item.icon}
+        active={isActive}
+        defaultOpen={isActive}
+        onClick={(e) => {
+          if (collapsed) {
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+          }
+        }}
+      >
+        {collapsed && (
+          <MenuItemComponent className="bg-[var(--blue-800)] pointer-events-none" active={isActive}>
+            {item.name}
+          </MenuItemComponent>
+        )}
+        {item.childItems?.map((childItem) => MenuItem({ item: childItem, className: 'text-sm' }))}
+      </SubMenu>
     );
   };
 
@@ -105,7 +101,7 @@ export const LayoutWithSideNavigation = ({
     return (
       <MenuItemComponent
         component={item.aHref ? <a href={item.aHref} /> : <Link to={`${item.href}`} />}
-        className={cn({ 'hidden!': !item.show }, className)}
+        className={cn({ '!hidden': item.hide }, className)}
         active={
           Array.isArray(item.path) ? item.path.includes(pathname) : pathname.startsWith(item.path)
         }
