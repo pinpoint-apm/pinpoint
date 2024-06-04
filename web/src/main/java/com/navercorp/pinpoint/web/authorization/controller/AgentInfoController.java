@@ -57,6 +57,7 @@ import java.util.Set;
  * @author HyunGil Jeong
  */
 @RestController
+@RequestMapping("/api")
 @Validated
 public class AgentInfoController {
     private final AgentInfoService agentInfoService;

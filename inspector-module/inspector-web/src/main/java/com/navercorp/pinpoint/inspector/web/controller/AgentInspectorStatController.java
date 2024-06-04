@@ -42,7 +42,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping("/inspector/agentStat")
+@RequestMapping("/api/inspector/agentStat")
 public class AgentInspectorStatController {
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(5000L, 200);

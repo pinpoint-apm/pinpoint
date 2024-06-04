@@ -41,6 +41,7 @@ import java.util.Objects;
  */
 
 @RestController
+@RequestMapping("/api")
 @Validated
 public class ApplicationController {
     public static final int MAX_PAGING_LIMIT = 100;

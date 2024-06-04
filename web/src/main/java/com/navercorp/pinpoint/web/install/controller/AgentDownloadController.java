@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Objects;
 
 @RestController
+@RequestMapping("/api")
 public class AgentDownloadController {
 
     private final AgentDownLoadService agentDownLoadService;

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping(value={"/webhook", "/application/webhook"})
+@RequestMapping(value={"/api/webhook", "/api/application/webhook"})
 public class WebhookController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 

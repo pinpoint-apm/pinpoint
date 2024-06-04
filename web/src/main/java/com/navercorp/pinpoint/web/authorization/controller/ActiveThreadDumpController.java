@@ -41,7 +41,7 @@ import java.util.Objects;
  * @author Taejin Koo
  */
 @RestController
-@RequestMapping("/agent")
+@RequestMapping("/api/agent")
 @Validated
 public class ActiveThreadDumpController {
     private final ConfigProperties webProperties;

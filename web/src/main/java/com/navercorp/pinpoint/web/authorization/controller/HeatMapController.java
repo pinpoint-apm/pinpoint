@@ -32,7 +32,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @RestController()
-@RequestMapping("/heatmap")
+@RequestMapping("/api/heatmap")
 @Validated
 public class HeatMapController {
 

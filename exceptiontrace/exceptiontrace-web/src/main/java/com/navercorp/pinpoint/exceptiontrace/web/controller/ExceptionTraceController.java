@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * @author intr3p1d
  */
 @RestController
-@RequestMapping(value = "/errors")
+@RequestMapping(value = "/api/errors")
 @Validated
 public class ExceptionTraceController {
 

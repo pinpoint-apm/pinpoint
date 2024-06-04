@@ -32,7 +32,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/command")
+@RequestMapping("/api/command")
 @Validated
 public class EchoController {
 

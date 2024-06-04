@@ -39,7 +39,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value = {"/alarmRule", "/application/alarmRule"})
+@RequestMapping(value = {"/api/alarmRule", "/api/application/alarmRule"})
 @ConditionalOnProperty(name = WebhookModule.NAME, havingValue = "true", matchIfMissing = true)
 public class WebhookAlarmController {
     private final WebhookAlarmServiceFacade webhookAlarmServiceFacade;

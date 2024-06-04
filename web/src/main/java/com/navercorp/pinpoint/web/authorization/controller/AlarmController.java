@@ -43,7 +43,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value={"/alarmRule", "/application/alarmRule"})
+@RequestMapping(value={"/api/alarmRule", "/api/application/alarmRule"})
 @Validated
 public class AlarmController {
 

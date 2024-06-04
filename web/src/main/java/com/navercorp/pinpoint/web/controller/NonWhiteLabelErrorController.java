@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value={"/error"})
+@RequestMapping(value={"/api/error"})
 @Validated
 public class NonWhiteLabelErrorController extends AbstractErrorController {
     private final ErrorProperties errorProperties;
