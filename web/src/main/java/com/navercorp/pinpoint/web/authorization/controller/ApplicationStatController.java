@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/getApplicationStat/{chartType}/chart")
+@RequestMapping("/api/getApplicationStat/{chartType}/chart")
 @Validated
 public class ApplicationStatController {
 

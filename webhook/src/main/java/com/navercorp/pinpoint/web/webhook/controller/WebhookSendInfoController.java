@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping(value={"/webhookSendInfo", "/application/webhookSendInfo"})
+@RequestMapping(value={"/api/webhookSendInfo", "/api/application/webhookSendInfo"})
 public class WebhookSendInfoController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 

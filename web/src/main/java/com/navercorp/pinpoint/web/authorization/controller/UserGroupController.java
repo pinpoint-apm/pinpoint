@@ -46,7 +46,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value = "/userGroup")
+@RequestMapping(value = "/api/userGroup")
 @Validated
 public class UserGroupController {
     private final Logger logger = LogManager.getLogger(this.getClass());

@@ -43,7 +43,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping(value = "/uriStat")
+@RequestMapping(value = "/api/uriStat")
 public class UriStatController {
     private final UriStatSummaryService uriStatService;
     private final TenantProvider tenantProvider;

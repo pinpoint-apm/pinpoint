@@ -49,7 +49,7 @@ import java.util.Optional;
  * @author intr3p1d
  */
 @RestController
-@RequestMapping(value = "/agents")
+@RequestMapping(value = "/api/agents")
 @Validated
 public class AgentListController {
     private final AgentInfoService agentInfoService;

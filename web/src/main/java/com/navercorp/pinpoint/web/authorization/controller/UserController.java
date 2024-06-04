@@ -43,7 +43,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value = "/user")
+@RequestMapping("/api/user")
 @Validated
 public class UserController {
     private final Logger logger = LogManager.getLogger(this.getClass());

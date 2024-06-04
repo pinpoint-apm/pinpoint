@@ -39,7 +39,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @Validated
 public class AdminController {
 

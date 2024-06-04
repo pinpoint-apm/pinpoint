@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/inspector/applicationStat")
+@RequestMapping("/api/inspector/applicationStat")
 public class ApplicationInspectorStatController {
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER_30M = new TimeWindowSlotCentricSampler(30000L, 200);
     private final TenantProvider tenantProvider;

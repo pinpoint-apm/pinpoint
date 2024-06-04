@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.LinkedHashMap;
@@ -31,6 +32,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @RestController
+@RequestMapping("/api")
 public class FrontendConfigController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
