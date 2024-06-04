@@ -32,7 +32,6 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       name: 'Servermap',
       path: APP_PATH.SERVER_MAP,
       href: getServerMapPath(application, searchParameters),
-      show: true,
     },
     {
       icon: <FaChartLine />,
@@ -45,21 +44,21 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       name: 'URL Statistic',
       path: APP_PATH.URL_STATISTIC,
       href: getUrlStatPath(application, searchParameters),
-      show: true,
+      hide: !configuration?.showUrlStat,
     },
     {
       icon: <FaServer />,
       name: 'Infrastructure',
       path: APP_PATH.SYSTEM_METRIC,
       href: getSystemMetricPath(),
-      show: true,
+      hide: !configuration?.showSystemMetric,
     },
     {
       icon: <FaBug />,
       name: 'Error Analysis',
       path: APP_PATH.ERROR_ANALYSIS,
       href: getErrorAnalysisPath(application, searchParameters),
-      show: configuration?.showExceptionTrace,
+      hide: !configuration?.showExceptionTrace,
     },
   ];
 
@@ -69,21 +68,18 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       name: CONFIG_MENU_MAP.ADMINISTRATION.title,
       path: APP_PATH.CONFIG_USERS,
       childItems: CONFIG_MENU_MAP.ADMINISTRATION.menus,
-      show: true,
     },
     {
       icon: <FaCog />,
       name: CONFIG_MENU_MAP.CONFIGURATION.title,
       path: APP_PATH.CONFIG_USER_GROUP,
       childItems: CONFIG_MENU_MAP.CONFIGURATION.menus,
-      show: true,
     },
     {
       icon: <LuUserCircle2 />,
       name: 'User',
       path: APP_PATH.CONFIG_GENERAL,
       childItems: CONFIG_MENU_MAP.PERSONAL_SETTINGS.menus,
-      show: true,
     },
     {
       children: (collapsed) => (
@@ -98,7 +94,6 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       name: 'Go to Pinpoint v2',
       path: 'gotoV2',
       aHref: '/v2',
-      show: true,
     },
   ];
 
