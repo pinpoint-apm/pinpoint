@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.web.view.histogram;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +31,14 @@ public class ServerHistogramView {
     private final String key;
     private final List<HistogramView> agentHistogramList;
     private final ServerGroupList serverGroupList;
+
+    public static ServerHistogramView view(NodeHistogramSummary summary) {
+        Application application = summary.getApplication();
+        String key = NodeName.toNodeName(application.getName(), application.getServiceType());
+        List<HistogramView> agentHistogramList = summary.getNodeHistogram().createAgentHistogramViewList();
+        ServerGroupList serverGroupList = summary.getServerGroupList();
+        return new ServerHistogramView(key, agentHistogramList, serverGroupList);
+    }
 
     public ServerHistogramView(String key, List<HistogramView> agentHistogramList, ServerGroupList serverGroupList) {
         this.key = Objects.requireNonNull(key, "key");

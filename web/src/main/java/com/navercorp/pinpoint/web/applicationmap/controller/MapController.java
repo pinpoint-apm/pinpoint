@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
+import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
@@ -215,7 +216,7 @@ public class MapController {
     }
 
     @PostMapping(value = "/getResponseTimeHistogramDataV2")
-    public NodeHistogramSummary postResponseTimeHistogramDataV2(
+    public NodeHistogramSummaryView postResponseTimeHistogramDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
@@ -241,14 +242,21 @@ public class MapController {
                 .build();
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
+        TimeHistogramFormat format = histogramFormat(useLoadHistogramFormat);
+
+        return new NodeHistogramSummaryView(nodeHistogramSummary, nodeHistogramSummary.getServerGroupList(), format);
+    }
+
+    private TimeHistogramFormat histogramFormat(boolean useLoadHistogramFormat) {
         if (useLoadHistogramFormat) {
-            nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
+            return TimeHistogramFormat.V2;
+        } else {
+            return TimeHistogramFormat.V1;
         }
-        return nodeHistogramSummary;
     }
 
     @GetMapping(value = "/getResponseTimeHistogramDataV2")
-    public NodeHistogramSummary getResponseTimeHistogramDataV2(
+    public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
@@ -288,10 +296,9 @@ public class MapController {
                 .build();
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
-        if (useLoadHistogramFormat) {
-            nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
-        }
-        return nodeHistogramSummary;
+
+        final TimeHistogramFormat format = getTimeHistogramFormat(useLoadHistogramFormat);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, nodeHistogramSummary.getServerGroupList(), format);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
