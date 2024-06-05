@@ -21,7 +21,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.util.List;
@@ -68,5 +71,16 @@ public class HistogramView {
     public TimeSeriesView getLoadStatisticsChart() {
         TimeHistogramChartBuilder builder = new TimeHistogramChartBuilder(sortedTimeHistograms);
         return builder.build(TimeHistogramType.loadStatistics);
+    }
+
+
+
+    public static HistogramView view(NodeHistogramSummary summary) {
+        Application application = summary.getApplication();
+        String nodeName = NodeName.toNodeName(application.getName(), application.getServiceType());
+        Histogram applicationHistogram = summary.getNodeHistogram().getApplicationHistogram();
+        List<TimeHistogram> histogramList = summary.getNodeHistogram().getApplicationTimeHistogram().getHistogramList();
+
+        return new HistogramView(nodeName, applicationHistogram, histogramList);
     }
 }

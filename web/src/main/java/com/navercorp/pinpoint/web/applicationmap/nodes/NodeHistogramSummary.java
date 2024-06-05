@@ -16,36 +16,30 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.view.NodeHistogramSummarySerializer;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
-import com.navercorp.pinpoint.web.view.histogram.HistogramView;
-import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
-import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = NodeHistogramSummarySerializer.class)
 public class NodeHistogramSummary {
 
     private final Application application;
     private final ServerGroupList serverGroupList;
     private final NodeHistogram nodeHistogram;
-    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public NodeHistogramSummary(Application application, ServerGroupList serverGroupList, NodeHistogram nodeHistogram) {
         this.application = Objects.requireNonNull(application, "application");
         this.serverGroupList = Objects.requireNonNull(serverGroupList, "serverGroupList");
         this.nodeHistogram = Objects.requireNonNull(nodeHistogram, "nodeHistogram");
+    }
+
+    public Application getApplication() {
+        return application;
     }
 
     public ServerGroupList getServerGroupList() {
@@ -60,35 +54,14 @@ public class NodeHistogramSummary {
         return nodeHistogram.getApplicationHistogram();
     }
 
-    public TimeSeriesView getNodeTimeHistogram(TimeHistogramType timeHistogramType) {
-        return nodeHistogram.getApplicationTimeHistogram().createTimeSeriesView(timeHistogramType);
-    }
-
-    public TimeHistogramFormat getTimeHistogramFormat() {
-        return timeHistogramFormat;
-    }
-
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        this.timeHistogramFormat = timeHistogramFormat;
-    }
-
-    public HistogramView getHistogramView() {
-        String nodeName = NodeName.toNodeName(application.getName(), application.getServiceType());
-        Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
-        List<TimeHistogram> histogramList = nodeHistogram.getApplicationTimeHistogram().getHistogramList();
-        return new HistogramView(nodeName, applicationHistogram, histogramList);
-    }
-
-    public ServerHistogramView getAgentHistogramView() {
-        return new ServerHistogramView(NodeName.of(application), nodeHistogram, serverGroupList);
+    public ApplicationTimeHistogram getApplicationTimeHistogram() {
+        return nodeHistogram.getApplicationTimeHistogram();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("NodeHistogramSummary{");
-        sb.append("serverGroupList=").append(serverGroupList);
-        sb.append(", nodeHistogram=").append(nodeHistogram);
-        sb.append('}');
-        return sb.toString();
+        return "NodeHistogramSummary{" + "serverGroupList=" + serverGroupList +
+                ", nodeHistogram=" + nodeHistogram +
+                '}';
     }
 }
