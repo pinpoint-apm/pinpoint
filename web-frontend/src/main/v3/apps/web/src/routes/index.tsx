@@ -35,8 +35,11 @@ import Users from '@/pages/config/Users';
 import Alarm from '@/pages/config/Alarm';
 import Webhook from '@/pages/config/Webhook';
 import { threadDumpRouteLoader } from './loader/threadDump';
+import { handleV2RouteLoader } from './loader/handleV2';
 
-const defaultLoader = () => redirect('/serverMap');
+const defaultLoader = () => {
+  return redirect('/serverMap');
+};
 
 const router = createBrowserRouter(
   [
@@ -46,7 +49,16 @@ const router = createBrowserRouter(
     },
     {
       path: '/main',
-      loader: defaultLoader,
+      children: [
+        {
+          path: '',
+          loader: defaultLoader,
+        },
+        {
+          path: ':application/:period/:endTime',
+          loader: handleV2RouteLoader,
+        },
+      ],
     },
     {
       path: `${APP_PATH.API_CHECK}`,
