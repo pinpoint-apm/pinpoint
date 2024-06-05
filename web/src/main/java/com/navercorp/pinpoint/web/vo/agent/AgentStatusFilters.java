@@ -43,7 +43,7 @@ public class AgentStatusFilters {
                 return false;
             }
             return
-                    agentStatus.getState() == AgentLifeCycleState.RUNNING &&
+                    agentStatus.getState() == AgentLifeCycleState.RUNNING ||
                     agentStatus.getEventTimestamp() >= minEventTimestamp;
         }
     }
