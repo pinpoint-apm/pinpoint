@@ -105,3 +105,21 @@ export const formatNewLinedDateString = (date: Date | number) => {
 
   return `${format(date, firstFormat)}\n${format(date, secondFormat)}`;
 };
+
+export const convertTimeStringToTime = (timeString: string) => {
+  const timePattern = /^(\d+)([mhd])$/;
+  const match = timeString.match(timePattern);
+  const value = Number(match?.[1]);
+  const unit = match?.[2];
+
+  switch (unit) {
+    case 'm':
+      return value * 60 * 1000;
+    case 'h':
+      return value * 60 * 60 * 1000;
+    case 'd':
+      return value * 24 * 60 * 60 * 1000;
+    default:
+      throw new Error('Unknown time unit');
+  }
+};
