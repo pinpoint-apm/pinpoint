@@ -1,8 +1,8 @@
 {
-  "tableName": "exceptionTrace_OFFLINE",
+  "tableName": "exceptionTraceV1",
   "tableType": "OFFLINE",
   "segmentsConfig": {
-    "schemaName": "exceptionTrace",
+    "schemaName": "exceptionTraceV1",
     "replication": "1",
     "replicasPerPartition": "1",
     "segmentPushFrequency": "HOURLY",

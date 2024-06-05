@@ -1,5 +1,5 @@
 {
-  "schemaName": "exceptionTrace",
+  "schemaName": "exceptionTraceV1",
   "dimensionFieldSpecs": [
     {
       "name": "tenantId",
