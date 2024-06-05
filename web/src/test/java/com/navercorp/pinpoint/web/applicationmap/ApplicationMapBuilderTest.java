@@ -79,7 +79,7 @@ public class ApplicationMapBuilderTest {
 
     private AgentInfoServerGroupListDataSource agentInfoServerGroupListDataSource;
 
-    private long buildTimeoutMillis = 1000;
+    private final long buildTimeoutMillis = 1000;
 
     @BeforeEach
     public void setUp() {
@@ -110,7 +110,7 @@ public class ApplicationMapBuilderTest {
         when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);
         when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
-        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentAndStatus>>() {
+        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<>() {
             @Override
             public Set<AgentAndStatus> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
@@ -120,7 +120,7 @@ public class ApplicationMapBuilderTest {
                 return Set.of(new AgentAndStatus(agentInfo, agentStatus));
             }
         });
-        when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
+        when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<>() {
             @Override
             public Set<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
@@ -128,7 +128,7 @@ public class ApplicationMapBuilderTest {
                 return Set.of(agentInfo);
             }
         });
-        when(agentInfoService.getAgentStatus(anyString(), anyLong())).thenAnswer(new Answer<AgentStatus>()  {
+        when(agentInfoService.getAgentStatus(anyString(), anyLong())).thenAnswer(new Answer<>()  {
             @Override
             public AgentStatus answer(InvocationOnMock invocation) throws Throwable {
                 String agentId = invocation.getArgument(0);
@@ -188,9 +188,7 @@ public class ApplicationMapBuilderTest {
                 .build(application, buildTimeoutMillis);
 
         assertThat(applicationMap.getNodes()).hasSize(1);
-        assertThat(applicationMap.getNodes()).hasSize(1);
         assertThat(applicationMap_parallelAppenders.getNodes()).hasSize(1);
-        assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
 
@@ -219,10 +217,8 @@ public class ApplicationMapBuilderTest {
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
         assertThat(applicationMap.getNodes()).isEmpty();
-        assertThat(applicationMap.getNodes()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getNodes()).isEmpty();
 
-        assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
 
@@ -251,10 +247,8 @@ public class ApplicationMapBuilderTest {
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
         assertThat(applicationMap.getNodes()).isEmpty();
-        assertThat(applicationMap.getNodes()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getNodes()).isEmpty();
 
-        assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
 
