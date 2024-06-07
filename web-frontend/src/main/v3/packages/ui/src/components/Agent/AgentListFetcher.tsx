@@ -1,4 +1,5 @@
 import React from 'react';
+import Fuse from 'fuse.js';
 import { RxCheck } from 'react-icons/rx';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { AGENT_LIST_SORT, useGetAgentList } from '@pinpoint-fe/hooks';
@@ -33,9 +34,13 @@ export const AgentListFetcher = ({
   const [openStates, setOpenStates] = React.useState<boolean[]>([]);
   const filteredList = React.useMemo(() => {
     return data?.reduce((acc, curr) => {
-      const filteredInstanceList = curr.instancesList.filter((instance) =>
-        new RegExp(filterKeyword, 'i').test(instance.agentId),
-      );
+      const fuzzySearch = new Fuse(curr.instancesList, {
+        keys: ['agentId'],
+        threshold: 0.3,
+      });
+      const filteredInstanceList = filterKeyword
+        ? fuzzySearch.search(filterKeyword).map(({ item }) => item)
+        : curr.instancesList;
       if (filteredInstanceList.length > 0) {
         acc.push({
           ...curr,
