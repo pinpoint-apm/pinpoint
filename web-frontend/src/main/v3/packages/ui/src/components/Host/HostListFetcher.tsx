@@ -1,4 +1,5 @@
 import React from 'react';
+import Fuse from 'fuse.js';
 import { RxCheck } from 'react-icons/rx';
 import { useGetSystemMetricHostData } from '@pinpoint-fe/hooks';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
@@ -21,10 +22,15 @@ export const HostListFetcher = ({
   style,
 }: HostListFetcherProps) => {
   const { data } = useGetSystemMetricHostData();
-  const filteredList = React.useMemo(
-    () => data?.filter((host) => host.toLowerCase().includes(filterKeyword.toLowerCase())),
-    [data, filterKeyword],
-  );
+  const fuzzySearch = React.useMemo(() => {
+    return new Fuse(data || [], {
+      threshold: 0.3,
+    });
+  }, [data]);
+
+  const filteredList = filterKeyword
+    ? fuzzySearch.search(filterKeyword).map(({ item }) => item)
+    : data;
 
   React.useEffect(() => {
     if (selectedHost) {

@@ -79,6 +79,7 @@
     "cmdk": "^0.2.0",
     "date-fns": "^2.28.0",
     "deepmerge": "^4.3.1",
+    "fuse.js": "^7.0.0",
     "google-libphonenumber": "^3.2.34",
     "highlight.js": "^11.9.0",
     "lodash.clonedeep": "^4.5.0",
