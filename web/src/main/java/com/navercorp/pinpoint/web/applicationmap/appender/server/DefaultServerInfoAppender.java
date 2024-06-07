@@ -144,6 +144,9 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
             CompletableFuture<ServerGroupList> future = pair.future();
             try {
                 ServerGroupList serverGroupList = future.getNow(null);
+                if (serverGroupList == null) {
+                    serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
+                }
                 node.setServerGroupList(serverGroupList);
             } catch (Throwable th) {
                 logger.warn("Failed to get server info for node {}", node);
