@@ -38,7 +38,7 @@ import java.util.Objects;
 public abstract class ActiveThreadCountHandler extends TextWebSocketHandler implements PinpointWebSocketHandler {
 
     public static final String APPLICATION_NAME_KEY = "applicationName";
-    public static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
+    public static final String DEFAULT_REQUEST_MAPPING = "/api/agent/activeThread";
 
     static final String API_ACTIVE_THREAD_COUNT = "activeThreadCount";
 
