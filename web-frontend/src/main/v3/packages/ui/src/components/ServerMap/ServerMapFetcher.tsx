@@ -83,6 +83,7 @@ export const ServerMapFetcher = ({ shouldPoll, ...props }: ServerMapFetcherProps
   return (
     <ServerMapCore
       data={data}
+      forceLayoutUpdate={!shouldPoll}
       onClickNode={handleClickNode}
       onClickEdge={handleClickEdge}
       onMergeStateChange={handleMergeStateChange}
