@@ -193,10 +193,8 @@ public class MapController {
         logger.info("Select applicationMap. option={}", mapServiceOption);
         final ApplicationMap map = this.mapService.selectApplicationMap(mapServiceOption);
 
-        if (useLoadHistogramFormat) {
-            return new MapWrap(map, TimeHistogramFormat.V2);
-        }
-        return new MapWrap(map, TimeHistogramFormat.V1);
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        return new MapWrap(map, format);
     }
 
     @GetMapping(value = "/getResponseTimeHistogramData", params = "serviceTypeName")
@@ -242,18 +240,10 @@ public class MapController {
                 .build();
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        TimeHistogramFormat format = histogramFormat(useLoadHistogramFormat);
-
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         return new NodeHistogramSummaryView(nodeHistogramSummary, nodeHistogramSummary.getServerGroupList(), format);
     }
 
-    private TimeHistogramFormat histogramFormat(boolean useLoadHistogramFormat) {
-        if (useLoadHistogramFormat) {
-            return TimeHistogramFormat.V2;
-        } else {
-            return TimeHistogramFormat.V1;
-        }
-    }
 
     @GetMapping(value = "/getResponseTimeHistogramDataV2")
     public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
@@ -297,7 +287,7 @@ public class MapController {
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        final TimeHistogramFormat format = getTimeHistogramFormat(useLoadHistogramFormat);
+        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         return new NodeHistogramSummaryView(nodeHistogramSummary, nodeHistogramSummary.getServerGroupList(), format);
     }
 
@@ -344,15 +334,8 @@ public class MapController {
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
 
-        TimeHistogramFormat format = getTimeHistogramFormat(useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         return new LinkHistogramSummaryView(linkHistogramSummary, format);
-    }
-
-    private TimeHistogramFormat getTimeHistogramFormat(boolean useLoadHistogramFormat) {
-        if (useLoadHistogramFormat) {
-            return TimeHistogramFormat.V2;
-        }
-        return TimeHistogramFormat.V1;
     }
 
     @Nullable

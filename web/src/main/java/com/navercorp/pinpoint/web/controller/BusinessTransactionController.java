@@ -130,9 +130,8 @@ public class BusinessTransactionController {
 
         final TransactionInfoViewModel result = newTransactionInfo(spanId, transactionId, spanResult, map, recordSet);
 
-        if (useLoadHistogramFormat) {
-            result.setTimeHistogramFormat(TimeHistogramFormat.V2);
-        }
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        result.setTimeHistogramFormat(format);
         return result;
     }
 
