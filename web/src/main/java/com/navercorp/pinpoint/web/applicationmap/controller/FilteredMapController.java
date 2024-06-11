@@ -155,19 +155,13 @@ public class FilteredMapController {
                     limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        final FilterMapWrap mapWrap = new FilterMapWrap(map, getTimeHistogramFormat(useLoadHistogramFormat));
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        final FilterMapWrap mapWrap = new FilterMapWrap(map, format);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         mapWrap.setScatterDataMap(scatter.getScatterDataMap());
         return mapWrap;
     }
 
-    private static TimeHistogramFormat getTimeHistogramFormat(boolean useLoadHistogramFormat) {
-        if (useLoadHistogramFormat) {
-            return TimeHistogramFormat.V2;
-        } else {
-            return TimeHistogramFormat.V1;
-        }
-    }
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV3", params = "serviceTypeCode")
     public FilterMapWrap getFilteredServerMapDataMadeOfDotGroupV3(
