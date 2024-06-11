@@ -39,7 +39,7 @@ public class StatisticsServerGroupListFactory implements ServerGroupListFactory 
     private final ServerGroupListDataSource serverGroupListDataSource;
 
     public StatisticsServerGroupListFactory(ServerGroupListDataSource serverGroupListDataSource) {
-        this.serverGroupListDataSource = serverGroupListDataSource;
+        this.serverGroupListDataSource = Objects.requireNonNull(serverGroupListDataSource, "serverGroupListDataSource");
     }
 
     @Override
