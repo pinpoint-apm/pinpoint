@@ -34,7 +34,7 @@ public class ServerHistogramView {
 
     public static ServerHistogramView view(NodeHistogramSummary summary) {
         Application application = summary.getApplication();
-        String key = NodeName.toNodeName(application.getName(), application.getServiceType());
+        String key = NodeName.toNodeName(application.name(), application.serviceType());
         List<HistogramView> agentHistogramList = summary.getNodeHistogram().createAgentHistogramViewList();
         ServerGroupList serverGroupList = summary.getServerGroupList();
         return new ServerHistogramView(key, agentHistogramList, serverGroupList);

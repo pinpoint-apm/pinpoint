@@ -162,7 +162,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private NodeHistogramSummary getTerminalNodeHistogramSummary(ResponseTimeHistogramServiceOption option) {
         Application application = option.getApplication();
         Range range = option.getRange();
-        ServiceType applicationServiceType = application.getServiceType();
+        ServiceType applicationServiceType = application.serviceType();
 
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
         List<Application> sourceApplications = option.getFromApplications();

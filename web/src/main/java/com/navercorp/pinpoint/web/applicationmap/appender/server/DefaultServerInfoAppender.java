@@ -98,7 +98,7 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
 
     private CompletableFuture<ServerGroupList> getServerGroupListFuture(Range range, Node node, LinkDataDuplexMap linkDataDuplexMap) {
         final Application application = node.getApplication();
-        final ServiceType nodeServiceType = application.getServiceType();
+        final ServiceType nodeServiceType = application.serviceType();
         if (nodeServiceType.isWas()) {
             return CompletableFuture.supplyAsync(new Supplier<>() {
                 @Override
