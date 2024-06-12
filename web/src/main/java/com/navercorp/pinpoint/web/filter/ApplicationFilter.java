@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.filter.agent.AgentFilter;
@@ -30,8 +29,8 @@ import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilterFactory;
 import com.navercorp.pinpoint.web.filter.responsetime.SpanResponseConditionFilter;
 import com.navercorp.pinpoint.web.filter.transaction.NodeContext;
 import com.navercorp.pinpoint.web.filter.transaction.SpanContext;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;

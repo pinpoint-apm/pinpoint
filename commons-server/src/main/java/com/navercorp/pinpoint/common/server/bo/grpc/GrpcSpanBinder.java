@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
@@ -80,7 +81,8 @@ public class GrpcSpanBinder {
         final SpanBo spanBo = new SpanBo();
         spanBo.setVersion(pSpan.getVersion());
         spanBo.setAgentId(attribute.getAgentId());
-        spanBo.setApplicationId(attribute.getApplicationName());
+        spanBo.setApplicationName(attribute.getApplicationName());
+        spanBo.setApplicationId(attribute.getApplicationId());
         spanBo.setAgentStartTime(attribute.getAgentStartTime());
         spanBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 
@@ -134,7 +136,7 @@ public class GrpcSpanBinder {
 
                 final String parentApplicationName = parentInfo.getParentApplicationName();
                 if (StringUtils.hasLength(parentApplicationName)) {
-                    spanBo.setParentApplicationId(parentApplicationName);
+                    spanBo.setParentApplicationName(parentApplicationName);
                 }
                 spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
             }
@@ -244,7 +246,8 @@ public class GrpcSpanBinder {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setVersion(pSpanChunk.getVersion());
         spanChunkBo.setAgentId(attribute.getAgentId());
-        spanChunkBo.setApplicationId(attribute.getApplicationName());
+        spanChunkBo.setApplicationName(attribute.getApplicationName());
+        spanChunkBo.setApplicationId(attribute.getApplicationId());
         spanChunkBo.setAgentStartTime(attribute.getAgentStartTime());
         spanChunkBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 
@@ -266,7 +269,7 @@ public class GrpcSpanBinder {
         return spanChunkBo;
     }
 
-    private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
+    private TransactionId newTransactionId(PTransactionId pTransactionId, AgentId spanAgentId) {
         final String transactionAgentId = pTransactionId.getAgentId();
         if (StringUtils.hasLength(transactionAgentId)) {
             return new TransactionId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());

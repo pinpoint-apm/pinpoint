@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
@@ -371,9 +372,9 @@ public class SpanDecoderV0 implements SpanDecoder {
 
     private void readQualifier(BasicSpan basicSpan, Buffer buffer) {
         String applicationId = buffer.readPrefixedString();
-        basicSpan.setApplicationId(applicationId);
+        basicSpan.setApplicationName(applicationId);
 
-        String agentId = buffer.readPrefixedString();
+        AgentId agentId = AgentId.of(buffer.readPrefixedString());
         basicSpan.setAgentId(agentId);
 
         long agentStartTime = buffer.readVLong();

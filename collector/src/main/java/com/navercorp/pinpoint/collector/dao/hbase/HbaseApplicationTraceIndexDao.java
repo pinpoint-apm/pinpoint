@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
@@ -48,14 +49,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE_VER2;
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META_VER2;
 
     private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
-
     private final RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder;
-
 
     public HbaseApplicationTraceIndexDao(HbasePutWriter putWriter,
                                          TableNameProvider tableNameProvider,
@@ -77,7 +76,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // Assert agentId
         CollectorUtils.checkAgentId(span.getAgentId());
         // Assert applicationName
-        CollectorUtils.checkApplicationName(span.getApplicationId());
+        CollectorUtils.checkApplicationName(span.getApplicationName());
 
         final long acceptedTime = span.getCollectorAcceptTime();
         final byte[] distributedKey = applicationIndexRowKeyEncoder.encodeRowKey(span);
@@ -100,7 +99,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstants.AGENT_ID_MAX_LEN);
         buffer.putVInt(span.getElapsed());
         buffer.putSVInt(span.getErrCode());
-        buffer.putPrefixedString(span.getAgentId());
+        buffer.putPrefixedString(AgentId.unwrap(span.getAgentId()));
         return buffer.getBuffer();
     }
 

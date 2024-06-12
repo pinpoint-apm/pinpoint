@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.util;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
@@ -50,6 +51,10 @@ public final class CollectorUtils {
         return hostName + "@" + pid;
     }
 
+    public static void checkAgentId(final AgentId agentId) {
+        checkAgentId(AgentId.unwrap(agentId));
+    }
+
     public static void checkAgentId(final String agentId) {
         if (!IdValidateUtils.validateId(agentId)) {
             throw new IllegalArgumentException("invalid agentId. agentId=" + agentId);
@@ -57,7 +62,7 @@ public final class CollectorUtils {
     }
 
     public static void checkApplicationName(final String applicationName) {
-        if (!IdValidateUtils.validateId(applicationName)) {
+        if (!IdValidateUtils.validateId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
             throw new IllegalArgumentException("invalid applicationName. applicationName=" + applicationName);
         }
     }

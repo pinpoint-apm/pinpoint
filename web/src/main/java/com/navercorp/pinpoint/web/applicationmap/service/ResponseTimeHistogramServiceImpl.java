@@ -106,7 +106,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     public NodeHistogramSummary selectNodeHistogramData(ResponseTimeHistogramServiceOption option) {
 
         Application application = option.getApplication();
-        ServiceType applicationServiceType = application.getServiceType();
+        ServiceType applicationServiceType = application.serviceType();
 
         if (applicationServiceType.isWas()) {
             return getWasNodeHistogramSummary(option);
@@ -162,7 +162,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private NodeHistogramSummary getTerminalNodeHistogramSummary(ResponseTimeHistogramServiceOption option) {
         Application application = option.getApplication();
         Range range = option.getRange();
-        ServiceType applicationServiceType = application.getServiceType();
+        ServiceType applicationServiceType = application.serviceType();
 
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
         List<Application> sourceApplications = option.getFromApplications();
@@ -233,7 +233,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
 
         LinkDataDuplexMap linkDataDuplexMap;
-        ServiceType fromApplicationServiceType = fromApplication.getServiceType();
+        ServiceType fromApplicationServiceType = fromApplication.serviceType();
         LinkDirection linkDirection = LinkDirection.OUT_LINK;
         if (fromApplicationServiceType.isUser()) {
             //scan using toApplication to distinguish same applicationName with different serviceType

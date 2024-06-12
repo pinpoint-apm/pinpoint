@@ -8,7 +8,7 @@ public record AgentNameView(String agentName) {
 
     public static AgentNameView of(Application application) {
         Objects.requireNonNull(application, "application");
-        return new AgentNameView(application.getName());
+        return new AgentNameView(application.name());
     }
 
     public AgentNameView(String agentName) {

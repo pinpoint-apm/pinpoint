@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.tree;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 
@@ -112,7 +113,7 @@ public class ApplicationAgentHostList {
         }
 
         private AgentHost newAgentHost(AgentInfo agentInfo) {
-            String agentId = StringUtils.defaultString(agentInfo.getAgentId(), "");
+            AgentId agentId = agentInfo.getAgentId();
             String hostName = StringUtils.defaultString(agentInfo.getHostName(), "");
             String ip = StringUtils.defaultString(agentInfo.getIp(), "");
             String serviceType = agentInfo.getServiceType().getDesc();
@@ -121,17 +122,15 @@ public class ApplicationAgentHostList {
 
         public ApplicationAgentHostList build() {
             List<ApplicationInfo> applicationInfos = buildApplicationInfo(this.map);
-            ApplicationAgentHostList agents = new ApplicationAgentHostList(startApplicationIndex, endApplicationIndex, totalApplications,
+            return new ApplicationAgentHostList(startApplicationIndex, endApplicationIndex, totalApplications,
                     applicationInfos);
-            return agents;
         }
 
         private List<ApplicationInfo> buildApplicationInfo(Map<String, List<AgentHost>> map) {
-            List<ApplicationInfo> applications = map.entrySet().stream()
+            return map.entrySet().stream()
                     .map(Builder::newApplication)
                     .sorted(Comparator.comparing(ApplicationInfo::applicationName))
                     .collect(Collectors.toList());
-            return applications;
         }
 
 
@@ -139,7 +138,7 @@ public class ApplicationAgentHostList {
             String applicationName = entry.getKey();
 
             List<AgentHost> agentHosts = entry.getValue();
-            agentHosts.sort(Comparator.comparing(AgentHost::agentId));
+            agentHosts.sort(Comparator.comparing(AgentHost::getAgentId));
 
             return new ApplicationInfo(applicationName, agentHosts);
         }
@@ -148,7 +147,30 @@ public class ApplicationAgentHostList {
     public record ApplicationInfo(String applicationName, List<AgentHost> agents) {
     }
 
-    public record AgentHost(String agentId, String hostName, String ip, String serviceType) {
+    public static class AgentHost {
+        private final AgentId agentId;
+        private final String hostName;
+        private final String ip;
+        private final String serviceType;
+
+        public AgentHost(AgentId agentId, String hostName, String ip, String serviceType) {
+            this.agentId = Objects.requireNonNull(agentId, "agentId");
+            this.hostName = Objects.requireNonNull(hostName, "hostName");
+            this.ip = Objects.requireNonNull(ip, "ip");
+            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
+        }
+
+        public AgentId getAgentId() {
+            return agentId;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        public String getIp() {
+            return ip;
+        }
     }
 
 }

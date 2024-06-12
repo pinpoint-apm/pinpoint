@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.heatmap.HeatMap;
@@ -33,15 +32,15 @@ public class HeatMapServiceImpl implements HeatMapService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final ApplicationTraceIndexService applicationTraceIndexService;
 
     private final TraceDao traceDao;
     private final SpanService spanService;
 
-    public HeatMapServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
+    public HeatMapServiceImpl(ApplicationTraceIndexService applicationTraceIndexService,
                               SpanService spanService,
                               TraceDao traceDao) {
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.applicationTraceIndexService = Objects.requireNonNull(applicationTraceIndexService, "applicationTraceIndexService");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
     }
@@ -52,7 +51,7 @@ public class HeatMapServiceImpl implements HeatMapService {
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
 
 
-        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanScatterData(applicationName, dragAreaQuery, limit);
+        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexService.scanScatterData(applicationName, dragAreaQuery, limit);
 
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
 //        boolean requestComplete = scatterData.getDotSize() < limit;
@@ -73,7 +72,7 @@ public class HeatMapServiceImpl implements HeatMapService {
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
 
 
-        LimitedScanResult<List<DotMetaData>> scanResult = applicationTraceIndexDao.scanScatterDataV2(applicationName, dragAreaQuery, limit);
+        LimitedScanResult<List<DotMetaData>> scanResult = applicationTraceIndexService.scanScatterDataV2(applicationName, dragAreaQuery, limit);
         scanResult = legacyCompatibilityCheck(applicationName, scanResult);
 
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
@@ -146,7 +145,7 @@ public class HeatMapServiceImpl implements HeatMapService {
         Objects.requireNonNull(range, "range");
 
 
-        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, true);
+        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexService.scanTraceScatterData(applicationName, range, limit, true);
 
         final int slotSize = 100;
         HeatMapBuilder builder = HeatMapBuilder.newBuilder(range.getFrom(), range.getTo(), slotSize, 0, maxY, slotSize);

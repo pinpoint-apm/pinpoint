@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.service.BatchAgentService;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +26,7 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author youngjin.kim2
@@ -44,7 +46,8 @@ public class AgentRemover implements ItemWriter<String> {
         for (String serKey: serAgentKeys) {
             logger.info("Removing agent: {}", serKey);
             ClusterKey key = ClusterKey.parse(serKey);
-            this.agentService.remove(key.getApplicationName(), key.getAgentId());
+            UUID applicationIdValue = UUID.fromString(key.getApplicationName());
+            this.agentService.remove(ApplicationId.of(applicationIdValue), key.getAgentId());
         }
     }
 }

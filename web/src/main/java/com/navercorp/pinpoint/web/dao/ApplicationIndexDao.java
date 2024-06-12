@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.web.vo.Application;
+
 import java.util.List;
 import java.util.Map;
-
-import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  * 
@@ -27,9 +27,9 @@ import com.navercorp.pinpoint.web.vo.Application;
  * 
  */
 public interface ApplicationIndexDao {
-    List<Application> selectAllApplicationNames();
+    List<Application> selectAllApplications();
 
-    List<Application> selectApplicationName(String applicationName);
+    List<Application> selectApplicationByName(String applicationName);
 
     List<String> selectAgentIds(String applicationName);
 

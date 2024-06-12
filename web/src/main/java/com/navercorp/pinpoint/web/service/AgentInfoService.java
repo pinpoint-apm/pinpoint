@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -48,14 +49,19 @@ public interface AgentInfoService {
 
     AgentsMapByApplication<DetailedAgentInfo> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range);
 
-    AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter, AgentInfoFilter agentInfoPredicate, String applicationName, Range range, SortByAgentInfo.Rules sortBy);
-    AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter, String applicationName, Range range, SortByAgentInfo.Rules sortBy);
+    AgentsMapByHost getAgentsListByApplicationName(
+            AgentStatusFilter agentStatusFilter,
+            AgentInfoFilter agentInfoPredicate,
+            String applicationName,
+            short serviceTypeCode,
+            Range range,
+            SortByAgentInfo.Rules sortBy);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, Period durationDays);
 
-    Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp);
+    Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, short serviceTypeCode, long timestamp);
 
-    Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp);
+    Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, short serviceTypeCode, long timestamp);
 
     AgentAndStatus getAgentInfo(String agentId, long timestamp);
 
@@ -69,7 +75,7 @@ public interface AgentInfoService {
 
     List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery query);
 
-    boolean isActiveAgent(String agentId, Range range);
+    boolean isActiveAgent(AgentId agentId, Range range);
 
     InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes);
 

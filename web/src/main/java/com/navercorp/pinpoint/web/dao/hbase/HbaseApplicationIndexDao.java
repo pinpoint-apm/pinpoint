@@ -32,7 +32,7 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import java.util.Objects;
  * @author netspider
  * @author emeroad
  */
-@Repository
+@Component
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     private static final HbaseColumnFamily.ApplicationIndex DESCRIPTOR = HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
@@ -68,7 +68,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
-    public List<Application> selectAllApplicationNames() {
+    public List<Application> selectAllApplications() {
         Scan scan = new Scan();
         scan.setCaching(30);
         scan.addFamily(DESCRIPTOR.getName());
@@ -80,7 +80,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
-    public List<Application> selectApplicationName(String applicationName) {
+    public List<Application> selectApplicationByName(String applicationName) {
         return selectApplicationIndex0(applicationName, applicationNameMapper);
     }
 

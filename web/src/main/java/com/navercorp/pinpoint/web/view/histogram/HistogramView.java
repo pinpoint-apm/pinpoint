@@ -77,7 +77,7 @@ public class HistogramView {
 
     public static HistogramView view(NodeHistogramSummary summary) {
         Application application = summary.getApplication();
-        String nodeName = NodeName.toNodeName(application.getName(), application.getServiceType());
+        String nodeName = NodeName.toNodeName(application.name(), application.serviceType());
         Histogram applicationHistogram = summary.getNodeHistogram().getApplicationHistogram();
         List<TimeHistogram> histogramList = summary.getNodeHistogram().getApplicationTimeHistogram().getHistogramList();
 

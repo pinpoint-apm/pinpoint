@@ -16,7 +16,12 @@
 
 package com.navercorp.pinpoint.web.authorization.controller;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
+import com.navercorp.pinpoint.common.server.bo.ApplicationSelector;
 import com.navercorp.pinpoint.web.service.AdminService;
+import com.navercorp.pinpoint.web.service.ApplicationInfoService;
+import com.navercorp.pinpoint.web.service.ServiceInfoService;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -46,16 +51,28 @@ public class AdminController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AdminService adminService;
+    private final ServiceInfoService serviceInfoService;
+    private final ApplicationInfoService applicationInfoService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(
+            AdminService adminService,
+            ServiceInfoService serviceInfoService,
+            ApplicationInfoService applicationInfoService
+    ) {
         this.adminService = Objects.requireNonNull(adminService, "adminService");
+        this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceInfoService");
+        this.applicationInfoService = Objects.requireNonNull(applicationInfoService, "applicationInfoService");
     }
 
     @RequestMapping(value = "/removeApplicationName")
-    public String removeApplicationName(@RequestParam("applicationName") @NotBlank String applicationName) {
-        logger.info("Removing application - applicationName: [{}]", applicationName);
+    public String removeApplicationName(
+            @RequestParam(value = "serviceName", defaultValue = ServiceId.DEFAULT_SERVICE_NAME) String serviceName,
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", defaultValue = "5004") short serviceTypeCode
+    ) {
         try {
-            this.adminService.removeApplicationName(applicationName);
+            ApplicationId applicationId = this.getApplicationId(serviceName, applicationName, serviceTypeCode);
+            this.adminService.removeApplicationName(applicationId);
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing applicationName", e);
@@ -65,12 +82,15 @@ public class AdminController {
 
     @RequestMapping(value = "/removeAgentId")
     public String removeAgentId(
+            @RequestParam(value = "serviceName", defaultValue = ServiceId.DEFAULT_SERVICE_NAME) String serviceName,
             @RequestParam(value = "applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", defaultValue = "5004") short serviceTypeCode,
             @RequestParam(value = "agentId") @NotBlank String agentId
     ) {
         logger.info("Removing agent - applicationName: [{}], agentId: [{}]", applicationName, agentId);
         try {
-            this.adminService.removeAgentId(applicationName, agentId);
+            ApplicationId applicationId = this.getApplicationId(serviceName, applicationName, serviceTypeCode);
+            this.adminService.removeAgentId(applicationId, agentId);
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing agentId", e);
@@ -106,14 +126,31 @@ public class AdminController {
 
     @RequestMapping(value = "/getInactiveAgents")
     public Map<String, List<Application>> getInactiveAgents(
+            @RequestParam(value = "serviceName", defaultValue = ServiceId.DEFAULT_SERVICE_NAME) String serviceName,
             @RequestParam(value = "applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", defaultValue = "5004") short serviceTypeCode,
             @RequestParam(value = "durationDays", defaultValue = AdminService.MIN_DURATION_DAYS_FOR_INACTIVITY_STR)
             @Min(AdminService.MIN_DURATION_DAYS_FOR_INACTIVITY)
             int durationDays
     ) {
         logger.info("Getting in-active agents - applicationName: [{}], duration: {} days.",
                 applicationName, durationDays);
-        return this.adminService.getInactiveAgents(applicationName, durationDays);
+        ApplicationId applicationId = this.getApplicationId(serviceName, applicationName, serviceTypeCode);
+        return this.adminService.getInactiveAgents(applicationId, durationDays);
+    }
+
+    private ApplicationId getApplicationId(String serviceName, String applicationName, short serviceTypeCode) {
+        ServiceId serviceId = this.serviceInfoService.getServiceId(serviceName);
+        if (serviceId == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Service [" + serviceName + "] not found");
+        }
+
+        ApplicationId applicationId = this.applicationInfoService.getApplicationId(new ApplicationSelector(serviceId, applicationName, serviceTypeCode));
+        if (applicationId == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Application [" + applicationName + "] not found");
+        }
+
+        return applicationId;
     }
 
 }

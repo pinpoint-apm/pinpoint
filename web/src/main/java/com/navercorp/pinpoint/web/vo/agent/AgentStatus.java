@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.web.vo.agent;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.web.view.StringPinpointIdSerializer;
 
 import java.util.Objects;
 
@@ -27,19 +30,24 @@ import java.util.Objects;
  */
 public class AgentStatus {
 
-    private final String agentId;
+    @JsonSerialize(using = StringPinpointIdSerializer.class)
+    private final AgentId agentId;
 
     private long eventTimestamp;
 
     private final AgentLifeCycleState state;
 
-    public AgentStatus(String agentId, AgentLifeCycleState state, long eventTimestamp) {
+    public AgentStatus(AgentId agentId, AgentLifeCycleState state, long eventTimestamp) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.state = Objects.requireNonNull(state, "state");
         this.eventTimestamp = eventTimestamp;
     }
 
-    public String getAgentId() {
+    public AgentStatus(String agentId, AgentLifeCycleState state, long eventTimestamp) {
+        this(AgentId.of(agentId), state, eventTimestamp);
+    }
+
+    public AgentId getAgentId() {
         return agentId;
     }
 
@@ -73,11 +81,9 @@ public class AgentStatus {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentStatus{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", eventTimestamp=").append(eventTimestamp);
-        sb.append(", state=").append(state);
-        sb.append('}');
-        return sb.toString();
+        return "AgentStatus{" + "agentId='" + agentId + '\'' +
+                ", eventTimestamp=" + eventTimestamp +
+                ", state=" + state +
+                '}';
     }
 }

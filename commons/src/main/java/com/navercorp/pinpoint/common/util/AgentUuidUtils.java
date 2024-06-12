@@ -16,17 +16,12 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentUuidUtils {
-
-    private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
 
     /**
      * Base64 encodes the given {@code uuidString} into URL and filename safe string as specified by RFC 4648 section 5.
@@ -40,10 +35,7 @@ public class AgentUuidUtils {
      * @throws IllegalArgumentException if {@code uuidString} is not a valid string representation of uuid
      */
     public static String encode(String uuidString) {
-        Objects.requireNonNull(uuidString, "uuidString");
-
-        UUID uuid = UUID.fromString(uuidString);
-        return encode(uuid);
+        return UuidUtils.encode(uuidString);
     }
 
     /**
@@ -58,14 +50,7 @@ public class AgentUuidUtils {
      * @throws IllegalArgumentException if {@code uuid} is not a valid uuid
      */
     public static String encode(UUID uuid) {
-        Objects.requireNonNull(uuid, "uuid");
-
-        final byte[] bytes = new byte[16];
-        BytesUtils.writeLong(uuid.getMostSignificantBits(), bytes, 0);
-        BytesUtils.writeLong(uuid.getLeastSignificantBits(), bytes, BytesUtils.LONG_BYTE_LENGTH);
-
-        byte[] encode = ENCODER.encode(bytes);
-        return new String(encode, StandardCharsets.US_ASCII);
+        return UuidUtils.encode(uuid);
     }
 
     /**
@@ -80,17 +65,7 @@ public class AgentUuidUtils {
      *                                  trailing pad characters
      */
     public static UUID decode(String src) {
-        Objects.requireNonNull(src, "src");
-        byte[] bytes = src.getBytes(StandardCharsets.US_ASCII);
-        if (bytes.length != 22) {
-            throw new IllegalArgumentException("Invalid src byte array: " + src);
-        }
-
-        byte[] decoded = Base64.getUrlDecoder().decode(bytes);
-
-        long mostSigBits = BytesUtils.bytesToLong(decoded, 0);
-        long leastSigBits = BytesUtils.bytesToLong(decoded, BytesUtils.LONG_BYTE_LENGTH);
-        return new UUID(mostSigBits, leastSigBits);
+        return UuidUtils.decode(src);
     }
 
 }

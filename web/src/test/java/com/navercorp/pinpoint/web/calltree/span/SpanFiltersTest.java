@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +32,7 @@ public class SpanFiltersTest {
         Predicate<SpanBo> filter = SpanFilters.spanFilter(spanId, agentId, collectorAcceptTime);
         SpanBo spanBo = new SpanBo();
         spanBo.setCollectorAcceptTime(collectorAcceptTime);
-        spanBo.setAgentId(agentId);
+        spanBo.setAgentId(AgentId.of(agentId));
         spanBo.setSpanId(spanId);
         Assertions.assertTrue(filter.test(spanBo));
     }
@@ -41,7 +42,7 @@ public class SpanFiltersTest {
         Predicate<SpanBo> filter = SpanFilters.spanFilter(-1, agentId, collectorAcceptTime);
         SpanBo spanBo = new SpanBo();
         spanBo.setCollectorAcceptTime(collectorAcceptTime);
-        spanBo.setAgentId(agentId);
+        spanBo.setAgentId(AgentId.of(agentId));
         spanBo.setSpanId(1234);
         Assertions.assertTrue(filter.test(spanBo));
     }

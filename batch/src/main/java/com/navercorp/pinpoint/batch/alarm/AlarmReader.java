@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
+import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.Application;
+import jakarta.annotation.Nonnull;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemReader;
 
-import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,13 +36,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class AlarmReader implements ItemReader<Application>, StepExecutionListener {
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final ApplicationService applicationService;
     private final AlarmService alarmService;
 
     private Queue<Application> applicationQueue;
 
-    public AlarmReader(ApplicationIndexDao applicationIndexDao, AlarmService alarmService) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+    public AlarmReader(ApplicationService applicationService, AlarmService alarmService) {
+        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
     }
     
@@ -56,12 +56,12 @@ public class AlarmReader implements ItemReader<Application>, StepExecutionListen
     }
 
     private List<Application> fetchApplications() {
-        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<Application> applications = this.applicationService.getApplications();
         List<String> validApplicationIds = alarmService.selectApplicationId();
 
         List<Application> validApplications = new ArrayList<>(applications.size());
         for (Application application: applications) {
-            if (validApplicationIds.contains(application.getName())) {
+            if (validApplicationIds.contains(application.name())) {
                 validApplications.add(application);
             }
         }

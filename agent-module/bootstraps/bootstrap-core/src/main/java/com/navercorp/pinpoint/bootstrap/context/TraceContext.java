@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
+import com.navercorp.pinpoint.common.id.AgentId;
 
 /**
  * @author emeroad
@@ -73,7 +74,7 @@ public interface TraceContext {
 
     // ActiveThreadCounter getActiveThreadCounter();
 
-    String getAgentId();
+    AgentId getAgentId();
 
     String getApplicationName();
 

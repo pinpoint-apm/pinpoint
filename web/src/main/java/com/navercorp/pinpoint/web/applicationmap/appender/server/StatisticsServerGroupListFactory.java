@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -64,7 +65,7 @@ public class StatisticsServerGroupListFactory implements ServerGroupListFactory 
         if (nodeHistogram != null && nodeHistogram.getAgentHistogramMap() != null) {
             for (String agentId : nodeHistogram.getAgentHistogramMap().keySet()) {
                 AgentInfo agentInfo = new AgentInfo();
-                agentInfo.setAgentId(agentId);
+                agentInfo.setAgentId(AgentId.of(agentId));
                 agentInfo.setHostName(agentId);
                 agentInfo.setIp("");
                 agentInfo.setAgentName("");

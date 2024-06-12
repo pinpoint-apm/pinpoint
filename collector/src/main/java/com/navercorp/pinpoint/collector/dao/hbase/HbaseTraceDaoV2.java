@@ -101,7 +101,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         // Assert agentId
         CollectorUtils.checkAgentId(spanBo.getAgentId());
         // Assert applicationName
-        CollectorUtils.checkApplicationName(spanBo.getApplicationId());
+        CollectorUtils.checkApplicationName(spanBo.getApplicationName());
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 

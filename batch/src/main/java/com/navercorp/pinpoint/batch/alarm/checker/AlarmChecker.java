@@ -85,12 +85,12 @@ public abstract class AlarmChecker<T> implements AlarmCheckerInterface {
     public void check() {
         dataCollector.collect();
         detected = decideResult(getDetectedValue());
-        logger.info("{} result is {} for application ({}). value is {}. (threshold : {}).", this.getClass().getSimpleName(), detected, rule.getApplicationId(), getDetectedValue(), rule.getThreshold());
+        logger.info("{} result is {} for application ({}). value is {}. (threshold : {}).", this.getClass().getSimpleName(), detected, rule.getApplicationName(), getDetectedValue(), rule.getThreshold());
     }
     
     public List<String> getSmsMessage() {
         List<String> messages = new ArrayList<>();
-        messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
+        messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", rule.getApplicationName(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
         return messages;
     }
 

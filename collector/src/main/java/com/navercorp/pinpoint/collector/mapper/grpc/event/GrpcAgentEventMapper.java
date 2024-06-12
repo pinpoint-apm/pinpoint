@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.event;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.Header;
@@ -38,14 +39,14 @@ public class GrpcAgentEventMapper {
     }
 
     public AgentEventBo map(final PAgentStat agentStat, final Header header) {
-        final String agentId = header.getAgentId();
+        final AgentId agentId = header.getAgentId();
         final long startTimestamp = header.getAgentStartTime();
         final long timestamp = agentStat.getTimestamp();
 
         if (agentStat.hasDeadlock()) {
             final PDeadlock deadlock = agentStat.getDeadlock();
             if (CollectionUtils.hasLength(deadlock.getThreadDumpList())) {
-                return deadlockEventBoMapper.map(agentId, startTimestamp, timestamp, deadlock);
+                return deadlockEventBoMapper.map(AgentId.unwrap(agentId), startTimestamp, timestamp, deadlock);
             }
         }
         return null;

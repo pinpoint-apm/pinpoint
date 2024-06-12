@@ -37,7 +37,8 @@ public class ErrorCountToCalleeChecker extends LongValueAlarmChecker {
     
     @Override
     public String getEmailMessage(String pinpointUrl, String applicationId, String serviceType, String currentTime) {
-        return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s) %s For From '%s' To '%s'.<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit, rule.getCheckerName(), rule.getApplicationId(), rule.getNotes());
+        return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s) %s For From '%s' To '%s'.<br>",
+                rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit, rule.getCheckerName(), rule.getApplicationName(), rule.getNotes());
     }
 
 }

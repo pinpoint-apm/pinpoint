@@ -84,7 +84,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
 
                 for (TagInformation tagInformation : tagInformationList) {
                     CompletableFuture<List<AgentFieldUsage>> futureAgent = alarmDao
-                            .selectAvgGroupByField(application.getName(), agentId, METRIC_NAME, fieldList, tagInformation.tags(), range);
+                            .selectAvgGroupByField(application.name(), agentId, METRIC_NAME, fieldList, tagInformation.tags(), range);
                     queryResults.add(new QueryResult<>(futureAgent, tagInformation));
                 }
             }
@@ -123,11 +123,11 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                 agentDataSourceConnectionUsageRateMap.add(tagInformation.agentId(), dataSourceAlarmVO);
             }
         } catch (RuntimeException e) {
-            logger.error("Fail to get agent datasource data. applicationName : {}", application.getName(), e);
+            logger.error("Fail to get agent datasource data. applicationName : {}", application.name(), e);
         } catch (ExecutionException e) {
-            logger.error("Fail to get agent datasource data with ExecutionException. applicationName : {}", application.getName(), e);
+            logger.error("Fail to get agent datasource data with ExecutionException. applicationName : {}", application.name(), e);
         } catch (InterruptedException e) {
-            logger.error("Fail to get agent datasource data with InterruptedException. applicationName : {}", application.getName(), e);
+            logger.error("Fail to get agent datasource data with InterruptedException. applicationName : {}", application.name(), e);
         }
     }
 
@@ -141,7 +141,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
 
             for (Tag jdbcUrlTag : jdbcUrlList) {
                 List<Tag> tagList = List.of(jdbcUrlTag);
-                CompletableFuture<List<TagInformation>> futureTagInformation = alarmDao.getTagInfoContainedSpecificTag(application.getName(), agentId, METRIC_NAME, FIELD_ACTIVE_CONNECTION, tagList, range);
+                CompletableFuture<List<TagInformation>> futureTagInformation = alarmDao.getTagInfoContainedSpecificTag(application.name(), agentId, METRIC_NAME, FIELD_ACTIVE_CONNECTION, tagList, range);
                 queryResults.add(new QueryResult<>(futureTagInformation, agentId));
             }
         }
@@ -163,7 +163,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
                 errorCount++;
 
                 if (errorCount > 2) {
-                    logger.error("Fail to get agent tag information. applicationName : {}, agentId : {}", application.getName(), agentId, e);
+                    logger.error("Fail to get agent tag information. applicationName : {}, agentId : {}", application.name(), agentId, e);
                     throw e;
                 }
             }
@@ -176,7 +176,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
         List<QueryResult<Tag, String>> queryResults = new ArrayList<>();
 
         for (String agentId : agentIds) {
-            CompletableFuture<List<Tag>> future = alarmDao.selectTagInfo(application.getName(), agentId, METRIC_NAME, FIELD_ACTIVE_CONNECTION, range);
+            CompletableFuture<List<Tag>> future = alarmDao.selectTagInfo(application.name(), agentId, METRIC_NAME, FIELD_ACTIVE_CONNECTION, range);
             queryResults.add(new QueryResult<>(future, agentId));
         }
 
@@ -201,7 +201,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
             } catch (Exception e) {
                 errorCount++;
                 if (errorCount > 2) {
-                    logger.error("Fail to get agent jdbcUrl. applicationName : {}, agentId : {}", application.getName(), agentId, e);
+                    logger.error("Fail to get agent jdbcUrl. applicationName : {}, agentId : {}", application.name(), agentId, e);
                     throw e;
                 }
             }

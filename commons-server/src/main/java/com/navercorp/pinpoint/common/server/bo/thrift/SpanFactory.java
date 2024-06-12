@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.thrift;
 
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
@@ -72,8 +73,8 @@ public class SpanFactory {
     // for test
     SpanBo newSpanBo(TSpan tSpan) {
         final SpanBo spanBo = new SpanBo();
-        spanBo.setAgentId(tSpan.getAgentId());
-        spanBo.setApplicationId(tSpan.getApplicationName());
+        spanBo.setAgentId(AgentId.of(tSpan.getAgentId()));
+        spanBo.setApplicationName(tSpan.getApplicationName());
         spanBo.setAgentStartTime(tSpan.getAgentStartTime());
 
         final TransactionId transactionId = newTransactionId(tSpan.getTransactionId(), spanBo.getAgentId());
@@ -107,7 +108,7 @@ public class SpanFactory {
             spanBo.setApplicationServiceType(tSpan.getServiceType());
         }
 
-        spanBo.setParentApplicationId(tSpan.getParentApplicationName());
+        spanBo.setParentApplicationName(tSpan.getParentApplicationName());
         spanBo.setParentApplicationServiceType(tSpan.getParentApplicationType());
 
         // FIXME span.errCode contains error of span and spanEvent
@@ -201,8 +202,8 @@ public class SpanFactory {
     // for test
     SpanChunkBo newSpanChunkBo(TSpanChunk tSpanChunk) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
-        spanChunkBo.setAgentId(tSpanChunk.getAgentId());
-        spanChunkBo.setApplicationId(tSpanChunk.getApplicationName());
+        spanChunkBo.setAgentId(AgentId.of(tSpanChunk.getAgentId()));
+        spanChunkBo.setApplicationName(tSpanChunk.getApplicationName());
         spanChunkBo.setAgentStartTime(tSpanChunk.getAgentStartTime());
         spanChunkBo.setServiceType(tSpanChunk.getServiceType());
         if (tSpanChunk.isSetApplicationServiceType()) {
@@ -220,7 +221,7 @@ public class SpanFactory {
         return spanChunkBo;
     }
 
-    private TransactionId newTransactionId(byte[] transactionIdBytes, String spanAgentId) {
+    private TransactionId newTransactionId(byte[] transactionIdBytes, AgentId spanAgentId) {
         return TransactionIdUtils.parseTransactionId(transactionIdBytes, spanAgentId);
     }
 

@@ -42,7 +42,7 @@ class AlarmMailTemplateTest {
     @Test
     public void newBodyTest() {
         when(rule.getCheckerName()).thenReturn("checkerName");
-        when(rule.getApplicationId()).thenReturn("applicaitonId");
+        when(rule.getApplicationName()).thenReturn("applicationName");
         when(rule.getServiceType()).thenReturn("TOMCAT");
         when(checker.getRule()).thenReturn(rule);
         when(checker.getEmailMessage(anyString(), anyString(), anyString(), anyString())).thenReturn("ERROR RATE is 25 % (Threshold: 10 %)<br>");

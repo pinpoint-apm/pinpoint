@@ -72,7 +72,7 @@ public class ResponseHistograms {
             if (span.getErrCode() != 0) {
                 error = true;
             }
-            responseTime.addResponseTime(span.getAgentId(), span.getElapsed(), error);
+            responseTime.addResponseTime(span.getAgentId().value(), span.getElapsed(), error);
             return this;
         }
 
@@ -87,7 +87,7 @@ public class ResponseHistograms {
             Map<Application, ResponseTime> responseTimeMap = responseTimeApplicationMap.computeIfAbsent(timestamp, (Long k) -> new HashMap<>());
             ResponseTime responseTime = responseTimeMap.get(application);
             if (responseTime == null) {
-                responseTime = new ResponseTime(application.getName(), application.getServiceType(), timestamp);
+                responseTime = new ResponseTime(application.name(), application.serviceType(), timestamp);
                 responseTimeMap.put(application, responseTime);
             }
             return responseTime;

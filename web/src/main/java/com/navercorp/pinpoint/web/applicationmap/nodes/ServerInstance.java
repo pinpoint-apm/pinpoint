@@ -51,7 +51,7 @@ public class ServerInstance {
         Objects.requireNonNull(agentInfo, "agentInfo");
         this.hostName = agentInfo.getHostName();
         this.ip = agentInfo.getIp();
-        this.name = agentInfo.getAgentId();
+        this.name = agentInfo.getAgentId().value();
         this.agentName = agentInfo.getAgentName();
         this.serviceType = agentInfo.getServiceType();
         this.status = getAgentLifeCycleState(agentStatus);

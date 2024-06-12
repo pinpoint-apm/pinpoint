@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
 import jakarta.validation.constraints.NotBlank;
 
 /**
@@ -29,9 +32,12 @@ public class AgentInfoBo {
     private final String hostName;
     private final String ip;
     private final String ports;
-    @NotBlank private final String agentId;
+    private final AgentId agentId;
     private final String agentName;
     @NotBlank private final String applicationName;
+    private final ApplicationId applicationId;
+    @NotBlank private final String serviceName;
+    private final ServiceId serviceId;
     private final short serviceTypeCode;
     private final int pid;
     private final String vmVersion;
@@ -55,6 +61,9 @@ public class AgentInfoBo {
         this.agentId = builder.agentId;
         this.agentName = builder.agentName;
         this.applicationName = builder.applicationName;
+        this.applicationId = builder.applicationId;
+        this.serviceName = builder.serviceName;
+        this.serviceId = builder.serviceId;
         this.serviceTypeCode = builder.serviceTypeCode;
         this.pid = builder.pid;
         this.vmVersion = builder.vmVersion;
@@ -79,7 +88,7 @@ public class AgentInfoBo {
         return ports;
     }
 
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 
@@ -89,6 +98,18 @@ public class AgentInfoBo {
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public ApplicationId getApplicationId() {
+        return applicationId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public ServiceId getServiceId() {
+        return serviceId;
     }
 
     public long getStartTime() {
@@ -151,6 +172,10 @@ public class AgentInfoBo {
         buffer.putBoolean(this.isContainer());
         buffer.putPrefixedString(this.getAgentName());
 
+        buffer.putUUID(this.getApplicationId().value());
+        buffer.putPrefixedString(this.getServiceName());
+        buffer.putUUID(this.getServiceId().value());
+
         return buffer.getBuffer();
     }
 
@@ -172,11 +197,8 @@ public class AgentInfoBo {
             return false;
         AgentInfoBo other = (AgentInfoBo) obj;
         if (agentId == null) {
-            if (other.agentId != null)
-                return false;
-        } else if (!agentId.equals(other.agentId))
-            return false;
-        return true;
+            return other.agentId == null;
+        } else return agentId.equals(other.agentId);
     }
 
     @Override
@@ -188,6 +210,9 @@ public class AgentInfoBo {
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                ", serviceId='" + serviceId + '\'' +
                 ", serviceTypeCode=" + serviceTypeCode +
                 ", pid=" + pid +
                 ", vmVersion='" + vmVersion + '\'' +
@@ -205,9 +230,12 @@ public class AgentInfoBo {
         private String hostName;
         private String ip;
         private String ports;
-        private String agentId;
+        private AgentId agentId;
         private String agentName;
         private String applicationName;
+        private ApplicationId applicationId;
+        private String serviceName;
+        private ServiceId serviceId;
         private short serviceTypeCode;
         private int pid;
         private String vmVersion;
@@ -238,7 +266,7 @@ public class AgentInfoBo {
             this.ports = ports;
         }
 
-        public void setAgentId(String agentId) {
+        public void setAgentId(AgentId agentId) {
             this.agentId = agentId;
         }
 
@@ -248,6 +276,18 @@ public class AgentInfoBo {
 
         public void setApplicationName(String applicationName) {
             this.applicationName = applicationName;
+        }
+
+        public void setApplicationId(ApplicationId applicationId) {
+            this.applicationId = applicationId;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public void setServiceId(ServiceId serviceId) {
+            this.serviceId = serviceId;
         }
 
         public void setServiceTypeCode(short serviceTypeCode) {
@@ -302,11 +342,19 @@ public class AgentInfoBo {
             if (this.ports == null)
                 this.ports = "";
             if (this.agentId == null)
-                this.agentId = "";
+                this.agentId = AgentId.of("");
             if (this.agentName == null)
                 this.agentName = "";
             if (this.applicationName == null)
                 this.applicationName = "";
+            if (this.applicationId == null) {
+                this.applicationId = ApplicationId.NOT_EXIST;
+            }
+            if (this.serviceName == null)
+                this.serviceName = "";
+            if (this.serviceId == null) {
+                this.serviceId = ServiceId.NOT_EXIST;
+            }
             if (this.vmVersion == null)
                 this.vmVersion = "";
             if (this.agentVersion == null) {

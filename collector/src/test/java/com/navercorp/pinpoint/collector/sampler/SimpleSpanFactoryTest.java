@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.collector.sampler;
 
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
@@ -38,7 +39,7 @@ public class SimpleSpanFactoryTest {
         SpanSamplerFactory spanSamplerFactory = new SimpleSpanSamplerFactory(mockProperties);
         Sampler<BasicSpan> sampler = spanSamplerFactory.createBasicSpanSampler();
 
-        String agentId = "testAgentId";
+        AgentId agentId = AgentId.of("testAgentId");
         long time = System.currentTimeMillis();
         SpanChunkBo mockSpanChunkBo = mock(SpanChunkBo.class);
         SpanBo mockSpanBo = mock(SpanBo.class);
@@ -54,7 +55,7 @@ public class SimpleSpanFactoryTest {
         verify(mockSpanChunkBo, atLeastOnce()).getTransactionId();
     }
 
-    private TransactionId createTransactionId(String agentId, long agentStartTime, long sequenceId) {
+    private TransactionId createTransactionId(AgentId agentId, long agentStartTime, long sequenceId) {
         return TransactionIdUtils.parseTransactionId(TransactionIdUtils.formatString(agentId, agentStartTime, sequenceId));
     }
 

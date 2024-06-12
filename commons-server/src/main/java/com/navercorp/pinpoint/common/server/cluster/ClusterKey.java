@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.server.cluster;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import org.springframework.util.Assert;
 
 import java.util.Objects;
@@ -31,6 +32,10 @@ public class ClusterKey {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.startTimestamp = startTimestamp;
+    }
+
+    public ClusterKey(String applicationName, AgentId agentId, long startTimestamp) {
+        this(applicationName, Objects.requireNonNull(agentId, "agentId").value(), startTimestamp);
     }
 
     public String getApplicationName() {

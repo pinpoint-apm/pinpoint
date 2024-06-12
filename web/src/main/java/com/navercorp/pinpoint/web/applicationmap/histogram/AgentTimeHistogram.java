@@ -85,7 +85,7 @@ public class AgentTimeHistogram {
         Map<String, List<TimeHistogram>> result = new HashMap<>();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             List<TimeHistogram> histogram = histogramOrdering.sortedCopy(agentHistogram.getTimeHistogram());
-            result.put(agentHistogram.getAgentId().getName(), histogram);
+            result.put(agentHistogram.getAgentId().name(), histogram);
         }
         return result;
     }
@@ -120,7 +120,7 @@ public class AgentTimeHistogram {
     private AgentHistogram selectAgentHistogram(String agentName) {
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             Application agentId = agentHistogram.getAgentId();
-            if (agentId.getName().equals(agentName)) {
+            if (agentId.name().equals(agentName)) {
                 return agentHistogram;
             }
         }
@@ -134,7 +134,7 @@ public class AgentTimeHistogram {
         List<Double> max = fillList(size, DEFAULT_MAX_APDEX_SCORE);
         List<String> maxAgentId = fillList(size, DEFAULT_AGENT_ID);
 
-        List<Histogram> sumHistogram = getDefaultHistograms(window, application.getServiceType());
+        List<Histogram> sumHistogram = getDefaultHistograms(window, application.serviceType());
 
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {

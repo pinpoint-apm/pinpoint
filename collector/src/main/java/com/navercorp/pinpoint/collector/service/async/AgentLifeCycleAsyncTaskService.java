@@ -19,13 +19,14 @@ package com.navercorp.pinpoint.collector.service.async;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
 import com.navercorp.pinpoint.collector.service.StatisticsService;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +61,7 @@ public class AgentLifeCycleAsyncTaskService {
         Objects.requireNonNull(agentProperty, "agentProperty");
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
 
-        final String agentId = agentProperty.getAgentId();
+        final AgentId agentId = agentProperty.getAgentId();
         if (agentId == null) {
             logger.warn("Failed to handle event of agent life cycle, agentId is null. agentProperty={}", agentProperty);
             return;
@@ -72,12 +73,12 @@ public class AgentLifeCycleAsyncTaskService {
         }
 
         final long startTimestamp = agentProperty.getStartTime();
-        final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
+        final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(AgentId.unwrap(agentId), startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
         agentLifeCycleService.insert(agentLifeCycleBo);
 
         final ServiceType serviceType = registry.findServiceType(agentProperty.getServiceType());
         if (isUpdateAgentState(serviceType)) {
-            statisticsService.updateAgentState(applicationName, serviceType, agentId);
+            statisticsService.updateAgentState(applicationName, serviceType, AgentId.unwrap(agentId));
         }
     }
 
@@ -85,7 +86,7 @@ public class AgentLifeCycleAsyncTaskService {
     public void handlePingEvent(AgentProperty agentProperty) {
         Objects.requireNonNull(agentProperty, "agentProperty");
 
-        final String agentId = agentProperty.getAgentId();
+        final AgentId agentId = agentProperty.getAgentId();
         if (agentId == null) {
             logger.warn("Failed to handle event of agent ping, agentId is null. agentProperty={}", agentProperty);
             return;
@@ -99,7 +100,7 @@ public class AgentLifeCycleAsyncTaskService {
 
         final ServiceType serviceType = registry.findServiceType(agentProperty.getServiceType());
         if (isUpdateAgentState(serviceType)) {
-            statisticsService.updateAgentState(applicationName, serviceType, agentId);
+            statisticsService.updateAgentState(applicationName, serviceType, AgentId.unwrap(agentId));
         }
     }
 
@@ -107,10 +108,7 @@ public class AgentLifeCycleAsyncTaskService {
         if (!collectorProperties.isStatisticsAgentStateEnable()) {
             return false;
         }
-        if (serviceType == null || serviceType == ServiceType.UNDEFINED) {
-            return false;
-        }
-        return true;
+        return serviceType != null && serviceType != ServiceType.UNDEFINED;
     }
 
     public static long createEventIdentifier(int socketId, int eventCounter) {

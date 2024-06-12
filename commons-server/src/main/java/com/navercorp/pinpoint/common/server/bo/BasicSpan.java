@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 
 /**
@@ -25,14 +27,17 @@ public interface BasicSpan {
 
     int getVersion();
 
-    String getAgentId();
-    void setAgentId(String agentId);
+    AgentId getAgentId();
+    void setAgentId(AgentId agentId);
 
     String getAgentName();
     void setAgentName(String agentName);
 
-    String getApplicationId();
-    void  setApplicationId(String applicationId);
+    String getApplicationName();
+    void setApplicationName(String applicationName);
+
+    ApplicationId getApplicationId();
+    void setApplicationId(ApplicationId applicationId);
 
     long getAgentStartTime();
     void setAgentStartTime(long agentStartTime);

@@ -90,7 +90,7 @@ public class MemoryAlarmDao implements AlarmDao {
         List<Rule> ruleList = new ArrayList<>();
         
         for (Entry<String, Rule> entry : alarmRule.entrySet()) {
-            if (entry.getValue().getApplicationId().equals(applicationId)) {
+            if (entry.getValue().getApplicationName().equals(applicationId)) {
                 ruleList.add(entry.getValue());
             }
         }
@@ -103,7 +103,7 @@ public class MemoryAlarmDao implements AlarmDao {
         Set<String> ids = new HashSet<>();
 
         for (Entry<String, Rule> entry : alarmRule.entrySet()) {
-            ids.add(entry.getValue().getApplicationId());
+            ids.add(entry.getValue().getApplicationName());
         }
 
         return new ArrayList<>(ids);

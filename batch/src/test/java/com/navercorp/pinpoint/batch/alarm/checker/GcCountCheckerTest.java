@@ -91,12 +91,12 @@ public class GcCountCheckerTest {
         applicationIndexDao = new ApplicationIndexDao() {
 
             @Override
-            public List<Application> selectAllApplicationNames() {
+            public List<Application> selectAllApplications() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public List<Application> selectApplicationName(String applicationName) {
+            public List<Application> selectApplicationByName(String applicationName) {
                 throw new UnsupportedOperationException();
             }
 

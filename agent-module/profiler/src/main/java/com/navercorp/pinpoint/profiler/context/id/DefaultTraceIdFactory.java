@@ -18,9 +18,10 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
+import com.navercorp.pinpoint.profiler.context.module.AgentIdHolder;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 
 import java.util.Objects;
@@ -30,11 +31,11 @@ import java.util.Objects;
  */
 public class DefaultTraceIdFactory implements TraceIdFactory {
 
-    private final String agentId;
+    private final AgentId agentId;
     private final long agentStartTime;
 
     @Inject
-    public DefaultTraceIdFactory(@AgentId String agentId, @AgentStartTime long agentStartTime) {
+    public DefaultTraceIdFactory(@AgentIdHolder AgentId agentId, @AgentStartTime long agentStartTime) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
 

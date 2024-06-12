@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
@@ -49,13 +50,13 @@ public class ApplicationIndexRowKeyEncoderV2 implements RowKeyEncoder<SpanBo> {
         return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);
     }
 
-    byte[] newRowKey(String applicationName, long acceptedTime, byte fuzzySlotKey) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    byte[] newRowKey(ApplicationId applicationId, long acceptedTime, byte fuzzySlotKey) {
+        Objects.requireNonNull(applicationId, "applicationId");
 
         if (logger.isDebugEnabled()) {
             logger.debug("fuzzySlotKey:{}", fuzzySlotKey);
         }
-        byte[] rowKey = rowKeyEncoder.encodeRowKey(applicationName, acceptedTime);
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(ApplicationId.unwrap(applicationId), acceptedTime);
 
         byte[] fuzzyRowKey = new byte[rowKey.length + 1];
         System.arraycopy(rowKey, 0, fuzzyRowKey, 0, rowKey.length);

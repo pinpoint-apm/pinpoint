@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
@@ -72,14 +73,14 @@ public class HbaseAgentLifeCycleDaoTest {
     @Test
     public void status_should_be_set_appropriately_if_status_is_known() {
         // Given
-        final String expectedAgentId = "test-agent";
+        final AgentId expectedAgentId = AgentId.of("test-agent");
         final long expectedTimestamp = 1000L;
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
-        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
+        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(AgentId.unwrap(expectedAgentId), expectedTimestamp, expectedAgentLifeCycleState);
         when(this.hbaseOperations.find(any(TableName.class), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
         // When
-        AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(expectedAgentId, expectedTimestamp);
+        AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(AgentId.unwrap(expectedAgentId), expectedTimestamp);
         // Then
         assertStatus(agentStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
     }
@@ -87,14 +88,14 @@ public class HbaseAgentLifeCycleDaoTest {
     @Test
     public void status_should_be_unknown_if_status_cannot_be_found() {
         // Given
-        final String expectedAgentId = "test-agent";
+        final AgentId expectedAgentId = AgentId.of("test-agent");
         final long expectedTimestamp = 0L;
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.UNKNOWN;
 
         final AgentLifeCycleBo scannedLifeCycleBo = null;
         when(this.hbaseOperations.find(any(TableName.class), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
         // When
-        AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(expectedAgentId, expectedTimestamp);
+        AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(AgentId.unwrap(expectedAgentId), expectedTimestamp);
         // Then
         assertStatus(agentStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
     }
@@ -102,11 +103,11 @@ public class HbaseAgentLifeCycleDaoTest {
     @Test
     public void agentInfo_should_be_populated_appropriately_if_status_is_known() {
         // Given
-        final String expectedAgentId = "test-agent";
+        final AgentId expectedAgentId = AgentId.of("test-agent");
         final long expectedTimestamp = 1000L;
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
-        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
+        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(AgentId.unwrap(expectedAgentId), expectedTimestamp, expectedAgentLifeCycleState);
         when(this.hbaseOperations.find(any(TableName.class), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
         // When
         AgentInfo givenAgentInfo = new AgentInfo();
@@ -119,7 +120,7 @@ public class HbaseAgentLifeCycleDaoTest {
         assertStatus(givenStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
     }
 
-    private void assertStatus(AgentStatus givenStatus, String expectedAgentId, long expectedTimestamp, AgentLifeCycleState expectedAgentLifeCycleState) {
+    private void assertStatus(AgentStatus givenStatus, AgentId expectedAgentId, long expectedTimestamp, AgentLifeCycleState expectedAgentLifeCycleState) {
         assertThat(givenStatus)
                 .extracting(AgentStatus::getAgentId, AgentStatus::getEventTimestamp, AgentStatus::getState)
                 .containsExactly(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
@@ -128,7 +129,7 @@ public class HbaseAgentLifeCycleDaoTest {
     @Test
     public void agentInfo_should_be_populated_as_unknown_if_status_cannot_be_found() {
         // Given
-        final String expectedAgentId = "test-agent";
+        final AgentId expectedAgentId = AgentId.of("test-agent");
         final long expectedTimestamp = 0L;
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.UNKNOWN;
 
@@ -149,11 +150,11 @@ public class HbaseAgentLifeCycleDaoTest {
     @Test
     public void agentInfos_should_be_populated_accordingly_even_with_nulls() {
         // Given
-        final String expectedAgentId = "test-agent";
+        final AgentId expectedAgentId = AgentId.of("test-agent");
         final long expectedTimestamp = 1000L;
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
-        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
+        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(AgentId.unwrap(expectedAgentId), expectedTimestamp, expectedAgentLifeCycleState);
         when(this.hbaseOperations.findParallel(any(TableName.class), anyList(), any(ResultsExtractor.class))).thenReturn(List.of(scannedLifeCycleBo, scannedLifeCycleBo));
 
         AgentInfo nonNullAgentInfo = new AgentInfo();

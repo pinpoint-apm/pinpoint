@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.profiler.util;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
@@ -44,7 +45,7 @@ public final class TransactionIdUtils {
         return formatString(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
     }
 
-    public static String formatString(String agentId, long agentStartTime, long transactionSequence) {
+    public static String formatString(AgentId agentId, long agentStartTime, long transactionSequence) {
         Objects.requireNonNull(agentId, "agentId");
 
         return agentId +
@@ -54,19 +55,19 @@ public final class TransactionIdUtils {
                 transactionSequence;
     }
 
-    public static byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
+    public static byte[] formatBytes(AgentId agentId, long agentStartTime, long transactionSequence) {
         return writeTransactionId(agentId, agentStartTime, transactionSequence);
     }
 
-    public static ByteBuffer formatByteBuffer(String agentId, long agentStartTime, long transactionSequence) {
+    public static ByteBuffer formatByteBuffer(AgentId agentId, long agentStartTime, long transactionSequence) {
         final byte[] buffer = writeTransactionId(agentId, agentStartTime, transactionSequence);
         return ByteBuffer.wrap(buffer);
     }
 
-    private static byte[] writeTransactionId(String agentId, long agentStartTime, long transactionSequence) {
+    private static byte[] writeTransactionId(AgentId agentId, long agentStartTime, long transactionSequence) {
         // agentId may be null
         // version + prefixed size + string + long + long
-        final byte[] agentIdBytes = BytesUtils.toBytes(agentId);
+        final byte[] agentIdBytes = toBytes(agentId);
         final int agentIdLength = ArrayUtils.getLength(agentIdBytes, Buffer.NULL);
         final int zigZagAgentIdLength = BytesUtils.intToZigZag(agentIdLength);
         final int agentIdPrefixSize = BytesUtils.computeVar32Size(zigZagAgentIdLength);
@@ -88,7 +89,14 @@ public final class TransactionIdUtils {
         return buffer;
     }
 
-    public static TransactionId parseTransactionId(final byte[] transactionId, String defaultAgentId) {
+    private static byte[] toBytes(AgentId agentId) {
+        if (agentId == null) {
+            return null;
+        }
+        return BytesUtils.toBytes(AgentId.unwrap(agentId));
+    }
+
+    public static TransactionId parseTransactionId(final byte[] transactionId, AgentId defaultAgentId) {
         Objects.requireNonNull(transactionId, "transactionId");
 
         final Buffer buffer = new FixedBuffer(transactionId);
@@ -98,7 +106,7 @@ public final class TransactionIdUtils {
         }
 
         String agentId = buffer.readPrefixedString();
-        agentId = StringUtils.defaultString(agentId, defaultAgentId);
+        agentId = StringUtils.defaultString(agentId, AgentId.unwrap(defaultAgentId));
         if (!IdValidateUtils.validateId(agentId)) {
             throw new IllegalArgumentException("invalid transactionId:" + Arrays.toString(transactionId));
         }
@@ -106,7 +114,7 @@ public final class TransactionIdUtils {
         final long agentStartTime = buffer.readVLong();
         final long transactionSequence = buffer.readVLong();
 
-        return new TransactionId(agentId, agentStartTime,transactionSequence);
+        return new TransactionId(AgentId.of(agentId), agentStartTime,transactionSequence);
     }
 
     public static TransactionId parseTransactionId(final String transactionId) {
@@ -122,7 +130,7 @@ public final class TransactionIdUtils {
         if (!IdValidateUtils.checkId(transactionId, 0, agentIdIndex)) {
             throw new IllegalArgumentException("invalid transactionId:" + transactionId);
         }
-        final String agentId = transactionId.substring(0, agentIdIndex);
+        final AgentId agentId = AgentId.of(transactionId.substring(0, agentIdIndex));
 
         final int agentStartTimeIndex = nextIndex(transactionId, agentIdIndex + 1);
         if (agentStartTimeIndex == -1) {

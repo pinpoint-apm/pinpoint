@@ -58,7 +58,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
         jgen.writeStringField("category", node.getServiceType().toString());  // necessary for go.js
         jgen.writeStringField("serviceType", node.getServiceType().toString());
 
-        final ServiceType serviceType = node.getApplication().getServiceType();
+        final ServiceType serviceType = node.getApplication().serviceType();
 //        if (serviceType.isUser()) {
 //            jgen.writeStringField("fig", "Ellipse");
 //        } else if(serviceType.isWas()) {

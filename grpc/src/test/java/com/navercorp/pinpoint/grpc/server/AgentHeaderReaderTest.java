@@ -43,7 +43,7 @@ public class AgentHeaderReaderTest {
         Metadata metadata = newMetadata();
         Header header = reader.extract(metadata);
 
-        Assertions.assertEquals(header.getAgentId(), AGENT_ID);
+        Assertions.assertEquals(header.getAgentId().value(), AGENT_ID);
         Assertions.assertEquals(header.getAgentName(), AGENT_NAME);
         Assertions.assertEquals(header.getApplicationName(), APPLICATION_NAME);
         Assertions.assertEquals(header.getAgentStartTime(), AGENT_START_TIME);

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.jar.JarFile;
 
 /**
@@ -49,7 +50,7 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
             throw new IllegalArgumentException("properties should not be null");
         }
         this.applicationMainClassName = getMainClassName(property);
-        if (this.applicationMainClassName == NOT_FOUND) {
+        if (Objects.equals(this.applicationMainClassName, NOT_FOUND)) {
             logger.info("Main class could not be deduced, please set 'profiler.applicationservertype' in pinpoint.config.");
             logger.info("If you're running on 1.6.0_24 or prior version of Java, consider upgrading to 1.6.0_25+.");
         }
@@ -84,7 +85,7 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
      */
     @Override
     public String getValue() {
-        if (this.applicationMainClassName == NOT_FOUND) {
+        if (Objects.equals(this.applicationMainClassName, NOT_FOUND)) {
             return "";
         }
         return this.applicationMainClassName;

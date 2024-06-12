@@ -49,7 +49,7 @@ public class AgentHistogramList {
         for (ResponseTime responseTime : responseHistogramList) {
             for (Map.Entry<String, TimeHistogram> agentEntry : responseTime.getAgentHistogram()) {
                 TimeHistogram timeHistogram = agentEntry.getValue();
-                this.addAgentHistogram(agentEntry.getKey(), application.getServiceType(), timeHistogram);
+                this.addAgentHistogram(agentEntry.getKey(), application.serviceType(), timeHistogram);
             }
         }
     }

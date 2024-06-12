@@ -58,7 +58,7 @@ public class ApplicationTimeHistogramBuilder {
             final Long timeStamp = responseTime.getTimeStamp();
             TimeHistogram timeHistogram = applicationLevelHistogram.get(timeStamp);
             if (timeHistogram == null) {
-                timeHistogram = new TimeHistogram(application.getServiceType(), timeStamp);
+                timeHistogram = new TimeHistogram(application.serviceType(), timeStamp);
                 applicationLevelHistogram.put(timeStamp, timeHistogram);
             }
             // add each agent-level data
@@ -106,14 +106,14 @@ public class ApplicationTimeHistogramBuilder {
         //
         Map<Long, TimeHistogram> resultMap = new HashMap<>();
         for (Long time : window) {
-            resultMap.put(time, new TimeHistogram(application.getServiceType(), time));
+            resultMap.put(time, new TimeHistogram(application.serviceType(), time));
         }
 
 
         for (TimeHistogram timeHistogram : histogramList) {
             long time = window.refineTimestamp(timeHistogram.getTimeStamp());
 
-            TimeHistogram windowHistogram = resultMap.computeIfAbsent(time, t -> new TimeHistogram(application.getServiceType(), t));
+            TimeHistogram windowHistogram = resultMap.computeIfAbsent(time, t -> new TimeHistogram(application.serviceType(), t));
             windowHistogram.add(timeHistogram);
         }
 

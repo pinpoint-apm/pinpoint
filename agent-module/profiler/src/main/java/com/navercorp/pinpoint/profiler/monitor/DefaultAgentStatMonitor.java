@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EmptyDataSender;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
+import com.navercorp.pinpoint.profiler.context.module.AgentIdHolder;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultMonitorConfig;
@@ -64,7 +65,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
     @Inject
     public DefaultAgentStatMonitor(@StatDataSender DataSender<MetricType> dataSender,
-                                   @AgentId String agentId,
+                                   @AgentIdHolder AgentId agentId,
                                    @AgentStartTime long agentStartTimestamp,
                                    @Named("AgentStatCollector") AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    CustomMetricRegistryService customMetricRegistryService,
@@ -114,7 +115,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     // prevent deadlock for JDK6
     // Single thread execution is more safe than multi thread execution.
     // eg) executor.scheduleAtFixedRate(collectJob, 0(initialDelay is zero), this.collectionIntervalMs, TimeUnit.MILLISECONDS);
-    private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
+    private void preLoadClass(AgentId agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
         logger.debug("pre-load class start");
         CollectJob collectJob = new CollectJob(EmptyDataSender.instance(), agentId, agentStartTimestamp, agentStatCollector, 1);
 
@@ -137,7 +138,9 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
         executor.shutdown();
         try {
-            executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
+            if (!executor.awaitTermination(3000, TimeUnit.MILLISECONDS)) {
+                logger.warn("AgentStat monitor shutdown forcefully");
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

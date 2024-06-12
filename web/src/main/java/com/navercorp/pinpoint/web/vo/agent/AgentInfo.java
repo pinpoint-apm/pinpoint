@@ -17,8 +17,10 @@
 package com.navercorp.pinpoint.web.vo.agent;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ServiceTypeDescView;
+import com.navercorp.pinpoint.web.view.StringPinpointIdSerializer;
 
 import java.util.Objects;
 
@@ -28,7 +30,8 @@ import java.util.Objects;
 public class AgentInfo {
 
     private String applicationName;
-    private String agentId;
+    @JsonSerialize(using = StringPinpointIdSerializer.class)
+    private AgentId agentId;
     private String agentName;
     private long startTimestamp;
     private String hostName;
@@ -51,11 +54,11 @@ public class AgentInfo {
         this.applicationName = applicationName;
     }
 
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 
-    public void setAgentId(String agentId) {
+    public void setAgentId(AgentId agentId) {
         this.agentId = agentId;
     }
 

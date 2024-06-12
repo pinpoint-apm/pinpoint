@@ -51,7 +51,7 @@ public class ApdexScoreServiceImplTest {
     }
 
     private ResponseTime createResponseTime(long timeStamp) {
-        ResponseTime responseTime = new ResponseTime(testApplication.getName(), testApplication.getServiceType(), timeStamp);
+        ResponseTime responseTime = new ResponseTime(testApplication.name(), testApplication.serviceType(), timeStamp);
         for (String agentId : agentIdList) {
             responseTime.addResponseTime(agentId, createTestHistogram(1, 2, 3, 4, 5));
         }

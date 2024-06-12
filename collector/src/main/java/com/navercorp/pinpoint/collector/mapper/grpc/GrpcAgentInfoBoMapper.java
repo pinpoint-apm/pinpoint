@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc;
 
+import com.navercorp.pinpoint.collector.service.ApplicationInfoService;
+import com.navercorp.pinpoint.collector.service.ServiceInfoService;
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ApplicationId;
+import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -30,19 +35,29 @@ import java.util.Objects;
  */
 @Component
 public class GrpcAgentInfoBoMapper {
+
     private final GrpcServerMetaDataBoMapper serverMetaDataBoMapper;
-
     private final GrpcJvmInfoBoMapper jvmInfoBoMapper;
+    private final ApplicationInfoService applicationInfoService;
+    private final ServiceInfoService serviceInfoService;
 
-    public GrpcAgentInfoBoMapper(GrpcServerMetaDataBoMapper serverMetaDataBoMapper, GrpcJvmInfoBoMapper jvmInfoBoMapper) {
+    public GrpcAgentInfoBoMapper(
+            GrpcServerMetaDataBoMapper serverMetaDataBoMapper,
+            GrpcJvmInfoBoMapper jvmInfoBoMapper,
+            ApplicationInfoService applicationInfoService,
+            ServiceInfoService serviceInfoService
+    ) {
         this.serverMetaDataBoMapper = Objects.requireNonNull(serverMetaDataBoMapper, "serverMetaDataBoMapper");
         this.jvmInfoBoMapper = Objects.requireNonNull(jvmInfoBoMapper, "jvmInfoBoMapper");
+        this.applicationInfoService = Objects.requireNonNull(applicationInfoService, "applicationInfoService");
+        this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceInfoService");
     }
 
     public AgentInfoBo map(final PAgentInfo agentInfo, final Header header) {
-        final String agentId = header.getAgentId();
+        final AgentId agentId = header.getAgentId();
         final String agentName = header.getAgentName();
         final String applicationName = header.getApplicationName();
+        final String serviceName = header.getServiceName();
         final long startTime = header.getAgentStartTime();
 
         final String hostName = agentInfo.getHostname();
@@ -56,6 +71,10 @@ public class GrpcAgentInfoBoMapper {
         final int endStatus = agentInfo.getEndStatus();
         final boolean container = agentInfo.getContainer();
 
+        final ServiceId serviceId = this.serviceInfoService.getServiceId(serviceName);
+        final ApplicationId applicationId = this.applicationInfoService.getApplicationId(serviceId, applicationName, serviceType);
+        this.applicationInfoService.ensureApplicationIdInverseIndexed(serviceId, applicationName, serviceType, applicationId);
+
         final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
         builder.setHostName(hostName);
         builder.setIp(ip);
@@ -63,6 +82,9 @@ public class GrpcAgentInfoBoMapper {
         builder.setAgentId(agentId);
         builder.setAgentName(agentName);
         builder.setApplicationName(applicationName);
+        builder.setApplicationId(applicationId);
+        builder.setServiceName(serviceName);
+        builder.setServiceId(serviceId);
         builder.setServiceTypeCode(serviceType);
         builder.setPid(pid);
         builder.setVmVersion(vmVersion);

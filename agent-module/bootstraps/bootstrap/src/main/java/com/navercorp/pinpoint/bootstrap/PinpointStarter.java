@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.banner.PinpointBanner;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
 import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
@@ -59,7 +60,7 @@ class PinpointStarter {
     public static final String PLUGIN_TEST_AGENT = "PLUGIN_TEST";
     public static final String PLUGIN_TEST_BOOT_CLASS = "com.navercorp.pinpoint.profiler.test.PluginTestAgent";
 
-    private SimpleProperty systemProperty = SystemProperty.INSTANCE;
+    private final SimpleProperty systemProperty = SystemProperty.INSTANCE;
 
     private final Map<String, String> agentArgs;
     private final AgentType agentType;
@@ -97,14 +98,16 @@ class PinpointStarter {
             return false;
         }
 
-        final String agentId = agentIds.getAgentId();
-        if (agentId == null) {
-            logger.warn("agentId is null");
-            return false;
-        }
+        final AgentId agentId = AgentId.random();
+
         final String applicationName = agentIds.getApplicationName();
         if (applicationName == null) {
             logger.warn("applicationName is null");
+            return false;
+        }
+        final String serviceName = agentIds.getServiceName();
+        if (serviceName == null) {
+            logger.warn("serviceName is null");
             return false;
         }
 
@@ -121,7 +124,6 @@ class PinpointStarter {
             }
 
             // set the path of log file as a system property
-            saveAgentIdForLog(agentIds);
             saveLogFilePath(agentDirectory.getAgentLogFilePath());
             savePinpointVersion();
 
@@ -142,7 +144,7 @@ class PinpointStarter {
 
             final List<Path> pluginJars = agentDirectory.getPlugins();
             final String agentName = agentIds.getAgentName();
-            AgentOption option = createAgentOption(agentId, agentName, applicationName, isContainer,
+            AgentOption option = createAgentOption(agentId, agentName, applicationName, serviceName, isContainer,
                     profilerConfig,
                     instrumentation,
                     pluginJars,
@@ -248,14 +250,16 @@ class PinpointStarter {
 
     }
 
-    private AgentOption createAgentOption(String agentId, String agentName, String applicationName, boolean isContainer,
+    private AgentOption createAgentOption(AgentId agentId, String agentName, String applicationName, String serviceName,
+                                          boolean isContainer,
                                           ProfilerConfig profilerConfig,
                                           Instrumentation instrumentation,
                                           List<Path> pluginJars,
                                           List<Path> bootstrapJarPaths) {
         List<String> pluginJarStrPath = toPathList(pluginJars);
         List<String> bootstrapJarPathStrPath = toPathList(bootstrapJarPaths);
-        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, isContainer, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
+        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, serviceName,
+                isContainer, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
     }
 
     private List<String> toPathList(List<Path> paths) {
@@ -264,15 +268,6 @@ class PinpointStarter {
             list.add(path.toString());
         }
         return list;
-    }
-
-    // for test
-    void setSystemProperty(SimpleProperty systemProperty) {
-        this.systemProperty = systemProperty;
-    }
-
-    private void saveAgentIdForLog(AgentIds agentIds) {
-        systemProperty.setProperty(AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, agentIds.getAgentId());
     }
 
     private void saveLogFilePath(Path agentLogFilePath) {

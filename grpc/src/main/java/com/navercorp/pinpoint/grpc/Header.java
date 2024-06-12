@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc;
 
+import com.navercorp.pinpoint.common.id.AgentId;
 import io.grpc.Metadata;
 
 import java.util.Collections;
@@ -32,6 +33,7 @@ public class Header {
     public static final Metadata.Key<String> AGENT_ID_KEY = newStringKey("agentid");
     public static final Metadata.Key<String> AGENT_NAME_KEY = newStringKey("agentname");
     public static final Metadata.Key<String> APPLICATION_NAME_KEY = newStringKey("applicationname");
+    public static final Metadata.Key<String> SERVICE_NAME_KEY = newStringKey("servicename");
     public static final Metadata.Key<String> AGENT_START_TIME_KEY = newStringKey("starttime");
 
     // optional header
@@ -51,25 +53,26 @@ public class Header {
     public static final List<Integer> SUPPORT_COMMAND_CODE_LIST_PARSE_ERROR = Collections.emptyList();
 
     private final String name;
-    private final String agentId;
+    private final AgentId agentId;
     private final String agentName;
     private final String applicationName;
+    private final String serviceName;
     private final long agentStartTime;
     private final long socketId;
     private final int serviceType;
     private final List<Integer> supportCommandCodeList;
     private final Map<String, Object> properties;
 
-    public Header(String name, String agentId, String agentName, String applicationName,
+    public Header(String name, AgentId agentId, String agentName, String applicationName, String serviceName,
                   int serviceType, long agentStartTime,
                   long socketId, List<Integer> supportCommandCodeList) {
-        this(name, agentId, agentName, applicationName,
+        this(name, agentId, agentName, applicationName, serviceName,
                 serviceType, agentStartTime,
                 socketId, supportCommandCodeList, Collections.emptyMap());
     }
 
     public Header(String name,
-                  String agentId, String agentName, String applicationName,
+                  AgentId agentId, String agentName, String applicationName, String serviceName,
                   int serviceType,
                   long agentStartTime, long socketId,
                   List<Integer> supportCommandCodeList,
@@ -77,6 +80,7 @@ public class Header {
         this.name = Objects.requireNonNull(name, "name");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.serviceType = serviceType;
         this.agentStartTime = agentStartTime;
         this.socketId = socketId;
@@ -86,7 +90,7 @@ public class Header {
         this.properties = Objects.requireNonNull(properties, "properties");
     }
 
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 
@@ -96,6 +100,10 @@ public class Header {
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public long getAgentStartTime() {
@@ -129,6 +137,7 @@ public class Header {
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", socketId=" + socketId +
                 ", serviceType=" + serviceType +
@@ -151,6 +160,8 @@ public class Header {
         if (agentId != null ? !agentId.equals(header.agentId) : header.agentId != null) return false;
         if (applicationName != null ? !applicationName.equals(header.applicationName) : header.applicationName != null)
             return false;
+        if (serviceName != null ? !serviceName.equals(header.serviceName) : header.serviceName != null)
+            return false;
         if (supportCommandCodeList != null ? !supportCommandCodeList.equals(header.supportCommandCodeList) : header.supportCommandCodeList != null)
             return false;
         return properties != null ? properties.equals(header.properties) : header.properties == null;
@@ -161,6 +172,7 @@ public class Header {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
         result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
+        result = 31 * result + (serviceName != null ? serviceName.hashCode() : 0);
         result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
         result = 31 * result + (int) (socketId ^ (socketId >>> 32));
         result = 31 * result + serviceType;

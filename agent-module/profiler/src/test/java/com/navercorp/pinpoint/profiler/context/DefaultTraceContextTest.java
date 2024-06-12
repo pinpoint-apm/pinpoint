@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
@@ -66,7 +67,7 @@ public class DefaultTraceContextTest {
 
     @Test
     public void parseTest() {
-        String agent = "test";
+        AgentId agent = AgentId.of("test");
         long agentStartTime = System.currentTimeMillis();
         long agentTransactionCount = 10;
         TraceId traceId = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
@@ -141,7 +142,7 @@ public class DefaultTraceContextTest {
 
         final long expectedSampledContinuationCount = 5L;
         for (int i = 0; i < expectedSampledContinuationCount; i++) {
-            traceContext.continueTraceObject(new DefaultTraceId("agentId", 0L, i));
+            traceContext.continueTraceObject(new DefaultTraceId(AgentId.of("agentId"), 0L, i));
             traceContext.removeTraceObject();
         }
 

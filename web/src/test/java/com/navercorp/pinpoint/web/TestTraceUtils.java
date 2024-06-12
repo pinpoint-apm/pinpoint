@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
 import org.assertj.core.matcher.AssertionMatcher;
 
@@ -158,8 +159,8 @@ public class TestTraceUtils {
         public SpanBo build() {
             SpanBo spanBo = new SpanBo();
             spanBo.setVersion(version);
-            spanBo.setApplicationId(applicationName);
-            spanBo.setAgentId(agentId);
+            spanBo.setApplicationName(applicationName);
+            spanBo.setAgentId(AgentId.of(agentId));
             long spanId = this.spanId;
             if (spanId == SpanId.NULL) {
                 spanId = random.nextLong();

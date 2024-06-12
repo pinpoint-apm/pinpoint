@@ -58,7 +58,7 @@ public class AgentHistogram {
 
     @JsonProperty("name")
     public String getId() {
-        return agentId.getName();
+        return agentId.name();
     }
 
     @JsonIgnore
@@ -68,12 +68,12 @@ public class AgentHistogram {
 
     @JsonIgnore
     public ServiceType getServiceType() {
-        return agentId.getServiceType();
+        return agentId.serviceType();
     }
 
     @JsonProperty("histogram")
     public Histogram getHistogram() {
-        Histogram histogram = new Histogram(agentId.getServiceType());
+        Histogram histogram = new Histogram(agentId.serviceType());
         histogram.addAll(timeHistogramMap.values());
         return histogram;
     }
@@ -86,7 +86,7 @@ public class AgentHistogram {
     public void addTimeHistogram(TimeHistogram timeHistogram) {
         TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
         if (find == null) {
-            find = new TimeHistogram(agentId.getServiceType(), timeHistogram.getTimeStamp());
+            find = new TimeHistogram(agentId.serviceType(), timeHistogram.getTimeStamp());
             this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
         }
         find.add(timeHistogram);
@@ -105,8 +105,8 @@ public class AgentHistogram {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentHistogram{");
-        sb.append("agent='").append(agentId.getName()).append('\'');
-        sb.append(", serviceType=").append(agentId.getServiceType());
+        sb.append("agent='").append(agentId.name()).append('\'');
+        sb.append(", serviceType=").append(agentId.serviceType());
         // FIXME temporarily hard-coded due to a change in the data structure
         sb.append(", ").append(timeHistogramMap);
         sb.append('}');

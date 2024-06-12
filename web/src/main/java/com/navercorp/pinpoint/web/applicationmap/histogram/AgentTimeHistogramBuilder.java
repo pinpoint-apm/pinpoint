@@ -84,7 +84,7 @@ public class AgentTimeHistogramBuilder {
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             List<TimeHistogram> timeHistogramList = new ArrayList<>();
             for (Long time : window) {
-                timeHistogramList.add(new TimeHistogram(application.getServiceType(), time));
+                timeHistogramList.add(new TimeHistogram(application.serviceType(), time));
             }
             resultAgentHistogramList.addTimeHistogram(agentHistogram.getAgentId(), timeHistogramList);
         }

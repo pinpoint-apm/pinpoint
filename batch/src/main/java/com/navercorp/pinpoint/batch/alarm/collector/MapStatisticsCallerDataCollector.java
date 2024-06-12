@@ -62,15 +62,15 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();
 
             for (LinkCallData linkCallData : linkCallDataMap.getLinkDataList()) {
-                calleeStatMap.put(linkCallData.getTarget().getName(), linkCallData);
+                calleeStatMap.put(linkCallData.getTarget().name(), linkCallData);
             }
         }
 
         init.set(true);
     }
 
-    public long getCount(String calleName, DataCategory dataCategory) {
-        final LinkCallData linkCallData = calleeStatMap.get(calleName);
+    public long getCount(String calleeName, DataCategory dataCategory) {
+        final LinkCallData linkCallData = calleeStatMap.get(calleeName);
         if (linkCallData == null) {
             return 0;
         }
@@ -102,8 +102,8 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
 
     }
 
-    public long getCountRate(String calleName, DataCategory dataCategory) {
-        final LinkCallData linkCallData = calleeStatMap.get(calleName);
+    public long getCountRate(String calleeName, DataCategory dataCategory) {
+        final LinkCallData linkCallData = calleeStatMap.get(calleeName);
         if (linkCallData == null) {
             return 0;
         }

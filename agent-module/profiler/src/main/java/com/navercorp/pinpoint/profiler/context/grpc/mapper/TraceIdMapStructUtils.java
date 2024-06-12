@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import org.mapstruct.Qualifier;
 
@@ -37,7 +38,7 @@ public class TraceIdMapStructUtils {
     @ToTransactionId
     public static PTransactionId newTransactionId(TraceId traceId) {
         final PTransactionId.Builder builder = PTransactionId.newBuilder();
-        builder.setAgentId(traceId.getAgentId());
+        builder.setAgentId(AgentId.unwrap(traceId.getAgentId()));
         builder.setAgentStartTime(traceId.getAgentStartTime());
         builder.setSequence(traceId.getTransactionSequence());
         return builder.build();

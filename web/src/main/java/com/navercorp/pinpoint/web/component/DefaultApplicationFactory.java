@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.component;
 
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -34,6 +35,12 @@ public class DefaultApplicationFactory implements ApplicationFactory {
 
     public DefaultApplicationFactory(ServiceTypeRegistryService registry) {
         this.registry = Objects.requireNonNull(registry, "registry");
+    }
+
+    @Override
+    public Application createApplication(ApplicationId applicationId, String applicationName, short serviceTypeCode) {
+        final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+        return new Application(applicationId, applicationName, serviceType);
     }
 
     @Override

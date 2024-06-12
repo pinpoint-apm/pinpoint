@@ -36,7 +36,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
 
     @Override
     public ApdexScore selectApdexScoreData(Application application, Range range) {
-        ServiceType applicationServiceType = application.getServiceType();
+        ServiceType applicationServiceType = application.serviceType();
 
         if (applicationServiceType.isWas()) {
             List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
@@ -51,7 +51,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
 
     @Override
     public ApdexScore selectApdexScoreData(Application application, String agentId, Range range) {
-        ServiceType applicationServiceType = application.getServiceType();
+        ServiceType applicationServiceType = application.serviceType();
 
         if (applicationServiceType.isWas()) {
             List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);

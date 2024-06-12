@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.batch.job;
 import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.batch.service.BatchApplicationService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import jakarta.annotation.Nonnull;
@@ -34,61 +36,61 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class ApplicationCleaningProcessor implements ItemProcessor<String, List<CleanTarget>> {
+public class ApplicationCleaningProcessor implements ItemProcessor<ApplicationId, List<CleanTarget>> {
 
     private static final Logger logger = LogManager.getLogger(ApplicationCleaningProcessor.class);
 
     private final BatchAgentService agentService;
-    private final BatchApplicationService applicationService;
+    private final BatchApplicationService batchApplicationService;
     private final Duration emptyDurationThreshold;
 
     public ApplicationCleaningProcessor(
             BatchAgentService agentService,
-            BatchApplicationService applicationService,
+            BatchApplicationService batchApplicationService,
             Duration emptyDurationThreshold
     ) {
         this.agentService = Objects.requireNonNull(agentService, "agentService");
-        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
+        this.batchApplicationService = Objects.requireNonNull(batchApplicationService, "batchApplicationService");
         this.emptyDurationThreshold = Objects.requireNonNull(emptyDurationThreshold, "emptyDurationThreshold");
     }
 
     @Override
-    public List<CleanTarget> process(@Nonnull String applicationName) throws Exception {
-        logger.info("Processing application: {}", applicationName);
+    public List<CleanTarget> process(@Nonnull ApplicationId applicationId) throws Exception {
+        logger.info("Processing application: {}", applicationId);
 
         Range range = getRange();
-        List<String> agentIds = getAgents(applicationName);
+        List<AgentId> agentIds = getAgents(applicationId);
         List<CleanTarget> targets = new ArrayList<>(agentIds.size() + 1);
 
-        for (String agentId: agentIds) {
+        for (AgentId agentId: agentIds) {
             if (isAgentTarget(agentId, range)) {
-                String agentKey = ClusterKey.compose(applicationName, agentId, -1);
+                String agentKey = ClusterKey.compose(applicationId.toString(), AgentId.unwrap(agentId), -1);
                 targets.add(new CleanTarget(CleanTarget.TYPE_AGENT, agentKey));
             }
         }
 
-        if (targets.size() == agentIds.size() && isApplicationTarget(applicationName)) {
-            targets.add(new CleanTarget(CleanTarget.TYPE_APPLICATION, applicationName));
+        if (targets.size() == agentIds.size() && isApplicationTarget(applicationId)) {
+            targets.add(new CleanTarget(CleanTarget.TYPE_APPLICATION, applicationId.toString()));
         }
 
         if (targets.isEmpty()) {
             return null;
         }
 
-        logger.info("Cleaning application {}: {}", applicationName, targets);
+        logger.info("Cleaning application {}: {}", applicationId, targets);
         return targets;
     }
 
-    private boolean isApplicationTarget(String applicationName) {
-        return !this.applicationService.isActive(applicationName, this.emptyDurationThreshold);
+    private boolean isApplicationTarget(ApplicationId applicationId) {
+        return !this.batchApplicationService.isActive(applicationId, this.emptyDurationThreshold);
     }
 
-    private boolean isAgentTarget(String agentId, Range range) {
+    private boolean isAgentTarget(AgentId agentId, Range range) {
         return !this.agentService.isActive(agentId, range);
     }
 
-    private List<String> getAgents(String applicationName) {
-        return this.agentService.getIds(applicationName);
+    private List<AgentId> getAgents(ApplicationId applicationId) {
+        return this.agentService.getIds(applicationId);
     }
 
     private Range getRange() {

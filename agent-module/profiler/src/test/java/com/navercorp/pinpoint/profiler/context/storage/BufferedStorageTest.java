@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
@@ -30,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 public class BufferedStorageTest {
 
-    private final String agentId = "agentId";
+    private final AgentId agentId = AgentId.of("agentId");
     private final long agentStartTime = System.currentTimeMillis();
 
     private final CountingDataSender countingDataSender = new CountingDataSender();

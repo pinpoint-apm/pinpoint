@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.StringMetaDataService;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -41,7 +42,6 @@ import java.util.Objects;
 @Service
 public class GrpcStringMetaDataHandler implements RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
     private final Logger logger = LogManager.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
     private final StringMetaDataService stringMetaDataService;
 
@@ -73,12 +73,12 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<Generat
 
         try {
             final Header agentInfo = ServerContext.getAgentInfo();
-            final String agentId = agentInfo.getAgentId();
+            final AgentId agentId = agentInfo.getAgentId();
             final long agentStartTime = agentInfo.getAgentStartTime();
 
             final String stringValue = stringMetaData.getStringValue();
 
-            final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime,
+            final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(AgentId.unwrap(agentId), agentStartTime,
                     stringMetaData.getStringId(), stringValue);
 
             stringMetaDataService.insert(stringMetaDataBo);

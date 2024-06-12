@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.realtime.collector.receiver.grpc;
 
 import com.google.protobuf.Empty;
 import com.google.protobuf.StringValue;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.DefaultTransportMetadata;
@@ -324,9 +325,10 @@ public class GrpcCommandServiceTest {
                         ))
                         .withValue(ServerContext.getAgentInfoKey(), new Header(
                                 "name",
-                                "agent-id",
+                                AgentId.of("agent-id"),
                                 "agent-name",
                                 "application-name",
+                                "service-name",
                                 ServiceType.TEST.getCode(),
                                 1234,
                                 0,

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -30,9 +32,10 @@ public class SpanChunkBo implements BasicSpan {
 
     private byte version = 0;
 
-    @NotBlank private String agentId;
+    private AgentId agentId;
     private String agentName;
-    @NotBlank private String applicationId;
+    @NotBlank private String applicationName;
+    private ApplicationId applicationId;
     @PositiveOrZero private long agentStartTime;
 
     private TransactionId transactionId;
@@ -67,11 +70,11 @@ public class SpanChunkBo implements BasicSpan {
     }
 
     @Override
-    public String getAgentId() {
+    public AgentId getAgentId() {
         return agentId;
     }
 
-    public void setAgentId(String agentId) {
+    public void setAgentId(AgentId agentId) {
         this.agentId = agentId;
     }
 
@@ -85,11 +88,22 @@ public class SpanChunkBo implements BasicSpan {
     }
 
     @Override
-    public String getApplicationId() {
-        return applicationId;
+    public String getApplicationName() {
+        return applicationName;
     }
 
-    public void setApplicationId(String applicationId) {
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    @Override
+    public ApplicationId getApplicationId() {
+        return this.applicationId;
+    }
+
+    @Override
+    public void setApplicationId(ApplicationId applicationId) {
         this.applicationId = applicationId;
     }
 
@@ -200,7 +214,7 @@ public class SpanChunkBo implements BasicSpan {
                 "version=" + version +
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
-                ", applicationId='" + applicationId + '\'' +
+                ", applicationId='" + applicationName + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +

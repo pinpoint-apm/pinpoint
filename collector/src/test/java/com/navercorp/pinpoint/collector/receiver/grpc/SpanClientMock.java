@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
@@ -60,8 +61,6 @@ public class SpanClientMock {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private final ReconnectExecutor reconnectExecutor = new ReconnectExecutor(scheduledExecutorService);
-
-
 
     private final ManagedChannel channel;
     private final SpanGrpc.SpanStub spanStub;
@@ -133,7 +132,7 @@ public class SpanClientMock {
         System.out.println("NEW SpanStream");
         System.out.println("###");
         StreamId spanId = StreamId.newStreamId("SpanStream");
-        StreamEventListener<PSpanMessage> listener = new StreamEventListener<PSpanMessage>() {
+        StreamEventListener<PSpanMessage> listener = new StreamEventListener<>() {
 
             @Override
             public void start(ClientCallStreamObserver<PSpanMessage> requestStream) {
@@ -156,7 +155,7 @@ public class SpanClientMock {
 
 
     private ChannelFactory newChannelFactory() {
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockAgentName", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory(AgentId.of("mockAgentId"), "mockAgentName", "mockApplicationName", "mockServiceName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
 
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("SpanClientMock");
         final ClientInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(1000);

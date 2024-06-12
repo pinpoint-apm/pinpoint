@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.alram.event.DeleteRuleEvent;
+import com.navercorp.pinpoint.common.server.alarm.event.DeleteRuleEvent;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.vo.UserGroup;
@@ -66,11 +66,11 @@ public class AlarmServiceImpl implements AlarmService {
     
     @Override
     @Transactional(readOnly = true)
-    public List<Rule> selectRuleByApplicationId(String applicationId) {
-        List<Rule> rules = alarmDao.selectRuleByApplicationId(applicationId);
+    public List<Rule> selectRuleByApplicationId(String applicationName) {
+        List<Rule> rules = alarmDao.selectRuleByApplicationId(applicationName);
         List<Rule> result = new ArrayList<>(rules.size());
         for (Rule rule : rules) {
-            if (rule.getApplicationId().equals(applicationId)) {
+            if (rule.getApplicationName().equals(applicationName)) {
                 result.add(rule);
             }
         }

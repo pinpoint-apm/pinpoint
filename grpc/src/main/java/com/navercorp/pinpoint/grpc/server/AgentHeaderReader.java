@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.id.AgentId;
+import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -54,15 +56,16 @@ public class AgentHeaderReader implements HeaderReader<Header> {
 
     @Override
     public Header extract(Metadata headers) {
-        final String agentId = getId(headers, Header.AGENT_ID_KEY);
+        final String agentId = getId(headers, Header.AGENT_ID_KEY, PinpointConstants.AGENT_ID_MAX_LEN);
         final String agentName = getAgentName(headers, Header.AGENT_NAME_KEY);
-        final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY);
+        final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY, PinpointConstants.APPLICATION_NAME_MAX_LEN);
+        final String serviceName = getServiceName(headers, Header.SERVICE_NAME_KEY);
         final long startTime = getTime(headers, Header.AGENT_START_TIME_KEY);
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
         final Map<String, Object> properties = metadataConverter.apply(headers);
-        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, properties);
+        return new Header(name, AgentId.of(agentId), agentName, applicationName, serviceName, serviceType, startTime, socketId, supportCommandCodeList, properties);
     }
 
     public static Map<String, Object> emptyProperties(Metadata headers) {
@@ -82,12 +85,20 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
-    protected String getId(Metadata headers, Metadata.Key<String> idKey) {
+    protected String getId(Metadata headers, Metadata.Key<String> idKey, int maxLen) {
         final String id = headers.get(idKey);
         if (id == null) {
             throw Status.INVALID_ARGUMENT.withDescription(idKey.name() + " header is missing").asRuntimeException();
         }
-        return validateId(id, idKey);
+        return validateId(id, idKey, maxLen);
+    }
+
+    protected String getServiceName(Metadata headers, Metadata.Key<String> idKey) {
+        final String name = headers.get(idKey);
+        if (name == null) {
+            return ServiceId.DEFAULT_SERVICE_NAME;
+        }
+        return validateId(name, idKey, PinpointConstants.SERVICE_NAME_MAX_LEN);
     }
 
     protected String getAgentName(Metadata headers, Metadata.Key<String> idKey) {
@@ -141,8 +152,8 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
-    String validateId(String id, Metadata.Key key) {
-        if (!IdValidateUtils.validateId(id)) {
+    String validateId(String id, Metadata.Key<String> key, int maxLen) {
+        if (!IdValidateUtils.validateId(id, maxLen)) {
             throw Status.INVALID_ARGUMENT.withDescription("invalid " + key.name()).asRuntimeException();
         }
         return id;

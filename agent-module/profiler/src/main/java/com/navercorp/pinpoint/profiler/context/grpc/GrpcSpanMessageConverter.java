@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -39,10 +37,7 @@ import java.util.Objects;
  */
 public class GrpcSpanMessageConverter implements MessageConverter<SpanType, GeneratedMessageV3> {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(this.logger, 100);
-
-    private final String agentId;
+    private final AgentId agentId;
     private final short applicationServiceType;
 
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor;
@@ -51,7 +46,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
 
     private final SpanMessageMapper mapper;
 
-    public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
+    public GrpcSpanMessageConverter(AgentId agentId, short applicationServiceType,
                                     SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor,
                                     SpanMessageMapper spanMessageMapper) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");

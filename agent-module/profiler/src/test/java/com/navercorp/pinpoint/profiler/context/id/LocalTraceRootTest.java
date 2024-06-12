@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.profiler.context.id;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.common.id.AgentId;
 import com.navercorp.pinpoint.profiler.context.CloseListener;
 import com.navercorp.pinpoint.profiler.context.DisableChildTrace;
 import com.navercorp.pinpoint.profiler.context.DisableTrace;
@@ -12,9 +13,12 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 
 public class LocalTraceRootTest {
+
+    private static final AgentId AGENT_ID = AgentId.of("testAgent");
+
     @Test
     public void testGetScope() {
-        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local(AGENT_ID, 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
         Assertions.assertNull(trace.addScope("empty"));
@@ -23,7 +27,7 @@ public class LocalTraceRootTest {
 
     @Test
     public void testAddScope() {
-        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local(AGENT_ID, 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
 
@@ -35,7 +39,7 @@ public class LocalTraceRootTest {
 
     @Test
     public void testSampled() {
-        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local(AGENT_ID, 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
 
@@ -45,7 +49,7 @@ public class LocalTraceRootTest {
 
     @Test
     public void testSpanRecorder() {
-        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local(AGENT_ID, 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
         SpanRecorder spanRecorder = trace.getSpanRecorder();
@@ -57,7 +61,7 @@ public class LocalTraceRootTest {
 
     @Test
     public void testCurrentSpanEventRecorder() {
-        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local(AGENT_ID, 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
         SpanEventRecorder spanEventRecorder = trace.currentSpanEventRecorder();
