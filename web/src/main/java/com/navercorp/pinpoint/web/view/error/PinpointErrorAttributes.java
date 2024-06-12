@@ -19,8 +19,16 @@ public class PinpointErrorAttributes extends DefaultErrorAttributes {
     @Override
     public Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions options) {
         Map<String, Object> errorAttributes = super.getErrorAttributes(webRequest, options);
+        this.removeDuplicateData(errorAttributes);
         this.addCustomData(webRequest, errorAttributes);
         return errorAttributes;
+    }
+
+    // removes attributes already present with ProblemDetail
+    private void removeDuplicateData(Map<String, Object> errorAttributes) {
+        errorAttributes.remove("status");
+        errorAttributes.remove("error");        // ProblemDetail already has "title" field
+        errorAttributes.remove("path");        // ProblemDetail already has "instance" field
     }
 
     private void addCustomData(WebRequest webRequest, Map<String, Object> errorAttributes) {
