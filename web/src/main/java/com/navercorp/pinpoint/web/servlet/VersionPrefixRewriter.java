@@ -24,7 +24,8 @@ import java.util.StringTokenizer;
 public class VersionPrefixRewriter {
 
     static final String[] SPECIAL_PATHS = {
-            "api"
+            "api",
+            "api-public"
     };
 
     static final String[] RESOURCE_PATHS = {
