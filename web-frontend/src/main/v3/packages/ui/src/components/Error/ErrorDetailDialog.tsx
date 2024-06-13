@@ -48,15 +48,13 @@ export const ErrorDetailDialog = ({
               <div className="w-1 h-4 rounded-sm bg-status-fail" />
               Error Details
             </h4>
-            <p className="text-sm font-semibold text-muted-foreground">{error?.path}</p>
+            <p className="text-sm font-semibold text-muted-foreground">{error?.instance}</p>
             <p className="text-sm break-all text-muted-foreground">{error?.message}</p>
           </div>
           <Separator />
           {error?.data && (
             <div className="grid gap-2 text-sm scrollbar-hide">
               <div className="grid grid-cols-[7rem_auto] gap-2">
-                <div className="text-muted-foreground">URL</div>
-                <div>{error.data.requestInfo.url}</div>
                 <div className="text-muted-foreground">Method</div>
                 <div>{error.data.requestInfo.method}</div>
               </div>
