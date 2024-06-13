@@ -16,7 +16,7 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <kotlin.version>1.5.32</kotlin.version>
+        <kotlin.version>1.7.22</kotlin.version>
     </properties>
 
     <dependencies>
