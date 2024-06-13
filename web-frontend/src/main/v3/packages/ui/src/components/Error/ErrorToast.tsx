@@ -17,9 +17,9 @@ export const ErrorToast = ({ error, title, className }: ErrorToastProps) => {
       <div>
         {title ? title : t('COMMON.SOMETHING_WENT_WRONG')}:
         <br />
-        {error?.path && (
+        {error?.instance && (
           <>
-            <span className="font-semibold items">{error.path}</span>
+            <span className="font-semibold items">{error.instance}</span>
           </>
         )}
       </div>
