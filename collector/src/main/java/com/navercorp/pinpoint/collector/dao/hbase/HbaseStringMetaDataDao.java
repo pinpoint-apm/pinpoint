@@ -74,7 +74,7 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         CollectorUtils.checkAgentId(stringMetaData.getAgentId());
 
         final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(stringMetaData));
-        final Put put = new Put(rowKey);
+        final Put put = new Put(rowKey, true);
         final String stringValue = stringMetaData.getStringValue();
         final byte[] sqlBytes = Bytes.toBytes(stringValue);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STRING, sqlBytes);

@@ -52,7 +52,7 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
         CollectorUtils.checkAgentId(sqlUidMetaData.getAgentId());
 
         final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(sqlUidMetaData));
-        final Put put = new Put(rowKey);
+        final Put put = new Put(rowKey, true);
         final String sql = sqlUidMetaData.getSql();
         final byte[] sqlBytes = Bytes.toBytes(sql);
         put.addColumn(descriptor.getName(), descriptor.QUALIFIER_SQLSTATEMENT, sqlBytes);

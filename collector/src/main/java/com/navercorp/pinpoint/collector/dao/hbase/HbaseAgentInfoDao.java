@@ -74,7 +74,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         CollectorUtils.checkAgentName(agentInfo.getAgentName());
 
         final byte[] rowKey = rowKeyEncoder.encodeRowKey(agentInfo.getAgentId(), agentInfo.getStartTime());
-        final Put put = new Put(rowKey);
+        final Put put = new Put(rowKey, true);
 
         // should add additional agent informations. for now added only starttime for sqlMetaData
         final byte[] agentInfoBoValue = agentInfo.writeValue();

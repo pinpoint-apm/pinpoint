@@ -67,7 +67,7 @@ public class ApplicationStatHbaseOperationFactory {
             byte[] rowKey = this.rowKeyEncoder.encodeRowKey(rowKeyComponent);
             byte[] distributedRowKey = this.rowKeyDistributor.getDistributedKey(rowKey);
 
-            Put put = new Put(distributedRowKey);
+            Put put = new Put(distributedRowKey, true);
             applicationStatSerializer.serialize(slottedApplicationStatDataPoints, put, null);
             puts.add(put);
         }

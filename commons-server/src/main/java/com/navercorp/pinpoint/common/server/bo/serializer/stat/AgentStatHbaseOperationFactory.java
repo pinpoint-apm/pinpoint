@@ -66,7 +66,7 @@ public class AgentStatHbaseOperationFactory {
             byte[] rowKey = this.rowKeyEncoder.encodeRowKey(rowKeyComponent);
             byte[] distributedRowKey = this.rowKeyDistributor.getDistributedKey(rowKey);
 
-            Put put = new Put(distributedRowKey);
+            Put put = new Put(distributedRowKey, true);
             agentStatSerializer.serialize(slottedAgentStatDataPoints, put, null);
             puts.add(put);
         }

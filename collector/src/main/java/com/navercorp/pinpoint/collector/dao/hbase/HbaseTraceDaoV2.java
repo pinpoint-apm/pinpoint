@@ -107,7 +107,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         TransactionId transactionId = spanBo.getTransactionId();
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
-        final Put put = new Put(rowKey, acceptedTime);
+        final Put put = new Put(rowKey, acceptedTime, true);
 
         this.spanSerializer.serialize(spanBo, put, null);
 
@@ -123,7 +123,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
 
         final long acceptedTime = spanChunkBo.getCollectorAcceptTime();
-        final Put put = new Put(rowKey, acceptedTime);
+        final Put put = new Put(rowKey, acceptedTime, true);
 
         final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {

@@ -73,7 +73,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         CollectorUtils.checkAgentId(sqlMetaData.getAgentId());
 
         final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(sqlMetaData));
-        final Put put = new Put(rowKey);
+        final Put put = new Put(rowKey, true);
         final String sql = sqlMetaData.getSql();
         final byte[] sqlBytes = Bytes.toBytes(sql);
         put.addColumn(descriptor.getName(), descriptor.QUALIFIER_SQLSTATEMENT, sqlBytes);
