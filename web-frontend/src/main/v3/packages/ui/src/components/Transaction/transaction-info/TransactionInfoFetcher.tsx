@@ -1,7 +1,7 @@
 import React from 'react';
 import { BASE_PATH } from '@pinpoint-fe/constants';
 import { useGetTransactionInfo } from '@pinpoint-fe/hooks';
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa6';
 import { Button, ServerMapCore, Tabs, TabsContent, TabsList, TabsTrigger } from '../..';
@@ -14,7 +14,7 @@ import {
 } from '@pinpoint-fe/utils';
 import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
 import { RxExternalLink } from 'react-icons/rx';
-import { transactionInfoDatasAtom } from '@pinpoint-fe/atoms';
+import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/atoms';
 import { cn } from '../../../lib';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui';
 import { Timeline } from '../timeline/Timeline';
@@ -33,6 +33,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
   const { application, transactionInfo } = useTransactionSearchParameters();
   const { data, tableData, mapData } = useGetTransactionInfo();
   const setTransactionInfo = useSetAtom(transactionInfoDatasAtom);
+  const [currentTab, setCurrentTab] = useAtom(transactionInfoCurrentTabId);
   const { t } = useTranslation();
 
   React.useEffect(() => {
@@ -48,7 +49,11 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
   }
 
   return (
-    <Tabs defaultValue="callTree" className="h-full">
+    <Tabs
+      value={currentTab || tabList[0].id}
+      className="h-full"
+      onValueChange={(id) => setCurrentTab(id)}
+    >
       <div className="p-3 border-b">
         {!disableHeader && (
           <div className="flex items-center gap-1 pb-2 text-sm font-semibold truncate">
@@ -145,9 +150,12 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
           <TabsContent
             key={tab.id}
             value={tab.id}
-            className={cn('mt-0 h-[calc(100%-6.25rem)]', {
-              'h-[calc(100%-3.75rem)]': disableHeader,
-            })}
+            className={cn(
+              'mt-0 h-[calc(100%-6.25rem)] focus-visible:ring-0 focus-visible:ring-offset-0',
+              {
+                'h-[calc(100%-3.75rem)]': disableHeader,
+              },
+            )}
           >
             {Content}
           </TabsContent>
