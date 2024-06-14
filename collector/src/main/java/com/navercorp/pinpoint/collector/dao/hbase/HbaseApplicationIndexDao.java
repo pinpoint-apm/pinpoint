@@ -62,7 +62,8 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         // Assert applicationName
         CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
 
-        final Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()));
+        byte[] rowKey = Bytes.toBytes(agentInfo.getApplicationName());
+        final Put put = new Put(rowKey, true);
         final byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
         final byte[] value = Bytes.toBytes(agentInfo.getServiceTypeCode());
         put.addColumn(DESCRIPTOR.getName(), qualifier, value);

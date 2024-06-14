@@ -24,7 +24,7 @@ public final class Puts {
     }
 
     public static Put put(byte[] rowName, byte[] familyName, byte[] qualifier, byte[] value) {
-        final Put put = new Put(rowName);
+        final Put put = new Put(rowName, true);
         if (familyName != null) {
             put.addColumn(familyName, qualifier, value);
         }
@@ -32,7 +32,7 @@ public final class Puts {
     }
 
     public static Put put(byte[] rowName, byte[] familyName, long timestamp, byte[] qualifier, byte[] value) {
-        final Put put = new Put(rowName);
+        final Put put = new Put(rowName, true);
         if (familyName != null) {
             put.addColumn(familyName, qualifier, timestamp, value);
         }

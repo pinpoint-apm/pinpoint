@@ -318,7 +318,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     @Override
     public void maxColumnValue(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, long value) {
         final byte[] valBytes = Bytes.toBytes(value);
-        Put put = new Put(rowName);
+        Put put = new Put(rowName, true);
         put.addColumn(familyName, qualifier, valBytes);
 
         CheckAndMutate checkAndPut = CheckAndMutate.newBuilder(rowName)

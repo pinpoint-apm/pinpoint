@@ -75,7 +75,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         CollectorUtils.checkAgentId(apiMetaData.getAgentId());
 
         final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(apiMetaData));
-        final Put put = new Put(rowKey);
+        final Put put = new Put(rowKey, true);
         final Buffer buffer = new AutomaticBuffer(64);
         final String api = apiMetaData.getApiInfo();
         buffer.putPrefixedString(api);
