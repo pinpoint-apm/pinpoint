@@ -1,19 +1,26 @@
 import React from 'react';
 import { throttle } from 'lodash';
 import cloneDeep from 'lodash.clonedeep';
-import { FlameNode, FlameNodeClickHandler, FlameNodeType } from './FlameNode';
+import { FlameNode, FlameNodeType, FlameNodeProps } from './FlameNode';
 import { FlameAxis } from './FlameAxis';
 import { FlameGraphConfigContext, flameGraphDefaultConfig } from './FlameGraphConfigContext';
 import { FlameTimeline } from './FlameTimeline';
 
-export interface FlameGraphProps<T> {
-  data: FlameNodeType<T>[];
+export interface FlameGraphProps<T>
+  extends Pick<FlameNodeProps<T>, 'customNodeStyle' | 'customTextStyle' | 'onClickNode'> {
+  data: FlameNodeType<T>[][];
   start?: number;
   end?: number;
-  onClickNode?: FlameNodeClickHandler<T>;
 }
 
-export const FlameGraph = <T,>({ data, start = 0, end = 0, onClickNode }: FlameGraphProps<T>) => {
+export const FlameGraph = <T,>({
+  data,
+  start = 0,
+  end = 0,
+  onClickNode,
+  customNodeStyle,
+  customTextStyle,
+}: FlameGraphProps<T>) => {
   const widthOffset = end - start || 1;
   const [config] = React.useState(flameGraphDefaultConfig);
 
@@ -60,8 +67,12 @@ export const FlameGraph = <T,>({ data, start = 0, end = 0, onClickNode }: FlameG
 
   function getContainerHeight() {
     const { height, padding } = config;
-    return data.reduce((acc, curr) => {
-      return acc + (getMaxDepth(curr) + 1) * height.node + padding.group;
+
+    return data.reduce((acc, group) => {
+      const groupHeights = group.map(
+        (node) => (getMaxDepth(node) + 1) * height.node + padding.group,
+      );
+      return acc + Math.max(...groupHeights);
     }, 2 * padding.bottom);
   }
 
@@ -88,29 +99,42 @@ export const FlameGraph = <T,>({ data, start = 0, end = 0, onClickNode }: FlameG
             <FlameAxis width={containerWidth} />
             {containerWidth &&
               // group별 렌더링
-              data.map((node, i) => {
+              data.map((group, i) => {
                 if (i === 0) prevDepth.current = 0;
+                else {
+                  const prevGroupMaxDepth = Math.max(
+                    ...data[i - 1].map((node) => getMaxDepth(node)),
+                  );
+                  prevDepth.current = prevGroupMaxDepth + prevDepth.current + 1;
+                }
 
-                const { height, padding, color } = config;
-                const newNode = cloneDeep(node);
-                const currentNodeDepth = getMaxDepth(newNode);
-                const yOffset = prevDepth.current * height.node + padding.group * i;
+                // node별 렌더링
+                return group.map((node) => {
+                  const { height, padding, color } = config;
+                  const newNode = cloneDeep(node);
+                  const yOffset = prevDepth.current * height.node + padding.group * i;
 
-                styleNode(newNode, 0, 0, yOffset);
-                prevDepth.current = currentNodeDepth + prevDepth.current + 1;
+                  styleNode(newNode, 0, 0, yOffset);
 
-                return (
-                  <React.Fragment key={node.id}>
-                    <FlameNode node={newNode} svgRef={svgRef} onClickNode={onClickNode} />
-                    <line
-                      x1={0}
-                      y1={yOffset - padding.group / 2 + padding.top}
-                      x2={containerWidth}
-                      y2={yOffset - padding.group / 2 + padding.top}
-                      stroke={color.axis}
-                    />
-                  </React.Fragment>
-                );
+                  return (
+                    <React.Fragment key={node.id}>
+                      <FlameNode
+                        node={newNode}
+                        svgRef={svgRef}
+                        customNodeStyle={customNodeStyle}
+                        customTextStyle={customTextStyle}
+                        onClickNode={onClickNode}
+                      />
+                      <line
+                        x1={0}
+                        y1={yOffset - padding.group / 2 + padding.top}
+                        x2={containerWidth}
+                        y2={yOffset - padding.group / 2 + padding.top}
+                        stroke={color.axis}
+                      />
+                    </React.Fragment>
+                  );
+                });
               })}
           </svg>
         </div>
