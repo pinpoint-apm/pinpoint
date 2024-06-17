@@ -18,12 +18,18 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.interceptor.factory.InterceptorFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.function.Supplier;
 
 public class InterceptorLazyLoadingSupplier implements Supplier<Interceptor> {
+    private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.LAZYLOADING");
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final InterceptorFactory factory;
     private final Class<?> interceptorClass;
     private final Object[] providedArguments;
@@ -40,7 +46,18 @@ public class InterceptorLazyLoadingSupplier implements Supplier<Interceptor> {
 
     @Override
     public Interceptor get() {
-        Interceptor interceptor = factory.newInterceptor(interceptorClass, providedArguments, scopeInfo, methodDescriptor);
+        Interceptor interceptor = null;
+        try {
+            interceptor = factory.newInterceptor(interceptorClass, providedArguments, scopeInfo, methodDescriptor);
+        } catch (Throwable t) {
+            logger.warn("Failed to new interceptor, interceptor={}", interceptorClass.getName(), t);
+        }
+
+        if (interceptor == null) {
+            // defense
+            return LOGGING_INTERCEPTOR;
+        }
         return interceptor;
+
     }
 }
