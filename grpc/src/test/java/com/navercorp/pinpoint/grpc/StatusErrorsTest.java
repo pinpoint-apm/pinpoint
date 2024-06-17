@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc;
 
 import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -90,5 +91,32 @@ public class StatusErrorsTest {
         Assertions.assertThat(statusError.getMessage())
                 .contains(Status.CANCELLED.getCode().toString());
         assertTrue(statusError.isSimpleError());
+    }
+
+
+    @Test
+    public void test_asException() {
+        StatusError statusError = StatusErrors.throwable(Status.CANCELLED.asException());
+        assertEquals("CANCELLED", statusError.getMessage());
+        assertFalse(statusError.isSimpleError());
+    }
+
+
+    @Test
+    public void simpleCode_null() {
+
+        StatusException exception = Status.CANCELLED.withCause(null).withDescription(null).asException();
+        StatusError statusError = StatusErrors.throwable(exception);
+        assertEquals("CANCELLED", statusError.getMessage());
+        assertFalse(statusError.isSimpleError());
+    }
+
+    @Test
+    public void nonSimpleCode_null() {
+
+        StatusException exception = Status.ABORTED.withCause(null).withDescription(null).asException();
+        StatusError statusError = StatusErrors.throwable(exception);
+        assertEquals("ABORTED", statusError.getMessage());
+        assertFalse(statusError.isSimpleError());
     }
 }
