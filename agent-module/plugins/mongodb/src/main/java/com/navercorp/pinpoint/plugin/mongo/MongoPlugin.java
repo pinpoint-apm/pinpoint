@@ -531,7 +531,7 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class);
+                subscribeMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class, va(MongoConstants.MONGO_REACTIVE));
             }
             return target.toBytecode();
         }
