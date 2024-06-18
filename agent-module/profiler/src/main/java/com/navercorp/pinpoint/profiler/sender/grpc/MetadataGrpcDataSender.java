@@ -49,7 +49,6 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
     private final MetadataGrpc.MetadataStub metadataStub;
     private final int maxAttempts;
     private final int retryDelayMillis;
-    private final boolean clientRetryEnable;
 
     private final Timer retryTimer;
     private static final long MAX_PENDING_TIMEOUTS = 1024 * 4;
@@ -58,7 +57,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
 
     public MetadataGrpcDataSender(String host, int port, int executorQueueSize,
                                   MessageConverter<T, GeneratedMessageV3> messageConverter,
-                                  ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis, boolean clientRetryEnable) {
+                                  ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.maxAttempts = getMaxAttempts(retryMaxCount);
@@ -78,7 +77,6 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
                 MetadataGrpcDataSender.this.scheduleNextRetry(request, remainingRetryCount);
             }
         };
-        this.clientRetryEnable = clientRetryEnable;
     }
 
     private int getMaxAttempts(int retryMaxCount) {
@@ -104,47 +102,13 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
         throw new UnsupportedOperationException("unsupported operation request(data, listener)");
     }
 
-    //send with retry
     @Override
     public boolean send(T data) {
-        try {
-            final GeneratedMessageV3 message = messageConverter.toMessage(data);
-
-            if (message instanceof PSqlMetaData) {
-                final PSqlMetaData sqlMetaData = (PSqlMetaData) message;
-                this.metadataStub.requestSqlMetaData(sqlMetaData, newLogStreamObserver());
-            } else if (message instanceof PSqlUidMetaData) {
-                final PSqlUidMetaData sqlUidMetaData = (PSqlUidMetaData) message;
-                this.metadataStub.requestSqlUidMetaData(sqlUidMetaData, newLogStreamObserver());
-            } else if (message instanceof PApiMetaData) {
-                final PApiMetaData apiMetaData = (PApiMetaData) message;
-                this.metadataStub.requestApiMetaData(apiMetaData, newLogStreamObserver());
-            } else if (message instanceof PStringMetaData) {
-                final PStringMetaData stringMetaData = (PStringMetaData) message;
-                this.metadataStub.requestStringMetaData(stringMetaData, newLogStreamObserver());
-            } else if (message instanceof PExceptionMetaData) {
-                final PExceptionMetaData exceptionMetaData = (PExceptionMetaData) message;
-                this.metadataStub.requestExceptionMetaData(exceptionMetaData, newLogStreamObserver());
-            } else {
-                logger.warn("Unsupported message {}", MessageFormatUtils.debugLog(message));
-            }
-        } catch (Exception e) {
-            logger.info("Failed to send metadata={}", data, e);
-            return false;
-        }
-        return true;
-    }
-
-    private StreamObserver<PResult> newLogStreamObserver() {
-        return new LogResponseStreamObserver<>(logger);
+        throw new UnsupportedOperationException("unsupported operation send(data)");
     }
 
     @Override
     public boolean request(final T data) {
-        if (clientRetryEnable) {
-            return this.send(data);
-        }
-
         final Runnable convertAndRun = new Runnable() {
             @Override
             public void run() {

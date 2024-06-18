@@ -27,33 +27,44 @@ import java.util.Objects;
 
 public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
     private final Logger logger;
+    private final String name;
+    private final long requestCount;
 
-    public LogResponseStreamObserver(Logger logger) {
+    public LogResponseStreamObserver(Logger logger, String name, long requestCount) {
         this.logger = Objects.requireNonNull(logger, "logger");
+        this.name = Objects.requireNonNull(name, "name");
+        this.requestCount = requestCount;
     }
 
     @Override
     public void onNext(ResT response) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Request success. result={}", logString(response));
+            logger.debug("{} Request success. result={}", logString(response));
         }
     }
 
 
     @Override
     public void onError(Throwable throwable) {
-        final StatusError statusError = StatusErrors.throwable(throwable);
-        if (statusError.isSimpleError()) {
-            logger.info("Error. cause={}", statusError.getMessage());
-        } else {
-            logger.info("Error. cause={}", statusError.getMessage(), statusError.getThrowable());
+        if (logger.isInfoEnabled()) {
+            final StatusError statusError = StatusErrors.throwable(throwable);
+            if (statusError.isSimpleError()) {
+                logger.info("{} Error. requestCount={}, cause={}", name, requestCount, statusError.getMessage());
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("{} Error. requestCount={}, cause={}", name, requestCount, statusError.getMessage(), statusError.getThrowable());
+                } else {
+                    logger.info("{} Error. requestCount={}, cause={}", name, requestCount, statusError.getMessage());
+                }
+
+            }
         }
     }
 
     @Override
     public void onCompleted() {
         if (logger.isDebugEnabled()) {
-            logger.debug("onCompleted");
+            logger.debug("{} onCompleted. requestCount={}", requestCount, name);
         }
     }
 
@@ -73,6 +84,7 @@ public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
     public String toString() {
         return "LogResponseStreamObserver{" +
                 "logger=" + logger +
+                ", name='" + name + '\'' +
                 '}';
     }
 }
