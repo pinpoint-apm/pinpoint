@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +33,7 @@ public class DefaultStringMetaDataServiceTest {
 
     @Test
     public void cacheString() {
-        EnhancedDataSender<MetaDataType, ResponseMessage> dataSender = mock(EnhancedDataSender.class);
+        DataSender<MetaDataType> dataSender = mock(DataSender.class);
         SimpleCache<String> stringCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator());
         StringMetaDataService stringMetaDataService = new DefaultStringMetaDataService(dataSender, stringCache);
 
@@ -43,11 +42,11 @@ public class DefaultStringMetaDataServiceTest {
         int first = stringMetaDataService.cacheString(str);
 
         Assertions.assertNotEquals(first, 0, "not exist");
-        verify(dataSender).request(any(StringMetaData.class));
+        verify(dataSender).send(any(StringMetaData.class));
 
         int second = stringMetaDataService.cacheString(str);
         Assertions.assertEquals(first, second, "check cache");
-        verify(dataSender).request(any(StringMetaData.class));
+        verify(dataSender).send(any(StringMetaData.class));
     }
 
 }

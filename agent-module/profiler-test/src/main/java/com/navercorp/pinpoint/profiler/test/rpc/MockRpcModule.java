@@ -72,6 +72,13 @@ public class MockRpcModule extends PrivateModule {
         bind(statDataSenderKey).toInstance(statDataSender);
         expose(statDataSenderKey);
 
+        TypeLiteral<DataSender<MetaDataType>> metadataDataSenderTypeLiteral = new TypeLiteral<DataSender<MetaDataType>>() {};
+        Key<DataSender<MetaDataType>> metadataDataSenderKey = Key.get(metadataDataSenderTypeLiteral, MetadataDataSender.class);
+        final DataSender<MetaDataType> metadataDataSender = new ListenableDataSender<>("MetadataDataSender");
+        logger.debug("metadataDataSender:{}", metadataDataSender);
+        bind(metadataDataSenderKey).toInstance(metadataDataSender);
+        expose(metadataDataSenderKey);
+
         EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender = new TestTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
         TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {
@@ -82,10 +89,6 @@ public class MockRpcModule extends PrivateModule {
         Key<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
         bind(agentDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(agentDataSender);
-
-        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
-        bind(metadataDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
-        expose(metadataDataSender);
 
 
         TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {};

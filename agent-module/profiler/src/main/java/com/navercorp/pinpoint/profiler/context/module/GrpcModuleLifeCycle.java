@@ -41,7 +41,7 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSenderProvider;
-    private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSenderProvider;
+    private final Provider<DataSender<MetaDataType>> metadataDataSenderProvider;
     private final Provider<DataSender<SpanType>> spanDataSenderProvider;
     private final Provider<DataSender<MetricType>> statDataSenderProvider;
 
@@ -49,7 +49,7 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     private final Provider<ScheduledExecutorService> reconnectScheduledExecutorProvider;
 
     private EnhancedDataSender<MetaDataType, ResponseMessage> agentDataSender;
-    private EnhancedDataSender<MetaDataType, ResponseMessage> metadataDataSender;
+    private DataSender<MetaDataType> metadataDataSender;
 
     private DataSender<SpanType> spanDataSender;
     private DataSender<MetricType> statDataSender;
@@ -62,7 +62,7 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     @Inject
     public GrpcModuleLifeCycle(
             @AgentDataSender Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSenderProvider,
-            @MetadataDataSender Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSenderProvider,
+            @MetadataDataSender Provider<DataSender<MetaDataType>> metadataDataSenderProvider,
             @SpanDataSender Provider<DataSender<SpanType>> spanDataSenderProvider,
             @StatDataSender Provider<DataSender<MetricType>> statDataSenderProvider,
             Provider<ExecutorService> dnsExecutorServiceProvider,
