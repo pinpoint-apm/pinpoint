@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.sender.grpc.MetadataGrpcDataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.MetadataGrpcHedgingDataSender;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 import io.netty.handler.ssl.SslContext;
@@ -81,17 +82,22 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         final String collectorIp = grpcTransportConfig.getMetadataCollectorIp();
         final int collectorPort = grpcTransportConfig.getMetadataCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isMetadataSslEnable();
-        final int senderExecutorQueueSize = grpcTransportConfig.getMetadataSenderExecutorQueueSize();
+
         final boolean clientRetryEnable = grpcTransportConfig.isMetadataRetryEnable();
 
         final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder(sslEnable, clientRetryEnable);
 
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
+        final int senderExecutorQueueSize = grpcTransportConfig.getMetadataSenderExecutorQueueSize();
+
+        if (clientRetryEnable) {
+            return new MetadataGrpcHedgingDataSender<>(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactory);
+        }
 
         final int retryMaxCount = grpcTransportConfig.getMetadataRetryMaxCount();
         final int retryDelayMillis = grpcTransportConfig.getMetadataRetryDelayMillis();
 
-        return new MetadataGrpcDataSender<>(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactory, retryMaxCount, retryDelayMillis, clientRetryEnable);
+        return new MetadataGrpcDataSender<>(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactory, retryMaxCount, retryDelayMillis);
     }
 
     protected ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable, boolean clientRetryEnable) {
@@ -99,7 +105,9 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getMetadataRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getMetadataClientOption();
 
-        ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("MetadataGrpcDataSender");
+        final String factoryName = getChannelFactoryName(clientRetryEnable);
+
+        ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder(factoryName);
         channelFactoryBuilder.setHeaderFactory(headerFactory);
         channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
@@ -130,5 +138,12 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         }
 
         return channelFactoryBuilder;
+    }
+
+    private String getChannelFactoryName(boolean clientRetryEnable) {
+        if (clientRetryEnable) {
+            return MetadataGrpcHedgingDataSender.class.getSimpleName();
+        }
+        return MetadataGrpcDataSender.class.getSimpleName();
     }
 }
