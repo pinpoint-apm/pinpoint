@@ -10,6 +10,9 @@
     <resultMap id="exceptionTraceValueViewEntity" type="ExceptionTraceValueViewEntity">
     </resultMap>
 
+    <resultMap id="clpConvertedEntity" type="ClpConvertedEntity">
+    </resultMap>
+
     <sql id="exceptionTraceTable">${tableName}</sql>
 
     <sql id="allGroupByAttributes">
@@ -21,7 +24,7 @@
     </sql>
 
     <sql id="filterByGivenColumnsAndValue">
-        <foreach collection="filterByAttributes.getMap()"  item="value" index="key" separator="">
+        <foreach collection="filterByAttributes.getMap()" item="value" index="key" separator="">
             AND ${key.column.name}=#{value}
         </foreach>
     </sql>
@@ -42,7 +45,8 @@
     <sql id="groupByAllAttributes">
         <choose>
             <when test="!groupByAttributes.isEmpty()">
-                , <include refid="allGroupByAttributes"></include>
+                ,
+                <include refid="allGroupByAttributes"/>
             </when>
             <otherwise>
             </otherwise>
@@ -66,7 +70,8 @@
         agentId,
         uriTemplate,
         errorClassName,
-        <include refid="getErrorMessage"></include> as "errorMessage",
+        <include refid="getErrorMessage"/>
+        as "errorMessage",
         exceptionDepth,
         stackTraceClassName,
         stackTraceFileName,
@@ -87,7 +92,8 @@
         agentId,
         uriTemplate,
         errorClassName,
-        <include refid="getErrorMessage"></include> as "errorMessage",
+        <include refid="getErrorMessage"/>
+        as "errorMessage",
         exceptionDepth,
         stackTraceHash
     </sql>
@@ -95,9 +101,9 @@
     <select id="selectExceptions" resultMap="exceptionMetaDataEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="fullExceptionColumns"></include>
+        <include refid="fullExceptionColumns"/>
         FROM
-        <include refid="exceptionTraceTable"></include>
+        <include refid="exceptionTraceTable"/>
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
@@ -119,9 +125,9 @@
     <select id="selectSummarizedExceptions" resultMap="exceptionMetaDataEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="summarizedExceptionColumns"></include>
+        <include refid="summarizedExceptionColumns"/>
         FROM
-        <include refid="exceptionTraceTable"></include>
+        <include refid="exceptionTraceTable"/>
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
@@ -131,7 +137,7 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        <include refid="filterByGivenColumnsAndValue"></include>
+        <include refid="filterByGivenColumnsAndValue"/>
         ORDER BY ${orderBy.getAttributeName} ${isDesc}
         LIMIT ${limit}
     </select>
@@ -139,9 +145,9 @@
     <select id="selectExactException" resultMap="exceptionMetaDataEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="summarizedExceptionColumns"></include>
+        <include refid="summarizedExceptionColumns"/>
         FROM
-        <include refid="exceptionTraceTable"></include>
+        <include refid="exceptionTraceTable"/>
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
@@ -161,17 +167,17 @@
     <select id="selectSummaries" resultMap="exceptionTraceSummaryEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="getGroupedFieldNameEntity"></include>
+        <include refid="getGroupedFieldNameEntity"/>
         LASTWITHTIME(errorClassName, "timestamp", 'STRING') as "mostRecentErrorClass",
         LASTWITHTIME(
-        <include refid="getErrorMessage"></include>,
+        <include refid="getErrorMessage"/>,
         "timestamp", 'STRING') as "mostRecentErrorMessage",
         count(*) as "count",
         FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
         LASTWITHTIME("timestamp", "timestamp", 'LONG') as "lastOccurred"
 
         FROM
-        <include refid="exceptionTraceTable"></include>
+        <include refid="exceptionTraceTable"/>
 
         WHERE
         tenantId = #{tenantId}
@@ -181,7 +187,7 @@
             AND agentId = #{agentId}
         </if>
         GROUP BY applicationName
-        <include refid="groupByAllAttributes"></include>
+        <include refid="groupByAllAttributes"/>
         ORDER BY count(*) desc
         LIMIT 10
     </select>
@@ -189,13 +195,13 @@
     <select id="selectValueViews" resultMap="exceptionTraceValueViewEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="getGroupedFieldNameEntity"></include>
+        <include refid="getGroupedFieldNameEntity"/>
         arraySliceInt(
         HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}), 0, #{timeWindowRangeCount}
         ) as "values"
 
         FROM
-        <include refid="exceptionTraceTable"></include>
+        <include refid="exceptionTraceTable"/>
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
@@ -204,9 +210,31 @@
             AND agentId = #{agentId}
         </if>
         GROUP BY applicationName
-        <include refid="groupByAllAttributes"></include>
+        <include refid="groupByAllAttributes"/>
         ORDER BY count(*) desc
         LIMIT 10
+    </select>
+
+    <select id="selectClpVariables" resultMap="clpConvertedEntity"
+            parameterType="ClpQueryParameter">
+        SELECT
+        ${targetColumn.getSliceFunction.getName}(${targetColumn.getColumns.getName}, #{targetIndex}, #{targetIndex} + 1)
+        as "replacedToken",
+        count(*) as "count"
+        FROM
+        <include refid="exceptionTraceTable"/>
+        WHERE
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        AND errorMessage_logtype = #{logType}
+        GROUP BY "replacedToken"
+        ORDER BY "count" desc,
+        "replacedToken"
+        LIMIT 100
     </select>
 
 </mapper>
