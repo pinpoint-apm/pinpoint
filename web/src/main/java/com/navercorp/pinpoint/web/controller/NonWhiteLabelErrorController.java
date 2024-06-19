@@ -33,7 +33,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @RestController
-@RequestMapping(value={"/api/error"})
+@RequestMapping(value={"/api-public/error"})
 @Validated
 public class NonWhiteLabelErrorController extends AbstractErrorController {
     private final ErrorProperties errorProperties;
