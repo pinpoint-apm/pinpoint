@@ -44,7 +44,6 @@ import java.util.Objects;
  * @author netspider
  */
 @RestController
-@RequestMapping("/api")
 @Validated
 public class MainController {
 
@@ -65,7 +64,7 @@ public class MainController {
         this.cacheService = Objects.requireNonNull(cacheService, "cacheService");
     }
 
-    @GetMapping(value = "/applications")
+    @GetMapping(value = "/api/applications")
     public ResponseEntity<ApplicationGroup> getApplicationGroup(
             @RequestHeader(value = "If-None-Match", required = false) @NullOrNotBlank String eTagHeader,
             @RequestParam(value = "clearCache", required = false) @NullOrNotBlank String clearCache
@@ -139,7 +138,7 @@ public class MainController {
         return eTag == null || clearCache != null;
     }
 
-    @GetMapping(value = "/serverTime")
+    @GetMapping(value = {"/api/serverTime", "/api-public/serverTime"})
     public ServerTime getServerTime() {
         return new ServerTime();
     }
