@@ -56,7 +56,7 @@ public class JwtService {
         Assert.isTrue(basicLoginProperties.getExpirationTimeSeconds() > 0, "expirationTimeSeconds must be '>= 0'");
         this.expirationTimeMillis = TimeUnit.SECONDS.toMillis(basicLoginProperties.getExpirationTimeSeconds());
 
-        byte[] keyBytes = Base64.getDecoder().decode(secretKeyStr);
+        byte[] keyBytes = Base64.getEncoder().encode(secretKeyStr.getBytes());
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
 
         JwtParserBuilder jwtParser = Jwts.parser();
