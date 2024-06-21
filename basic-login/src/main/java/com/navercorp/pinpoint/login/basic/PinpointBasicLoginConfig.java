@@ -88,7 +88,7 @@ public class PinpointBasicLoginConfig {
         // for admin
         http
                 .authorizeHttpRequests(customizer -> {
-                    customizer.requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN");
+                    customizer.requestMatchers(antMatcher("/api/admin/**")).hasRole("ADMIN");
                 })
                 .exceptionHandling(customizer -> {
                     customizer.accessDeniedPage(BasicLoginConstants.URI_NOT_AUTHORIZED);
@@ -96,7 +96,10 @@ public class PinpointBasicLoginConfig {
 
         // for user
         http.authorizeHttpRequests(customizer -> {
-            customizer.anyRequest().authenticated();
+            customizer
+                    .requestMatchers(antMatcher("/api-public/**")).permitAll()
+                    .requestMatchers(antMatcher("/api-ext-auth/**")).permitAll()
+                    .anyRequest().authenticated();
         });
 
         http.addFilterBefore(new JwtRequestFilter(basicLoginService), UsernamePasswordAuthenticationFilter.class);
