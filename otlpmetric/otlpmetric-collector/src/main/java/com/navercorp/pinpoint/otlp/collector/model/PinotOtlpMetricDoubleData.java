@@ -16,21 +16,15 @@
 
 package com.navercorp.pinpoint.otlp.collector.model;
 
-import com.navercorp.pinpoint.common.id.ApplicationId;
-import com.navercorp.pinpoint.common.id.ServiceId;
-import jakarta.validation.constraints.NotBlank;
-
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PinotOtlpMetricDoubleData extends PinotOtlpMetricDataRow {
     private final double value;
 
-    public PinotOtlpMetricDoubleData(ServiceId serviceId, ApplicationId applicationId,
+    public PinotOtlpMetricDoubleData(String serviceId, String applicationName,
                                      String agentId, String metricGroupName, String metricName, String fieldName,
                                      int flag, List<String> tags, String version, double value, Long eventTime, Long startTime) {
-        super(serviceId, applicationId, agentId, metricGroupName, metricName, fieldName, flag, tags, version, eventTime, startTime);
+        super(serviceId, applicationName, agentId, metricGroupName, metricName, fieldName, flag, tags, version, eventTime, startTime);
         this.value = value;
     }
 

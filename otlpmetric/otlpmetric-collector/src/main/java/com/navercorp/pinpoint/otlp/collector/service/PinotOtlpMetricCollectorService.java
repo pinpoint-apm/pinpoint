@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.otlp.collector.service;
 
-import com.navercorp.pinpoint.common.id.ApplicationId;
-import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.otlp.collector.dao.OtlpMetricDao;
 import com.navercorp.pinpoint.otlp.collector.model.*;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
@@ -27,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,9 +47,8 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
             logger.debug("save {}", otlpMetricData);
         }
 
-        String tenantId = otlpMetricData.getTenantId();                 // TODO: currently not used. data for different tenants will be saved to the different tables
-        ServiceId serviceId = otlpMetricData.getServiceNamespace();
-        ApplicationId applicationId = otlpMetricData.getServiceName();
+        String tenantId = otlpMetricData.getTenantId();                 // TODO: currently not used. data for different tenants will be saved to the different tables`
+        String applicationName = otlpMetricData.getServiceName();
 
         String agentId = otlpMetricData.getAgentId();
         String metricGroupName = otlpMetricData.getMetricGroupName();
@@ -77,20 +73,20 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
             }).collect(Collectors.toList());
 
             String rawTags = String.join(",", tagList);
-            PinotOtlpMetricMetadata metadata = new PinotOtlpMetricMetadata(serviceId.toString(), applicationId.toString(), agentId,
+            PinotOtlpMetricMetadata metadata = new PinotOtlpMetricMetadata("", applicationName, agentId,
                     metricGroupName, metricName, dataPoint.getFieldName(), unit, dataPoint.getDescription(), metricType,
                     dataType.getNumber(), dataPoint.getAggreFunc(), aggreTemporality, rawTags, dataPoint.getStartTime(), saveTime, version);
             otlpMetricDao.updateMetadata(metadata);
 
             if (dataType == DataType.LONG) {
                 long longValue = dataPoint.getValue().longValue();
-                PinotOtlpMetricLongData row = new PinotOtlpMetricLongData(serviceId, applicationId, agentId, metricGroupName, metricName, dataPoint.getFieldName(),
+                PinotOtlpMetricLongData row = new PinotOtlpMetricLongData("", applicationName, agentId, metricGroupName, metricName, dataPoint.getFieldName(),
                         dataPoint.getFlag(), tagList, version, longValue, dataPoint.getEventTime(), dataPoint.getStartTime());
                 otlpMetricDao.insertLong(row);
 
             } else {
                 double doubleValue = dataPoint.getValue().doubleValue();
-                PinotOtlpMetricDoubleData row = new PinotOtlpMetricDoubleData(serviceId, applicationId, agentId, metricGroupName, metricName, dataPoint.getFieldName(),
+                PinotOtlpMetricDoubleData row = new PinotOtlpMetricDoubleData("", applicationName, agentId, metricGroupName, metricName, dataPoint.getFieldName(),
                         dataPoint.getFlag(), tagList, version, doubleValue, dataPoint.getEventTime(), dataPoint.getStartTime());
                 otlpMetricDao.insertDouble(row);
             }

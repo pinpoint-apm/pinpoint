@@ -16,17 +16,12 @@
 
 package com.navercorp.pinpoint.otlp.collector.controller;
 
-import com.navercorp.pinpoint.common.id.ApplicationId;
 import com.navercorp.pinpoint.otlp.collector.mapper.OtlpMetricMapper;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
-import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricDataPoint;
 import com.navercorp.pinpoint.otlp.collector.service.OtlpMetricCollectorService;
-import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
-import com.navercorp.pinpoint.otlp.common.model.DataType;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.common.v1.KeyValue;
-import io.opentelemetry.proto.metrics.v1.DataPointFlags;
 import io.opentelemetry.proto.metrics.v1.Metric;
 import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
 import io.opentelemetry.proto.metrics.v1.ScopeMetrics;
@@ -79,9 +74,8 @@ public class OpenTelemetryMetricController {
                         otlpMetricCollectorService.save(metricData);
 
                         if (logger.isDebugEnabled()) {
-                            logger.debug("tenantId:{} serviceNamespace:{} serviceName:{} metricGroupName:{} metricName: {}",
+                            logger.debug("tenantId:{} serviceName:{} metricGroupName:{} metricName: {}",
                                     metricData.getTenantId(),
-                                    metricData.getServiceNamespace(),
                                     metricData.getServiceName(),
                                     metricData.getMetricGroupName(),
                                     metricData.getMetricName());

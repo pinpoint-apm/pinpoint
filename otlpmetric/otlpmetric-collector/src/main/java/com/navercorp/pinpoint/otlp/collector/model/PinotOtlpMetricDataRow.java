@@ -16,19 +16,15 @@
 
 package com.navercorp.pinpoint.otlp.collector.model;
 
-import com.navercorp.pinpoint.common.id.ApplicationId;
-import com.navercorp.pinpoint.common.id.ServiceId;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PinotOtlpMetricDataRow {
 
-    protected final ServiceId serviceId;
+    protected final String  serviceId;
     @NotBlank
-    protected final ApplicationId applicationId;
+    protected final String applicationName;
     @NotBlank
     protected final String agentId;
     protected final String metricGroupName;
@@ -41,12 +37,12 @@ public class PinotOtlpMetricDataRow {
     protected final Long eventTime;
     protected final Long startTime;
 
-    public PinotOtlpMetricDataRow(ServiceId serviceId, ApplicationId applicationId,
+    public PinotOtlpMetricDataRow(String serviceId, String applicationName,
                                   String agentId, String metricGroupName, String metricName, String fieldName,int flag,
                                   List<String> tags, String version,
                                   Long eventTime, Long startTime) {
         this.serviceId = serviceId;
-        this.applicationId = applicationId;
+        this.applicationName = applicationName;
         this.agentId = agentId;
         this.metricGroupName = metricGroupName;
         this.metricName = metricName;
@@ -59,11 +55,11 @@ public class PinotOtlpMetricDataRow {
     }
 
     public String getServiceId() {
-        return serviceId.toString();
+        return serviceId;
     }
 
-    public String getApplicationId() {
-        return applicationId.toString();
+    public String getApplicationName() {
+        return applicationName;
     }
 
     public String getMetricGroupName() {
@@ -105,7 +101,7 @@ public class PinotOtlpMetricDataRow {
     public String toString() {
         final StringBuilder sb = new StringBuilder("PinotOtlpMetricDataRow{");
         sb.append("serviceNamespace=").append(serviceId.toString());
-        sb.append(", serviceName=").append(applicationId.toString());
+        sb.append(", serviceName=").append(applicationName.toString());
         sb.append(", agentId=").append(agentId);
         sb.append(", metricGroupName=").append(metricGroupName);
         sb.append(", metricName=").append(metricName);
