@@ -16,18 +16,15 @@
 
 package com.navercorp.pinpoint.otlp.collector.model;
 
-import com.navercorp.pinpoint.common.id.ApplicationId;
-import com.navercorp.pinpoint.common.id.ServiceId;
-
 import java.util.List;
 
 public class PinotOtlpMetricLongData extends PinotOtlpMetricDataRow {
     private final long value;
 
-    public PinotOtlpMetricLongData(ServiceId serviceId, ApplicationId applicationId,
+    public PinotOtlpMetricLongData(String serviceId, String applicationName,
                                    String agentId, String metricGroupName, String metricName, String fieldName,
                                    int flag, List<String> tags, String version, long value, long eventTime, long startTime) {
-        super(serviceId, applicationId, agentId, metricGroupName, metricName, fieldName, flag, tags, version, eventTime, startTime);
+        super(serviceId, applicationName, agentId, metricGroupName, metricName, fieldName, flag, tags, version, eventTime, startTime);
         this.value = value;
     }
 

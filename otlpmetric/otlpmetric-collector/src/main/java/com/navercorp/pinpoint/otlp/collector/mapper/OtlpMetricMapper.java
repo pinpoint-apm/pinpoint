@@ -77,11 +77,6 @@ public class OtlpMetricMapper {
     }
 
     private void parseCommonTags(OtlpMetricData.Builder builder, Map<String, String> commonTags) {
-        String serviceNamespace = commonTags.get(KEY_SERVICE_NAMESPACE);
-        if (serviceNamespace != null) {
-            builder.setServiceNamespace(serviceNamespace);
-        }
-
         String serviceName = commonTags.get(KEY_SERVICE_NAME);
         if (serviceName == null) {
             throw new OtlpMappingException("Resource attribute `service.name` is required to save OTLP metrics to Pinpoint.");

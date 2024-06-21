@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.otlp.web.controller;
 
-import com.navercorp.pinpoint.common.id.ServiceId;
 import com.navercorp.pinpoint.otlp.web.service.OtlpMetricWebService;
 import com.navercorp.pinpoint.otlp.web.view.OtlpChartView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
@@ -34,7 +33,7 @@ import java.util.Objects;
 @RequestMapping(value = "/api/otlpMetric")
 public class OpenTelemetryMetricController {
     private final OtlpMetricWebService otlpMetricWebService;
-    private static final String DEFAULT_SERVICE_ID = ServiceId.DEFAULT_ID.toString();
+    private static final String DEFAULT_SERVICE_ID = "00000000-0000-0000-0000-000000000001";
     @NotBlank
     private final String tenantId;
 

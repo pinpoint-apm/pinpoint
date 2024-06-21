@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.otlp.collector.model;
 
-import com.navercorp.pinpoint.common.id.ApplicationId;
-import com.navercorp.pinpoint.common.id.ServiceId;
-import com.navercorp.pinpoint.otlp.collector.mapper.OtlpMappingException;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import io.opentelemetry.proto.metrics.v1.AggregationTemporality;
 import jakarta.validation.constraints.NotBlank;
@@ -27,12 +24,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class OtlpMetricData {
     private final String tenantId;
-    private final ServiceId serviceNamespace;
-    @NotBlank private final ApplicationId serviceName;
+    @NotBlank private final String serviceName;
     @NotBlank private final String agentId;
 
     private final String metricGroupName;
@@ -47,7 +42,6 @@ public class OtlpMetricData {
 
     public OtlpMetricData(Builder builder) {
         this.tenantId = builder.tenantId;
-        this.serviceNamespace = builder.serviceNamespace;
         this.serviceName = builder.serviceName;
         this.agentId = builder.agentId;
 
@@ -65,11 +59,7 @@ public class OtlpMetricData {
         return tenantId;
     }
 
-    public ServiceId getServiceNamespace() {
-        return serviceNamespace;
-    }
-
-    public ApplicationId getServiceName() {
+    public String getServiceName() {
         return serviceName;
     }
 
@@ -104,8 +94,7 @@ public class OtlpMetricData {
     public static class Builder {
         private final Logger logger = LogManager.getLogger(this.getClass());
         private String tenantId;
-        private ServiceId serviceNamespace = ServiceId.DEFAULT_ID;
-        private ApplicationId serviceName;
+        private String serviceName;
         private String agentId;
 
         private String metricGroupName = "";
@@ -118,7 +107,6 @@ public class OtlpMetricData {
 
         private List<OtlpMetricDataPoint> value = new ArrayList<>();
 
-
         public OtlpMetricData build() {
             return new OtlpMetricData(this);
         }
@@ -127,20 +115,8 @@ public class OtlpMetricData {
             this.tenantId = tenantId;
         }
 
-        public void setServiceNamespace(String serviceNamespace) {
-            try {
-                this.serviceNamespace = ServiceId.of(UUID.fromString(serviceNamespace));
-            } catch (IllegalArgumentException e) {
-                this.serviceNamespace = ServiceId.DEFAULT_ID;
-                logger.info("Otlp metric service.namespace doesn't match Pinpoint serviceId format (UUID). service.namespace:{}", serviceNamespace);
-            }
-        }
         public void setServiceName(String serviceName) {
-            try {
-                this.serviceName = ApplicationId.of(UUID.fromString(serviceName));
-            } catch (IllegalArgumentException e) {
-                throw new OtlpMappingException("Resource attribute `service.name` doesn't match Pinpoint applicationId format (UUID). service.name:" + serviceName);
-            }
+            this.serviceName = serviceName;
         }
 
         public void setMetricGroupName(String metricGroupName) {
@@ -180,7 +156,6 @@ public class OtlpMetricData {
     public String toString() {
         final StringBuilder sb = new StringBuilder("OtlpMetricData{");
         sb.append("tenantId='").append(tenantId).append('\'');
-        sb.append(", serviceNamespace='").append(serviceNamespace).append('\'');
         sb.append(", serviceName='").append(serviceName).append('\'');
         sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", metricGroupName='").append(metricGroupName).append('\'');
