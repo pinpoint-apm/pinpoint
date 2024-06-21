@@ -1,5 +1,5 @@
 {
-  "tableName": "exceptionTraceV1",
+  "tableName": "exceptionTrace",
   "tableType": "REALTIME",
   "segmentsConfig": {
     "schemaName": "exceptionTrace",
