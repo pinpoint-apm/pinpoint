@@ -19,6 +19,7 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.SocketOptions;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.resource.ClientResources;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -72,7 +73,7 @@ public class RedisBasicConfig {
     boolean ioLettuceCoreKqueue;
 
     @Bean
-    public RedisTemplate<String, String> redisStringToStringTemplate(RedisConnectionFactory connectionFactory) {
+    public RedisTemplate<String, String> redisStringToStringTemplate(@Qualifier("redisConnectionFactory") RedisConnectionFactory connectionFactory) {
         final RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(RedisSerializer.string());
@@ -81,7 +82,7 @@ public class RedisBasicConfig {
     }
 
     @Bean("reactiveRedisTemplate")
-    public ReactiveRedisTemplate<String, String> reactiveRedisTemplate(ReactiveRedisConnectionFactory connectionFactory) {
+    public ReactiveRedisTemplate<String, String> reactiveRedisTemplate(@Qualifier("redisConnectionFactory") ReactiveRedisConnectionFactory connectionFactory) {
         return new ReactiveRedisTemplate<>(connectionFactory, RedisSerializationContext.string());
     }
 
@@ -134,7 +135,7 @@ public class RedisBasicConfig {
                 .build();
     }
 
-    @Bean
+    @Bean(name = "redisConnectionFactory")
     public LettuceConnectionFactory redisConnectionFactory(
             RedisConfiguration redisConfig,
             LettuceClientConfiguration clientConfiguration
