@@ -19,6 +19,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  getExecPercentage,
 } from '../..';
 import { TransactionInfo } from '@pinpoint-fe/constants';
 import { RxMagnifyingGlass } from 'react-icons/rx';
@@ -209,10 +210,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           const originalData = cell.getContext().row.original;
 
           if (cell.column.id === 'excutionPercentage') {
-            content = `${(
-              (Number(originalData.executionMilliseconds) / Number(originalData?.elapsedTime)) *
-              100
-            ).toFixed(0)}`;
+            content = `${getExecPercentage(metaData, originalData).toFixed(0)}`;
           } else if (cell.column.id === 'begin') {
             content = originalData.begin
               ? `${format(originalData.begin, 'HH:mm:ss SSS')} (${originalData.begin})`

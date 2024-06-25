@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { Button, ProgressBar } from '../..';
-import { convertParamsToQueryString, getErrorAnalysisPath } from '@pinpoint-fe/utils';
+import { addCommas, convertParamsToQueryString, getErrorAnalysisPath } from '@pinpoint-fe/utils';
 import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
 
 export interface CallTreeTableColumnsProps {
@@ -102,7 +102,7 @@ export const callTreeTableColumns = ({
     header: 'Exec(ms)',
     size: 65,
     cell: (props) => {
-      return props.getValue();
+      return addCommas(props.getValue() as string);
     },
     meta: {
       cellClassName: 'grow-0 text-right',
@@ -117,16 +117,19 @@ export const callTreeTableColumns = ({
       const rowData = props.row.original;
       const entireTime = Number(rowData?.elapsedTime) || 0;
       if (entireTime) {
-        const execTime = Number(rowData.executionMilliseconds) || 0;
+        const percentage = getExecPercentage(metaData, rowData);
 
         return (
-          <ProgressBar
-            className="z-[-1]"
-            range={[0, entireTime]}
-            progress={execTime}
-            tickCount={0}
-            hideTick
-          />
+          <div className="flex items-center w-full h-full">
+            <ProgressBar
+              className="z-[-1]"
+              style={{ width: `${percentage}%` }}
+              range={[0, rowData.end - rowData.begin]}
+              progress={Number(rowData.executionMilliseconds)}
+              tickCount={0}
+              hideTick
+            />
+          </div>
         );
       }
       return null;
@@ -141,7 +144,7 @@ export const callTreeTableColumns = ({
     header: 'Self(ms)',
     size: 65,
     cell: (props) => {
-      return props.getValue();
+      return addCommas(props.getValue() as string);
     },
     meta: {
       cellClassName: 'grow-0 text-right',
@@ -300,4 +303,12 @@ const MethodCell = (props: {
       <div className="ml-1 truncate">{text}</div>
     </>
   );
+};
+
+export const getExecPercentage = (
+  metaData: TransactionInfo.Response,
+  rowData: TransactionInfo.CallStackKeyValueMap,
+) => {
+  const totalExcuteTime = metaData.callStackEnd - metaData.callStackStart;
+  return ((rowData.end - rowData.begin) / totalExcuteTime) * 100;
 };
