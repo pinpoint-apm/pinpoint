@@ -32,9 +32,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorService {
-    private static final String KEY_SERVICE_NAME = "service.name";
-    private static final String KEY_SERVICE_NAMESPACE = "service.namespace";
-    private static final String KEY_PINPOINT_AGENTID = "pinpoint.agentid";
     private final Logger logger = LogManager.getLogger(this.getClass());
     @NotNull private final OtlpMetricDao otlpMetricDao;
 
@@ -67,7 +64,7 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
 
             List<String> tagList = tags.entrySet().stream().filter((e) -> {
                 String key = e.getKey().toLowerCase();
-                return (!key.equals(KEY_SERVICE_NAME) && !key.equals(KEY_SERVICE_NAMESPACE) && !key.equals(KEY_PINPOINT_AGENTID));
+                return (!key.equals(OtlpResourceAttributes.KEY_SERVICE_NAME) && !key.equals(OtlpResourceAttributes.KEY_SERVICE_NAMESPACE) && !key.equals(OtlpResourceAttributes.KEY_PINPOINT_AGENTID));
             }).map((e) -> {
                 return e.getKey() + ":" + e.getValue();
             }).collect(Collectors.toList());
