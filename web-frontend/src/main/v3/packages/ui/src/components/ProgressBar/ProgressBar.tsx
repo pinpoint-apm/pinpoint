@@ -10,6 +10,7 @@ export interface ProgressBarProps {
   tickCount?: number;
   reverse?: boolean;
   hideTick?: boolean;
+  style?: React.CSSProperties;
   formatTick?: (value: number) => React.ReactNode;
   onChange?: ({ percent }: { percent: number }) => void;
 }
@@ -22,6 +23,7 @@ export const ProgressBar = ({
   tickCount = 5,
   reverse = false,
   hideTick = false,
+  style,
   formatTick,
   onChange,
 }: ProgressBarProps) => {
@@ -50,7 +52,7 @@ export const ProgressBar = ({
   }, [progress]);
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative', className)} style={style}>
       <div
         className={cn(
           'relative, w-full h-2.5 rounded-sm flex justify-evenly bg-border',
@@ -102,72 +104,3 @@ export const ProgressBar = ({
     </div>
   );
 };
-
-// const StyledProgressBarContainer = styled.div`
-//   position: relative;
-//   width: 100%;
-//   height: 10px;
-//   border-radius: 3px;
-//   display: flex;
-//   justify-content: space-evenly;
-//   background-color: var(--border-primary-lighter);
-// `;
-
-// const StyledProgressBar = styled.div<{
-//   reverse: boolean;
-//   colors: ProgressBarProps['colors'];
-// }>`
-//   position: absolute;
-//   top: 0px;
-//   height: 100%;
-//   border-radius: 3px;
-
-//   transition: 0.75s ease;
-//   transition-delay: 0.1s;
-//   ${({ reverse, colors }) => {
-//     if (reverse) {
-//       return {
-//         right: 0,
-//         background: `linear-gradient(90deg, ${colors![1]} 0%, ${colors![0]} 100%)`,
-//       };
-//     }
-//     return {
-//       left: 0,
-//       background: `linear-gradient(90deg, ${colors![0]} 0%, ${colors![1]} 100%)`,
-//     };
-//   }}
-// `;
-
-// const StyledTickBar = styled.div`
-//   width: 2px;
-//   height: 100%;
-//   background: var(--white-default);
-//   z-index: 1;
-// `;
-
-// const StyledTickContainer = styled.div`
-//   display: flex;
-// `;
-
-// const StyledTickWrapper = styled.div<{
-//   index: number;
-//   tickCount: number;
-//   reverse: boolean;
-// }>`
-//   position: absolute;
-//   transform: translateX(-50%);
-
-//   ${({ reverse, index, tickCount }) => {
-//     if (reverse) {
-//       return {
-//         right: `${(100 / (tickCount + 1)) * index}%`,
-//         transform: 'translateX(50%)',
-//       };
-//     } else {
-//       return {
-//         left: `${(100 / (tickCount + 1)) * index}%`,
-//         transform: 'translateX(-50%)',
-//       };
-//     }
-//   }}
-// `;
