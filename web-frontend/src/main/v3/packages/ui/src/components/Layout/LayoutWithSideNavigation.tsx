@@ -57,7 +57,12 @@ export const LayoutWithSideNavigation = ({
     const subMenuContentElement =
       hoverRef.current?.querySelector<HTMLDivElement>('.ps-submenu-content');
     const isHover = useDebounce(useHover(hoverRef), 150);
-    const isActive = item.childItems?.some(({ href = '' }) => pathname.includes(href));
+    const isActive = item.childItems?.some(({ href }) => {
+      if (href) {
+        return pathname.includes(href);
+      }
+      return false;
+    });
 
     React.useEffect(() => {
       if (collapsed && subMenuContentElement) {
