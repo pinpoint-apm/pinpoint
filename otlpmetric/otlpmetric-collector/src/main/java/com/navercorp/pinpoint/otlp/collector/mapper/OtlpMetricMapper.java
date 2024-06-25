@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.collector.mapper;
 
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
+import com.navercorp.pinpoint.otlp.collector.model.OtlpResourceAttributes;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import io.opentelemetry.proto.metrics.v1.Metric;
 import jakarta.validation.constraints.NotNull;
@@ -29,10 +30,6 @@ import java.util.Objects;
 
 @Component
 public class OtlpMetricMapper {
-    private static final String KEY_SERVICE_NAME = "service.name";
-    private static final String KEY_SERVICE_NAMESPACE = "service.namespace";
-    private static final String KEY_PINPOINT_AGENTID = "pinpoint.agentId";
-    private static final String KEY_PINPOINT_METRIC_VERSION = "pinpoint.metric.version";
     private final Logger logger = LogManager.getLogger(this.getClass());
     private String tenantId = "";
     @NotNull private final OtlpMetricDataMapper[] mappers;
@@ -77,18 +74,18 @@ public class OtlpMetricMapper {
     }
 
     private void parseCommonTags(OtlpMetricData.Builder builder, Map<String, String> commonTags) {
-        String serviceName = commonTags.get(KEY_SERVICE_NAME);
+        String serviceName = commonTags.get(OtlpResourceAttributes.KEY_SERVICE_NAME);
         if (serviceName == null) {
             throw new OtlpMappingException("Resource attribute `service.name` is required to save OTLP metrics to Pinpoint.");
         }
         builder.setServiceName(serviceName);
 
-        String agentId= commonTags.get(KEY_PINPOINT_AGENTID);
+        String agentId= commonTags.get(OtlpResourceAttributes.KEY_PINPOINT_AGENTID);
         if (agentId == null) {
             throw new OtlpMappingException("Resource attribute `pinpoint.agentId` is required to save OTLP metrics to Pinpoint");
         }
 
-        String version = commonTags.get(KEY_PINPOINT_METRIC_VERSION);
+        String version = commonTags.get(OtlpResourceAttributes.KEY_PINPOINT_METRIC_VERSION);
         if (version != null) {
             builder.setVersion(version);
         }
