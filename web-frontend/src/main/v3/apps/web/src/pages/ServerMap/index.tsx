@@ -376,7 +376,7 @@ export const ServerMapPage = ({}: ServermapPageProps) => {
                         ) : (
                           <>
                             {serverMapCurrentTarget.type === 'node' &&
-                            (currentTargetData as GetServerMap.NodeData).instanceCount ? (
+                            (currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
                               <div className="flex items-center h-12 py-2.5 px-4">
                                 <Button
                                   className="px-2 py-1 text-xs"
