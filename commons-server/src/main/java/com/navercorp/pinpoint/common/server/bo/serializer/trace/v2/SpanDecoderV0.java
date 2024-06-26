@@ -106,17 +106,16 @@ public class SpanDecoderV0 implements SpanDecoder {
     }
 
     public void readSpanValue(Buffer buffer, SpanBo span, SpanDecodingContext decodingContext) {
-
         final byte version = buffer.readByte();
 
         span.setVersion(version);
 
-        final SpanBitField bitFiled = new SpanBitField(buffer.readByte());
+        final SpanBitField bitField = new SpanBitField(buffer.readByte());
 
         final short serviceType = buffer.readShort();
         span.setServiceType(serviceType);
 
-        switch (bitFiled.getApplicationServiceTypeEncodingStrategy()) {
+        switch (bitField.getApplicationServiceTypeEncodingStrategy()) {
             case PREV_EQUALS:
                 span.setApplicationServiceType(serviceType);
                 break;
@@ -127,7 +126,7 @@ public class SpanDecoderV0 implements SpanDecoder {
                 throw new IllegalStateException("applicationServiceType");
         }
 
-        if (!bitFiled.isRoot()) {
+        if (!bitField.isRoot()) {
             span.setParentSpanId(buffer.readLong());
         } else {
             span.setParentSpanId(-1);
@@ -144,27 +143,27 @@ public class SpanDecoderV0 implements SpanDecoder {
         span.setRemoteAddr(buffer.readPrefixedString());
         span.setApiId(buffer.readSVInt());
 
-        if (bitFiled.isSetErrorCode()) {
+        if (bitField.isSetErrorCode()) {
             span.setErrCode(buffer.readInt());
         }
-        if (bitFiled.isSetHasException()) {
+        if (bitField.isSetHasException()) {
             int exceptionId = buffer.readSVInt();
             String exceptionMessage = buffer.readPrefixedString();
             span.setExceptionInfo(exceptionId, exceptionMessage);
         }
 
-        if (bitFiled.isSetFlag()) {
+        if (bitField.isSetFlag()) {
             span.setFlag(buffer.readShort());
         }
 
-        if (bitFiled.isSetLoggingTransactionInfo()) {
+        if (bitField.isSetLoggingTransactionInfo()) {
             span.setLoggingTransactionInfo(buffer.readByte());
         }
 
         span.setAcceptorHost(buffer.readPrefixedString());
 
 
-        if (bitFiled.isSetAnnotation()) {
+        if (bitField.isSetAnnotation()) {
             List<AnnotationBo> annotationBoList = readAnnotationList(buffer, decodingContext);
             span.setAnnotationBoList(annotationBoList);
         }
