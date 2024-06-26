@@ -11,6 +11,7 @@ import { useGetScatterData, useServerMapSearchParameters } from '@pinpoint-fe/ho
 import { scatterDataAtom } from '@pinpoint-fe/atoms';
 import { useAtom } from 'jotai';
 import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './core';
+import { useStoragedAxisY } from './core/useStoragedAxisY';
 
 export interface ScatterChartFetcherProps {
   node: CurrentTarget;
@@ -29,7 +30,7 @@ export const ScatterChartFetcher = ({
   const to = dateRange.to.getTime();
   const currentNode = `${node.applicationName}^${node.serviceType}`;
   const [x, setX] = React.useState<[number, number]>([from, to]);
-  const [y, setY] = React.useState<[number, number]>([0, 10000]);
+  const [y, setY] = useStoragedAxisY();
   const isScatterMounted = scatterRef.current?.isMounted();
   const { data, isLoading, setQueryParams } = useGetScatterData(node);
   const [scatterData, setScatterData] = useAtom(scatterDataAtom);

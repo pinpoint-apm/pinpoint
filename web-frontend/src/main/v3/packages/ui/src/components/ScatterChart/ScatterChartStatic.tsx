@@ -19,6 +19,7 @@ import {
   ScatterChartHandle,
 } from './core/ScatterChartCore';
 import { useServerMapSearchParameters } from '@pinpoint-fe/hooks';
+import { useStoragedAxisY } from './core/useStoragedAxisY';
 
 export interface ScatterChartStaticProps
   extends Pick<ScatterChartCoreProps, 'toolbarOption' | 'onDragEnd'> {
@@ -38,7 +39,7 @@ export const ScatterChartStatic = ({
   const { searchParameters } = useServerMapSearchParameters();
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const [x, setX] = React.useState<[number, number]>([range[0], range[1]]);
-  const [y, setY] = React.useState<[number, number]>([0, 10000]);
+  const [y, setY] = useStoragedAxisY();
   const isScatterMounted = scatterRef?.current?.isMounted();
 
   React.useEffect(() => {

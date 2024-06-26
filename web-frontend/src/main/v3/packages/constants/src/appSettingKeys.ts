@@ -18,6 +18,7 @@ export enum APP_SETTING_KEYS {
   AGENT_LIST_SORT = 'agentListSort',
   TRANSACTION_LIST_RESIZABLE = 'transactionListResizable',
   TRANSACTION_DETAIL_RESIZABLE = 'transactionDetailResizable',
+  SCATTER_Y_AXIS_MIN_MAX = 'scatterYAxisMinMax',
   SERVER_MAP_HORIZONTAL_RESIZABLE = 'serverMapHorizontalResizable',
   REALTIME_ACTIVE_REQUEST_RESIZABLE = 'realtimeActiveRequestResizable',
   CONFIG_LAST_SELECTED_APPLICATION = 'configLastSelectedApplication',
