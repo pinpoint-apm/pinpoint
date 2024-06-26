@@ -19,10 +19,10 @@ export const TimelineDetail = ({ start, data, onClose }: TimelineDetailProps) =>
   return (
     <div className="w-2/5 border-l min-w-96">
       <div className="flex items-center h-12 p-2 text-sm font-semibold border-b relativ bg-secondary/50">
-        Timeline detail
+        <div className="truncate">{data.name}</div>
         <div className="flex items-center ml-auto">
           <Button
-            className="text-xs"
+            className="text-xs text-nowrap"
             variant="link"
             onClick={() => {
               setCurrentTab('callTree');
@@ -39,14 +39,21 @@ export const TimelineDetail = ({ start, data, onClose }: TimelineDetailProps) =>
       <Separator />
       <div className="overflow-auto h-[calc(100%-3.2rem)]">
         <div className="p-2 pl-3 pb-4 text-xs [&>*:nth-child(2n-1)]:font-semibold grid grid-cols-[10rem_auto] [&>*:nth-child(2n)]:break-all gap-1">
+          <div>name</div>
+          <div>{data.name}</div>
+          <div>Application Name</div>
+          <div>{data.args['Application Name']}</div>
           <div>Category </div>
           <div>{data.cat}</div>
           <div>Start time </div>
           <div>{(data.ts - start * 1000) / 1000}ms</div>
           <div>Duration </div>
-          <div>{data.dur}ms</div>
+          <div>{data.dur / 1000}ms</div>
           {data?.args &&
             Object.entries(data.args).map(([key, value]) => {
+              if (key === 'Application Name') {
+                return <></>;
+              }
               return (
                 <React.Fragment key={key}>
                   <div>{key}</div>

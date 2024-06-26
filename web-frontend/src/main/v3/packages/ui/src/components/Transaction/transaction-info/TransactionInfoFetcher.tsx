@@ -26,7 +26,7 @@ export interface TransactionInfoFetcherProps {
 const tabList = [
   { id: 'callTree', display: 'Call Tree' },
   { id: 'serverMap', display: 'Server Map' },
-  { id: 'timeline', display: 'Timeline' },
+  { id: 'flameGraph', display: 'Flame Graph' },
 ];
 
 export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcherProps) => {
@@ -143,7 +143,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
               disableMenu
             />
           );
-        } else if (tab.id === 'timeline') {
+        } else if (tab.id === 'flameGraph') {
           Content = <Timeline transactionInfo={data} />;
         }
         return (
