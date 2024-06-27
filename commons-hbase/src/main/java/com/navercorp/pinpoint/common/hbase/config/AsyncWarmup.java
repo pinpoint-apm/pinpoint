@@ -21,26 +21,27 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.RegionLocator;
+import org.apache.hadoop.hbase.client.AsyncConnection;
+import org.apache.hadoop.hbase.client.AsyncTableRegionLocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.StopWatch;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class Warmup implements Consumer<Connection> {
+public class AsyncWarmup implements Consumer<AsyncConnection> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TableNameProvider tableNameProvider;
 
     private List<HbaseTable> warmUpExclusive = List.of(HbaseTable.AGENT_URI_STAT);
 
-    public Warmup(TableNameProvider tableNameProvider) {
+    public AsyncWarmup(TableNameProvider tableNameProvider) {
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
@@ -48,10 +49,10 @@ public class Warmup implements Consumer<Connection> {
         this.warmUpExclusive = warmUpExclusive;
     }
 
-    public void warmup(Connection connection) {
+    public void asyncWarmup(AsyncConnection connection) {
         String warmup = this.getClass().getSimpleName();
 
-        logger.info("{} for hbase Connection started", warmup);
+        logger.info("{} for hbase AsyncConnection started", warmup);
         List<HbaseTable> warmUpInclusive = new ArrayList<>(List.of(HbaseTable.values()));
         if (warmUpExclusive != null) {
             warmUpInclusive.removeAll(warmUpExclusive);
@@ -62,22 +63,23 @@ public class Warmup implements Consumer<Connection> {
                 TableName tableName = tableNameProvider.getTableName(hBaseTable);
                 logger.info("{} for hbase table start: {}", warmup, tableName.toString());
 
-                StopWatch stopWatch = new StopWatch(this.getClass().getName() + "-" + tableName.getNameAsString());
+                StopWatch stopWatch = new StopWatch(warmup + "-" + tableName.getNameAsString());
                 stopWatch.start();
 
-                RegionLocator regionLocator = connection.getRegionLocator(tableName);
-                List<HRegionLocation> allRegion = regionLocator.getAllRegionLocations();
+                AsyncTableRegionLocator regionLocator = connection.getRegionLocator(tableName);
+                CompletableFuture<List<HRegionLocation>> allRegionFuture = regionLocator.getAllRegionLocations();
+                List<HRegionLocation> allRegion = allRegionFuture.get(3, TimeUnit.MINUTES);
 
                 stopWatch.stop();
                 logger.info("{} allRegionLocations {}  regionSize:{} {}ms", warmup, tableName, allRegion.size(), stopWatch.getTotalTimeMillis());
-            } catch (IOException e) {
-                logger.warn("Failed to {} for Table:{}. message:{}", warmup, hBaseTable.getName(), e.getMessage(), e);
+            } catch (Throwable th) {
+                logger.warn("Failed to {} for Table:{}. message:{}", warmup, hBaseTable.getName(), th.getMessage(), th);
             }
         }
     }
 
     @Override
-    public void accept(Connection connection) {
-        warmup(connection);
+    public void accept(AsyncConnection connection) {
+        asyncWarmup(connection);
     }
 }

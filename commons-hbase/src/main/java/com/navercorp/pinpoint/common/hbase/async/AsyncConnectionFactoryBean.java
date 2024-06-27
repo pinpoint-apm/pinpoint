@@ -28,6 +28,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * @author HyunGil Jeong
@@ -49,10 +51,16 @@ public class AsyncConnectionFactoryBean implements FactoryBean<AsyncConnection>,
     private AsyncConnection connection;
 
     private AsyncConnectionCleaner cleaner = new AsyncConnectionCleaner();
+    private Consumer<AsyncConnection> postProcessor;
 
     public AsyncConnectionFactoryBean(Configuration configuration, User user) {
         this.configuration = Objects.requireNonNull(configuration, "configuration");
         this.user = Objects.requireNonNull(user, "user");
+    }
+
+    @Autowired(required = false)
+    public void setPostProcessor(Consumer<AsyncConnection> postProcessor) {
+        this.postProcessor = postProcessor;
     }
 
     @Override
@@ -60,6 +68,9 @@ public class AsyncConnectionFactoryBean implements FactoryBean<AsyncConnection>,
         try {
             CompletableFuture<AsyncConnection> future = ConnectionFactory.createAsyncConnection(this.configuration, user);
             this.connection = future.get(10000, TimeUnit.MILLISECONDS);
+            if (postProcessor != null) {
+                postProcessor.accept(connection);
+            }
         } catch (ExecutionException e) {
             throw new HbaseSystemException(e);
         }
@@ -72,7 +83,7 @@ public class AsyncConnectionFactoryBean implements FactoryBean<AsyncConnection>,
 
     @Override
     public Class<AsyncConnection> getObjectType() {
-       return AsyncConnection.class;
+        return AsyncConnection.class;
     }
 
     @Override
