@@ -159,7 +159,7 @@
         <plugin.jacoco.skip>true</plugin.jacoco.skip>
 
         <!-- library -->
-        <metrics.version>3.2.6</metrics.version>
+        <dropwizard-metrics.version>4.2.26</dropwizard-metrics.version>
 
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
 
@@ -881,24 +881,10 @@
             <!-- serving performance metrics -->
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-jvm</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-servlets</artifactId>
-                <version>${metrics.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.papertrail</groupId>
-                        <artifactId>profiler</artifactId>
-                    </exclusion>
-                </exclusions>
+                <artifactId>metrics-bom</artifactId>
+                <version>${dropwizard-metrics.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
