@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.it.plugin.grpc;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.examples.helloworld.GreeterGrpc;
@@ -27,6 +28,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
 
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -77,7 +79,8 @@ public class HelloWorldSimpleClient implements HelloWorldClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
         Future<?> future = eventExecutors.shutdownGracefully(500, 500, TimeUnit.MILLISECONDS);
         future.await(1000);
-        workerExecutor.shutdownNow();
+
+        MoreExecutors.shutdownAndAwaitTermination(workerExecutor, Duration.ofSeconds(3));
     }
 
     public String greet(String name) {

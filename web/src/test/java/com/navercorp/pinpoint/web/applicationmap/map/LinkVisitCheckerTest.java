@@ -17,11 +17,13 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,6 +84,8 @@ public class LinkVisitCheckerTest {
         visitedLatch.await();
         Assertions.assertEquals(1, firstVisitCount.get());
         Assertions.assertEquals(concurrency - 1, alreadyVisitedCount.get());
+
+        MoreExecutors.shutdownAndAwaitTermination(executorService, Duration.ofSeconds(3));
     }
 
     @Test
@@ -114,6 +118,8 @@ public class LinkVisitCheckerTest {
         visitedLatch.await();
         Assertions.assertEquals(3, firstVisitCount.get());
         Assertions.assertEquals(concurrency - 3, alreadyVisitedCount.get());
+
+        MoreExecutors.shutdownAndAwaitTermination(executorService, Duration.ofSeconds(3));
     }
 
     private static class VisitJobContext {

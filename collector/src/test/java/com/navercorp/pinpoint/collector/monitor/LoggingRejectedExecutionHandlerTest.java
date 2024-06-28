@@ -16,33 +16,41 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
+import com.google.common.util.concurrent.MoreExecutors;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class LoggingRejectedExecutionHandlerTest {
 
-    @Test
-    public void rejectedExecution() throws Exception{
-        LoggingRejectedExecutionHandler handler = new LoggingRejectedExecutionHandler("testExecutor", 10);
+    ThreadPoolExecutor executor;
 
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(10);
-                } catch (InterruptedException e) {
-                }
-            }
-        };
+    @BeforeEach
+    void setUp() {
+        this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+    }
 
-        for (int i = 0; i < 100; i++) {
-            executor.execute(runnable);
-            handler.rejectedExecution(runnable, executor);
-            TimeUnit.MILLISECONDS.sleep(100);
+    @AfterEach
+    void tearDown() {
+        if (executor != null) {
+            MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
         }
     }
+
+    @Test
+    public void rejectedExecution() {
+        LoggingRejectedExecutionHandler handler = new LoggingRejectedExecutionHandler("testExecutor", 10);
+
+        Runnable runnable = () -> {
+            //
+        };
+        for (int i = 0; i < 100; i++) {
+            handler.rejectedExecution(runnable, executor);
+        }
+    }
+
 }

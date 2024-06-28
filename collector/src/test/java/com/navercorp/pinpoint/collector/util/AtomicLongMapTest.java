@@ -17,12 +17,14 @@
 package com.navercorp.pinpoint.collector.util;
 
 import com.google.common.util.concurrent.AtomicLongMap;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -138,7 +140,7 @@ public class AtomicLongMapTest {
         Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
 
 
-        executorService.shutdown();
+        MoreExecutors.shutdownAndAwaitTermination(executorService, Duration.ofSeconds(3));
         logger.debug("total={} sum:{}", totalCounter.get(), sumCounter.get());
         Assertions.assertEquals(totalCounter.get(), sumCounter.get(), "concurrent remove and increment");
 

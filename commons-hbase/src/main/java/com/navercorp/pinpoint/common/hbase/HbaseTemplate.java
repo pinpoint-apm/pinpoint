@@ -54,12 +54,14 @@ import org.apache.hadoop.hbase.client.ScanResultConsumer;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hbase.thirdparty.com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,7 +74,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
@@ -86,8 +87,6 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
     private static final int DEFAULT_MAX_THREADS_FOR_PARALLEL_SCANNER = 128;
     private static final int DEFAULT_MAX_THREADS_PER_PARALLEL_SCAN = 1;
-
-    private static final long DEFAULT_DESTORY_TIMEOUT = 2000;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -164,12 +163,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
             logger.info("HBaseTemplate.destroy()");
             final ExecutorService executor = this.executor;
             if (executor != null) {
-                executor.shutdown();
-                try {
-                    executor.awaitTermination(DEFAULT_DESTORY_TIMEOUT, TimeUnit.MILLISECONDS);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
             }
         }
     }
