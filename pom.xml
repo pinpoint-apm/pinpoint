@@ -200,7 +200,6 @@
 
         <jakarta.servlet5.version>5.0.0</jakarta.servlet5.version>
         <jakarta.servlet6.version>6.0.0</jakarta.servlet6.version>
-        <jakarta.annotation-api2.version>2.1.1</jakarta.annotation-api2.version>
         <jaxb4.version>4.0.0</jaxb4.version>
         <jakarta.validation-api3.version>3.0.2</jakarta.validation-api3.version>
 
@@ -1751,6 +1750,11 @@
                     <configuration>
                         <createDependencyReducedPom>false</createDependencyReducedPom>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>jaxb2-maven-plugin</artifactId>
+                    <version>3.1.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
