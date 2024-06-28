@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.batch.common;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -62,6 +64,6 @@ public class StartupJobLauncher implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() {
-        this.executor.shutdownNow();
+        MoreExecutors.shutdownAndAwaitTermination(this.executor, Duration.ofSeconds(3));
     }
 }
