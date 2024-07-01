@@ -33,6 +33,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberConstructorInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnNextInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeOrReturnInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -961,6 +963,15 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
                 if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
                 }
+            }
+
+            final InstrumentMethod onSubscribeMethod = target.getDeclaredMethod("onSubscribe", "org.reactivestreams.Subscription");
+            if (onSubscribeMethod != null) {
+                onSubscribeMethod.addInterceptor(CoreSubscriberOnSubscribeInterceptor.class);
+            }
+            final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
+            if (onNextMethod != null) {
+                onNextMethod.addScopedInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR), "CoreSubscriberOnNext");
             }
 
             return target.toBytecode();
