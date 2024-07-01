@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.it.plugin.grpc;
 
+import java.io.Closeable;
+
 /**
  * @author Taejin Koo
  */
-public interface HelloWorldClient {
-
-    void shutdown() throws Exception;
+public interface HelloWorldClient extends Closeable {
 
 }
