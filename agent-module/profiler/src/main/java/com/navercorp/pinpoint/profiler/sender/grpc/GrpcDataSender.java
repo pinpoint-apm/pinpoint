@@ -19,18 +19,10 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
-import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
-import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import io.grpc.ConnectivityState;
-import io.grpc.ManagedChannel;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -39,75 +31,19 @@ import java.util.concurrent.ThreadFactory;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public abstract class GrpcDataSender<T> implements DataSender<T> {
-    protected final Logger logger = LogManager.getLogger(this.getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
-
-    protected final String name;
-    protected final String host;
-    protected final int port;
-
-    protected final ManagedChannel managedChannel;
-    protected final long logId;
-
-    // not thread safe
-    protected final MessageConverter<T, GeneratedMessageV3> messageConverter;
+public abstract class GrpcDataSender<T> extends AbstractGrpcDataSender<T> {
 
     protected final ExecutorService executor;
-
-    protected final ChannelFactory channelFactory;
-
-    protected volatile boolean shutdown;
-    
     protected final BlockingQueue<T> queue;
-    protected final ThrottledLogger tLogger;
-
 
     public GrpcDataSender(String host, int port,
                           int executorQueueSize,
                           MessageConverter<T, GeneratedMessageV3> messageConverter,
                           ChannelFactory channelFactory) {
-        this.channelFactory = Objects.requireNonNull(channelFactory, "channelFactory");
-
-        this.name = Objects.requireNonNull(channelFactory.getFactoryName(), "channelFactory.name");
-        this.host = Objects.requireNonNull(host, "host");
-        this.port = port;
-
-        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
+        super(host, port, messageConverter, channelFactory);
 
         this.executor = newExecutorService(name + "-Executor", executorQueueSize);
-
-        this.managedChannel = channelFactory.build(host, port);
-        this.logId = ManagedChannelUtils.getLogId(managedChannel);
-
-        final ConnectivityState state = managedChannel.getState(false);
-        this.managedChannel.notifyWhenStateChanged(state, new ConnectivityStateMonitor(state));
-
-
-        this.tLogger = ThrottledLogger.getLogger(logger, 100);
         this.queue = new LinkedBlockingQueue<>(executorQueueSize);
-    }
-
-    public long getLogId() {
-        return logId;
-    }
-
-    private class ConnectivityStateMonitor implements Runnable {
-        private final ConnectivityState before;
-
-        public ConnectivityStateMonitor(ConnectivityState before) {
-            this.before = Objects.requireNonNull(before, "before");
-        }
-
-        @Override
-        public void run() {
-            final ConnectivityState change = managedChannel.getState(false);
-            logger.info("ConnectivityState changed before:{}, change:{}", before, change);
-            if (change == ConnectivityState.TRANSIENT_FAILURE) {
-                logger.info("Failed to connect to collector server {} {}/{}", name, host, port);
-            }
-            managedChannel.notifyWhenStateChanged(change, new ConnectivityStateMonitor(change));
-        }
     }
 
     protected ExecutorService newExecutorService(String name, int senderExecutorQueueSize) {
@@ -133,13 +69,6 @@ public abstract class GrpcDataSender<T> implements DataSender<T> {
 
     protected void release() {
         ExecutorUtils.shutdownExecutorService(name, executor);
-        final ManagedChannel managedChannel = this.managedChannel;
-        if (managedChannel != null) {
-            ManagedChannelUtils.shutdownManagedChannel(name, managedChannel);
-        }
-        final ChannelFactory channelFactory = this.channelFactory;
-        if (channelFactory != null) {
-            channelFactory.close();
-        }
+        super.releaseChannel();
     }
 }

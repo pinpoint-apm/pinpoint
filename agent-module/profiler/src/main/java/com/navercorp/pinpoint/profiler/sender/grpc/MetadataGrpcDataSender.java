@@ -174,7 +174,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
         }
         if (remainingRetryCount <= 0) {
             if (isDebug) {
-                logger.debug("Request drop. remainingRetryCount={}, request={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
+                logger.debug("Request drop. request={}, remainingRetryCount={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
             }
             return;
         }
