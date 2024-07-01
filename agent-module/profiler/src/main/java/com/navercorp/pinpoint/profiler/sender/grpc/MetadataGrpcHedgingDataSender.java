@@ -17,8 +17,11 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
@@ -31,6 +34,9 @@ import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import io.grpc.stub.StreamObserver;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
@@ -42,13 +48,22 @@ public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> 
 
     private final AtomicLong requestIdGen = new AtomicLong(0);
 
-    public MetadataGrpcHedgingDataSender(String host, int port,
+    private final ExecutorService executor;
+
+    public MetadataGrpcHedgingDataSender(String host, int port, int queueSize,
                                          MessageConverter<T, GeneratedMessageV3> messageConverter,
                                          ChannelFactory channelFactory) {
         super(host, port, messageConverter, channelFactory);
 
         this.metadataStub = MetadataGrpc.newStub(managedChannel);
+        this.executor = newExecutorService(name + "-Executor", queueSize);
     }
+
+    protected ExecutorService newExecutorService(String name, int senderExecutorQueueSize) {
+        ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
+        return ExecutorFactory.newFixedThreadPool(1, senderExecutorQueueSize, threadFactory);
+    }
+
 
     // Unsupported Operation
     @Override
@@ -68,6 +83,25 @@ public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> 
 
     @Override
     public boolean request(final T data) {
+        Runnable sendTask = new Runnable() {
+            @Override
+            public void run() {
+                doRequest(data);
+            }
+        };
+
+        try {
+            this.executor.execute(sendTask);
+        } catch (RejectedExecutionException reject) {
+            if (tLogger.isWarnEnabled()) {
+                tLogger.warn("Rejected Metadata sendTask {}", tLogger.getCounter());
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean doRequest(T data) {
         try {
             final GeneratedMessageV3 message = messageConverter.toMessage(data);
 
@@ -111,6 +145,7 @@ public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> 
         }
         this.shutdown = true;
 
+        ExecutorUtils.shutdownExecutorService(name, executor);
         super.releaseChannel();
     }
 }

@@ -78,15 +78,15 @@ public class MetadataClientMock {
         this.channel = channelFactory.build(host, port);
 
         this.metadataStub = MetadataGrpc.newStub(channel);
-        this.retryScheduler = new RetryScheduler<GeneratedMessageV3, PResult>() {
+        this.retryScheduler = new RetryScheduler<>() {
             @Override
             public boolean isSuccess(PResult response) {
                 return response.getSuccess();
             }
 
             @Override
-            public void scheduleNextRetry(GeneratedMessageV3 request, int remainingRetryCount) {
-                MetadataClientMock.this.scheduleNextRetry(request, remainingRetryCount);
+            public void scheduleNextRetry(GeneratedMessageV3 request, int retryCount) {
+                MetadataClientMock.this.scheduleNextRetry(request, retryCount);
             }
         };
     }
