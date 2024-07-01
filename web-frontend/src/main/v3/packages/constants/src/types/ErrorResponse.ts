@@ -14,3 +14,5 @@ export type ErrorResponse = {
     };
   };
 };
+
+export type ErrorDetailResponse = ErrorResponse & { url?: string };

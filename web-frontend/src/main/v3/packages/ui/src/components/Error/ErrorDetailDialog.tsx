@@ -10,13 +10,13 @@ import {
   Separator,
 } from '../ui';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import { ErrorResponse } from '@pinpoint-fe/constants';
+import { ErrorDetailResponse } from '@pinpoint-fe/constants';
 import { cn } from '../../lib';
 import { HighLightCode } from '../HighLightCode';
 import { RxChevronDown, RxChevronUp } from 'react-icons/rx';
 
 export interface ErrorDetailDialogProps {
-  error: ErrorResponse;
+  error: ErrorDetailResponse;
   contentOption?: PopoverPrimitive.PopoverContentProps;
   contentClassName?: string;
 }
@@ -28,7 +28,7 @@ export const ErrorDetailDialog = ({
 }: ErrorDetailDialogProps) => {
   const [headerOpen, setHeaderOpen] = React.useState(false);
   const [paremetersOpen, setParametersOpen] = React.useState(false);
-  const [stackTraceOpen, setStackTraceOpen] = React.useState(false);
+  const [stackTraceOpen, setStackTraceOpen] = React.useState(true);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -48,7 +48,15 @@ export const ErrorDetailDialog = ({
               <div className="w-1 h-4 rounded-sm bg-status-fail" />
               Error Details
             </h4>
-            <p className="text-sm font-semibold text-muted-foreground">{error?.instance}</p>
+            <div className="flex items-center gap-1">
+              <a
+                className="text-sm font-semibold text-primary hover:underline"
+                href={error?.url}
+                target="_blank"
+              >
+                {error?.instance}
+              </a>
+            </div>
             <p className="text-sm break-all text-muted-foreground">{error?.message}</p>
           </div>
           <Separator />
@@ -56,7 +64,7 @@ export const ErrorDetailDialog = ({
             <div className="grid gap-2 text-sm scrollbar-hide">
               <div className="grid grid-cols-[7rem_auto] gap-2">
                 <div className="text-muted-foreground">Method</div>
-                <div>{error.data.requestInfo.method}</div>
+                <div>{error.data.requestInfo?.method}</div>
               </div>
               <Collapsible className="space-y-2" open={headerOpen} onOpenChange={setHeaderOpen}>
                 <CollapsibleTrigger
@@ -67,16 +75,17 @@ export const ErrorDetailDialog = ({
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="grid grid-cols-[7rem_auto] gap-2 text-xs p-2">
-                    {Object.keys(error.data.requestInfo.headers)
-                      .sort()
-                      .map((key) => {
-                        return (
-                          <React.Fragment key={key}>
-                            <div className="text-muted-foreground">{key}</div>
-                            <div className="break-all">{error.data.requestInfo.headers[key]}</div>
-                          </React.Fragment>
-                        );
-                      })}
+                    {error.data.requestInfo?.headers &&
+                      Object.keys(error.data.requestInfo.headers)
+                        .sort()
+                        .map((key) => {
+                          return (
+                            <React.Fragment key={key}>
+                              <div className="text-muted-foreground">{key}</div>
+                              <div className="break-all">{error.data.requestInfo.headers[key]}</div>
+                            </React.Fragment>
+                          );
+                        })}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -93,18 +102,19 @@ export const ErrorDetailDialog = ({
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="grid grid-cols-[7rem_auto] gap-2 text-xs p-2">
-                    {Object.keys(error.data.requestInfo.parameters)
-                      .sort()
-                      .map((key) => {
-                        return (
-                          <React.Fragment key={key}>
-                            <div className="text-muted-foreground">{key}</div>
-                            <div className="break-all">
-                              {error.data.requestInfo.parameters[key]}
-                            </div>
-                          </React.Fragment>
-                        );
-                      })}
+                    {error.data.requestInfo?.parameters &&
+                      Object.keys(error.data.requestInfo.parameters)
+                        .sort()
+                        .map((key) => {
+                          return (
+                            <React.Fragment key={key}>
+                              <div className="text-muted-foreground">{key}</div>
+                              <div className="break-all">
+                                {error.data.requestInfo.parameters[key]}
+                              </div>
+                            </React.Fragment>
+                          );
+                        })}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
