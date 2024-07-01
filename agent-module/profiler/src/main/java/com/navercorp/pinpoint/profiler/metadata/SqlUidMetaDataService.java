@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -45,6 +46,7 @@ public class SqlUidMetaDataService implements SqlMetaDataService {
         return Annotations.of(AnnotationKey.SQL_UID.getCode(), sqlValue);
     }
 
+    @VisibleForTesting
     static MetaDataType newSqlUidMetaData(ParsingResultInternal<byte[]> parsingResult) {
         return new SqlUidMetaData(parsingResult.getId(), parsingResult.getSql());
     }

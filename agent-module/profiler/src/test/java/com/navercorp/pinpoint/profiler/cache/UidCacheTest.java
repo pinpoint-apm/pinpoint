@@ -1,40 +1,55 @@
 package com.navercorp.pinpoint.profiler.cache;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class UidCacheTest {
-    @Test
-    public void sameValue() {
-        UidCache cache1 = newCache();
-        UidCache cache2 = newCache();
+@ExtendWith(MockitoExtension.class)
+class UidCacheTest {
+    UidCache sut;
 
-        Result<byte[]> result1 = cache1.put("test");
-        Result<byte[]> result2 = cache2.put("test");
+    @Mock
+    Function<String, byte[]> uidFunction;
 
-        assertTrue(result1.isNewValue());
-        assertTrue(result2.isNewValue());
-        assertArrayEquals(result1.getId(), result2.getId());
+    @BeforeEach
+    void setUp() {
+        sut = new UidCache(1024, uidFunction);
+
+        when(uidFunction.apply(any()))
+                .thenReturn(new byte[]{});
     }
 
     @Test
-    public void differentValue() {
-        UidCache cache = newCache();
+    void sameValue() {
+        Result<byte[]> result1 = sut.put("test");
+        Result<byte[]> result2 = sut.put("test");
 
-        Result<byte[]> result1 = cache.put("test");
-        Result<byte[]> result2 = cache.put("different");
+        assertTrue(result1.isNewValue());
+        assertFalse(result2.isNewValue());
+
+        verify(uidFunction, times(1)).apply("test");
+    }
+
+    @Test
+    void differentValue() {
+        Result<byte[]> result1 = sut.put("test");
+        Result<byte[]> result2 = sut.put("different");
 
         assertTrue(result1.isNewValue());
         assertTrue(result2.isNewValue());
-        assertFalse(Arrays.equals(result1.getId(), result2.getId()));
-    }
 
-    private UidCache newCache() {
-        return new UidCache(1024);
+        verify(uidFunction, times(1)).apply("test");
+        verify(uidFunction, times(1)).apply("different");
     }
 }

@@ -44,6 +44,8 @@ public interface ProfilerConfig {
 
     int getMaxSqlBindValueSize();
 
+    int getMaxSqlLength();
+
     String getGrpcStatLoggingPeriod();
 
     @InterfaceAudience.Private

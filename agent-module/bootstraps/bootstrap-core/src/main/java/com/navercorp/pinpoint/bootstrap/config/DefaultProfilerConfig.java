@@ -71,6 +71,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean traceSqlBindValue = false;
     @Value("${profiler.jdbc.maxsqlbindvaluesize}")
     private int maxSqlBindValueSize = 1024;
+    @Value("${profiler.jdbc.sqlcachelengthlimit}")
+    private int maxSqlLength = 2048;
 
     @Value("${profiler.transport.grpc.stats.logging.period}")
     private String grpcStatLoggingPeriod = "PT1M";
@@ -132,6 +134,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getMaxSqlBindValueSize() {
         return maxSqlBindValueSize;
+    }
+
+    @Override
+    public int getMaxSqlLength() {
+        return maxSqlLength;
     }
 
     @Override
@@ -273,16 +280,22 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public String toString() {
-        return "DefaultProfilerConfig{" + "pinpointDisable='" + pinpointDisable + '\'' +
-                ", activeProfile=" + activeProfile +
+        return "DefaultProfilerConfig{" +
+                "properties=" + properties +
+                ", pinpointDisable='" + pinpointDisable + '\'' +
                 ", logDirMaxBackupSize=" + logDirMaxBackupSize +
+                ", activeProfile='" + activeProfile + '\'' +
                 ", staticResourceCleanup=" + staticResourceCleanup +
+                ", transportModule=" + transportModule +
                 ", jdbcSqlCacheSize=" + jdbcSqlCacheSize +
                 ", traceSqlBindValue=" + traceSqlBindValue +
                 ", maxSqlBindValueSize=" + maxSqlBindValueSize +
+                ", maxSqlLength=" + maxSqlLength +
+                ", grpcStatLoggingPeriod='" + grpcStatLoggingPeriod + '\'' +
                 ", httpStatusCodeErrors=" + httpStatusCodeErrors +
                 ", injectionModuleFactoryClazzName='" + injectionModuleFactoryClazzName + '\'' +
                 ", applicationNamespace='" + applicationNamespace + '\'' +
+                ", agentClassloaderAdditionalLibs='" + agentClassloaderAdditionalLibs + '\'' +
                 '}';
     }
 }
