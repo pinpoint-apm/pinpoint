@@ -60,7 +60,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
                                   ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
-        this.maxAttempts = getMaxAttempts(retryMaxCount);
+        this.maxAttempts = Math.max(retryMaxCount, 0);
         this.retryDelayMillis = retryDelayMillis;
         this.metadataStub = MetadataGrpc.newStub(managedChannel);
 
@@ -73,17 +73,10 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
             }
 
             @Override
-            public void scheduleNextRetry(GeneratedMessageV3 request, int remainingRetryCount) {
-                MetadataGrpcDataSender.this.scheduleNextRetry(request, remainingRetryCount);
+            public void scheduleNextRetry(GeneratedMessageV3 request, int retryCount) {
+                MetadataGrpcDataSender.this.scheduleNextRetry(request, retryCount);
             }
         };
-    }
-
-    private int getMaxAttempts(int retryMaxCount) {
-        if (retryMaxCount < 0) {
-            return 0;
-        }
-        return retryMaxCount;
     }
 
     private Timer newTimer(String name) {
@@ -109,6 +102,10 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
 
     @Override
     public boolean request(final T data) {
+        if (data == null) {
+            return true;
+        }
+
         final Runnable convertAndRun = new Runnable() {
             @Override
             public void run() {
@@ -118,7 +115,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
                     if (isDebug) {
                         logger.debug("Request metadata={}", MessageFormatUtils.debugLog(message));
                     }
-                    request0(message, maxAttempts);
+                    request0(message, 0);
                 } catch (Exception ex) {
                     logger.info("Failed to request metadata={}", data, ex);
                 }
@@ -127,33 +124,33 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
         try {
             executor.execute(convertAndRun);
         } catch (RejectedExecutionException reject) {
-            logger.info("Rejected metadata={}", data);
+            logger.info("Rejected metadata={}", data.getClass().getSimpleName());
             return false;
         }
         return true;
     }
 
     // Request
-    private void request0(final GeneratedMessageV3 message, final int remainingRetryCount) {
+    private void request0(final GeneratedMessageV3 message, final int retryCount) {
         if (message instanceof PSqlMetaData) {
             final PSqlMetaData sqlMetaData = (PSqlMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestSqlMetaData(sqlMetaData, responseObserver);
         } else if (message instanceof PSqlUidMetaData) {
             final PSqlUidMetaData sqlUidMetaData = (PSqlUidMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestSqlUidMetaData(sqlUidMetaData, responseObserver);
         } else if (message instanceof PApiMetaData) {
             final PApiMetaData apiMetaData = (PApiMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestApiMetaData(apiMetaData, responseObserver);
         } else if (message instanceof PStringMetaData) {
             final PStringMetaData stringMetaData = (PStringMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestStringMetaData(stringMetaData, responseObserver);
         } else if (message instanceof PExceptionMetaData) {
             final PExceptionMetaData exceptionMetaData = (PExceptionMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestExceptionMetaData(exceptionMetaData, responseObserver);
         } else {
             logger.warn("Unsupported message {}", MessageFormatUtils.debugLog(message));
@@ -165,22 +162,22 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
     }
 
     // Retry
-    private void scheduleNextRetry(final GeneratedMessageV3 message, final int remainingRetryCount) {
+    private void scheduleNextRetry(final GeneratedMessageV3 message, final int retryCount) {
         if (shutdown) {
             if (isDebug) {
-                logger.debug("Request drop. Already shutdown request={}", MessageFormatUtils.debugLog(message));
+                logger.debug("Request drop. Already shutdown metadata={}", MessageFormatUtils.debugLog(message));
             }
             return;
         }
-        if (remainingRetryCount <= 0) {
+        if (retryCount > maxAttempts) {
             if (isDebug) {
-                logger.debug("Request drop. request={}, remainingRetryCount={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
+                logger.debug("Request drop. metadata={}, retryCount={}", MessageFormatUtils.debugLog(message), retryCount);
             }
             return;
         }
 
         if (isDebug) {
-            logger.debug("Request retry. request={}, remainingRetryCount={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
+            logger.debug("Request retry. metadata={}, retryCount={}", MessageFormatUtils.debugLog(message), retryCount);
         }
         final TimerTask timerTask = new TimerTask() {
             @Override
@@ -191,7 +188,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
                 if (shutdown) {
                     return;
                 }
-                request0(message, remainingRetryCount);
+                request0(message, retryCount);
             }
         };
 

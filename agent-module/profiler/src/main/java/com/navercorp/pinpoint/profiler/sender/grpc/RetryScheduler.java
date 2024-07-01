@@ -21,6 +21,6 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
  */
 public interface RetryScheduler<ReqT, ResT> {
     boolean isSuccess(ResT response);
-    void scheduleNextRetry(ReqT request, int remainingRetryCount);
+    void scheduleNextRetry(ReqT request, int retryCount);
 
 }
