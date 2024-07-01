@@ -30,7 +30,6 @@ public class HedgingServiceConfigBuilder implements ServiceConfigBuilder {
     public static final long DEFAULT_HEDGING_DELAY_MILLIS = 1000L;
     public static final List<String> DEFAULT_STATUS_CODES = Arrays.asList(
             Status.Code.UNKNOWN.name(),
-            Status.Code.INTERNAL.name(),
             Status.Code.UNAVAILABLE.name()
     );
 

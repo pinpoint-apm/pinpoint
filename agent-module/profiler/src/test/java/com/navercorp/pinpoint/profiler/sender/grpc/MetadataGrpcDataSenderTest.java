@@ -38,7 +38,6 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
@@ -52,6 +51,8 @@ class MetadataGrpcDataSenderTest {
     private static final String UNAVAILABLE_METADATA = "status code UNAVAILABLE";
     private static final String UNKNOWN_METADATA = "status code UNKNOWN";
     private static final String FAIL_METADATA = "success=false";
+
+    private static final Context.Key<Metadata> GRPC_METADATA_CONTEXT_KEY = Context.key("test-grpc-metadata");
 
     private static final Metadata.Key<String> TEST_ID_KEY = Metadata.Key.of("test-id", Metadata.ASCII_STRING_MARSHALLER);
     private static final Metadata.Key<String> GRPC_PREVIOUS_RPC_ATTEMPTS_KEY = Metadata.Key.of("grpc-previous-rpc-attempts", Metadata.ASCII_STRING_MARSHALLER);
@@ -97,7 +98,8 @@ class MetadataGrpcDataSenderTest {
     public static class MetadataGrpcService extends MetadataGrpc.MetadataImplBase {
         @Override
         public void requestApiMetaData(PApiMetaData request, StreamObserver<PResult> responseObserver) {
-            System.out.println(request);
+            countAndPrint(request);
+
             switch (request.getApiInfo()) {
                 case DELAY_METADATA:
                     try {
@@ -127,29 +129,33 @@ class MetadataGrpcDataSenderTest {
                     break;
             }
         }
-    }
 
-    public static class TestServerInterceptor implements ServerInterceptor {
-        @Override
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> serverCall, Metadata metadata, ServerCallHandler<ReqT, RespT> serverCallHandler) {
+        private void countAndPrint(PApiMetaData request) {
             int totalAttempts = -1;
-            String callTestId = metadata.get(TEST_ID_KEY);
-            if (callTestId != null && callTestId.equals(Integer.toString(testId))) {
-                requestCounter++;
+            Metadata metadata = GRPC_METADATA_CONTEXT_KEY.get(Context.current());
+            String requestTestId = metadata.get(TEST_ID_KEY);
+            String previousAttempts = metadata.get(GRPC_PREVIOUS_RPC_ATTEMPTS_KEY);
 
-                String previousAttempts = metadata.get(GRPC_PREVIOUS_RPC_ATTEMPTS_KEY);
+            if (requestTestId != null && requestTestId.equals(Integer.toString(testId))) {
+                requestCounter++;
                 if (previousAttempts == null) {
                     totalAttempts = 1;
                 } else {
                     totalAttempts = Integer.parseInt(previousAttempts) + 1;
                 }
-                //Assertions.assertThat(requestCounter).isEqualTo(totalAttempts);
             }
-
             System.out.println("---- server time: " + new Timestamp(System.currentTimeMillis()));
-            System.out.println("testId: " + callTestId);
+            System.out.println("testId: " + requestTestId);
             System.out.println("total attempts: " + totalAttempts);
-            return Contexts.interceptCall(Context.current(), serverCall, metadata, serverCallHandler);
+            System.out.println(request);
+        }
+    }
+
+    public static class TestServerInterceptor implements ServerInterceptor {
+        @Override
+        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> serverCall, Metadata metadata, ServerCallHandler<ReqT, RespT> serverCallHandler) {
+            Context newContext = Context.current().withValue(GRPC_METADATA_CONTEXT_KEY, metadata);
+            return Contexts.interceptCall(newContext, serverCall, metadata, serverCallHandler);
         }
     }
 
@@ -294,11 +300,6 @@ class MetadataGrpcDataSenderTest {
     private HedgingServiceConfigBuilder getTestServiceConfigBuilder() {
         HedgingServiceConfigBuilder serviceConfigBuilder = new HedgingServiceConfigBuilder();
         serviceConfigBuilder.setHedgingDelayMillis(DEFAULT_TEST_HEDGING_DELAY_MILLIS);
-        serviceConfigBuilder.setNonFatalStatusCodes(Arrays.asList(
-                Status.Code.UNKNOWN.name(),
-                Status.Code.INTERNAL.name(),
-                Status.Code.UNAVAILABLE.name()
-        ));
         return serviceConfigBuilder;
     }
 
