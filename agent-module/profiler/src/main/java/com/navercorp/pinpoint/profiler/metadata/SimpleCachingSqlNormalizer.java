@@ -29,21 +29,19 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class DefaultCachingSqlNormalizer<ID> implements CachingSqlNormalizer<ParsingResultInternal<ID>> {
+public class SimpleCachingSqlNormalizer implements CachingSqlNormalizer<ParsingResultInternal<Integer>> {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    protected final Logger logger = LogManager.getLogger(this.getClass());
-
-    private final Cache<String, Result<ID>> sqlCache;
+    private final Cache<String, Result<Integer>> sqlCache;
     private final SqlNormalizer sqlNormalizer;
 
-    public DefaultCachingSqlNormalizer(Cache<String, Result<ID>> sqlCache) {
+    public SimpleCachingSqlNormalizer(Cache<String, Result<Integer>> sqlCache) {
         this.sqlCache = Objects.requireNonNull(sqlCache, "sqlCache");
         this.sqlNormalizer = new DefaultSqlNormalizer();
     }
 
-
     @Override
-    public boolean normalizedSql(ParsingResultInternal<ID> parsingResult) {
+    public boolean normalizedSql(ParsingResultInternal<Integer> parsingResult) {
         if (parsingResult == null) {
             return false;
         }
@@ -55,7 +53,7 @@ public class DefaultCachingSqlNormalizer<ID> implements CachingSqlNormalizer<Par
         final String originalSql = parsingResult.getOriginalSql();
         final NormalizedSql normalizedSql = this.sqlNormalizer.normalizeSql(originalSql);
 
-        final Result<ID> cachingResult = this.sqlCache.put(normalizedSql.getNormalizedSql());
+        final Result<Integer> cachingResult = this.sqlCache.put(normalizedSql.getNormalizedSql());
 
         boolean success = parsingResult.setId(cachingResult.getId());
         if (!success) {
@@ -68,5 +66,4 @@ public class DefaultCachingSqlNormalizer<ID> implements CachingSqlNormalizer<Par
 
         return cachingResult.isNewValue();
     }
-
 }

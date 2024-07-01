@@ -1,21 +1,19 @@
 package com.navercorp.pinpoint.profiler.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 public class UidCache implements Cache<String, Result<byte[]>> {
-
     // zero means not exist.
     private final ConcurrentMap<String, Result<byte[]>> cache;
 
-    private final HashFunction hashFunction = Hashing.murmur3_128();
+    private final Function<String, byte[]> uidFunction;
 
-    public UidCache(int cacheSize) {
+    public UidCache(int cacheSize, Function<String, byte[]> uidFunction) {
         this.cache = createCache(cacheSize);
+        this.uidFunction = uidFunction;
     }
 
     private ConcurrentMap<String, Result<byte[]>> createCache(int maxCacheSize) {
@@ -33,18 +31,12 @@ public class UidCache implements Cache<String, Result<byte[]>> {
             return find;
         }
 
-        final byte[] uid = calculateUid(value);
+        final byte[] uid = uidFunction.apply(value);
         final Result<byte[]> result = new Result<>(false, uid);
         final Result<byte[]> before = this.cache.putIfAbsent(value, result);
         if (before != null) {
             return before;
         }
         return new Result<>(true, uid);
-    }
-
-    private byte[] calculateUid(String value) {
-            return hashFunction
-                    .hashString(value, StandardCharsets.UTF_8)
-                    .asBytes();
     }
 }

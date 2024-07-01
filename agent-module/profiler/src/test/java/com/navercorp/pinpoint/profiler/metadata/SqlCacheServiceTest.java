@@ -36,7 +36,7 @@ public class SqlCacheServiceTest {
     public void cacheSql() {
         final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender = mock(EnhancedDataSender.class);
         SimpleCache<String> sqlCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 100);
-        CachingSqlNormalizer<ParsingResultInternal<Integer>> simpleCachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(sqlCache);
+        SimpleCachingSqlNormalizer simpleCachingSqlNormalizer = new SimpleCachingSqlNormalizer(sqlCache);
         final SqlCacheService<Integer> sqlMetaDataService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer);
 
         final String sql = "select * from A";
