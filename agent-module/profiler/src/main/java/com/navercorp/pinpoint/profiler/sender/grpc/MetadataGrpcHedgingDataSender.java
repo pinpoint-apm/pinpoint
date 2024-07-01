@@ -36,16 +36,16 @@ import java.util.function.BiConsumer;
 
 /**
  */
-public class MetadataGrpcHedgingDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T, ResponseMessage> {
-    //
+public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> implements EnhancedDataSender<T, ResponseMessage> {
+
     private final MetadataGrpc.MetadataStub metadataStub;
 
-    private final AtomicLong requestCount = new AtomicLong(0);
+    private final AtomicLong requestIdGen = new AtomicLong(0);
 
-    public MetadataGrpcHedgingDataSender(String host, int port, int executorQueueSize,
+    public MetadataGrpcHedgingDataSender(String host, int port,
                                          MessageConverter<T, GeneratedMessageV3> messageConverter,
                                          ChannelFactory channelFactory) {
-        super(host, port, executorQueueSize, messageConverter, channelFactory);
+        super(host, port, messageConverter, channelFactory);
 
         this.metadataStub = MetadataGrpc.newStub(managedChannel);
     }
@@ -100,8 +100,8 @@ public class MetadataGrpcHedgingDataSender<T> extends GrpcDataSender<T> implemen
 
     private StreamObserver<PResult> newLogStreamObserver(GeneratedMessageV3 message) {
         String type = message.getClass().getSimpleName();
-        long requestCount = this.requestCount.incrementAndGet();
-        return new LogResponseStreamObserver<>(logger, type, requestCount);
+        long requestId = this.requestIdGen.incrementAndGet();
+        return new LogResponseStreamObserver<>(logger, type, requestId);
     }
 
     @Override
@@ -111,6 +111,6 @@ public class MetadataGrpcHedgingDataSender<T> extends GrpcDataSender<T> implemen
         }
         this.shutdown = true;
 
-        super.release();
+        super.releaseChannel();
     }
 }

@@ -28,12 +28,12 @@ import java.util.Objects;
 public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
     private final Logger logger;
     private final String name;
-    private final long requestCount;
+    private final long requestId;
 
-    public LogResponseStreamObserver(Logger logger, String name, long requestCount) {
+    public LogResponseStreamObserver(Logger logger, String name, long requestId) {
         this.logger = Objects.requireNonNull(logger, "logger");
         this.name = Objects.requireNonNull(name, "name");
-        this.requestCount = requestCount;
+        this.requestId = requestId;
     }
 
     @Override
@@ -49,12 +49,12 @@ public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
         if (logger.isInfoEnabled()) {
             final StatusError statusError = StatusErrors.throwable(throwable);
             if (statusError.isSimpleError()) {
-                logger.info("{} Error. requestCount={}, cause={}", name, requestCount, statusError.getMessage());
+                logger.info("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage());
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("{} Error. requestCount={}, cause={}", name, requestCount, statusError.getMessage(), statusError.getThrowable());
+                    logger.debug("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage(), statusError.getThrowable());
                 } else {
-                    logger.info("{} Error. requestCount={}, cause={}", name, requestCount, statusError.getMessage());
+                    logger.info("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage());
                 }
 
             }
@@ -64,7 +64,7 @@ public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
     @Override
     public void onCompleted() {
         if (logger.isDebugEnabled()) {
-            logger.debug("{} onCompleted. requestCount={}", requestCount, name);
+            logger.debug("{} onCompleted. requestCount={}", requestId, name);
         }
     }
 

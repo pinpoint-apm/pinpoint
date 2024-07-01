@@ -328,7 +328,6 @@ class MetadataGrpcDataSenderTest {
             }
         };
 
-        return new MetadataGrpcHedgingDataSender<>("localhost", 1234, 1,
-                converter, factory);
+        return new MetadataGrpcHedgingDataSender<>("localhost", 1234, converter, factory);
     }
 }

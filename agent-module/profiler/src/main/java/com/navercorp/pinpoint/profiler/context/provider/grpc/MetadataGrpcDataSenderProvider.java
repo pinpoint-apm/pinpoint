@@ -88,12 +88,11 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder(sslEnable, clientRetryEnable);
 
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
-        final int senderExecutorQueueSize = grpcTransportConfig.getMetadataSenderExecutorQueueSize();
-
         if (clientRetryEnable) {
-            return new MetadataGrpcHedgingDataSender<>(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactory);
+            return new MetadataGrpcHedgingDataSender<>(collectorIp, collectorPort, messageConverter, channelFactory);
         }
 
+        final int senderExecutorQueueSize = grpcTransportConfig.getMetadataSenderExecutorQueueSize();
         final int retryMaxCount = grpcTransportConfig.getMetadataRetryMaxCount();
         final int retryDelayMillis = grpcTransportConfig.getMetadataRetryDelayMillis();
 
