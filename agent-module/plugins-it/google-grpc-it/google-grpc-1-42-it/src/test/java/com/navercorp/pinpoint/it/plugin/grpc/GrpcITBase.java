@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTraceField;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -139,18 +140,8 @@ public abstract class GrpcITBase {
     }
 
     private void clearResources(HelloWorldClient client, HelloWorldServer server) {
-        try {
-            if (client != null) {
-                client.shutdown();
-            }
-        } catch (Exception e) {
-        }
-        try {
-            if (server != null) {
-                server.stop();
-            }
-        } catch (Exception e) {
-        }
+        IOUtils.closeQuietly(client);
+        IOUtils.closeQuietly(server);
     }
 
 }

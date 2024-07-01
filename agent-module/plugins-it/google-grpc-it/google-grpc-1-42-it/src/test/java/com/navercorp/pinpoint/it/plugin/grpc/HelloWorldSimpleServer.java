@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.it.plugin.grpc;
 
+import com.navercorp.pinpoint.it.plugin.utils.ExecutorUtils;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import io.grpc.Server;
 import io.grpc.examples.helloworld.GreeterGrpc;
@@ -25,7 +26,6 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.concurrent.Future;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
@@ -78,25 +78,19 @@ public class HelloWorldSimpleServer implements HelloWorldServer {
             public void run() {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
                 System.err.println("*** shutting down gRPC server since JVM is shutting down");
-                try {
-                    HelloWorldSimpleServer.this.stop();
-                } catch (InterruptedException e) {
-                }
+                HelloWorldSimpleServer.this.close();
                 System.err.println("*** server shut down");
             }
         });
     }
 
     @PreDestroy
-    public void stop() throws InterruptedException {
-        if (server != null) {
-            server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-        }
-
-        Future<?> future = eventExecutors.shutdownGracefully(500, 500, TimeUnit.MILLISECONDS);
-        future.await(1000);
-        workerExecutor.shutdownNow();
+    public void close() {
+        ShutdownUtils.shutdownServer(server);
+        ShutdownUtils.shutdownEventExecutor(eventExecutors);
+        ExecutorUtils.shutdownAndAwaitTermination(workerExecutor, 3, TimeUnit.SECONDS);
     }
+
 
     @Override
     public int getBindPort() {
