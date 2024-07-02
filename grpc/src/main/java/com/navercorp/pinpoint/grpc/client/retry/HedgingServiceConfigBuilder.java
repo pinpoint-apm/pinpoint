@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.client.retry;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import io.grpc.Status;
 
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class HedgingServiceConfigBuilder implements ServiceConfigBuilder {
         Map<String, Object> retryPolicy = new LinkedHashMap<>();
         retryPolicy.put("maxAttempts", maxAttempts);
         retryPolicy.put("hedgingDelay", hedgingDelay);
-        if (nonFatalStatusCodes != null && !nonFatalStatusCodes.isEmpty()) {
+        if (CollectionUtils.hasLength(nonFatalStatusCodes)) {
             retryPolicy.put("nonFatalStatusCodes", nonFatalStatusCodes);
         }
 

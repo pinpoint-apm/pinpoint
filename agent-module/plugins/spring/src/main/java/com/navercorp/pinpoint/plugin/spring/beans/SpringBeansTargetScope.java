@@ -21,7 +21,7 @@ public enum SpringBeansTargetScope {
     COMPONENT_SCAN, POST_PROCESSOR;
 
     public static SpringBeansTargetScope get(String name) {
-        if (name != null && name.toLowerCase().equals("post-processor")) {
+        if ("post-processor".equalsIgnoreCase(name)) {
             return POST_PROCESSOR;
         }
 
