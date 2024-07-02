@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author HyunGil Jeong
@@ -50,7 +51,7 @@ public class WorkerScheduleInterceptor extends SpanEventSimpleAroundInterceptorF
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         logBeforeInterceptor0(target, args);
-        if (args != null && args.length > 0) {
+        if (ArrayUtils.hasLength(args)) {
             if (args[0] instanceof AsyncContextAccessor) {
                 AsyncContext asyncContext = recorder.recordNextAsyncContext();
                 ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);

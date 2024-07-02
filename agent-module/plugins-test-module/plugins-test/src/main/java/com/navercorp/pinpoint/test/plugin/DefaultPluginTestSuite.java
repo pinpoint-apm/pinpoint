@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstanceFactory;
@@ -107,7 +108,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         libs.add(context.getTestClassLocation());
         libs.addAll(context.getSharedLibList());
 
-        if (sharedDependencies != null && sharedDependencies.length > 0) {
+        if (ArrayUtils.hasLength(sharedDependencies)) {
             final DependencyResolver resolver = getDependencyResolver(repositories);
             final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(sharedDependencies);
 

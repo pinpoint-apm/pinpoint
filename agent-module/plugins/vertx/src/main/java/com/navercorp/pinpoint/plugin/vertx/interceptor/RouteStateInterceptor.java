@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import io.vertx.ext.web.Route;
@@ -56,8 +57,8 @@ public class RouteStateInterceptor implements AroundInterceptor {
                     }
 
                     if (uriStatCollectMethod) {
-                        final Set methods = route.methods();
-                        if (methods != null && !methods.isEmpty()) {
+                        final Set<?> methods = route.methods();
+                        if (CollectionUtils.hasLength(methods)) {
                             spanRecorder.recordUriHttpMethod(methods.toString());
                         }
                     }
