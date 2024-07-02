@@ -16,6 +16,7 @@
       "require": "./dist/pinpoint-fe-common-ui.umd.cjs",
       "types": "./dist/index.d.ts"
     },
+    "./tailwind.config.js": "./tailwind.config.js",
     "./dist/pinpoint-fe-common-ui.css": "./dist/pinpoint-fe-common-ui.css"
   },
   "scripts": {
