@@ -138,8 +138,14 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(ServiceCodeAccessor.class);
 
-            final InstrumentMethod constructorMethod = InstrumentUtils.findConstructor(target, "java.lang.String", "java.lang.String", "net.spy.memcached.ConnectionFactoryBuilder", "java.util.concurrent.CountDownLatch", "int", "int");
-            constructorMethod.addInterceptor(CacheManagerConstructInterceptor.class);
+            InstrumentMethod constructorMethod = target.getConstructor("java.lang.String", "java.lang.String", "net.spy.memcached.ConnectionFactoryBuilder", "java.util.concurrent.CountDownLatch", "int", "int");
+            if (constructorMethod == null) {
+                // over 1.13.3
+                constructorMethod = target.getConstructor("java.lang.String", "java.lang.String", "net.spy.memcached.ConnectionFactoryBuilder", "int", "int");
+            }
+            if (constructorMethod != null) {
+                constructorMethod.addInterceptor(CacheManagerConstructInterceptor.class);
+            }
 
             return target.toBytecode();
         }
