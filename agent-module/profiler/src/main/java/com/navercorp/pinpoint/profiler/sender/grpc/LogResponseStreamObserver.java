@@ -39,7 +39,7 @@ public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
     @Override
     public void onNext(ResT response) {
         if (logger.isDebugEnabled()) {
-            logger.debug("{} Request success. result={}", logString(response));
+            logger.debug("{} Request success. result={}", name, logString(response));
         }
     }
 
@@ -64,7 +64,7 @@ public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
     @Override
     public void onCompleted() {
         if (logger.isDebugEnabled()) {
-            logger.debug("{} onCompleted. requestCount={}", requestId, name);
+            logger.debug("{} onCompleted. requestId={}", name, requestId);
         }
     }
 
