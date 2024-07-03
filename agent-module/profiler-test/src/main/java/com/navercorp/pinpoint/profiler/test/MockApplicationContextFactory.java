@@ -46,13 +46,14 @@ public class MockApplicationContextFactory {
     }
 
     private ProfilerConfig loadProfilerConfig(String configPath) {
-        File file = new File(configPath);
+        final InputStream stream = openStream(configPath);
+        return ProfilerConfigLoader.load(stream);
+    }
 
-        final ClassLoader classLoader = this.getClass().getClassLoader();
-        final InputStream resource;
+    private InputStream openStream(String configPath) {
+        File file = new File(configPath);
         try {
-            resource = new FileInputStream(file);
-            return ProfilerConfigLoader.load(resource);
+            return new FileInputStream(file);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("pinpoint.config not found. configPath:" + configPath);
         }
