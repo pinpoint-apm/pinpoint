@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.config.ClientRetryOption;
 import com.navercorp.pinpoint.grpc.client.retry.HedgingServiceConfigBuilder;
+import com.navercorp.pinpoint.grpc.client.retry.RetryHeaderFactory;
 import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
@@ -109,7 +110,7 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         final String factoryName = getChannelFactoryName(clientRetryEnable);
 
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder(factoryName);
-        channelFactoryBuilder.setHeaderFactory(headerFactory);
+        channelFactoryBuilder.setHeaderFactory(getHeaderFactory(clientRetryEnable));
         channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
         if (clientInterceptorList != null) {
@@ -146,5 +147,12 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
             return MetadataGrpcHedgingDataSender.class.getSimpleName();
         }
         return MetadataGrpcDataSender.class.getSimpleName();
+    }
+
+    private HeaderFactory getHeaderFactory(boolean clientRetryEnable) {
+        if (clientRetryEnable) {
+            return new RetryHeaderFactory(headerFactory);
+        }
+        return headerFactory;
     }
 }

@@ -61,8 +61,9 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
+        final boolean retryFriendlyResponse = getRetryFriendlyResponse(headers);
         final Map<String, Object> properties = metadataConverter.apply(headers);
-        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, properties);
+        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, retryFriendlyResponse, properties);
     }
 
     public static Map<String, Object> emptyProperties(Metadata headers) {
@@ -139,6 +140,14 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         } catch (NumberFormatException e) {
             return Header.SUPPORT_COMMAND_CODE_LIST_PARSE_ERROR;
         }
+    }
+
+    protected boolean getRetryFriendlyResponse(Metadata headers) {
+        final String value = headers.get(Header.RETRY_FRIENDLY_RESPONSE);
+        if (value != null) {
+            return Boolean.parseBoolean(value);
+        }
+        return Header.DEFAULT_RETRY_FRIENDLY_RESPONSE;
     }
 
     String validateId(String id, Metadata.Key key) {
