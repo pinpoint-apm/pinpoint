@@ -1,6 +1,11 @@
-import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
 import {
+  SEARCH_PARAMETER_DATE_FORMAT,
+  SEARCH_PARAMETER_DATE_FORMAT_WHITE_LIST,
+} from '@pinpoint-fe/constants';
+import {
+  convertParamsToQueryString,
   getApplicationTypeAndName,
+  getFormattedDateRange,
   getParsedDateRange,
   isValidDateRange,
 } from '@pinpoint-fe/utils';
@@ -19,10 +24,7 @@ export const serverMapRouteLoader = ({ params, request }: LoaderFunctionArgs) =>
     const to = queryParam?.to as string;
 
     const currentDate = new Date();
-    const parsedDateRange = {
-      from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
-      to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
-    };
+    const validationRange = isValidDateRange(2);
     const defaultParsedDateRange = getParsedDateRange({ from, to });
     const defaultFormattedDateRange = {
       from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
@@ -34,11 +36,37 @@ export const serverMapRouteLoader = ({ params, request }: LoaderFunctionArgs) =>
     if (conditions.length === 0) {
       return redirect(defaultDestination);
     } else if (conditions.includes('from')) {
-      if (conditions.includes('to') && isValidDateRange(2)(parsedDateRange)) {
-        return application;
-      } else {
+      if (!conditions.includes('to')) {
         return redirect(defaultDestination);
       }
+
+      const matchedFormat = SEARCH_PARAMETER_DATE_FORMAT_WHITE_LIST.find((dateFormat) => {
+        const parsedDateRange = {
+          from: parse(from, dateFormat, currentDate),
+          to: parse(to, dateFormat, currentDate),
+        };
+
+        return validationRange(parsedDateRange);
+      });
+
+      if (!matchedFormat) {
+        return redirect(defaultDestination);
+      }
+
+      if (matchedFormat !== SEARCH_PARAMETER_DATE_FORMAT) {
+        const parsedDateRange = {
+          from: parse(from, matchedFormat, currentDate),
+          to: parse(to, matchedFormat, currentDate),
+        };
+        const formattedDataRange = getFormattedDateRange(parsedDateRange);
+        const destination = `${basePath}?${convertParamsToQueryString({
+          ...queryParam,
+          ...formattedDataRange,
+        })}`;
+        return redirect(destination);
+      }
+
+      return application;
     }
   }
 
