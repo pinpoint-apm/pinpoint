@@ -37,7 +37,6 @@ import {
 import { differenceInMinutes } from 'date-fns';
 import { useUpdateEffect } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
-import { FaExternalLinkAlt, FaNetworkWired } from 'react-icons/fa';
 import {
   ApdexScore,
   Button,
@@ -58,6 +57,7 @@ import {
 } from '@pinpoint-fe/ui';
 import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
 import { Node, Edge } from '@pinpoint-fe/server-map';
+import { PiTreeStructureDuotone } from 'react-icons/pi';
 
 export interface FilteredMapPageProps {}
 
@@ -233,7 +233,7 @@ export const FilteredMapPage = ({}: FilteredMapPageProps) => {
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <FaNetworkWired />
+            <PiTreeStructureDuotone />
             <Link className="hover:underline" to={getServerMapPath(application)}>
               Servermap
             </Link>{' '}

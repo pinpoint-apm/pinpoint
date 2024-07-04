@@ -4,6 +4,7 @@ import { useGetTransactionInfo } from '@pinpoint-fe/hooks';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa6';
+import { useNavigate } from 'react-router-dom';
 import { Button, ServerMapCore, Tabs, TabsContent, TabsList, TabsTrigger } from '../..';
 import { CallTree } from '..';
 import {
@@ -30,6 +31,7 @@ const tabList = [
 ];
 
 export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcherProps) => {
+  const navigate = useNavigate();
   const { application, transactionInfo } = useTransactionSearchParameters();
   const { data, tableData, mapData } = useGetTransactionInfo();
   const setTransactionInfo = useSetAtom(transactionInfoDatasAtom);
@@ -38,7 +40,25 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
 
   React.useEffect(() => {
     setTransactionInfo(data);
-  }, [data]);
+    // transaction 검색으로 들어온 경우 redirect
+    if (data && data.spanId === -1 && !application) {
+      const applicationName = data.applicationId;
+      const serviceType = data.applicationMapData.nodeDataArray.find(
+        (node) => node.applicationName === applicationName,
+      )?.serviceType;
+      const navigatePath = `${getTransactionDetailPath({ applicationName, serviceType })}?${getTransactionDetailQueryString(
+        {
+          agentId: data.agentId,
+          traceId: data.transactionId,
+          spanId: transactionInfo.spanId,
+          focusTimestamp: transactionInfo.focusTimestamp,
+        },
+      )}`;
+      navigate(navigatePath, {
+        replace: true,
+      });
+    }
+  }, [data, application?.applicationName, application?.serviceType]);
 
   if (!data) {
     return (

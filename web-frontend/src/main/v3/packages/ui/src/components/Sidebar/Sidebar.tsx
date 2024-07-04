@@ -1,15 +1,14 @@
 import React from 'react';
 import {
-  useProSidebar,
   Menu,
   MenuItem,
   Sidebar as ProSidebar,
-  ProSidebarProvider as SidebarProvider,
   SubMenu,
   sidebarClasses,
   MenuItemStyles,
+  ElementStyles,
+  MenuItemStylesParams,
 } from 'react-pro-sidebar';
-import { useUpdateEffect } from 'usehooks-ts';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
 import { cn } from '../../lib';
 import { useLocalStorage } from '@pinpoint-fe/hooks';
@@ -21,24 +20,20 @@ export interface SideNavigationProps {
 }
 
 const SIDEBAR_WIDTH = 200;
-const SIDEBAR_COLLAPSED_WIDTH = 80;
+const SIDEBAR_COLLAPSED_WIDTH = 64;
 
 const Sidebar = ({ children, header }: SideNavigationProps) => {
-  const { collapseSidebar, collapsed } = useProSidebar();
-  const [sidebarScale, setSidebarScale] = useLocalStorage(
-    APP_SETTING_KEYS.SIDE_NAV_BAR_SCALE,
-    false,
-  );
+  const [collapsed, setCollapsed] = useLocalStorage(APP_SETTING_KEYS.SIDE_NAV_BAR_SCALE, false);
 
-  useUpdateEffect(() => {
-    setSidebarScale(collapsed);
+  React.useEffect(() => {
+    setCollapsed(collapsed);
   }, [collapsed]);
 
   return (
     <ProSidebar
       className="[&_.scale-button-wrapper]:hover:inline-block"
-      defaultCollapsed={sidebarScale}
       width={`${SIDEBAR_WIDTH}px`}
+      collapsed={collapsed}
       collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}
       rootStyles={{
         color: 'var(--snb-text)',
@@ -63,7 +58,7 @@ const Sidebar = ({ children, header }: SideNavigationProps) => {
         <div className="absolute hidden scale-button-wrapper top-1 right-1">
           <button
             className="flex items-center justify-center w-6 h-6 opacity-50 cursor-pointer hover:opacity-100 hover:font-semibold "
-            onClick={() => collapseSidebar()}
+            onClick={() => setCollapsed(!collapsed)}
           >
             {collapsed ? <LuChevronLast /> : <LuChevronFirst />}
           </button>
@@ -74,42 +69,82 @@ const Sidebar = ({ children, header }: SideNavigationProps) => {
   );
 };
 
-const menuItemStyles: MenuItemStyles = {
-  icon: {
-    fontSize: '1rem',
-    marginRight: '4px',
-  },
-  button: ({ active }) => ({
-    height: 45,
-    fontWeight: active ? 600 : 'unset',
-    color: 'var(--white-default)',
-    opacity: active ? 1 : 0.65,
-    '&:hover': {
-      color: 'var(--white-default)',
-      backgroundColor: 'var(--blue-800)',
-      opacity: 1,
-    },
-  }),
-};
+const getMenuItemStyle = ({
+  level,
+  active,
+  isSubmenu,
+  open,
+}: MenuItemStylesParams): ElementStyles => {
+  const isSubmenuGroup = isSubmenu && level === 0;
+  let backgroundColor = '';
 
-const bottomMenuItemStyles: MenuItemStyles = {
-  icon: {
-    marginRight: '4px',
-  },
-  button: ({ active }) => ({
-    height: 45,
+  if (isSubmenuGroup && open) {
+    backgroundColor = 'var(--snb-submenu-background)';
+  }
+  if ((active && !isSubmenuGroup) || (active && isSubmenuGroup && !open)) {
+    backgroundColor = 'var(--blue-700)';
+  }
+
+  return {
+    padding: '0px 0.5rem 0px 0.375rem',
+    paddingLeft: level === 1 ? '1.5rem' : '',
+    height: '2.5rem',
+    borderRadius: '0.25rem',
+    borderBottomLeftRadius: isSubmenuGroup && open ? 0 : '',
+    borderBottomRightRadius: isSubmenuGroup && open ? 0 : '',
     fontWeight: active ? 600 : 'unset',
-    color: 'var(--white-default)',
-    opacity: active ? 1 : 0.65,
+    backgroundColor,
+    fontSize: '0.875rem',
     '&:hover': {
       color: 'var(--white-default)',
       backgroundColor: 'var(--blue-700)',
       opacity: 1,
     },
+  };
+};
+
+const opacityHelper = (active: boolean) => {
+  return {
+    opacity: active ? 1 : 0.7,
+  };
+};
+
+const menuItemStyles: MenuItemStyles = {
+  icon: ({ active }) => ({
+    marginRight: '0.25rem',
+    ...opacityHelper(active),
   }),
-  subMenuContent: () => ({
-    backgroundColor: 'var(--snb-submenu-background)',
+  label: ({ active }) => ({
+    ...opacityHelper(active),
   }),
+  button: (props) => {
+    return {
+      ...getMenuItemStyle(props),
+    };
+  },
+};
+
+const bottomMenuItemStyles: MenuItemStyles = {
+  icon: ({ active }) => ({
+    marginRight: '0.25rem',
+    ...opacityHelper(active),
+  }),
+  label: ({ active }) => ({
+    ...opacityHelper(active),
+  }),
+  button: (props) => {
+    return {
+      ...getMenuItemStyle(props),
+    };
+  },
+  subMenuContent: ({ open }) => {
+    return {
+      borderRadius: '0.25rem',
+      borderTopLeftRadius: open ? 0 : '',
+      borderTopRightRadius: open ? 0 : '',
+      backgroundColor: 'var(--snb-submenu-background)',
+    };
+  },
   SubMenuExpandIcon: () => ({
     height: `100%`,
     display: `flex`,
@@ -120,12 +155,10 @@ const bottomMenuItemStyles: MenuItemStyles = {
 export {
   Menu,
   MenuItem,
-  SidebarProvider,
   Sidebar,
   SubMenu,
   menuItemStyles,
   bottomMenuItemStyles,
-  useProSidebar,
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_WIDTH,
 };

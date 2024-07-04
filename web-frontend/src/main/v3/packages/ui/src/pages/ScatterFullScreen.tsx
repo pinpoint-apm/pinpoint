@@ -15,7 +15,7 @@ import {
   MainHeader,
   ScatterChart,
 } from '../components';
-import { FaNetworkWired } from 'react-icons/fa';
+import { PiTreeStructureDuotone } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
 
 export const ScatterFullScreenPage = () => {
@@ -54,7 +54,7 @@ export const ScatterFullScreenPage = () => {
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <FaNetworkWired />
+            <PiTreeStructureDuotone />
             <span>
               <Link className="hover:underline" to={getServerMapPath(application)}>
                 Servermap

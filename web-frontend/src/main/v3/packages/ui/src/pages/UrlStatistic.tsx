@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/utils';
 import { useUrlStatSearchParameters } from '@pinpoint-fe/hooks';
 import { useTranslation } from 'react-i18next';
-import { FaChartBar } from 'react-icons/fa';
+import { PiChartBarDuotone } from 'react-icons/pi';
 
 export interface UrlStatisticPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
@@ -44,7 +44,7 @@ export const UrlStatisticPage = ({
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <FaChartBar /> URL Statistic
+            <PiChartBarDuotone /> URL Statistic
           </div>
         }
       >
