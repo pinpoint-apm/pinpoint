@@ -12,6 +12,7 @@ import {
 import { useGetInspectorAgentInfoData } from '@pinpoint-fe/hooks';
 import { InspectorAgentInfoServiceType } from './InspectorAgentInfoServiceType';
 import { LuChevronsUpDown } from 'react-icons/lu';
+import { insertIf } from '@pinpoint-fe/utils';
 
 export type InfoDefinition = {
   key: string;
@@ -48,11 +49,15 @@ export const InspectorAgentInfoFetcher = () => {
           label: 'Hostname',
           value: data.hostName,
         },
-        {
-          key: 'jvmInfo',
-          label: 'JVM (GC Type)',
-          value: `${data.jvmInfo.jvmVersion} (${data.jvmInfo.gcTypeName})`,
-        },
+        ...insertIf(!!data.jvmInfo, () => {
+          return [
+            {
+              key: 'jvmInfo',
+              label: 'JVM (GC Type)',
+              value: `${data.jvmInfo.jvmVersion} (${data.jvmInfo.gcTypeName})`,
+            },
+          ];
+        }),
         {
           key: 'ip',
           label: 'IP',
