@@ -17,6 +17,7 @@ export * from './Error';
 export * from './ErrorAnalysis';
 export * from './FilterMap';
 export * from './Form';
+export * from './GlobalSearch';
 export * from './HighLightCode';
 export * from './HOC';
 export * from './Host';

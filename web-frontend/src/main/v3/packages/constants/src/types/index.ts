@@ -32,6 +32,7 @@ export * from './InspectorApplicationChart';
 export * from './InspectorApplicationDataSourceChart';
 export * from './Scatter';
 export * from './SearchApplication';
+export * from './MenuItem';
 export * from './SystemMetricChart';
 export * from './SystemMetricHost';
 export * from './SystemMetricHostGroup';

@@ -7,12 +7,12 @@ import {
   ProgressBarWithControls,
   Separator,
 } from '../components';
-import { PiStackFill } from 'react-icons/pi';
 import { useAtomValue } from 'jotai';
 import { differenceInMinutes } from 'date-fns';
 import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
 import { transactionListDatasAtom } from '@pinpoint-fe/atoms';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
+import { PiStackDuotone } from 'react-icons/pi';
 
 export interface TransactionListPageProps {
   transactionInfoProps?: TransactionInfoProps;
@@ -29,7 +29,7 @@ export const TransactionListPage = ({ transactionInfoProps }: TransactionListPag
         className="shadow"
         title={
           <div className="flex items-center gap-2">
-            <PiStackFill /> Transaction list
+            <PiStackDuotone /> Transaction list
           </div>
         }
       >

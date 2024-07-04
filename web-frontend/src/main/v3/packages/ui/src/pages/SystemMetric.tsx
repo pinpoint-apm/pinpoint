@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSystemMetricSearchParameters } from '@pinpoint-fe/hooks';
 import { convertParamsToQueryString, getSystemMetricPath } from '@pinpoint-fe/utils';
 import { useTranslation } from 'react-i18next';
-import { FaServer } from 'react-icons/fa';
+import { PiHardDrivesDuotone } from 'react-icons/pi';
 
 export const SystemMetricPage = () => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export const SystemMetricPage = () => {
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <FaServer /> System Metric
+            <PiHardDrivesDuotone /> System Metric
           </div>
         }
       >

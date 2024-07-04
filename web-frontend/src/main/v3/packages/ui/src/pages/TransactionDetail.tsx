@@ -1,7 +1,7 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../components/ui/resizable';
 import { TransactionInfo, TransactionInfoProps } from '../components/Transaction';
 import { MainHeader, ApplicationCombinedList } from '../components';
-import { PiStackFill } from 'react-icons/pi';
+import { PiStackDuotone } from 'react-icons/pi';
 import { useAtomValue } from 'jotai';
 import { FaChevronRight } from 'react-icons/fa6';
 import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
@@ -23,7 +23,7 @@ export const TransactionDetailPage = ({ transactionInfoProps }: TransactionDetai
         className="shadow"
         title={
           <div className="flex items-center gap-2">
-            <PiStackFill /> Transaction Detail
+            <PiStackDuotone /> Transaction Detail
           </div>
         }
       >
@@ -45,7 +45,7 @@ export const TransactionDetailPage = ({ transactionInfoProps }: TransactionDetai
         autoSaveId={APP_SETTING_KEYS.TRANSACTION_DETAIL_RESIZABLE}
       >
         <ResizablePanel minSize={20} maxSize={40}>
-          <TransactionCharts />
+          {application && <TransactionCharts />}
         </ResizablePanel>
         <ResizableHandle className="!h-2" withHandle />
         <ResizablePanel>

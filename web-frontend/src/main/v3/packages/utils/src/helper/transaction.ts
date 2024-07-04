@@ -1,4 +1,5 @@
 import { TransactionInfo } from '@pinpoint-fe/constants';
+import { getTransactionDetailPath } from './route';
 
 export type TransactionListQueryParam = {
   x1: number;
@@ -42,4 +43,16 @@ export const getTransactionTableUniqueKey = (transaction: {
   return `${transaction?.traceId}${transaction?.spanId}${
     transaction?.application || transaction?.path
   }`;
+};
+
+export const getTransactionDetailPathByTransactionId = (transactionId: string) => {
+  const trimmedId = transactionId.trim();
+  const [agentId] = trimmedId.split('^');
+
+  return `${getTransactionDetailPath()}?${getTransactionDetailQueryString({
+    agentId,
+    spanId: '-1',
+    traceId: trimmedId,
+    focusTimestamp: 0,
+  })}`;
 };

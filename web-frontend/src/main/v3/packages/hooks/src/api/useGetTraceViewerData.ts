@@ -4,12 +4,7 @@ import { convertParamsToQueryString } from '@pinpoint-fe/utils';
 import { swrConfigs } from './swrConfigs';
 
 const getQueryString = (queryParams: Partial<TraceViewerData.Parameters>) => {
-  if (
-    queryParams.traceId &&
-    queryParams.focusTimestamp &&
-    queryParams.agentId &&
-    queryParams.spanId
-  ) {
+  if (queryParams.traceId && queryParams.agentId && queryParams.spanId) {
     return '?' + convertParamsToQueryString(queryParams);
   }
   return '';
