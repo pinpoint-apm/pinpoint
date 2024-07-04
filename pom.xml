@@ -228,7 +228,7 @@
         <resilience4j-jdk8.version>1.7.1</resilience4j-jdk8.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.100.Final</netty4.version>
+        <netty4.version>4.1.111.Final</netty4.version>
 
         <grpc.version>1.62.2</grpc.version>
         <protobuf-java.version>3.25.1</protobuf-java.version>
