@@ -177,6 +177,21 @@ public class StandardHostValveInvokeInterceptor implements ApiIdAwareAroundInter
         if (trace == null) {
             return;
         }
+
+        final SpanRecorder spanRecorder = trace.getSpanRecorder();
+        String uriTemplate = getUserUriTemplate(request);
+        if (StringUtils.hasLength(uriTemplate)) {
+            spanRecorder.recordUriTemplate(uriTemplate, true);
+        }
+        if (uriStatCollectMethod) {
+            String method = request.getMethod();
+            if (StringUtils.hasLength(method)) {
+                spanRecorder.recordUriHttpMethod(request.getMethod());
+            }
+        }
+    }
+
+    private String getUserUriTemplate(HttpServletRequest request) {
         for (String attributeName : TomcatConstants.TOMCAT_URI_USER_INPUT_ATTRIBUTE_KEYS) {
             final Object uriMapping = request.getAttribute(attributeName);
             if (!(uriMapping instanceof String)) {
@@ -184,17 +199,11 @@ public class StandardHostValveInvokeInterceptor implements ApiIdAwareAroundInter
             }
 
             String uriTemplate = (String) uriMapping;
-            if (!StringUtils.hasLength(uriTemplate)) {
-                continue;
+            if (StringUtils.hasLength(uriTemplate)) {
+                return uriTemplate;
             }
-
-            if (uriStatCollectMethod) {
-                uriTemplate = request.getMethod() + " " + uriTemplate;
-            }
-
-            final SpanRecorder spanRecorder = trace.getSpanRecorder();
-            spanRecorder.recordUriTemplate(uriTemplate, true);
         }
+        return null;
     }
 
     private int getStatusCode(final HttpServletResponse response) {

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
+import com.navercorp.pinpoint.profiler.context.recorder.uri.UriTemplateFilter;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +37,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private final Span span;
+    private final UriTemplateFilter uriTemplateFilter = new UriTemplateFilter();
 
     public DefaultSpanRecorder(final Span span,
                                final StringMetaDataService stringMetaDataService,
@@ -180,7 +182,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     public boolean recordUriTemplate(String uriTemplate, boolean force) {
-        return getShared().setUriTemplate(uriTemplate, force);
+        return getShared().setUriTemplate(uriTemplateFilter.filter(uriTemplate), force);
     }
 
     @Override

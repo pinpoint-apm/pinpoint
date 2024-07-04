@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
+import com.navercorp.pinpoint.profiler.context.recorder.uri.UriTemplateFilter;
 
 import java.util.Objects;
 
@@ -37,6 +38,8 @@ public class DisableSpanRecorder implements SpanRecorder {
 
     private final LocalTraceRoot traceRoot;
     private final IgnoreErrorHandler ignoreErrorHandler;
+
+    private final UriTemplateFilter uriTemplateFilter = new UriTemplateFilter();
 
     public DisableSpanRecorder(LocalTraceRoot traceRoot, IgnoreErrorHandler ignoreErrorHandler) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -206,7 +209,7 @@ public class DisableSpanRecorder implements SpanRecorder {
 
     @Override
     public boolean recordUriTemplate(String uriTemplate, boolean force) {
-        return getShared().setUriTemplate(uriTemplate, force);
+        return getShared().setUriTemplate(uriTemplateFilter.filter(uriTemplate), force);
     }
 
     @Override

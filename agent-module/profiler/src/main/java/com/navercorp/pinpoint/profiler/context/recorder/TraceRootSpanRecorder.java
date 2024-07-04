@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.recorder.uri.UriTemplateFilter;
 
 import java.util.Objects;
 
@@ -33,6 +34,7 @@ import java.util.Objects;
 public class TraceRootSpanRecorder implements SpanRecorder {
 
     private final TraceRoot traceRoot;
+    private final UriTemplateFilter uriTemplateFilter = new UriTemplateFilter();
 
     public TraceRootSpanRecorder(TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -205,7 +207,7 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     @Override
     public boolean recordUriTemplate(String uriTemplate, boolean force) {
-        return getShared().setUriTemplate(uriTemplate, force);
+        return getShared().setUriTemplate(uriTemplateFilter.filter(uriTemplate), force);
     }
 
     @Override
