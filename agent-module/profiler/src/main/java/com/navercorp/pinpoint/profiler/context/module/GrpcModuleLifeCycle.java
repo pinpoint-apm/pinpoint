@@ -20,10 +20,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.common.profiler.Stoppable;
+import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
@@ -40,16 +42,16 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
-    private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSenderProvider;
-    private final Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSenderProvider;
+    private final Provider<AsyncDataSender<MetaDataType, ResultResponse>> agentDataSenderProvider;
+    private final Provider<EnhancedDataSender<MetaDataType>> metadataDataSenderProvider;
     private final Provider<DataSender<SpanType>> spanDataSenderProvider;
     private final Provider<DataSender<MetricType>> statDataSenderProvider;
 
     private final Provider<ExecutorService> dnsExecutorServiceProvider;
     private final Provider<ScheduledExecutorService> reconnectScheduledExecutorProvider;
 
-    private EnhancedDataSender<MetaDataType, ResponseMessage> agentDataSender;
-    private EnhancedDataSender<MetaDataType, ResponseMessage> metadataDataSender;
+    private AsyncDataSender<MetaDataType, ResultResponse> agentDataSender;
+    private EnhancedDataSender<MetaDataType> metadataDataSender;
 
     private DataSender<SpanType> spanDataSender;
     private DataSender<MetricType> statDataSender;
@@ -61,8 +63,8 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     @Inject
     public GrpcModuleLifeCycle(
-            @AgentDataSender Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSenderProvider,
-            @MetadataDataSender Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSenderProvider,
+            @AgentDataSender Provider<AsyncDataSender<MetaDataType, ResultResponse>> agentDataSenderProvider,
+            @MetadataDataSender Provider<EnhancedDataSender<MetaDataType>> metadataDataSenderProvider,
             @SpanDataSender Provider<DataSender<SpanType>> spanDataSenderProvider,
             @StatDataSender Provider<DataSender<MetricType>> statDataSenderProvider,
             Provider<ExecutorService> dnsExecutorServiceProvider,
@@ -104,20 +106,10 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     @Override
     public void shutdown() {
         logger.info("shutdown()");
-        if (spanDataSender != null) {
-            this.spanDataSender.stop();
-        }
-        if (statDataSender != null) {
-            this.statDataSender.stop();
-        }
-
-        if (agentDataSender != null) {
-            this.agentDataSender.stop();
-        }
-
-        if (metadataDataSender != null) {
-            this.metadataDataSender.stop();
-        }
+        Stoppable.stopQuietly(spanDataSender);
+        Stoppable.stopQuietly(statDataSender);
+        Stoppable.stopQuietly(agentDataSender);
+        Stoppable.stopQuietly(metadataDataSender);
 
         if (dnsExecutorService != null) {
             ExecutorUtils.shutdownExecutorService("dnsExecutor", dnsExecutorService);
@@ -125,21 +117,18 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
         if (reconnectScheduledExecutorService != null) {
             ExecutorUtils.shutdownExecutorService("reconnectScheduledExecutor", reconnectScheduledExecutorService);
         }
-        if (reporter != null) {
-            reporter.stop();
-        }
+        Stoppable.stopQuietly(reporter);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GrpcModuleLifeCycle{");
-        sb.append(", agentDataSender=").append(agentDataSender);
-        sb.append(", metadataDataSender=").append(metadataDataSender);
-        sb.append(", spanDataSender=").append(spanDataSender);
-        sb.append(", statDataSender=").append(statDataSender);
-        sb.append(", dnsExecutorService=").append(dnsExecutorService);
-        sb.append(", reconnectScheduledExecutorService=" + reconnectScheduledExecutorService);
-        sb.append('}');
-        return sb.toString();
+        return "GrpcModuleLifeCycle{" +
+                ", agentDataSender=" + agentDataSender +
+                ", metadataDataSender=" + metadataDataSender +
+                ", spanDataSender=" + spanDataSender +
+                ", statDataSender=" + statDataSender +
+                ", dnsExecutorService=" + dnsExecutorService +
+                ", reconnectScheduledExecutorService=" + reconnectScheduledExecutorService +
+                '}';
     }
 }

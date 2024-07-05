@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +33,7 @@ public class SqlCacheServiceTest {
 
     @Test
     public void cacheSql() {
-        final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender = mock(EnhancedDataSender.class);
+        final EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
         SimpleCache<String> sqlCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 100);
         SimpleCachingSqlNormalizer simpleCachingSqlNormalizer = new SimpleCachingSqlNormalizer(sqlCache);
         final SqlCacheService<Integer> sqlMetaDataService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer);

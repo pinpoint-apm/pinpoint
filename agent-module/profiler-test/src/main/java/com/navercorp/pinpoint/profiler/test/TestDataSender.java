@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.profiler.test;
 
 import com.google.common.primitives.UnsignedBytes;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
@@ -33,13 +32,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.function.BiConsumer;
 
 /**
  * @author Jongho Moon
  * @author jaehong.kim
  */
-public class TestTcpDataSender implements EnhancedDataSender<MetaDataType, ResponseMessage> {
+public class TestDataSender implements EnhancedDataSender<MetaDataType> {
 
     private final List<Object> datas = Collections.synchronizedList(new ArrayList<>());
 
@@ -146,12 +144,6 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType, Respo
 
     @Override
     public boolean request(MetaDataType data, int retry) {
-        addData(data);
-        return true;
-    }
-
-    @Override
-    public boolean request(MetaDataType data, BiConsumer<ResponseMessage, Throwable> listener) {
         addData(data);
         return true;
     }

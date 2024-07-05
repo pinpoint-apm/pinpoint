@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
@@ -29,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -49,13 +48,12 @@ public class AgentInfoSender {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
+    private final AsyncDataSender<MetaDataType, ResultResponse> dataSender;
     private final AgentInfoFactory agentInfoFactory;
     private final long refreshIntervalMs;
     private final long sendIntervalMs;
     private final int maxTryPerAttempt;
     private final Scheduler scheduler;
-    private final MessageConverter<Object, ResultResponse> messageConverter;
 
     private AgentInfoSender(Builder builder) {
         this.dataSender = builder.dataSender;
@@ -64,7 +62,6 @@ public class AgentInfoSender {
         this.sendIntervalMs = builder.sendIntervalMs;
         this.maxTryPerAttempt = builder.maxTryPerAttempt;
         this.scheduler = new Scheduler();
-        this.messageConverter = builder.messageConverter;
     }
 
     public void start() {
@@ -179,10 +176,9 @@ public class AgentInfoSender {
                 agentInfo = agentInfoFactory.createAgentInfo();
 
                 logger.info("Sending AgentInfo={}", agentInfo);
-                ResponseFutureListener<ResponseMessage, Throwable> listener = new ResponseFutureListener<>();
-                dataSender.request(agentInfo, listener);
-                ResponseMessage responseMessage = listener.getResponseFuture().get(3000, TimeUnit.MILLISECONDS);
-                if (responseMessage == null) {
+                CompletableFuture<ResultResponse> future = dataSender.request(agentInfo);
+                ResultResponse result = future.get(3000, TimeUnit.MILLISECONDS);
+                if (result == null) {
                     if (agentInfo != null && agentInfo.getAgentInformation() != null) {
                         logger.warn("Failed to send agentInfo={}. result not set", agentInfo.getAgentInformation());
                     } else {
@@ -190,7 +186,6 @@ public class AgentInfoSender {
                     }
                     return false;
                 }
-                final ResultResponse result = messageConverter.toMessage(responseMessage);
                 if (!result.isSuccess()) {
                     if (agentInfo != null && agentInfo.getAgentInformation() != null) {
                         logger.warn("Failed to send agentInfo={}. request unsuccessful, response={}", agentInfo.getAgentInformation(), result.getMessage());
@@ -220,14 +215,13 @@ public class AgentInfoSender {
     }
 
     public static class Builder {
-        private final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
+        private final AsyncDataSender<MetaDataType, ResultResponse> dataSender;
         private final AgentInfoFactory agentInfoFactory;
         private long refreshIntervalMs = DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS;
         private long sendIntervalMs = DEFAULT_AGENT_INFO_SEND_INTERVAL_MS;
         private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
-        private MessageConverter<Object, ResultResponse> messageConverter;
 
-        public Builder(EnhancedDataSender<MetaDataType, ResponseMessage> dataSender, AgentInfoFactory agentInfoFactory) {
+        public Builder(AsyncDataSender<MetaDataType, ResultResponse> dataSender, AgentInfoFactory agentInfoFactory) {
             this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
             this.agentInfoFactory = Objects.requireNonNull(agentInfoFactory, "agentInfoFactory");
         }
@@ -247,10 +241,6 @@ public class AgentInfoSender {
             return this;
         }
 
-        public Builder setMessageConverter(MessageConverter<Object, ResultResponse> messageConverter) {
-            this.messageConverter = messageConverter;
-            return this;
-        }
 
         public AgentInfoSender build() {
             if (this.refreshIntervalMs <= 0) {

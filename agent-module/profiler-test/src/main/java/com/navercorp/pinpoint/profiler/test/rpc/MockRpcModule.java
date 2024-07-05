@@ -21,23 +21,22 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.module.ModuleLifeCycle;
-import com.navercorp.pinpoint.profiler.context.module.ResultConverter;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
+import com.navercorp.pinpoint.profiler.test.AsyncDataSenderDelegator;
 import com.navercorp.pinpoint.profiler.test.ListenableDataSender;
 import com.navercorp.pinpoint.profiler.test.OrderedSpanRecorder;
-import com.navercorp.pinpoint.profiler.test.TestTcpDataSender;
+import com.navercorp.pinpoint.profiler.test.TestDataSender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,26 +71,31 @@ public class MockRpcModule extends PrivateModule {
         bind(statDataSenderKey).toInstance(statDataSender);
         expose(statDataSenderKey);
 
-        EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender = new TestTcpDataSender();
+        EnhancedDataSender<MetaDataType> enhancedDataSender = new TestDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {
+        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
         };
         bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
         expose(dataSenderTypeLiteral);
 
-        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
-        bind(agentDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
+        AsyncDataSender<MetaDataType, ResultResponse>  asyncDataSender = new AsyncDataSenderDelegator(enhancedDataSender);
+        logger.debug("asyncDataSender:{}", asyncDataSender);
+        TypeLiteral<AsyncDataSender<MetaDataType, ResultResponse>> asyncDataSenderTypeLiteral = new TypeLiteral<AsyncDataSender<MetaDataType, ResultResponse>>() {
+        };
+        bind(asyncDataSenderTypeLiteral).toInstance(asyncDataSender);
+        expose(asyncDataSenderTypeLiteral);
+
+
+        Key<AsyncDataSender<MetaDataType, ResultResponse>> agentDataSender = Key.get(asyncDataSenderTypeLiteral, AgentDataSender.class);
+        bind(agentDataSender).to(asyncDataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(agentDataSender);
 
-        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
+        logger.debug("enhancedDataSender:{}", enhancedDataSender);
+        TypeLiteral<EnhancedDataSender<MetaDataType>> enhancedDataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
+        };
+        Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(enhancedDataSenderTypeLiteral, MetadataDataSender.class);
         bind(metadataDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(metadataDataSender);
-
-
-        TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {};
-        Key<MessageConverter<Object, ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
-        bind(resultMessageConverterKey).to(MockMessageConverter.class).in(Scopes.SINGLETON);
-        expose(resultMessageConverterKey);
 
 
         Key<ModuleLifeCycle> rpcModuleLifeCycleKey = Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE"));

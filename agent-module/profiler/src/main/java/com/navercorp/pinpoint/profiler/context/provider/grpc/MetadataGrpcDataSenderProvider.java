@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.config.ClientRetryOption;
 import com.navercorp.pinpoint.grpc.client.retry.HedgingServiceConfigBuilder;
 import com.navercorp.pinpoint.grpc.client.retry.RetryHeaderFactory;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
@@ -48,7 +47,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> {
+public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -79,7 +78,7 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
     }
 
     @Override
-    public EnhancedDataSender<MetaDataType, ResponseMessage> get() {
+    public EnhancedDataSender<MetaDataType> get() {
         final String collectorIp = grpcTransportConfig.getMetadataCollectorIp();
         final int collectorPort = grpcTransportConfig.getMetadataCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isMetadataSslEnable();

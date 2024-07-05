@@ -31,18 +31,16 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiConsumer;
 
 /**
  */
-public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> implements EnhancedDataSender<T, ResponseMessage> {
+public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> implements EnhancedDataSender<T> {
 
     private final MetadataGrpc.MetadataStub metadataStub;
 
@@ -69,11 +67,6 @@ public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> 
     @Override
     public boolean request(T data, int retry) {
         throw new UnsupportedOperationException("unsupported operation request(data, retry)");
-    }
-
-    @Override
-    public boolean request(T data, BiConsumer<ResponseMessage, Throwable> listener) {
-        throw new UnsupportedOperationException("unsupported operation request(data, listener)");
     }
 
     @Override

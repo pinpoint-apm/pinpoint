@@ -22,7 +22,6 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.SpanType;
@@ -66,9 +65,9 @@ public class PluginApplicationContextModule extends AbstractModule {
 
         bind(StorageFactory.class).to(TestSpanStorageFactory.class);
 
-        EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender = newTcpDataSender();
+        EnhancedDataSender<MetaDataType> enhancedDataSender = newTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {};
+        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {};
         bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
 
         ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
@@ -89,8 +88,8 @@ public class PluginApplicationContextModule extends AbstractModule {
         return sender;
     }
 
-    private EnhancedDataSender<MetaDataType, ResponseMessage> newTcpDataSender() {
-        return new TestTcpDataSender();
+    private EnhancedDataSender<MetaDataType> newTcpDataSender() {
+        return new TestDataSender();
     }
 
     private ServerMetaDataRegistryService newServerMetaDataRegistryService() {

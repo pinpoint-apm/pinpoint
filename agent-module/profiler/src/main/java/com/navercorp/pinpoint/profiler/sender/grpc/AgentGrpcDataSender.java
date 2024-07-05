@@ -17,26 +17,26 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
-import io.grpc.stub.StreamObserver;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.BiConsumer;
 
 /**
  * @author jaehong.kim
  */
-public class AgentGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T, ResponseMessage> {
+public class AgentGrpcDataSender extends GrpcDataSender<MetaDataType> implements AsyncDataSender<MetaDataType, ResultResponse> {
     private final AgentGrpc.AgentStub agentInfoStub;
     private final AgentGrpc.AgentStub agentPingStub;
     private final GrpcCommandService grpcCommandService;
@@ -47,7 +47,7 @@ public class AgentGrpcDataSender<T> extends GrpcDataSender<T> implements Enhance
     private final Reconnector reconnector;
 
     public AgentGrpcDataSender(String host, int port, int executorQueueSize,
-                               MessageConverter<T, GeneratedMessageV3> messageConverter,
+                               MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
                                ReconnectExecutor reconnectExecutor,
                                final ScheduledExecutorService retransmissionExecutor,
                                ChannelFactory channelFactory,
@@ -84,33 +84,21 @@ public class AgentGrpcDataSender<T> extends GrpcDataSender<T> implements Enhance
         return pingStreamContext;
     }
 
-    @Override
-    public boolean request(T data) {
-        throw new UnsupportedOperationException("unsupported operation request(data)");
-    }
 
     @Override
-    public boolean request(T data, int retryCount) {
-        throw new UnsupportedOperationException("unsupported operation request(data, retryCount)");
-    }
-
-    @Override
-    public boolean request(T data, final BiConsumer<ResponseMessage, Throwable> listener) {
+    public CompletableFuture<ResultResponse> request(MetaDataType data) {
         final GeneratedMessageV3 message = this.messageConverter.toMessage(data);
         if (!(message instanceof PAgentInfo)) {
             throw new IllegalArgumentException("unsupported message " + data);
         }
 
         final PAgentInfo pAgentInfo = (PAgentInfo) message;
-        this.agentInfoStub.requestAgentInfo(pAgentInfo, new FutureListenerStreamObserver(listener));
 
-        return true;
+        CompletableFutureObserver<PResult, ResultResponse> observer = new CompletableFutureObserver<>(PResults::toResponse);
+        this.agentInfoStub.requestAgentInfo(pAgentInfo, observer);
+        return observer.future();
     }
 
-    @Override
-    public boolean send(Object data) {
-        throw new UnsupportedOperationException("unsupported operation send(data)");
-    }
 
     @Override
     public void stop() {
@@ -136,27 +124,4 @@ public class AgentGrpcDataSender<T> extends GrpcDataSender<T> implements Enhance
         this.release();
     }
 
-
-    private static class FutureListenerStreamObserver implements StreamObserver<PResult> {
-        private final BiConsumer<ResponseMessage, Throwable> listener;
-
-        private FutureListenerStreamObserver(BiConsumer<ResponseMessage, Throwable> listener) {
-            this.listener = listener;
-        }
-
-        @Override
-        public void onNext(PResult result) {
-            final ResponseMessage response = ResponseMessage.wrap(result.toByteArray());
-            listener.accept(response, null);
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-            listener.accept(null, throwable);
-        }
-
-        @Override
-        public void onCompleted() {
-        }
-    }
 }
