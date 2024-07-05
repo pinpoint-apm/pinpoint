@@ -70,7 +70,7 @@ public class AgentGrpcDataSenderTestMain {
         channelFactoryBuilder.setClientOption(new ClientOption());
         ChannelFactory channelFactory = channelFactoryBuilder.build();
 
-        AgentGrpcDataSender<MetaDataType> sender = new AgentGrpcDataSender<>("localhost", 9997, 1, messageConverter,
+        AgentGrpcDataSender sender = new AgentGrpcDataSender("localhost", 9997, 1, messageConverter,
                 reconnectExecutor, scheduledExecutorService, channelFactory, null);
 
         AgentInfo agentInfo = newAgentInfo();

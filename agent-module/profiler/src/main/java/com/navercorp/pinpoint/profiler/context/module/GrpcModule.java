@@ -23,6 +23,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
@@ -30,10 +31,8 @@ import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcMessageToResultConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
@@ -165,19 +164,15 @@ public class GrpcModule extends PrivateModule {
         Key<MessageConverter<MetaDataType, GeneratedMessageV3>> metadataMessageConverterKey = Key.get(metadataMessageConverter, MetadataDataSender.class);
         bind(metadataMessageConverterKey).toProvider(GrpcMetadataMessageConverterProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {
+        TypeLiteral<AsyncDataSender<MetaDataType, ResultResponse>> agentDataSenderTypeLiteral = new TypeLiteral<AsyncDataSender<MetaDataType, ResultResponse>>() {
         };
-        Key<MessageConverter<Object, ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
-        bind(resultMessageConverterKey).toProvider(GrpcMessageToResultConverterProvider.class).in(Scopes.SINGLETON);
-        expose(resultMessageConverterKey);
-
-        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {
-        };
-        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
+        Key<AsyncDataSender<MetaDataType, ResultResponse>> agentDataSender = Key.get(agentDataSenderTypeLiteral, AgentDataSender.class);
         bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(agentDataSender);
 
-        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
+        TypeLiteral<EnhancedDataSender<MetaDataType>> metaDataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
+        };
+        Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(metaDataSenderTypeLiteral, MetadataDataSender.class);
         bind(metadataDataSender).toProvider(MetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(metadataDataSender);
     }

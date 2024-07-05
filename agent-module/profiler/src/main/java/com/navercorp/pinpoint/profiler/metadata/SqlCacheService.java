@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,9 +13,9 @@ public class SqlCacheService<ID> {
 
     private final CachingSqlNormalizer<ParsingResultInternal<ID>> cachingSqlNormalizer;
 
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public SqlCacheService(EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender, CachingSqlNormalizer<ParsingResultInternal<ID>> cachingSqlNormalizer) {
+    public SqlCacheService(EnhancedDataSender<MetaDataType> enhancedDataSender, CachingSqlNormalizer<ParsingResultInternal<ID>> cachingSqlNormalizer) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
         this.cachingSqlNormalizer = Objects.requireNonNull(cachingSqlNormalizer, "cachingSqlNormalizer");
     }

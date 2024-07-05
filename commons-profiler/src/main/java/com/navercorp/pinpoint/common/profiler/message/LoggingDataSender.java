@@ -19,14 +19,12 @@ package com.navercorp.pinpoint.common.profiler.message;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.function.BiConsumer;
-
 
 /**
  * @author emeroad
  * @author netspider
  */
-public class LoggingDataSender<REQ, RES> implements EnhancedDataSender<REQ, RES> {
+public class LoggingDataSender<REQ> implements EnhancedDataSender<REQ> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -54,11 +52,5 @@ public class LoggingDataSender<REQ, RES> implements EnhancedDataSender<REQ, RES>
         return false;
     }
 
-
-    @Override
-    public boolean request(REQ data, BiConsumer<RES, Throwable> listener) {
-        logger.info("request tBase:{} FutureListener:{}", data, listener);
-        return false;
-    }
 
 }

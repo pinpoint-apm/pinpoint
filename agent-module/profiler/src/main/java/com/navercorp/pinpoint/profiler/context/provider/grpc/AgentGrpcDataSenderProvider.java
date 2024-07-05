@@ -19,15 +19,15 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapper;
@@ -56,7 +56,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * @author jaehong.kim
  */
-public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> {
+public class AgentGrpcDataSenderProvider implements Provider<AsyncDataSender<MetaDataType, ResultResponse>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -109,7 +109,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     }
 
     @Override
-    public EnhancedDataSender<MetaDataType, ResponseMessage> get() {
+    public AsyncDataSender<MetaDataType, ResultResponse> get() {
         final String collectorIp = grpcTransportConfig.getAgentCollectorIp();
         final int collectorPort = grpcTransportConfig.getAgentCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isAgentSslEnable();
@@ -127,11 +127,11 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
                 channelFactory, reconnectExecutor, retransmissionExecutor, profilerCommandServiceLocator);
     }
 
-    protected EnhancedDataSender<MetaDataType, ResponseMessage> newAgentGrpcDataSender(String collectorIp, int collectorPort, int senderExecutorQueueSize,
-                                                                                       MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
-                                                                                       ChannelFactory channelFactory, ReconnectExecutor reconnectExecutor,
-                                                                                       ScheduledExecutorService retransmissionExecutor,
-                                                                                       ProfilerCommandServiceLocator profilerCommandServiceLocator) {
+    protected AsyncDataSender<MetaDataType, ResultResponse> newAgentGrpcDataSender(String collectorIp, int collectorPort, int senderExecutorQueueSize,
+                                                                                    MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
+                                                                                    ChannelFactory channelFactory, ReconnectExecutor reconnectExecutor,
+                                                                                    ScheduledExecutorService retransmissionExecutor,
+                                                                                    ProfilerCommandServiceLocator profilerCommandServiceLocator) {
         return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, channelFactory, profilerCommandServiceLocator);
     }
 

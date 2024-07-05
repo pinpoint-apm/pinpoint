@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ class SqlUidMetaDataServiceTest {
     SqlUidMetaDataService sut;
 
     @Mock
-    EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
+    EnhancedDataSender<MetaDataType> dataSender;
 
     AutoCloseable autoCloseable;
 

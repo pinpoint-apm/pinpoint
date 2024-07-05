@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.common.profiler.message;
 
+import com.navercorp.pinpoint.common.profiler.Stoppable;
+
 /**
  * @author emeroad
  * @author netspider
  */
-public interface DataSender<REQ> {
+public interface DataSender<REQ> extends Stoppable {
 
     boolean send(REQ data);
 
+    @Override
     void stop();
 
 }

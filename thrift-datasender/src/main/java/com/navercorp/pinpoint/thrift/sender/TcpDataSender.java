@@ -54,7 +54,7 @@ import java.util.function.BiConsumer;
  * @author koo.taejin
  * @author netspider
  */
-public class TcpDataSender<T> implements EnhancedDataSender<T, ResponseMessage>, ReconnectEventListenerRegistry<PinpointClient> {
+public class TcpDataSender<T> implements EnhancedDataSender<T>, ReconnectEventListenerRegistry<PinpointClient> {
 
     private static final int DEFAULT_QUEUE_SIZE = 1024 * 5;
 
@@ -168,11 +168,6 @@ public class TcpDataSender<T> implements EnhancedDataSender<T, ResponseMessage>,
         return executor.execute(message);
     }
 
-    @Override
-    public boolean request(T data, BiConsumer<ResponseMessage, Throwable> listener) {
-        final RequestMessage<T, ResponseMessage> message = RequestMessageFactory.request(data, 3, listener);
-        return executor.execute(message);
-    }
 
     public boolean isConnected() {
         return client.isConnected();

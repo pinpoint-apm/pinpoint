@@ -20,7 +20,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
@@ -40,13 +39,13 @@ import java.util.Objects;
 public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> {
     private final ProfilerConfig profilerConfig;
     private final MonitorConfig monitorConfig;
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
     private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
     public SqlMetadataServiceProvider(ProfilerConfig profilerConfig,
                                       MonitorConfig monitorConfig,
-                                      @MetadataDataSender EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender,
+                                      @MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender,
                                       SimpleCacheFactory simpleCacheFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.monitorConfig = Objects.requireNonNull(monitorConfig, "monitorConfig");

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.Result;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 
@@ -31,9 +30,9 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
 
     private final SimpleCache<String> apiCache;
 
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultApiMetaDataService(EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender, SimpleCache<String> apiCache) {
+    public DefaultApiMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> apiCache) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
         this.apiCache = Objects.requireNonNull(apiCache, "apiCache");
     }
