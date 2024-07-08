@@ -61,9 +61,9 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
-        final boolean retryFriendlyResponse = getRetryFriendlyResponse(headers);
+        final boolean grpcBuiltInRetry = getGrpcBuiltInRetry(headers);
         final Map<String, Object> properties = metadataConverter.apply(headers);
-        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, retryFriendlyResponse, properties);
+        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, grpcBuiltInRetry, properties);
     }
 
     public static Map<String, Object> emptyProperties(Metadata headers) {
@@ -142,12 +142,12 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
-    protected boolean getRetryFriendlyResponse(Metadata headers) {
-        final String value = headers.get(Header.RETRY_FRIENDLY_RESPONSE);
+    protected boolean getGrpcBuiltInRetry(Metadata headers) {
+        final String value = headers.get(Header.GRPC_BUILT_IN_RETRY);
         if (value != null) {
             return Boolean.parseBoolean(value);
         }
-        return Header.DEFAULT_RETRY_FRIENDLY_RESPONSE;
+        return Header.DEFAULT_GRPC_BUILT_IN_RETRY;
     }
 
     String validateId(String id, Metadata.Key key) {

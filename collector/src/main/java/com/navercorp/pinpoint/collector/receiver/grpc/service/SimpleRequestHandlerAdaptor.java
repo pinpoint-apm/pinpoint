@@ -65,7 +65,7 @@ public class SimpleRequestHandlerAdaptor<REQ, RES> {
     }
 
     private ServerResponse<? extends RES> newServerResponse(StreamObserver<? extends RES> responseObserver) {
-        if (ServerContext.getAgentInfo().isRetryFriendlyResponse()) {
+        if (ServerContext.getAgentInfo().isGrpcBuiltInRetry()) {
             return new GrpcRetryFriendlyServerResponse<>(responseObserver);
         }
         return new GrpcServerResponse<>(responseObserver);
