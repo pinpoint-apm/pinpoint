@@ -38,7 +38,7 @@ public class Header {
     public static final Metadata.Key<String> SOCKET_ID = newStringKey("socketid");
     public static final Metadata.Key<String> SERVICE_TYPE_KEY = newStringKey("servicetype");
     public static final Metadata.Key<String> SUPPORT_COMMAND_CODE = newStringKey("supportCommandCode");
-    public static final Metadata.Key<String> RETRY_FRIENDLY_RESPONSE = newStringKey("retry-friendly-response");
+    public static final Metadata.Key<String> GRPC_BUILT_IN_RETRY = newStringKey("grpc.built-in.retry");
 
     public static final String SUPPORT_COMMAND_CODE_DELIMITER = ";";
 
@@ -50,7 +50,7 @@ public class Header {
 
     public static final List<Integer> SUPPORT_COMMAND_CODE_LIST_NOT_EXIST = null;
     public static final List<Integer> SUPPORT_COMMAND_CODE_LIST_PARSE_ERROR = Collections.emptyList();
-    public static final boolean DEFAULT_RETRY_FRIENDLY_RESPONSE = false;
+    public static final boolean DEFAULT_GRPC_BUILT_IN_RETRY = false;
 
     private final String name;
     private final String agentId;
@@ -60,7 +60,7 @@ public class Header {
     private final long socketId;
     private final int serviceType;
     private final List<Integer> supportCommandCodeList;
-    private final boolean retryFriendlyResponse;
+    private final boolean grpcBuiltInRetry;
     private final Map<String, Object> properties;
 
     public Header(String name, String agentId, String agentName, String applicationName,
@@ -69,7 +69,7 @@ public class Header {
         this(name, agentId, agentName, applicationName,
                 serviceType, agentStartTime,
                 socketId, supportCommandCodeList,
-                DEFAULT_RETRY_FRIENDLY_RESPONSE, Collections.emptyMap());
+                DEFAULT_GRPC_BUILT_IN_RETRY, Collections.emptyMap());
     }
 
     public Header(String name,
@@ -77,7 +77,7 @@ public class Header {
                   int serviceType,
                   long agentStartTime, long socketId,
                   List<Integer> supportCommandCodeList,
-                  boolean retryFriendlyResponse,
+                  boolean grpcBuiltInRetry,
                   final Map<String, Object> properties) {
         this.name = Objects.requireNonNull(name, "name");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
@@ -88,7 +88,7 @@ public class Header {
         // allow null
         this.agentName = agentName;
         this.supportCommandCodeList = supportCommandCodeList;
-        this.retryFriendlyResponse = retryFriendlyResponse;
+        this.grpcBuiltInRetry = grpcBuiltInRetry;
         this.properties = Objects.requireNonNull(properties, "properties");
     }
 
@@ -120,8 +120,8 @@ public class Header {
         return supportCommandCodeList;
     }
 
-    public boolean isRetryFriendlyResponse() {
-        return retryFriendlyResponse;
+    public boolean isGrpcBuiltInRetry() {
+        return grpcBuiltInRetry;
     }
 
     public Object get(String key) {
@@ -143,7 +143,7 @@ public class Header {
                 ", socketId=" + socketId +
                 ", serviceType=" + serviceType +
                 ", supportCommandCodeList=" + supportCommandCodeList +
-                ", retryFriendlyResponse='" + retryFriendlyResponse + '\'' +
+                ", retryFriendlyResponse='" + grpcBuiltInRetry + '\'' +
                 ", properties=" + properties +
                 '}';
     }
@@ -162,7 +162,7 @@ public class Header {
         if (agentId != null ? !agentId.equals(header.agentId) : header.agentId != null) return false;
         if (applicationName != null ? !applicationName.equals(header.applicationName) : header.applicationName != null)
             return false;
-        if (retryFriendlyResponse != header.retryFriendlyResponse) return false;
+        if (grpcBuiltInRetry != header.grpcBuiltInRetry) return false;
         if (supportCommandCodeList != null ? !supportCommandCodeList.equals(header.supportCommandCodeList) : header.supportCommandCodeList != null)
             return false;
         return properties != null ? properties.equals(header.properties) : header.properties == null;
@@ -177,7 +177,7 @@ public class Header {
         result = 31 * result + (int) (socketId ^ (socketId >>> 32));
         result = 31 * result + serviceType;
         result = 31 * result + (supportCommandCodeList != null ? supportCommandCodeList.hashCode() : 0);
-        result = 31 * result + (retryFriendlyResponse ? 1 : 0);
+        result = 31 * result + (grpcBuiltInRetry ? 1 : 0);
         result = 31 * result + (properties != null ? properties.hashCode() : 0);
         return result;
     }

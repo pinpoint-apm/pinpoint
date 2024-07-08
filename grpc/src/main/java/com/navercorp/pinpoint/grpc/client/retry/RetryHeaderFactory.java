@@ -17,7 +17,7 @@ public class RetryHeaderFactory implements HeaderFactory {
     @Override
     public Metadata newHeader() {
         Metadata metadata = headerFactory.newHeader();
-        metadata.put(Header.RETRY_FRIENDLY_RESPONSE, Boolean.TRUE.toString());
+        metadata.put(Header.GRPC_BUILT_IN_RETRY, Boolean.TRUE.toString());
         return metadata;
     }
 }
