@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
     private static final long MIN_COLLECTION_INTERVAL_MS = 1000;
-    private static final long MAX_COLLECTION_INTERVAL_MS = 1000 * 5;
+    private static final long MAX_COLLECTION_INTERVAL_MS = 1000 * 10;
     private static final long DEFAULT_COLLECTION_INTERVAL_MS = DefaultMonitorConfig.DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
     private static final int DEFAULT_NUM_COLLECTIONS_PER_SEND = DefaultMonitorConfig.DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
 
