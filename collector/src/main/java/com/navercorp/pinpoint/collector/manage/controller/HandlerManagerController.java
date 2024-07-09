@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.collector.manage.controller;
 
+import com.navercorp.pinpoint.collector.manage.HandlerManager;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.navercorp.pinpoint.collector.manage.HandlerManager;
 
 import java.util.Objects;
 
@@ -38,33 +39,39 @@ public class HandlerManagerController {
     }
 
     @GetMapping(value = "/enableAccess")
-    public SimpleResult enableAccess() {
+    public ResponseEntity<SimpleResponse> enableAccess() {
         try {
             handlerManager.enableAccess();
-            return new SimpleResult(true);
+            return ResponseEntity.ok(SimpleResponse.success());
         } catch (Exception e) {
-            return new SimpleResult(false, e.getMessage());
+            return unauthorizedResponse(e.getMessage());
         }
     }
 
+
+
     @GetMapping(value = "/disableAccess")
-    public SimpleResult disableAccess() {
+    public ResponseEntity<SimpleResponse> disableAccess() {
         try {
             handlerManager.disableAccess();
-            return new SimpleResult(true);
+            return ResponseEntity.ok(SimpleResponse.success());
         } catch (Exception e) {
-            return new SimpleResult(false, e.getMessage());
+            return unauthorizedResponse(e.getMessage());
         }
     }
 
     @GetMapping(value = "/isEnable")
-    public SimpleResult isEnable() {
+    public ResponseEntity<SimpleResponse> isEnable() {
         boolean isEnable = handlerManager.isEnable();
 
-        SimpleResult simpleResult = new SimpleResult(true);
-        simpleResult.addAttribute("isEnable", isEnable);
+        SimpleResponse simpleResponse = SimpleResponse.success();
+        simpleResponse.addAttribute("isEnable", isEnable);
 
-        return simpleResult;
+        return ResponseEntity.ok(simpleResponse);
     }
 
+    private ResponseEntity<SimpleResponse> unauthorizedResponse(String errorMessage) {
+        SimpleResponse body = new SimpleResponse(false, errorMessage);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
 }
