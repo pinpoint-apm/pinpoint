@@ -32,17 +32,14 @@ public class ServerTimeController {
     }
 
 
-    private static class ServerTime {
-
-        private final long currentServerTime;
+    public static class ServerTime {
 
         public ServerTime() {
-            this.currentServerTime = System.currentTimeMillis();
         }
 
         @JsonProperty("currentServerTime")
         public long getCurrentServerTime() {
-            return currentServerTime;
+            return System.currentTimeMillis();
         }
     }
 

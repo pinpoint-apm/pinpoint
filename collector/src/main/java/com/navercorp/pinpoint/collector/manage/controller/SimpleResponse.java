@@ -2,23 +2,28 @@ package com.navercorp.pinpoint.collector.manage.controller;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.navercorp.pinpoint.common.server.response.Response;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SimpleResult {
+public class SimpleResponse implements Response {
     private final boolean result;
     private final String message;
     private Map<String, Object> attributeMap;
 
-    public SimpleResult(boolean result, String message) {
+    public static SimpleResponse success() {
+        return new SimpleResponse(true);
+    }
+
+    public SimpleResponse(boolean result, String message) {
         this.result = result;
         this.message = message;
     }
 
-    public SimpleResult(boolean result) {
+    public SimpleResponse(boolean result) {
         this.result = result;
         this.message = null;
     }
