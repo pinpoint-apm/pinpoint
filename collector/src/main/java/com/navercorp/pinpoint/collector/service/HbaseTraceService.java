@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service;
 
+import com.navercorp.pinpoint.collector.applicationmap.service.ApplicationMapService;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
@@ -57,6 +58,8 @@ public class HbaseTraceService implements TraceService {
 
     private final StatisticsService statisticsService;
 
+    private final ApplicationMapService applicationMapService;
+
     private final ServiceTypeRegistryService registry;
 
     private final SpanStorePublisher publisher;
@@ -66,6 +69,7 @@ public class HbaseTraceService implements TraceService {
                              ApplicationTraceIndexDao applicationTraceIndexDao,
                              HostApplicationMapDao hostApplicationMapDao,
                              StatisticsService statisticsService,
+                             ApplicationMapService applicationMapService,
                              ServiceTypeRegistryService registry,
                              SpanStorePublisher spanStorePublisher,
                              @Qualifier("grpcSpanServerExecutor") Executor grpcSpanServerExecutor) {
@@ -73,6 +77,7 @@ public class HbaseTraceService implements TraceService {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
         this.statisticsService = Objects.requireNonNull(statisticsService, "statisticsService");
+        this.applicationMapService = Objects.requireNonNull(applicationMapService, "serviceGroupMapService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.publisher = Objects.requireNonNull(spanStorePublisher, "spanStorePublisher");
         this.grpcSpanServerExecutor = Objects.requireNonNull(grpcSpanServerExecutor, "grpcSpanServerExecutor");
@@ -166,14 +171,33 @@ public class HbaseTraceService implements TraceService {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
                 statisticsService.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
-
                 statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), isError);
+
+                applicationMapService.updateBidirectional(
+                        "default",
+                        span.getApplicationId(), applicationServiceType,
+                        span.getAgentId(),
+                        "default",
+                        span.getAcceptorHost(), spanServiceType,
+                        span.getEndPoint(),
+                        span.getElapsed(), isError
+                );
+
             } else {
                 // create virtual user
                 statisticsService.updateCaller(span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
-
                 // update the span information of the current node (self)
                 statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
+
+                applicationMapService.updateBidirectional(
+                        "default",
+                        span.getApplicationId(), ServiceType.USER,
+                        span.getAgentId(),
+                        "default",
+                        span.getApplicationId(), applicationServiceType,
+                        span.getAgentId(),
+                        span.getElapsed(), isError
+                );
             }
             bugCheck++;
         }
@@ -196,12 +220,23 @@ public class HbaseTraceService implements TraceService {
                     // emulate virtual queue node's send SpanEvent
                     statisticsService.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
 
+                    applicationMapService.updateOutbound(
+                            "default", span.getAcceptorHost(), spanServiceType,
+                            "default", span.getApplicationId(), applicationServiceType,
+                            span.getRemoteAddr(), span.getElapsed(), isError
+                    );
+
                     parentApplicationName = span.getAcceptorHost();
                     parentApplicationType = spanServiceType;
                 }
             }
 
             statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
+            applicationMapService.updateInbound(
+                    "default", parentApplicationName, parentApplicationType,
+                    "default", span.getApplicationId(), applicationServiceType,
+                    span.getAgentId(), span.getElapsed(), isError
+            );
             bugCheck++;
         }
 
@@ -211,6 +246,11 @@ public class HbaseTraceService implements TraceService {
         // the data may be different due to timeout or network error.
 
         statisticsService.updateResponseTime(span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+        applicationMapService.updateSelfResponseTime(
+                "default", span.getApplicationId(), applicationServiceType,
+                span.getElapsed(), isError
+        );
+
 
         if (bugCheck != 1) {
             logger.info("ambiguous span found(bug). span:{}", span);
@@ -268,6 +308,12 @@ public class HbaseTraceService implements TraceService {
 
             // save the information of callee (the span that spanevent called)
             statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
+
+            applicationMapService.updateBidirectional(
+                    "default", applicationId, applicationServiceType, endPoint,
+                    "default", spanEventApplicationName, spanEventType, agentId,
+                    elapsed, hasException
+            );
         }
     }
 
