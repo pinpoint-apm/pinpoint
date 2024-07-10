@@ -31,7 +31,7 @@ import java.util.List;
 public class AgentStat {
 
     private static final List<Tag> EMPTY_TAGS = Collections.emptyList();
-    private static final String EMPTY_JSON_TAGS = TagListSerializer.serialize(EMPTY_TAGS);;
+    private static final String EMPTY_JSON_TAGS = TagListSerializer.serialize(EMPTY_TAGS);
     private final String tenantId;
     private final String sortKey;
     private final String applicationName;

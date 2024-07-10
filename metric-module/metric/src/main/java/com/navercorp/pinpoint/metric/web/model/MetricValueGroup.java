@@ -31,7 +31,7 @@ public class MetricValueGroup<Y extends Number> {
 
     public MetricValueGroup(List<MetricValue<Y>> metricValueList, String groupName) {
         this.groupName = StringPrecondition.requireHasLength(groupName, "groupName");
-        this.metricValueList = Objects.requireNonNull(metricValueList, "metricValueList");;
+        this.metricValueList = Objects.requireNonNull(metricValueList, "metricValueList");
     }
 
     public List<MetricValue<Y>> getMetricValueList() {

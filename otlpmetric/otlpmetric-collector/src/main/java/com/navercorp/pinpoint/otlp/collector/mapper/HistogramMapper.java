@@ -88,7 +88,7 @@ public class HistogramMapper extends OtlpMetricDataMapper {
             dataPointBuilder.setValue(bucketCountsList.get(index));
             String upperBound;
             if (index != bucketBoundsCount) {
-                upperBound = explicitBoundsList.get(index).toString();;
+                upperBound = explicitBoundsList.get(index).toString();
             } else {
                 upperBound = "+Inf";
             }
