@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.otlp.web.vo;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
 import java.util.Objects;
 
 public class OtlpMetricDetailsQueryParam {
@@ -15,7 +13,7 @@ public class OtlpMetricDetailsQueryParam {
 
     public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String rawTags) {
         this.serviceId = serviceId;
-        this.applicationId = Objects.requireNonNull(applicationId, "applicationId");;
+        this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
         this.agentId = agentId;
         this.metricGroupName = Objects.requireNonNull(metricGroupName, "metricGroupName");
         this.metricName = Objects.requireNonNull(metricName, "metricName");
@@ -27,7 +25,7 @@ public class OtlpMetricDetailsQueryParam {
     // TODO: check if this is needed
     public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String fieldName, String rawTags) {
         this.serviceId = serviceId;
-        this.applicationId = Objects.requireNonNull(applicationId, "applicationId");;
+        this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
         this.agentId = agentId;
         this.metricGroupName = Objects.requireNonNull(metricGroupName, "metricGroupName");
         this.metricName = Objects.requireNonNull(metricName, "metricName");

@@ -54,7 +54,7 @@ class CallerUtilsTest {
 
     @Test
     void getCallerMethodName_methodRef() {
-        Callable<String> callable = CallerUtils::getCallerMethodName;;
+        Callable<String> callable = CallerUtils::getCallerMethodName;
         logger.debug("getCallerMethodName_methodRef: {}", callable);
 //        System.out.println(callable);
     }

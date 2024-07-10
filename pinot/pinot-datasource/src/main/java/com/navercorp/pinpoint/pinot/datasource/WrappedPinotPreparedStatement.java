@@ -133,7 +133,7 @@ public class WrappedPinotPreparedStatement extends PinotPreparedStatement {
 
     public void setString(int parameterIndex, String x) throws SQLException {
         this.validateState();
-        this.parameters[parameterIndex - 1] =  "'" + x.replace("'", "''") + "'";;
+        this.parameters[parameterIndex - 1] =  "'" + x.replace("'", "''") + "'";
     }
 
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {

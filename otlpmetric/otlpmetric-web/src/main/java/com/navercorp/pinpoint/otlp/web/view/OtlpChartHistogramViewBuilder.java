@@ -17,15 +17,20 @@ public class OtlpChartHistogramViewBuilder extends OtlpChartViewBuilder {
 
     @Override
     protected String checkChartType(String fieldName, String description) {
-        if (fieldName.equals(FIELD_KEYWORD_COUNT)) {
-            this.description = description;;
-            return CHART_TYPE_SPLINE;
-        } else if (fieldName.equals(FIELD_KEYWORD_SUM) || fieldName.equals(FIELD_KEYWORD_MAX) || fieldName.equals(FIELD_KEYWORD_MIN)) {
-            return CHART_TYPE_SPLINE;
-        } else if (fieldName.equals(METADATA_KEYWORD_NUMBUCKETS)) {
-            return CHART_TYPE_NONE;
-        } else {
-            return CHART_TYPE_BAR;
+        switch (fieldName) {
+            case FIELD_KEYWORD_COUNT -> {
+                this.description = description;
+                return CHART_TYPE_SPLINE;
+            }
+            case FIELD_KEYWORD_SUM, FIELD_KEYWORD_MAX, FIELD_KEYWORD_MIN -> {
+                return CHART_TYPE_SPLINE;
+            }
+            case METADATA_KEYWORD_NUMBUCKETS -> {
+                return CHART_TYPE_NONE;
+            }
+            default -> {
+                return CHART_TYPE_BAR;
+            }
         }
     }
 

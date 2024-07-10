@@ -28,10 +28,10 @@ public class DirectBufferBo implements AgentStatDataPoint {
     private long startTimestamp;
     private long timestamp;
 
-    private long directCount = UNCOLLECTED_VALUE;;
-    private long directMemoryUsed = UNCOLLECTED_VALUE;;
-    private long mappedCount = UNCOLLECTED_VALUE;;
-    private long mappedMemoryUsed = UNCOLLECTED_VALUE;;
+    private long directCount = UNCOLLECTED_VALUE;
+    private long directMemoryUsed = UNCOLLECTED_VALUE;
+    private long mappedCount = UNCOLLECTED_VALUE;
+    private long mappedMemoryUsed = UNCOLLECTED_VALUE;
 
     @Override
     public String getAgentId() {
