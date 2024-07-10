@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
-import io.grpc.BindableService;
 import io.grpc.InternalWithLogId;
 import io.grpc.Server;
 import io.grpc.ServerCallExecutorSupplier;
@@ -71,7 +70,7 @@ public class ServerFactory {
     private final Executor serverExecutor;
     private final ServerCallExecutorSupplier callExecutor;
 
-    private final List<Object> bindableServices = new ArrayList<>();
+    private final List<ServerServiceDefinition> bindableServices = new ArrayList<>();
     private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<>();
     private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
 
@@ -126,11 +125,6 @@ public class ServerFactory {
         this.channelzRegistry = Objects.requireNonNull(channelzRegistry, "channelzRegistry");
     }
 
-    public void addService(BindableService bindableService) {
-        Objects.requireNonNull(bindableService, "bindableService");
-        this.bindableServices.add(bindableService.bindService());
-    }
-
     public void addService(ServerServiceDefinition serverServiceDefinition) {
         Objects.requireNonNull(serverServiceDefinition, "serverServiceDefinition");
         this.bindableServices.add(serverServiceDefinition);
@@ -158,23 +152,17 @@ public class ServerFactory {
         ServerImplBuilder serverImplBuilder = extractServerImplBuilder(serverBuilder);
         setupInternal(serverImplBuilder);
 
-        for (Object service : this.bindableServices) {
-
-            if (service instanceof BindableService) {
-                logger.info("Add BindableService={}, server={}", service, name);
-                serverBuilder.addService((BindableService) service);
-            } else if (service instanceof ServerServiceDefinition) {
-                final ServerServiceDefinition definition = (ServerServiceDefinition) service;
-                logger.info("Add ServerServiceDefinition={}, server={}", definition.getServiceDescriptor(), name);
-                serverBuilder.addService(definition);
-            }
+        for (ServerServiceDefinition service : this.bindableServices) {
+            logger.info("Add ServerServiceDefinition={}, server={}", service.getServiceDescriptor(), name);
+            serverBuilder.addService(service);
         }
+
         for (ServerTransportFilter transportFilter : this.serverTransportFilters) {
-            logger.info("Add transportFilter={}, server={}", transportFilter, name);
+            logger.info("Add ServerTransportFilter={}, server={}", transportFilter, name);
             serverBuilder.addTransportFilter(transportFilter);
         }
         for (ServerInterceptor serverInterceptor : this.serverInterceptors) {
-            logger.info("Add intercept={}, server={}", serverInterceptor, name);
+            logger.info("Add ServerInterceptor={}, server={}", serverInterceptor, name);
             serverBuilder.intercept(serverInterceptor);
         }
 

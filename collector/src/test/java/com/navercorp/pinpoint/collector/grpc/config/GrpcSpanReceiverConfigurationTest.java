@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.config.CollectorCommonConfiguration;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -70,6 +75,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 })
 @ContextConfiguration(classes = {
         GrpcSpanReceiverConfiguration.class,
+        GrpcComponentConfiguration.class,
+        CollectorCommonConfiguration.class,
         TestReceiverConfig.class,
 })
 @ExtendWith(SpringExtension.class)
@@ -84,6 +91,15 @@ public class GrpcSpanReceiverConfigurationTest {
     @Autowired
     @Qualifier("grpcSpanWorkerExecutorProperties")
     MonitoringExecutorProperties workerExecutor;
+
+    @MockBean(name = "grpcSpanHandler")
+    SimpleHandler<GeneratedMessageV3> spanHandler;
+
+    @MockBean(name = "grpcSpanChunkHandler")
+    SimpleHandler<GeneratedMessageV3> spanChunkHandler;
+
+    @MockBean
+    AcceptedTimeService acceptedTimeService;
 
     @Test
     public void properties() {

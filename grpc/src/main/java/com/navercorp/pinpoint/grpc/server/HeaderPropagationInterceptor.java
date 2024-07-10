@@ -75,4 +75,10 @@ public class HeaderPropagationInterceptor implements ServerInterceptor {
         return contextPropagateInterceptor;
     }
 
+    @Override
+    public String toString() {
+        return "HeaderPropagationInterceptor{" +
+                "headerReader=" + headerReader +
+                '}';
+    }
 }

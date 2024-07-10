@@ -168,4 +168,11 @@ public class AgentHeaderReader implements HeaderReader<Header> {
             return ServiceType.UNDEFINED.getCode();
         }
     }
+
+    @Override
+    public String toString() {
+        return "AgentHeaderReader{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

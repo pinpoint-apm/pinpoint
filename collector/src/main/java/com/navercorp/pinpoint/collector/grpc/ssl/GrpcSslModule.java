@@ -34,7 +34,7 @@ public class GrpcSslModule {
     public GrpcReceiver grpcAgentSslReceiver(@Qualifier("grpcAgentSslReceiverProperties") GrpcSslReceiverProperties properties,
                                             @Qualifier("grpcAgentReceiverProperties") GrpcReceiverProperties grpcReceiverProperties,
                                             AddressFilter addressFilter,
-                                            @Qualifier("agentServiceList") List<?> serviceList,
+                                            @Qualifier("agentServiceList") List<ServerServiceDefinition> serviceList,
                                             @Qualifier("agentInterceptorList")List<ServerInterceptor> serverInterceptorList,
                                             ChannelzRegistry channelzRegistry,
                                             @Qualifier("grpcAgentServerExecutor") Executor executor,
@@ -76,7 +76,7 @@ public class GrpcSslModule {
     private GrpcReceiver createReceiver(GrpcSslReceiverProperties properties,
                                         GrpcReceiverProperties grpcReceiverProperties,
                                         AddressFilter addressFilter,
-                                        List<?> serviceList,
+                                        List<ServerServiceDefinition> serviceList,
                                         List<ServerInterceptor> serverInterceptorList,
                                         ChannelzRegistry channelzRegistry,
                                         Executor executor) throws SSLException {

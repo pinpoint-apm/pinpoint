@@ -15,21 +15,35 @@
  *
  */
 
-package com.navercorp.pinpoint.collector.grpc.config;
+package com.navercorp.pinpoint.collector.grpc;
 
 import com.codahale.metrics.MetricRegistry;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcAgentDataReceiverConfiguration;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcComponentConfiguration;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcKeepAliveScheduler;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcSpanReceiverConfiguration;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcStatReceiverConfiguration;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 @Configuration
-@ImportResource({
-        "classpath:applicationContext-collector-grpc.xml"
+@Import({
+        GrpcComponentConfiguration.class,
+        GrpcAgentDataReceiverConfiguration.class,
+        GrpcSpanReceiverConfiguration.class,
+        GrpcStatReceiverConfiguration.class,
+
+        GrpcKeepAliveScheduler.class
+})
+@ComponentScan({
+        "com.navercorp.pinpoint.collector.receiver.grpc"
 })
 public class CollectorGrpcConfiguration {
 

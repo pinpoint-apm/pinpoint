@@ -102,7 +102,7 @@ public class LogCollectorGrpcServerConfig {
         receiver.setExecutor(serverExecutor);
         receiver.setServerCallExecutorSupplier(new SimpleServerCallExecutorSupplier(serverCallExecutor));
         receiver.setAddressFilter(addressFilter);
-        receiver.setBindableServiceList(List.of(logService));
+        receiver.setBindableServiceList(List.of(logService.bindService()));
         receiver.setServerInterceptorList(logInterceptorList);
         receiver.setEnable(receiverConfig.isEnable());
         receiver.setServerOption(receiverConfig.getServerOption());

@@ -16,14 +16,26 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.config.CollectorCommonConfiguration;
+import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
+import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
+import com.navercorp.pinpoint.collector.service.AgentInfoService;
+import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
+import com.navercorp.pinpoint.realtime.collector.receiver.EmptyCommandService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -63,6 +75,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 })
 @ContextConfiguration(classes = {
         GrpcAgentDataReceiverConfiguration.class,
+        GrpcComponentConfiguration.class,
+        CollectorCommonConfiguration.class,
+        ServerInterceptorFactory.class,
         TestReceiverConfig.class,
 })
 @ExtendWith(SpringExtension.class)
@@ -80,6 +95,26 @@ public class GrpcAgentDataReceiverConfigurationTest {
     @Autowired
     @Qualifier("grpcAgentWorkerExecutorProperties")
     MonitoringExecutorProperties workerExecutor;
+
+    @MockBean(name = "grpcAgentInfoHandler")
+    SimpleAndRequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> agentInfoHandler;
+
+    @MockBean
+    AcceptedTimeService acceptedTimeService;
+    @MockBean
+    AgentEventAsyncTaskService agentEventAsyncTaskService;
+    @MockBean
+    AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
+    @MockBean
+    AgentInfoService agentInfoService;
+
+    @MockBean(name = "commandService")
+    EmptyCommandService commandService;
+    @MockBean
+    AgentService agentService;
+    @MockBean
+    MetadataService metadataService;
+
 
     @Test
     public void properties() {
