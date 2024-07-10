@@ -31,9 +31,10 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.BindableService;
+import io.grpc.ServerServiceDefinition;
 
 import java.net.InetAddress;
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -60,7 +61,10 @@ public class AgentServerTestMain {
 
         PingEventHandler pingEventHandler = mock(PingEventHandler.class);
         BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler, Executors.newFixedThreadPool(8), serverRequestFactory);
-        grpcReceiver.setBindableServiceList(Arrays.asList(agentService, new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8), serverRequestFactory)));
+
+        MetadataService metadataService = new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8), serverRequestFactory);
+        List<ServerServiceDefinition> serviceList = List.of(agentService.bindService(), metadataService.bindService());
+        grpcReceiver.setBindableServiceList(serviceList);
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
         grpcReceiver.setServerOption(ServerOption.newBuilder().build());
