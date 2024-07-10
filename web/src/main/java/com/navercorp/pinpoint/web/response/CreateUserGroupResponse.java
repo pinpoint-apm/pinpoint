@@ -1,13 +1,14 @@
 package com.navercorp.pinpoint.web.response;
 
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.Result;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 
 import java.util.Objects;
 
-public class CreateUserGroupResponse extends SuccessResponse {
+public class CreateUserGroupResponse extends SimpleResponse {
     private final String number;
 
-    public CreateUserGroupResponse(String result, String number) {
+    public CreateUserGroupResponse(Result result, String number) {
         super(result);
         this.number = Objects.requireNonNull(number, "number");
     }
