@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.service.AgentStatisticsService;
 import com.navercorp.pinpoint.web.util.DateTimeUtils;
@@ -65,7 +65,7 @@ public class AgentStatisticsController {
         boolean success = agentStatisticsService.insertAgentCount(agentCountStatistics);
 
         if (success) {
-            return SuccessResponse.ok();
+            return SimpleResponse.ok();
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "insert DAO error.");
         }

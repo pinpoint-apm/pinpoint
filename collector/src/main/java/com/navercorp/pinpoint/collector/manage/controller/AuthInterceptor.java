@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.manage.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.response.MapResponse;
+import com.navercorp.pinpoint.common.server.response.Result;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -79,7 +81,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     private String jsonError(String errorMessage) throws JsonProcessingException {
-        SimpleResponse response = new SimpleResponse(false, errorMessage);
+        MapResponse response = new MapResponse(Result.FAIL, errorMessage);
         return mapper.writeValueAsString(response);
     }
 

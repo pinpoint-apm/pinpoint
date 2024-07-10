@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.collector.manage.controller;
 
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
+import com.navercorp.pinpoint.common.server.response.MapResponse;
+import com.navercorp.pinpoint.common.server.response.Response;
+import com.navercorp.pinpoint.common.server.response.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,10 +42,10 @@ public class HandlerManagerController {
     }
 
     @GetMapping(value = "/enableAccess")
-    public ResponseEntity<SimpleResponse> enableAccess() {
+    public ResponseEntity<Response> enableAccess() {
         try {
             handlerManager.enableAccess();
-            return ResponseEntity.ok(SimpleResponse.success());
+            return ResponseEntity.ok(MapResponse.ok());
         } catch (Exception e) {
             return unauthorizedResponse(e.getMessage());
         }
@@ -51,27 +54,27 @@ public class HandlerManagerController {
 
 
     @GetMapping(value = "/disableAccess")
-    public ResponseEntity<SimpleResponse> disableAccess() {
+    public ResponseEntity<Response> disableAccess() {
         try {
             handlerManager.disableAccess();
-            return ResponseEntity.ok(SimpleResponse.success());
+            return ResponseEntity.ok(MapResponse.ok());
         } catch (Exception e) {
             return unauthorizedResponse(e.getMessage());
         }
     }
 
     @GetMapping(value = "/isEnable")
-    public ResponseEntity<SimpleResponse> isEnable() {
+    public ResponseEntity<Response> isEnable() {
         boolean isEnable = handlerManager.isEnable();
 
-        SimpleResponse simpleResponse = SimpleResponse.success();
-        simpleResponse.addAttribute("isEnable", isEnable);
+        MapResponse response = new MapResponse(Result.SUCCESS);
+        response.addAttribute("isEnable", isEnable);
 
-        return ResponseEntity.ok(simpleResponse);
+        return ResponseEntity.ok(response);
     }
 
-    private ResponseEntity<SimpleResponse> unauthorizedResponse(String errorMessage) {
-        SimpleResponse body = new SimpleResponse(false, errorMessage);
+    private ResponseEntity<Response> unauthorizedResponse(String errorMessage) {
+        MapResponse body = new MapResponse(Result.FAIL, errorMessage);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 }

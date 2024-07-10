@@ -4,29 +4,29 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Objects;
 
-public class SuccessResponse implements Response {
-    private final String result;
+public class SimpleResponse implements Response {
+    private final Result result;
     private final String message;
 
     public static Response ok() {
-        return new SuccessResponse("SUCCESS");
+        return new SimpleResponse(Result.SUCCESS);
     }
 
     public static Response ok(String message) {
-        return new SuccessResponse("SUCCESS", message);
+        return new SimpleResponse(Result.SUCCESS, message);
     }
 
-    public SuccessResponse(String result) {
+    public SimpleResponse(Result result) {
         this(result, null);
     }
 
-    public SuccessResponse(String result, String message) {
+    public SimpleResponse(Result result, String message) {
         this.result = Objects.requireNonNull(result, "result");
         this.message = message;
-
     }
 
-    public String getResult() {
+    @Override
+    public Result getResult() {
         return result;
     }
 
