@@ -230,7 +230,8 @@
         <netty3.version>3.10.6.Final</netty3.version>
         <netty4.version>4.1.111.Final</netty4.version>
 
-        <grpc.version>1.62.2</grpc.version>
+        <grpc.version>1.64.1</grpc.version>
+        <grpc-bom.version>1.64.1</grpc-bom.version>
         <protobuf-java.version>3.25.1</protobuf-java.version>
         <protoc.version>${protobuf-java.version}</protoc.version>
 
@@ -1158,7 +1159,7 @@
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-bom</artifactId>
-                <version>1.62.2</version>
+                <version>${grpc-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
