@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.collector.grpc.channelz.service;
 
-import com.navercorp.pinpoint.collector.service.ChannelzSocketLookup.SocketEntry;
-import com.navercorp.pinpoint.collector.service.ChannelzTestUtils.SimpleInternalInstrumented;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzSocketLookup.SocketEntry;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzTestUtils.SimpleInternalInstrumented;
 import io.grpc.InternalChannelz;
 import io.grpc.InternalChannelz.ServerStats;
 import io.grpc.InternalChannelz.SocketStats;
@@ -29,8 +29,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collection;
 import java.util.List;
 
-import static com.navercorp.pinpoint.collector.service.ChannelzTestUtils.mockServerStats;
-import static com.navercorp.pinpoint.collector.service.ChannelzTestUtils.mockSocketStats;
+import static com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzTestUtils.mockServerStats;
+import static com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzTestUtils.mockSocketStats;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

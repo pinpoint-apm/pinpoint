@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.collector.grpc.channelz.service;
 
-import com.navercorp.pinpoint.collector.service.ChannelzService.ServerStatsWithId;
-import com.navercorp.pinpoint.collector.service.ChannelzService.SocketStatsWithId;
-import com.navercorp.pinpoint.collector.service.ChannelzTestUtils.SimpleInternalInstrumented;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzService.ServerStatsWithId;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzService.SocketStatsWithId;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzTestUtils.SimpleInternalInstrumented;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import io.grpc.InternalChannelz;
 import io.grpc.InternalChannelz.ServerStats;
@@ -32,8 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static com.navercorp.pinpoint.collector.service.ChannelzTestUtils.mockServerStats;
-import static com.navercorp.pinpoint.collector.service.ChannelzTestUtils.mockSocketStats;
+import static com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzTestUtils.mockServerStats;
+import static com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzTestUtils.mockSocketStats;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;

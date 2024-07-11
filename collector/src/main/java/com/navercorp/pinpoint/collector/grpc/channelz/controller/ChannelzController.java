@@ -1,10 +1,10 @@
-package com.navercorp.pinpoint.collector.controller;
+package com.navercorp.pinpoint.collector.grpc.channelz.controller;
 
-import com.navercorp.pinpoint.collector.service.ChannelzService;
-import com.navercorp.pinpoint.collector.service.ChannelzService.ServerStatsWithId;
-import com.navercorp.pinpoint.collector.service.ChannelzService.SocketStatsWithId;
-import com.navercorp.pinpoint.collector.service.ChannelzSocketLookup;
-import com.navercorp.pinpoint.collector.service.ChannelzSocketLookup.SocketEntry;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzService;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzService.ServerStatsWithId;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzService.SocketStatsWithId;
+import com.navercorp.pinpoint.collector.grpc.channelz.service.ChannelzSocketLookup;
+import com.navercorp.pinpoint.collector.grpc.channelz.util.HTMLBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +39,7 @@ public class ChannelzController {
             @RequestParam(required = false) Integer localPort
     ) {
         List<Long> ids = this.socketLookup.find(remoteAddress, localPort).stream()
-                .map(SocketEntry::getSocketId)
+                .map(ChannelzSocketLookup.SocketEntry::getSocketId)
                 .toList();
         return this.channelzService.getSocketStatsList(ids);
     }

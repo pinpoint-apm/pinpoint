@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.collector.receiver.grpc.channelz;
+package com.navercorp.pinpoint.collector.grpc.channelz;
 
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import org.apache.logging.log4j.LogManager;
