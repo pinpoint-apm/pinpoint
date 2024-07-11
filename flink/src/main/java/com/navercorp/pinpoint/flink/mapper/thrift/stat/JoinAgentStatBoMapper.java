@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.google.common.collect.Iterables;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
 
 /**
  * @author minwoo.jung
@@ -70,11 +69,11 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
 
 
     private long getTimeStamp(TFAgentStatBatch joinAgentStatBo) {
-        List<TFAgentStat> agentStats = joinAgentStatBo.getAgentStats();
-        for (TFAgentStat agentStat : agentStats) {
-            return agentStat.getTimestamp();
+        final TFAgentStat first = Iterables.getFirst(joinAgentStatBo.getAgentStats(), null);
+        if (first == null) {
+            return Long.MIN_VALUE;
         }
-        return Long.MIN_VALUE;
+        return first.getTimestamp();
     }
 
 }
