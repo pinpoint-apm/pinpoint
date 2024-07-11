@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
+import com.google.common.collect.Iterables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
@@ -39,9 +40,11 @@ public class AgentInfoBoResultsExtractor implements ResultsExtractor<AgentInfoBo
 
     @Override
     public AgentInfoBo extractData(ResultScanner results) throws Exception {
-        for (Result result : results) {
-            return agentInfoMapper.mapRow(result, 0);
+        final Result first = Iterables.getFirst(results, null);
+        if (first == null) {
+            return null;
         }
-        return null;
+        return agentInfoMapper.mapRow(first, 0);
+
     }
 }
