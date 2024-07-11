@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.collector.grpc.config;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
-import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
 import com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler;
@@ -29,12 +27,9 @@ import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
-import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
-import com.navercorp.pinpoint.grpc.server.ServerOption;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
@@ -42,16 +37,12 @@ import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 
@@ -62,76 +53,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public class GrpcSpanReceiverConfiguration {
 
     public GrpcSpanReceiverConfiguration() {
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.span.bindaddress")
-    public BindAddress.Builder grpcSpanBindAddressBuilder() {
-        BindAddress.Builder builder = BindAddress.newBuilder();
-        builder.setPort(9993);
-        return builder;
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.span.server.executor")
-    public MonitoringExecutorProperties grpcSpanServerExecutorProperties() {
-        return new MonitoringExecutorProperties();
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.span.server-call.executor")
-    public MonitoringExecutorProperties grpcSpanServerCallExecutorProperties() {
-        return new MonitoringExecutorProperties();
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.span.worker.executor")
-    public MonitoringExecutorProperties grpcSpanWorkerExecutorProperties() {
-        return new MonitoringExecutorProperties();
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.span.stream")
-    public GrpcStreamProperties grpcSpanStreamProperties() {
-        return new GrpcStreamProperties();
-    }
-
-    @Bean
-    @ConfigurationProperties("collector.receiver.grpc.span")
-    public GrpcPropertiesServerOptionBuilder grpcSpanServerOption() {
-        // Server option
-        return new GrpcPropertiesServerOptionBuilder();
-    }
-
-    @Bean
-    public GrpcReceiverProperties grpcSpanReceiverProperties(Environment environment) {
-
-        boolean enable = environment.getProperty("collector.receiver.grpc.span.enable", boolean.class, false);
-
-        ServerOption serverOption = grpcSpanServerOption().build();
-
-        BindAddress bindAddress = grpcSpanBindAddressBuilder().build();
-
-        return new GrpcReceiverProperties(enable, bindAddress, serverOption);
-    }
-
-    @Bean
-    public FactoryBean<ExecutorService> grpcSpanWorkerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getCallerMethodName();
-        MonitoringExecutorProperties properties = grpcSpanWorkerExecutorProperties();
-        return executors.newExecutorFactoryBean(properties, beanName);
-    }
-
-    @Bean
-    public FactoryBean<ExecutorService> grpcSpanServerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getCallerMethodName();
-        MonitoringExecutorProperties properties = grpcSpanServerExecutorProperties();
-        return executors.newExecutorFactoryBean(properties, beanName);
     }
 
     @Bean

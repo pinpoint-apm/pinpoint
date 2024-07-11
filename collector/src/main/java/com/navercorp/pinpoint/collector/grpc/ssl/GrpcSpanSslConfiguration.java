@@ -27,11 +27,11 @@ import org.springframework.validation.annotation.Validated;
  * @author Taejin Koo
  */
 @Configuration
-public class GrpcSpanSslReceiverConfiguration {
+public class GrpcSpanSslConfiguration {
 
     public static final String BIND_ADDRESS = "collector.receiver.grpc.span.ssl.bindaddress";
 
-    public GrpcSpanSslReceiverConfiguration() {
+    public GrpcSpanSslConfiguration() {
     }
 
     @Bean(BIND_ADDRESS)
@@ -45,7 +45,7 @@ public class GrpcSpanSslReceiverConfiguration {
 
     @Bean
     public GrpcSslReceiverProperties grpcSpanSslReceiverProperties(
-            @Qualifier(GrpcAgentDataSslReceiverConfiguration.SSL) GrpcSslProperties.Builder sslPropertiesBuilder) {
+            @Qualifier(GrpcAgentSslConfiguration.SSL) GrpcSslProperties.Builder sslPropertiesBuilder) {
 
         BindAddress bindAddress = newBindAddressBuilder().build();
 

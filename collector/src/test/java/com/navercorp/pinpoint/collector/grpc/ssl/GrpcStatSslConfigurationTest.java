@@ -35,8 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EnableConfigurationProperties
 @TestPropertySource(properties = {
         // # Agent
-        "collector.receiver.grpc.span.ssl.bindaddress.ip=3.3.3.3",
-        "collector.receiver.grpc.span.ssl.bindaddress.port=39443",
+        "collector.receiver.grpc.stat.ssl.bindaddress.ip=2.2.2.2",
+        "collector.receiver.grpc.stat.ssl.bindaddress.port=29442",
 
         // ### For ssl config
         // # please choose openssl/jdk
@@ -47,26 +47,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "collector.receiver.grpc.ssl.key_cert_file_path=certs/server0.key"
 })
 @ContextConfiguration(classes = {
-        GrpcAgentDataSslReceiverConfiguration.class,
-        GrpcSpanSslReceiverConfiguration.class
+        GrpcAgentSslConfiguration.class,
+        GrpcStatSslConfiguration.class
 })
 @ExtendWith(SpringExtension.class)
-public class GrpcSpanSslReceiverConfigurationTest {
+public class GrpcStatSslConfigurationTest {
 
     @Autowired
-    @Qualifier("grpcSpanSslReceiverProperties")
-    GrpcSslReceiverProperties properties;
+    @Qualifier("grpcStatSslReceiverProperties")
+    GrpcSslReceiverProperties configuration;
 
     @Test
     public void properties() {
-        BindAddress bindAddress = properties.getBindAddress();
-        assertEquals("3.3.3.3", bindAddress.getIp());
-        assertEquals(39443, bindAddress.getPort());
+        BindAddress bindAddress = configuration.getBindAddress();
+        assertEquals("2.2.2.2", bindAddress.getIp());
+        assertEquals(29442, bindAddress.getPort());
     }
 
     @Test
     public void grpcSslConfiguration() throws IOException {
-        GrpcSslProperties sslConfiguration = properties.getGrpcSslProperties();
+        GrpcSslProperties sslConfiguration = configuration.getGrpcSslProperties();
 
         assertEquals("jdk", sslConfiguration.getProviderType());
 

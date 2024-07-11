@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,8 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EnableConfigurationProperties
 @TestPropertySource(properties = {
         // # Agent
-        "collector.receiver.grpc.agent.ssl.bindaddress.ip=1.1.1.1",
-        "collector.receiver.grpc.agent.ssl.bindaddress.port=19441",
+        "collector.receiver.grpc.span.ssl.bindaddress.ip=3.3.3.3",
+        "collector.receiver.grpc.span.ssl.bindaddress.port=39443",
 
         // ### For ssl config
         // # please choose openssl/jdk
@@ -46,24 +47,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "collector.receiver.grpc.ssl.key_cert_file_path=certs/server0.key"
 })
 @ContextConfiguration(classes = {
-        GrpcAgentDataSslReceiverConfiguration.class
+        GrpcAgentSslConfiguration.class,
+        GrpcSpanSslConfiguration.class
 })
 @ExtendWith(SpringExtension.class)
-public class GrpcAgentDataSslReceiverConfigurationTest {
+public class GrpcSpanSslConfigurationTest {
 
     @Autowired
-    GrpcSslReceiverProperties configuration;
+    @Qualifier("grpcSpanSslReceiverProperties")
+    GrpcSslReceiverProperties properties;
 
     @Test
     public void properties() {
-        BindAddress bindAddress = configuration.getBindAddress();
-        assertEquals("1.1.1.1", bindAddress.getIp());
-        assertEquals(19441, bindAddress.getPort());
+        BindAddress bindAddress = properties.getBindAddress();
+        assertEquals("3.3.3.3", bindAddress.getIp());
+        assertEquals(39443, bindAddress.getPort());
     }
 
     @Test
     public void grpcSslConfiguration() throws IOException {
-        GrpcSslProperties sslConfiguration = configuration.getGrpcSslProperties();
+        GrpcSslProperties sslConfiguration = properties.getGrpcSslProperties();
 
         assertEquals("jdk", sslConfiguration.getProviderType());
 

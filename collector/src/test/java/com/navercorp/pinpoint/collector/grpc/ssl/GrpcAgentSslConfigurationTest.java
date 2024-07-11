@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EnableConfigurationProperties
 @TestPropertySource(properties = {
         // # Agent
-        "collector.receiver.grpc.stat.ssl.bindaddress.ip=2.2.2.2",
-        "collector.receiver.grpc.stat.ssl.bindaddress.port=29442",
+        "collector.receiver.grpc.agent.ssl.bindaddress.ip=1.1.1.1",
+        "collector.receiver.grpc.agent.ssl.bindaddress.port=19441",
 
         // ### For ssl config
         // # please choose openssl/jdk
@@ -47,21 +46,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "collector.receiver.grpc.ssl.key_cert_file_path=certs/server0.key"
 })
 @ContextConfiguration(classes = {
-        GrpcAgentDataSslReceiverConfiguration.class,
-        GrpcStatSslReceiverConfiguration.class
+        GrpcAgentSslConfiguration.class
 })
 @ExtendWith(SpringExtension.class)
-public class GrpcStatSslReceiverConfigurationTest {
+public class GrpcAgentSslConfigurationTest {
 
     @Autowired
-    @Qualifier("grpcStatSslReceiverProperties")
     GrpcSslReceiverProperties configuration;
 
     @Test
     public void properties() {
         BindAddress bindAddress = configuration.getBindAddress();
-        assertEquals("2.2.2.2", bindAddress.getIp());
-        assertEquals(29442, bindAddress.getPort());
+        assertEquals("1.1.1.1", bindAddress.getIp());
+        assertEquals(19441, bindAddress.getPort());
     }
 
     @Test

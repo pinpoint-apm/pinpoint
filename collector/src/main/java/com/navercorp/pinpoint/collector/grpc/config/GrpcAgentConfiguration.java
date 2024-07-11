@@ -20,10 +20,8 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.collector.receiver.AgentDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandler;
-import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
@@ -38,11 +36,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFacto
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
-import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
-import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingEventHandler;
 import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingSessionRegistry;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
@@ -56,96 +51,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author emeroad
  */
 @Configuration
-public class GrpcAgentDataReceiverConfiguration {
+public class GrpcAgentConfiguration {
 
-    private static final Logger logger = LogManager.getLogger(GrpcAgentDataReceiverConfiguration.class);
+    private static final Logger logger = LogManager.getLogger(GrpcAgentConfiguration.class);
 
-    public GrpcAgentDataReceiverConfiguration() {
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.agent.bindaddress")
-    public BindAddress.Builder grpcAgentBindAddressBuilder() {
-        BindAddress.Builder builder = BindAddress.newBuilder();
-        builder.setPort(9991);
-        return builder;
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.agent.server.executor")
-    public MonitoringExecutorProperties grpcAgentServerExecutorProperties() {
-        return new MonitoringExecutorProperties();
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.agent.server-call.executor")
-    public MonitoringExecutorProperties grpcAgentServerCallExecutorProperties() {
-        return new MonitoringExecutorProperties();
-    }
-
-    @Bean
-    @Validated
-    @ConfigurationProperties("collector.receiver.grpc.agent.worker.executor")
-    public MonitoringExecutorProperties grpcAgentWorkerExecutorProperties() {
-        return new MonitoringExecutorProperties();
-    }
-
-    @Bean
-    @ConfigurationProperties("collector.receiver.grpc.agent")
-    public GrpcPropertiesServerOptionBuilder grpcAgentServerOption() {
-        // Server option
-        return new GrpcPropertiesServerOptionBuilder();
-    }
-
-    @Bean
-    public GrpcReceiverProperties grpcAgentReceiverProperties(Environment environment) {
-        boolean enable = environment.getProperty("collector.receiver.grpc.agent.enable", boolean.class, false);
-
-        ServerOption serverOption = grpcAgentServerOption().build();
-        BindAddress bindAddress = grpcAgentBindAddressBuilder().build();
-
-        return new GrpcReceiverProperties(enable, bindAddress, serverOption);
-    }
-
-    @Bean
-    public FactoryBean<ExecutorService> grpcAgentWorkerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getCallerMethodName();
-        MonitoringExecutorProperties properties = grpcAgentWorkerExecutorProperties();
-        return executors.newExecutorFactoryBean(properties, beanName);
-    }
-
-
-    @Bean
-    public FactoryBean<ExecutorService> grpcAgentServerExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getCallerMethodName();
-        MonitoringExecutorProperties properties = grpcAgentServerExecutorProperties();
-        return executors.newExecutorFactoryBean(properties, beanName);
-    }
-
-    @Bean
-    public FactoryBean<ExecutorService> grpcAgentServerCallExecutor(MonitoringExecutors executors) {
-        String beanName = CallerUtils.getCallerMethodName();
-        MonitoringExecutorProperties properties = grpcAgentServerCallExecutorProperties();
-        properties.setLogRate(1);
-        return executors.newExecutorFactoryBean(properties, beanName);
+    public GrpcAgentConfiguration() {
     }
 
     @Bean
