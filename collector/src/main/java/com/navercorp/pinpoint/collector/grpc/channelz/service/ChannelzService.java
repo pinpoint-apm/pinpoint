@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.collector.grpc.channelz.service;
 
 import io.grpc.InternalChannelz.ServerStats;
 import io.grpc.InternalChannelz.SocketStats;

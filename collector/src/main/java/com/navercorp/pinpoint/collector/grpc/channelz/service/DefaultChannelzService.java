@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.collector.grpc.channelz.service;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;

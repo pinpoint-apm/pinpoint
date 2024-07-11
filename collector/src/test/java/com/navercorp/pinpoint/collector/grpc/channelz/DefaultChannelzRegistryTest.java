@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc.channelz;
+package com.navercorp.pinpoint.collector.grpc.channelz;
 
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import org.junit.jupiter.api.Test;

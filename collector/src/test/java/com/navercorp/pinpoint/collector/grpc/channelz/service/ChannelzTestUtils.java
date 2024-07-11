@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.collector.grpc.channelz.service;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import io.grpc.InternalChannelz.ServerStats;

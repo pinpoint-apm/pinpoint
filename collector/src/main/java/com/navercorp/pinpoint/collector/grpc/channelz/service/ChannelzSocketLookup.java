@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.collector.grpc.channelz.service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;

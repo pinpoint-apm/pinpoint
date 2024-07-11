@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.receiver.grpc.channelz.DefaultChannelzRegistry;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
-import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import io.grpc.ServerTransportFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,11 +45,6 @@ public class GrpcComponentConfiguration {
     @Bean
     public List<ServerTransportFilter> serverTransportFilterList() {
         return List.of();
-    }
-
-    @Bean
-    public ChannelzRegistry channelzRegistry() {
-        return new DefaultChannelzRegistry();
     }
 
 

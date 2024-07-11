@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.collector.controller;
+package com.navercorp.pinpoint.collector.grpc.channelz.util;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;

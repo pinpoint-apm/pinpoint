@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.collector.grpc;
 
 import com.codahale.metrics.MetricRegistry;
+import com.navercorp.pinpoint.collector.grpc.channelz.ChannelzConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcAgentConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcAgentReceiverConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcComponentConfiguration;
@@ -49,7 +50,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
         GrpcStatConfiguration.class,
         GrpcStatReceiverConfiguration.class,
 
-        GrpcKeepAliveScheduler.class
+        GrpcKeepAliveScheduler.class,
+
+        ChannelzConfiguration.class
 })
 @ComponentScan({
         "com.navercorp.pinpoint.collector.receiver.grpc"
