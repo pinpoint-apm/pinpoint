@@ -73,7 +73,7 @@ public class ConfigControllerTest {
 
     @Test
     public void configuration() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/configuration.pinpoint").contentType(MediaType.APPLICATION_JSON))
+        MvcResult result = this.mockMvc.perform(get("/api/configuration").contentType(MediaType.APPLICATION_JSON))
                                         .andExpect(status().isOk())
                                         .andExpect(content().contentType("application/json;charset=UTF-8"))
                                         .andExpect(jsonPath("$", hasKey("showActiveThread")))
@@ -86,7 +86,7 @@ public class ConfigControllerTest {
         String content = result.getResponse().getContentAsString();
         logger.debug(content);
         
-        result = this.mockMvc.perform(get("/configuration.pinpoint").contentType(MediaType.APPLICATION_JSON))
+        result = this.mockMvc.perform(get("/api/configuration").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$", hasKey("showActiveThread")))

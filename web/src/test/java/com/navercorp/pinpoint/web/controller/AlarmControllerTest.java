@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
-import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -110,7 +109,7 @@ public class AlarmControllerTest {
                             "\"notes\" : \"" + NOTES + "\"" + 
                           "}"; 
                            
-        MvcResult result = this.mockMvc.perform(post("/alarmRule.pinpoint").contentType(MediaType.APPLICATION_JSON).content(jsonParm))
+        MvcResult result = this.mockMvc.perform(post("/api/alarmRule").contentType(MediaType.APPLICATION_JSON).content(jsonParm))
                                             .andExpect(status().isOk())
                                             .andExpect(content().contentType("application/json;charset=UTF-8"))
                                             .andReturn();
@@ -120,7 +119,7 @@ public class AlarmControllerTest {
         Assertions.assertEquals(resultMap.get("result"), "SUCCESS");
         Assertions.assertNotNull(resultMap.get("ruleId"));
         
-        this.mockMvc.perform(get("/alarmRule.pinpoint?userGroupId=" + USER_GROUP_ID))
+        this.mockMvc.perform(get("/api/alarmRule?userGroupId=" + USER_GROUP_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$[0]", hasKey("applicationId")))
@@ -133,7 +132,7 @@ public class AlarmControllerTest {
                 .andExpect(jsonPath("$[0]", hasKey("notes")))
                 .andReturn();
         
-        this.mockMvc.perform(delete("/alarmRule.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"ruleId\" : \"" + resultMap.get("ruleId") + "\"}"))
+        this.mockMvc.perform(delete("/api/alarmRule").contentType(MediaType.APPLICATION_JSON).content("{\"ruleId\" : \"" + resultMap.get("ruleId") + "\"}"))
                         .andExpect(status().isOk())
                         .andExpect(content().contentType("application/json;charset=UTF-8"))
                         .andExpect(jsonPath("$", hasKey("result")))
@@ -154,7 +153,7 @@ public class AlarmControllerTest {
                             "\"notes\" : \"" + NOTES + "\"" + 
                           "}"; 
                            
-        MvcResult result = this.mockMvc.perform(post("/alarmRule.pinpoint").contentType(MediaType.APPLICATION_JSON).content(jsonParm))
+        MvcResult result = this.mockMvc.perform(post("/api/alarmRule").contentType(MediaType.APPLICATION_JSON).content(jsonParm))
                                             .andExpect(status().isOk())
                                             .andExpect(content().contentType("application/json;charset=UTF-8"))
                                             .andReturn();
@@ -176,14 +175,14 @@ public class AlarmControllerTest {
                 "\"notes\" : \"" + NOTES_UPDATED + "\"" + 
               "}"; 
         
-        this.mockMvc.perform(put("/alarmRule.pinpoint").contentType(MediaType.APPLICATION_JSON).content(updatedJsonParm))
+        this.mockMvc.perform(put("/api/alarmRule").contentType(MediaType.APPLICATION_JSON).content(updatedJsonParm))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$", hasKey("result")))
                 .andExpect(jsonPath("$.result").value("SUCCESS"))
                 .andReturn();
         
-        this.mockMvc.perform(delete("/alarmRule.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"ruleId\" : \"" + resultMap.get("ruleId") + "\"}"))
+        this.mockMvc.perform(delete("/api/alarmRule").contentType(MediaType.APPLICATION_JSON).content("{\"ruleId\" : \"" + resultMap.get("ruleId") + "\"}"))
                         .andExpect(status().isOk())
                         .andExpect(content().contentType("application/json;charset=UTF-8"))
                         .andExpect(jsonPath("$", hasKey("result")))
@@ -193,7 +192,7 @@ public class AlarmControllerTest {
     
     @Test
     public void checkerTest() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/alarmRule/checker.pinpoint").contentType(MediaType.APPLICATION_JSON))
+        MvcResult result = this.mockMvc.perform(get("/api/alarmRule/checker").contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk())
                                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                                 .andExpect(jsonPath("$").isArray())
