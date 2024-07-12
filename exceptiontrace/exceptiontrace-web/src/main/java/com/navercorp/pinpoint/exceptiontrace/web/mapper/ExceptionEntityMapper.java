@@ -18,17 +18,17 @@ package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.model.params.GroupFilterParams;
 import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
 import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
-import com.navercorp.pinpoint.exceptiontrace.web.model.RawGroupedFieldName;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.InjectionStrategy;
@@ -55,7 +55,7 @@ import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replace
                 MapStructUtils.class
         }
 )
-public interface ExceptionMetaDataEntityMapper {
+public interface ExceptionEntityMapper {
 
     @Mappings({
             @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
@@ -65,44 +65,45 @@ public interface ExceptionMetaDataEntityMapper {
     @Mappings({
             @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
     })
-    ExceptionMetaDataView toView(ExceptionMetaDataEntity entity);
+    ExceptionDetailView toDetailView(ExceptionMetaDataEntity entity);
 
     @Mappings({
+            @Mapping(target = "groupedFieldName", ignore = true),
+            @Mapping(target = "groupFilterParams", ignore = true),
             @Mapping(source = "entity.values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),
             @Mapping(target = "tags", ignore = true),
-            @Mapping(target = "groupedFieldName", ignore = true),
     })
-    ExceptionTraceValueView toValueView(
-            ExceptionTraceValueViewEntity entity,
+    ExceptionChartValueView toChartView(
+            ExceptionChartValueViewEntity entity,
             List<GroupByAttributes> attributesList
     );
 
     @Mappings({
             @Mapping(target = "groupedFieldName", ignore = true),
-            @Mapping(source = "entity", target = "rawFieldName"),
+            @Mapping(target = "groupFilterParams", ignore = true),
     })
-    ExceptionTraceSummary toSummary(
-            ExceptionTraceSummaryEntity entity,
+    ExceptionGroupSummary toSummary(
+            ExceptionGroupSummaryEntity entity,
             List<GroupByAttributes> attributesList
     );
 
     @AfterMapping
-    default void addRawGroupedFieldName(
-            ExceptionTraceSummaryEntity entity,
+    default void addGroupFilterParams(
+            GroupedFieldNameEntity entity,
             List<GroupByAttributes> attributesList,
-            @MappingTarget ExceptionTraceSummary summary
+            @MappingTarget Grouped grouped
     ) {
-        RawGroupedFieldName groupedFieldName = new RawGroupedFieldName();
+        GroupFilterParams params = new GroupFilterParams();
         for (GroupByAttributes attributes : attributesList) {
             switch (attributes) {
-                case STACK_TRACE -> groupedFieldName.setStackTraceHash(checkIfNull(entity.getStackTraceHash()));
-                case URI_TEMPLATE -> groupedFieldName.setUriTemplate(checkIfNull(entity.getUriTemplate()));
-                case ERROR_CLASS_NAME -> groupedFieldName.setErrorClassName(checkIfNull(entity.getErrorClassName()));
+                case STACK_TRACE -> params.setStackTraceHash(checkIfNull(entity.getStackTraceHash()));
+                case URI_TEMPLATE -> params.setUriTemplate(checkIfNull(entity.getUriTemplate()));
+                case ERROR_CLASS_NAME -> params.setErrorClassName(checkIfNull(entity.getErrorClassName()));
                 case ERROR_MESSAGE_LOG_TYPE ->
-                        groupedFieldName.setErrorMessage_logtype(checkIfNull(entity.getErrorMessage_logtype()));
+                        params.setErrorMessage_logtype(checkIfNull(entity.getErrorMessage_logtype()));
             }
         }
-        summary.setRawFieldName(groupedFieldName);
+        grouped.setGroupFilterParams(params);
     }
 
     @AfterMapping

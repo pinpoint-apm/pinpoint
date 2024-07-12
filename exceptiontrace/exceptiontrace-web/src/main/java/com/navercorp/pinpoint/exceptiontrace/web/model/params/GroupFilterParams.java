@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.exceptiontrace.web.model;
+package com.navercorp.pinpoint.exceptiontrace.web.model.params;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -21,12 +21,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @author intr3p1d
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RawGroupedFieldName {
+public class GroupFilterParams {
     private String uriTemplate;
     private String errorClassName;
     private String errorMessage_logtype;
     private String stackTraceHash;
 
+    public GroupFilterParams() {
+    }
 
     public String getUriTemplate() {
         return uriTemplate;

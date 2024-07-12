@@ -4,14 +4,14 @@ package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -33,19 +33,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author intr3p1d
  */
 @ContextConfiguration(classes = {
-        ExceptionMetaDataEntityMapperImpl.class,
+        ExceptionEntityMapperImpl.class,
         StackTraceMapper.class,
         MapStructUtils.class,
         JacksonAutoConfiguration.class
 })
 @ExtendWith(SpringExtension.class)
-class ExceptionMetaDataEntityMapperTest {
-    private static final Logger logger = LogManager.getLogger(ExceptionMetaDataEntityMapper.class);
+class ExceptionEntityMapperTest {
+    private static final Logger logger = LogManager.getLogger(ExceptionEntityMapper.class);
     private final Random random = new Random();
 
 
     @Autowired
-    private ExceptionMetaDataEntityMapper mapper;
+    private ExceptionEntityMapper mapper;
 
     @Autowired
     private MapStructUtils mapStructUtils;
@@ -102,7 +102,7 @@ class ExceptionMetaDataEntityMapperTest {
         Throwable throwable = new RuntimeException();
 
         ExceptionMetaDataEntity expected = newExceptionMetaDataEntity(throwable);
-        ExceptionMetaDataView actual = mapper.toView(expected);
+        ExceptionDetailView actual = mapper.toDetailView(expected);
 
         assertEquals(expected.getTimestamp(), actual.getTimestamp());
         assertEquals(expected.getTransactionId(), actual.getTransactionId());
@@ -179,9 +179,9 @@ class ExceptionMetaDataEntityMapperTest {
 
     @Test
     public void testEntityToValueView() {
-        ExceptionTraceValueViewEntity expected = newExceptionMetaDataEntity();
+        ExceptionChartValueViewEntity expected = newExceptionMetaDataEntity();
 
-        ExceptionTraceValueView actual = mapper.toValueView(
+        ExceptionChartValueView actual = mapper.toChartView(
                 expected, List.of(GroupByAttributes.values())
         );
 
@@ -195,8 +195,8 @@ class ExceptionMetaDataEntityMapperTest {
     }
 
 
-    private ExceptionTraceValueViewEntity newExceptionMetaDataEntity() {
-        ExceptionTraceValueViewEntity dataEntity = new ExceptionTraceValueViewEntity();
+    private ExceptionChartValueViewEntity newExceptionMetaDataEntity() {
+        ExceptionChartValueViewEntity dataEntity = new ExceptionChartValueViewEntity();
 
         dataEntity.setUriTemplate("uriTemplate");
         dataEntity.setErrorClassName("errorClassName");
@@ -209,9 +209,9 @@ class ExceptionMetaDataEntityMapperTest {
 
     @Test
     public void testEntityToSummary() {
-        ExceptionTraceSummaryEntity expected = newExceptionTraceSummaryEntity();
+        ExceptionGroupSummaryEntity expected = newExceptionTraceSummaryEntity();
 
-        ExceptionTraceSummary actual = mapper.toSummary(
+        ExceptionGroupSummary actual = mapper.toSummary(
                 expected, List.of(GroupByAttributes.values())
         );
 
@@ -227,8 +227,8 @@ class ExceptionMetaDataEntityMapperTest {
         assertEquals(expected.getStackTraceHash(), actual.getGroupedFieldName().getStackTraceHash());
     }
 
-    private ExceptionTraceSummaryEntity newExceptionTraceSummaryEntity() {
-        ExceptionTraceSummaryEntity entity = new ExceptionTraceSummaryEntity();
+    private ExceptionGroupSummaryEntity newExceptionTraceSummaryEntity() {
+        ExceptionGroupSummaryEntity entity = new ExceptionGroupSummaryEntity();
 
         entity.setMostRecentErrorClass("MostRecentErrorClass");
         entity.setMostRecentErrorMessage("MostRecentErrorMessage");

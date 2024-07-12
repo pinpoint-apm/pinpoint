@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author intr3p1d
  */
-public class ExceptionMetaDataView {
+public class ExceptionDetailView {
 
     private long timestamp;
 
@@ -43,7 +43,7 @@ public class ExceptionMetaDataView {
 
     private String stackTraceHash;
 
-    public ExceptionMetaDataView() {
+    public ExceptionDetailView() {
     }
 
     public long getTimestamp() {

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 
 import java.util.List;
 
@@ -28,11 +28,11 @@ import java.util.List;
  */
 public interface ExceptionTraceService {
 
-    List<ExceptionMetaDataView> getTransactionExceptions(ExceptionTraceQueryParameter queryParameter);
+    List<ExceptionDetailView> getDetailExceptions(ExceptionTraceQueryParameter queryParameter);
 
-    List<ExceptionMetaDataView> getSummarizedExceptionsInRange(ExceptionTraceQueryParameter queryParameter);
+    List<ExceptionDetailView> getSummarizedExceptions(ExceptionTraceQueryParameter queryParameter);
 
-    List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter queryParameter);
+    List<ExceptionGroupSummary> getGroupSummaries(ExceptionTraceQueryParameter queryParameter);
 
-    List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter queryParameter);
+    List<ExceptionChartValueView> getChartViews(ExceptionTraceQueryParameter queryParameter);
 }

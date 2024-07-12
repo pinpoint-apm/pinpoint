@@ -16,21 +16,22 @@
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.exceptiontrace.web.model.params.GroupFilterParams;
 
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceSummary implements Grouped {
+public class ExceptionGroupSummary implements Grouped {
 
     private GroupedFieldName groupedFieldName;
-    private RawGroupedFieldName rawFieldName;
+    private GroupFilterParams groupFilterParams;
     private String mostRecentErrorClass;
     private String mostRecentErrorMessage;
     private long count;
     private long firstOccurred;
     private long lastOccurred;
 
-    public ExceptionTraceSummary() {
+    public ExceptionGroupSummary() {
     }
 
     @JsonProperty("fieldName")
@@ -42,13 +43,14 @@ public class ExceptionTraceSummary implements Grouped {
         this.groupedFieldName = groupedFieldName;
     }
 
-    @JsonProperty("rawFieldName")
-    public RawGroupedFieldName getRawFieldName() {
-        return rawFieldName;
+    @Override
+    public GroupFilterParams getGroupFilterParams() {
+        return groupFilterParams;
     }
 
-    public void setRawFieldName(RawGroupedFieldName rawFieldName) {
-        this.rawFieldName = rawFieldName;
+    @Override
+    public void setGroupFilterParams(GroupFilterParams groupFilterParams) {
+        this.groupFilterParams = groupFilterParams;
     }
 
     public String getMostRecentErrorClass() {

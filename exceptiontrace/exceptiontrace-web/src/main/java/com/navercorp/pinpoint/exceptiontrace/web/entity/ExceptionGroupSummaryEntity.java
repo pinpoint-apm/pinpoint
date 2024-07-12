@@ -18,14 +18,14 @@ package com.navercorp.pinpoint.exceptiontrace.web.entity;
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceSummaryEntity extends GroupedFieldNameEntity {
+public class ExceptionGroupSummaryEntity extends GroupedFieldNameEntity {
     private String mostRecentErrorClass;
     private String mostRecentErrorMessage;
     private long count;
     private long firstOccurred;
     private long lastOccurred;
 
-    public ExceptionTraceSummaryEntity() {
+    public ExceptionGroupSummaryEntity() {
     }
 
     public String getMostRecentErrorClass() {

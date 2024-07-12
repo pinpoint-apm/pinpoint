@@ -4,54 +4,10 @@
     <resultMap id="exceptionMetaDataEntity" type="ExceptionMetaDataEntity">
     </resultMap>
 
-    <resultMap id="exceptionTraceSummaryEntity" type="ExceptionTraceSummaryEntity">
-    </resultMap>
-
-    <resultMap id="exceptionTraceValueViewEntity" type="ExceptionTraceValueViewEntity">
-    </resultMap>
-
-    <sql id="exceptionTraceTable">${tableName}</sql>
-
-    <sql id="allGroupByAttributes">
-        <foreach collection="groupByAttributes" item="attr" open="" close="" separator=", ">
-            <foreach collection="attr.getGroupByColumns" item="column" open="" close="" separator=", ">
-                ${column}
-            </foreach>
-        </foreach>
-    </sql>
-
     <sql id="filterByGivenColumnsAndValue">
-        <foreach collection="filterByAttributes.getMap()"  item="value" index="key" separator="">
+        <foreach collection="filterByAttributes.getMap()" item="value" index="key" separator="">
             AND ${key.column.name}=#{value}
         </foreach>
-    </sql>
-
-    <sql id="getGroupedFieldNameEntity">
-        <choose>
-            <when test="!groupByAttributes.isEmpty()">
-                <foreach collection="groupByAttributes" item="attr" open="" close="" separator=", ">
-                    ${attr.getRepresentativeColumn}
-                </foreach>
-                ,
-            </when>
-            <otherwise>
-            </otherwise>
-        </choose>
-    </sql>
-
-    <sql id="groupByAllAttributes">
-        <choose>
-            <when test="!groupByAttributes.isEmpty()">
-                , <include refid="allGroupByAttributes"></include>
-            </when>
-            <otherwise>
-            </otherwise>
-        </choose>
-    </sql>
-
-    <sql id="getErrorMessage">
-        CLPDECODE
-        (errorMessage_logtype, errorMessage_dictionaryVars, errorMessage_encodedVars)
     </sql>
 
     <sql id="fullExceptionColumns">
@@ -66,7 +22,8 @@
         agentId,
         uriTemplate,
         errorClassName,
-        <include refid="getErrorMessage"></include> as "errorMessage",
+        <include refid="getErrorMessage"></include>
+        as "errorMessage",
         exceptionDepth,
         stackTraceClassName,
         stackTraceFileName,
@@ -87,7 +44,8 @@
         agentId,
         uriTemplate,
         errorClassName,
-        <include refid="getErrorMessage"></include> as "errorMessage",
+        <include refid="getErrorMessage"></include>
+        as "errorMessage",
         exceptionDepth,
         stackTraceHash
     </sql>
@@ -157,56 +115,4 @@
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>
-
-    <select id="selectSummaries" resultMap="exceptionTraceSummaryEntity"
-            parameterType="ExceptionTraceQueryParameter">
-        SELECT
-        <include refid="getGroupedFieldNameEntity"></include>
-        LASTWITHTIME(errorClassName, "timestamp", 'STRING') as "mostRecentErrorClass",
-        LASTWITHTIME(
-        <include refid="getErrorMessage"></include>,
-        "timestamp", 'STRING') as "mostRecentErrorMessage",
-        count(*) as "count",
-        FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
-        LASTWITHTIME("timestamp", "timestamp", 'LONG') as "lastOccurred"
-
-        FROM
-        <include refid="exceptionTraceTable"></include>
-
-        WHERE
-        tenantId = #{tenantId}
-        AND applicationName = #{applicationName}
-        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
-        <if test="agentId != null">
-            AND agentId = #{agentId}
-        </if>
-        GROUP BY applicationName
-        <include refid="groupByAllAttributes"></include>
-        ORDER BY count(*) desc
-        LIMIT 10
-    </select>
-
-    <select id="selectValueViews" resultMap="exceptionTraceValueViewEntity"
-            parameterType="ExceptionTraceQueryParameter">
-        SELECT
-        <include refid="getGroupedFieldNameEntity"></include>
-        arraySliceInt(
-        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}), 0, #{timeWindowRangeCount}
-        ) as "values"
-
-        FROM
-        <include refid="exceptionTraceTable"></include>
-        WHERE
-        tenantId = #{tenantId}
-        AND applicationName = #{applicationName}
-        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
-        <if test="agentId != null">
-            AND agentId = #{agentId}
-        </if>
-        GROUP BY applicationName
-        <include refid="groupByAllAttributes"></include>
-        ORDER BY count(*) desc
-        LIMIT 10
-    </select>
-
 </mapper>
