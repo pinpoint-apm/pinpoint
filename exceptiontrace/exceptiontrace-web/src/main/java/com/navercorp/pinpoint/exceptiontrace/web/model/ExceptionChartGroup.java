@@ -25,24 +25,16 @@ import java.util.List;
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceGroup implements TimeseriesValueGroupView {
+public class ExceptionChartGroup implements TimeseriesValueGroupView {
 
     private static final TimeseriesChartType CHART_TYPE = TimeseriesChartType.line;
     private static final String UNIT = "COUNT";
     private final String groupName;
     private final List<TimeSeriesValueView> values;
 
-    private ExceptionTraceGroup(String groupName, List<TimeSeriesValueView> values) {
+    public ExceptionChartGroup(String groupName, List<TimeSeriesValueView> values) {
         this.groupName = groupName;
         this.values = values;
-    }
-
-    public static ExceptionTraceGroup newGroupFromValueViews(
-            String groupName,
-            List<ExceptionTraceValueView> exceptionTraceValueViews
-    ) {
-        List<TimeSeriesValueView> list = (List<TimeSeriesValueView>) (List<? extends TimeSeriesValueView>) exceptionTraceValueViews;
-        return new ExceptionTraceGroup(groupName, list);
     }
 
     @Override

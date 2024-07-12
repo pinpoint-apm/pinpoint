@@ -17,21 +17,16 @@
 package com.navercorp.pinpoint.exceptiontrace.web.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceGroup;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceView implements TimeSeriesView {
+public class ExceptionChartView implements TimeSeriesView {
 
     private static final String TITLE = "exceptionTrace";
 
@@ -39,28 +34,9 @@ public class ExceptionTraceView implements TimeSeriesView {
 
     private final List<TimeseriesValueGroupView> exceptionTrace = new ArrayList<>();
 
-    private ExceptionTraceView(List<Long> timestampList, List<TimeseriesValueGroupView> exceptionTraces) {
+    public ExceptionChartView(List<Long> timestampList, List<TimeseriesValueGroupView> exceptionTraces) {
         this.timestampList = timestampList;
         this.exceptionTrace.addAll(exceptionTraces);
-    }
-
-    public static ExceptionTraceView newViewFromValueViews(
-            String groupName,
-            TimeWindow timeWindow,
-            List<ExceptionTraceValueView> exceptionTraceValueViews
-    ) {
-        Objects.requireNonNull(timeWindow, "timeWindow");
-        Objects.requireNonNull(exceptionTraceValueViews, "exceptionTraceValueViews");
-
-        List<Long> timestampList = TimeUtils.createTimeStampList(timeWindow);
-        List<TimeseriesValueGroupView> timeSeriesValueGroupViews = new ArrayList<>();
-        timeSeriesValueGroupViews.add(
-                ExceptionTraceGroup.newGroupFromValueViews(groupName, exceptionTraceValueViews)
-        );
-
-        return new ExceptionTraceView(
-                timestampList, timeSeriesValueGroupViews
-        );
     }
 
     @Override

@@ -15,10 +15,17 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
+import com.navercorp.pinpoint.exceptiontrace.web.model.params.GroupFilterParams;
+
 /**
  * @author intr3p1d
  */
 public interface Grouped {
     GroupedFieldName getGroupedFieldName();
+
     void setGroupedFieldName(GroupedFieldName groupedFieldName);
+
+    GroupFilterParams getGroupFilterParams();
+
+    void setGroupFilterParams(GroupFilterParams groupFilterParams);
 }

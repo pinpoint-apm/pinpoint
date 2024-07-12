@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 
 import java.util.List;
 
@@ -29,9 +29,9 @@ import java.util.List;
  * @author intr3p1d
  */
 public interface ExceptionTraceDao {
-    List<ExceptionMetaDataView> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-    List<ExceptionMetaDataView> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<ExceptionDetailView> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<ExceptionDetailView> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
     ExceptionMetaData getException(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-    List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
-    List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<ExceptionGroupSummary> getGroupSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
+    List<ExceptionChartValueView> getChartValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter);
 }

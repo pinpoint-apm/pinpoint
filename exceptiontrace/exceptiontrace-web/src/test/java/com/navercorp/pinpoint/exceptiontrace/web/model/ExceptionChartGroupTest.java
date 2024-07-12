@@ -17,21 +17,23 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.model;
 
+import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 
-class ExceptionTraceGroupTest {
+class ExceptionChartGroupTest {
 
     @Test
     void newGroupFromValueViews_casting() {
-        List<ExceptionTraceValueView> view = List.of(
-                new ExceptionTraceValueView(List.of(1, 2, 3)),
-                new ExceptionTraceValueView(List.of(4, 5, 6))
+        List<ExceptionChartValueView> view = List.of(
+                new ExceptionChartValueView(List.of(1, 2, 3)),
+                new ExceptionChartValueView(List.of(4, 5, 6))
         );
-        ExceptionTraceGroup group = ExceptionTraceGroup.newGroupFromValueViews("test", view);
+        ExceptionChartGroup group = TimeSeriesUtils.newGroupFromValueViews("test", view);
         @SuppressWarnings("unused")
         List<TimeSeriesValueView> metricValues = group.getMetricValues();
     }

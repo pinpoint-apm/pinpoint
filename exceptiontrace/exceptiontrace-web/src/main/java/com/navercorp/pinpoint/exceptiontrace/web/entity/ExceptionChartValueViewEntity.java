@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.exceptiontrace.web.entity;
 /**
  * @author intr3p1d
  */
-public class ExceptionTraceValueViewEntity extends GroupedFieldNameEntity {
+public class ExceptionChartValueViewEntity extends GroupedFieldNameEntity {
     private String values;
 
-    public ExceptionTraceValueViewEntity() {
+    private int rowNum;
+
+    public ExceptionChartValueViewEntity() {
     }
 
     public String getValues() {
@@ -30,5 +32,13 @@ public class ExceptionTraceValueViewEntity extends GroupedFieldNameEntity {
 
     public void setValues(String values) {
         this.values = values;
+    }
+
+    public int getRowNum() {
+        return rowNum;
+    }
+
+    public void setRowNum(int rowNum) {
+        this.rowNum = rowNum;
     }
 }
