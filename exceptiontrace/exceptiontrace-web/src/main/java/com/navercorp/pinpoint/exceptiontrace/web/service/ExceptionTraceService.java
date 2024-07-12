@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
+import com.navercorp.pinpoint.exceptiontrace.web.model.ClpConverted;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
-import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ClpQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
 
 import java.util.List;
@@ -35,4 +37,6 @@ public interface ExceptionTraceService {
     List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter queryParameter);
 
     List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter queryParameter);
+
+    List<ClpConverted> getReplacedVariables(ClpQueryParameter queryParameter);
 }
