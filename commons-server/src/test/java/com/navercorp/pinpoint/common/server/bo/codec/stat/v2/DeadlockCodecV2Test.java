@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecTestConfig;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import org.junit.jupiter.api.Assertions;
@@ -32,7 +33,7 @@ import java.util.List;
  * @author Taejin Koo
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("classpath:applicationContext-test.xml")
+@ContextConfiguration(classes = CodecTestConfig.class)
 public class DeadlockCodecV2Test extends AgentStatCodecTestBase<DeadlockThreadCountBo> {
 
     @Autowired

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecTestConfig;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
@@ -33,7 +34,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("classpath:applicationContext-test.xml")
+@ContextConfiguration(classes = CodecTestConfig.class)
 public class JvmGcDetailedCodecV2Test extends AgentStatCodecTestBase<JvmGcDetailedBo> {
 
     private static final double DOUBLE_COMPARISON_DELTA = (double) 1 / AgentStatUtils.CONVERT_VALUE;
