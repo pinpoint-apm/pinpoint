@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -30,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Woonduk Kang(emeroad)
  */
 public class FileUtilsTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final URL testURL = CodeSourceUtils.getCodeLocation(this.getClass());
     private final File testFile = new File(testURL.getFile());
