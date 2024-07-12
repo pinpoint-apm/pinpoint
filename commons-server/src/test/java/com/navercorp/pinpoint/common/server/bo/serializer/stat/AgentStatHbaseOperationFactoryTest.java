@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecTestConfig;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.mock;
  * @author HyunGil Jeong
  */
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@ContextConfiguration("classpath:applicationContext-test.xml")
+@ContextConfiguration(classes = CodecTestConfig.class)
 public class AgentStatHbaseOperationFactoryTest {
 
     protected static final String TEST_AGENT_ID = "testAgentId";

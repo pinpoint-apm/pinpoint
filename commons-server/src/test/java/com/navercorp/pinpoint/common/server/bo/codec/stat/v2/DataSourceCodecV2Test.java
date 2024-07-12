@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecTestConfig;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
@@ -34,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Taejin Koo
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("classpath:applicationContext-test.xml")
+@ContextConfiguration(classes = CodecTestConfig.class)
 public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceListBo> {
 
     @Autowired

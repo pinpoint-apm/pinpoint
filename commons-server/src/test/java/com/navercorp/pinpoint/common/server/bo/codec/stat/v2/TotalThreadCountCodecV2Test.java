@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecTestConfig;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +30,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("classpath:applicationContext-test.xml")
+@ContextConfiguration(classes = CodecTestConfig.class)
 public class TotalThreadCountCodecV2Test extends AgentStatCodecTestBase<TotalThreadCountBo> {
 
     @Autowired
