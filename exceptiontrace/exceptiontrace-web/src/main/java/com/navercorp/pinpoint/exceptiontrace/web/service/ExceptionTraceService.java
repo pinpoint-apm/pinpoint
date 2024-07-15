@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
+import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
@@ -35,4 +36,5 @@ public interface ExceptionTraceService {
     List<ExceptionGroupSummary> getGroupSummaries(ExceptionTraceQueryParameter queryParameter);
 
     List<ExceptionChartValueView> getChartViews(ExceptionTraceQueryParameter queryParameter);
+    List<ErrorSummary> getErrorSummaries(ExceptionTraceQueryParameter queryParameter);
 }

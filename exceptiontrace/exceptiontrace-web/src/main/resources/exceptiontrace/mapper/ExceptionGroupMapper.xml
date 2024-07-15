@@ -8,38 +8,6 @@
     <resultMap id="exceptionChartValueViewEntity" type="ExceptionChartValueViewEntity">
     </resultMap>
 
-    <sql id="getGroupedFieldNameEntity">
-        <choose>
-            <when test="!groupByAttributes.isEmpty()">
-                <foreach collection="groupByAttributes" item="attr" open="" close="" separator=", ">
-                    ${attr.getRepresentativeColumn}
-                </foreach>
-                ,
-            </when>
-            <otherwise>
-            </otherwise>
-        </choose>
-    </sql>
-
-    <sql id="groupByAllAttributes">
-        <choose>
-            <when test="!groupByAttributes.isEmpty()">
-                ,
-                <include refid="allGroupByAttributes"></include>
-            </when>
-            <otherwise>
-            </otherwise>
-        </choose>
-    </sql>
-
-    <sql id="allGroupByAttributes">
-        <foreach collection="groupByAttributes" item="attr" open="" close="" separator=", ">
-            <foreach collection="attr.getGroupByColumns" item="column" open="" close="" separator=", ">
-                ${column}
-            </foreach>
-        </foreach>
-    </sql>
-
     <select id="selectGroupSummaries" resultMap="exceptionGroupSummaryEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
