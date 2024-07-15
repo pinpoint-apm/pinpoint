@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.grpc;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import io.grpc.Status;
-import io.grpc.StatusException;
-import io.grpc.StatusRuntimeException;
 
 /**
  * @author jaehong.kim
@@ -28,11 +26,10 @@ public class StatusErrors {
     static final String CONNECTION_REFUSED_MESSAGE = "Connection refused: no further information";
     static final String CANCELLED_BEFORE_RECEIVING_HALF_CLOSE = "CANCELLED: cancelled before receiving half close";
 
-
-//    @NonNull
+    //    @NonNull
     public static StatusError throwable(final Throwable throwable) {
-        final Status status = getStatus(throwable);
-        if (status != null) {
+        final Status status = Status.fromThrowable(throwable);
+        if (status != Status.UNKNOWN) {
             try {
                 final SimpleStatusError message = getSimpleStatusError(status, throwable);
                 if (message != null) {
@@ -45,27 +42,15 @@ public class StatusErrors {
         return new DefaultStatusError(throwable);
     }
 
-    private static Status getStatus(Throwable throwable) {
-        if (throwable instanceof StatusRuntimeException) {
-            final StatusRuntimeException exception = (StatusRuntimeException) throwable;
-            return exception.getStatus();
-        }
-        if (throwable instanceof StatusException) {
-            final StatusException exception = (StatusException) throwable;
-            return exception.getStatus();
-        }
-        return null;
-    }
-
     private static SimpleStatusError getSimpleStatusError(Status status, Throwable throwable) {
-        final Status.Code code = status.getCode();
-        if (code == Status.UNAVAILABLE.getCode()) {
+        final int code = status.getCode().value();
+        if (code == Status.UNAVAILABLE.getCode().value()) {
             final String causeMessage = findCauseMessage(throwable, CONNECTION_REFUSED_MESSAGE, 2);
             if (causeMessage != null) {
                 final String message = status.getDescription() + ": " + causeMessage;
                 return new SimpleStatusError(message, throwable);
             }
-        } else if (code == Status.CANCELLED.getCode()) {
+        } else if (code == Status.CANCELLED.getCode().value()) {
             final String message = throwable.getMessage();
             if (StringUtils.contains(message, CANCELLED_BEFORE_RECEIVING_HALF_CLOSE)) {
                 return new SimpleStatusError(CANCELLED_BEFORE_RECEIVING_HALF_CLOSE, throwable);
