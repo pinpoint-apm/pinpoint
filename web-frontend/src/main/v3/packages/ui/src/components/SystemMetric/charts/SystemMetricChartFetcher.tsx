@@ -142,7 +142,7 @@ export const SystemMetricChartFetcher = ({
 
   return (
     <Card className="rounded-lg">
-      <CardHeader className="px-5 py-4">
+      <CardHeader className="px-4 py-3 text-sm">
         <CardTitle>{title}</CardTitle>
         {tagGroup && (
           <CardDescription className="flex items-center gap-2.5 !mt-3">

@@ -9,7 +9,7 @@ export interface InspectorChartProps extends ChartCoreProps {
 export const InspectorChart = ({ data, children, ...props }: InspectorChartProps) => {
   return (
     <Card className="rounded-lg">
-      <CardHeader className="px-5 py-4">
+      <CardHeader className="px-4 py-3 text-sm">
         <CardTitle>{data?.title}</CardTitle>
       </CardHeader>
       <Separator />
