@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.config;
 
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ErrorSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
@@ -32,6 +33,7 @@ public class ExceptionTraceRegistryHandler implements MyBatisRegistryHandler {
     public void registerTypeAlias(TypeAliasRegistry typeAliasRegistry) {
         typeAliasRegistry.registerAlias(ExceptionMetaDataEntity.class);
         typeAliasRegistry.registerAlias(GroupedFieldNameEntity.class);
+        typeAliasRegistry.registerAlias(ErrorSummaryEntity.class);
         typeAliasRegistry.registerAlias(ExceptionGroupSummaryEntity.class);
         typeAliasRegistry.registerAlias(ExceptionChartValueViewEntity.class);
         typeAliasRegistry.registerAlias(ExceptionTraceQueryParameter.class);

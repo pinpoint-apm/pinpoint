@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @author intr3p1d
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GroupFilterParams {
+public class GroupFilterParams implements Params {
     private String uriTemplate;
     private String errorClassName;
     private String errorMessage_logtype;

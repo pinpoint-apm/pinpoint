@@ -17,8 +17,10 @@
 package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ErrorSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionEntityMapper;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
@@ -49,6 +51,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String SELECT_EXACT_QUERY = "selectExactException";
     private static final String SELECT_GROUP_SUMMARIES_QUERY = "selectGroupSummaries";
     private static final String SELECT_CHART_QUERY = "selectChartValueViews";
+    private static final String SELECT_ERROR_SUMMARIES_QUERY = "selectErrorSummaries";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -106,6 +109,17 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
         return valueViewEntities.stream()
                 .map((ExceptionChartValueViewEntity e) ->
                         mapper.toChartView(
+                                e, exceptionTraceQueryParameter.getGroupByAttributes()
+                        )
+                ).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ErrorSummary> getErrorSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        List<ErrorSummaryEntity> entities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_ERROR_SUMMARIES_QUERY, exceptionTraceQueryParameter);
+        return entities.stream()
+                .map((ErrorSummaryEntity e) ->
+                        mapper.toErrorSummary(
                                 e, exceptionTraceQueryParameter.getGroupByAttributes()
                         )
                 ).collect(Collectors.toList());

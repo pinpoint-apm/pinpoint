@@ -177,6 +177,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
+        public Builder setGroupByAttributes(List<GroupByAttributes> groupByAttributes) {
+            this.groupByAttributes.addAll(groupByAttributes);
+            return self();
+        }
+
         public Builder addAllGroupByList(Collection<String> strings) {
             if (strings == null) {
                 return self();
