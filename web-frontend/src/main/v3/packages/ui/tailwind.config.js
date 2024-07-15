@@ -5,7 +5,7 @@ import tailwindScrollbarHide from 'tailwind-scrollbar-hide';
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  content: ['../../apps/web/src/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
+  content: ['./src/**/*.{ts,tsx}'],
   safelist: ['flex-none'],
   theme: {
     container: {

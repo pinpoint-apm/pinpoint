@@ -188,13 +188,13 @@ export const LayoutWithSideNavigation = ({
               trigger: (
                 <MenuItemComponent
                   component={<a>se</a>}
-                  className={cn('mb-0.5 group/global-search')}
+                  className={cn('mb-0.5 group/global_search')}
                   icon={<RxMagnifyingGlass className="text-lg" />}
                   onClick={() => setGlobalSearchOpen(true)}
                 >
                   <div className="flex">
                     Search...
-                    <div className="items-center hidden gap-1 px-1 ml-auto text-xs border rounded group-hover/global-search:flex bg-muted/25">
+                    <div className="items-center hidden gap-1 px-1 ml-auto text-xs border rounded group-hover/global_search:flex bg-muted/25">
                       <LuCommand />K{/* <span className="text-xxs">ctrl</span> K */}
                     </div>
                   </div>
