@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
@@ -43,9 +44,7 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<ExceptionDetailView> getDetailExceptions(
-            ExceptionTraceQueryParameter queryParameter
-    ) {
+    public List<ExceptionDetailView> getDetailExceptions(ExceptionTraceQueryParameter queryParameter) {
         return exceptionTraceDao.getExceptions(queryParameter);
     }
 
@@ -62,5 +61,10 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     @Override
     public List<ExceptionChartValueView> getChartViews(ExceptionTraceQueryParameter queryParameter) {
         return exceptionTraceDao.getChartValueViews(queryParameter);
+    }
+
+    @Override
+    public List<ErrorSummary> getErrorSummaries(ExceptionTraceQueryParameter queryParameter) {
+        return exceptionTraceDao.getErrorSummaries(queryParameter);
     }
 }
