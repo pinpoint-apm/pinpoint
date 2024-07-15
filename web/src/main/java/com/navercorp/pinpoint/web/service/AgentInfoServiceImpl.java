@@ -158,7 +158,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(applicationName, "applicationName");
 
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, range.getTo());
-        Predicate<AgentStatus> agentStatusFilter0 = agentStatusFilter.and(x -> isActiveAgent(x.getAgentId(), range));
+        Predicate<AgentStatus> agentStatusFilter0 = agentStatusFilter.or(x -> isActiveAgent(x.getAgentId(), range));
 
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);

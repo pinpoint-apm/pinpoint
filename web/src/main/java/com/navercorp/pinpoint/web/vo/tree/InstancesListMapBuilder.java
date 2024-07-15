@@ -15,7 +15,11 @@ public class InstancesListMapBuilder<T, R> {
     private final Comparator<String> keyComparator;
     private final Comparator<R> sortNestedListBy;
 
-    private List<Predicate<T>> beforeFilters = null;
+    // When adding filter Predicates,
+    // do not simply add Predicate objects to a list.
+    // Instead, explicitly specify the connection relationships
+    // (e.g., and, or) between the Predicates.
+    private Predicate<T> filter;
     private final Function<T, R> finisher;
 
     InstancesListMapBuilder(Function<R, String> keyExtractor,
@@ -31,25 +35,13 @@ public class InstancesListMapBuilder<T, R> {
     }
 
     public InstancesListMapBuilder<T, R> withFilterBefore(Predicate<T> filter) {
-        addBeforeFilter(filter);
+        this.filter = filter;
         return this;
     }
 
-    private void addBeforeFilter(Predicate<T> filter) {
-        if (beforeFilters == null) {
-            beforeFilters = new ArrayList<>();
-        }
-        beforeFilters.add(filter);
-    }
-
     private boolean filterBefore(T t) {
-        if (beforeFilters == null) {
-            return true;
-        }
-        for (Predicate<T> instanceFilter : beforeFilters) {
-            if (!instanceFilter.test(t)) {
-                return false;
-            }
+        if (filter != null) {
+            return filter.test(t);
         }
         return true;
     }
@@ -88,7 +80,7 @@ public class InstancesListMapBuilder<T, R> {
                 ", keyExtractor=" + keyExtractor +
                 ", keyComparator=" + keyComparator +
                 ", sortNestedListBy=" + sortNestedListBy +
-                ", beforeFilters=" + beforeFilters +
+                ", filter=" + filter +
                 ", finisher=" + finisher +
                 '}';
     }
