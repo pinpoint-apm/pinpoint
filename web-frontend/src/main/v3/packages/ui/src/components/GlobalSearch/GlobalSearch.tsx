@@ -63,7 +63,11 @@ export const GlobalSearch = ({ services }: GlobalSearchProps) => {
   return (
     portalTargetElement &&
     createPortal(
-      <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandDialog
+        open={open}
+        onOpenChange={setOpen}
+        dialogClassName="max-w-[40rem] data-[state=open]:!slide-in-from-top-[0%] data-[state=closed]:!slide-out-to-top-[0%] top-[15%] translate-y-0"
+      >
         <Command
           loop
           filter={(value, search, keywords) => {
