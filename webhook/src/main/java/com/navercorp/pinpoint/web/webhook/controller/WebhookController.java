@@ -1,7 +1,8 @@
 package com.navercorp.pinpoint.web.webhook.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.Result;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.web.webhook.model.Webhook;
 import com.navercorp.pinpoint.web.webhook.model.WebhookResponse;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping(value={"/webhook", "/application/webhook"})
+@RequestMapping(value={"/api/webhook", "/api/application/webhook"})
 public class WebhookController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -58,7 +59,7 @@ public class WebhookController {
         }
 
         String webhookId = webhookService.insertWebhook(webhook);
-        return new WebhookResponse("SUCCESS", webhookId);
+        return new WebhookResponse(Result.SUCCESS, webhookId);
     }
 
     @DeleteMapping()
@@ -69,7 +70,7 @@ public class WebhookController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing argument: webhook.id");
         }
         webhookService.deleteWebhook(webhook);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     @GetMapping()
@@ -110,7 +111,7 @@ public class WebhookController {
         }
 
         webhookService.updateWebhook(webhook);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     private void validateURL(Webhook webhook) throws MalformedURLException, URISyntaxException {

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.grpc;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 
 /**
@@ -28,24 +29,49 @@ public class StatusErrors {
     static final String CANCELLED_BEFORE_RECEIVING_HALF_CLOSE = "CANCELLED: cancelled before receiving half close";
 
 
-    public static StatusError throwable(final Throwable t) {
-        if (t instanceof StatusRuntimeException) {
-            final StatusRuntimeException exception = (StatusRuntimeException) t;
-            final Status.Code code = exception.getStatus().getCode();
-            if (code == Status.UNAVAILABLE.getCode()) {
-                final String causeMessage = findCauseMessage(t, CONNECTION_REFUSED_MESSAGE, 2);
-                if (causeMessage != null) {
-                    final String message = exception.getStatus().getDescription() + ": " + causeMessage;
-                    return new SimpleStatusError(message, t);
+//    @NonNull
+    public static StatusError throwable(final Throwable throwable) {
+        final Status status = getStatus(throwable);
+        if (status != null) {
+            try {
+                final SimpleStatusError message = getSimpleStatusError(status, throwable);
+                if (message != null) {
+                    return message;
                 }
-            } else if (code == Status.CANCELLED.getCode()) {
-                final String message = exception.getMessage();
-                if (StringUtils.contains(message, CANCELLED_BEFORE_RECEIVING_HALF_CLOSE)) {
-                    return new SimpleStatusError(CANCELLED_BEFORE_RECEIVING_HALF_CLOSE, t);
-                }
+            } catch (Throwable parseError) {
+                return new DefaultStatusError(new RuntimeException("Status parse error", parseError));
             }
         }
-        return new DefaultStatusError(t);
+        return new DefaultStatusError(throwable);
+    }
+
+    private static Status getStatus(Throwable throwable) {
+        if (throwable instanceof StatusRuntimeException) {
+            final StatusRuntimeException exception = (StatusRuntimeException) throwable;
+            return exception.getStatus();
+        }
+        if (throwable instanceof StatusException) {
+            final StatusException exception = (StatusException) throwable;
+            return exception.getStatus();
+        }
+        return null;
+    }
+
+    private static SimpleStatusError getSimpleStatusError(Status status, Throwable throwable) {
+        final Status.Code code = status.getCode();
+        if (code == Status.UNAVAILABLE.getCode()) {
+            final String causeMessage = findCauseMessage(throwable, CONNECTION_REFUSED_MESSAGE, 2);
+            if (causeMessage != null) {
+                final String message = status.getDescription() + ": " + causeMessage;
+                return new SimpleStatusError(message, throwable);
+            }
+        } else if (code == Status.CANCELLED.getCode()) {
+            final String message = throwable.getMessage();
+            if (StringUtils.contains(message, CANCELLED_BEFORE_RECEIVING_HALF_CLOSE)) {
+                return new SimpleStatusError(CANCELLED_BEFORE_RECEIVING_HALF_CLOSE, throwable);
+            }
+        }
+        return null;
     }
 
     private static String findCauseMessage(final Throwable t, final String message, final int maxDepth) {

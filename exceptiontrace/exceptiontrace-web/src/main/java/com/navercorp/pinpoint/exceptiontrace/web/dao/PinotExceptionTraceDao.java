@@ -17,14 +17,14 @@
 package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceSummaryEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionTraceValueViewEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionMetaDataEntityMapper;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionEntityMapper;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -47,34 +47,34 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String SELECT_QUERY = "selectExceptions";
     private static final String SELECT_SUMMARIZED_QUERY = "selectSummarizedExceptions";
     private static final String SELECT_EXACT_QUERY = "selectExactException";
-    private static final String SELECT_SUMMARIES_QUERY = "selectSummaries";
-    private static final String SELECT_VALUEVIEWS_QUERY = "selectValueViews";
+    private static final String SELECT_GROUP_SUMMARIES_QUERY = "selectGroupSummaries";
+    private static final String SELECT_CHART_QUERY = "selectChartValueViews";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
-    private final ExceptionMetaDataEntityMapper mapper;
+    private final ExceptionEntityMapper mapper;
 
     public PinotExceptionTraceDao(
             @Qualifier("exceptionTracePinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate,
-            ExceptionMetaDataEntityMapper mapper
+            ExceptionEntityMapper mapper
     ) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
         this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     @Override
-    public List<ExceptionMetaDataView> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+    public List<ExceptionDetailView> getExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionMetaDataEntity> dataEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_QUERY, exceptionTraceQueryParameter);
         return dataEntities.stream()
-                .map(mapper::toView)
+                .map(mapper::toDetailView)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ExceptionMetaDataView> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+    public List<ExceptionDetailView> getSummarizedExceptions(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
         List<ExceptionMetaDataEntity> dataEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIZED_QUERY, exceptionTraceQueryParameter);
         return dataEntities.stream()
-                .map(mapper::toView)
+                .map(mapper::toDetailView)
                 .collect(Collectors.toList());
     }
 
@@ -85,10 +85,10 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     }
 
     @Override
-    public List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        List<ExceptionTraceSummaryEntity> entities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_SUMMARIES_QUERY, exceptionTraceQueryParameter);
+    public List<ExceptionGroupSummary> getGroupSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        List<ExceptionGroupSummaryEntity> entities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_GROUP_SUMMARIES_QUERY, exceptionTraceQueryParameter);
         return entities.stream()
-                .map((ExceptionTraceSummaryEntity e) ->
+                .map((ExceptionGroupSummaryEntity e) ->
                         mapper.toSummary(
                                 e, exceptionTraceQueryParameter.getGroupByAttributes()
                         )
@@ -96,11 +96,16 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     }
 
     @Override
-    public List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        List<ExceptionTraceValueViewEntity> valueViewEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_VALUEVIEWS_QUERY, exceptionTraceQueryParameter);
+    public List<ExceptionChartValueView> getChartValueViews(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
+        List<ExceptionChartValueViewEntity> valueViewEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_CHART_QUERY, exceptionTraceQueryParameter);
+        for (int i = 0; i < valueViewEntities.size(); i++) {
+            ExceptionChartValueViewEntity view = valueViewEntities.get(i);
+            view.setRowNum(i + 1);
+        }
+
         return valueViewEntities.stream()
-                .map((ExceptionTraceValueViewEntity e) ->
-                        mapper.toValueView(
+                .map((ExceptionChartValueViewEntity e) ->
+                        mapper.toChartView(
                                 e, exceptionTraceQueryParameter.getGroupByAttributes()
                         )
                 ).collect(Collectors.toList());

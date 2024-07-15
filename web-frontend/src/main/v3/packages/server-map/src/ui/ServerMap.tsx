@@ -23,6 +23,7 @@ export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'c
   };
   baseNodeId: string;
   customTheme?: ServerMapTheme;
+  forceLayoutUpdate?: boolean;
   onClickNode?: ClickEventHandler<MergedNode>;
   onClickEdge?: ClickEventHandler<MergedEdge>;
   onClickBackground?: ClickEventHandler<{}>;
@@ -37,6 +38,7 @@ export const ServerMap = ({
   data,
   customTheme = {},
   baseNodeId,
+  forceLayoutUpdate,
   onClickNode,
   onClickEdge,
   onClickBackground,
@@ -151,7 +153,7 @@ export const ServerMap = ({
           });
         });
 
-        if (!layoutRef.current) {
+        if (!layoutRef.current || forceLayoutUpdate) {
           layoutRef.current = cy?.layout({
             name: 'dagre',
             fit: false,

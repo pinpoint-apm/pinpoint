@@ -41,9 +41,11 @@ import java.util.Objects;
  */
 
 @RestController
+@RequestMapping("/api")
 @Validated
 public class ApplicationController {
     public static final int MAX_PAGING_LIMIT = 100;
+    public static final int MAX_DURATION_DAYS = 7;
 
     private final AgentInfoService agentInfoService;
 
@@ -62,6 +64,7 @@ public class ApplicationController {
     ) {
         int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
         durationDays = ObjectUtils.defaultIfNull(durationDays, AgentInfoService.NO_DURATION);
+        durationDays = Math.min(MAX_DURATION_DAYS, durationDays);
 
         Period durationDaysPeriod = Period.ofDays(durationDays);
         return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDaysPeriod);

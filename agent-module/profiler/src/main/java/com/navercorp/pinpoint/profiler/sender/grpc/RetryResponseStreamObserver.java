@@ -32,13 +32,13 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
     private final Logger logger;
     private final RetryScheduler<ReqT, ResT> retryScheduler;
     private final ReqT message;
-    private final int remainingRetryCount;
+    private final int retryCount;
 
-    public RetryResponseStreamObserver(Logger logger, RetryScheduler<ReqT, ResT> retryScheduler, ReqT message, int remainingRetryCount) {
+    public RetryResponseStreamObserver(Logger logger, RetryScheduler<ReqT, ResT> retryScheduler, ReqT message, int retryCount) {
         this.logger = Objects.requireNonNull(logger, "logger");
         this.retryScheduler = Objects.requireNonNull(retryScheduler, "retryScheduler");
         this.message = Objects.requireNonNull(message, "message");
-        this.remainingRetryCount = remainingRetryCount;
+        this.retryCount = retryCount;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
         } else {
             // Retry
             if (logger.isInfoEnabled()) {
-                logger.info("Request fail. request={}, result={}", logString(message), logString(response));
+                logger.info("Request failed. PResult.getSuccess() is false. request={}, result={}", logString(message), logString(response));
             }
             retryScheduler.scheduleNextRetry(message, nextRetryCount());
         }
@@ -68,8 +68,7 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
         }
 
         // Retry
-        final int remainingRetryCount = nextRetryCount();
-        retryScheduler.scheduleNextRetry(message, remainingRetryCount);
+        retryScheduler.scheduleNextRetry(message, nextRetryCount());
     }
 
     @Override
@@ -77,7 +76,7 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
     }
 
     private int nextRetryCount() {
-        return remainingRetryCount - 1;
+        return retryCount + 1;
     }
 
     private String logString(Object message) {

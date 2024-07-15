@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
-import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerCallExecutorSupplier;
 import io.grpc.ServerInterceptor;
@@ -39,7 +38,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NestedExceptionUtils;
 
 import java.io.Closeable;
@@ -65,7 +63,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private Executor executor;
     private ServerCallExecutorSupplier serverCallExecutorSupplier;
 
-    private List<?> serviceList = new ArrayList<>();
+    private List<ServerServiceDefinition> serviceList = new ArrayList<>();
 
     private AddressFilter addressFilter;
 
@@ -148,14 +146,8 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
     private void addService() {
         // Add service
-        for (Object service : serviceList) {
-            if (service instanceof BindableService bindableService) {
-                this.serverFactory.addService(bindableService);
-            } else if (service instanceof ServerServiceDefinition serviceDefinition) {
-                this.serverFactory.addService(serviceDefinition);
-            } else {
-                throw new IllegalStateException("unsupported service type " + service);
-            }
+        for (ServerServiceDefinition service : serviceList) {
+            this.serverFactory.addService(service);
         }
     }
 
@@ -246,32 +238,15 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.sslContext = sslContext;
     }
 
-    private static final Class<?>[] BINDABLESERVICE_TYPE = {BindableService.class, ServerServiceDefinition.class};
-
-    private static boolean supportType(Object service) {
-        for (Class<?> bindableService : BINDABLESERVICE_TYPE) {
-            if (bindableService.isInstance(service)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void setBindableServiceList(List<?> serviceList) {
-        for (Object service : serviceList) {
-            if (!supportType(service)) {
-                throw new IllegalStateException("unsupported type " + service);
-            }
-        }
-
-        this.serviceList = serviceList;
+    public void setBindableServiceList(List<ServerServiceDefinition> serviceList) {
+        Objects.requireNonNull(serviceList, "serviceList");
+        this.serviceList = List.copyOf(serviceList);
     }
 
     public void setTransportFilterList(List<ServerTransportFilter> transportFilterList) {
         this.transportFilterList = transportFilterList;
     }
 
-    @Autowired
     public void setServerInterceptorList(List<ServerInterceptor> serverInterceptorList) {
         this.serverInterceptorList = serverInterceptorList;
     }

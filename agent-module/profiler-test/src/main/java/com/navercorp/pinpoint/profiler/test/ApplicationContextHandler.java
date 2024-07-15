@@ -21,7 +21,6 @@ import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
@@ -42,7 +41,7 @@ import java.util.List;
 public class ApplicationContextHandler {
 
     private final OrderedSpanRecorder orderedSpanRecorder;
-    private final TestTcpDataSender tcpDataSender;
+    private final TestDataSender testDataSender;
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
     private final AnnotationKeyRegistryService annotationKeyRegistryService;
     private final ServiceTypeRegistryService serviceTypeRegistry;
@@ -50,7 +49,7 @@ public class ApplicationContextHandler {
     public ApplicationContextHandler(DefaultApplicationContext defaultApplicationContext) {
         Injector injector = defaultApplicationContext.getInjector();
         this.orderedSpanRecorder = findRecorder(injector);
-        this.tcpDataSender = findTestTcpDataSender(injector);
+        this.testDataSender = findTestTcpDataSender(injector);
         this.serverMetaDataRegistryService = findServerMetaDataRegistryService(injector);
         this.annotationKeyRegistryService = findAnnotationKeyRegistryService(injector);
         this.serviceTypeRegistry = findServiceTypeRegistry(injector);
@@ -71,13 +70,13 @@ public class ApplicationContextHandler {
         throw new IllegalStateException("unexpected dataSender:" + dataSender);
     }
 
-    private TestTcpDataSender findTestTcpDataSender(Injector injector) {
-        TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType, ResponseMessage>>() {
+    private TestDataSender findTestTcpDataSender(Injector injector) {
+        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
         };
-        Key<EnhancedDataSender<MetaDataType, ResponseMessage>> dataSenderKey = Key.get(dataSenderTypeLiteral);
-        EnhancedDataSender<MetaDataType, ResponseMessage> dataSender = injector.getInstance(dataSenderKey);
-        if (dataSender instanceof TestTcpDataSender) {
-            return (TestTcpDataSender) dataSender;
+        Key<EnhancedDataSender<MetaDataType>> dataSenderKey = Key.get(dataSenderTypeLiteral);
+        EnhancedDataSender<MetaDataType> dataSender = injector.getInstance(dataSenderKey);
+        if (dataSender instanceof TestDataSender) {
+            return (TestDataSender) dataSender;
         }
         throw new IllegalStateException("unexpected dataSender" + dataSender);
     }
@@ -114,7 +113,7 @@ public class ApplicationContextHandler {
     private void addApiDescription(List<String> list, List<SpanEvent> spanEventList) {
         for (SpanEvent spanEvent : spanEventList) {
             int apiId = spanEvent.getApiId();
-            String apiDescription = this.tcpDataSender.getApiDescription(apiId);
+            String apiDescription = this.testDataSender.getApiDescription(apiId);
             list.add(apiDescription);
         }
     }
@@ -124,8 +123,8 @@ public class ApplicationContextHandler {
         return orderedSpanRecorder;
     }
 
-    public TestTcpDataSender getTcpDataSender() {
-        return tcpDataSender;
+    public TestDataSender getTestDataSender() {
+        return testDataSender;
     }
 
     public ServerMetaDataRegistryService getServerMetaDataRegistryService() {

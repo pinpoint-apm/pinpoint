@@ -16,7 +16,8 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.Result;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.response.CreateUserGroupResponse;
 import com.navercorp.pinpoint.web.service.UserGroupService;
@@ -46,7 +47,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value = "/userGroup")
+@RequestMapping(value = "/api/userGroup")
 @Validated
 public class UserGroupController {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -71,7 +72,7 @@ public class UserGroupController {
 
         try {
             final String userGroupNumber = userGroupService.createUserGroup(userGroup);
-            return new CreateUserGroupResponse("SUCCESS", userGroupNumber);
+            return new CreateUserGroupResponse(Result.SUCCESS, userGroupNumber);
         } catch (PinpointUserGroupException e) {
             logger.error(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -89,7 +90,7 @@ public class UserGroupController {
 
         try {
             userGroupService.deleteUserGroup(userGroup);
-            return SuccessResponse.ok();
+            return SimpleResponse.ok();
         } catch (PinpointUserGroupException e) {
             logger.error(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -122,7 +123,7 @@ public class UserGroupController {
             );
         }
         userGroupService.insertMember(userGroupMember);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     @DeleteMapping(value = "/member")
@@ -135,7 +136,7 @@ public class UserGroupController {
             );
         }
         userGroupService.deleteMember(userGroupMember);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     @GetMapping(value = "/member")

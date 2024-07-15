@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.profiler.context.exception.storage;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionMetaData;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionMetaDataFactory;
 import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
@@ -38,12 +37,12 @@ public class BufferedExceptionStorage implements ExceptionStorage {
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private final ArrayBuffer<ExceptionWrapper> buffer;
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
+    private final EnhancedDataSender<MetaDataType> dataSender;
     private final ExceptionMetaDataFactory factory;
 
     public BufferedExceptionStorage(
             int bufferSize,
-            EnhancedDataSender<MetaDataType, ResponseMessage> dataSender,
+            EnhancedDataSender<MetaDataType> dataSender,
             ExceptionMetaDataFactory exceptionMetaDataFactory
     ) {
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
+import com.navercorp.pinpoint.collector.util.DurabilityApplier;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
@@ -34,6 +35,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -62,17 +64,24 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private final RowKeyEncoder<TransactionId> rowKeyEncoder;
     private final HbasePutWriter putWriter;
 
+    private final DurabilityApplier durabilityApplier;
+
     public HbaseTraceDaoV2(@Qualifier("spanPutWriter")
                            HbasePutWriter putWriter,
                            TableNameProvider tableNameProvider,
                            @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
                            SpanSerializerV2 spanSerializer,
-                           SpanChunkSerializerV2 spanChunkSerializer) {
+                           SpanChunkSerializerV2 spanChunkSerializer,
+                           @Value("${collector.span.durability:USE_DEFAULT}")
+                           String spanDurability) {
         this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.spanSerializer = Objects.requireNonNull(spanSerializer, "spanSerializer");
         this.spanChunkSerializer = Objects.requireNonNull(spanChunkSerializer, "spanChunkSerializer");
+
+        this.durabilityApplier = new DurabilityApplier(spanDurability);
+        logger.info("Span(Trace Put) durability:{}", durabilityApplier);
     }
 
     @Override
@@ -107,7 +116,9 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         TransactionId transactionId = spanBo.getTransactionId();
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
-        final Put put = new Put(rowKey, acceptedTime);
+        final Put put = new Put(rowKey, acceptedTime, true);
+
+        this.durabilityApplier.apply(put);
 
         this.spanSerializer.serialize(spanBo, put, null);
 
@@ -123,7 +134,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
 
         final long acceptedTime = spanChunkBo.getCollectorAcceptTime();
-        final Put put = new Put(rowKey, acceptedTime);
+        final Put put = new Put(rowKey, acceptedTime, true);
 
         final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {

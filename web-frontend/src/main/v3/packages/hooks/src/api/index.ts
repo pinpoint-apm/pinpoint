@@ -41,6 +41,7 @@ export * from './useGetSystemMetricHostData';
 export * from './useGetSystemMetricHostGroupData';
 export * from './useGetSystemMetricMetricInfoData';
 export * from './useGetSystemMetricTagsData';
+export * from './useGetTraceViewerData';
 export * from './useGetTransactionInfo';
 export * from './useGetUrlStatChartData';
 export * from './useGetUrlStatSummaryData';

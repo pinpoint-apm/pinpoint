@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
@@ -35,7 +36,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /**
@@ -55,70 +55,104 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
     }
 
     @Override
-    public void appendServerInfo(final Range range, final NodeList source, final LinkDataDuplexMap linkDataDuplexMap, final long timeoutMillis) {
+    public void appendServerInfo(final Range range, final NodeList source, final LinkDataDuplexMap linkDataDuplexMap, long timeoutMillis) {
         if (source == null) {
             return;
         }
+
         Collection<Node> nodes = source.getNodeList();
         if (CollectionUtils.isEmpty(nodes)) {
             return;
         }
-        final AtomicBoolean stopSign = new AtomicBoolean();
-        final CompletableFuture[] futures = getServerGroupListFutures(range, nodes, linkDataDuplexMap, stopSign);
-        if (-1 == timeoutMillis) {
-            // Returns the result value when complete
-            CompletableFuture.allOf(futures).join();
-        } else {
-            try {
-                CompletableFuture.allOf(futures).get(timeoutMillis, TimeUnit.MILLISECONDS);
-            } catch (Exception e) { // InterruptedException, ExecutionException, TimeoutException
-                stopSign.set(Boolean.TRUE);
-                String cause = "an error occurred while adding server info";
-                if (e instanceof TimeoutException) {
-                    cause += " build timed out. timeout=" + timeoutMillis + "ms";
-                }
-                throw new RuntimeException(cause, e);
-            }
-        }
+
+        final List<ServerGroupRequest> serverGroupRequest = getServerGroupListFutures(range, nodes, linkDataDuplexMap);
+
+        timeoutMillis = defaultTimeoutMillis(timeoutMillis);
+        join(serverGroupRequest, timeoutMillis);
+
+        bind(serverGroupRequest);
     }
 
-    private CompletableFuture[] getServerGroupListFutures(Range range, Collection<Node> nodes, LinkDataDuplexMap linkDataDuplexMap, AtomicBoolean stopSign) {
-        List<CompletableFuture<Void>> serverGroupListFutures = new ArrayList<>();
+    private long defaultTimeoutMillis(long timeoutMillis) {
+        if (timeoutMillis == -1) {
+            return Long.MAX_VALUE;
+        }
+        return timeoutMillis;
+    }
+
+    private List<ServerGroupRequest> getServerGroupListFutures(Range range, Collection<Node> nodes, LinkDataDuplexMap linkDataDuplexMap) {
+        List<ServerGroupRequest> serverGroupListFutures = new ArrayList<>();
         for (Node node : nodes) {
             if (node.getServiceType().isUnknown()) {
                 // we do not know the server info for unknown nodes
                 continue;
             }
-            CompletableFuture<Void> serverGroupListFuture = getServerGroupListFuture(range, node, linkDataDuplexMap, stopSign);
-            serverGroupListFutures.add(serverGroupListFuture);
+            CompletableFuture<ServerGroupList> serverGroupListFuture = getServerGroupListFuture(range, node, linkDataDuplexMap);
+            serverGroupListFutures.add(new ServerGroupRequest(node, serverGroupListFuture));
         }
-        return serverGroupListFutures.toArray(new CompletableFuture[0]);
+        return serverGroupListFutures;
     }
 
-    private CompletableFuture<Void> getServerGroupListFuture(Range range, Node node, LinkDataDuplexMap linkDataDuplexMap, AtomicBoolean stopSign) {
-        CompletableFuture<ServerGroupList> serverGroupListFuture;
-        ServiceType nodeServiceType = node.getServiceType();
+    private record ServerGroupRequest(Node node, CompletableFuture<ServerGroupList> future) {
+    }
+
+    private CompletableFuture<ServerGroupList> getServerGroupListFuture(Range range, Node node, LinkDataDuplexMap linkDataDuplexMap) {
+        final Application application = node.getApplication();
+        final ServiceType nodeServiceType = application.getServiceType();
         if (nodeServiceType.isWas()) {
-            final Instant to = range.getToInstant();
-            serverGroupListFuture = CompletableFuture.supplyAsync(new Supplier<ServerGroupList>() {
+            return CompletableFuture.supplyAsync(new Supplier<>() {
                 @Override
                 public ServerGroupList get() {
-                    if (Boolean.TRUE == stopSign.get()) { // Stop
-                        return serverGroupListFactory.createEmptyNodeInstanceList();
-                    }
+                    final Instant to = range.getToInstant();
                     return serverGroupListFactory.createWasNodeInstanceList(node, to);
                 }
             }, executor);
         } else if (nodeServiceType.isTerminal() || nodeServiceType.isAlias()) {
             // extract information about the terminal node
-            serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap));
+            return CompletableFuture.completedFuture(serverGroupListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap));
         } else if (nodeServiceType.isQueue()) {
-            serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap));
+            return CompletableFuture.completedFuture(serverGroupListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap));
         } else if (nodeServiceType.isUser()) {
-            serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createUserNodeInstanceList());
-        } else {
-            serverGroupListFuture = CompletableFuture.completedFuture(serverGroupListFactory.createEmptyNodeInstanceList());
+            return CompletableFuture.completedFuture(serverGroupListFactory.createUserNodeInstanceList());
         }
-        return serverGroupListFuture.thenAccept(node::setServerGroupList);
+        return CompletableFuture.completedFuture(serverGroupListFactory.createEmptyNodeInstanceList());
     }
+
+
+    private void join(List<ServerGroupRequest> serverGroupRequests, long timeoutMillis) {
+        @SuppressWarnings("rawtypes")
+        final CompletableFuture[] futures = serverGroupRequests.stream()
+                .map(ServerGroupRequest::future)
+                .toArray(CompletableFuture[]::new);
+
+        final CompletableFuture<Void> all = CompletableFuture.allOf(futures);
+        try {
+            all.get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (Throwable e) {
+            all.cancel(false);
+            String cause = "an error occurred while adding server info";
+            if (e instanceof TimeoutException) {
+                cause += " build timed out. timeout=" + timeoutMillis + "ms";
+            }
+            throw new RuntimeException(cause, e);
+        }
+    }
+
+    private void bind(List<ServerGroupRequest> serverGroupRequest) {
+        for (ServerGroupRequest pair : serverGroupRequest) {
+            Node node = pair.node();
+            CompletableFuture<ServerGroupList> future = pair.future();
+            try {
+                ServerGroupList serverGroupList = future.getNow(null);
+                if (serverGroupList == null) {
+                    serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
+                }
+                node.setServerGroupList(serverGroupList);
+            } catch (Throwable th) {
+                logger.warn("Failed to get server info for node {}", node);
+                throw new RuntimeException("Unexpected error", th);
+            }
+        }
+    }
+
 }

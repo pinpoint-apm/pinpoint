@@ -18,15 +18,18 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
 import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
+import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChart;
+import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
@@ -42,6 +45,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,6 +55,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
+@RequestMapping("/api")
 public class ResponseTimeController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -81,7 +86,7 @@ public class ResponseTimeController {
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
-        return nodeHistogramSummary.getAgentHistogramView();
+        return ServerHistogramView.view(nodeHistogramSummary);
     }
 
     @GetMapping(value = "/getWas/histogram")
@@ -116,7 +121,7 @@ public class ResponseTimeController {
     }
 
     @GetMapping(value = "/getWas/{type}/chart")
-    public TimeSeriesView getWasTimeHistogramChart(
+    public TimeHistogramChart getWasTimeHistogramChart(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -133,7 +138,9 @@ public class ResponseTimeController {
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
-        return nodeHistogramSummary.getNodeTimeHistogram(timeHistogramType);
+        ApplicationTimeHistogram applicationTimeHistogram = nodeHistogramSummary.getApplicationTimeHistogram();
+
+        return chartView(applicationTimeHistogram, timeHistogramType);
     }
 
     @GetMapping(value = "/getWas/histogramData")
@@ -152,7 +159,7 @@ public class ResponseTimeController {
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
-        return nodeHistogramSummary.getHistogramView();
+        return HistogramView.view(nodeHistogramSummary);
     }
 
     private ResponseTimeHistogramServiceOption.Builder createWasOptionBuilder(Application application, Range range) {
@@ -179,7 +186,7 @@ public class ResponseTimeController {
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
-        return nodeHistogramSummary.getAgentHistogramView();
+        return ServerHistogramView.view(nodeHistogramSummary);
     }
 
     @PostMapping(value = "/getNode/histogramData")
@@ -200,11 +207,11 @@ public class ResponseTimeController {
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        return nodeHistogramSummary.getHistogramView();
+        return HistogramView.view(nodeHistogramSummary);
     }
 
     @PostMapping(value = "/getNode/{type}/chart")
-    public TimeSeriesView postNodeTimeHistogramChart(
+    public TimeHistogramChart postNodeTimeHistogramChart(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -223,7 +230,14 @@ public class ResponseTimeController {
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        return nodeHistogramSummary.getNodeTimeHistogram(timeHistogramType);
+        ApplicationTimeHistogram applicationTimeHistogram = nodeHistogramSummary.getApplicationTimeHistogram();
+
+        return chartView(applicationTimeHistogram, timeHistogramType);
+    }
+
+    private TimeHistogramChart chartView(ApplicationTimeHistogram applicationTimeHistogram, TimeHistogramType timeHistogramType) {
+        return new TimeHistogramChartBuilder(applicationTimeHistogram.getHistogramList())
+                .build(timeHistogramType);
     }
 
     @GetMapping(value = "/getLink/histogramData")
@@ -246,11 +260,18 @@ public class ResponseTimeController {
         LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
 
-        return linkHistogramSummary.getHistogramView();
+        return newHistogramView(linkHistogramSummary);
+    }
+
+    public HistogramView newHistogramView(LinkHistogramSummary summary) {
+        String linkName = summary.getLinkName().getName();
+        Histogram histogram = summary.getHistogram();
+        List<TimeHistogram> appHistogram = summary.getLinkApplicationTimeHistogram().getHistogramList();
+        return new HistogramView(linkName, histogram, appHistogram);
     }
 
     @GetMapping(value = "/getLink/{type}/chart")
-    public TimeSeriesView getLinkTimeHistogramChart(
+    public TimeHistogramChart getLinkTimeHistogramChart(
             @RequestParam("fromApplicationName") @NotBlank String fromApplicationName,
             @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
             @RequestParam(value = "fromServiceTypeName", required = false) @NotBlank String fromServiceTypeName,
@@ -271,7 +292,9 @@ public class ResponseTimeController {
         LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
 
-        return linkHistogramSummary.getTimeHistogram(timeHistogramType);
+        ApplicationTimeHistogram histogram = linkHistogramSummary.getLinkApplicationTimeHistogram();
+
+        return chartView(histogram, timeHistogramType);
     }
 
     private ResponseTimeHistogramServiceOption.Builder createOptionBuilder(Application application, Range range,
@@ -304,6 +327,6 @@ public class ResponseTimeController {
             }
         }
         logger.error("can not create application. applicationName: {}, serviceTypeCode: {}, serviceTypeName: {}", applicationName, serviceTypeCode, serviceTypeName);
-        throw new IllegalArgumentException("can not create application. applicationName: " + serviceTypeName);
+        throw new IllegalArgumentException("can not create application. applicationName: " + applicationName);
     }
 }

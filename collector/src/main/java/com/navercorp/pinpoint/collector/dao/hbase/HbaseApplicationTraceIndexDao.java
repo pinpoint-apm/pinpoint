@@ -82,7 +82,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final long acceptedTime = span.getCollectorAcceptTime();
         final byte[] distributedKey = applicationIndexRowKeyEncoder.encodeRowKey(span);
 
-        final Put put = new Put(distributedKey);
+        final Put put = new Put(distributedKey, true);
 
         final byte[] qualifier = SpanUtils.getVarTransactionId(span);
 

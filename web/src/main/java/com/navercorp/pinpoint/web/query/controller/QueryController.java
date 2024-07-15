@@ -7,12 +7,14 @@ import com.navercorp.pinpoint.web.query.service.QueryServiceFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
 
 @RestController
+@RequestMapping("/api")
 public class QueryController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());

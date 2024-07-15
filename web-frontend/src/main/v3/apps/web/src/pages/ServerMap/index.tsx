@@ -28,7 +28,6 @@ import {
 } from '@pinpoint-fe/atoms';
 import { FilteredMap, GetServerMap, BASE_PATH } from '@pinpoint-fe/constants';
 import { IoMdClose } from 'react-icons/io';
-import { FaNetworkWired } from 'react-icons/fa';
 import {
   ApdexScore,
   Button,
@@ -54,6 +53,7 @@ import {
 } from '@pinpoint-fe/ui';
 import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
 import { Edge, Node } from '@pinpoint-fe/server-map';
+import { PiTreeStructureDuotone } from 'react-icons/pi';
 
 export interface ServermapPageProps {}
 
@@ -185,7 +185,7 @@ export const ServerMapPage = ({}: ServermapPageProps) => {
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <FaNetworkWired /> Servermap
+            <PiTreeStructureDuotone /> Servermap
           </div>
         }
       >
@@ -376,7 +376,7 @@ export const ServerMapPage = ({}: ServermapPageProps) => {
                         ) : (
                           <>
                             {serverMapCurrentTarget.type === 'node' &&
-                            (currentTargetData as GetServerMap.NodeData).instanceCount ? (
+                            (currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
                               <div className="flex items-center h-12 py-2.5 px-4">
                                 <Button
                                   className="px-2 py-1 text-xs"

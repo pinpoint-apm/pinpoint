@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -46,13 +47,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -79,7 +80,7 @@ public class ApplicationMapBuilderTest {
 
     private AgentInfoServerGroupListDataSource agentInfoServerGroupListDataSource;
 
-    private long buildTimeoutMillis = 1000;
+    private final long buildTimeoutMillis = 1000;
 
     @BeforeEach
     public void setUp() {
@@ -110,7 +111,7 @@ public class ApplicationMapBuilderTest {
         when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);
         when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
-        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentAndStatus>>() {
+        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<>() {
             @Override
             public Set<AgentAndStatus> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
@@ -120,7 +121,7 @@ public class ApplicationMapBuilderTest {
                 return Set.of(new AgentAndStatus(agentInfo, agentStatus));
             }
         });
-        when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
+        when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<>() {
             @Override
             public Set<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
@@ -128,7 +129,7 @@ public class ApplicationMapBuilderTest {
                 return Set.of(agentInfo);
             }
         });
-        when(agentInfoService.getAgentStatus(anyString(), anyLong())).thenAnswer(new Answer<AgentStatus>()  {
+        when(agentInfoService.getAgentStatus(anyString(), anyLong())).thenAnswer(new Answer<>()  {
             @Override
             public AgentStatus answer(InvocationOnMock invocation) throws Throwable {
                 String agentId = invocation.getArgument(0);
@@ -159,15 +160,7 @@ public class ApplicationMapBuilderTest {
 
     private void shutdownExecutor(ExecutorService executor) {
         if (executor != null) {
-            executor.shutdown();
-            try {
-                if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                    executor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                executor.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
+            MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
         }
     }
 
@@ -188,9 +181,7 @@ public class ApplicationMapBuilderTest {
                 .build(application, buildTimeoutMillis);
 
         assertThat(applicationMap.getNodes()).hasSize(1);
-        assertThat(applicationMap.getNodes()).hasSize(1);
         assertThat(applicationMap_parallelAppenders.getNodes()).hasSize(1);
-        assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
 
@@ -219,10 +210,8 @@ public class ApplicationMapBuilderTest {
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
         assertThat(applicationMap.getNodes()).isEmpty();
-        assertThat(applicationMap.getNodes()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getNodes()).isEmpty();
 
-        assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
 
@@ -251,10 +240,8 @@ public class ApplicationMapBuilderTest {
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
         assertThat(applicationMap.getNodes()).isEmpty();
-        assertThat(applicationMap.getNodes()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getNodes()).isEmpty();
 
-        assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap.getLinks()).isEmpty();
         assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
 

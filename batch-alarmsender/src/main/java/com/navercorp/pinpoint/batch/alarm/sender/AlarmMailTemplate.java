@@ -30,7 +30,7 @@ public class AlarmMailTemplate {
 
     private static final String LINE_FEED = "<br>";
     private static final String LINK_FORMAT = "<a href=\"%s\" >pinpoint site</a>";
-    private static final String SCATTER_CHART_LINK_FORMAT = "<a href=\"%s/main/%s@%s/5m/%s\" >scatter chart of %s</a>";
+    private static final String SCATTER_CHART_LINK_FORMAT = "<a href=\"%s/serverMap/%s@%s?%s\" >scatter chart of %s</a>";
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss");
 
@@ -51,14 +51,23 @@ public class AlarmMailTemplate {
         return String.format("[PINPOINT-%s] %s Alarm for %s Service. #%d", batchEnv, rule.getCheckerName(), rule.getApplicationId(), sequenceCount);
     }
 
-    public String getCurrentTime() {
-        LocalDateTime now = LocalDateTime.now();
-        return FORMATTER.format(now);
+    public String getTime() {
+        LocalDateTime to = LocalDateTime.now();
+        String toTime = FORMATTER.format(to);
+        LocalDateTime from = to.minusMinutes(5);
+        String fromTime = FORMATTER.format(from);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("from=");
+        sb.append(fromTime);
+        sb.append("&to=");
+        sb.append(toTime);
+        return sb.toString();
     }
 
     public String createBody() {
         RuleInterface rule = checker.getRule();
-        return newBody(createSubject(), rule.getCheckerName(), rule.getApplicationId(), rule.getServiceType(), getCurrentTime());
+        return newBody(createSubject(), rule.getCheckerName(), rule.getApplicationId(), rule.getServiceType(), getTime());
     }
 
     private String newBody(String subject, String rule, String applicationId, String serviceType, String currentTime) {

@@ -5,7 +5,7 @@ on:
 
 jobs:
   pullrequest_IT:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       PR_NUMBER: ${{ github.event.client_payload.github.payload.issue.number }}
       PR_P: ${{ github.event.issue.number }}
@@ -20,24 +20,24 @@ jobs:
           body: |
             > Action has been started. [Click here to see the action](${{ steps.vars.outputs.run-url }})
       - name: Git checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: "refs/pull/${{ env.PR_NUMBER }}/merge"
       - name: Cache node modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Cache node install
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: "node_install"
           key: ${{ runner.os }}-node_install-${{ hashFiles('**/pom.xml') }}
@@ -48,11 +48,6 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /usr/share/dotnet
           df -h
-      - name: Set up JDK 7
-        uses: actions/setup-java@v3
-        with:
-          distribution: "zulu"
-          java-version: 7
       - name: Set JAVA_HOME
         run: |
           echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
@@ -66,14 +61,14 @@ jobs:
           ./mvnw --batch-mode -Pit-module -DskipTests clean install
       - name: Whole Integration Test
         if: github.event.client_payload.slash_command.args.all == ''
-        working-directory: ./plugins-it
-        run: ../mvnw --batch-mode clean install -Pit-module  -Dmaven.test.failure.ignore=true
+        working-directory: ./agent-module/plugins-it
+        run: ../../mvnw --batch-mode clean install -Pit-module  -Dmaven.test.failure.ignore=true
       - name: Integration Test
         if: github.event.client_payload.slash_command.args.all != ''
-        working-directory: ./plugins-it
-        run: ../mvnw --batch-mode clean install -Pit-module -pl ${{ github.event.client_payload.slash_command.args.all }} -Dmaven.test.failure.ignore=true
+        working-directory: ./agent-module/plugins-it
+        run: ../../mvnw --batch-mode clean install -Pit-module -pl ${{ github.event.client_payload.slash_command.args.all }} -Dmaven.test.failure.ignore=true
       - name: Collect reports
-        working-directory: ./plugins-it
+        working-directory: ./agent-module/plugins-it
         run: |
           mkdir -p ./temp
           find . -regex ".*/target/failsafe-reports/TEST.*\.xml" -exec cp "{}" ./temp \;
@@ -84,7 +79,7 @@ jobs:
         with:
           name: pinpoint-test-results
           reporter: java-junit
-          path: "./plugins-it/temp/TEST-*.xml"
+          path: "./agent-module/plugins-it/temp/TEST-*.xml"
           fail-on-error: "false"
       - name: Update  comment
         uses: peter-evans/create-or-update-comment@v1

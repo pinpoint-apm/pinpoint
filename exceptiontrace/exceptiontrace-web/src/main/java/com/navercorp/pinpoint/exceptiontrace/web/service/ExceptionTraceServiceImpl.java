@@ -17,17 +17,16 @@
 package com.navercorp.pinpoint.exceptiontrace.web.service;
 
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * @author intr3p1d
@@ -44,59 +43,24 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     }
 
     @Override
-    public List<ExceptionMetaDataView> getTransactionExceptions(
+    public List<ExceptionDetailView> getDetailExceptions(
             ExceptionTraceQueryParameter queryParameter
     ) {
-        return applyQueryFunction(
-                queryParameter,
-                this::getExeptionMetaDataList
-        );
-    }
-
-    @Override
-    public List<ExceptionMetaDataView> getSummarizedExceptionsInRange(ExceptionTraceQueryParameter queryParameter) {
-        return applyQueryFunction(
-                queryParameter,
-                this::getSummarizedExeptionMetaDataList
-        );
-    }
-
-    @Override
-    public List<ExceptionTraceSummary> getSummaries(ExceptionTraceQueryParameter queryParameter) {
-        return applyQueryFunction(
-                queryParameter,
-                this::getExceptionTraceSummaries
-        );
-    }
-
-    @Override
-    public List<ExceptionTraceValueView> getValueViews(ExceptionTraceQueryParameter queryParameter) {
-        return applyQueryFunction(
-                queryParameter,
-                this::getExceptionTraceValueViews
-        );
-    }
-
-    private <T> List<T> applyQueryFunction(
-            ExceptionTraceQueryParameter queryParameter,
-            Function<ExceptionTraceQueryParameter, List<T>> queryFunction
-    ) {
-        return queryFunction.apply(queryParameter);
-    }
-
-    private List<ExceptionMetaDataView> getExeptionMetaDataList(ExceptionTraceQueryParameter queryParameter) {
         return exceptionTraceDao.getExceptions(queryParameter);
     }
 
-    private List<ExceptionMetaDataView> getSummarizedExeptionMetaDataList(ExceptionTraceQueryParameter queryParameter) {
+    @Override
+    public List<ExceptionDetailView> getSummarizedExceptions(ExceptionTraceQueryParameter queryParameter) {
         return exceptionTraceDao.getSummarizedExceptions(queryParameter);
     }
 
-    private List<ExceptionTraceSummary> getExceptionTraceSummaries(ExceptionTraceQueryParameter queryParameter) {
-        return exceptionTraceDao.getSummaries(queryParameter);
+    @Override
+    public List<ExceptionGroupSummary> getGroupSummaries(ExceptionTraceQueryParameter queryParameter) {
+        return exceptionTraceDao.getGroupSummaries(queryParameter);
     }
 
-    private List<ExceptionTraceValueView> getExceptionTraceValueViews(ExceptionTraceQueryParameter queryParameter) {
-        return exceptionTraceDao.getValueViews(queryParameter);
+    @Override
+    public List<ExceptionChartValueView> getChartViews(ExceptionTraceQueryParameter queryParameter) {
+        return exceptionTraceDao.getChartValueViews(queryParameter);
     }
 }

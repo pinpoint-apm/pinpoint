@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.util.ValueValidator;
@@ -43,7 +43,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value = "/user")
+@RequestMapping("/api/user")
 @Validated
 public class UserController {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -65,7 +65,7 @@ public class UserController {
             );
         }
         userService.insertUser(user);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     @DeleteMapping
@@ -77,7 +77,7 @@ public class UserController {
             );
         }
         userService.deleteUser(user.getUserId());
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     @GetMapping(params = "userId")
@@ -129,7 +129,7 @@ public class UserController {
             );
         }
         userService.updateUser(user);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
 }

@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.Result;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
@@ -43,7 +44,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value={"/alarmRule", "/application/alarmRule"})
+@RequestMapping(value={"/api/alarmRule", "/api/application/alarmRule"})
 @Validated
 public class AlarmController {
 
@@ -62,7 +63,7 @@ public class AlarmController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
         }
         final String ruleId = alarmService.insertRule(rule);
-        return new AlarmResponse("SUCCESS", ruleId);
+        return new AlarmResponse(Result.SUCCESS, ruleId);
     }
 
     @DeleteMapping
@@ -71,7 +72,7 @@ public class AlarmController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not ruleId to delete alarm rule");
         }
         alarmService.deleteRule(rule);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     @GetMapping(params = USER_GROUP_ID)
@@ -93,7 +94,7 @@ public class AlarmController {
             );
         }
         alarmService.updateRule(rule);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     @GetMapping(value = "/checker")

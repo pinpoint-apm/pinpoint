@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.navercorp.pinpoint.exceptiontrace.web.dao.PinotExceptionTraceDao">
+    <resultMap id="exceptionMetaDataEntity" type="ExceptionMetaDataEntity">
+    </resultMap>
+
+    <sql id="filterByGivenColumnsAndValue">
+        <foreach collection="filterByAttributes.getMap()" item="value" index="key" separator="">
+            AND ${key.column.name}=#{value}
+        </foreach>
+    </sql>
+
+    <sql id="fullExceptionColumns">
+        DATETIME_CONVERT
+        ("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        transactionId,
+        spanId,
+        exceptionId,
+        applicationServiceType,
+        applicationName,
+        agentId,
+        uriTemplate,
+        errorClassName,
+        <include refid="getErrorMessage"></include>
+        as "errorMessage",
+        exceptionDepth,
+        stackTraceClassName,
+        stackTraceFileName,
+        stackTraceLineNumber,
+        stackTraceMethodName,
+        stackTraceHash
+    </sql>
+
+    <sql id="summarizedExceptionColumns">
+        DATETIME_CONVERT
+        ("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        transactionId,
+        spanId,
+        exceptionId,
+        applicationServiceType,
+        applicationName,
+        agentId,
+        uriTemplate,
+        errorClassName,
+        <include refid="getErrorMessage"></include>
+        as "errorMessage",
+        exceptionDepth,
+        stackTraceHash
+    </sql>
+
+    <select id="selectExceptions" resultMap="exceptionMetaDataEntity"
+            parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="fullExceptionColumns"></include>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
+        <if test="range != null">
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        </if>
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            AND spanId = #{spanId}
+            AND exceptionId = #{exceptionId}
+        </if>
+        ORDER BY "timestamp" asc, exceptionDepth asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectSummarizedExceptions" resultMap="exceptionMetaDataEntity"
+            parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="summarizedExceptionColumns"></include>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
+        <if test="range != null">
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        </if>
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <include refid="filterByGivenColumnsAndValue"></include>
+        ORDER BY ${orderBy.getAttributeName} ${isDesc}
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectExactException" resultMap="exceptionMetaDataEntity"
+            parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="summarizedExceptionColumns"></include>
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        <if test="transactionId != null">
+            AND transactionId = #{transactionId}
+            AND spanId = #{spanId}
+            AND exceptionId = #{exceptionId}
+            AND exceptionDepth = #{exceptionDepth}
+        </if>
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+</mapper>

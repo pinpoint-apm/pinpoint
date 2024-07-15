@@ -1,8 +1,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
-import com.navercorp.pinpoint.profiler.cache.UidCache;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,18 +17,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class SqlUidMetaDataServiceTest {
-    private SqlUidMetaDataService sut;
+class SqlUidMetaDataServiceTest {
+    SqlUidMetaDataService sut;
 
     @Mock
-    private EnhancedDataSender<MetaDataType, ResponseMessage> dataSender;
+    EnhancedDataSender<MetaDataType> dataSender;
 
     AutoCloseable autoCloseable;
 
-    private SqlCacheService<byte[]> sqlCacheService;
+    SqlCacheService<byte[]> sqlCacheService;
+
+    static int LENGTH_LIMIT = 100;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
 
         this.sqlCacheService = newSqlCacheService();
@@ -38,19 +38,18 @@ public class SqlUidMetaDataServiceTest {
         sut = new SqlUidMetaDataService(sqlCacheService);
     }
 
-    private SqlCacheService<byte[]> newSqlCacheService() {
-        UidCache uidCache = new UidCache(100);
-        CachingSqlNormalizer<ParsingResultInternal<byte[]>> simpleCachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(uidCache);
+    SqlCacheService<byte[]> newSqlCacheService() {
+        UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(100, LENGTH_LIMIT);
         return new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer);
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         autoCloseable.close();
     }
 
     @Test
-    public void sendDataOnce() {
+    void sendDataOnce() {
         String sql = "select * from A";
 
         UidParsingResult parsingResult = (UidParsingResult) sut.wrapSqlResult(sql);
@@ -63,7 +62,7 @@ public class SqlUidMetaDataServiceTest {
     }
 
     @Test
-    public void sameSql() {
+    void sameSql() {
         String sql = "select * from A";
 
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(sql);
@@ -77,7 +76,7 @@ public class SqlUidMetaDataServiceTest {
     }
 
     @Test
-    public void sameSql_clearCache() {
+    void sameSql_clearCache() {
         String sql = "select * from A";
 
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(sql);
@@ -92,7 +91,7 @@ public class SqlUidMetaDataServiceTest {
     }
 
     @Test
-    public void differentSql() {
+    void differentSql() {
         String sql1 = "select * from A";
         String sql2 = "select * from B";
 
@@ -103,5 +102,26 @@ public class SqlUidMetaDataServiceTest {
         assertTrue(sqlCacheService.cacheSql(parsingResult2, SqlUidMetaDataService::newSqlUidMetaData));
 
         assertFalse(Arrays.equals(parsingResult1.getId(), parsingResult2.getId()));
+    }
+
+    @Test
+    void bypassCache() {
+        String veryLongSql = veryLongSql();
+
+        UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(veryLongSql);
+        UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(veryLongSql);
+
+        assertTrue(sqlCacheService.cacheSql(parsingResult1, SqlUidMetaDataService::newSqlUidMetaData));
+        assertTrue(sqlCacheService.cacheSql(parsingResult2, SqlUidMetaDataService::newSqlUidMetaData));
+
+        assertArrayEquals(parsingResult1.getId(), parsingResult2.getId());
+    }
+
+    String veryLongSql() {
+        StringBuilder a = new StringBuilder();
+        for (int i = 0; i < LENGTH_LIMIT + 1; i++) {
+            a.append("a");
+        }
+        return a.toString();
     }
 }

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.navercorp.pinpoint.exceptiontrace.web.dao.PinotExceptionTraceDao">
+
+    <resultMap id="exceptionGroupSummaryEntity" type="ExceptionGroupSummaryEntity">
+    </resultMap>
+
+    <resultMap id="exceptionChartValueViewEntity" type="ExceptionChartValueViewEntity">
+    </resultMap>
+
+    <sql id="getGroupedFieldNameEntity">
+        <choose>
+            <when test="!groupByAttributes.isEmpty()">
+                <foreach collection="groupByAttributes" item="attr" open="" close="" separator=", ">
+                    ${attr.getRepresentativeColumn}
+                </foreach>
+                ,
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="groupByAllAttributes">
+        <choose>
+            <when test="!groupByAttributes.isEmpty()">
+                ,
+                <include refid="allGroupByAttributes"></include>
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="allGroupByAttributes">
+        <foreach collection="groupByAttributes" item="attr" open="" close="" separator=", ">
+            <foreach collection="attr.getGroupByColumns" item="column" open="" close="" separator=", ">
+                ${column}
+            </foreach>
+        </foreach>
+    </sql>
+
+    <select id="selectGroupSummaries" resultMap="exceptionGroupSummaryEntity"
+            parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="getGroupedFieldNameEntity"></include>
+        LASTWITHTIME(errorClassName, "timestamp", 'STRING') as "mostRecentErrorClass",
+        LASTWITHTIME(
+        <include refid="getErrorMessage"></include>,
+        "timestamp", 'STRING') as "mostRecentErrorMessage",
+        count(*) as "count",
+        FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
+        LASTWITHTIME("timestamp", "timestamp", 'LONG') as "lastOccurred"
+
+        FROM
+        <include refid="exceptionTraceTable"></include>
+
+        WHERE
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        GROUP BY applicationName
+        <include refid="groupByAllAttributes"></include>
+        ORDER BY count(*) desc
+        LIMIT 10
+    </select>
+
+    <select id="selectChartValueViews" resultMap="exceptionChartValueViewEntity"
+            parameterType="ExceptionTraceQueryParameter">
+        SELECT
+        <include refid="getGroupedFieldNameEntity"></include>
+        arraySliceInt(
+        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}), 0, #{timeWindowRangeCount}
+        ) as "values"
+
+        FROM
+        <include refid="exceptionTraceTable"></include>
+        WHERE
+        tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        GROUP BY applicationName
+        <include refid="groupByAllAttributes"></include>
+        ORDER BY count(*) desc
+        LIMIT 10
+    </select>
+
+</mapper>

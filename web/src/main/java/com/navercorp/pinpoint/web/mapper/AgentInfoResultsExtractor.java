@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.google.common.collect.Iterables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
@@ -46,10 +47,11 @@ public class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfo> {
 
     @Override
     public AgentInfo extractData(ResultScanner results) throws Exception {
-        for (Result result : results) {
-            AgentInfoBo agentInfoBo = agentInfoMapper.mapRow(result, 0);
-            return factory.build(agentInfoBo);
+        final Result first = Iterables.getFirst(results, null);
+        if (first == null) {
+            return null;
         }
-        return null;
+        AgentInfoBo agentInfoBo = agentInfoMapper.mapRow(first, 0);
+        return factory.build(agentInfoBo);
     }
 }

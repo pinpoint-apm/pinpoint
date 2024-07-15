@@ -17,7 +17,7 @@ import {
   ApplicationCombinedListProps,
 } from '../components';
 import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/utils';
-import { FaChartLine } from 'react-icons/fa';
+import { PiChartLineDuotone } from 'react-icons/pi';
 
 export interface InspectorPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
@@ -47,7 +47,7 @@ export const InspectorPage = ({
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <FaChartLine />
+            <PiChartLineDuotone />
             <span className="relative">
               Inspector <span className="relative text-xs italic text-primary -top-2">Beta</span>
             </span>

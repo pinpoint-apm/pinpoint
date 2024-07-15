@@ -46,7 +46,7 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 @RestController
-@RequestMapping("/getAgentStat/{chartType}")
+@RequestMapping("/api/getAgentStat/{chartType}")
 @Validated
 public class AgentStatController<DP extends AgentStatDataPoint> {
     private final Logger logger = LogManager.getLogger(this.getClass());

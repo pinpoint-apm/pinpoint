@@ -39,8 +39,6 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 
 import java.util.Objects;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 /**
  * @author Taejin Koo
  */
@@ -88,7 +86,7 @@ public class PinpointBasicLoginConfig {
         // for admin
         http
                 .authorizeHttpRequests(customizer -> {
-                    customizer.requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN");
+                    customizer.requestMatchers("/api/admin/**").hasRole("ADMIN");
                 })
                 .exceptionHandling(customizer -> {
                     customizer.accessDeniedPage(BasicLoginConstants.URI_NOT_AUTHORIZED);
@@ -96,7 +94,10 @@ public class PinpointBasicLoginConfig {
 
         // for user
         http.authorizeHttpRequests(customizer -> {
-            customizer.anyRequest().authenticated();
+            customizer
+                    .requestMatchers("/api-public/**").permitAll()
+                    .requestMatchers("/api-ext-auth/**").permitAll()
+                    .anyRequest().authenticated();
         });
 
         http.addFilterBefore(new JwtRequestFilter(basicLoginService), UsernamePasswordAuthenticationFilter.class);

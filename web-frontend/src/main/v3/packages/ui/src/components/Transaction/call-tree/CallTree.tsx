@@ -19,10 +19,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  getExecPercentage,
 } from '../..';
 import { TransactionInfo } from '@pinpoint-fe/constants';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { HighLightCode } from '../../HighLightCode';
+import { useAtomValue } from 'jotai';
+import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/atoms';
 
 export interface CallTreeProps {
   data: TransactionInfo.CallStackKeyValueMap[];
@@ -59,6 +62,15 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
       });
     },
   });
+  const focusIdFromTimeline = useAtomValue(transactionInfoCallTreeFocusId);
+
+  React.useEffect(() => {
+    setFocusRowId(undefined);
+  }, [data]);
+
+  React.useEffect(() => {
+    setFocusRowId(focusIdFromTimeline);
+  }, [focusIdFromTimeline]);
 
   useUpdateEffect(() => {
     if (filter === 'hasException') {
@@ -116,7 +128,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
 
   return (
     <div className="relative h-full">
-      <div className="absolute flex gap-1 rounded -top-11 right-4 h-7">
+      <div className="absolute flex gap-1 rounded -top-10 right-4 h-7">
         <Select value={filter} onValueChange={(value) => setFilter(value)}>
           <SelectTrigger className="w-24 h-full text-xs">
             <SelectValue placeholder="Theme" />
@@ -131,7 +143,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         </Select>
         <div className="border flex rounded pr-0.5 w-64">
           <Input
-            className="h-full text-xs border-none shadow-none focus-visible:ring-0"
+            className="h-full text-xs border-none shadow-none focus-visible:ring-0 placeholder:text-xs"
             placeholder="Filter call tree..."
             value={input}
             onChange={(e) => setInput(e.currentTarget.value)}
@@ -190,6 +202,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
       <CallTreeTable
         data={data}
         metaData={metaData}
+        // scrollToIndex={(row) => row.findIndex((r) => r.original.id === callTreeFocusId)}
         focusRowIndex={Number(focusRowId) - 1}
         filteredRowIds={filteredListIds}
         onDoubleClickCell={(cell) => {
@@ -197,10 +210,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           const originalData = cell.getContext().row.original;
 
           if (cell.column.id === 'excutionPercentage') {
-            content = `${(
-              (Number(originalData.executionMilliseconds) / Number(originalData?.elapsedTime)) *
-              100
-            ).toFixed(0)}`;
+            content = `${getExecPercentage(metaData, originalData).toFixed(0)}`;
           } else if (cell.column.id === 'begin') {
             content = originalData.begin
               ? `${format(originalData.begin, 'HH:mm:ss SSS')} (${originalData.begin})`

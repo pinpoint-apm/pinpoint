@@ -1,3 +1,4 @@
+export * from './array';
 export * from './date';
 export * from './dom';
 export * from './format';
@@ -6,4 +7,5 @@ export * from './helper';
 export * from './localStorage';
 export * from './number';
 export * from './object';
+export * from './regexp';
 export * from './string';

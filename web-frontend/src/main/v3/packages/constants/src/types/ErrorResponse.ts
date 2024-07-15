@@ -1,17 +1,18 @@
 export type ErrorResponse = {
   timestamp: number;
   status: number;
-  error: string;
+  title: string;
   exception: string;
   trace: string;
   message: string;
-  path: string;
+  instance: string;
   data: {
     requestInfo: {
       method: string;
-      url: string;
       headers: { [key: string]: string[] };
       parameters: { [key: string]: string[] };
     };
   };
 };
+
+export type ErrorDetailResponse = ErrorResponse & { url?: string };

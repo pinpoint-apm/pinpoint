@@ -18,7 +18,8 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.Result;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.response.AlarmResponse;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
@@ -39,7 +40,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value = {"/alarmRule", "/application/alarmRule"})
+@RequestMapping(value = {"/api/alarmRule", "/api/application/alarmRule"})
 @ConditionalOnProperty(name = WebhookModule.NAME, havingValue = "true", matchIfMissing = true)
 public class WebhookAlarmController {
     private final WebhookAlarmServiceFacade webhookAlarmServiceFacade;
@@ -57,7 +58,7 @@ public class WebhookAlarmController {
         }
 
         final String ruleId = webhookAlarmServiceFacade.insertRuleWithWebhooks(rule, ruleWithWebhooks.getWebhookIds());
-        return new AlarmResponse("SUCCESS", ruleId);
+        return new AlarmResponse(Result.SUCCESS, ruleId);
     }
 
     @PutMapping(value = "/includeWebhooks")
@@ -67,7 +68,7 @@ public class WebhookAlarmController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not ruleId/userGroupId/applicationid/checkerName to update alarm rule");
         }
         webhookAlarmServiceFacade.updateRuleWithWebhooks(rule, ruleWithWebhooks.getWebhookIds());
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     static public class RuleWithWebhooks {

@@ -61,8 +61,9 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
+        final boolean grpcBuiltInRetry = getGrpcBuiltInRetry(headers);
         final Map<String, Object> properties = metadataConverter.apply(headers);
-        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, properties);
+        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, grpcBuiltInRetry, properties);
     }
 
     public static Map<String, Object> emptyProperties(Metadata headers) {
@@ -141,6 +142,14 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
+    protected boolean getGrpcBuiltInRetry(Metadata headers) {
+        final String value = headers.get(Header.GRPC_BUILT_IN_RETRY);
+        if (value != null) {
+            return Boolean.parseBoolean(value);
+        }
+        return Header.DEFAULT_GRPC_BUILT_IN_RETRY;
+    }
+
     String validateId(String id, Metadata.Key key) {
         if (!IdValidateUtils.validateId(id)) {
             throw Status.INVALID_ARGUMENT.withDescription("invalid " + key.name()).asRuntimeException();
@@ -158,5 +167,12 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         } catch (NumberFormatException ignored) {
             return ServiceType.UNDEFINED.getCode();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "AgentHeaderReader{" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

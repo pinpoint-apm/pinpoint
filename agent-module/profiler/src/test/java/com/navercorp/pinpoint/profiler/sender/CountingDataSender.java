@@ -17,18 +17,16 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 
 /**
  * @author emeroad
  */
-public class CountingDataSender implements EnhancedDataSender<SpanType, ResponseMessage> {
+public class CountingDataSender implements EnhancedDataSender<SpanType> {
 
     private final AtomicInteger requestCounter = new AtomicInteger();
     private final AtomicInteger requestRetryCounter = new AtomicInteger();
@@ -48,11 +46,6 @@ public class CountingDataSender implements EnhancedDataSender<SpanType, Response
     @Override
     public boolean request(SpanType data, int retry) {
         requestRetryCounter.incrementAndGet();
-        return false;
-    }
-
-    @Override
-    public boolean request(SpanType data, BiConsumer<ResponseMessage, Throwable> listener) {
         return false;
     }
 

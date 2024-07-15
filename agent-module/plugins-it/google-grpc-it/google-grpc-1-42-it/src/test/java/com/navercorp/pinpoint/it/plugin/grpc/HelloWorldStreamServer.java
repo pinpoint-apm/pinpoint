@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.it.plugin.grpc;
 
+import com.navercorp.pinpoint.it.plugin.utils.ExecutorUtils;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import io.grpc.Server;
 import io.grpc.Status;
@@ -27,7 +28,6 @@ import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.concurrent.Future;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
@@ -182,15 +182,14 @@ public class HelloWorldStreamServer implements HelloWorldServer {
     }
 
     @PreDestroy
-    public void stop() throws InterruptedException {
-        if (server != null) {
-            server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-        }
-
-        Future<?> future = eventExecutors.shutdownGracefully(500, 500, TimeUnit.MILLISECONDS);
-        future.await(1000);
-        workerExecutor.shutdownNow();
+    @Override
+    public void close() throws IOException {
+        ShutdownUtils.shutdownServer(server);
+        ShutdownUtils.shutdownEventExecutor(eventExecutors);
+        ExecutorUtils.shutdownAndAwaitTermination(workerExecutor, 3, TimeUnit.SECONDS);
     }
+
+
 
 
 }

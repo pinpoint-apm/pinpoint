@@ -19,13 +19,12 @@ package com.navercorp.pinpoint.web.view.histogram;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkName;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.util.List;
@@ -41,15 +40,6 @@ public class HistogramView {
         this.histogram = Objects.requireNonNull(histogram, "histogram");
         this.sortedTimeHistograms = Objects.requireNonNull(timeHistograms, "timeHistograms");
     }
-
-    public HistogramView(NodeName nodeName, NodeHistogram nodeHistogram) {
-        this(nodeName.getName(), nodeHistogram.getApplicationHistogram(), nodeHistogram.getApplicationTimeHistogram().getHistogramList());
-    }
-
-    public HistogramView(LinkName linkName, Histogram histogram, ApplicationTimeHistogram applicationTimeHistogram) {
-        this(linkName.getName(), histogram, applicationTimeHistogram.getHistogramList());
-    }
-
 
     @JsonProperty("key")
     public String getKey() {
@@ -81,5 +71,16 @@ public class HistogramView {
     public TimeSeriesView getLoadStatisticsChart() {
         TimeHistogramChartBuilder builder = new TimeHistogramChartBuilder(sortedTimeHistograms);
         return builder.build(TimeHistogramType.loadStatistics);
+    }
+
+
+
+    public static HistogramView view(NodeHistogramSummary summary) {
+        Application application = summary.getApplication();
+        String nodeName = NodeName.toNodeName(application.getName(), application.getServiceType());
+        Histogram applicationHistogram = summary.getNodeHistogram().getApplicationHistogram();
+        List<TimeHistogram> histogramList = summary.getNodeHistogram().getApplicationTimeHistogram().getHistogramList();
+
+        return new HistogramView(nodeName, applicationHistogram, histogramList);
     }
 }

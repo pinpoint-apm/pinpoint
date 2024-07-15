@@ -34,7 +34,7 @@ import io.grpc.ServerServiceDefinition;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.net.InetAddress;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,7 +54,7 @@ public class StatServerTestMain {
 
         ExecutorService executorService = Executors.newFixedThreadPool(8);
         ServerServiceDefinition bindableService = newStatBindableService(executorService);
-        grpcReceiver.setBindableServiceList(Collections.singletonList(bindableService));
+        grpcReceiver.setBindableServiceList(List.of(bindableService));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
         grpcReceiver.setEnable(true);

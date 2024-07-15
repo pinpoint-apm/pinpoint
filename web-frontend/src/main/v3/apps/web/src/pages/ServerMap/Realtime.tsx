@@ -13,6 +13,7 @@ import {
   withInitialFetch,
 } from '@pinpoint-fe/ui';
 import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
+import { PiTreeStructureDuotone } from 'react-icons/pi';
 
 export interface RealtimePageProps {}
 
@@ -58,7 +59,13 @@ export const RealtimePage = ({}: RealtimePageProps) => {
 
   return (
     <div className="flex flex-col flex-1 h-full">
-      <MainHeader title="Server map">
+      <MainHeader
+        title={
+          <div className="flex items-center gap-2">
+            <PiTreeStructureDuotone /> Servermap
+          </div>
+        }
+      >
         <ApplicationCombinedList
           selectedApplication={application}
           onClickApplication={(application) => navigate(getServerMapPath(application))}

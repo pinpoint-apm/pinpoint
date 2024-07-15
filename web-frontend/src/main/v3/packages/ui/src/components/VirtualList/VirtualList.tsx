@@ -1,4 +1,6 @@
+import React from 'react';
 import { Virtuoso } from 'react-virtuoso';
+import Fuse from 'fuse.js';
 import { cn } from '../../lib/utils';
 
 export interface VirtualListProps<T> {
@@ -24,9 +26,16 @@ export const VirtualList = <T,>({
   onClickItem,
   itemAs: ListComponent = 'div',
 }: VirtualListProps<T>) => {
-  const filteredList = list?.filter((l) => {
-    return new RegExp(filterKeyword, 'i').test(`${filterKey ? l[filterKey] : l}`);
-  });
+  const fuzzySearch = React.useMemo(() => {
+    return new Fuse(list || [], {
+      keys: filterKey ? [filterKey as string] : [],
+      threshold: 0.3,
+    });
+  }, [filterKey, list]);
+
+  const filteredList = filterKeyword
+    ? fuzzySearch.search(filterKeyword).map(({ item }) => item)
+    : list;
 
   if (filteredList?.length === 0) {
     return <div className="flex items-center justify-center h-full">{empty}</div>;

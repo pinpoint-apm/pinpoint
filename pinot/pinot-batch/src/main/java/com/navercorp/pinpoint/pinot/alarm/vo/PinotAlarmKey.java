@@ -12,7 +12,7 @@ public class PinotAlarmKey {
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.applicationName = Objects.requireNonNull(applicationName, "name");
         this.target = Objects.requireNonNull(target, "target");
-        this.categoryName = Objects.requireNonNull(categoryName, "alarmCategory");;
+        this.categoryName = Objects.requireNonNull(categoryName, "alarmCategory");
     }
 
     public String getServiceName() {

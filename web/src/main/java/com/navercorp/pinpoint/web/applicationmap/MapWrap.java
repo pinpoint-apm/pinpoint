@@ -31,7 +31,7 @@ public class MapWrap {
 
     public MapWrap(ApplicationMap applicationMap, final TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = applicationMap;
-        if(timeHistogramFormat == TimeHistogramFormat.V2) {
+        if (timeHistogramFormat == TimeHistogramFormat.V2) {
             for(Node node : applicationMap.getNodes()) {
                 node.setTimeHistogramFormat(timeHistogramFormat);
             }

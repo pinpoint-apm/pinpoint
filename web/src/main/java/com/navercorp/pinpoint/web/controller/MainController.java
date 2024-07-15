@@ -32,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -63,7 +64,7 @@ public class MainController {
         this.cacheService = Objects.requireNonNull(cacheService, "cacheService");
     }
 
-    @GetMapping(value = "/applications")
+    @GetMapping(value = "/api/applications")
     public ResponseEntity<ApplicationGroup> getApplicationGroup(
             @RequestHeader(value = "If-None-Match", required = false) @NullOrNotBlank String eTagHeader,
             @RequestParam(value = "clearCache", required = false) @NullOrNotBlank String clearCache
@@ -137,7 +138,7 @@ public class MainController {
         return eTag == null || clearCache != null;
     }
 
-    @GetMapping(value = "/serverTime")
+    @GetMapping(value = {"/api/serverTime", "/api-public/serverTime"})
     public ServerTime getServerTime() {
         return new ServerTime();
     }

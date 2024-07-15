@@ -27,33 +27,44 @@ import java.util.Objects;
 
 public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
     private final Logger logger;
+    private final String name;
+    private final long requestId;
 
-    public LogResponseStreamObserver(Logger logger) {
+    public LogResponseStreamObserver(Logger logger, String name, long requestId) {
         this.logger = Objects.requireNonNull(logger, "logger");
+        this.name = Objects.requireNonNull(name, "name");
+        this.requestId = requestId;
     }
 
     @Override
     public void onNext(ResT response) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Request success. result={}", logString(response));
+            logger.debug("{} Request success. result={}", name, logString(response));
         }
     }
 
 
     @Override
     public void onError(Throwable throwable) {
-        final StatusError statusError = StatusErrors.throwable(throwable);
-        if (statusError.isSimpleError()) {
-            logger.info("Error. cause={}", statusError.getMessage());
-        } else {
-            logger.info("Error. cause={}", statusError.getMessage(), statusError.getThrowable());
+        if (logger.isInfoEnabled()) {
+            final StatusError statusError = StatusErrors.throwable(throwable);
+            if (statusError.isSimpleError()) {
+                logger.info("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage());
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage(), statusError.getThrowable());
+                } else {
+                    logger.info("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage());
+                }
+
+            }
         }
     }
 
     @Override
     public void onCompleted() {
         if (logger.isDebugEnabled()) {
-            logger.debug("onCompleted");
+            logger.debug("{} onCompleted. requestId={}", name, requestId);
         }
     }
 
@@ -73,6 +84,7 @@ public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
     public String toString() {
         return "LogResponseStreamObserver{" +
                 "logger=" + logger +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

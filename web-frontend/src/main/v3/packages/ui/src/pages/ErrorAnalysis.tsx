@@ -32,7 +32,7 @@ import { useTranslation } from 'react-i18next';
 import { ErrorAnalysisErrorList, BASE_PATH } from '@pinpoint-fe/constants';
 import { format } from 'date-fns';
 import { IoMdClose } from 'react-icons/io';
-import { FaBug } from 'react-icons/fa';
+import { PiBugBeetleDuotone } from 'react-icons/pi';
 import { LuExternalLink } from 'react-icons/lu';
 import { FaChevronRight } from 'react-icons/fa6';
 
@@ -76,7 +76,7 @@ export const ErrorAnalysisPage = ({
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <FaBug /> Error Analysis
+            <PiBugBeetleDuotone /> Error Analysis
           </div>
         }
       >

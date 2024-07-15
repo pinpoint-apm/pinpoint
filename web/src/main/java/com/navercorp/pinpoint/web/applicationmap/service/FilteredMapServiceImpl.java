@@ -25,8 +25,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterDataV3;
+import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
@@ -137,11 +136,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        ApplicationMap map = createMap(option, filteredMap, false);
-        return map;
+        return createMap(option, filteredMap);
     }
 
-    public ApplicationMap selectApplicationMapWithScatterData(FilteredMapServiceOption option) {
+    public FilterMapWithScatter selectApplicationMapWithScatterData(FilteredMapServiceOption option) {
         StopWatch watch = new StopWatch();
         watch.start();
 
@@ -151,38 +149,16 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        ApplicationMap map = createMap(option, filteredMap, false);
+        ApplicationMap map = createMap(option, filteredMap);
 
         Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(option.getOriginalRange().getFrom(), option.getOriginalRange().getTo(), option.getxGroupUnit(), option.getyGroupUnit());
-        ApplicationMapWithScatterData applicationMapWithScatterData = new ApplicationMapWithScatterData(map, applicationScatterData);
 
         watch.stop();
         logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
 
-        return applicationMapWithScatterData;
+        return new FilterMapWithScatter(map, applicationScatterData);
     }
 
-    @Override
-    public ApplicationMap selectApplicationMapWithScatterDataV3(FilteredMapServiceOption option) {
-        StopWatch watch = new StopWatch();
-        watch.start();
-
-        final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter(), option.getColumnGetCount());
-        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, option.getOriginalRange(), option.getVersion());
-        filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
-        filteredMapBuilder.addTransactions(filterList);
-        FilteredMap filteredMap = filteredMapBuilder.build();
-
-        ApplicationMap map = createMap(option, filteredMap, true);
-
-        Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(option.getOriginalRange().getFrom(), option.getOriginalRange().getTo(), option.getxGroupUnit(), option.getyGroupUnit());
-        ApplicationMapWithScatterDataV3 applicationMapWithScatterDataV3 = new ApplicationMapWithScatterDataV3(map, applicationScatterData);
-
-        watch.stop();
-        logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
-
-        return applicationMapWithScatterDataV3;
-    }
 
     private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter<List<SpanBo>> filter, ColumnGetCount columnGetCount) {
         // filters out recursive calls by looking at each objects
@@ -195,12 +171,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return filterList2(originalList, filter);
     }
 
-    private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap, boolean v3Format) {
+    private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap) {
         final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getOriginalRange());
-        if (v3Format) {
-//            applicationMapBuilder.linkType(LinkType.SIMPLIFIED);
-//            applicationMapBuilder.nodeType(NodeType.SIMPLIFIED);
-        }
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
         ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();

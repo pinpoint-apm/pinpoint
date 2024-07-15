@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -50,22 +51,22 @@ public final class FileUtils {
 
     public static URL toURL(final File file) throws IOException {
         Objects.requireNonNull(file, "file");
-        return toURL(file, new FileFunction());
+        return toURL(file, FileUtils::fileToURI);
     }
 
     public static URL toURL(final String filePath) throws IOException {
         Objects.requireNonNull(filePath, "filePath");
-        return toURL(filePath, new FilePathFunction());
+        return toURL(filePath, FileUtils::pathToURI);
     }
 
     public static URL[] toURLs(final File[] files) throws IOException {
         Objects.requireNonNull(files, "files");
-        return toURLs(files, new FileFunction());
+        return toURLs(files, FileUtils::fileToURI);
     }
 
     public static URL[] toURLs(final String[] filePaths) throws IOException {
         Objects.requireNonNull(filePaths, "filePaths");
-        return toURLs(filePaths, new FilePathFunction());
+        return toURLs(filePaths, FileUtils::pathToURI);
     }
 
     private static <T> URL toURL(final T source, final Function<T, URI> function) throws IOException {
@@ -82,21 +83,14 @@ public final class FileUtils {
         return urls;
     }
 
-    private interface Function<T, R> {
-        R apply(T t);
-    }
 
-
-    private static class FileFunction implements Function<File, URI> {
-        public URI apply(File file) {
+    private static URI fileToURI(File file) {
             return file.toURI();
-        }
     }
 
-    private static class FilePathFunction implements Function<String, URI> {
-        public URI apply(String filePath) {
+    private static URI pathToURI(String filePath) {
             final File file = new File(filePath);
             return file.toURI();
-        }
     }
+
 }

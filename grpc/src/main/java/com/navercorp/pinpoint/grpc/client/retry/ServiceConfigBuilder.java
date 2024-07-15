@@ -20,7 +20,7 @@ import java.util.Map;
 
 public interface ServiceConfigBuilder {
 
-    String METADATA_SERVICE = "v1.metadata";
+    String METADATA_SERVICE = com.navercorp.pinpoint.grpc.trace.MetadataGrpc.SERVICE_NAME;
 
     Map<String, ?> buildMetadataConfig();
 

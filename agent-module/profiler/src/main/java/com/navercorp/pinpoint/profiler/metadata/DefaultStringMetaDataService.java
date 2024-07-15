@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import com.navercorp.pinpoint.profiler.cache.Result;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 
@@ -30,9 +29,9 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
 
     private final SimpleCache<String> stringCache;
 
-    private final EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultStringMetaDataService(EnhancedDataSender<MetaDataType, ResponseMessage> enhancedDataSender, SimpleCache<String> stringCache) {
+    public DefaultStringMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> stringCache) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
         this.stringCache = Objects.requireNonNull(stringCache, "stringCache");
 

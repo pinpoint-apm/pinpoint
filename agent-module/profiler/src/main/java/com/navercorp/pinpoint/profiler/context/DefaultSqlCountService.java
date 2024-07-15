@@ -1,28 +1,28 @@
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 
 public class DefaultSqlCountService implements SqlCountService {
-    private final int sqlErrorCount;
+    private final int sqlErrorLimit;
 
-    public DefaultSqlCountService(int sqlErrorCount) {
-        this.sqlErrorCount = sqlErrorCount;
+    public DefaultSqlCountService(int sqlErrorLimit) {
+        this.sqlErrorLimit = sqlErrorLimit;
     }
 
     @Override
-    public void recordSqlCount(TraceRoot traceRoot) {
-        boolean isError = traceRoot.getShared().getErrorCode() != 0;
+    public void recordSqlCount(Shared shared) {
+        boolean isError = shared.getErrorCode() != 0;
         if (isError) {
             return;
         }
 
-        int sqlCount = traceRoot.getShared().incrementAndGetSqlCount();
-        if (sqlCount >= sqlErrorCount) {
-            recordError(traceRoot);
+        int sqlExecutionCount = shared.incrementAndGetSqlCount();
+        if (sqlExecutionCount >= sqlErrorLimit) {
+            recordError(shared);
         }
     }
 
-    private void recordError(TraceRoot traceRoot) {
-        traceRoot.getShared().maskErrorCode(1);
+    private void recordError(Shared shared) {
+        shared.maskErrorCode(1);
     }
 }

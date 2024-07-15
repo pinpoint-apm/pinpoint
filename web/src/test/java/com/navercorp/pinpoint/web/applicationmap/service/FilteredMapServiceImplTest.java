@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.json.JsonField;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
+import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
@@ -62,6 +64,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +73,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -151,15 +153,7 @@ public class FilteredMapServiceImplTest {
 
     @AfterEach
     public void cleanUp() {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+        MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
     }
 
     /**
@@ -210,7 +204,8 @@ public class FilteredMapServiceImplTest {
 
         // When
         final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(Collections.emptyList(), originalRange, 1, 1, Filter.acceptAllFilter(), 0).build();
-        ApplicationMap applicationMap = filteredMapService.selectApplicationMapWithScatterData(option);
+        FilterMapWithScatter filterMapWithScatter = filteredMapService.selectApplicationMapWithScatterData(option);
+        ApplicationMap applicationMap = filterMapWithScatter.getApplicationMap();
 
         // Then
         Collection<Node> nodes = applicationMap.getNodes();

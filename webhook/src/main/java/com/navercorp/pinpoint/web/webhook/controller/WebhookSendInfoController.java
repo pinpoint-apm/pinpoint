@@ -1,7 +1,8 @@
 package com.navercorp.pinpoint.web.webhook.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.Result;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.web.webhook.model.WebhookSendInfo;
 import com.navercorp.pinpoint.web.webhook.model.WebhookSendInfoResponse;
 import com.navercorp.pinpoint.web.webhook.service.WebhookSendInfoService;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping(value={"/webhookSendInfo", "/application/webhookSendInfo"})
+@RequestMapping(value={"/api/webhookSendInfo", "/api/application/webhookSendInfo"})
 public class WebhookSendInfoController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -43,7 +44,7 @@ public class WebhookSendInfoController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there should be ruleId and webhookId to insert webhookSendInfo");
         }
         String webhookSendInfoId = webhookSendInfoService.insertWebhookSendInfo(webhookSendInfo);
-        return new WebhookSendInfoResponse("SUCCESS", webhookSendInfoId);
+        return new WebhookSendInfoResponse(Result.SUCCESS, webhookSendInfoId);
     }
 
     @DeleteMapping()
@@ -52,7 +53,7 @@ public class WebhookSendInfoController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there should be webhookSendInfoId to delete webhook");
         }
         webhookSendInfoService.deleteWebhookSendInfo(webhookSendInfo);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 
     @GetMapping()
@@ -76,6 +77,6 @@ public class WebhookSendInfoController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There should be webhookSendInfoId, webhookId and ruleId to update webhook send information");
         }
         webhookSendInfoService.updateWebhookSendInfo(webhookSendInfo);
-        return SuccessResponse.ok();
+        return SimpleResponse.ok();
     }
 }

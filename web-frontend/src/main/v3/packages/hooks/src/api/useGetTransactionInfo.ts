@@ -7,12 +7,7 @@ import { swrConfigs } from './swrConfigs';
 import { useExperimentals } from '../utility';
 
 const getQueryString = (queryParams: Partial<TransactionInfo.Parameters>) => {
-  if (
-    queryParams?.agentId &&
-    queryParams?.spanId &&
-    queryParams?.traceId &&
-    queryParams?.focusTimestamp
-  ) {
+  if (queryParams?.agentId && queryParams?.spanId && queryParams?.traceId) {
     return '?' + convertParamsToQueryString(queryParams);
   }
   return '';

@@ -29,11 +29,12 @@ import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.config.ClientRetryOption;
 import com.navercorp.pinpoint.grpc.client.retry.HedgingServiceConfigBuilder;
-import com.navercorp.pinpoint.io.ResponseMessage;
+import com.navercorp.pinpoint.grpc.client.retry.RetryHeaderFactory;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.sender.grpc.MetadataGrpcDataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.MetadataGrpcHedgingDataSender;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 import io.netty.handler.ssl.SslContext;
@@ -46,7 +47,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType, ResponseMessage>> {
+public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -77,21 +78,27 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
     }
 
     @Override
-    public EnhancedDataSender<MetaDataType, ResponseMessage> get() {
+    public EnhancedDataSender<MetaDataType> get() {
         final String collectorIp = grpcTransportConfig.getMetadataCollectorIp();
         final int collectorPort = grpcTransportConfig.getMetadataCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isMetadataSslEnable();
-        final int senderExecutorQueueSize = grpcTransportConfig.getMetadataSenderExecutorQueueSize();
+
         final boolean clientRetryEnable = grpcTransportConfig.isMetadataRetryEnable();
 
         final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder(sslEnable, clientRetryEnable);
 
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
 
+        final int senderExecutorQueueSize = grpcTransportConfig.getMetadataSenderExecutorQueueSize();
+        if (clientRetryEnable) {
+            return new MetadataGrpcHedgingDataSender<>(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactory);
+        }
+
+
         final int retryMaxCount = grpcTransportConfig.getMetadataRetryMaxCount();
         final int retryDelayMillis = grpcTransportConfig.getMetadataRetryDelayMillis();
 
-        return new MetadataGrpcDataSender<>(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactory, retryMaxCount, retryDelayMillis, clientRetryEnable);
+        return new MetadataGrpcDataSender<>(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactory, retryMaxCount, retryDelayMillis);
     }
 
     protected ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable, boolean clientRetryEnable) {
@@ -99,8 +106,10 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getMetadataRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getMetadataClientOption();
 
-        ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("MetadataGrpcDataSender");
-        channelFactoryBuilder.setHeaderFactory(headerFactory);
+        final String factoryName = getChannelFactoryName(clientRetryEnable);
+
+        ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder(factoryName);
+        channelFactoryBuilder.setHeaderFactory(getHeaderFactory(clientRetryEnable));
         channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
         if (clientInterceptorList != null) {
@@ -130,5 +139,19 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         }
 
         return channelFactoryBuilder;
+    }
+
+    private String getChannelFactoryName(boolean clientRetryEnable) {
+        if (clientRetryEnable) {
+            return MetadataGrpcHedgingDataSender.class.getSimpleName();
+        }
+        return MetadataGrpcDataSender.class.getSimpleName();
+    }
+
+    private HeaderFactory getHeaderFactory(boolean clientRetryEnable) {
+        if (clientRetryEnable) {
+            return new RetryHeaderFactory(headerFactory);
+        }
+        return headerFactory;
     }
 }

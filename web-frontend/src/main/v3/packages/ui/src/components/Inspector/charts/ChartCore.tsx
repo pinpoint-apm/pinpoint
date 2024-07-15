@@ -24,6 +24,7 @@ export const ChartCore = ({
   emptyMessage = 'No Data',
   style,
 }: ChartCoreProps) => {
+  const prevData = React.useRef([] as (string | number | null)[][]);
   const chartComponent = React.useRef<IChart>(null);
   const defaultOptions = {
     data: {
@@ -103,10 +104,18 @@ export const ChartCore = ({
         .map((d) => d.slice(1).filter((v) => v !== null))
         .flat() as number[]),
     );
+
+    const prevKeys = prevData.current.slice(1).map(([fieldName]) => fieldName as string);
+    const currKeys = chartData.slice(1).map(([fieldName]) => fieldName as string);
+    const removedKeys = prevKeys.filter((key) => !currKeys.includes(key));
+    const unload = prevKeys.length === 0 ? false : removedKeys.length !== 0;
     chart?.load({
       columns: chartData,
+      unload,
     });
     chart?.axis.max(maxData === 0 ? DEFAULT_CHART_CONFIG.DEFAULT_MAX : false);
+    chart?.config('tooltip.contents', chartOptions.tooltip?.contents);
+    prevData.current = chartData;
   }, [data]);
 
   return (

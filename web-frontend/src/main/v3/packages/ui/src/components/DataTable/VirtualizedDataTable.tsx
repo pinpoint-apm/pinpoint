@@ -146,7 +146,7 @@ export function VirtualizedDataTable<TData, TValue>({
     onChangeRowSelection?.([...selectedRowData]);
   }, [rowSelection]);
 
-  useUpdateEffect(() => {
+  React.useEffect(() => {
     if (focusRowIndex) {
       rowVirtualizer.scrollToIndex(focusRowIndex, { align: 'center' });
     }

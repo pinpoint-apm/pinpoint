@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SuccessResponse;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.service.AgentStatisticsService;
 import com.navercorp.pinpoint.web.util.DateTimeUtils;
@@ -26,6 +26,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -39,6 +40,7 @@ import java.util.Objects;
  * @author Taejin Koo
  */
 @RestController
+@RequestMapping("/api")
 @Validated
 public class AgentStatisticsController {
 
@@ -63,7 +65,7 @@ public class AgentStatisticsController {
         boolean success = agentStatisticsService.insertAgentCount(agentCountStatistics);
 
         if (success) {
-            return SuccessResponse.ok();
+            return SimpleResponse.ok();
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "insert DAO error.");
         }

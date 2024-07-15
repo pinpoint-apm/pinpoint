@@ -406,7 +406,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         if (expected.exception != null) {
             final IntStringValue actualExceptionInfo = actual.getExceptionInfo();
             if (actualExceptionInfo != null) {
-                String actualExceptionClassName = this.handler.getTcpDataSender().getString(actualExceptionInfo.getIntValue());
+                String actualExceptionClassName = this.handler.getTestDataSender().getString(actualExceptionInfo.getIntValue());
                 String actualExceptionMessage = actualExceptionInfo.getStringValue();
                 verifyException(expected.exception, actualExceptionClassName, actualExceptionMessage);
             } else {
@@ -459,7 +459,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             }
 
             if (AnnotationKeyUtils.isCachedArgsKey(expectedAnnotationKey.getCode())) {
-                expectedValue = this.handler.getTcpDataSender().getStringId(expectedValue.toString());
+                expectedValue = this.handler.getTestDataSender().getStringId(expectedValue.toString());
             }
 
             if (!Objects.equals(expectedValue, actualAnnotation.getValue())) {
@@ -505,11 +505,11 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
     private void verifySql(int index, ExpectedSql expected, Annotation<?> actual) {
-        int id = this.handler.getTcpDataSender().getSqlId(expected.getQuery());
+        int id = this.handler.getTestDataSender().getSqlId(expected.getQuery());
         IntStringStringValue actualSql = (IntStringStringValue) actual.getValue();
 
         if (actualSql.getIntValue() != id) {
-            String actualQuery = this.handler.getTcpDataSender().getSql(actualSql.getIntValue());
+            String actualQuery = this.handler.getTestDataSender().getSql(actualSql.getIntValue());
 
             AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sqlId", index),
                     id + ":" + expected.getQuery(), actualSql.getIntValue() + ": " + actualQuery);
@@ -533,11 +533,11 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
     private void verifySqlUid(int index, ExpectedSql expected, Annotation<?> actual) {
-        byte[] uid = this.handler.getTcpDataSender().getSqlUid(expected.getQuery());
+        byte[] uid = this.handler.getTestDataSender().getSqlUid(expected.getQuery());
         BytesStringStringValue actualSql = (BytesStringStringValue) actual.getValue();
 
         if (!Arrays.equals(actualSql.getBytesValue(), uid)) {
-            String actualQuery = this.handler.getTcpDataSender().getSql(actualSql.getBytesValue());
+            String actualQuery = this.handler.getTestDataSender().getSql(actualSql.getBytesValue());
 
             AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sqlUid", index),
                     Arrays.toString(uid) + ":" + expected.getQuery(), Arrays.toString(actualSql.getBytesValue()) + ": " + actualQuery);
@@ -591,7 +591,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     private int findApiId(String desc) throws AssertionError {
         try {
-            return this.handler.getTcpDataSender().getApiId(desc);
+            return this.handler.getTestDataSender().getApiId(desc);
         } catch (NoSuchElementException e) {
             throw new AssertionError("Cannot find apiId of [" + desc + "]");
         }
@@ -635,7 +635,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     @Override
     public void printCache(PrintStream out) {
         this.handler.getOrderedSpanRecorder().print(out);
-        this.handler.getTcpDataSender().printDatas(out);
+        this.handler.getTestDataSender().printDatas(out);
     }
 
     @Override
@@ -651,7 +651,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
 
         this.handler.getOrderedSpanRecorder().clear();
-        this.handler.getTcpDataSender().clear();
+        this.handler.getTestDataSender().clear();
         ignoredServiceTypes.clear();
     }
 
@@ -663,7 +663,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
 
         this.handler.getOrderedSpanRecorder().clear();
-        this.handler.getTcpDataSender().clear();
+        this.handler.getTestDataSender().clear();
         ignoredServiceTypes.clear();
     }
 

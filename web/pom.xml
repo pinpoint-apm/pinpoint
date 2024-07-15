@@ -335,7 +335,6 @@
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
-            <version>2.1.1</version>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>javax.annotation</groupId>-->

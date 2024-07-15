@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
-import com.navercorp.pinpoint.io.ResponseMessage;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -39,17 +38,15 @@ import io.netty.util.TimerTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
 
 /**
  * @author jaehong.kim
  */
-public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T, ResponseMessage> {
+public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T> {
     //
     private final MetadataGrpc.MetadataStub metadataStub;
     private final int maxAttempts;
     private final int retryDelayMillis;
-    private final boolean clientRetryEnable;
 
     private final Timer retryTimer;
     private static final long MAX_PENDING_TIMEOUTS = 1024 * 4;
@@ -58,10 +55,10 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
 
     public MetadataGrpcDataSender(String host, int port, int executorQueueSize,
                                   MessageConverter<T, GeneratedMessageV3> messageConverter,
-                                  ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis, boolean clientRetryEnable) {
+                                  ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
-        this.maxAttempts = getMaxAttempts(retryMaxCount);
+        this.maxAttempts = Math.max(retryMaxCount, 0);
         this.retryDelayMillis = retryDelayMillis;
         this.metadataStub = MetadataGrpc.newStub(managedChannel);
 
@@ -74,18 +71,10 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
             }
 
             @Override
-            public void scheduleNextRetry(GeneratedMessageV3 request, int remainingRetryCount) {
-                MetadataGrpcDataSender.this.scheduleNextRetry(request, remainingRetryCount);
+            public void scheduleNextRetry(GeneratedMessageV3 request, int retryCount) {
+                MetadataGrpcDataSender.this.scheduleNextRetry(request, retryCount);
             }
         };
-        this.clientRetryEnable = clientRetryEnable;
-    }
-
-    private int getMaxAttempts(int retryMaxCount) {
-        if (retryMaxCount < 0) {
-            return 0;
-        }
-        return retryMaxCount;
     }
 
     private Timer newTimer(String name) {
@@ -100,49 +89,14 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
     }
 
     @Override
-    public boolean request(T data, BiConsumer<ResponseMessage, Throwable> listener) {
-        throw new UnsupportedOperationException("unsupported operation request(data, listener)");
-    }
-
-    //send with retry
-    @Override
     public boolean send(T data) {
-        try {
-            final GeneratedMessageV3 message = messageConverter.toMessage(data);
-
-            if (message instanceof PSqlMetaData) {
-                final PSqlMetaData sqlMetaData = (PSqlMetaData) message;
-                this.metadataStub.requestSqlMetaData(sqlMetaData, newLogStreamObserver());
-            } else if (message instanceof PSqlUidMetaData) {
-                final PSqlUidMetaData sqlUidMetaData = (PSqlUidMetaData) message;
-                this.metadataStub.requestSqlUidMetaData(sqlUidMetaData, newLogStreamObserver());
-            } else if (message instanceof PApiMetaData) {
-                final PApiMetaData apiMetaData = (PApiMetaData) message;
-                this.metadataStub.requestApiMetaData(apiMetaData, newLogStreamObserver());
-            } else if (message instanceof PStringMetaData) {
-                final PStringMetaData stringMetaData = (PStringMetaData) message;
-                this.metadataStub.requestStringMetaData(stringMetaData, newLogStreamObserver());
-            } else if (message instanceof PExceptionMetaData) {
-                final PExceptionMetaData exceptionMetaData = (PExceptionMetaData) message;
-                this.metadataStub.requestExceptionMetaData(exceptionMetaData, newLogStreamObserver());
-            } else {
-                logger.warn("Unsupported message {}", MessageFormatUtils.debugLog(message));
-            }
-        } catch (Exception e) {
-            logger.info("Failed to send metadata={}", data, e);
-            return false;
-        }
-        return true;
-    }
-
-    private StreamObserver<PResult> newLogStreamObserver() {
-        return new LogResponseStreamObserver<>(logger);
+        throw new UnsupportedOperationException("unsupported operation send(data)");
     }
 
     @Override
     public boolean request(final T data) {
-        if (clientRetryEnable) {
-            return this.send(data);
+        if (data == null) {
+            return true;
         }
 
         final Runnable convertAndRun = new Runnable() {
@@ -154,7 +108,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
                     if (isDebug) {
                         logger.debug("Request metadata={}", MessageFormatUtils.debugLog(message));
                     }
-                    request0(message, maxAttempts);
+                    request0(message, 0);
                 } catch (Exception ex) {
                     logger.info("Failed to request metadata={}", data, ex);
                 }
@@ -163,33 +117,33 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
         try {
             executor.execute(convertAndRun);
         } catch (RejectedExecutionException reject) {
-            logger.info("Rejected metadata={}", data);
+            logger.info("Rejected metadata={}", data.getClass().getSimpleName());
             return false;
         }
         return true;
     }
 
     // Request
-    private void request0(final GeneratedMessageV3 message, final int remainingRetryCount) {
+    private void request0(final GeneratedMessageV3 message, final int retryCount) {
         if (message instanceof PSqlMetaData) {
             final PSqlMetaData sqlMetaData = (PSqlMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestSqlMetaData(sqlMetaData, responseObserver);
         } else if (message instanceof PSqlUidMetaData) {
             final PSqlUidMetaData sqlUidMetaData = (PSqlUidMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestSqlUidMetaData(sqlUidMetaData, responseObserver);
         } else if (message instanceof PApiMetaData) {
             final PApiMetaData apiMetaData = (PApiMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestApiMetaData(apiMetaData, responseObserver);
         } else if (message instanceof PStringMetaData) {
             final PStringMetaData stringMetaData = (PStringMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestStringMetaData(stringMetaData, responseObserver);
         } else if (message instanceof PExceptionMetaData) {
             final PExceptionMetaData exceptionMetaData = (PExceptionMetaData) message;
-            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, retryCount);
             this.metadataStub.requestExceptionMetaData(exceptionMetaData, responseObserver);
         } else {
             logger.warn("Unsupported message {}", MessageFormatUtils.debugLog(message));
@@ -201,22 +155,22 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
     }
 
     // Retry
-    private void scheduleNextRetry(final GeneratedMessageV3 message, final int remainingRetryCount) {
+    private void scheduleNextRetry(final GeneratedMessageV3 message, final int retryCount) {
         if (shutdown) {
             if (isDebug) {
-                logger.debug("Request drop. Already shutdown request={}", MessageFormatUtils.debugLog(message));
+                logger.debug("Request drop. Already shutdown metadata={}", MessageFormatUtils.debugLog(message));
             }
             return;
         }
-        if (remainingRetryCount <= 0) {
+        if (retryCount > maxAttempts) {
             if (isDebug) {
-                logger.debug("Request drop. remainingRetryCount={}, request={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
+                logger.debug("Request drop. metadata={}, retryCount={}", MessageFormatUtils.debugLog(message), retryCount);
             }
             return;
         }
 
         if (isDebug) {
-            logger.debug("Request retry. request={}, remainingRetryCount={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
+            logger.debug("Request retry. metadata={}, retryCount={}", MessageFormatUtils.debugLog(message), retryCount);
         }
         final TimerTask timerTask = new TimerTask() {
             @Override
@@ -227,7 +181,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
                 if (shutdown) {
                     return;
                 }
-                request0(message, remainingRetryCount);
+                request0(message, retryCount);
             }
         };
 

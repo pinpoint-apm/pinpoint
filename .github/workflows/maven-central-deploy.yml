@@ -13,39 +13,37 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - run: |
         echo "Release ref: ${{ github.event.inputs.git-ref }}"
     - name: Git checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ github.event.inputs.git-ref }}
     - name: Cache Maven packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Cache node modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: '**/node_modules'
         key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-modules-
     - name: Cache node install
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: 'node_install'
         key: ${{ runner.os }}-node_install-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-node_install-
-    - name: Set up JDK 7
+    - name: Set Publish Environment
       uses: actions/setup-java@v3
       with:
-        distribution: 'zulu'
-        java-version: '7'
         server-id: ossrh
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD

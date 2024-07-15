@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.it.plugin.grpc;
 
+import com.navercorp.pinpoint.it.plugin.utils.ExecutorUtils;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
+import io.grpc.examples.manualflowcontrol.HelloReply;
+import io.grpc.examples.manualflowcontrol.HelloRequest;
 import io.grpc.examples.manualflowcontrol.StreamingGreeterGrpc;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -26,7 +29,6 @@ import io.grpc.stub.MetadataUtils;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.Future;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -76,12 +78,10 @@ public class HelloWorldStreamClient implements HelloWorldClient {
     }
 
     @Override
-    public void shutdown() throws InterruptedException {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-
-        Future<?> future = eventExecutors.shutdownGracefully(500, 500, TimeUnit.MILLISECONDS);
-        future.await(1000);
-        workerExecutor.shutdownNow();
+    public void close() {
+        ShutdownUtils.shutdownChannel(channel);
+        ShutdownUtils.shutdownEventExecutor(eventExecutors);
+        ExecutorUtils.shutdownAndAwaitTermination(workerExecutor, 3, TimeUnit.SECONDS);
     }
 
     /**
@@ -91,13 +91,13 @@ public class HelloWorldStreamClient implements HelloWorldClient {
 
         final CountDownLatch done = new CountDownLatch(1);
 
-        ClientResponseObserver<io.grpc.examples.manualflowcontrol.HelloRequest, io.grpc.examples.manualflowcontrol.HelloReply> clientResponseObserver =
-                new ClientResponseObserver<io.grpc.examples.manualflowcontrol.HelloRequest, io.grpc.examples.manualflowcontrol.HelloReply>() {
+        ClientResponseObserver<HelloRequest, HelloReply> clientResponseObserver =
+                new ClientResponseObserver<HelloRequest, HelloReply>() {
 
-                    ClientCallStreamObserver<io.grpc.examples.manualflowcontrol.HelloRequest> requestStream;
+                    ClientCallStreamObserver<HelloRequest> requestStream;
 
                     @Override
-                    public void beforeStart(final ClientCallStreamObserver<io.grpc.examples.manualflowcontrol.HelloRequest> requestStream) {
+                    public void beforeStart(final ClientCallStreamObserver<HelloRequest> requestStream) {
                         this.requestStream = requestStream;
                         // Set up manual flow control for the response stream. It feels backwards to configure the response
                         // stream's flow control using the request stream's observer, but this is the way it is.
@@ -128,7 +128,7 @@ public class HelloWorldStreamClient implements HelloWorldClient {
                                         // Send more messages if there are more messages to send.
                                         String name = iterator.next();
                                         logger.info("--> " + name);
-                                        io.grpc.examples.manualflowcontrol.HelloRequest request = io.grpc.examples.manualflowcontrol.HelloRequest.newBuilder().setName(name).build();
+                                        HelloRequest request = HelloRequest.newBuilder().setName(name).build();
                                         requestStream.onNext(request);
                                         count++;
                                     } else {
@@ -141,7 +141,7 @@ public class HelloWorldStreamClient implements HelloWorldClient {
                     }
 
                     @Override
-                    public void onNext(io.grpc.examples.manualflowcontrol.HelloReply value) {
+                    public void onNext(HelloReply value) {
                         logger.info("<-- " + value.getMessage());
                         // Signal the sender to send one message.
                         requestStream.request(1);

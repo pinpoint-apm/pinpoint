@@ -11,6 +11,7 @@ import {
 } from '@pinpoint-fe/utils';
 import { useGetScatterRealtimeData, useServerMapSearchParameters } from '@pinpoint-fe/hooks';
 import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './core';
+import { useStoragedAxisY } from './core/useStoragedAxisY';
 
 export interface ScatterChartRealtimeFetcherProps {
   node: CurrentTarget;
@@ -29,7 +30,7 @@ export const ScatterChartRealtimeFetcher = ({
   const to = dateRange.to.getTime();
   const currentNode = `${node.applicationName}^${node.serviceType}`;
   const [x] = React.useState<[number, number]>([from, to]);
-  const [y, setY] = React.useState<[number, number]>([0, 10000]);
+  const [y, setY] = useStoragedAxisY();
   const { data, isLoading, setQueryParams } = useGetScatterRealtimeData(node);
   const sc = scatterRef.current;
   const isScatterMounted = scatterRef.current?.isMounted();

@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -45,7 +47,7 @@ public class MonitoredThreadPoolExecutorTest {
     @AfterEach
     public void tearDown() throws Exception {
         if (this.threadPoolExecutor != null) {
-            this.threadPoolExecutor.shutdown();
+            MoreExecutors.shutdownAndAwaitTermination(threadPoolExecutor, Duration.ofSeconds(3));
         }
     }
 

@@ -4,7 +4,7 @@ on:
     types: [created]
 jobs:
   slashCommandDispatch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Slash Command Dispatch
         uses: peter-evans/slash-command-dispatch@v2

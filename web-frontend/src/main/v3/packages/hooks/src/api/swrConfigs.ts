@@ -1,6 +1,30 @@
 import { ErrorResponse } from '@pinpoint-fe/constants';
 import { SWRConfiguration } from 'swr';
 
+export const parseErrorResponse = async (response: Response) => {
+  const contentType = response.headers.get('content-type');
+
+  if (contentType?.includes('json')) {
+    return await response.json();
+  } else if (contentType?.includes('text/html')) {
+    const htmlText = await response.text();
+    const parser = new DOMParser();
+    const DOM = parser.parseFromString(htmlText, 'text/html');
+    const titleElement = DOM.querySelector('h1');
+    const traceElement = DOM.querySelector('pre');
+    const title = titleElement?.textContent || '';
+    const trace = traceElement?.textContent || '';
+
+    return {
+      data: {},
+      instance: title,
+      trace,
+    } as ErrorResponse;
+  } else {
+    return new Error('Unsupported content type.');
+  }
+};
+
 export const swrConfigs: SWRConfiguration = {
   suspense: true,
   revalidateIfStale: false,
@@ -12,11 +36,11 @@ export const swrConfigs: SWRConfiguration = {
     const response = await fetch(urlWithQueryParams);
 
     if (!response.ok) {
-      const error: ErrorResponse = await response.json();
+      const error = await parseErrorResponse(response);
 
       if (error.data) {
         // Server API error
-        throw error;
+        throw { ...error, url };
       } else {
         // Network error
         throw new Error('An error occurred while fetching the data.');

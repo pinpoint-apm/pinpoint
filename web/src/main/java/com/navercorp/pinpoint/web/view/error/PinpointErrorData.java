@@ -31,19 +31,16 @@ public class PinpointErrorData {
     public static class RequestInfo {
         private static final String UNKNOWN = "UNKNOWN";
         private final String method;
-        private final String url;
         private final Map<String, List<String>> headers;
         private final Map<String, String[]> parameters;
 
         public RequestInfo(WebRequest request) {
             if (request instanceof ServletWebRequest webRequest) {
                 this.method = webRequest.getRequest().getMethod();
-                this.url = String.valueOf(webRequest.getAttribute("jakarta.servlet.error.request_uri", 0));
                 this.headers = getRequestHeader(webRequest);
                 this.parameters = request.getParameterMap();
             } else {
                 this.method = "UNKNOWN";
-                this.url = "UNKNOWN";
                 this.headers = null;
                 this.parameters = null;
             }
@@ -51,10 +48,6 @@ public class PinpointErrorData {
 
         public String getMethod() {
             return method;
-        }
-
-        public String getUrl() {
-            return url;
         }
 
         public Map<String, List<String>> getHeaders() {
@@ -88,7 +81,6 @@ public class PinpointErrorData {
         public String toString() {
             return "RequestInfo{" +
                     "method='" + method + '\'' +
-                    ", url='" + url + '\'' +
                     ", headers=" + headers +
                     ", parameters=" + parameters +
                     '}';

@@ -44,7 +44,7 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 @RestController
-@RequestMapping(value = "/systemMetric")
+@RequestMapping(value = "/api/systemMetric")
 public class SystemMetricController {
     private final SystemMetricDataService systemMetricDataService;
     private final SystemMetricHostInfoService systemMetricHostInfoService;

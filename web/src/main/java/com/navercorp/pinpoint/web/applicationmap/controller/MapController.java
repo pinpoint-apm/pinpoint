@@ -31,9 +31,11 @@ import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
+import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
+import com.navercorp.pinpoint.web.view.LinkHistogramSummaryView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
@@ -48,6 +50,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -64,6 +67,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @RestController
+@RequestMapping("/api")
 @Validated
 public class MapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -189,10 +193,8 @@ public class MapController {
         logger.info("Select applicationMap. option={}", mapServiceOption);
         final ApplicationMap map = this.mapService.selectApplicationMap(mapServiceOption);
 
-        if (useLoadHistogramFormat) {
-            return new MapWrap(map, TimeHistogramFormat.V2);
-        }
-        return new MapWrap(map, TimeHistogramFormat.V1);
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        return new MapWrap(map, format);
     }
 
     @GetMapping(value = "/getResponseTimeHistogramData", params = "serviceTypeName")
@@ -212,7 +214,7 @@ public class MapController {
     }
 
     @PostMapping(value = "/getResponseTimeHistogramDataV2")
-    public NodeHistogramSummary postResponseTimeHistogramDataV2(
+    public NodeHistogramSummaryView postResponseTimeHistogramDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
@@ -238,14 +240,13 @@ public class MapController {
                 .build();
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        if (useLoadHistogramFormat) {
-            nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
-        }
-        return nodeHistogramSummary;
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, nodeHistogramSummary.getServerGroupList(), format);
     }
 
+
     @GetMapping(value = "/getResponseTimeHistogramDataV2")
-    public NodeHistogramSummary getResponseTimeHistogramDataV2(
+    public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
@@ -285,10 +286,9 @@ public class MapController {
                 .build();
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
-        if (useLoadHistogramFormat) {
-            nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
-        }
-        return nodeHistogramSummary;
+
+        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, nodeHistogramSummary.getServerGroupList(), format);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
@@ -316,7 +316,7 @@ public class MapController {
     }
 
     @GetMapping(value = "/getLinkTimeHistogramData")
-    public LinkHistogramSummary getLinkTimeHistogramData(
+    public LinkHistogramSummaryView getLinkTimeHistogramData(
             @RequestParam(value = "fromApplicationName", required = false) @NullOrNotBlank String fromApplicationName,
             @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
             @RequestParam(value = "toApplicationName", required = false) @NullOrNotBlank String toApplicationName,
@@ -333,10 +333,9 @@ public class MapController {
         final Application toApplication = this.createApplication(toApplicationName, toServiceTypeCode);
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
-        if (useLoadHistogramFormat) {
-            linkHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
-        }
-        return linkHistogramSummary;
+
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        return new LinkHistogramSummaryView(linkHistogramSummary, format);
     }
 
     @Nullable

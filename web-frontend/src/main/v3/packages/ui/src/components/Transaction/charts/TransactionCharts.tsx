@@ -13,6 +13,8 @@ import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
 import { addMinutes, subMinutes } from 'date-fns';
 import { ChartCore } from '../../../components/Inspector/charts/ChartCore';
 import { useBreakpoint } from '../../../lib/useBreakpoint';
+import { useAtomValue } from 'jotai';
+import { transactionInfoDatasAtom } from '@pinpoint-fe/atoms';
 
 const chartIdList: AGENT_CHART_ID[] = ['heap', 'nonHeap', 'cpu'];
 
@@ -22,7 +24,8 @@ export const TransactionCharts = () => {
   const { isAboveXl, isBelowXl } = useBreakpoint('xl');
   const containerRef = React.useRef(null);
   const { transactionInfo } = useTransactionSearchParameters();
-  const focusTimestamp = transactionInfo.focusTimestamp;
+  const transactionInfoData = useAtomValue(transactionInfoDatasAtom);
+  const focusTimestamp = transactionInfo.focusTimestamp || transactionInfoData?.callStackEnd;
   const fromDate = subMinutes(focusTimestamp, 10);
   const toDate = addMinutes(focusTimestamp, 10);
 
@@ -39,6 +42,10 @@ export const TransactionCharts = () => {
       resizeObserver.disconnect();
     };
   }, []);
+
+  if (!focusTimestamp) {
+    return null;
+  }
 
   return (
     <div ref={containerRef} className="h-full p-3">

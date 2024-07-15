@@ -124,6 +124,7 @@
         <module>channel</module>
         <module>exceptiontrace</module>
         <module>web-angular</module>
+        <module>otlpmetric</module>
 
     </modules>
 
@@ -139,6 +140,8 @@
         <maven.compiler.executable>${jdk.home}/bin/javac</maven.compiler.executable>
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <maven.source.skip>true</maven.source.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
 
         <docker.repository.name>pinpointdocker</docker.repository.name>
 
@@ -156,7 +159,7 @@
         <plugin.jacoco.skip>true</plugin.jacoco.skip>
 
         <!-- library -->
-        <metrics.version>3.2.6</metrics.version>
+        <dropwizard-metrics.version>4.2.26</dropwizard-metrics.version>
 
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
 
@@ -197,7 +200,6 @@
 
         <jakarta.servlet5.version>5.0.0</jakarta.servlet5.version>
         <jakarta.servlet6.version>6.0.0</jakarta.servlet6.version>
-        <jakarta.annotation-api2.version>2.1.1</jakarta.annotation-api2.version>
         <jaxb4.version>4.0.0</jaxb4.version>
         <jakarta.validation-api3.version>3.0.2</jakarta.validation-api3.version>
 
@@ -226,9 +228,10 @@
         <resilience4j-jdk8.version>1.7.1</resilience4j-jdk8.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.100.Final</netty4.version>
+        <netty4.version>4.1.111.Final</netty4.version>
 
-        <grpc.version>1.62.2</grpc.version>
+        <grpc.version>1.64.1</grpc.version>
+        <grpc-bom.version>1.64.1</grpc-bom.version>
         <protobuf-java.version>3.25.1</protobuf-java.version>
         <protoc.version>${protobuf-java.version}</protoc.version>
 
@@ -570,6 +573,21 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-otlpmetric-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-otlpmetric-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-otlpmetric-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-plugins</artifactId>
                 <type>pom</type>
                 <version>${project.version}</version>
@@ -863,24 +881,10 @@
             <!-- serving performance metrics -->
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-jvm</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-servlets</artifactId>
-                <version>${metrics.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.papertrail</groupId>
-                        <artifactId>profiler</artifactId>
-                    </exclusion>
-                </exclusions>
+                <artifactId>metrics-bom</artifactId>
+                <version>${dropwizard-metrics.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
@@ -1155,7 +1159,7 @@
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-bom</artifactId>
-                <version>1.62.2</version>
+                <version>${grpc-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -1416,11 +1420,6 @@
                 <artifactId>byte-buddy-agent</artifactId>
                 <version>${bytebuddy.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.dbunit</groupId>
-                <artifactId>dbunit</artifactId>
-                <version>2.4.3</version>
             </dependency>
             <dependency>
                 <groupId>org.awaitility</groupId>
@@ -1748,10 +1747,28 @@
                         <createDependencyReducedPom>false</createDependencyReducedPom>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>jaxb2-maven-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -1887,6 +1904,25 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${plugin.javadoc.version}</version>
+                <configuration>
+                    <doclint>none</doclint>
+                    <!-- <detectOfflineLinks>false</detectOfflineLinks>-->
+                    <!-- <detectJavaApiLink>false</detectJavaApiLink>-->
+                    <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -1948,40 +1984,11 @@
             <properties>
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
+                <maven.source.skip>false</maven.source.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
             </properties>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <configuration>
-                            <doclint>none</doclint>
-<!--                            <detectOfflineLinks>false</detectOfflineLinks>-->
-<!--                            <detectJavaApiLink>false</detectJavaApiLink>-->
-                            <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>

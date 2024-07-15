@@ -25,6 +25,7 @@ import com.pinpoint.test.plugin.server.EchoTestServer;
 import com.pinpoint.test.plugin.server.HttpEchoTestServer;
 import com.pinpoint.test.plugin.server.SyncEchoTestServer;
 import com.pinpoint.test.plugin.server.ThriftEchoTestServer;
+import jakarta.annotation.PreDestroy;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,6 +36,13 @@ import java.util.concurrent.Executors;
 public class ThriftPluginTestController {
     public static final String MESSAGE = "MESSAGE";
     private TestEnvironment testEnvironment = new TestEnvironment();
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    @PreDestroy
+    public void destory() {
+        executor.shutdown();
+    }
 
     @RequestMapping(value = "/server/sync")
     public String serverSync() throws Exception {
@@ -77,7 +85,6 @@ public class ThriftPluginTestController {
     }
 
     private void invoke(EchoTestServer server, boolean async) throws Exception {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         server.start(executor);
 
         if (server instanceof ThriftEchoTestServer) {
@@ -96,7 +103,6 @@ public class ThriftPluginTestController {
         }
 
         server.stop();
-        executor.shutdown();
         Thread.sleep(500L);
     }
 
@@ -104,13 +110,11 @@ public class ThriftPluginTestController {
     public String clientSync() throws Exception {
         // When
         final SyncEchoTestServer server = SyncEchoTestServer.SyncEchoTestServerFactory.simpleServer(testEnvironment);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         server.start(executor);
 
         final SyncEchoTestClient client = server.getSynchronousClient();
         echo(client);
         server.stop();
-        executor.shutdown();
         return "OK";
     }
 
@@ -118,13 +122,11 @@ public class ThriftPluginTestController {
     public String clientAsync() throws Exception {
         // When
         final SyncEchoTestServer server = SyncEchoTestServer.SyncEchoTestServerFactory.simpleServer(testEnvironment);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         server.start(executor);
 
         final AsyncEchoTestClient client = server.getAsynchronousClient();
         echo(client);
         server.stop();
-        executor.shutdown();
         return "OK";
     }
 
@@ -132,13 +134,11 @@ public class ThriftPluginTestController {
     public String clientHttp() throws Exception {
         // When
         final HttpEchoTestServer server = HttpEchoTestServer.createServer(testEnvironment);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         server.start(executor);
 
         final HttpEchoTestClient client = server.getHttpClient();
         echo(client);
         server.stop();
-        executor.shutdown();
         return "OK";
     }
 

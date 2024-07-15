@@ -168,11 +168,10 @@ public class ChannelFactoryTest {
         serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, null, ServerOption.newBuilder().build());
         spanService = new SpanService();
 
-        serverFactory.addService(spanService);
+        serverFactory.addService(spanService.bindService());
 
         addFilter(serverFactory);
-        Server server = serverFactory.build();
-        return server;
+        return serverFactory.build();
     }
 
     private static void addFilter(ServerFactory serverFactory) {

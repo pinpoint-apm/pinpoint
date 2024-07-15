@@ -16,16 +16,15 @@
 
 package com.navercorp.pinpoint.it.plugin.grpc;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 /**
  * @author Taejin Koo
  */
-public interface HelloWorldServer {
+public interface HelloWorldServer extends Closeable {
 
     void start() throws IOException;
-
-    void stop() throws InterruptedException;
 
     int getBindPort();
 

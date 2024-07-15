@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollec
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
+import com.navercorp.pinpoint.profiler.monitor.micrometer.MicrometerCollectingJob;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
     private static final long MIN_COLLECTION_INTERVAL_MS = 1000;
-    private static final long MAX_COLLECTION_INTERVAL_MS = 1000 * 5;
+    private static final long MAX_COLLECTION_INTERVAL_MS = 1000 * 10;
     private static final long DEFAULT_COLLECTION_INTERVAL_MS = DefaultMonitorConfig.DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
     private static final int DEFAULT_NUM_COLLECTIONS_PER_SEND = DefaultMonitorConfig.DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
 
@@ -102,6 +103,11 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
         if (monitorConfig.isUriStatEnable() && uriStatStorage != null) {
             Runnable uriStatCollectingJob = new UriStatCollectingJob(dataSender, uriStatStorage);
             runnableList.add(uriStatCollectingJob);
+        }
+
+        if (monitorConfig.isMicrometerEnable()) {
+            new MicrometerCollectingJob(monitorConfig.getMicrometerUrl(), monitorConfig.getMicrometerStep(),
+                    monitorConfig.getMicrometerBatchSize(), monitorConfig.getApplicationName(), monitorConfig.getAgentId());
         }
 
         this.statMonitorJob = new StatMonitorJob(runnableList);

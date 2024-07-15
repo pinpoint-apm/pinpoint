@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.grpc.client.retry;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import io.grpc.Status;
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,10 +29,14 @@ public class HedgingServiceConfigBuilder implements ServiceConfigBuilder {
 
     public static final int DEFAULT_MAX_ATTEMPTS = 3;
     public static final long DEFAULT_HEDGING_DELAY_MILLIS = 1000L;
+    public static final List<String> DEFAULT_STATUS_CODES = Arrays.asList(
+            Status.Code.UNKNOWN.name(),
+            Status.Code.UNAVAILABLE.name()
+    );
 
     private double maxAttempts = DEFAULT_MAX_ATTEMPTS; //Required. Must be two or greater
     private String hedgingDelay = millisToString(DEFAULT_HEDGING_DELAY_MILLIS);  //Required. Long decimal with "s" appended
-    private List<String> nonFatalStatusCodes; //Optional (eg. [14], ["UNAVAILABLE"] or ["unavailable"])
+    private List<String> nonFatalStatusCodes = DEFAULT_STATUS_CODES; //Optional (eg. [14], ["UNAVAILABLE"] or ["unavailable"])
 
     @Override
     public Map<String, ?> buildMetadataConfig() {
@@ -47,7 +55,7 @@ public class HedgingServiceConfigBuilder implements ServiceConfigBuilder {
         Map<String, Object> retryPolicy = new LinkedHashMap<>();
         retryPolicy.put("maxAttempts", maxAttempts);
         retryPolicy.put("hedgingDelay", hedgingDelay);
-        if (nonFatalStatusCodes != null && !nonFatalStatusCodes.isEmpty()) {
+        if (CollectionUtils.hasLength(nonFatalStatusCodes)) {
             retryPolicy.put("nonFatalStatusCodes", nonFatalStatusCodes);
         }
 

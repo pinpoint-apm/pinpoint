@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.realtime.collector.sink;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
@@ -39,6 +40,7 @@ public class SinkRepositoryTest {
                 SinkRepositoryTest.test(sinkRepository);
             });
         }
+        MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
     }
 
     static void test(SinkRepository<FluxSink<Integer>> sinkRepository) {

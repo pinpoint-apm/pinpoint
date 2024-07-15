@@ -29,7 +29,6 @@ public class RecordSet {
 
     private List<Record> recordList;
     private String applicationName;
-    private String applicationServiceType;
     private long beginTimestamp;
 
     private String agentId;

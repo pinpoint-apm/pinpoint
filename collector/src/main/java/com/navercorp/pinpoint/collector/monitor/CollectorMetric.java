@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.JvmAttributeGaugeSet;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Reporter;
 import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.jmx.JmxReporter;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.JvmAttributeGaugeSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
@@ -60,7 +59,7 @@ public class CollectorMetric {
     private final HBaseAsyncOperationMetrics hBaseAsyncOperationMetrics;
     private final BulkOperationMetrics bulkOperationMetrics;
 
-    private List<Reporter> reporterList = new ArrayList<>(2);
+    private List<Closeable> reporterList = new ArrayList<>(2);
 
     private final boolean isEnable = isEnable0(REPORTER_LOGGER_NAME);
 
@@ -156,10 +155,8 @@ public class CollectorMetric {
 
     @PreDestroy
     private void shutdown() {
-        for (Reporter reporter : reporterList) {
-            if (reporter instanceof Closeable closeable) {
-                IOUtils.closeQuietly(closeable);
-            }
+        for (Closeable reporter : reporterList) {
+            IOUtils.closeQuietly(reporter);
         }
         reporterList = null;
     }

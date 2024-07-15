@@ -18,13 +18,14 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionTraceValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionMetaDataView;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionTraceView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
+import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
  * @author intr3p1d
  */
 @RestController
-@RequestMapping(value = "/errors")
+@RequestMapping(value = "/api/errors")
 @Validated
 public class ExceptionTraceController {
 
@@ -79,7 +80,7 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/transactionInfo")
-    public List<ExceptionMetaDataView> getListOfExceptionMetaDataFromTransactionId(
+    public List<ExceptionDetailView> getListOfExceptionMetaDataFromTransactionId(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("transactionId") @NotBlank String transactionId,
@@ -96,13 +97,13 @@ public class ExceptionTraceController {
                 .setExceptionId(exceptionId)
                 .setTimePrecision(DETAILED_TIME_PRECISION)
                 .build();
-        return exceptionTraceService.getTransactionExceptions(
+        return exceptionTraceService.getDetailExceptions(
                 queryParameter
         );
     }
 
     @GetMapping("/errorList")
-    public List<ExceptionMetaDataView> getListOfExceptionMetaDataByGivenRange(
+    public List<ExceptionDetailView> getListOfExceptionMetaDataByGivenRange(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") @PositiveOrZero long from,
@@ -128,13 +129,13 @@ public class ExceptionTraceController {
                 .setOrderBy(orderBy)
                 .setIsDesc(isDesc)
                 .build();
-        return exceptionTraceService.getSummarizedExceptionsInRange(
+        return exceptionTraceService.getSummarizedExceptions(
                 queryParameter
         );
     }
 
     @GetMapping("/errorList/groupBy")
-    public List<ExceptionTraceSummary> getListOfExceptionMetaDataWithDynamicGroupBy(
+    public List<ExceptionGroupSummary> getListOfExceptionMetaDataWithDynamicGroupBy(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") @PositiveOrZero long from,
@@ -154,13 +155,13 @@ public class ExceptionTraceController {
                 .setTimePrecision(DETAILED_TIME_PRECISION)
                 .addAllGroupByList(groupByList)
                 .build();
-        return exceptionTraceService.getSummaries(
+        return exceptionTraceService.getGroupSummaries(
                 queryParameter
         );
     }
 
     @GetMapping("/chart")
-    public ExceptionTraceView getCollectedExceptionMetaDataByGivenRange(
+    public ExceptionChartView getCollectedExceptionMetaDataByGivenRange(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") @PositiveOrZero long from,
@@ -184,11 +185,11 @@ public class ExceptionTraceController {
                 .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
                 .addAllGroupByList(groupByList)
                 .build();
-        List<ExceptionTraceValueView> exceptionTraceValueViews = exceptionTraceService.getValueViews(
+        List<ExceptionChartValueView> exceptionChartValueViews = exceptionTraceService.getChartViews(
                 queryParameter
         );
 
-        return ExceptionTraceView.newViewFromValueViews(groupName, timeWindow, exceptionTraceValueViews);
+        return TimeSeriesUtils.newChartView(groupName, timeWindow, exceptionChartValueViews);
     }
 
     @GetMapping("/groups")
