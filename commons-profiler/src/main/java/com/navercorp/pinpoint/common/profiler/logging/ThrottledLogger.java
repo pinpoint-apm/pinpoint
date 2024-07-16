@@ -19,15 +19,18 @@ package com.navercorp.pinpoint.common.profiler.logging;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ThrottledLogger {
+    private static final AtomicLongFieldUpdater<ThrottledLogger> UPDATER = AtomicLongFieldUpdater.newUpdater(ThrottledLogger.class, "counter");
+
+    private volatile long counter;
+
     private final Logger logger;
     private final long ratio;
-    private final AtomicLong counter = new AtomicLong();
 
     public static ThrottledLogger getLogger(Logger logger, long ratio) {
         Objects.requireNonNull(logger, "logger");
@@ -40,14 +43,14 @@ public class ThrottledLogger {
     }
 
     private boolean checkLogCounter() {
-        if (counter.getAndIncrement() % ratio == 0) {
+        if (UPDATER.getAndIncrement(this) % ratio == 0) {
             return true;
         }
         return false;
     }
 
     public long getCounter() {
-        return counter.get();
+        return UPDATER.get(this);
     }
 
     public boolean isInfoEnabled() {
