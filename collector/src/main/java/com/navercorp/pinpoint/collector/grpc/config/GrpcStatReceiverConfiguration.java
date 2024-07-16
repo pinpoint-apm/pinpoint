@@ -24,12 +24,14 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
 import com.navercorp.pinpoint.collector.receiver.StatDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import io.github.bucket4j.Bandwidth;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
@@ -37,10 +39,13 @@ import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,26 +60,59 @@ public class GrpcStatReceiverConfiguration {
     public GrpcStatReceiverConfiguration() {
     }
 
-    @Bean
-    public FactoryBean<ScheduledExecutorService> grpcStatStreamScheduler(@Qualifier("grpcStatStreamProperties")
-                                                                         GrpcStreamProperties properties) {
-        ScheduledExecutorFactoryBean bean = new ScheduledExecutorFactoryBean();
-        bean.setPoolSize(properties.getSchedulerThreadSize());
-        bean.setThreadNamePrefix("Pinpoint-GrpcStat-StreamExecutor-Scheduler-");
-        bean.setDaemon(true);
-        bean.setWaitForTasksToCompleteOnShutdown(true);
-        bean.setAwaitTerminationSeconds(10);
-        return bean;
+    @Deprecated
+    @Configuration
+    @ConditionalOnProperty(name = "collector.receiver.grpc.stat.stream.flow-control.type", havingValue = "legacy")
+    public static class LegacySpanInterceptorConfiguration {
+
+        @Bean
+        public FactoryBean<ScheduledExecutorService> grpcStatStreamScheduler(@Qualifier("grpcStatStreamProperties")
+                                                                             GrpcStreamProperties properties) {
+            ScheduledExecutorFactoryBean bean = new ScheduledExecutorFactoryBean();
+            bean.setPoolSize(properties.getSchedulerThreadSize());
+            bean.setThreadNamePrefix("Pinpoint-GrpcStat-StreamExecutor-Scheduler-");
+            bean.setDaemon(true);
+            bean.setWaitForTasksToCompleteOnShutdown(true);
+            bean.setAwaitTerminationSeconds(10);
+            return bean;
+        }
+
+        @Bean
+        public FactoryBean<ServerInterceptor> statStreamExecutorInterceptor(@Qualifier("grpcStatWorkerExecutor")
+                                                                            Executor executor,
+                                                                            @Qualifier("grpcStatStreamScheduler")
+                                                                            ScheduledExecutorService scheduledExecutorService,
+                                                                            @Qualifier("grpcStatStreamProperties")
+                                                                            GrpcStreamProperties properties) {
+            return new StreamExecutorServerInterceptorFactory(executor, scheduledExecutorService, properties);
+        }
     }
 
-    @Bean
-    public FactoryBean<ServerInterceptor> statStreamExecutorInterceptor(@Qualifier("grpcStatWorkerExecutor")
-                                                                        Executor executor,
-                                                                        @Qualifier("grpcStatStreamScheduler")
-                                                                        ScheduledExecutorService scheduledExecutorService,
-                                                                        @Qualifier("grpcStatStreamProperties")
-                                                                        GrpcStreamProperties properties) {
-        return new StreamExecutorServerInterceptorFactory(executor, scheduledExecutorService, properties);
+
+
+    @Configuration
+    @ConditionalOnProperty(name = "collector.receiver.grpc.stat.stream.flow-control.type", havingValue = "rate-limit", matchIfMissing = true)
+    public static class RateLimitServerInterceptorConfiguration {
+
+        @Bean
+        public Bandwidth statBandwidth(@Value("${collector.receiver.grpc.stat.stream.flow-control.rate-limit.capacity:1000}") long capacity,
+                                            @Value("${collector.receiver.grpc.stat.stream.flow-control.rate-limit.refill-greedy:200}") long refillTokens) {
+            return Bandwidth
+                    .builder()
+                    .capacity(capacity)
+                    .refillGreedy(refillTokens, Duration.ofSeconds(1))
+                    .build();
+        }
+
+        @Bean
+        public ServerInterceptor statStreamExecutorInterceptor(@Qualifier("grpcStatWorkerExecutor")
+                                                               Executor executor,
+                                                               @Qualifier("statBandwidth")
+                                                               Bandwidth bandwidth,
+                                                               @Qualifier("grpcStatStreamProperties")
+                                                               GrpcStreamProperties properties) {
+            return new RateLimitClientStreamServerInterceptor("StatStream", executor, bandwidth, properties.getThrottledLoggerRatio());
+        }
     }
 
 
@@ -85,9 +123,6 @@ public class GrpcStatReceiverConfiguration {
                                                                ServerInterceptor serverInterceptor,
                                                                ServerRequestFactory serverRequestFactory) {
         BindableService spanService = new StatService(dispatchHandler, serverRequestFactory);
-        if (serverInterceptor == null) {
-            return spanService.bindService();
-        }
         return ServerInterceptors.intercept(spanService, serverInterceptor);
     }
 
