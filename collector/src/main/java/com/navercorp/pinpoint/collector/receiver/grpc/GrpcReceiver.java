@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
+import com.navercorp.pinpoint.grpc.util.ServerUtils;
 import io.grpc.Server;
 import io.grpc.ServerCallExecutorSupplier;
 import io.grpc.ServerInterceptor;
@@ -158,25 +159,11 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
         final long maxWaitTime = serverOption.getGrpcMaxTermWaitTimeMillis();
 
-        server.shutdown();
-        if (awaitServerTermination(maxWaitTime)) {
-            return;
+        if (!ServerUtils.shutdownAndAwaitTermination(server, maxWaitTime, TimeUnit.MILLISECONDS)) {
+            logger.warn("{} server shutdown error", beanName);
         }
-
-        server.shutdownNow();
-        awaitServerTermination(1000);
     }
 
-    private boolean awaitServerTermination(long maxWaitTimeMillis) {
-        try {
-            return server.awaitTermination(maxWaitTimeMillis, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            logger.warn("awaitServerTermination({}ms) was interrupted", maxWaitTimeMillis, e);
-            Thread.currentThread().interrupt();
-        }
-
-        return false;
-    }
 
     @Override
     public void destroy() throws Exception {
