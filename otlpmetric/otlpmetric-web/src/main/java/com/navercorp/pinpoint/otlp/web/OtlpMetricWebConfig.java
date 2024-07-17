@@ -29,7 +29,6 @@ import org.springframework.context.annotation.Import;
         "com.navercorp.pinpoint.otlp.web.dao"
 })
 @Import({
-        MainDataSourcePropertySource.class,
         PinotConfiguration.class,
         OtlpMetricWebPinotDaoConfiguration.class
 })
