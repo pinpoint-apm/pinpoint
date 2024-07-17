@@ -34,7 +34,7 @@ public class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper 
 
     @Override
     public void cancel(Status status, Metadata trailers) {
-        this.serverCall.close(status, new Metadata());
+        this.serverCall.close(status, trailers);
     }
 
     @Override
