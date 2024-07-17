@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping(value = "/api/otlpMetric")
+@RequestMapping(value = "/api/otlp")
 public class OpenTelemetryMetricController {
     private final OtlpMetricWebService otlpMetricWebService;
     private static final String DEFAULT_SERVICE_ID = "00000000-0000-0000-0000-000000000001";

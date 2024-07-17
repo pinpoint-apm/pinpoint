@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.otlp.common.model.DataType;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import com.navercorp.pinpoint.otlp.web.dao.OtlpMetricDao;
 import com.navercorp.pinpoint.otlp.web.view.OtlpChartFieldView;
@@ -23,10 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Service
-public class PinotOtlpMetricWebService implements OtlpMetricWebService {
+public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     private final Logger logger = LogManager.getLogger(this.getClass());
     public static final OtlpChartView EMPTY_CHART = OtlpChartViewBuilder.EMPTY_CHART_VIEW;
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
@@ -34,7 +32,7 @@ public class PinotOtlpMetricWebService implements OtlpMetricWebService {
     @NotNull private final OtlpMetricDao otlpMetricDao;
 
 
-    public PinotOtlpMetricWebService(@Valid OtlpMetricDao otlpMetricDao) {
+    public OtlpMetricWebServiceImpl(@Valid OtlpMetricDao otlpMetricDao) {
         this.otlpMetricDao = Objects.requireNonNull(otlpMetricDao, "otlpMetricDao");
     }
 
