@@ -35,7 +35,6 @@ export const GlobalSearch = ({ services }: GlobalSearchProps) => {
     if (portalTargetElement) {
       const down = (e: KeyboardEvent) => {
         if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-          e.preventDefault();
           setOpen((open) => !open);
         }
         if (e.code === 'Escape' && open) {
@@ -47,7 +46,7 @@ export const GlobalSearch = ({ services }: GlobalSearchProps) => {
     } else {
       console.warn('Please register the target element for global search portal in root html');
     }
-  }, [portalTargetElement]);
+  }, []);
 
   const isTransactionId = (tid: string) => {
     return transactionIdRegExp.test(tid.trim());
