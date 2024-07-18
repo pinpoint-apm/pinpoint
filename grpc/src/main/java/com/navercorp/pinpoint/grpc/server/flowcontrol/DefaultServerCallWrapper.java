@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
+import io.grpc.Attributes;
 import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
@@ -12,12 +13,16 @@ public class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper 
     private final ServerCall<ReqT, RespT> serverCall;
     private final String agentId;
     private final String applicationName;
-    private SocketAddress socketAddress;
+    // @Nullable
+    private final SocketAddress socketAddress;
 
     public DefaultServerCallWrapper(ServerCall<ReqT, RespT> serverCall, String applicationName, String agentId) {
         this.serverCall = Objects.requireNonNull(serverCall, "serverCall");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
+
+        final Attributes attributes = serverCall.getAttributes();
+        this.socketAddress = attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
     }
 
     @Override
@@ -35,11 +40,9 @@ public class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper 
         return applicationName;
     }
 
+    // @Nullable
     @Override
     public SocketAddress getRemoteAddr() {
-        if (socketAddress == null) {
-            socketAddress = serverCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
-        }
         return socketAddress;
     }
 
@@ -51,9 +54,10 @@ public class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper 
     @Override
     public String toString() {
         return "DefaultServerCallWrapper{" +
-                ", applicationName='" + applicationName + '\'' +
+                "serverCall=" + serverCall +
                 ", agentId='" + agentId + '\'' +
-                ", remoteAddr=" + getRemoteAddr() +
+                ", applicationName='" + applicationName + '\'' +
+                ", socketAddress=" + socketAddress +
                 '}';
     }
 }
