@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.otlp.web.config;
 
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
+import com.navercorp.pinpoint.otlp.common.definition.MetricDescriptor;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
 import com.navercorp.pinpoint.otlp.web.vo.handler.FieldAttributeHandler;
@@ -20,6 +21,7 @@ public class OtlpMetricWebRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias(AggreFunc.class);
         typeAliasRegistry.registerAlias(DataType.class);
         typeAliasRegistry.registerAlias(OtlpMetricChartSummary.class);
+        typeAliasRegistry.registerAlias(MetricDescriptor.class);
     }
 
     @Override

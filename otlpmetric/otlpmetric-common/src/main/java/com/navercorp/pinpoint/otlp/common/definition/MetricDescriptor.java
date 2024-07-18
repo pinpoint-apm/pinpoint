@@ -16,33 +16,8 @@
 
 package com.navercorp.pinpoint.otlp.common.definition;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author minwoo-jung
  */
-public class Metric {
-
-    private final String metricName;
-    private final Map<String, Tag> tagMap;
-
-    public Metric(String metricName) {
-        this.metricName = metricName;
-        this.tagMap = new HashMap<>();
-    }
-
-    public void addTagAndUnit(String tag, String unit) {
-        tagMap.computeIfAbsent(tag, k -> new Tag(tag, unit));
-    }
-
-    public String getMetricName() {
-        return metricName;
-    }
-
-    public List<Tag> getTagList() {
-        return List.copyOf(tagMap.values());
-    }
-
+public record MetricDescriptor(String metricGroupName, String metricName, String rawTags, String fieldName, String unit) {
 }
