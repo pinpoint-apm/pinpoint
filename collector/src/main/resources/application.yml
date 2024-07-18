@@ -13,3 +13,6 @@ pinpoint:
           enabled: false
     realtime:
       enabled: false
+
+collector.receiver.grpc.span.stream.keepalive.timeout: -1
+collector.receiver.grpc.stat.streamkeepalive.timeout: -1

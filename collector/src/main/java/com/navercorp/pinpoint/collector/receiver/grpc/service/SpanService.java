@@ -86,7 +86,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
                 Status status = Status.fromThrowable(throwable);
                 Metadata metadata = Status.trailersFromThrowable(throwable);
                 if (logger.isInfoEnabled()) {
-                    logger.info("Failed to span stream, {} {} {}", header, status, metadata);
+                    logger.info("onError Failed to span stream, {} {} {}", header, status, metadata);
                 }
             }
 

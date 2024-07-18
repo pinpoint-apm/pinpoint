@@ -23,8 +23,10 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
 import com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
-import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorBuilder;
 import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
+import com.navercorp.pinpoint.collector.receiver.grpc.keepalive.KeepAliveRegistry;
+import com.navercorp.pinpoint.collector.receiver.grpc.keepalive.StreamKeepAliveInterceptor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
@@ -38,6 +40,8 @@ import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +52,7 @@ import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -57,6 +62,8 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @Configuration
 public class GrpcSpanReceiverConfiguration {
+
+    private static final Logger logger = LogManager.getLogger(GrpcSpanReceiverConfiguration.class);
 
     public GrpcSpanReceiverConfiguration() {
     }
@@ -179,9 +186,32 @@ public class GrpcSpanReceiverConfiguration {
         return bean;
     }
 
+    /**
+     *
+     * @param keepAliveTimeout default:6hours
+     */
     @Bean
-    public List<ServerInterceptor> spanInterceptorList() {
-        return List.of(ServerInterceptorFactory.headerReader("span"));
+    public ServerInterceptor spanStreamKeepaliveInterceptor(@Value("${collector.receiver.grpc.span.stream.keepalive.timeout:21600000}") long keepAliveTimeout) {
+        if (keepAliveTimeout <= 0) {
+            return null;
+        }
+        KeepAliveRegistry keepAliveRegistry = new KeepAliveRegistry(keepAliveTimeout, keepAliveTimeout);
+        return new StreamKeepAliveInterceptor("SpanStream", keepAliveRegistry);
+    }
+
+    @Bean
+    public List<ServerInterceptor> spanInterceptorList(@Qualifier("spanStreamKeepaliveInterceptor")
+                                                       Optional<ServerInterceptor> spanKeepalive) {
+
+        ServerInterceptorBuilder builder = new ServerInterceptorBuilder();
+        builder.addHeaderReaderInterceptor("stat");
+
+        if (spanKeepalive.isPresent()) {
+            logger.info("Add SpanStreamKeepaliveInterceptor");
+            builder.addServerInterceptor(spanKeepalive.get());
+        }
+
+        return builder.build();
     }
 
 }
