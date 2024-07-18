@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.otlp.common.definition.MetricDefinitionProperty;
 import com.navercorp.pinpoint.otlp.web.service.MetricDefinitionService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -36,7 +37,7 @@ public class MetricDefinitionController {
     }
 
     @GetMapping("/metricDefinition/info")
-    public MetricDefinitionProperty getMetricDefinitionInfo() {
-        return metricDefinitionService.getMetricDefinitionInfo();
+    public MetricDefinitionProperty getMetricDefinitionInfo(@RequestParam("applicationName") String applicationName) {
+        return metricDefinitionService.getMetricDefinitionInfo(applicationName);
     }
 }

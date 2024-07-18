@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.otlp.common.definition;
 /**
  * @author minwoo-jung
  */
-public record Tag(String tagName, String unit) {
+public record Tag(String tag, String unit) {
 }

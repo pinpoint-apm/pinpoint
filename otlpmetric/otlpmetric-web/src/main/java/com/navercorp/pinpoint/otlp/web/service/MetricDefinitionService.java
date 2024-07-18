@@ -22,5 +22,5 @@ import com.navercorp.pinpoint.otlp.common.definition.MetricDefinitionProperty;
  * @author minwoo-jung
  */
 public interface MetricDefinitionService {
-    MetricDefinitionProperty getMetricDefinitionInfo();
+    MetricDefinitionProperty getMetricDefinitionInfo(String applicationName);
 }

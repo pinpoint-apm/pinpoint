@@ -21,5 +21,5 @@ import java.util.List;
 /**
  * @author minwoo-jung
  */
-public record MetricDefinitionProperty(List<MetricGroup> metricGroupList, List<String> chartTypeList, List<String> aggregationFunctionList) {
+public record MetricDefinitionProperty (List<MetricGroup> metricGroupList, List<String> chartTypeList, List<String> aggregationFunctionList) {
 }

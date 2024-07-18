@@ -16,10 +16,34 @@
 
 package com.navercorp.pinpoint.otlp.common.definition;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author minwoo-jung
  */
-public record MetricGroup(String metricGroupName, List<Metric> metricList) {
+public class MetricGroup {
+
+    private final String metricGroupName;
+    private final Map<String, Metric> metricMap;
+
+    public MetricGroup(String metricGroupName) {
+        this.metricGroupName = metricGroupName;
+        this.metricMap = new HashMap<>();
+    }
+
+    public void addUniqueMetric(MetricDescriptor metricDescriptor) {
+        Metric metric = metricMap.computeIfAbsent(metricDescriptor.metricName(), k -> new Metric(metricDescriptor.metricName()));
+        metric.addTagAndUnit(metricDescriptor.rawTags(), metricDescriptor.unit());
+    }
+
+    public String getMetricGroupName() {
+        return metricGroupName;
+    }
+
+    public List<Metric> getMetricList() {
+        return List.copyOf(metricMap.values());
+    }
+
 }

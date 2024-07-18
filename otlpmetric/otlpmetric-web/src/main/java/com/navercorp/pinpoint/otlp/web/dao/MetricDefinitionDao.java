@@ -14,35 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.definition;
+package com.navercorp.pinpoint.otlp.web.dao;
 
-import java.util.HashMap;
+import com.navercorp.pinpoint.otlp.common.definition.MetricGroup;
+
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author minwoo-jung
  */
-public class Metric {
+public interface MetricDefinitionDao {
 
-    private final String metricName;
-    private final Map<String, Tag> tagMap;
-
-    public Metric(String metricName) {
-        this.metricName = metricName;
-        this.tagMap = new HashMap<>();
-    }
-
-    public void addTagAndUnit(String tag, String unit) {
-        tagMap.computeIfAbsent(tag, k -> new Tag(tag, unit));
-    }
-
-    public String getMetricName() {
-        return metricName;
-    }
-
-    public List<Tag> getTagList() {
-        return List.copyOf(tagMap.values());
-    }
-
+    List<MetricGroup> getMetricGroupList(String applicationName);
 }

@@ -24,7 +24,7 @@ public class OtlpMetricWebPinotDaoConfiguration {
     public FactoryBean<SqlSessionFactory> otlpMetricPinotSessionFactory(
             @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
-            @Value("classpath:mapper/otlpmetric/*Mapper.xml") Resource[] mappers) {
+            @Value("classpath:otlp/web/mapper/pinot/*Mapper.xml") Resource[] mappers) {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
 
         sessionFactoryBean.setDataSource(dataSource);
