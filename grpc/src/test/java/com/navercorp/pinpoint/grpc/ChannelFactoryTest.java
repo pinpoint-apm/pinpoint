@@ -210,7 +210,8 @@ public class ChannelFactoryTest {
 
                 @Override
                 public void onError(Throwable t) {
-                    logger.debug("server-onError:{} status:{}", t.getMessage(), Status.fromThrowable(t), t);
+                    Status status = Status.fromThrowable(t);
+                    logger.debug("server-onError:{}", status);
                 }
 
                 @Override

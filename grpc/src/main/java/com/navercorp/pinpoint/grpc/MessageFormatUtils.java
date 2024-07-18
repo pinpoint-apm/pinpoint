@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.TextFormat;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -37,6 +39,16 @@ public final class MessageFormatUtils {
         return new LazyLogMessage(message);
     }
 
+    public static LogMessage debugLog(Object message) {
+        if (message == null) {
+            return NULL_LOG;
+        }
+        if (message instanceof GeneratedMessageV3) {
+            return new LazyLogMessage((GeneratedMessageV3) message);
+        }
+        return new LazyLogObject(message);
+    }
+
     // No need wrapper class
 //    public static String debugString(GeneratedMessageV3 message) {
 //        if (message == null) {
@@ -45,6 +57,12 @@ public final class MessageFormatUtils {
 //        return TextFormat.shortDebugString(message);
 //    }
 
+    public static String getSimpleClasName(Object message) {
+        if (message == null) {
+            return NULL_STR;
+        }
+        return message.getClass().getSimpleName();
+    }
 
     public interface LogMessage {
     }
@@ -53,12 +71,25 @@ public final class MessageFormatUtils {
         private final GeneratedMessageV3 message;
 
         private LazyLogMessage(final GeneratedMessageV3 message) {
-            this.message = message;
+            this.message = Objects.requireNonNull(message, "message");
         }
 
         @Override
         public String toString() {
             return TextFormat.shortDebugString(message);
+        }
+    }
+
+    private static class LazyLogObject implements LogMessage {
+        private final Object message;
+
+        private LazyLogObject(final Object message) {
+            this.message = Objects.requireNonNull(message, "message");
+        }
+
+        @Override
+        public String toString() {
+            return message.toString();
         }
     }
 

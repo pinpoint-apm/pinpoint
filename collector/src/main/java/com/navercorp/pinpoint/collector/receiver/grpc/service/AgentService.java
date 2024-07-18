@@ -20,8 +20,6 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.StatusError;
-import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
@@ -35,6 +33,8 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 import io.grpc.Context;
+import io.grpc.Metadata;
+import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -125,11 +125,10 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
             @Override
             public void onError(Throwable t) {
-                final StatusError statusError = StatusErrors.throwable(t);
-                if (statusError.isSimpleError()) {
-                    thLogger.info("Failed to ping stream, id={}, cause={}", id, statusError.getMessage());
-                } else {
-                    thLogger.warn("Failed to ping stream, id={}, cause={}", id, statusError.getMessage(), statusError.getThrowable());
+                final Status status = Status.fromThrowable(t);
+                final Metadata metadata = Status.trailersFromThrowable(t);
+                if (thLogger.isInfoEnabled()) {
+                    thLogger.info("Failed to ping stream, id={}, {} metadata:{}", id, status, metadata);
                 }
                 disconnect();
             }

@@ -129,7 +129,8 @@ public class HelloWorldStreamServer implements InitializingBean, DisposableBean 
                     @Override
                     public void onError(Throwable t) {
                         // End the response stream if the client presents an error.
-                        t.printStackTrace();
+                        Status status = Status.fromThrowable(t);
+                        logger.info("onError:{}", status);
                         responseObserver.onCompleted();
                     }
 

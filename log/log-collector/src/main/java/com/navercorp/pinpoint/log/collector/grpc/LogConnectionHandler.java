@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.log.dto.LogDemand;
 import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.vo.Log;
 import com.navercorp.pinpoint.log.vo.LogPile;
+import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -71,7 +72,8 @@ class LogConnectionHandler implements StreamObserver<PLogPile>, Consumer<LogDema
 
     @Override
     public void onError(Throwable throwable) {
-        logger.error("Error on log {}: {}", this.fileKey, throwable.getMessage());
+        Status status = Status.fromThrowable(throwable);
+        logger.error("Error on log {}: {}", this.fileKey, status);
         this.disposable.dispose();
     }
 

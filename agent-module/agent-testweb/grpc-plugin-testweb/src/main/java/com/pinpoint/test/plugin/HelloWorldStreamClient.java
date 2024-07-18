@@ -18,22 +18,24 @@ package com.pinpoint.test.plugin;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
 import io.grpc.examples.manualflowcontrol.StreamingGreeterGrpc;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 /**
  * @author Taejin Koo
  */
 public class HelloWorldStreamClient {
-    private final Logger logger = Logger.getLogger(HelloWorldStreamClient.class.getName());
+    private final Logger logger = LogManager.getLogger(HelloWorldStreamClient.class);
 
     private final ManagedChannel channel;
     private final StreamingGreeterGrpc.StreamingGreeterStub stub;
@@ -125,7 +127,8 @@ public class HelloWorldStreamClient {
 
                     @Override
                     public void onError(Throwable t) {
-                        t.printStackTrace();
+                        Status status = Status.fromThrowable(t);
+                        logger.info("onError:{}", status);
                         done.countDown();
                     }
 

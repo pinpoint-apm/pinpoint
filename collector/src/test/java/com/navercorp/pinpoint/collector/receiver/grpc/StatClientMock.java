@@ -27,11 +27,12 @@ import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
+import io.grpc.Status;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -102,7 +103,8 @@ public class StatClientMock {
 
             @Override
             public void onError(Throwable throwable) {
-                logger.info("Error ", throwable);
+                Status status = Status.fromThrowable(throwable);
+                logger.info("onError:{}", status);
             }
 
             @Override

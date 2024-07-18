@@ -28,6 +28,8 @@ import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -36,7 +38,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 /**
  * copy grpc framework
@@ -44,7 +45,7 @@ import java.util.logging.Logger;
  */
 public class HelloWorldStreamServer implements HelloWorldServer {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass().getName());
 
     private int requestCount;
 
@@ -141,7 +142,8 @@ public class HelloWorldStreamServer implements HelloWorldServer {
                     @Override
                     public void onError(Throwable t) {
                         // End the response stream if the client presents an error.
-                        t.printStackTrace();
+                        Status status = Status.fromThrowable(t);
+                        logger.info("onError:{}", status);
                         responseObserver.onCompleted();
                     }
 

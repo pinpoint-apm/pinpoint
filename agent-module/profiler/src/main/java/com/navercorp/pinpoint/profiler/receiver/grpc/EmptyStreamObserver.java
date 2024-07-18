@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
 import com.google.protobuf.Empty;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +36,8 @@ public class EmptyStreamObserver implements StreamObserver<Empty> {
 
     @Override
     public void onError(Throwable t) {
-        logger.info("onError. message:{}", t.getMessage(), t);
+        Status status = Status.fromThrowable(t);
+        logger.info("onError:{}", status);
     }
 
     @Override
