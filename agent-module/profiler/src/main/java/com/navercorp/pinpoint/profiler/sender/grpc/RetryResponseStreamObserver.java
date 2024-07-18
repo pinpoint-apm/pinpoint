@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.google.protobuf.TextFormat;
-import com.navercorp.pinpoint.grpc.StatusError;
-import com.navercorp.pinpoint.grpc.StatusErrors;
+import io.grpc.Metadata;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+
+import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
+import static com.navercorp.pinpoint.grpc.MessageFormatUtils.getSimpleClasName;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -46,12 +47,12 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
         if (retryScheduler.isSuccess(response)) {
             // Success
             if (logger.isDebugEnabled()) {
-                logger.debug("Request success. request={}, result={}", logString(message), logString(response));
+                logger.debug("Request success. request={}, result={}", debugLog(message), debugLog((response)));
             }
         } else {
             // Retry
             if (logger.isInfoEnabled()) {
-                logger.info("Request failed. PResult.getSuccess() is false. request={}, result={}", logString(message), logString(response));
+                logger.info("Request failed. PResult.getSuccess() is false. request={}, result={}", debugLog(message), debugLog((response)));
             }
             retryScheduler.scheduleNextRetry(message, nextRetryCount());
         }
@@ -60,11 +61,13 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
 
     @Override
     public void onError(Throwable throwable) {
-        final StatusError statusError = StatusErrors.throwable(throwable);
-        if (statusError.isSimpleError()) {
-            logger.info("Error. request={}, cause={}", logString(message), statusError.getMessage());
-        } else {
-            logger.info("Error. request={}, cause={}", logString(message), statusError.getMessage(), statusError.getThrowable());
+        final Status status = Status.fromThrowable(throwable);
+        final Metadata metadata = Status.trailersFromThrowable(throwable);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("onError. request={}, {} metadata={}", debugLog(message), status, metadata);
+        } else if (logger.isInfoEnabled()) {
+            logger.info("onError. request={}, {} metadata={}", getSimpleClasName(message), status, metadata);
         }
 
         // Retry
@@ -79,14 +82,6 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
         return retryCount + 1;
     }
 
-    private String logString(Object message) {
-        if (message == null) {
-            return "NULL";
-        }
-        if (message instanceof GeneratedMessageV3) {
-            GeneratedMessageV3 messageV3 = (GeneratedMessageV3) message;
-            return TextFormat.shortDebugString(messageV3);
-        }
-        return message.toString();
-    }
+
+
 }

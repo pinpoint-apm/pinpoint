@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.TextFormat;
-import com.navercorp.pinpoint.grpc.StatusError;
-import com.navercorp.pinpoint.grpc.StatusErrors;
+import io.grpc.Metadata;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.Logger;
 
@@ -46,18 +46,10 @@ public class LogResponseStreamObserver<ResT> implements StreamObserver<ResT> {
 
     @Override
     public void onError(Throwable throwable) {
+        Status status = Status.fromThrowable(throwable);
+        Metadata metadata = Status.trailersFromThrowable(throwable);
         if (logger.isInfoEnabled()) {
-            final StatusError statusError = StatusErrors.throwable(throwable);
-            if (statusError.isSimpleError()) {
-                logger.info("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage());
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage(), statusError.getThrowable());
-                } else {
-                    logger.info("{} Error. requestId={}, cause={}", name, requestId, statusError.getMessage());
-                }
-
-            }
+            logger.info("{} Error. requestId={}, {} {}", name, requestId, status, metadata);
         }
     }
 

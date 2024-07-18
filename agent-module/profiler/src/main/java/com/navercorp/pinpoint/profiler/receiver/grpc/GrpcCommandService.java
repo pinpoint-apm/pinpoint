@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.grpc.StatusError;
-import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.client.SupportCommandCodeClientInterceptor;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
@@ -26,6 +24,8 @@ import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.Reconnector;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamUtils;
+import io.grpc.Metadata;
+import io.grpc.Status;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import org.apache.logging.log4j.LogManager;
@@ -140,12 +140,9 @@ public class GrpcCommandService {
 
         @Override
         public void onError(Throwable t) {
-            final StatusError statusError = StatusErrors.throwable(t);
-            if (statusError.isSimpleError()) {
-                logger.info("Failed to command stream, cause={}", statusError.getMessage());
-            } else {
-                logger.warn("Failed to command stream, cause={}", statusError.getMessage(), statusError.getThrowable());
-            }
+            Status status = Status.fromThrowable(t);
+            Metadata metadata = Status.trailersFromThrowable(t);
+            logger.info("Failed to command stream, {} {}", status, metadata);
 
             if (requestStream != null) {
                 requestStream.onError(t);

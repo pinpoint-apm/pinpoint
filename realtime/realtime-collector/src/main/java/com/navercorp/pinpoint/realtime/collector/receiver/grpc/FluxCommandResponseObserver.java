@@ -86,10 +86,11 @@ public abstract class FluxCommandResponseObserver<T> implements StreamObserver<T
 
     @Override
     public void onError(Throwable t) {
-        if (t.getMessage().startsWith("CANCELLED")) {
-            logger.info("Stream cancelled: sinkId = {}", sinkId);
+        final Status status = Status.fromThrowable(t);
+        if (Status.CANCELLED == status) {
+            logger.info("Stream cancelled: sinkId = {} {}", sinkId, status);
         } else {
-            logger.warn("Stream error: sinkId = {}, message = {}", sinkId, t.getMessage(), t);
+            logger.warn("Stream error: sinkId = {}, {}", sinkId, status);
         }
 
         this.connectionObserver.onCompleted();

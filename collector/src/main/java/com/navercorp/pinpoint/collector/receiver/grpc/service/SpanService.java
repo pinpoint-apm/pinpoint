@@ -20,8 +20,6 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.StatusError;
-import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -34,6 +32,7 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
@@ -84,11 +83,10 @@ public class SpanService extends SpanGrpc.SpanImplBase {
             public void onError(Throwable throwable) {
                 com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
 
-                final StatusError statusError = StatusErrors.throwable(throwable);
-                if (statusError.isSimpleError()) {
-                    logger.info("Failed to span stream, {} cause={}", header, statusError.getMessage(), statusError.getThrowable());
-                } else {
-                    logger.warn("Failed to span stream, {} cause={}", header, statusError.getMessage(), statusError.getThrowable());
+                Status status = Status.fromThrowable(throwable);
+                Metadata metadata = Status.trailersFromThrowable(throwable);
+                if (logger.isInfoEnabled()) {
+                    logger.info("Failed to span stream, {} {} {}", header, status, metadata);
                 }
             }
 

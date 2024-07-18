@@ -22,6 +22,7 @@ import io.grpc.Status;
 /**
  * @author jaehong.kim
  */
+@Deprecated
 public class StatusErrors {
     static final String CONNECTION_REFUSED_MESSAGE = "Connection refused: no further information";
     static final String CANCELLED_BEFORE_RECEIVING_HALF_CLOSE = "CANCELLED: cancelled before receiving half close";

@@ -157,7 +157,8 @@ public class AgentClientMock {
 
         @Override
         public void onError(Throwable throwable) {
-            logger.info("Error ", throwable);
+            Status status = Status.fromThrowable(throwable);
+            logger.info("onError:{}", status);
         }
 
         @Override

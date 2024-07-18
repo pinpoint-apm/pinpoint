@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.it.plugin.grpc;
 
 import com.navercorp.pinpoint.it.plugin.utils.ExecutorUtils;
 import io.grpc.ManagedChannel;
-import io.grpc.Metadata;
+import io.grpc.Status;
 import io.grpc.examples.manualflowcontrol.HelloReply;
 import io.grpc.examples.manualflowcontrol.HelloRequest;
 import io.grpc.examples.manualflowcontrol.StreamingGreeterGrpc;
@@ -29,6 +29,8 @@ import io.grpc.stub.MetadataUtils;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,7 +41,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
 /**
  * copy grpc framework
@@ -47,7 +48,7 @@ import java.util.logging.Logger;
  */
 public class HelloWorldStreamClient implements HelloWorldClient {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass().getName());
 
     private final ManagedChannel channel;
     private final StreamingGreeterGrpc.StreamingGreeterStub stub;
@@ -74,7 +75,7 @@ public class HelloWorldStreamClient implements HelloWorldClient {
         builder.eventLoopGroup(eventExecutors);
         builder.channelType(NioSocketChannel.class);
 
-        builder.intercept(MetadataUtils.newCaptureMetadataInterceptor(new AtomicReference<Metadata>(), new AtomicReference<Metadata>()));
+        builder.intercept(MetadataUtils.newCaptureMetadataInterceptor(new AtomicReference<>(), new AtomicReference<>()));
         return builder.build();
     }
 
@@ -143,14 +144,15 @@ public class HelloWorldStreamClient implements HelloWorldClient {
 
                     @Override
                     public void onNext(HelloReply value) {
-                        logger.info("<-- " + value.getMessage());
+                        logger.info("<-- {}", value.getMessage());
                         // Signal the sender to send one message.
                         requestStream.request(1);
                     }
 
                     @Override
                     public void onError(Throwable t) {
-                        t.printStackTrace();
+                        Status status = Status.fromThrowable(t);
+                        logger.info("onError:{}", status);
                         done.countDown();
                     }
 

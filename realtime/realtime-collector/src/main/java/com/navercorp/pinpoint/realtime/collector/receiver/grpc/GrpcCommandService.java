@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.realtime.collector.receiver.grpc;
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.StatusError;
-import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
@@ -33,6 +31,7 @@ import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.realtime.collector.sink.ErrorSinkRepository;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
+import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
@@ -239,18 +238,12 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
             return;
         }
 
-        final StatusError statusError = StatusErrors.throwable(t);
-        if (statusError.isSimpleError()) {
-            logger.info("Failed to command stream, {} => local, cause={}",
-                    conn.getClusterKey(), statusError.getMessage());
-        } else {
-            logger.warn(
-                    "Failed to command stream, {} => local, cause={}",
-                    conn.getClusterKey(),
-                    statusError.getMessage(),
-                    statusError.getThrowable()
-            );
-        }
+        final Status status = Status.fromThrowable(t);
+        Metadata metadata = Status.trailersFromThrowable(t);
+
+        logger.info("Failed to command stream, {} => local, {} {}",
+                    conn.getClusterKey(), status, metadata);
+
     }
 
     private void handleOnCompleted(GrpcAgentConnection conn) {
@@ -353,7 +346,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
         @Override
         public void onError(Throwable t) {
-            logger.debug("onError", t);
+            Status status = Status.fromThrowable(t);
+            logger.debug("onError:{}", status);
         }
 
         @Override
