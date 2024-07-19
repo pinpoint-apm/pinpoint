@@ -90,7 +90,7 @@ public class HbaseAgentStatDaoOperations {
         }
 
         int resultLimit = 20;
-        Scan scan = this.createScan(agentStatType, agentId, range, resultLimit);
+        Scan scan = this.checkExist(agentStatType, agentId, range, resultLimit);
 
         TableName agentStatTableName = tableNameProvider.getTableName(columnFamily.getTable());
         List<List<T>> result = hbaseOperations.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultLimit, mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
@@ -130,5 +130,12 @@ public class HbaseAgentStatDaoOperations {
         return scan;
     }
 
-
+    private Scan checkExist(AgentStatType agentStatType, String agentId, Range range, int scanCacheSize) {
+        Scan scan = this.operationFactory.createScan(agentId, agentStatType, range.getFrom(), range.getTo());
+        scan.setCaching(scanCacheSize);
+        scan.setOneRowLimit();
+        scan.setId(agentStatType.getChartType());
+        scan.addFamily(columnFamily.getName());
+        return scan;
+    }
 }
