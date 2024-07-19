@@ -45,7 +45,7 @@ public class ClientCallStartInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
-    private final RequestTraceWriter requestTraceWriter;
+    private final RequestTraceWriter<Metadata> requestTraceWriter;
 
     public ClientCallStartInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
@@ -75,6 +75,7 @@ public class ClientCallStartInterceptor implements AroundInterceptor {
         }
 
         Metadata metadata = (Metadata) args[1];
+        requestTraceWriter.write(metadata, trace.getRequestId());
         if (!trace.canSampled()) {
             requestTraceWriter.write(metadata);
             return;

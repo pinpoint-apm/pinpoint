@@ -88,6 +88,7 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
         } else {
             requestTraceWriter.write(request);
         }
+        requestTraceWriter.write(request, trace.getRequestId());
     }
 
     @Override

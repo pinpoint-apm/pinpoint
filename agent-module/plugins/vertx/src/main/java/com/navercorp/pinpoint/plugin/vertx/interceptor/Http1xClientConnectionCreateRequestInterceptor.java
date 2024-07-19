@@ -98,6 +98,7 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
             }
 
             final HttpRequest request = (HttpRequest) result;
+            requestTraceWriter.write((HttpRequest) result, trace.getRequestId());
             final HttpHeaders headers = request.headers();
             if (headers == null) {
                 // defense code

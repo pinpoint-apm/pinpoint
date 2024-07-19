@@ -38,6 +38,10 @@ public interface Trace extends StackOperation {
 
     TraceId getTraceId();
 
+    RequestId getRequestId();
+
+    void setRequestId(RequestId id);
+
 
     boolean canSampled();
 

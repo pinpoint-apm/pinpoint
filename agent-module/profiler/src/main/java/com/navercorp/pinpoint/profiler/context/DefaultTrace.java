@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.RequestId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -56,6 +57,7 @@ public class DefaultTrace implements Trace {
     private final Span span;
 
     private final CloseListener closeListener;
+    private RequestId requestId;
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
@@ -214,6 +216,16 @@ public class DefaultTrace implements Trace {
     @Override
     public TraceId getTraceId() {
         return getTraceRoot().getTraceId();
+    }
+
+    @Override
+    public RequestId getRequestId() {
+        return requestId;
+    }
+
+    @Override
+    public void setRequestId(RequestId id) {
+        this.requestId = id;
     }
 
     @Override

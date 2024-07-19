@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,37 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 import com.navercorp.pinpoint.bootstrap.context.RequestId;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * @author yjqg6666
  */
-public interface RequestTraceWriter<T> {
-    void write(T header);
+public final class DefaultRequestId implements RequestId {
 
-    // Set transaction information in the request.
-    void write(T header, TraceId traceId, String host);
+    private final String requestId;
 
-    // Set RequestId information in the request.
-    void write(T header, RequestId requestId);
+    public DefaultRequestId() {
+        this(null);
+    }
+
+    public DefaultRequestId(String id) {
+        this.requestId = id;
+    }
+
+    @Override
+    public String toId() {
+        return requestId;
+    }
+
+    @Override
+    public boolean isSet() {
+        return requestId != null;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultRequestId{" +
+                "requestId='" + requestId + '\'' +
+                '}';
+    }
+
 }
