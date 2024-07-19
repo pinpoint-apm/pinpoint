@@ -20,6 +20,7 @@ export const useGetHeatmapDrag = (params?: { x2?: number }, options?: SWRConfigu
     y1: dragInfo.y1,
     y2: dragInfo.y2,
     application: application?.applicationName,
+    agentId: dragInfo.agentId ? dragInfo.agentId : undefined,
     dotStatus:
       dragInfo?.dotStatus?.length === 1
         ? dragInfo.dotStatus[0] === 'failed'
