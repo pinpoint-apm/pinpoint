@@ -26,9 +26,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.jdk.http.HttpURLConnectionClientHeaderAdaptor;
@@ -55,6 +57,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
     private final ClientRequestRecorder<HttpURLConnection> clientRequestRecorder;
     private final RequestTraceWriter<HttpURLConnection> requestTraceWriter;
     private final ClientRequestAdaptor<HttpURLConnection> clientRequestAdaptor = new JdkHttpClientRequestAdaptor();
+    private final ApplicationInfoSender<HttpURLConnection> applicationInfoSender;
 
     public AbstractHttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
@@ -65,6 +68,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
         this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
         final ClientHeaderAdaptor<HttpURLConnection> clientHeaderAdaptor = new HttpURLConnectionClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -107,6 +111,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
                     }
                 }
             }
+            this.applicationInfoSender.sendCallerApplicationName(request);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
