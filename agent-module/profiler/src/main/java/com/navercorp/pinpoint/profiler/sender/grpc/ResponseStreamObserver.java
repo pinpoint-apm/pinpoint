@@ -68,7 +68,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
         Status status = Status.fromThrowable(t);
         Metadata metadata = Status.trailersFromThrowable(t);
 
-        logger.info("Failed to stream, name={}, {} {}", listener, status, metadata);
+        logger.info("onError Failed to stream, name={}, {} {}", listener, status, metadata);
 
         listener.onError(t);
     }
