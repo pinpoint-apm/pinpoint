@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
-public abstract class OkHttpClient_3_4_0_BaseIT {
+public abstract class OkHttpClient_3_4_0_BaseIT extends OkHttpClient_3_BaseIT {
     static final String ASYNC = "ASYNC";
     static final String OK_HTTP_CLIENT = "OK_HTTP_CLIENT";
     static final String OK_HTTP_CLIENT_INTERNAL = "OK_HTTP_CLIENT_INTERNAL";
@@ -80,6 +80,8 @@ public abstract class OkHttpClient_3_4_0_BaseIT {
                 annotation("http.internal.display", hostAndPort)));
 
         verifier.verifyTraceCount(0);
+
+        assertCaller(response);
     }
 
     @Test
@@ -131,6 +133,8 @@ public abstract class OkHttpClient_3_4_0_BaseIT {
                 annotation("http.internal.display", hostAndPort)));
 
         verifier.verifyTraceCount(0);
+
+        assertCaller(response);
     }
 
     private Method getConnectMethod(Class<?> realConnectionClass) throws ClassNotFoundException {
