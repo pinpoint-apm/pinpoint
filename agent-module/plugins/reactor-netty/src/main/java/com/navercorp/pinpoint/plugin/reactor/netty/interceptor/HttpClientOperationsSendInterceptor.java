@@ -23,10 +23,12 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
@@ -39,6 +41,7 @@ import reactor.netty.http.client.HttpClientRequest;
 public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
+    private final ApplicationInfoSender<HttpClientRequest> applicationInfoSender;
 
     public HttpClientOperationsSendInterceptor(TraceContext traceContext) {
         super(traceContext);
@@ -49,6 +52,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventAp
         this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
         final HttpClientRequestHeaderAdaptor clientHeaderAdaptor = new HttpClientRequestHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     // BEFORE
@@ -75,6 +79,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventAp
             // Set sampling rate to false
             this.requestTraceWriter.write(request);
         }
+        this.applicationInfoSender.sendCallerApplicationName(request);
     }
 
     @Override
