@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
@@ -35,6 +36,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestExecutor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -56,12 +58,19 @@ public class HttpClientIT extends HttpClientITBase {
     @Test
     public void test() throws Exception {
         HttpClient httpClient = new DefaultHttpClient();
+        String caller=null;
         try {
             HttpPost post = new HttpPost(getAddress());
             post.addHeader("Content-Type", "application/json;charset=UTF-8");
 
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            httpClient.execute(post, responseHandler);
+            ResponseHandler<String> callerExtractor = new BasicResponseHandler() {
+                public String handleResponse(HttpResponse response) {
+                    return getCallerApp(response);
+                }
+            };
+
+            caller = httpClient.execute(post, callerExtractor);
+        } catch (Exception ignored) {
         } finally {
             if (null != httpClient.getConnectionManager()) {
                 httpClient.getConnectionManager().shutdown();
@@ -95,5 +104,7 @@ public class HttpClientIT extends HttpClientITBase {
                         annotation("http.io", anyAnnotationValue())
                 ));
         verifier.verifyTraceCount(0);
+        Assertions.assertNotNull(caller,"caller null");
+        Assertions.assertTrue("mockApplicationName".contentEquals(caller), "not caller mockApplicationName");
     }
 }

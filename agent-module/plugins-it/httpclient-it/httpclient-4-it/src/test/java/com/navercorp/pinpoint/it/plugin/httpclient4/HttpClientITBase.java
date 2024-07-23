@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.it.plugin.httpclient4;
 
 import com.navercorp.pinpoint.it.plugin.utils.WebServer;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -41,4 +44,16 @@ public abstract class HttpClientITBase {
     public static String getHostPort() {
         return webServer.getHostAndPort();
     }
+
+    public String getCallerApp(HttpResponse response) {
+        if (response == null) {
+            return null;
+        }
+        final Header callerHeader = response.getFirstHeader(WebServer.CALLER_RESPONSE_HEADER_NAME);
+        if (callerHeader != null) {
+            return callerHeader.getValue();
+        }
+        return null;
+    }
+
 }
