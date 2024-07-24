@@ -26,7 +26,6 @@ import io.grpc.ServerCallExecutorSupplier;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
-import io.grpc.internal.ServerImplBuilder;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -38,7 +37,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLException;
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -149,8 +147,7 @@ public class ServerFactory {
         serverBuilder.bossEventLoopGroup(bossEventLoopGroup);
         serverBuilder.workerEventLoopGroup(workerEventLoopGroup);
 
-        ServerImplBuilder serverImplBuilder = extractServerImplBuilder(serverBuilder);
-        setupInternal(serverImplBuilder);
+        NettyStatsOptions.disableStats(serverBuilder);
 
         for (ServerServiceDefinition service : this.bindableServices) {
             logger.info("Add ServerServiceDefinition={}, server={}", service.getServiceDescriptor(), name);
@@ -190,19 +187,6 @@ public class ServerFactory {
         return server;
     }
 
-    public static ServerImplBuilder extractServerImplBuilder(NettyServerBuilder serverBuilder)
-            throws NoSuchFieldException, IllegalAccessException {
-        Field serverImplBuilderField = NettyServerBuilder.class.getDeclaredField("serverImplBuilder");
-        serverImplBuilderField.setAccessible(true);
-        return (ServerImplBuilder) serverImplBuilderField.get(serverBuilder);
-    }
-
-    private void setupInternal(ServerImplBuilder builder) {
-        builder.setTracingEnabled(false);
-        builder.setStatsEnabled(false);
-        builder.setStatsRecordRealTimeMetrics(false);
-        builder.setStatsRecordStartedRpcs(false);
-    }
 
     private void setupServerOption(NettyServerBuilder builder) {
         // TODO @see PinpointServerAcceptor
