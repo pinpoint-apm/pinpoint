@@ -50,6 +50,7 @@ import java.util.Map;
 @Validated
 public class AgentStatController<DP extends AgentStatDataPoint> {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final TimeWindowSampler defaultStatTimeWindowSampler = new TimeWindowSlotCentricSampler();
 
     private final Map<String, AgentStatService<DP>> agentStatServiceMap;
 
@@ -103,8 +104,7 @@ public class AgentStatController<DP extends AgentStatDataPoint> {
             @PathVariable("chartType") @NotBlank String chartType,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
-        final TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
-        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), defaultStatTimeWindowSampler);
 
         final AgentStatChartService<?> agentStatChartService =
                 getChartService(this.agentStatChartServiceMap, chartType);
@@ -134,8 +134,7 @@ public class AgentStatController<DP extends AgentStatDataPoint> {
             @PathVariable("chartType") @NotBlank String chartType,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
-        final TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
-        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), defaultStatTimeWindowSampler);
 
         final AgentStatChartService<? extends StatChart<?>> agentStatChartService =
                 getChartService(this.agentStatChartServiceMap, chartType);

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 public class TimeWindowSlotCentricSampler implements TimeWindowSampler {
 
     private static final long ONE_SECOND = 1000L;
-    static final long DEFAULT_MINIMUM_TIMESLOT = 5 * ONE_SECOND;
+    static final long DEFAULT_MINIMUM_TIMESLOT = 10 * ONE_SECOND;
     static final long DEFAULT_IDEAL_NUM_TIMESLOTS = 200;
     
     private final long minTimeslot;

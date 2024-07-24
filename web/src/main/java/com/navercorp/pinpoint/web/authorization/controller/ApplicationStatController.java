@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationStatChartService;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class ApplicationStatController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final TimeWindowSampler defaultTimeWindowSampler = new TimeWindowSlotCentricSampler();
 
     private final Map<String, ApplicationStatChartService> chartServiceMap;
 
@@ -51,8 +53,7 @@ public class ApplicationStatController {
                                        @PathVariable("chartType") @NotBlank String chartType,
                                        @RequestParam("from") @PositiveOrZero long from,
                                        @RequestParam("to") @PositiveOrZero long to) {
-        final TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
-        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(from, to), defaultTimeWindowSampler);
         try {
             final ApplicationStatChartService<? extends StatChart> service = getService(chartType);
             return service.selectApplicationChart(applicationId, timeWindow);

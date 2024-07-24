@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationDataSourceService;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
@@ -22,6 +23,7 @@ import java.util.List;
 @Validated
 public class ApplicationDataSourceController {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final TimeWindowSampler defaultTimeWindowSampler = new TimeWindowSlotCentricSampler();
 
     private final ApplicationDataSourceService applicationDataSourceService;
 
@@ -35,8 +37,7 @@ public class ApplicationDataSourceController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to
     ) {
-        TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), defaultTimeWindowSampler);
         try {
             return this.applicationDataSourceService.selectApplicationChart(applicationId, timeWindow);
         } catch (Exception e ) {
