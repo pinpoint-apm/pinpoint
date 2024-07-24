@@ -45,7 +45,7 @@ import java.util.Objects;
 @RequestMapping("/api/inspector/agentStat")
 public class AgentInspectorStatController {
 
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(5000L, 200);
+    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, 200);
     private final AgentStatService agentStatService;
     private final ApdexStatService apdexStatService;
     private final TenantProvider tenantProvider;
