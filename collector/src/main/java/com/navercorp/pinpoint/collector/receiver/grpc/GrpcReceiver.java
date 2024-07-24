@@ -17,13 +17,18 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
+import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
+import com.navercorp.pinpoint.collector.receiver.grpc.monitor.EmptyMonitor;
+import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import com.navercorp.pinpoint.grpc.server.ConnectionCountServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
+import com.navercorp.pinpoint.grpc.server.StreamCountInterceptor;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import com.navercorp.pinpoint.grpc.util.ServerUtils;
@@ -78,6 +83,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private Server server;
     private ChannelzRegistry channelzRegistry;
 
+    private boolean enableMonitor = true;
+    private Monitor monitor;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -91,6 +99,11 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Objects.requireNonNull(this.addressFilter, "addressFilter");
         Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
         Objects.requireNonNull(this.serverOption, "serverOption");
+        if (enableMonitor) {
+            this.monitor = new BasicMonitor(beanName + "-Monitor");
+        } else {
+            this.monitor = new EmptyMonitor();
+        }
 
         if (sslContext != null) {
             this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption, sslContext);
@@ -100,6 +113,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
+
+        ConnectionCountServerTransportFilter countFilter = new ConnectionCountServerTransportFilter();
+        this.serverFactory.addTransportFilter(countFilter);
 
         TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory(beanName);
         // Mandatory interceptor
@@ -116,6 +132,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
         this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
 
+        StreamCountInterceptor streamCountInterceptor = new StreamCountInterceptor();
+        this.serverFactory.addInterceptor(streamCountInterceptor);
+
         if (CollectionUtils.hasLength(serverInterceptorList)) {
             for (ServerInterceptor serverInterceptor : serverInterceptorList) {
                 this.serverFactory.addInterceptor(serverInterceptor);
@@ -124,6 +143,10 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         if (channelzRegistry != null) {
             this.serverFactory.setChannelzRegistry(channelzRegistry);
         }
+
+        this.monitor.register(() -> {
+            logger.info("{} CurrentTransport:{}, CurrentGrpcStream:{}", beanName, countFilter.getCurrentConnection(), streamCountInterceptor.getCurrentStream());
+        });
 
         // Add service
         addService();
@@ -170,6 +193,8 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         if (logger.isInfoEnabled()) {
             logger.info("Destroy {} server {}", this.beanName, this.server);
         }
+
+        monitor.close();
 
         shutdownServer();
 
@@ -242,4 +267,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.channelzRegistry = Objects.requireNonNull(channelzRegistry, "channelzRegistry");
     }
 
+    public void setEnableMonitor(boolean enableMonitor) {
+        this.enableMonitor = enableMonitor;
+    }
 }
