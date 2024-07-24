@@ -15,5 +15,12 @@
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-server</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>

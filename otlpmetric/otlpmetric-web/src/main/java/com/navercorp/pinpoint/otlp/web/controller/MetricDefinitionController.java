@@ -16,9 +16,15 @@
 
 package com.navercorp.pinpoint.otlp.web.controller;
 
-import com.navercorp.pinpoint.otlp.common.definition.MetricDefinitionProperty;
-import com.navercorp.pinpoint.otlp.web.service.MetricDefinitionService;
+import com.navercorp.pinpoint.common.server.response.Response;
+import com.navercorp.pinpoint.common.server.response.SimpleResponse;
+import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.definition.property.MetricDefinitionProperty;
+import com.navercorp.pinpoint.otlp.web.service.AppMetricDefinitionService;
+import com.navercorp.pinpoint.otlp.web.service.MetricMetadataService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,14 +36,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/otlp")
 public class MetricDefinitionController {
 
-    private final MetricDefinitionService metricDefinitionService;
+    private final MetricMetadataService metricMetadataService;
+    private final AppMetricDefinitionService appMetricDefinitionService;
 
-    public MetricDefinitionController(MetricDefinitionService metricDefinitionService) {
-        this.metricDefinitionService = metricDefinitionService;
+    public MetricDefinitionController(MetricMetadataService metricMetadataService, AppMetricDefinitionService appMetricDefinitionService) {
+        this.appMetricDefinitionService = appMetricDefinitionService;
+        this.metricMetadataService = metricMetadataService;
     }
 
-    @GetMapping("/metricDefinition/info")
-    public MetricDefinitionProperty getMetricDefinitionInfo(@RequestParam("applicationName") String applicationName) {
-        return metricDefinitionService.getMetricDefinitionInfo(applicationName);
+    @GetMapping("/metricDef/property")
+    public MetricDefinitionProperty getMetricDefinitionProperty(@RequestParam("applicationName") String applicationName) {
+        return metricMetadataService.getMetricDefinitionInfo(applicationName);
+    }
+
+    @PostMapping("/metricDef/userDefined")
+    public Response addUserDefinedMetric(@RequestBody AppMetricDefinition appMetricDefinition) {
+        appMetricDefinitionService.addUserDefinedMetric(appMetricDefinition);
+        return SimpleResponse.ok();
     }
 }

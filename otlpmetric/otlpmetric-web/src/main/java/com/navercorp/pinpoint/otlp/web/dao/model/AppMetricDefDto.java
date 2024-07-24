@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.definition;
-
-import java.util.List;
+package com.navercorp.pinpoint.otlp.web.dao.model;
 
 /**
  * @author minwoo-jung
  */
-public record MetricDefinitionProperty (List<MetricGroup> metricGroupList, List<String> chartTypeList, List<String> aggregationFunctionList) {
+public record AppMetricDefDto(String applicationName, int schemaVersion, String metricDefinition) {
 }
