@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.definition;
+package com.navercorp.pinpoint.otlp.web.service;
+
+import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
 
 /**
  * @author minwoo-jung
  */
-public record Tag(String tag, String unit) {
+public interface AppMetricDefinitionService {
+    void addUserDefinedMetric(AppMetricDefinition appMetricMetadata);
 }

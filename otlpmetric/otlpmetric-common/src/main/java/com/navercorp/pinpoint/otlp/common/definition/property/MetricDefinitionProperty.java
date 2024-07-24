@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.web.service;
+package com.navercorp.pinpoint.otlp.common.definition.property;
 
-import com.navercorp.pinpoint.otlp.common.definition.MetricDefinitionProperty;
+import java.util.List;
 
 /**
  * @author minwoo-jung
  */
-public interface MetricDefinitionService {
-    MetricDefinitionProperty getMetricDefinitionInfo(String applicationName);
+public record MetricDefinitionProperty (List<MetricGroup> metricGroupList, List<String> chartTypeList, List<String> aggregationFunctionList) {
 }

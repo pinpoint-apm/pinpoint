@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.navercorp.pinpoint.otlp.web.dao.AppMetricDefinitionDao">
+
+    <insert id="insertAppMetricDefinition" parameterType="AppMetricDefDto">
+        INSERT INTO application_metric_definition
+        (application_name, metric_definition, schema_version)
+        VALUES
+            (#{applicationName}, #{metricDefinition}, #{schemaVersion})
+    </insert>
+
+
+    <select id="selectAppMetricDefinition" parameterType="string" resultType="AppMetricDefDto">
+        SELECT *
+        FROM application_metric_definition
+        WHERE application_name = #{applicationName}
+    </select>
+</mapper>

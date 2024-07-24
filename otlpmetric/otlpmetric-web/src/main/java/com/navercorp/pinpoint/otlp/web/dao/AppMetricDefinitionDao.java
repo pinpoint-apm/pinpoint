@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.otlp.web.dao;
 
-import com.navercorp.pinpoint.otlp.common.definition.property.MetricGroup;
+import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
 
 import java.util.List;
 
 /**
  * @author minwoo-jung
  */
-public interface MetricDefinitionDao {
-
-    List<MetricGroup> getMetricGroupList(String applicationName);
+public interface AppMetricDefinitionDao {
+    void insertAppMetricDefinitionList(List<AppMetricDefinition> appMetricMetadataList);
 }

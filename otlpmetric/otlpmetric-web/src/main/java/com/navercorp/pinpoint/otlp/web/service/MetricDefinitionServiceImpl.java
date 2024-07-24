@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.otlp.web.service;
 
-import com.navercorp.pinpoint.otlp.common.definition.MetricDefinitionProperty;
-import com.navercorp.pinpoint.otlp.common.definition.MetricGroup;
+import com.navercorp.pinpoint.otlp.common.definition.property.MetricDefinitionProperty;
+import com.navercorp.pinpoint.otlp.common.definition.property.MetricGroup;
 import com.navercorp.pinpoint.otlp.web.dao.MetricDefinitionDao;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +31,7 @@ import java.util.List;
  * @author minwoo-jung
  */
 @Service
-public class MetricDefinitionServiceImpl implements MetricDefinitionService {
+public class MetricDefinitionServiceImpl implements MetricMetadataService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final MetricDefinitionDao metricDefinitionDao;

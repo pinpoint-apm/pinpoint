@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.web.dao;
-
-import com.navercorp.pinpoint.otlp.common.definition.property.MetricGroup;
-
-import java.util.List;
+package com.navercorp.pinpoint.otlp.common.definition.property;
 
 /**
  * @author minwoo-jung
  */
-public interface MetricDefinitionDao {
-
-    List<MetricGroup> getMetricGroupList(String applicationName);
+public record Tag(String tag, String unit) {
 }

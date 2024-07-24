@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.definition;
+package com.navercorp.pinpoint.otlp.common.definition.property;
 
 import java.util.HashMap;
 import java.util.List;
