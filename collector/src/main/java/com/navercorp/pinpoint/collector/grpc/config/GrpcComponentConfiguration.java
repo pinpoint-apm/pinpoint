@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
+import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
 import io.grpc.ServerTransportFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -54,4 +57,12 @@ public class GrpcComponentConfiguration {
         return new CollectorGrpcSpanFactory(grpcSpanBinder, spanEventFilter);
     }
 
+    @Bean
+    public Monitor grpcReceiverMonitor(@Value("${collector.receiver.grpc.monitor.enable:true}") boolean enable) {
+        if (enable) {
+            return new BasicMonitor("GrpcReceiverMonitor");
+        } else {
+            return Monitor.NONE;
+        }
+    }
 }
