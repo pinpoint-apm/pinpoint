@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.otlp.web.dao.model;
 /**
  * @author minwoo-jung
  */
-public record AppMetricDefDto(String applicationName, int schemaVersion, String metricDefinition) {
+public record AppMetricDefDto(String applicationName, String metricDefinition, int schemaVersion) {
 }

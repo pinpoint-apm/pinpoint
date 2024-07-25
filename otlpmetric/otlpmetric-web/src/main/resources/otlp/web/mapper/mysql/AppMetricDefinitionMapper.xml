@@ -11,7 +11,7 @@
 
 
     <select id="selectAppMetricDefinition" parameterType="string" resultType="AppMetricDefDto">
-        SELECT *
+        SELECT application_name, metric_definition, schema_version
         FROM application_metric_definition
         WHERE application_name = #{applicationName}
     </select>

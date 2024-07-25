@@ -18,9 +18,13 @@ package com.navercorp.pinpoint.otlp.web.service;
 
 import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
 
+import java.util.List;
+
 /**
  * @author minwoo-jung
  */
 public interface AppMetricDefinitionService {
     void addUserDefinedMetric(AppMetricDefinition appMetricMetadata);
+
+    List<AppMetricDefinition> getUserDefinedMetric(String applicationName);
 }

@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * @author minwoo-jung
  */
@@ -53,5 +55,10 @@ public class MetricDefinitionController {
     public Response addUserDefinedMetric(@RequestBody AppMetricDefinition appMetricDefinition) {
         appMetricDefinitionService.addUserDefinedMetric(appMetricDefinition);
         return SimpleResponse.ok();
+    }
+
+    @GetMapping("/metricDef/userDefined")
+    public List<AppMetricDefinition> addUserDefinedMetric(@RequestParam("applicationName") String applicationName) {
+        return appMetricDefinitionService.getUserDefinedMetric(applicationName);
     }
 }
