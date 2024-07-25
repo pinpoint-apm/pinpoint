@@ -58,12 +58,12 @@ public class StatisticsService {
      * @param isError isError
      */
     public void updateCaller(
-            @NotBlank String callerApplicationName,
-            ServiceType callerServiceType,
-            @NotBlank String callerAgentId,
-            @NotBlank String calleeApplicationName,
-            ServiceType calleeServiceType,
-            String calleeHost,
+            @NotBlank String callerApplicationName, // src
+            ServiceType callerServiceType, //src
+            @NotBlank String callerAgentId, //src
+            @NotBlank String calleeApplicationName, //dest
+            ServiceType calleeServiceType, //dest
+            String calleeHost, //dest
             int elapsed,
             boolean isError
     ) {
@@ -85,11 +85,11 @@ public class StatisticsService {
      * @param isError isError
      */
     public void updateCallee(
-            @NotBlank String calleeApplicationName,
-            ServiceType calleeServiceType,
-            @NotBlank String callerApplicationName,
-            ServiceType callerServiceType,
-            String callerHost,
+            @NotBlank String calleeApplicationName, // dest
+            ServiceType calleeServiceType, // dest
+            @NotBlank String callerApplicationName, //src
+            ServiceType callerServiceType, //src
+            String callerHost, //src
             int elapsed,
             boolean isError
     ) {

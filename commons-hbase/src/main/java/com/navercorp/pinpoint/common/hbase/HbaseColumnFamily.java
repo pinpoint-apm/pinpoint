@@ -135,6 +135,30 @@ public class HbaseColumnFamily {
         }
     }
 
+
+    public static final OutboundServiceMap MAP_STATISTICS_OUTBOUND_SERVICE_GROUP_COUNTER = new OutboundServiceMap(HbaseTable.MAP_STATISTICS_OUTBOUND_SERVICE_GROUP, Bytes.toBytes("C"));
+    public static class OutboundServiceMap extends HbaseColumnFamily {
+        private OutboundServiceMap(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final InboundServiceMap MAP_STATISTICS_INBOUND_SERVICE_GROUP_COUNTER = new InboundServiceMap(HbaseTable.MAP_STATISTICS_INBOUND_SERVICE_GROUP, Bytes.toBytes("C"));
+    public static class InboundServiceMap extends HbaseColumnFamily {
+        private InboundServiceMap(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final SelfServiceMap MAP_STATISTICS_SELF_SERVICE_GROUP_COUNTER = new SelfServiceMap(HbaseTable.MAP_STATISTICS_SELF_SERVICE_GROUP, Bytes.toBytes("C"));
+    public static class SelfServiceMap extends HbaseColumnFamily {
+        private SelfServiceMap(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+
+
     public static final SqlMetadataV2 SQL_METADATA_VER2_SQL = new SqlMetadataV2(HbaseTable.SQL_METADATA_VER2, Bytes.toBytes("Sql"));
 
     public static class SqlMetadataV2 extends HbaseColumnFamily {
