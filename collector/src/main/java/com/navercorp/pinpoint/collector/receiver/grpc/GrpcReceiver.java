@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
-import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
-import com.navercorp.pinpoint.collector.receiver.grpc.monitor.EmptyMonitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -83,8 +81,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private Server server;
     private ChannelzRegistry channelzRegistry;
 
-    private boolean enableMonitor = true;
-    private Monitor monitor;
+    private Monitor monitor = Monitor.NONE;
 
 
     @Override
@@ -99,11 +96,6 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Objects.requireNonNull(this.addressFilter, "addressFilter");
         Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
         Objects.requireNonNull(this.serverOption, "serverOption");
-        if (enableMonitor) {
-            this.monitor = new BasicMonitor(beanName + "-Monitor");
-        } else {
-            this.monitor = new EmptyMonitor();
-        }
 
         if (sslContext != null) {
             this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption, sslContext);
@@ -267,7 +259,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.channelzRegistry = Objects.requireNonNull(channelzRegistry, "channelzRegistry");
     }
 
-    public void setEnableMonitor(boolean enableMonitor) {
-        this.enableMonitor = enableMonitor;
+    public void setMonitor(Monitor monitor) {
+        this.monitor = Objects.requireNonNull(monitor, "monitor");
     }
 }

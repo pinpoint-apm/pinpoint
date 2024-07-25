@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
 import com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSupplier;
+import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
@@ -117,7 +118,8 @@ public class GrpcAgentConfiguration {
                                           @Qualifier("grpcAgentServerExecutor")
                                           Executor grpcSpanExecutor,
                                           @Qualifier("grpcAgentServerCallExecutorSupplier")
-                                          SimpleServerCallExecutorSupplier simpleServerCallExecutorSupplier) {
+                                          SimpleServerCallExecutorSupplier simpleServerCallExecutorSupplier,
+                                          Monitor monitor) {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBindAddress(properties.getBindAddress());
         grpcReceiver.setAddressFilter(addressFilter);
@@ -129,6 +131,8 @@ public class GrpcAgentConfiguration {
         grpcReceiver.setServerOption(properties.getServerOption());
 
         grpcReceiver.setServerCallExecutorSupplier(simpleServerCallExecutorSupplier);
+
+        grpcReceiver.setMonitor(monitor);
         return grpcReceiver;
     }
 

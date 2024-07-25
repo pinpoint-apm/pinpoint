@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.collector.receiver.StatDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
+import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
@@ -145,7 +146,8 @@ public class GrpcStatReceiverConfiguration {
                                          List<ServerTransportFilter> serverTransportFilterList,
                                          ChannelzRegistry channelzRegistry,
                                          @Qualifier("grpcStatServerExecutor")
-                                         Executor grpcSpanExecutor) {
+                                         Executor grpcSpanExecutor,
+                                         Monitor monitor) {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBindAddress(properties.getBindAddress());
         grpcReceiver.setAddressFilter(addressFilter);
@@ -156,6 +158,7 @@ public class GrpcStatReceiverConfiguration {
         grpcReceiver.setExecutor(grpcSpanExecutor);
         grpcReceiver.setEnable(properties.isEnable());
         grpcReceiver.setServerOption(properties.getServerOption());
+        grpcReceiver.setMonitor(monitor);
         return grpcReceiver;
     }
 
