@@ -25,4 +25,6 @@ import java.util.List;
  */
 public interface AppMetricDefinitionDao {
     void insertAppMetricDefinitionList(List<AppMetricDefinition> appMetricMetadataList);
+
+    List<AppMetricDefinition> selectAppMetricDefinitionList(String applicationName);
 }

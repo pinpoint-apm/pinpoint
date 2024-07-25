@@ -41,4 +41,9 @@ public class AppMetricDefinitionServiceImpl implements AppMetricDefinitionServic
         appMetricDefinitionList.add(appMetricDefinition);
         appMetricDefinitionDao.insertAppMetricDefinitionList(appMetricDefinitionList);
     }
+
+    @Override
+    public List<AppMetricDefinition> getUserDefinedMetric(String applicationName) {
+        return appMetricDefinitionDao.selectAppMetricDefinitionList(applicationName);
+    }
 }

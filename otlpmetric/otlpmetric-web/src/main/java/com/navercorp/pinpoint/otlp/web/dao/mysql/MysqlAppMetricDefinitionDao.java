@@ -52,6 +52,12 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
         sqlSessionTemplate.insert(NAMESPACE + "insertAppMetricDefinition", appMetricDefDto);
     }
 
+    @Override
+    public List<AppMetricDefinition> selectAppMetricDefinitionList(String applicationName) {
+        AppMetricDefDto appMetricDefDto = sqlSessionTemplate.selectOne(NAMESPACE + "selectAppMetricDefinition", applicationName);
+        return mapper.toModel(appMetricDefDto);
+    }
+
     static class Mapper {
         private final ObjectMapper mapper;
         private final TypeReference<List<AppMetricDefinition>> REF_LIST_APP_METRIC_DEFINITION = new TypeReference<>() {};
@@ -67,7 +73,7 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
 
             try {
                 String metricConfigJson = mapper.writeValueAsString(appMetricDefinitionList);
-                return new AppMetricDefDto(applicationName, AppMetricDefinition.SCHEMA_VERSION, metricConfigJson);
+                return new AppMetricDefDto(applicationName, metricConfigJson, AppMetricDefinition.SCHEMA_VERSION);
             } catch (JsonProcessingException e) {
                 throw new JsonRuntimeException("can not convert appMetricDefinitionList to json :" + appMetricDefinitionList, e);
             }
