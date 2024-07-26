@@ -24,7 +24,7 @@ public class Log4j2PatternTestBase extends Log4j2TestBase {
 
     private String location;
 
-    public void checkPatternUpdate() {
+    protected String checkPatternUpdate() {
         final String msg = "pattern";
 
         StdoutRecorder stdoutRecorder = new StdoutRecorder();
@@ -46,6 +46,7 @@ public class Log4j2PatternTestBase extends Log4j2TestBase {
         System.out.println("Log4j2 jar location:" + location);
         final String testVersion = getTestVersion();
         Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
+        return log;
     }
 
 }
