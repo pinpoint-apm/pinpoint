@@ -48,7 +48,9 @@ public class LogbackIT {
 
         checkVersion(logger);
 
-        Assertions.assertNotNull(MDC.get("PtxId"), "txId");
+        String ptxId = MDC.get("PtxId");
+        Assertions.assertNotNull(ptxId, "TxId");
+        Assertions.assertTrue(ptxId.contains("build.test.0^1"), "TxId value");
         Assertions.assertNotNull(MDC.get("PspanId"), "spanId");
     }
 
@@ -72,6 +74,7 @@ public class LogbackIT {
         Assertions.assertNotNull(log, "log null");
         Assertions.assertTrue(log.contains(msg), "contains msg");
         Assertions.assertTrue(log.contains("TxId"), "contains TxId");
+        Assertions.assertTrue(log.contains("build.test.0^1"), "TxId value");
 
         Assertions.assertNotNull(logger, "logger null");
         checkVersion(logger);
