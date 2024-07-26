@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.otlp.common.definition.property.MetricDefinitionPr
 import com.navercorp.pinpoint.otlp.web.service.AppMetricDefinitionService;
 import com.navercorp.pinpoint.otlp.web.service.MetricMetadataService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,8 +58,9 @@ public class MetricDefinitionController {
         return SimpleResponse.ok();
     }
 
-    @GetMapping("/metricDef/userDefined")
-    public List<AppMetricDefinition> addUserDefinedMetric(@RequestParam("applicationName") String applicationName) {
-        return appMetricDefinitionService.getUserDefinedMetric(applicationName);
+    @PatchMapping(value = "/metricDef/userDefined")
+    public Response updateUserDefinedMetric(@RequestBody List<AppMetricDefinition> appMetricDefinitionList) {
+        appMetricDefinitionService.updateUserDefinedMetric(appMetricDefinitionList);
+        return SimpleResponse.ok();
     }
 }

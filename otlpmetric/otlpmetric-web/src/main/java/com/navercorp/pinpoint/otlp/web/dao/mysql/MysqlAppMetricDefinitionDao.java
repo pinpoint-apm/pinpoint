@@ -58,6 +58,13 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
         return mapper.toModel(appMetricDefDto);
     }
 
+    @Override
+    public void updateAppMetricDefinitionList(List<AppMetricDefinition> appMetricDefinitionList) {
+        AppMetricDefDto appMetricDefDto = mapper.toDto(appMetricDefinitionList);
+        int result = sqlSessionTemplate.update(NAMESPACE + "updateAppMetricDefinition", appMetricDefDto);
+        System.out.println("result = " + result);
+    }
+
     static class Mapper {
         private final ObjectMapper mapper;
         private final TypeReference<List<AppMetricDefinition>> REF_LIST_APP_METRIC_DEFINITION = new TypeReference<>() {};

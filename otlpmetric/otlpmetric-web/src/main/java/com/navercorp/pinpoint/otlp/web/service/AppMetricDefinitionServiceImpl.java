@@ -37,13 +37,34 @@ public class AppMetricDefinitionServiceImpl implements AppMetricDefinitionServic
 
     @Override
     public void addUserDefinedMetric(AppMetricDefinition appMetricDefinition) {
-        List<AppMetricDefinition> appMetricDefinitionList = new ArrayList<>();
+        List<AppMetricDefinition> appMetricDefinitionList = appMetricDefinitionDao.selectAppMetricDefinitionList(appMetricDefinition.getApplicationName());
+
+        if (appMetricDefinitionList == null) {
+            appMetricDefinitionList = new ArrayList<>();
+        }
+
         appMetricDefinitionList.add(appMetricDefinition);
         appMetricDefinitionDao.insertAppMetricDefinitionList(appMetricDefinitionList);
     }
 
     @Override
+    public boolean existUserDefinedMetric(String applicationName, String metricName) {
+        List<AppMetricDefinition> appMetricDefinitionList = appMetricDefinitionDao.selectAppMetricDefinitionList(applicationName);
+
+        if (appMetricDefinitionList == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
     public List<AppMetricDefinition> getUserDefinedMetric(String applicationName) {
         return appMetricDefinitionDao.selectAppMetricDefinitionList(applicationName);
+    }
+
+    @Override
+    public void updateUserDefinedMetric(List<AppMetricDefinition> appMetricDefinitionList) {
+        appMetricDefinitionDao.updateAppMetricDefinitionList(appMetricDefinitionList);
     }
 }
