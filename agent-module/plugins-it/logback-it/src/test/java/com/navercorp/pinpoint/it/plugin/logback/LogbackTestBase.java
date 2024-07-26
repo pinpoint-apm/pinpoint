@@ -37,7 +37,7 @@ public class LogbackTestBase {
 
     private Logger logger;
 
-    protected void checkPatternUpdate() {
+    protected String checkPatternUpdate() {
 
         final String msg = "pattern";
         StdoutRecorder stdoutRecorder = new StdoutRecorder();
@@ -58,6 +58,7 @@ public class LogbackTestBase {
 
         Assertions.assertNotNull(logger, "logger null");
         checkVersion(logger);
+        return log;
     }
 
     private void checkVersion(Logger logger) {
