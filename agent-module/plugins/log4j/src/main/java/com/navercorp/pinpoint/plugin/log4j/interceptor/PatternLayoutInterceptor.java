@@ -50,6 +50,10 @@ public class PatternLayoutInterceptor implements AroundInterceptor1 {
             return;
         }
         String oldPattern = (String) arg0;
+        if (config.isPatternFullReplace()) {
+            updatePattern(target, oldPattern, config.getPatternFullReplaceWith());
+            return;
+        }
         if (oldPattern.contains(PATTERN_TRANSACTION_ID)) {
             if (debug) {
                 logger.debug("Log4j pattern already have pinpoint pattern, pattern:{}", oldPattern);
@@ -59,26 +63,39 @@ public class PatternLayoutInterceptor implements AroundInterceptor1 {
         updatePattern(target, oldPattern, config.getPatternReplaceSearchList(), config.getPatternReplaceWith());
     }
 
-    private void updatePattern(Object target, String oldPattern, List<String> searchList, String replace) {
-        if (!(target instanceof PatternLayout)) {
+    private void updatePattern(Object target, String old, String replace) {
+        if (replace.contentEquals(old)) {
             return;
         }
+        if (updatePattern(target, replace)) {
+            logger.info("Log4j pattern fully-replaced, old pattern({}) and new pattern({}).", old, replace);
+        }
+    }
+
+    private void updatePattern(Object target, String oldPattern, List<String> searchList, String replace) {
         String newPattern = oldPattern;
         boolean changed = false;
         for (String search : searchList) {
             newPattern = oldPattern.replace(search, replace);
             if (!oldPattern.contentEquals(newPattern)) {
                 changed = true;
-                if (debug) {
-                    logger.debug("Log4j pattern replaced, old pattern({}) and new pattern({})", oldPattern, newPattern);
-                }
                 break;
             }
         }
         if (changed) {
-            final PatternLayout layout = (PatternLayout) target;
-            layout.setConversionPattern(newPattern);
+            if (updatePattern(target, newPattern)) {
+                logger.info("Log4j pattern replaced, old pattern({}) and new pattern({})", oldPattern, newPattern);
+            }
         }
+    }
+
+    private boolean updatePattern(Object target, String pattern) {
+        if (!(target instanceof PatternLayout)) {
+            return false;
+        }
+        final PatternLayout layout = (PatternLayout) target;
+        layout.setConversionPattern(pattern);
+        return true;
     }
 
 }
