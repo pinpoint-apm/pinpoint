@@ -27,4 +27,6 @@ public interface AppMetricDefinitionDao {
     void insertAppMetricDefinitionList(List<AppMetricDefinition> appMetricMetadataList);
 
     List<AppMetricDefinition> selectAppMetricDefinitionList(String applicationName);
+
+    void updateAppMetricDefinitionList(List<AppMetricDefinition> appMetricDefinitionList);
 }

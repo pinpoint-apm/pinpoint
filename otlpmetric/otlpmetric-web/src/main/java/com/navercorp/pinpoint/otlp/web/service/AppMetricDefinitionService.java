@@ -26,5 +26,9 @@ import java.util.List;
 public interface AppMetricDefinitionService {
     void addUserDefinedMetric(AppMetricDefinition appMetricMetadata);
 
+    boolean existUserDefinedMetric(String applicationName, String metricName);
+
     List<AppMetricDefinition> getUserDefinedMetric(String applicationName);
+
+    void updateUserDefinedMetric(List<AppMetricDefinition> appMetricDefinitionList);
 }

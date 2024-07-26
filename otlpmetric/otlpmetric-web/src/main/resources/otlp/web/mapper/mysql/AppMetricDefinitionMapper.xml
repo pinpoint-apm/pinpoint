@@ -4,7 +4,7 @@
 
     <insert id="insertAppMetricDefinition" parameterType="AppMetricDefDto">
         INSERT INTO application_metric_definition
-        (application_name, metric_definition, schema_version)
+            (application_name, metric_definition, schema_version)
         VALUES
             (#{applicationName}, #{metricDefinition}, #{schemaVersion})
     </insert>
@@ -15,4 +15,9 @@
         FROM application_metric_definition
         WHERE application_name = #{applicationName}
     </select>
+
+    <update id="updateAppMetricDefinition" parameterType="AppMetricDefDto">
+        INSERT INTO application_metric_definition (application_name, metric_definition, schema_version) VALUES (#{applicationName}, #{metricDefinition}, #{schemaVersion})
+        ON DUPLICATE KEY UPDATE application_name = #{applicationName}, metric_definition = #{metricDefinition}, schema_version = #{schemaVersion}
+    </update>
 </mapper>
