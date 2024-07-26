@@ -29,8 +29,11 @@ public class Log4jTestBase {
         logger.error("maru");
 
         checkVersion(logger);
-
-        Assertions.assertNotNull(MDC.get("PtxId"), "txId");
+        Object ptxId = MDC.get("PtxId");
+        Assertions.assertNotNull(ptxId, "TxId");
+        Assertions.assertInstanceOf(String.class, ptxId, "TxId type");
+        String id = (String) ptxId;
+        Assertions.assertTrue(id.contains("build.test.0^1"), "TxId value");
         Assertions.assertNotNull(MDC.get("PspanId"), "spanId");
     }
 
@@ -51,6 +54,7 @@ public class Log4jTestBase {
         Assertions.assertNotNull(log, "log null");
         Assertions.assertTrue(log.contains(msg), "contains msg");
         Assertions.assertTrue(log.contains("TxId"), "contains TxId");
+        Assertions.assertTrue(log.contains("build.test.0^1"), "contains TxId value");
 
         Assertions.assertNotNull(logger, "logger null");
         checkVersion(logger);
