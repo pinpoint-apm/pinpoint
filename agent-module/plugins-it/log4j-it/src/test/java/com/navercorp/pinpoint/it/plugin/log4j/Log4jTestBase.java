@@ -34,7 +34,7 @@ public class Log4jTestBase {
         Assertions.assertNotNull(MDC.get("PspanId"), "spanId");
     }
 
-    protected void checkPatternReplace() {
+    protected String checkPatternReplace() {
         final String msg = "pattern";
 
 
@@ -54,6 +54,7 @@ public class Log4jTestBase {
 
         Assertions.assertNotNull(logger, "logger null");
         checkVersion(logger);
+        return log;
     }
 
     private void checkVersion(Logger logger) {
