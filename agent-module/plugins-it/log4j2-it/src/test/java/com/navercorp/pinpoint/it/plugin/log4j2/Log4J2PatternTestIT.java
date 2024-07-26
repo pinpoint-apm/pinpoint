@@ -17,16 +17,12 @@ package com.navercorp.pinpoint.it.plugin.log4j2;
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
-import com.navercorp.pinpoint.it.plugin.utils.StdoutRecorder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @PluginForkedTest
@@ -35,32 +31,11 @@ import org.junit.jupiter.api.Test;
 @JvmVersion(8)
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,2.20)", PluginITConstants.VERSION})
 @JvmArgument("-DtestLoggerEnable=false")
-public class Log4j2PatternIT extends Log4j2TestBase {
+public class Log4J2PatternTestIT extends Log4j2PatternTestBase {
 
-    private String location;
     @Test
     public void patternUpdate() {
-        final String msg = "pattern";
-
-        StdoutRecorder stdoutRecorder = new StdoutRecorder();
-        String log = stdoutRecorder.record(new Runnable() {
-            @Override
-            public void run() {
-                Logger logger = LogManager.getLogger("patternUpdateLog4j2Jvm7");
-                logger.error(msg);
-                location = getLoggerJarLocation(logger);
-            }
-        });
-
-        System.out.println(log);
-        Assertions.assertNotNull(log, "log null");
-        Assertions.assertTrue(log.contains(msg), "contains msg");
-        Assertions.assertTrue(log.contains("TxId"), "contains TxId");
-
-        Assertions.assertNotNull(location, "location null");
-        System.out.println("Log4j2 jar location:" + location);
-        final String testVersion = getTestVersion();
-        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
+        checkPatternUpdate();
     }
 
 }

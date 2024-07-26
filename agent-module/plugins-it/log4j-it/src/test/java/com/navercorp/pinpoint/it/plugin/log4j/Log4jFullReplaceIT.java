@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-log4j-plugin"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @TransformInclude("org.apache.log4j.")
-@JvmArgument("-Dprofiler.log4j.logging.pattern.full_replace.with=IT TxId:%X{PtxId} %m")
+@JvmArgument("-Dprofiler.log4j.logging.pattern.full_replace.with=Log4jIT TxId:%X{PtxId} %m")
 public class Log4jFullReplaceIT extends Log4jTestBase {
 
     @Test
@@ -38,7 +38,7 @@ public class Log4jFullReplaceIT extends Log4jTestBase {
     @Test
     public void patternUpdate() {
         String log = checkPatternReplace();
-        Assertions.assertTrue(log.contains("IT"), "contains full-replace string IT");
+        Assertions.assertTrue(log.contains("Log4jIT"), "contains full-replace string Log4jIT");
     }
 
 }
