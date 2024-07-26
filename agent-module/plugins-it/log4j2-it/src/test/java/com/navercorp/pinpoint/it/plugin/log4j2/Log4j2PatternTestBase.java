@@ -40,7 +40,7 @@ public class Log4j2PatternTestBase extends Log4j2TestBase {
         System.out.println(log);
         Assertions.assertNotNull(log, "log null");
         Assertions.assertTrue(log.contains(msg), "contains msg");
-        Assertions.assertTrue(log.contains("TxId"), "contains TxId");
+        Assertions.assertTrue(log.contains("build.test.0^1"), "contains TxId");
 
         Assertions.assertNotNull(location, "location null");
         System.out.println("Log4j2 jar location:" + location);
