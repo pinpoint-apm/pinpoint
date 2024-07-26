@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.it.plugin.logback;
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
-import com.navercorp.pinpoint.it.plugin.utils.StdoutRecorder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
@@ -25,11 +24,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
 import com.navercorp.pinpoint.test.plugin.TransformInclude;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 @PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
@@ -38,67 +33,16 @@ import org.slf4j.MDC;
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmArgument("-DtestLoggerEnable=false")
 @TransformInclude("org.slf4j.")
-public class LogbackIT {
+public class LogbackIT extends LogbackTestBase {
 
     @Test
     public void test() {
-        //Logger logger = LogManager.getLogger(getClass());
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        logger.error("maru");
-
-        checkVersion(logger);
-
-        String ptxId = MDC.get("PtxId");
-        Assertions.assertNotNull(ptxId, "TxId");
-        Assertions.assertTrue(ptxId.contains("build.test.0^1"), "TxId value");
-        Assertions.assertNotNull(MDC.get("PspanId"), "spanId");
+        checkMDC();
     }
-
-    private Logger logger;
 
     @Test
     public void patternUpdate() {
-
-        final String msg = "pattern";
-        StdoutRecorder stdoutRecorder = new StdoutRecorder();
-
-        String log = stdoutRecorder.record(new Runnable() {
-            @Override
-            public void run() {
-                logger = LoggerFactory.getLogger("patternUpdateLogback");
-                logger.error(msg);
-            }
-        });
-
-        System.out.println(log);
-        Assertions.assertNotNull(log, "log null");
-        Assertions.assertTrue(log.contains(msg), "contains msg");
-        Assertions.assertTrue(log.contains("TxId"), "contains TxId");
-        Assertions.assertTrue(log.contains("build.test.0^1"), "TxId value");
-
-        Assertions.assertNotNull(logger, "logger null");
-        checkVersion(logger);
-    }
-
-    private void checkVersion(Logger logger) {
-        final String location = getLoggerJarLocation(logger);
-        Assertions.assertNotNull(location, "location null");
-        System.out.println("Logback classic jar location:" + location);
-
-        final String testVersion = getTestVersion();
-        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
-    }
-
-    private String getTestVersion() {
-        final String[] threadInfo = Thread.currentThread().getName()
-                .replace(getClass().getName(), "")
-                .replace(" Thread", "")
-                .replace(" ", "").replace("logback-classic-", "").split(":");
-        return threadInfo[0];
-    }
-
-    private String getLoggerJarLocation(Object object) {
-        return object.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
+        checkPatternUpdate();
     }
 
 }
