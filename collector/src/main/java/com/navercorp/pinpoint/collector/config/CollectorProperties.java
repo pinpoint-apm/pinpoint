@@ -55,6 +55,9 @@ public class CollectorProperties {
     @Value("${collector.statistics.agent-state.enable:false}")
     private boolean statisticsAgentStateEnable;
 
+    @Value("${collector.metadata.sql.max-length:65536}")
+    private int maxSqlLength;
+
 
     public List<String> getL4IpList() {
         return List.of(l4IpList);
@@ -129,6 +132,10 @@ public class CollectorProperties {
         return statisticsAgentStateEnable;
     }
 
+    public int getMaxSqlLength() {
+        return maxSqlLength;
+    }
+
     @PostConstruct
     public void log() {
         logger.info("{}", this);
@@ -138,15 +145,18 @@ public class CollectorProperties {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CollectorConfiguration{");
-        sb.append(", l4IpList=").append(Arrays.toString(l4IpList));
-        sb.append(", metricJmxEnable=").append(metricJmxEnable);
-        sb.append(", metricJmxDomainName='").append(metricJmxDomainName).append('\'');
-        sb.append(", spanSamplingEnable=").append(spanSamplingEnable);
-        sb.append(", spanSamplingType=").append(spanSamplingType);
-        sb.append(", uriStatEnable=").append(uriStatEnable);
-        sb.append(", statisticsAgentStateEnable=").append(statisticsAgentStateEnable);
-        sb.append('}');
-        return sb.toString();
+        return "CollectorProperties{" +
+                "logger=" + logger +
+                ", l4IpList=" + Arrays.toString(l4IpList) +
+                ", metricJmxEnable=" + metricJmxEnable +
+                ", metricJmxDomainName='" + metricJmxDomainName + '\'' +
+                ", spanSamplingEnable=" + spanSamplingEnable +
+                ", spanSamplingType='" + spanSamplingType + '\'' +
+                ", spanModSamplingRate=" + spanModSamplingRate +
+                ", spanPercentSamplingRate='" + spanPercentSamplingRate + '\'' +
+                ", uriStatEnable=" + uriStatEnable +
+                ", statisticsAgentStateEnable=" + statisticsAgentStateEnable +
+                ", maxSqlLength=" + maxSqlLength +
+                '}';
     }
 }
