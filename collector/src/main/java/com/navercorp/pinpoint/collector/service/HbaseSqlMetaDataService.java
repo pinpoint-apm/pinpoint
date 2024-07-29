@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.collector.service;
 
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -29,12 +31,20 @@ import java.util.Objects;
 public class HbaseSqlMetaDataService implements SqlMetaDataService {
     private final SqlMetaDataDao sqlMetaDataDao;
 
-    public HbaseSqlMetaDataService(SqlMetaDataDao sqlMetaDataDao) {
+    private final int maxSqlLength;
+
+    public HbaseSqlMetaDataService(SqlMetaDataDao sqlMetaDataDao, CollectorProperties collectorProperties) {
         this.sqlMetaDataDao = Objects.requireNonNull(sqlMetaDataDao, "sqlMetaDataDao");
+        Objects.requireNonNull(collectorProperties, "collectorProperties");
+        this.maxSqlLength = collectorProperties.getMaxSqlLength();
     }
 
     @Override
-    public void insert(@Valid final SqlMetaDataBo sqlMetaDataBo) {
+    public void insert(@Valid SqlMetaDataBo sqlMetaDataBo) {
+        if (sqlMetaDataBo.getSql().length() > maxSqlLength) {
+            String sql = StringUtils.abbreviate(sqlMetaDataBo.getSql(), maxSqlLength);
+            sqlMetaDataBo = new SqlMetaDataBo(sqlMetaDataBo.getAgentId(), sqlMetaDataBo.getAgentStartTime(), sqlMetaDataBo.getId(), sql);
+        }
         this.sqlMetaDataDao.insert(sqlMetaDataBo);
     }
 }
