@@ -1,17 +1,19 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDataRowKey;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 public class SqlUidMetaDataBo implements UidMetaDataRowKey {
-    private final String agentId;
-    private final long startTime;
-    private final String applicationName;
+    @NotBlank private final String agentId;
+    @PositiveOrZero private final long startTime;
+    @NotBlank private final String applicationName;
 
     private final byte[] sqlUid;
-    private final String sql;
+    @NotBlank private final String sql;
 
     public SqlUidMetaDataBo(String agentId, long startTime, byte[] sqlUid, String sql) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
