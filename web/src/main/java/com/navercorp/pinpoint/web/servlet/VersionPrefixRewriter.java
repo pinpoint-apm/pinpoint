@@ -17,24 +17,15 @@
 
 package com.navercorp.pinpoint.web.servlet;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
 public class VersionPrefixRewriter {
-
-    static final String[] SPECIAL_PATHS = {
-            "api",
-            "api-public"
-    };
-
-    static final String[] RESOURCE_PATHS = {
-            "assets",
-            "fonts",
-            "img"
-    };
-
-    static final String MAIN = "/index.html";
+    static final String DEFAULT_MAIN_PATH = "/index.html";
+    static final List<String> DEFAULT_RESOURCE_PATHS = List.of("/assets", "/fonts", "/img");
+    private static final String API_PREFIX = "api";
 
     private final VersionToken versionToken = new DefaultVersionToken();
     private final String page;
@@ -44,7 +35,7 @@ public class VersionPrefixRewriter {
 
 
     public VersionPrefixRewriter() {
-        this(MAIN, List.of(SPECIAL_PATHS), List.of(RESOURCE_PATHS));
+        this(DEFAULT_MAIN_PATH, Collections.emptyList(), DEFAULT_RESOURCE_PATHS);
     }
 
     public VersionPrefixRewriter(String page, List<String> specialPaths, List<String> resourcePaths) {
@@ -61,7 +52,7 @@ public class VersionPrefixRewriter {
         }
 
         String command = tokenizer.nextToken();
-        if (specialPaths.contains(command)) {
+        if (isApiOrSpecialPaths(command)) {
             return null;
         }
         // next token
@@ -91,8 +82,18 @@ public class VersionPrefixRewriter {
         return null;
     }
 
+    private boolean isApiOrSpecialPaths(String command) {
+        if (command.startsWith(API_PREFIX)) {
+            return true;
+        }
+        if (specialPaths.contains("/" + command)) {
+            return true;
+        }
+        return false;
+    }
+
     private boolean isStaticResource(String command) {
-        if (resourcePaths.contains(command)) {
+        if (resourcePaths.contains("/" + command)) {
             return true;
         }
         return command.indexOf('.') != -1;

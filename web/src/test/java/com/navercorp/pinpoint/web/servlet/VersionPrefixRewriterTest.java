@@ -20,17 +20,29 @@ package com.navercorp.pinpoint.web.servlet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static com.navercorp.pinpoint.web.servlet.VersionPrefixRewriter.MAIN;
+import static com.navercorp.pinpoint.web.servlet.VersionPrefixRewriter.DEFAULT_MAIN_PATH;
 
 class VersionPrefixRewriterTest {
 
-    private static final String VERSION = "/v3";
-
-    VersionPrefixRewriter rewriter = new VersionPrefixRewriter();
+    private final String version = "/v3";
+    private final String main = DEFAULT_MAIN_PATH;
+    private final VersionPrefixRewriter rewriter = new VersionPrefixRewriter();
 
     @Test
     public void api() {
         String rewrite = rewriter.rewrite("/api/servermap");
+        Assertions.assertNull(rewrite);
+    }
+
+    @Test
+    public void apiPublic() {
+        String rewrite = rewriter.rewrite("/api-public/serverTime");
+        Assertions.assertNull(rewrite);
+    }
+
+    @Test
+    public void apiTest() {
+        String rewrite = rewriter.rewrite("/api-test/test");
         Assertions.assertNull(rewrite);
     }
 
@@ -43,7 +55,7 @@ class VersionPrefixRewriterTest {
     @Test
     void dispatch() {
         String rewrite = rewriter.rewrite("/");
-        Assertions.assertEquals(MAIN, rewrite);
+        Assertions.assertEquals(main, rewrite);
     }
 
     @Test
@@ -55,7 +67,7 @@ class VersionPrefixRewriterTest {
     @Test
     public void dispatch_resource_main() {
         String rewrite = rewriter.rewrite("/main");
-        Assertions.assertEquals(MAIN, rewrite);
+        Assertions.assertEquals(main, rewrite);
     }
 
     @Test
@@ -67,8 +79,8 @@ class VersionPrefixRewriterTest {
 
     @Test
     public void version_main() {
-        String rewrite = rewriter.rewrite(VERSION);
-        Assertions.assertEquals(VERSION + MAIN, rewrite);
+        String rewrite = rewriter.rewrite(version);
+        Assertions.assertEquals(version + main, rewrite);
     }
 
     @Test
@@ -86,7 +98,7 @@ class VersionPrefixRewriterTest {
     @Test
     public void version_resource_main() {
         String rewrite = rewriter.rewrite("/v3/main");
-        Assertions.assertEquals(VERSION + MAIN, rewrite);
+        Assertions.assertEquals(version + main, rewrite);
     }
 
 }

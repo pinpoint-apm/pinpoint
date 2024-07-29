@@ -32,8 +32,10 @@ public class WebServerConfig {
     }
 
     @Bean
-    public Filter rewriteFilter() {
-        final VersionPrefixRewriter rewriter = new VersionPrefixRewriter();
+    public Filter rewriteFilter(@Value("${pinpoint.web.version-prefix.main-path:/index.html}") String mainPath,
+                                @Value("${pinpoint.web.version-prefix.special-paths:}") List<String> specialPaths,
+                                @Value("${pinpoint.web.version-prefix.resource-paths:/assets,/fronts,/img}") List<String> resourcePaths) {
+        final VersionPrefixRewriter rewriter = new VersionPrefixRewriter(mainPath, specialPaths, resourcePaths);
         return new HttpIntentRoutingFilter(rewriter);
     }
 
