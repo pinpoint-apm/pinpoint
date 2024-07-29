@@ -25,7 +25,9 @@ import com.navercorp.pinpoint.realtime.collector.receiver.ClusterPointLocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 public class GrpcAgentConnectionRepository implements ClusterPointLocator {
 
@@ -42,27 +44,37 @@ public class GrpcAgentConnectionRepository implements ClusterPointLocator {
         this.connMap.remove(conn.getClusterKey(), conn);
     }
 
-    public Collection<GrpcAgentConnection> getConnections() {
-        return this.connMap.values();
+    Collection<GrpcAgentConnection> getConnections() {
+        return new ArrayList<>(this.connMap.values());
     }
 
     public GrpcAgentConnection getConnection(ClusterKey key) {
         Collection<GrpcAgentConnection> candidates = this.connMap.get(key);
 
-        if (candidates.size() > 1) {
-            logger.warn("Duplicated cluster key detected: key = {}, num = {}", key, candidates.size());
+        final int size = candidates.size();
+        if (size == 0) {
+            return null;
+        }
+        if (size > 1) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Duplicated cluster key detected: key = {}, num = {}", key, size);
+            }
         }
 
-        if (!candidates.isEmpty()) {
-            return candidates.iterator().next();
+        synchronized (this.connMap) {
+            final Iterator<GrpcAgentConnection> iterator = candidates.iterator();
+            if (iterator.hasNext()) {
+                return iterator.next();
+            } else {
+                return null;
+            }
         }
-
-        return null;
     }
 
     @Override
     public Collection<ClusterPoint> getClusterPointList() {
-        return this.getConnections().stream().map(el -> (ClusterPoint) el).toList();
+        Collection<GrpcAgentConnection> values = this.connMap.values();
+        return new ArrayList<>(values);
     }
 
 }

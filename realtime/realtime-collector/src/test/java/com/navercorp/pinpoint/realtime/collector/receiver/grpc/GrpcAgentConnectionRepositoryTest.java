@@ -49,6 +49,18 @@ public class GrpcAgentConnectionRepositoryTest {
         assertThat(repo.getConnection(ClusterKey.parse("a:b:1"))).isNotNull();
         assertThat(repo.getConnection(ClusterKey.parse("a:b:2"))).isNotNull();
         assertThat(repo.getConnection(ClusterKey.parse("a:b:3"))).isNull();
+
+        assertThat(repo.getClusterPointList()).hasSize(3);
+    }
+
+    @Test
+    public void remove_empty() {
+        GrpcAgentConnectionRepository repo = new GrpcAgentConnectionRepository();
+
+        GrpcAgentConnection conn = mockConnection("a:b:1", observer1);
+        repo.add(conn);
+        repo.remove(conn);
+        assertThat(repo.getConnections()).isEmpty();
     }
 
     private GrpcAgentConnection mockConnection(String clusterKey, ServerCallStreamObserver<PCmdRequest> observer) {
