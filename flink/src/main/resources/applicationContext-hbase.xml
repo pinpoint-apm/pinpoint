@@ -7,7 +7,7 @@
         <constructor-arg ref="hbaseConnection"/>
     </bean>
 
-    <bean id="asyncOperationMetrics" class="com.navercorp.pinpoint.collector.monitor.HBaseAsyncOperationMetrics">
+    <bean id="asyncOperationMetrics" class="com.navercorp.pinpoint.collector.monitor.dropwizard.HBaseAsyncOperationMetrics">
         <constructor-arg ref="asyncOperation"/>
     </bean>
 

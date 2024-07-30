@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.flink.config;
 
-import com.codahale.metrics.MetricRegistry;
+import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
@@ -43,9 +43,11 @@ public class FlinkExecutorConfiguration {
     }
 
     @Bean
-    public MonitoringExecutors flnkMonitoringExecutors(@Autowired(required = false) MetricRegistry metricRegistry) {
+    public MonitoringExecutors flnkMonitoringExecutors(
+            @Autowired(required = false) MonitoredThreadPoolExecutorFactoryProvider provider
+    ) {
         ExecutorCustomizer<ThreadPoolExecutorFactoryBean> customizer = flinkExecutorCustomizer();
-        return new MonitoringExecutors(customizer, metricRegistry);
+        return new MonitoringExecutors(customizer, provider);
     }
 
 

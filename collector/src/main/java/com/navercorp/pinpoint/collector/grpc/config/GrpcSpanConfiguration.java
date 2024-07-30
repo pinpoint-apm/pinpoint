@@ -16,12 +16,16 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.codahale.metrics.MetricRegistry;
+import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
+import com.navercorp.pinpoint.collector.monitor.dropwizard.DropwizardThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -110,4 +114,10 @@ public class GrpcSpanConfiguration {
         return executors.newExecutorFactoryBean(properties, beanName);
     }
 
+    @Bean
+    public MonitoredThreadPoolExecutorFactoryProvider dropwizardMonitoredThreadPoolExecutorFactoryProvider(
+            @Autowired(required = false) MetricRegistry metricRegistry
+    ) {
+        return new DropwizardThreadPoolExecutorFactoryProvider(metricRegistry);
+    }
 }

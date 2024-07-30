@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.manage.HBaseManager;
-import com.navercorp.pinpoint.collector.monitor.BulkOperationMetrics;
-import com.navercorp.pinpoint.collector.monitor.HBaseAsyncOperationMetrics;
+import com.navercorp.pinpoint.collector.monitor.dropwizard.BulkOperationMetrics;
+import com.navercorp.pinpoint.collector.monitor.dropwizard.HBaseAsyncOperationMetrics;
 import com.navercorp.pinpoint.common.hbase.async.HBaseTableMultiplexerFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.LoggingHbasePutWriter;

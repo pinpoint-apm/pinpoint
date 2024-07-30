@@ -11,5 +11,7 @@ pinpoint:
       grpc:
         ssl:
           enabled: false
+      monitor:
+        metric: dropwizard
     realtime:
       enabled: false

@@ -17,11 +17,9 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
@@ -30,24 +28,21 @@ import java.util.Objects;
 public class MonitoringExecutors {
 
     private final ExecutorCustomizer<ThreadPoolExecutorFactoryBean> customizer;
-    private final MetricRegistry metricRegistry;
+    private final MonitoredThreadPoolExecutorFactoryProvider provider;
 
-    public MonitoringExecutors(@Qualifier("collectorExecutorCustomizer")
-                               ExecutorCustomizer<ThreadPoolExecutorFactoryBean> customizer,
-                               @Autowired(required = false) MetricRegistry metricRegistry) {
+    public MonitoringExecutors(
+            @Qualifier("collectorExecutorCustomizer")
+            ExecutorCustomizer<ThreadPoolExecutorFactoryBean> customizer,
+            MonitoredThreadPoolExecutorFactoryProvider provider
+    ) {
         this.customizer = Objects.requireNonNull(customizer, "customizer");
-        this.metricRegistry = metricRegistry;
-    }
-
-
-    public MonitoredThreadPoolExecutorFactory newFactory(String name, int logRate) {
-        return new MonitoredThreadPoolExecutorFactory(name, metricRegistry, logRate);
+        this.provider = provider;
     }
 
     public ThreadPoolExecutorFactoryBean newExecutorFactoryBean(MonitoringExecutorProperties properties, String beanName) {
         MonitoredThreadPoolExecutorFactory factory = null;
-        if (properties.isMonitorEnable()) {
-            factory = this.newFactory(beanName, properties.getLogRate());
+        if (provider != null) {
+            factory = provider.newFactory(beanName, properties);
         }
         ExecutorFactoryBean executor = new ExecutorFactoryBean();
         executor.setExecutorFactory(factory);
