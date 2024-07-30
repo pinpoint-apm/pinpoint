@@ -27,6 +27,7 @@ export * from './Inspector';
 export * from './Layout';
 export * from './MainHeader';
 export * from './MergedServerSearchList';
+export * from './OpenTelemetry';
 export * from './Popper';
 export * from './Popup';
 export * from './ProgressBar';

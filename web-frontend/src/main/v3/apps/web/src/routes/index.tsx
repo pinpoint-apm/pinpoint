@@ -28,6 +28,7 @@ import { transactionDetailRouteLoader } from './loader/transactionDetail';
 import { inspectorRouteLoader } from './loader/inspector';
 import Inspector from '@/pages/Inspector';
 import ThreadDump from '@/pages/ThreadDump';
+import OpenTelemetry from '@/pages/OpenTelemetry';
 import Help from '@/pages/config/Help';
 import Installation from '@/pages/config/Installation';
 import UserGroup from '@/pages/config/UserGroup';
@@ -35,6 +36,7 @@ import Users from '@/pages/config/Users';
 import Alarm from '@/pages/config/Alarm';
 import Webhook from '@/pages/config/Webhook';
 import { threadDumpRouteLoader } from './loader/threadDump';
+import { openTelemetryRouteLoader } from './loader/openTelemetry';
 import { handleV2RouteLoader } from './loader/handleV2';
 
 const defaultLoader = () => {
@@ -124,6 +126,11 @@ const router = createBrowserRouter(
       path: `${APP_PATH.THREAD_DUMP}/:application?`,
       element: <ThreadDump />,
       loader: threadDumpRouteLoader,
+    },
+    {
+      path: `${APP_PATH.OPEN_TELEMETRY}/:application?`,
+      element: <OpenTelemetry />,
+      loader: openTelemetryRouteLoader,
     },
     {
       path: `${APP_PATH.CONFIG_ALARM}`,

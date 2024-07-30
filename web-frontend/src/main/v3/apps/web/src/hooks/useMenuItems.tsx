@@ -4,6 +4,7 @@ import { configurationAtom } from '@pinpoint-fe/atoms';
 import {
   PiBugBeetle,
   PiChartBar,
+  PiChartBarHorizontal,
   PiChartLine,
   PiHardDrives,
   PiTreeStructure,
@@ -15,6 +16,7 @@ import {
   getUrlStatPath,
   getSystemMetricPath,
   getErrorAnalysisPath,
+  getOpenTelemetryPath,
 } from '@pinpoint-fe/utils';
 
 export const useMenuItems = () => {
@@ -54,6 +56,13 @@ export const useMenuItems = () => {
       path: APP_PATH.ERROR_ANALYSIS,
       href: getErrorAnalysisPath(application, searchParameters),
       hide: !configuration?.showExceptionTrace,
+    },
+    {
+      icon: <PiChartBarHorizontal />,
+      name: 'Open Telemetry',
+      path: APP_PATH.OPEN_TELEMETRY,
+      href: getOpenTelemetryPath(application, searchParameters),
+      hide: true, // TODO: Bind with Open Telemetry config
     },
   ];
 

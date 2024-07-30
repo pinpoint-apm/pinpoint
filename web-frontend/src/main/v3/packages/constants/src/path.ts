@@ -14,6 +14,7 @@ export const APP_PATH = {
   ERROR_ANALYSIS: '/errorAnalysis',
   FILTERED_MAP: '/filteredMap',
   INSPECTOR: '/inspector',
+  OPEN_TELEMETRY: '/openTelemetry',
   SCATTER_FULL_SCREEN_REALTIME: '/scatterFullScreenMode/realtime',
   SCATTER_FULL_SCREEN: '/scatterFullScreenMode',
   SERVER_MAP_REALTIME: '/serverMap/realtime',
