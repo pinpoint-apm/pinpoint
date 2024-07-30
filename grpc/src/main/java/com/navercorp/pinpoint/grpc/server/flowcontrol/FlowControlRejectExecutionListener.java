@@ -2,21 +2,26 @@ package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import io.grpc.Metadata;
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 public class FlowControlRejectExecutionListener implements RejectedExecutionListener {
-    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final AtomicLongFieldUpdater<FlowControlRejectExecutionListener> REJECT =
+            AtomicLongFieldUpdater.newUpdater(FlowControlRejectExecutionListener.class, "rejectedExecutionCounter");
 
     private static final Status STREAM_IDLE_TIMEOUT = Status.DEADLINE_EXCEEDED.withDescription("Stream idle timeout");
 
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final String name;
 
-    private final AtomicLong rejectedExecutionCounter = new AtomicLong(0);
+    private volatile long rejectedExecutionCounter;
+
     private final ServerCallWrapper serverCall;
     private final long recoveryMessagesCount;
 
@@ -33,11 +38,19 @@ public class FlowControlRejectExecutionListener implements RejectedExecutionList
 
     @Override
     public void onRejectedExecution() {
-        this.rejectedExecutionCounter.incrementAndGet();
+        REJECT.incrementAndGet(this);
     }
 
     @Override
     public void onSchedule() {
+        if (logger.isTraceEnabled()) {
+            logger.trace("Stream state check {} agent:{}/{}", this.name, serverCall.getApplicationName(), serverCall.getAgentId());
+        }
+        if (this.serverCall.isCancelled()) {
+            logger.info("Stream already cancelled:{} agent:{}/{}", this.name, serverCall.getApplicationName(), serverCall.getAgentId());
+            this.cancel();
+            return;
+        }
         if (!expireIdleTimeout()) {
             reject();
         }
@@ -55,17 +68,20 @@ public class FlowControlRejectExecutionListener implements RejectedExecutionList
 
 
     private void reject() {
-        final long currentRejectCount = this.rejectedExecutionCounter.get();
+        final long currentRejectCount = getRejectedExecutionCount();
         if (currentRejectCount > 0) {
             final long recovery = Math.min(currentRejectCount, recoveryMessagesCount);
-            this.rejectedExecutionCounter.addAndGet(-recovery);
+            REJECT.addAndGet(this, -recovery);
+            if (logger.isDebugEnabled()) {
+                logger.debug("flow-control request:{} {}/{}", recovery, serverCall.getApplicationName(), serverCall.getAgentId());
+            }
             serverCall.request((int) recovery);
         }
     }
 
     @Override
     public long getRejectedExecutionCount() {
-        return rejectedExecutionCounter.get();
+        return REJECT.get(this);
     }
 
     @Override
@@ -102,16 +118,19 @@ public class FlowControlRejectExecutionListener implements RejectedExecutionList
 
 
     private void idleTimeout() {
-        logger.info("stream idle timeout applicationName:{} agentId:{} {}", this.name, serverCall.getApplicationName(), serverCall.getAgentId());
-        serverCall.cancel(STREAM_IDLE_TIMEOUT, new Metadata());
+        logger.info("Stream idle timeout agent:{}/{} {}", this.name, serverCall.getApplicationName(), serverCall.getAgentId());
+        try {
+            serverCall.cancel(STREAM_IDLE_TIMEOUT, new Metadata());
+        } catch (IllegalStateException ex) {
+            logger.warn("Failed to cancel stream. agent:{}/{} {}", serverCall.getApplicationName(), serverCall.getAgentId(), ex.getMessage());
+        }
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("RejectedExecutionListener{");
-        sb.append("rejectedExecutionCounter=").append(rejectedExecutionCounter);
-        sb.append(", serverCall=").append(serverCall);
-        sb.append('}');
-        return sb.toString();
+        return "RejectedExecutionListener{" +
+                "rejectedExecutionCounter=" + rejectedExecutionCounter +
+                ", serverCall=" + serverCall +
+                '}';
     }
 }

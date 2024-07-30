@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import io.grpc.Metadata;
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.Future;

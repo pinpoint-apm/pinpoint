@@ -63,7 +63,7 @@ public class GrpcStatReceiverConfiguration {
 
     @Deprecated
     @Configuration
-    @ConditionalOnProperty(name = "collector.receiver.grpc.stat.stream.flow-control.type", havingValue = "legacy")
+    @ConditionalOnProperty(name = "collector.receiver.grpc.stat.stream.flow-control.type", havingValue = "legacy", matchIfMissing = true)
     public static class LegacySpanInterceptorConfiguration {
 
         @Bean
@@ -92,7 +92,7 @@ public class GrpcStatReceiverConfiguration {
 
 
     @Configuration
-    @ConditionalOnProperty(name = "collector.receiver.grpc.stat.stream.flow-control.type", havingValue = "rate-limit", matchIfMissing = true)
+    @ConditionalOnProperty(name = "collector.receiver.grpc.stat.stream.flow-control.type", havingValue = "rate-limit")
     public static class RateLimitServerInterceptorConfiguration {
 
         @Bean

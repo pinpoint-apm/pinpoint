@@ -30,7 +30,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
  * @author jaehong.kim
@@ -86,10 +85,11 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
                         }
                     });
 //                    scheduleListener.onMessage();
-                } catch (RejectedExecutionException ree) {
+                } catch (Throwable th) {
                     // Defense code, need log ?
                     scheduleListener.onRejectedExecution();
-                    throttledLogger.info("Failed to request. Rejected execution, count={}", scheduleListener.getRejectedExecutionCount());
+                    throttledLogger.info("Failed to request. Rejected execution, count={} {}/{}",
+                            scheduleListener.getRejectedExecutionCount(), serverCall.getApplicationName(), serverCall.getAgentId());
                 }
             }
 
