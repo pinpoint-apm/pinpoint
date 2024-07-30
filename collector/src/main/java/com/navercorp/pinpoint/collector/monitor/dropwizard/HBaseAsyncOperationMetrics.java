@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.collector.monitor;
+package com.navercorp.pinpoint.collector.monitor.dropwizard;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;

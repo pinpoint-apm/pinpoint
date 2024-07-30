@@ -27,10 +27,16 @@ import com.navercorp.pinpoint.collector.grpc.config.GrpcSpanConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcSpanReceiverConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcStatConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcStatReceiverConfiguration;
+import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
+import com.navercorp.pinpoint.collector.monitor.dropwizard.DropwizardThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
+import com.navercorp.pinpoint.collector.monitor.micrometer.MicrometerThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -62,8 +68,30 @@ public class CollectorGrpcConfiguration {
     @Bean
     public MonitoringExecutors monitoringExecutors(
             @Qualifier("collectorExecutorCustomizer") ExecutorCustomizer<ThreadPoolExecutorFactoryBean> customizer,
-            @Autowired(required = false) MetricRegistry metricRegistry) {
-        return new MonitoringExecutors(customizer, metricRegistry);
+            MonitoredThreadPoolExecutorFactoryProvider monitoredThreadPoolExecutorFactoryProvider
+    ) {
+        return new MonitoringExecutors(customizer, monitoredThreadPoolExecutorFactoryProvider);
     }
 
+    @Bean
+    @ConditionalOnProperty(
+            value = "pinpoint.modules.collector.monitor.metric",
+            havingValue = "dropwizard", matchIfMissing = true
+    )
+    public MonitoredThreadPoolExecutorFactoryProvider dropwizardMonitoredThreadPoolExecutorFactoryProvider(
+            @Autowired(required = false) MetricRegistry metricRegistry
+    ) {
+        return new DropwizardThreadPoolExecutorFactoryProvider(metricRegistry);
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+            value = "pinpoint.modules.collector.monitor.metric",
+            havingValue = "micrometer"
+    )
+    public MonitoredThreadPoolExecutorFactoryProvider micrometerMonitoredThreadPoolExecutorFactoryProvider(
+            @Autowired(required = false) MeterRegistry meterRegistry
+    ) {
+        return new MicrometerThreadPoolExecutorFactoryProvider(meterRegistry);
+    }
 }

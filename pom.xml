@@ -160,6 +160,7 @@
 
         <!-- library -->
         <dropwizard-metrics.version>4.2.26</dropwizard-metrics.version>
+        <micrometer-metrics.version>1.13.2</micrometer-metrics.version>
 
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
 
@@ -889,10 +890,17 @@
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-bom</artifactId>
-                <version>1.12.4</version>
+                <version>${micrometer-metrics.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+                <version>${micrometer-metrics.version}</version>
+            </dependency>
+
+
 
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>

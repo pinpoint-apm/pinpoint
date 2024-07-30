@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.monitor;
+package com.navercorp.pinpoint.collector.monitor.dropwizard;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
