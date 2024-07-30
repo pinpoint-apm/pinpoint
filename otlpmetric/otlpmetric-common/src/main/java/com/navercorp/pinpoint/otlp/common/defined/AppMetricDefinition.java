@@ -26,7 +26,7 @@ public class AppMetricDefinition {
     public static final int SCHEMA_VERSION = 1;
 
     private final String applicationName;
-    private final String id;
+    private String id;
     private final String title;
     private final String metricGroupName;
     private final String metricName;
@@ -38,7 +38,7 @@ public class AppMetricDefinition {
 
     public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, String fieldName, String tags, String unit, String chartType) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
-        this.id = StringPrecondition.requireHasLength(id, "id");
+        this.id = id;
         this.title = StringPrecondition.requireHasLength(title, "title");
         this.metricGroupName = StringPrecondition.requireHasLength(metricGroupName, "metricGroupName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
@@ -50,6 +50,10 @@ public class AppMetricDefinition {
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getId() {

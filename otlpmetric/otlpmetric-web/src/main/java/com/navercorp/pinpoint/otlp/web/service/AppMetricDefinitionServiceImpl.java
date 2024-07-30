@@ -16,12 +16,16 @@
 
 package com.navercorp.pinpoint.otlp.web.service;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
 import com.navercorp.pinpoint.otlp.web.dao.AppMetricDefinitionDao;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo-jung
@@ -42,8 +46,9 @@ public class AppMetricDefinitionServiceImpl implements AppMetricDefinitionServic
         if (appMetricDefinitionList == null) {
             appMetricDefinitionList = new ArrayList<>();
         }
-
         appMetricDefinitionList.add(appMetricDefinition);
+
+        generateAndSetUniqueId(appMetricDefinitionList);
         appMetricDefinitionDao.insertAppMetricDefinitionList(appMetricDefinitionList);
     }
 
@@ -65,6 +70,25 @@ public class AppMetricDefinitionServiceImpl implements AppMetricDefinitionServic
 
     @Override
     public void updateUserDefinedMetric(List<AppMetricDefinition> appMetricDefinitionList) {
+        generateAndSetUniqueId(appMetricDefinitionList);
         appMetricDefinitionDao.updateAppMetricDefinitionList(appMetricDefinitionList);
+    }
+
+    private void generateAndSetUniqueId(List<AppMetricDefinition> appMetricDefinitionList) {
+        Set<String> existingIds = appMetricDefinitionList.stream()
+                                                            .map(AppMetricDefinition::getId)
+                                                            .filter(StringUtils::hasLength)
+                                                            .collect(Collectors.toSet());
+
+        appMetricDefinitionList.stream().filter(appMetricDefinition -> StringUtils.isEmpty(appMetricDefinition.getId()))
+                                        .forEach(definition -> {
+                                                    String newId;
+
+                                                    do {
+                                                        newId = UUID.randomUUID().toString().substring(0, 8);
+                                                    } while (!existingIds.add(newId));
+
+                                                    definition.setId(newId);
+                                                });
     }
 }
