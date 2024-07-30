@@ -24,6 +24,8 @@ import java.util.StringTokenizer;
 
 public final class StringUtils {
 
+    public static final String EMPTY_STRING = "";
+
     private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 64;
 
     private static final String NULL_STRING = "null";

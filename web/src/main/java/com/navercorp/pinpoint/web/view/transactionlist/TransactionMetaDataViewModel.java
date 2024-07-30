@@ -105,6 +105,11 @@ public class TransactionMetaDataViewModel {
         }
 
         @Override
+        public String getRequestPath() {
+            return span.getRequestPath();
+        }
+
+        @Override
         public String getSpanId() {
             return Long.toString(span.getSpanId());
         }

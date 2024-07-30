@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.view.transactionlist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 
 import java.util.ArrayList;
@@ -98,6 +99,11 @@ public class TransactionDotMetaDataViewModel {
         @Override
         public String getRemoteAddr() {
             return dotMetaData.getRemoteAddr();
+        }
+
+        @Override
+        public String getRequestPath() {
+            return StringUtils.EMPTY_STRING;
         }
 
         @Override
