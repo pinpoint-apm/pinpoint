@@ -66,11 +66,10 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("StreamExecutorRejectedExecutionRequestScheduler{");
-        sb.append("scheduledExecutorService=").append(scheduledExecutor);
-        sb.append(", rejectedExecutionListenerFactory=").append(rejectedExecutionListenerFactory);
-        sb.append('}');
-        return sb.toString();
+        return "StreamExecutorRejectedExecutionRequestScheduler{" +
+                "scheduledExecutorService=" + scheduledExecutor +
+                ", rejectedExecutionListenerFactory=" + rejectedExecutionListenerFactory +
+                '}';
     }
 
     public static class Listener {
@@ -102,10 +101,9 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("Listener{");
-            sb.append("rejectedExecutionListener=").append(rejectedExecutionListener);
-            sb.append('}');
-            return sb.toString();
+            return "Listener{" +
+                    "rejectedExecutionListener=" + rejectedExecutionListener +
+                    '}';
         }
     }
 

@@ -26,7 +26,7 @@ public class GrpcStreamProperties {
     @PositiveOrZero
     private int callInitRequestCount = 1000;
     @Positive
-    private int schedulerPeriodMillis = 64;
+    private int schedulerPeriodMillis = 1000;
     private int schedulerRecoveryMessageCount = 10;
 
     private long idleTimeout = -1;

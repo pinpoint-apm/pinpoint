@@ -15,4 +15,6 @@ public interface ServerCallWrapper {
     SocketAddress getRemoteAddr();
 
     void cancel(Status status, Metadata trailers);
+
+    boolean isCancelled();
 }

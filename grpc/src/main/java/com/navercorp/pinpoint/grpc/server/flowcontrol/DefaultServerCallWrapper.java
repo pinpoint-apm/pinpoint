@@ -52,6 +52,11 @@ public class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper 
     }
 
     @Override
+    public boolean isCancelled() {
+        return this.serverCall.isCancelled();
+    }
+
+    @Override
     public String toString() {
         return "DefaultServerCallWrapper{" +
                 "serverCall=" + serverCall +
