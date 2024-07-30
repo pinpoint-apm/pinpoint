@@ -2,6 +2,7 @@ export * from './config';
 export * from './ErrorAnalysis';
 export * from './Inspector';
 export * from './NotFound404';
+export * from './OpenTelemetry';
 export * from './ScatterFullScreen';
 export * from './SystemMetric';
 export * from './TransactionList';

@@ -6,4 +6,5 @@ export * from './useSystemMetricSearchParameters';
 export * from './useTransactionSearchParameters';
 export * from './useUrlStatSearchParameters';
 export * from './useInspectorSearchParameters';
-export * from './utils'
+export * from './useOpenTelemetrySearchParameters';
+export * from './utils';

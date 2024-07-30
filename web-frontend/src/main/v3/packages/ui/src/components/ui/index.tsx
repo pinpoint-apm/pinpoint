@@ -5,6 +5,7 @@ export * from './badge';
 export * from './button';
 export * from './button-group';
 export * from './card';
+export * from './chart';
 export * from './checkbox';
 export * from './collapsible';
 export * from './command';

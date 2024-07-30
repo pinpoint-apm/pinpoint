@@ -2,6 +2,7 @@ export * from './chartsBoard';
 export * from './configuration';
 export * from './globalSearch';
 export * from './installationInfo';
+export * from './openTelemetry';
 export * from './scatter';
 export * from './serverMap';
 export * from './transaction';
