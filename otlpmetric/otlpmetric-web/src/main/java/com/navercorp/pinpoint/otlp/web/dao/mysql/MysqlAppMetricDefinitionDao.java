@@ -27,6 +27,7 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -87,6 +88,10 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
         }
 
         public List<AppMetricDefinition> toModel(AppMetricDefDto appMetricDefDto) {
+            if (appMetricDefDto == null) {
+                return new ArrayList<>();
+            }
+
             try {
                 List<AppMetricDefinition> appMetricDefinitionList = mapper.readValue(appMetricDefDto.metricDefinition(), REF_LIST_APP_METRIC_DEFINITION);
                 return appMetricDefinitionList;
