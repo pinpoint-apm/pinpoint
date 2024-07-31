@@ -23,7 +23,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   convertParamsToQueryString,
   getErrorAnalysisPath,
-  getServerIconPath,
   getTransactionDetailPath,
   getTransactionDetailQueryString,
 } from '@pinpoint-fe/utils';
@@ -35,6 +34,7 @@ import { IoMdClose } from 'react-icons/io';
 import { PiBugBeetleDuotone } from 'react-icons/pi';
 import { LuExternalLink } from 'react-icons/lu';
 import { FaChevronRight } from 'react-icons/fa6';
+import { ServerIcon } from '../components/Application/ServerIcon';
 
 export interface ErrorAnalysisPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
@@ -140,12 +140,7 @@ export const ErrorAnalysisPage = ({
                   </SheetTitle>
                   <SheetDescription className="space-y-2 font-semibold">
                     <div className="flex items-center gap-1.5">
-                      <img
-                        className="w-4"
-                        height="auto"
-                        alt={'application image'}
-                        src={getServerIconPath(application)}
-                      />
+                      <ServerIcon className="w-4" application={application} />
                       <h3 className="text-base font-medium truncate text-foreground">
                         {application.applicationName}
                       </h3>

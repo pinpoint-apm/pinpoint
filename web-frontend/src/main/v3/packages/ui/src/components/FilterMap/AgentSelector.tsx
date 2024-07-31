@@ -1,6 +1,7 @@
 import { ApplicationType } from '@pinpoint-fe/constants';
-import { getServerImagePath } from '@pinpoint-fe/utils';
+
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '../ui';
+import { ServerIcon } from '../Application/ServerIcon';
 
 export interface AgentSelectorProps {
   application?: ApplicationType;
@@ -21,8 +22,8 @@ export const AgentSelector = ({
 
   return (
     <div>
-      <div className="flex items-center gap-0.5 mb-1">
-        {application && <img src={getServerImagePath(application)} width={24} />}
+      <div className="flex items-center gap-1.5 mb-1">
+        {application && <ServerIcon application={application} className="w-4" />}
         <div className="text-xs truncate text-muted-foreground">
           {application?.applicationName || '(single)'}
         </div>
