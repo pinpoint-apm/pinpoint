@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.web.service;
-
-import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
-
-import java.util.List;
+package com.navercorp.pinpoint.otlp.common.defined;
 
 /**
  * @author minwoo-jung
  */
-public interface AppMetricDefinitionService {
-
-    boolean existUserDefinedMetric(String applicationName, String metricName);
-
-    List<AppMetricDefinition> getUserDefinedMetric(String applicationName);
-
-    void updateUserDefinedMetric(List<AppMetricDefinition> appMetricDefinitionList);
+public record Layout(int x, int y, int width, int height) {
 }

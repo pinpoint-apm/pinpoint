@@ -52,10 +52,9 @@ public class MetricDefinitionController {
         return metricMetadataService.getMetricDefinitionInfo(applicationName);
     }
 
-    @PostMapping("/metricDef/userDefined")
-    public Response addUserDefinedMetric(@RequestBody AppMetricDefinition appMetricDefinition) {
-        appMetricDefinitionService.addUserDefinedMetric(appMetricDefinition);
-        return SimpleResponse.ok();
+    @GetMapping("/metricDef/userDefined")
+    public List<AppMetricDefinition> addUserDefinedMetric(@RequestParam("applicationName") String applicationName) {
+        return appMetricDefinitionService.getUserDefinedMetric(applicationName);
     }
 
     @PatchMapping(value = "/metricDef/userDefined")

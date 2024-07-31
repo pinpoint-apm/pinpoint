@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.otlp.common.defined;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
+import java.util.Objects;
+
 /**
  * @author minwoo-jung
  */
@@ -34,9 +36,10 @@ public class AppMetricDefinition {
     private final String tags;
     private final String unit;
     private final String chartType;
+    private final Layout layout;
 
 
-    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, String fieldName, String tags, String unit, String chartType) {
+    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, String fieldName, String tags, String unit, String chartType, Layout layout) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.id = id;
         this.title = StringPrecondition.requireHasLength(title, "title");
@@ -46,6 +49,7 @@ public class AppMetricDefinition {
         this.tags = StringPrecondition.requireHasLength(tags, "tags");
         this.unit = StringPrecondition.requireHasLength(unit, "unit");
         this.chartType = StringPrecondition.requireHasLength(chartType, "chartType");
+        this.layout = Objects.requireNonNull(layout, "layout");
     }
 
     public String getApplicationName() {
@@ -90,6 +94,10 @@ public class AppMetricDefinition {
 
     public int getSchemaVersion() {
         return SCHEMA_VERSION;
+    }
+
+    public Layout getLayout() {
+        return layout;
     }
 
 }
