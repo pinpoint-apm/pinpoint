@@ -95,12 +95,18 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
 
             @Override
             public void onCancel() {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Stream onCancel {} agent:{}/{}", name, serverCall.getApplicationName(), serverCall.getAgentId());
+                }
                 scheduleListener.onCancel();
                 delegate().onCancel();
             }
 
             @Override
             public void onComplete() {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Stream onComplete {} agent:{}/{}", name, serverCall.getApplicationName(), serverCall.getAgentId());
+                }
                 scheduleListener.onCancel();
                 delegate().onComplete();
             }

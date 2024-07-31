@@ -29,6 +29,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.unit.DataSize;
 
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -62,6 +64,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
         "collector.receiver.grpc.stat.header_list_size_max=2KB",
         "collector.receiver.grpc.stat.inbound_message_size_max=2MB",
         "collector.receiver.grpc.stat.receive_buffer_size=2MB",
+
+        "collector.receiver.grpc.stat.max_connection_age=5h",
+        "collector.receiver.grpc.stat.max_connection_age_grace_millis=5000",
 })
 @ContextConfiguration(classes = {
         GrpcStatConfiguration.class,
@@ -120,6 +125,9 @@ public class GrpcStatConfigurationTest {
         assertEquals(2, serverOption.getHandshakeTimeout());
         // 2M
         assertEquals(DataSize.ofMegabytes(2).toBytes(), serverOption.getReceiveBufferSize());
+
+        assertEquals(Duration.ofHours(5).toMillis(), serverOption.getMaxConnectionAge());
+        assertEquals(5000, serverOption.getMaxConnectionAgeGrace());
     }
 
 }
