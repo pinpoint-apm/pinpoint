@@ -45,9 +45,7 @@ public class Tag {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(name);
-        sb.append(":").append(value);
-        return sb.toString();
+        return name + ":" + value;
     }
 
     @Override
