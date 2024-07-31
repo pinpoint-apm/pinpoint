@@ -1,9 +1,9 @@
 import React from 'react';
-import { getServerIconPath } from '@pinpoint-fe/utils';
 import { ApplicationType } from '@pinpoint-fe/constants';
 import { ListItemSkeleton, VirtualList, VirtualListProps } from '../VirtualList';
 import { ApplicationListFetcher } from '.';
 import { ErrorBoundary } from '../Error';
+import { ServerIcon } from './ServerIcon';
 
 export interface ApplicationVirtualListProps extends VirtualListProps<ApplicationType> {}
 
@@ -14,12 +14,7 @@ export const ApplicationVirtualList = ({ ...props }: ApplicationVirtualListProps
 export const ApplicationItem = (application: ApplicationType) => {
   return (
     <>
-      <img
-        width={20}
-        height="auto"
-        alt={'application image'}
-        src={getServerIconPath(application)}
-      />
+      <ServerIcon application={application} />
       <div className="truncate">{application.applicationName}</div>
     </>
   );

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { ApplicationType } from '@pinpoint-fe/constants';
-import { getServerImagePath } from '@pinpoint-fe/utils';
 import { useSearchParameters } from '@pinpoint-fe/hooks';
 import { Button } from '../ui';
 import { cn } from '../../lib';
+import { ServerIcon } from '../Application/ServerIcon';
 
 export const ApplicationLinkButton = () => {
   const { application, searchParameters, pathname } = useSearchParameters();
@@ -23,7 +23,7 @@ export const ApplicationLinkButton = () => {
       className="flex items-center w-full h-10 gap-1 px-1 rounded-none shrink-0 justify-normal"
     >
       <Link to={removeAgentIdFromPath()}>
-        <img src={getServerImagePath(application as ApplicationType)} width={30} />
+        <ServerIcon application={application as ApplicationType} className="w-5 mx-1" />
         <div
           className={cn('text-sm font-semibold truncate', {
             'text-primary': !selectedAgentId,

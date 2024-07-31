@@ -9,7 +9,6 @@ import { Button, ServerMapCore, Tabs, TabsContent, TabsList, TabsTrigger } from 
 import { CallTree } from '..';
 import {
   getBaseNodeId,
-  getServerIconPath,
   getTransactionDetailPath,
   getTransactionDetailQueryString,
 } from '@pinpoint-fe/utils';
@@ -19,6 +18,7 @@ import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint
 import { cn } from '../../../lib';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui';
 import { Timeline } from '../timeline/Timeline';
+import { ServerIcon } from '../../Application/ServerIcon';
 
 export interface TransactionInfoFetcherProps {
   disableHeader?: boolean;
@@ -77,12 +77,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
       <div className="p-3 border-b">
         {!disableHeader && (
           <div className="flex items-center gap-1 pb-2 text-sm font-semibold truncate">
-            <img
-              style={{ width: '0.875rem' }}
-              height="auto"
-              alt={'application image'}
-              src={getServerIconPath(application!)}
-            />
+            <ServerIcon application={application!} className="w-3.5 mr-1" />
             <div className="truncate">{application?.applicationName}</div>
             <div className="truncate">({data.agentId})</div>
             <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
