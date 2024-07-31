@@ -60,9 +60,9 @@ public class ServerOption {
     // Sets a custom max connection idle time, connection being idle for longer than which will be gracefully terminated.
     private final long maxConnectionIdle;
     // Sets a custom max connection age, connection lasting longer than which will be gracefully terminated.
-//    private final long maxConnectionAge = DEFAULT_MAX_CONNECTION_AGE;
+    private long maxConnectionAge = DEFAULT_MAX_CONNECTION_AGE;
     // Sets a custom grace time for the graceful connection termination. Once the max connection age is reached, RPCs have the grace time to complete.
-//    private final long maxConnectionAgeGrace = DEFAULT_MAX_CONNECTION_AGE_GRACE;
+    private long maxConnectionAgeGrace = DEFAULT_MAX_CONNECTION_AGE_GRACE;
 
     // The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit.
     private final int maxConcurrentCallsPerConnection;
@@ -82,14 +82,19 @@ public class ServerOption {
 
     public final ChannelTypeEnum channelTypeEnum;
 
-    ServerOption(long keepAliveTime, long keepAliveTimeout, long permitKeepAliveTime, long maxConnectionIdle,
+    ServerOption(long keepAliveTime, long keepAliveTimeout, long permitKeepAliveTime,
+                 long maxConnectionIdle, long maxConnectionAge, long maxConnectionAgeGrace,
                  int maxConcurrentCallsPerConnection, int maxInboundMessageSize, int maxHeaderListSize,
                  long handshakeTimeout, int flowControlWindow, int receiveBufferSize, long grpcMaxTermWaitTimeMillis,
                  ChannelTypeEnum channelTypeEnum) {
         this.keepAliveTime = keepAliveTime;
         this.keepAliveTimeout = keepAliveTimeout;
         this.permitKeepAliveTime = permitKeepAliveTime;
+
         this.maxConnectionIdle = maxConnectionIdle;
+        this.maxConnectionAge = maxConnectionAge;
+        this.maxConnectionAgeGrace = maxConnectionAgeGrace;
+
         this.maxConcurrentCallsPerConnection = maxConcurrentCallsPerConnection;
         this.maxInboundMessageSize = maxInboundMessageSize;
         this.maxHeaderListSize = maxHeaderListSize;
@@ -121,11 +126,11 @@ public class ServerOption {
     }
 
     public long getMaxConnectionAge() {
-        return DEFAULT_MAX_CONNECTION_AGE;
+        return maxConnectionAge;
     }
 
     public long getMaxConnectionAgeGrace() {
-        return DEFAULT_MAX_CONNECTION_AGE_GRACE;
+        return maxConnectionAgeGrace;
     }
 
     public int getMaxConcurrentCallsPerConnection() {
@@ -172,6 +177,8 @@ public class ServerOption {
                 ", permitKeepAliveTime=" + permitKeepAliveTime +
                 ", permitKeepAliveWithoutCalls=" + permitKeepAliveWithoutCalls +
                 ", maxConnectionIdle=" + maxConnectionIdle +
+                ", maxConnectionAge=" + maxConnectionAge +
+                ", maxConnectionAgeGrace=" + maxConnectionAgeGrace +
                 ", maxConcurrentCallsPerConnection=" + maxConcurrentCallsPerConnection +
                 ", maxInboundMessageSize=" + maxInboundMessageSize +
                 ", maxHeaderListSize=" + maxHeaderListSize +
@@ -193,6 +200,9 @@ public class ServerOption {
 
         // Sets a custom max connection idle time, connection being idle for longer than which will be gracefully terminated.
         private long maxConnectionIdle = DEFAULT_MAX_CONNECTION_IDLE;
+        private long maxConnectionAge = DEFAULT_MAX_CONNECTION_AGE;
+        private long maxConnectionAgeGrace = DEFAULT_MAX_CONNECTION_AGE_GRACE;
+
         // The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit.
         private int maxConcurrentCallsPerConnection = DEFAULT_MAX_CONCURRENT_CALLS_PER_CONNECTION;
 
@@ -215,10 +225,10 @@ public class ServerOption {
         }
 
         public ServerOption build() {
-            final ServerOption serverOption = new ServerOption(keepAliveTime, keepAliveTimeout, permitKeepAliveTime,
-                    maxConnectionIdle, maxConcurrentCallsPerConnection, maxInboundMessageSize,
+            return new ServerOption(keepAliveTime, keepAliveTimeout, permitKeepAliveTime,
+                    maxConnectionIdle, maxConnectionAge, maxConnectionAgeGrace,
+                    maxConcurrentCallsPerConnection, maxInboundMessageSize,
                     maxHeaderListSize, handshakeTimeout, flowControlWindow, receiveBufferSize, grpcMaxTermWaitTimeMillis, channelTypeEnum);
-            return serverOption;
         }
 
         public void setKeepAliveTime(long keepAliveTime) {
@@ -239,6 +249,16 @@ public class ServerOption {
         public void setMaxConnectionIdle(long maxConnectionIdle) {
             Assert.isTrue(maxConnectionIdle > 0, "maxConnectionIdle " + maxConnectionIdle + " must be positive");
             this.maxConnectionIdle = maxConnectionIdle;
+        }
+
+        public void setMaxConnectionAge(long maxConnectionAge) {
+            Assert.isTrue(maxConnectionAge > 0, "maxConnectionAge " + maxConnectionAge + " must be positive");
+            this.maxConnectionAge = maxConnectionAge;
+        }
+
+        public void setMaxConnectionAgeGrace(long maxConnectionAgeGrace) {
+            Assert.isTrue(maxConnectionAgeGrace > 0, "maxConnectionAgeGrace " + maxConnectionAgeGrace + " must be positive");
+            this.maxConnectionAgeGrace = maxConnectionAgeGrace;
         }
 
         public void setMaxConcurrentCallsPerConnection(int maxConcurrentCallsPerConnection) {
@@ -288,6 +308,8 @@ public class ServerOption {
                     ", keepAliveTimeout=" + keepAliveTimeout +
                     ", permitKeepAliveTime=" + permitKeepAliveTime +
                     ", maxConnectionIdle=" + maxConnectionIdle +
+                    ", maxConnectionAge=" + maxConnectionAge +
+                    ", maxConnectionAgeGrace=" + maxConnectionAgeGrace +
                     ", maxConcurrentCallsPerConnection=" + maxConcurrentCallsPerConnection +
                     ", maxInboundMessageSize=" + maxInboundMessageSize +
                     ", maxHeaderListSize=" + maxHeaderListSize +
