@@ -37,6 +37,7 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,8 +61,9 @@ public class StatService extends StatGrpc.StatImplBase {
     }
 
     @Override
-    public StreamObserver<PStatMessage> sendAgentStat(StreamObserver<Empty> responseObserver) {
-        StreamObserver<PStatMessage> observer = new StreamObserver<PStatMessage>() {
+    public StreamObserver<PStatMessage> sendAgentStat(StreamObserver<Empty> responseStream) {
+        final ServerCallStreamObserver<Empty> responseObserver = (ServerCallStreamObserver<Empty>) responseStream;
+        StreamObserver<PStatMessage> observer = new StreamObserver<>() {
             @Override
             public void onNext(PStatMessage statMessage) {
                 if (isDebug) {
@@ -89,16 +91,25 @@ public class StatService extends StatGrpc.StatImplBase {
                 Status status = Status.fromThrowable(throwable);
                 Metadata metadata = Status.trailersFromThrowable(throwable);
                 if (logger.isInfoEnabled()) {
-                    logger.info("Failed to stat stream, {} {}", status, metadata);
+                    logger.info("onError: Failed to stat stream, {} {}", status, metadata);
                 }
+                responseCompleted(responseObserver);
             }
 
             @Override
             public void onCompleted() {
                 com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
                 logger.info("onCompleted {}", header);
+                responseCompleted(responseObserver);
+            }
 
-                responseObserver.onNext(Empty.newBuilder().build());
+            private void responseCompleted(ServerCallStreamObserver<Empty> responseObserver) {
+                if (responseObserver.isCancelled()) {
+                    logger.info("responseCompleted: ResponseObserver is cancelled");
+                    return;
+                }
+                Empty empty = Empty.getDefaultInstance();
+                responseObserver.onNext(empty);
                 responseObserver.onCompleted();
             }
         };
@@ -112,18 +123,27 @@ public class StatService extends StatGrpc.StatImplBase {
         return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
-    private void send(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
+    private void send(final Message<? extends GeneratedMessageV3> message, ServerCallStreamObserver<Empty> responseObserver) {
         try {
             ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);
         } catch (Exception e) {
             logger.warn("Failed to request. message={}", message, e);
-            if (e instanceof StatusException || e instanceof StatusRuntimeException) {
-                responseObserver.onError(e);
-            } else {
-                // Avoid detailed exception
-                responseObserver.onError(Status.INTERNAL.withDescription("Bad Request").asException());
-            }
+            onError(responseObserver, e);
+        }
+    }
+
+    private void onError(ServerCallStreamObserver<Empty> responseObserver, Exception e) {
+        if (responseObserver.isCancelled()) {
+            logger.info("onError: ResponseObserver is cancelled");
+            return;
+        }
+        if (e instanceof StatusException || e instanceof StatusRuntimeException) {
+            responseObserver.onError(e);
+        } else {
+            // Avoid detailed exception
+            StatusException statusException = Status.INTERNAL.withDescription("Bad Request").asException();
+            responseObserver.onError(statusException);
         }
     }
 
