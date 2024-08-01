@@ -56,7 +56,9 @@ public class RpcURLPatternFilter implements URLPatternFilter {
 
         // TODO remove. hard coded annotation for compatibility, need a better to group rpc url annotations
         this.rpcEndpointAnnotationCodes = initRpcEndpointAnnotations(
-                AnnotationKey.HTTP_URL.getName(), AnnotationKey.MESSAGE_QUEUE_URI.getName(),
+                AnnotationKey.HTTP_URL.getName(),
+                AnnotationKey.HTTP_REQUEST_PATH.getName(),
+                AnnotationKey.MESSAGE_QUEUE_URI.getName(),
                 "thrift.url", "npc.url", "nimm.url"
         );
     }
