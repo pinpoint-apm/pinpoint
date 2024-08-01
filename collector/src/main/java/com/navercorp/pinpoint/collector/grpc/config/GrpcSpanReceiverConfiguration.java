@@ -63,7 +63,7 @@ public class GrpcSpanReceiverConfiguration {
 
     @Deprecated
     @Configuration
-    @ConditionalOnProperty(name = "collector.receiver.grpc.span.stream.flow-control.type", havingValue = "legacy", matchIfMissing = true)
+    @ConditionalOnProperty(name = "collector.receiver.grpc.span.stream.flow-control.type", havingValue = "legacy")
     public static class LegacySpanInterceptorConfiguration {
         @Bean
         public FactoryBean<ScheduledExecutorService> grpcSpanStreamScheduler(@Qualifier("grpcSpanStreamProperties")
@@ -89,7 +89,7 @@ public class GrpcSpanReceiverConfiguration {
     }
 
     @Configuration
-    @ConditionalOnProperty(name = "collector.receiver.grpc.span.stream.flow-control.type", havingValue = "rate-limit")
+    @ConditionalOnProperty(name = "collector.receiver.grpc.span.stream.flow-control.type", havingValue = "rate-limit", matchIfMissing = true)
     public static class RateLimitServerInterceptorConfiguration {
         @Bean
         public Bandwidth spanBandwidth(@Value("${collector.receiver.grpc.span.stream.flow-control.rate-limit.capacity:5000}") long capacity,

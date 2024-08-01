@@ -45,7 +45,6 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
     private final Executor executor;
 
     private final Bandwidth bandwidth;
-    private final Bucket bucket;
 
 
     public RateLimitClientStreamServerInterceptor(String name, final Executor executor, Bandwidth bandwidth, final long throttledLoggerRatio) {
@@ -56,9 +55,6 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
         this.executor = Context.currentContextExecutor(executor);
 
         this.bandwidth = Objects.requireNonNull(bandwidth, "bandwidth");
-        this.bucket = Bucket.builder()
-                .addLimit(bandwidth)
-                .build();
 
         this.rejectLogger = ThrottledLogger.getLogger(logger, throttledLoggerRatio);
         this.bandwidthLogger = ThrottledLogger.getLogger(logger, throttledLoggerRatio);
@@ -78,6 +74,7 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
         final ServerCall.Listener<ReqT> listener = next.startCall(call, headers);
 
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<>(listener) {
+            private final Bucket bucket = Bucket.builder().addLimit(bandwidth).build();
 
             @Override
             public void onMessage(final ReqT message) {
