@@ -3,12 +3,12 @@ import { ApplicationItem, ApplicationList, ApplicationVirtualList } from './Appl
 import { APP_SETTING_KEYS, ApplicationType } from '@pinpoint-fe/constants';
 import { LuStar, LuStarOff } from 'react-icons/lu';
 import { cn } from '../../lib/utils';
-import { getServerIconPath } from '@pinpoint-fe/utils';
 import { Toaster } from '../ui/toaster';
 import { useToast } from '../../lib/use-toast';
 import { VirtualSearchList } from '../VirtualList';
 import { useLocalStorage } from '@pinpoint-fe/hooks';
 import { RxCaretSort } from 'react-icons/rx';
+import { ServerIcon } from './ServerIcon';
 
 export interface ApplicationCombinedListProps {
   triggerClassName?: string;
@@ -96,12 +96,7 @@ export const ApplicationCombinedList = ({
         <div className="flex items-center w-full p-1 pt-2">
           {selectedApplication ? (
             <div className="flex items-center gap-2 overflow-hidden">
-              <img
-                width={24}
-                height="auto"
-                alt={'application image'}
-                src={getServerIconPath(selectedApplication)}
-              />
+              <ServerIcon className="w-6" application={selectedApplication} />
               <div className="truncate">{selectedApplication.applicationName}</div>
             </div>
           ) : (
@@ -129,12 +124,7 @@ export const ApplicationCombinedList = ({
                     itemChild={(app) => {
                       return (
                         <>
-                          <img
-                            width={20}
-                            height="auto"
-                            alt={'application image'}
-                            src={getServerIconPath(app)}
-                          />
+                          <ServerIcon application={app} />
                           <div className="truncate">{app.applicationName}</div>
                           <div
                             className="flex-none w-6 h-6 ml-auto cursor-pointer"

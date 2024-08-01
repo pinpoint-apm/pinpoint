@@ -1,6 +1,7 @@
 import { HiOutlineArrowRight } from 'react-icons/hi';
-import { getApplicationTypeAndName, getServerImagePath } from '@pinpoint-fe/utils';
+import { getApplicationTypeAndName } from '@pinpoint-fe/utils';
 import { Edge } from '@pinpoint-fe/server-map';
+import { ServerIcon } from '../Application/ServerIcon';
 
 export interface ChartsBoardHeaderProps {
   currentTarget: {
@@ -15,11 +16,11 @@ export interface ChartsBoardHeaderProps {
 
 export const ChartsBoardHeader = ({ currentTarget }: ChartsBoardHeaderProps) => {
   return (
-    <div className="flex items-center h-12 gap-1 px-1 text-lg font-semibold shrink-0 border-b-1">
+    <div className="flex items-center h-12 gap-2 px-2 text-lg font-semibold shrink-0 border-b-1">
       {currentTarget &&
         (currentTarget?.type === 'node' ? (
           <>
-            <img src={currentTarget?.imgPath} width={52} />
+            <ServerIcon application={currentTarget} className="" />
             <div className="truncate">{currentTarget?.applicationName}</div>
           </>
         ) : (
@@ -35,13 +36,15 @@ export const ChartsBoardHeader = ({ currentTarget }: ChartsBoardHeaderProps) => 
 
             return (
               <div className="flex items-center justify-between w-full">
-                <div className="flex items-center max-w-[45%] w-[40%]">
-                  <img src={getServerImagePath(sourceApp)} width={52} />
+                <div className="flex items-center flex-1 gap-2">
+                  <ServerIcon application={sourceApp} className="" />
                   <div className="truncate">{sourceApp?.applicationName}</div>
                 </div>
-                <HiOutlineArrowRight />
-                <div className="flex items-center max-w-[45%] w-[40%]">
-                  <img src={getServerImagePath(targetApp)} width={52} />
+                <div className="w-5 mx-3">
+                  <HiOutlineArrowRight />
+                </div>
+                <div className="flex items-center flex-1 gap-2">
+                  <ServerIcon application={sourceApp} className="" />
                   <div className="truncate">{targetApp?.applicationName}</div>
                 </div>
               </div>
