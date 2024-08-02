@@ -149,10 +149,10 @@
         <build.frontend.skip>false</build.frontend.skip>
 
         <!-- hbase -->
-        <hbase.shaded.client.version>2.5.9-hadoop3</hbase.shaded.client.version>
+        <hbase.shaded.client.version>2.5.10-hadoop3</hbase.shaded.client.version>
         <!-- for shaded hbase client 1.5.0+ version -->
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
-        <hbase2.client.version>2.5.9-hadoop3</hbase2.client.version>
+        <hbase2.client.version>2.5.10-hadoop3</hbase2.client.version>
 
         <pinot.client.version>1.0.0</pinot.client.version>
 
