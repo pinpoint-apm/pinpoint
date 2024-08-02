@@ -52,10 +52,14 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     private final boolean isDebug = logger.isDebugEnabled();
     private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
+    private final StreamCloseOnError streamCloseOnError;
 
-    public SpanService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, ServerRequestFactory serverRequestFactory) {
+    public SpanService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+                       ServerRequestFactory serverRequestFactory,
+                       StreamCloseOnError streamCloseOnError) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
+        this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
     }
 
     @Override
@@ -128,7 +132,10 @@ public class SpanService extends SpanGrpc.SpanImplBase {
             this.dispatchHandler.dispatchSendMessage(request);
         } catch (Throwable e) {
             logger.warn("Failed to request. message={}", message, e);
-            onError(responseObserver, e);
+            if (streamCloseOnError.onError(e)) {
+                logger.debug("Close stream");
+                onError(responseObserver, e);
+            }
         }
     }
 

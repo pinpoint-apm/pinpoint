@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStream
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
@@ -122,8 +123,9 @@ public class GrpcStatReceiverConfiguration {
                                                                DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
                                                                @Qualifier("statStreamExecutorInterceptor")
                                                                ServerInterceptor serverInterceptor,
-                                                               ServerRequestFactory serverRequestFactory) {
-        BindableService spanService = new StatService(dispatchHandler, serverRequestFactory);
+                                                               ServerRequestFactory serverRequestFactory,
+                                                               StreamCloseOnError streamCloseOnError) {
+        BindableService spanService = new StatService(dispatchHandler, serverRequestFactory, streamCloseOnError);
         return ServerInterceptors.intercept(spanService, serverInterceptor);
     }
 
