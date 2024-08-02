@@ -21,7 +21,9 @@ import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.AgentHeaderReader;
@@ -104,7 +106,9 @@ public class SpanServerTestMain {
         ((StreamExecutorServerInterceptorFactory) interceptorFactory).setBeanName("SpanService");
 
         ServerInterceptor interceptor = interceptorFactory.getObject();
-        SpanService spanService = new SpanService(new MockDispatchHandler(), new DefaultServerRequestFactory());
+        MockDispatchHandler dispatchHandler = new MockDispatchHandler();
+        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
+        SpanService spanService = new SpanService(dispatchHandler, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(spanService, interceptor);
     }
 

@@ -21,7 +21,9 @@ import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
@@ -74,7 +76,9 @@ public class StatServerTestMain {
                 Executors.newSingleThreadScheduledExecutor(),
                 streamProperties);
         ServerInterceptor interceptor = interceptorFactory.getObject();
-        StatService statService = new StatService(new MockDispatchHandler(), new DefaultServerRequestFactory());
+        MockDispatchHandler dispatchHandler = new MockDispatchHandler();
+        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
+        StatService statService = new StatService(dispatchHandler, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(statService, interceptor);
     }
 

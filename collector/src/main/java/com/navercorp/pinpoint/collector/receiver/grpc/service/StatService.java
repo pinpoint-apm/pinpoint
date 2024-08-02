@@ -54,10 +54,14 @@ public class StatService extends StatGrpc.StatImplBase {
 
     private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
+    private final StreamCloseOnError streamCloseOnError;
 
-    public StatService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, ServerRequestFactory serverRequestFactory) {
+    public StatService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+                       ServerRequestFactory serverRequestFactory,
+                       StreamCloseOnError streamCloseOnError) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
+        this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
     }
 
     @Override
@@ -127,13 +131,15 @@ public class StatService extends StatGrpc.StatImplBase {
         try {
             ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.warn("Failed to request. message={}", message, e);
-            onError(responseObserver, e);
+            if (this.streamCloseOnError.onError(e)) {
+                onError(responseObserver, e);
+            }
         }
     }
 
-    private void onError(ServerCallStreamObserver<Empty> responseObserver, Exception e) {
+    private void onError(ServerCallStreamObserver<Empty> responseObserver, Throwable e) {
         if (responseObserver.isCancelled()) {
             logger.info("onError: ResponseObserver is cancelled");
             return;
