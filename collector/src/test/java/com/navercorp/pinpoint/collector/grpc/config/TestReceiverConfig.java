@@ -17,9 +17,13 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.codahale.metrics.MetricRegistry;
+import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
+import com.navercorp.pinpoint.collector.monitor.dropwizard.DropwizardThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -27,10 +31,19 @@ import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 
 @Configuration
-@Import(MonitoringExecutors.class)
+@Import({
+        MonitoringExecutors.class,
+})
 public class TestReceiverConfig {
     @Bean
     public ExecutorCustomizer<ThreadPoolExecutorFactoryBean> collectorExecutorCustomizer() {
         return new ThreadPoolExecutorCustomizer();
+    }
+
+    @Bean
+    public MonitoredThreadPoolExecutorFactoryProvider dropwizardMonitoredThreadPoolExecutorFactoryProvider(
+            @Autowired(required = false) MetricRegistry metricRegistry
+    ) {
+        return new DropwizardThreadPoolExecutorFactoryProvider(metricRegistry);
     }
 }

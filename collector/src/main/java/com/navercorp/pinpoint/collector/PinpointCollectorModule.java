@@ -5,8 +5,6 @@ import com.navercorp.pinpoint.collector.config.ClusterModule;
 import com.navercorp.pinpoint.collector.config.CollectorCommonConfiguration;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.config.FlinkContextModule;
-import com.navercorp.pinpoint.collector.config.MicrometerConfiguration;
-import com.navercorp.pinpoint.collector.config.DropwizardConfiguration;
 import com.navercorp.pinpoint.collector.grpc.CollectorGrpcConfiguration;
 import com.navercorp.pinpoint.collector.grpc.ssl.GrpcSslModule;
 import com.navercorp.pinpoint.collector.manage.CollectorAdminConfiguration;
@@ -35,9 +33,6 @@ import org.springframework.context.annotation.Import;
         CollectorGrpcConfiguration.class,
 
         ClusterModule.class,
-
-        DropwizardConfiguration.class,
-        MicrometerConfiguration.class,
 
         GrpcSslModule.class,
 

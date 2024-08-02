@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.collector.grpc.config.GrpcSpanReceiverConfiguratio
 import com.navercorp.pinpoint.collector.grpc.config.GrpcStatConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcStatReceiverConfiguration;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
+import com.navercorp.pinpoint.collector.monitor.config.DropwizardConfiguration;
+import com.navercorp.pinpoint.collector.monitor.config.MicrometerConfiguration;
 import com.navercorp.pinpoint.collector.monitor.dropwizard.DropwizardThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
 import com.navercorp.pinpoint.collector.monitor.micrometer.MicrometerThreadPoolExecutorFactoryProvider;
@@ -58,6 +60,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
         GrpcKeepAliveScheduler.class,
 
+        DropwizardConfiguration.class,
+        MicrometerConfiguration.class,
+
         ChannelzConfiguration.class
 })
 @ComponentScan({
@@ -71,27 +76,5 @@ public class CollectorGrpcConfiguration {
             MonitoredThreadPoolExecutorFactoryProvider monitoredThreadPoolExecutorFactoryProvider
     ) {
         return new MonitoringExecutors(customizer, monitoredThreadPoolExecutorFactoryProvider);
-    }
-
-    @Bean
-    @ConditionalOnProperty(
-            value = "pinpoint.modules.collector.monitor.metric",
-            havingValue = "dropwizard", matchIfMissing = true
-    )
-    public MonitoredThreadPoolExecutorFactoryProvider dropwizardMonitoredThreadPoolExecutorFactoryProvider(
-            @Autowired(required = false) MetricRegistry metricRegistry
-    ) {
-        return new DropwizardThreadPoolExecutorFactoryProvider(metricRegistry);
-    }
-
-    @Bean
-    @ConditionalOnProperty(
-            value = "pinpoint.modules.collector.monitor.metric",
-            havingValue = "micrometer"
-    )
-    public MonitoredThreadPoolExecutorFactoryProvider micrometerMonitoredThreadPoolExecutorFactoryProvider(
-            @Autowired(required = false) MeterRegistry meterRegistry
-    ) {
-        return new MicrometerThreadPoolExecutorFactoryProvider(meterRegistry);
     }
 }
