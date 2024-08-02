@@ -114,10 +114,4 @@ public class GrpcSpanConfiguration {
         return executors.newExecutorFactoryBean(properties, beanName);
     }
 
-    @Bean
-    public MonitoredThreadPoolExecutorFactoryProvider dropwizardMonitoredThreadPoolExecutorFactoryProvider(
-            @Autowired(required = false) MetricRegistry metricRegistry
-    ) {
-        return new DropwizardThreadPoolExecutorFactoryProvider(metricRegistry);
-    }
 }

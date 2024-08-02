@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.config;
+package com.navercorp.pinpoint.collector.monitor.config;
 
+import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
+import com.navercorp.pinpoint.collector.monitor.micrometer.MicrometerThreadPoolExecutorFactoryProvider;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -33,5 +38,16 @@ public class MicrometerConfiguration {
 
     public MicrometerConfiguration() {
         logger.info("Install {}", MicrometerConfiguration.class.getSimpleName());
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+            value = "pinpoint.modules.collector.monitor.metric",
+            havingValue = "micrometer"
+    )
+    public MonitoredThreadPoolExecutorFactoryProvider micrometerMonitoredThreadPoolExecutorFactoryProvider(
+            @Autowired(required = false) MeterRegistry meterRegistry
+    ) {
+        return new MicrometerThreadPoolExecutorFactoryProvider(meterRegistry);
     }
 }

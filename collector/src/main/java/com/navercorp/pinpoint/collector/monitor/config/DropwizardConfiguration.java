@@ -1,12 +1,15 @@
-package com.navercorp.pinpoint.collector.config;
+package com.navercorp.pinpoint.collector.monitor.config;
 
 import com.codahale.metrics.MetricRegistry;
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
+import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.dropwizard.BulkOperationMetrics;
 import com.navercorp.pinpoint.collector.monitor.dropwizard.CollectorMetric;
+import com.navercorp.pinpoint.collector.monitor.dropwizard.DropwizardThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.dropwizard.HBaseAsyncOperationMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,4 +47,14 @@ public class DropwizardConfiguration {
         return new CollectorMetric(collectorProperties, metricRegistry, hBaseAsyncOperationMetrics, cachedStatisticsDaoMetrics);
     }
 
+    @Bean
+    @ConditionalOnProperty(
+            value = "pinpoint.modules.collector.monitor.metric",
+            havingValue = "dropwizard", matchIfMissing = true
+    )
+    public MonitoredThreadPoolExecutorFactoryProvider dropwizardMonitoredThreadPoolExecutorFactoryProvider(
+            @Autowired(required = false) MetricRegistry metricRegistry
+    ) {
+        return new DropwizardThreadPoolExecutorFactoryProvider(metricRegistry);
+    }
 }
