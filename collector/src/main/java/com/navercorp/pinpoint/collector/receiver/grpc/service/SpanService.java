@@ -20,7 +20,6 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
@@ -32,10 +31,6 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-import io.grpc.Metadata;
-import io.grpc.Status;
-import io.grpc.StatusException;
-import io.grpc.StatusRuntimeException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -65,59 +60,23 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     @Override
     public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseStream) {
         final ServerCallStreamObserver<Empty> responseObserver = (ServerCallStreamObserver<Empty>) responseStream;
+        return new ServerCallStream<>(logger, responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
+    }
 
-        StreamObserver<PSpanMessage> observer = new StreamObserver<>() {
-            @Override
-            public void onNext(PSpanMessage spanMessage) {
-                if (isDebug) {
-                    logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
-                }
+    private void messageDispatch(PSpanMessage spanMessage, ServerCallStream<PSpanMessage, Empty> stream) {
+        if (isDebug) {
+            logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
+        }
 
-                if (spanMessage.hasSpan()) {
-                    final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
-                    send(message, responseObserver);
-                } else if (spanMessage.hasSpanChunk()) {
-                    final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
-                    send(message, responseObserver);
-                } else {
-                    if (isDebug) {
-                        logger.debug("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
-                    }
-                    onError(Status.INVALID_ARGUMENT.withDescription("Invalid Request").asException());
-                }
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
-
-                Status status = Status.fromThrowable(throwable);
-                Metadata metadata = Status.trailersFromThrowable(throwable);
-                if (logger.isInfoEnabled()) {
-                    logger.info("onError: Failed to span stream, {} {} {}", header, status, metadata);
-                }
-                responseCompleted(responseObserver);
-            }
-
-            @Override
-            public void onCompleted() {
-                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
-                logger.info("onCompleted {}", header);
-
-                responseCompleted(responseObserver);
-            }
-
-            private void responseCompleted(ServerCallStreamObserver<Empty> responseObserver) {
-                if (responseObserver.isCancelled()) {
-                    logger.info("responseCompleted: ResponseObserver is cancelled");
-                    return;
-                }
-                Empty empty = Empty.getDefaultInstance();
-                responseObserver.onNext(empty);
-                responseObserver.onCompleted();
-            }
-        };
-        return observer;
+        if (spanMessage.hasSpan()) {
+            final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
+            dispatch(message, stream);
+        } else if (spanMessage.hasSpanChunk()) {
+            final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
+            dispatch(message, stream);
+        } else {
+            logger.info("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
+        }
     }
 
     private <T> Message<T> newMessage(T requestData, short serviceType) {
@@ -126,31 +85,13 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
-    private void send(final Message<? extends GeneratedMessageV3> message, ServerCallStreamObserver<Empty> responseObserver) {
+    private void dispatch(final Message<? extends GeneratedMessageV3> message, ServerCallStream<PSpanMessage, Empty> responseObserver) {
         try {
             ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
-            this.dispatchHandler.dispatchSendMessage(request);
+            dispatchHandler.dispatchSendMessage(request);
         } catch (Throwable e) {
-            logger.warn("Failed to request. message={}", message, e);
-            if (streamCloseOnError.onError(e)) {
-                logger.debug("Close stream");
-                onError(responseObserver, e);
-            }
+            logger.warn("Failed to request. message={}", MessageFormatUtils.debugLog(message), e);
+            responseObserver.onNextError(e);
         }
     }
-
-    private void onError(ServerCallStreamObserver<Empty> responseObserver, Throwable e) {
-        if (responseObserver.isCancelled()) {
-            logger.info("onError: ResponseObserver is cancelled");
-            return;
-        }
-        if (e instanceof StatusException || e instanceof StatusRuntimeException) {
-            responseObserver.onError(e);
-        } else {
-            // Avoid detailed exception
-            StatusException statusException = Status.INTERNAL.withDescription("Bad Request").asException();
-            responseObserver.onError(statusException);
-        }
-    }
-
 }
