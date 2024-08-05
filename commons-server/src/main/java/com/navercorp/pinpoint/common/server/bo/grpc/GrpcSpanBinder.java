@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
@@ -133,7 +134,7 @@ public class GrpcSpanBinder {
                 }
 
                 final String parentApplicationName = parentInfo.getParentApplicationName();
-                if (StringUtils.hasLength(parentApplicationName)) {
+                if (validateParentApplicationName(parentApplicationName)) {
                     spanBo.setParentApplicationId(parentApplicationName);
                 }
                 spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
@@ -151,6 +152,16 @@ public class GrpcSpanBinder {
         spanBo.setAnnotationBoList(annotationBoList);
 
         return spanBo;
+    }
+
+    private boolean validateParentApplicationName(String parentApplicationName) {
+        if (StringUtils.isEmpty(parentApplicationName)) {
+            return false;
+        }
+        if (!IdValidateUtils.validateId(parentApplicationName)) {
+            throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName);
+        }
+        return true;
     }
 
     private String getExceptionMessage(PIntStringValue exceptionInfo) {
