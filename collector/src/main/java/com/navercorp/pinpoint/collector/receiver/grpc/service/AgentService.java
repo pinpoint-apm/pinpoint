@@ -90,7 +90,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
 
     @Override
-    public StreamObserver<PPing> pingSession(final StreamObserver<PPing> responseObserver) {
+    public StreamObserver<PPing> pingSession(final StreamObserver<PPing> response) {
+        final ServerCallStreamObserver<PPing> responseObserver = (ServerCallStreamObserver<PPing>) response;
         return new StreamObserver<>() {
             private final AtomicBoolean first = new AtomicBoolean(false);
             private final ThrottledLogger thLogger = ThrottledLogger.getLogger(AgentService.this.logger, 100);
@@ -110,8 +111,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
                 if (isDebug) {
                     thLogger.debug("PingSession:{} onNext:{}", id, MessageFormatUtils.debugLog(ping));
                 }
-                PPing replay = newPing();
-                if (isReady(responseObserver)) {
+                if (responseObserver.isReady()) {
+                    PPing replay = newPing();
                     responseObserver.onNext(replay);
                 } else {
                     thLogger.warn("ping message is ignored: stream is not ready: {}", ServerContext.getAgentInfo());
@@ -119,8 +120,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             }
 
             private PPing newPing() {
-                PPing.Builder builder = PPing.newBuilder();
-                return builder.build();
+                return PPing.getDefaultInstance();
             }
 
             @Override
@@ -130,6 +130,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
                 if (thLogger.isInfoEnabled()) {
                     thLogger.info("Failed to ping stream, id={}, {} metadata:{}", id, status, metadata);
                 }
+                // responseObserver.onCompleted();
                 disconnect();
             }
 
@@ -147,13 +148,6 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             }
 
         };
-    }
-
-    private static boolean isReady(StreamObserver<PPing> responseObserver) {
-        if (responseObserver instanceof ServerCallStreamObserver<?> observer) {
-            return observer.isReady();
-        }
-        return true;
     }
 
     private long nextSessionId() {
