@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
-import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
@@ -45,12 +44,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 
 /**
@@ -61,35 +58,6 @@ public class GrpcStatReceiverConfiguration {
 
     public GrpcStatReceiverConfiguration() {
     }
-
-    @Deprecated
-    @Configuration
-    @ConditionalOnProperty(name = "collector.receiver.grpc.stat.stream.flow-control.type", havingValue = "legacy")
-    public static class LegacySpanInterceptorConfiguration {
-
-        @Bean
-        public FactoryBean<ScheduledExecutorService> grpcStatStreamScheduler(@Qualifier("grpcStatStreamProperties")
-                                                                             GrpcStreamProperties properties) {
-            ScheduledExecutorFactoryBean bean = new ScheduledExecutorFactoryBean();
-            bean.setPoolSize(properties.getSchedulerThreadSize());
-            bean.setThreadNamePrefix("Pinpoint-GrpcStat-StreamExecutor-Scheduler-");
-            bean.setDaemon(true);
-            bean.setWaitForTasksToCompleteOnShutdown(true);
-            bean.setAwaitTerminationSeconds(10);
-            return bean;
-        }
-
-        @Bean
-        public FactoryBean<ServerInterceptor> statStreamExecutorInterceptor(@Qualifier("grpcStatWorkerExecutor")
-                                                                            Executor executor,
-                                                                            @Qualifier("grpcStatStreamScheduler")
-                                                                            ScheduledExecutorService scheduledExecutorService,
-                                                                            @Qualifier("grpcStatStreamProperties")
-                                                                            GrpcStreamProperties properties) {
-            return new StreamExecutorServerInterceptorFactory(executor, scheduledExecutorService, properties);
-        }
-    }
-
 
 
     @Configuration

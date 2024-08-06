@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import jakarta.annotation.PostConstruct;
 
@@ -43,12 +42,8 @@ public class GrpcStreamReceiverProperties extends GrpcReceiverProperties {
     public void log() {
         super.log();
         logger.info("streamProperties:{}", streamProperties);
-        Assert.isTrue(streamProperties.getSchedulerThreadSize() > 0, "grpcStreamSchedulerThreadSize must be greater than 0");
     }
 
-    public GrpcStreamProperties getStreamProperties() {
-        return streamProperties;
-    }
 
     @Override
     public String toString() {

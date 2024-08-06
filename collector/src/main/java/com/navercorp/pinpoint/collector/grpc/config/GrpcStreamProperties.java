@@ -17,64 +17,16 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 public class GrpcStreamProperties {
-    @PositiveOrZero
-    private int schedulerThreadSize = 1;
-    @PositiveOrZero
-    private int callInitRequestCount = 1000;
-    @Positive
-    private int schedulerPeriodMillis = 1000;
-    private int schedulerRecoveryMessageCount = 10;
 
-    private long idleTimeout = -1;
     @PositiveOrZero
     private long throttledLoggerRatio = 1;
 
     public GrpcStreamProperties() {
     }
 
-    public int getSchedulerThreadSize() {
-        return schedulerThreadSize;
-    }
-
-    public void setSchedulerThreadSize(int schedulerThreadSize) {
-        this.schedulerThreadSize = schedulerThreadSize;
-    }
-
-    public int getCallInitRequestCount() {
-        return callInitRequestCount;
-    }
-
-    public void setCallInitRequestCount(int callInitRequestCount) {
-        this.callInitRequestCount = callInitRequestCount;
-    }
-
-    public int getSchedulerPeriodMillis() {
-        return schedulerPeriodMillis;
-    }
-
-    public void setSchedulerPeriodMillis(int schedulerPeriodMillis) {
-        this.schedulerPeriodMillis = schedulerPeriodMillis;
-    }
-
-    public int getSchedulerRecoveryMessageCount() {
-        return schedulerRecoveryMessageCount;
-    }
-
-    public void setSchedulerRecoveryMessageCount(int schedulerRecoveryMessageCount) {
-        this.schedulerRecoveryMessageCount = schedulerRecoveryMessageCount;
-    }
-
-    public long getIdleTimeout() {
-        return idleTimeout;
-    }
-
-    public void setIdleTimeout(long idleTimeout) {
-        this.idleTimeout = idleTimeout;
-    }
 
     public long getThrottledLoggerRatio() {
         return throttledLoggerRatio;
@@ -87,11 +39,6 @@ public class GrpcStreamProperties {
     @Override
     public String toString() {
         return "GrpcStreamProperties{" +
-                "schedulerThreadSize=" + schedulerThreadSize +
-                ", callInitRequestCount=" + callInitRequestCount +
-                ", schedulerPeriodMillis=" + schedulerPeriodMillis +
-                ", schedulerRecoveryMessageCount=" + schedulerRecoveryMessageCount +
-                ", idleTimeout=" + idleTimeout +
                 ", throttledLoggerRatio=" + throttledLoggerRatio +
                 '}';
     }

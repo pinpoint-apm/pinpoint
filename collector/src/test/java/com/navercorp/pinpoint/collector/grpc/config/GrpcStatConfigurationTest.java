@@ -97,9 +97,6 @@ public class GrpcStatConfigurationTest {
         assertEquals(2, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
 
-        assertEquals(2, streamProperties.getSchedulerThreadSize());
-        assertEquals(2, streamProperties.getSchedulerPeriodMillis());
-        assertEquals(2, streamProperties.getCallInitRequestCount());
         assertEquals(2, streamProperties.getThrottledLoggerRatio());
 
     }
