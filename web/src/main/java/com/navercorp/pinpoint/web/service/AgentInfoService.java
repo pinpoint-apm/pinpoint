@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
@@ -35,6 +36,7 @@ import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * @author netspider
@@ -52,6 +54,8 @@ public interface AgentInfoService {
     AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter, String applicationName, Range range, SortByAgentInfo.Rules sortBy);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, Period durationDays);
+
+    ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays, List<Application> applicationList, Predicate<AgentInfo> agentInfoPredicate);
 
     Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp);
 
