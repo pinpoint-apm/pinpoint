@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandle
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
-import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorBuilder;
 import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
 import com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSupplier;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
@@ -213,6 +213,8 @@ public class GrpcAgentConfiguration {
 
     @Bean
     public List<ServerInterceptor> agentInterceptorList() {
-        return List.of(ServerInterceptorFactory.headerReader("agent"));
+        ServerInterceptorBuilder builder = new ServerInterceptorBuilder();
+        builder.addHeaderReaderInterceptor("agent");
+        return builder.build();
     }
 }

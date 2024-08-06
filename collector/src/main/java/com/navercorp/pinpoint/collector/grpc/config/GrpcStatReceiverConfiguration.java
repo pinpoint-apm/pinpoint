@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
 import com.navercorp.pinpoint.collector.receiver.StatDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
-import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorBuilder;
 import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
@@ -157,6 +157,8 @@ public class GrpcStatReceiverConfiguration {
 
     @Bean
     public List<ServerInterceptor> statInterceptorList() {
-        return List.of(ServerInterceptorFactory.headerReader("stat"));
+        ServerInterceptorBuilder builder = new ServerInterceptorBuilder();
+        builder.addHeaderReaderInterceptor("stat");
+        return builder.build();
     }
 }
