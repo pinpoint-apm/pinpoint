@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.web.service.CacheService;
 import com.navercorp.pinpoint.web.service.CommonService;
 import com.navercorp.pinpoint.web.util.etag.ETag;
 import com.navercorp.pinpoint.web.util.etag.ETagUtils;
+import com.navercorp.pinpoint.web.util.TagApplicationsUtils;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationGroup;
 import com.navercorp.pinpoint.web.view.ServerTime;
@@ -32,7 +33,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -98,7 +98,7 @@ public class MainController {
 
 
         // Update atomicity between multiple nodes is not guaranteed
-        final TagApplications tagApplications = wrapApplicationList(applicationList);
+        final TagApplications tagApplications = TagApplicationsUtils.wrapApplicationList(applicationList);
 
         cacheService.put(KEY, tagApplications);
 
@@ -113,19 +113,6 @@ public class MainController {
         return ResponseEntity.ok()
                 .eTag(newETag.toString())
                 .body(new ApplicationGroup(applicationList));
-    }
-
-    private static TagApplications wrapApplicationList(List<Application> applicationList) {
-        String tag = newTag(applicationList);
-        return new TagApplications(tag, applicationList);
-    }
-
-
-    private static String newTag(List<Application> applicationList) {
-        // Precondition : If the application list of hbase is the same,
-        // ETag value of multiple web servers is also the same.
-        // need MD5 hash (128 bit)
-        return String.valueOf(applicationList.hashCode());
     }
 
     private static ResponseEntity<ApplicationGroup> notModified() {

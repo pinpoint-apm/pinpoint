@@ -32,6 +32,10 @@ public class AgentInfoFilters {
         return new ExactServiceType(serviceTypeCode, serviceTypeName);
     }
 
+    public static AgentInfoFilter isContainer(boolean isContainer) {
+        return new IsContainer(isContainer);
+    }
+
     private static class AcceptAll implements AgentInfoFilter {
         @Override
         public boolean test(AgentInfo agentInfo) {
@@ -56,4 +60,13 @@ public class AgentInfoFilters {
         }
     }
 
+    private record IsContainer(boolean isContainer) implements AgentInfoFilter {
+        @Override
+        public boolean test(AgentInfo agentInfo) {
+            if (agentInfo == null) {
+                return false;
+            }
+            return agentInfo.isContainer() == isContainer;
+        }
+    }
 }

@@ -20,6 +20,13 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
+import com.navercorp.pinpoint.web.service.CacheService;
+import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.web.util.TagApplicationsUtils;
+import com.navercorp.pinpoint.web.view.TagApplications;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -34,7 +41,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Period;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * @author Taejin Koo
@@ -51,13 +60,20 @@ public class ApplicationController {
 
     private final ApplicationService applicationService;
 
-    public ApplicationController(AgentInfoService agentInfoService, ApplicationService applicationService) {
+    private final CommonService commonService;
+    private final CacheService cacheService;
+
+    private static final String KEY = CacheService.DEFAULT_KEY;
+
+    public ApplicationController(AgentInfoService agentInfoService, ApplicationService applicationService, CommonService commonService, CacheService cacheService) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
+        this.commonService = Objects.requireNonNull(commonService, "commonService");
+        this.cacheService = Objects.requireNonNull(cacheService, "cacheService");
     }
 
     @GetMapping(value = "/getApplicationHostInfo")
-    public ApplicationAgentHostList getApplicationHostInfo (
+    public ApplicationAgentHostList getApplicationHostInfo(
             @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
             @RequestParam(value = "durationDays", required = false) @PositiveOrZero Integer durationDays
@@ -68,6 +84,60 @@ public class ApplicationController {
 
         Period durationDaysPeriod = Period.ofDays(durationDays);
         return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDaysPeriod);
+    }
+
+    @GetMapping(value = "/getApplicationHostInfoV2", params = "durationHours")
+    public ApplicationAgentHostList getApplicationHostInfoV2(
+            @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
+            @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
+            @RequestParam(value = "durationHours", required = false, defaultValue = "0") @PositiveOrZero int durationHours,
+            @RequestParam(value = "isContainer", required = false) Boolean isContainer,
+            @RequestParam(value = "clearCache", required = false, defaultValue = "false") boolean clearCache
+    ) {
+        int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
+        durationHours = Math.min(MAX_DURATION_DAYS * 24, durationHours);
+        Predicate<AgentInfo> agentInfoFilter = createAgentInfoFilter(isContainer);
+
+        List<Application> applicationList = getApplicationListFromCache(clearCache);
+
+        return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationHours, applicationList, agentInfoFilter);
+    }
+
+    @GetMapping(value = "/getApplicationHostInfoV2")
+    public ApplicationAgentHostList getApplicationHostInfoDaysV2(
+            @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
+            @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
+            @RequestParam(value = "durationDays", required = false, defaultValue = "0") @PositiveOrZero int durationDays,
+            @RequestParam(value = "isContainer", required = false) Boolean isContainer,
+            @RequestParam(value = "clearCache", required = false, defaultValue = "false") boolean clearCache
+    ) {
+        int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
+        int durationHours = Math.min(MAX_DURATION_DAYS * 24, durationDays * 24);
+        return getApplicationHostInfoV2(offset, maxLimit, durationHours, isContainer, clearCache);
+    }
+
+    private Predicate<AgentInfo> createAgentInfoFilter(Boolean isContainer) {
+        if (isContainer != null) {
+            return AgentInfoFilters.isContainer(isContainer);
+        }
+        return AgentInfoFilters.acceptAll();
+    }
+
+    private List<Application> getApplicationListFromCache(boolean clearCache) {
+        if (clearCache) {
+            cacheService.remove(KEY);
+        }
+
+        final TagApplications cachedApplications = cacheService.get(KEY);
+        if (cachedApplications == null) {
+            final List<Application> applicationList = commonService.selectAllApplicationNames();
+            final TagApplications tagApplications = TagApplicationsUtils.wrapApplicationList(applicationList);
+
+            cacheService.put(KEY, tagApplications);
+            return applicationList;
+        } else {
+            return cachedApplications.getApplicationList();
+        }
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")

@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.time.BackwardRangeSplitter;
 import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.time.RangeSplitter;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -66,6 +68,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -211,6 +214,70 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return builder.build();
     }
 
+    @Override
+    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationHours, List<Application> applicationList, Predicate<AgentInfo> agentInfoPredicate) {
+        List<String> applicationNameList = getApplicationNameList(applicationList);
+        return getApplicationAgentHostList2(offset, limit, durationHours, applicationNameList, agentInfoPredicate);
+    }
+
+    private ApplicationAgentHostList getApplicationAgentHostList2(int offset, int limit, int durationHours, List<String> applicationNameList, Predicate<AgentInfo> agentInfoPredicate) {
+        if (offset > applicationNameList.size()) {
+            ApplicationAgentHostList.Builder builder = newBuilder(offset, offset, applicationNameList.size());
+            return builder.build();
+        }
+        final int startIndex = offset - 1;
+        final int endIndex = Math.min(startIndex + limit, applicationNameList.size());
+
+        ApplicationAgentHostList.Builder builder = newBuilder(offset, endIndex, applicationNameList.size());
+        for (int i = startIndex; i < endIndex; i++) {
+            String applicationName = applicationNameList.get(i);
+
+            List<AgentInfo> agentInfoList = getAgentInfoList(applicationName, durationHours, agentInfoPredicate);
+
+            builder.addAgentInfo(applicationName, agentInfoList);
+        }
+        return builder.build();
+    }
+
+    private List<AgentInfo> getAgentInfoList(String applicationName, int durationHours, Predicate<AgentInfo> agentInfoPredicate) {
+        long currentTime = System.currentTimeMillis();
+        List<String> agentIds = new ArrayList<>(new HashSet<>(this.applicationIndexDao.selectAgentIds(applicationName)));
+        List<AgentInfo> agentInfoList = this.agentInfoDao.getSimpleAgentInfos(agentIds, currentTime);
+        List<AgentInfo> filteredAgentInfoList = filterAgentInfo(agentInfoPredicate, agentInfoList);
+        if (CollectionUtils.isEmpty(agentIds)) {
+            return Collections.emptyList();
+        }
+        if (durationHours <= 0) {
+            return filteredAgentInfoList;
+        }
+        long from = currentTime - TimeUnit.HOURS.toMillis(durationHours);
+        RangeSplitter rangeSplitter = new BackwardRangeSplitter();
+        List<Range> ranges = rangeSplitter.splitRange(from, currentTime);
+
+        List<AgentInfo> result = new ArrayList<>();
+        for (AgentInfo agentInfo : filteredAgentInfoList) {
+            String agentId = agentInfo.getAgentId();
+            if (isActiveAgent2(agentId, ranges)) {
+                result.add(agentInfo);
+            }
+        }
+        return result;
+    }
+
+    private List<AgentInfo> filterAgentInfo(Predicate<AgentInfo> agentInfoPredicate, List<AgentInfo> agentInfoList) {
+        if (agentInfoPredicate == null) {
+            return agentInfoList;
+        }
+
+        List<AgentInfo> result = new ArrayList<>();
+        for (AgentInfo agentInfo : agentInfoList) {
+            if (agentInfoPredicate.test(agentInfo)) {
+                result.add(agentInfo);
+            }
+        }
+        return result;
+    }
+
     private ApplicationAgentHostList.Builder newBuilder(int offset, int endIndex, int totalApplications) {
         return ApplicationAgentHostList.newBuilder(offset, endIndex, totalApplications);
     }
@@ -228,7 +295,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Instant before = now.minus(Duration.ofHours(1));
         Range fastRange = Range.between(before, now);
 
-        Instant queryFrom =  now.minus(durationDays);
+        Instant queryFrom = now.minus(durationDays);
         Instant queryTo = before.plusMillis(1);
         Range queryRange = Range.between(queryFrom, queryTo);
 
@@ -400,6 +467,21 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(agentId, "agentId");
         return isActiveAgentByGcStat(agentId, range) ||
                 isActiveAgentByPing(agentId, range);
+    }
+
+    public boolean isActiveAgent2(String agentId, Range range) {
+        Objects.requireNonNull(agentId, "agentId");
+        return isActiveAgentByPing(agentId, range) ||
+                isActiveAgentByGcStat(agentId, range);
+    }
+
+    private boolean isActiveAgent2(String agentId, List<Range> ranges) {
+        for (Range range : ranges) {
+            if (isActiveAgent2(agentId, range)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isActiveAgentByGcStat(String agentId, Range range) {
