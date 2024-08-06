@@ -110,7 +110,7 @@ public class GrpcStatReceiverConfiguration {
                                          IgnoreAddressFilter addressFilter,
                                          @Qualifier("statServiceList")
                                          List<ServerServiceDefinition> spanServiceList,
-                                         @Qualifier("statInterceptorList")
+                                         @Qualifier("statInterceptor")
                                          List<ServerInterceptor> spanInterceptorList,
                                          @Qualifier("serverTransportFilterList")
                                          List<ServerTransportFilter> serverTransportFilterList,
@@ -156,7 +156,8 @@ public class GrpcStatReceiverConfiguration {
 
 
     @Bean
-    public List<ServerInterceptor> statInterceptorList() {
-        return List.of(ServerInterceptorFactory.headerReader("stat"));
+    @Qualifier("statInterceptor")
+    public ServerInterceptor statInterceptorList() {
+        return ServerInterceptorFactory.headerReader("stat");
     }
 }

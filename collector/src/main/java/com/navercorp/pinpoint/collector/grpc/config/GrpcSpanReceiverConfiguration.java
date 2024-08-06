@@ -64,7 +64,7 @@ public class GrpcSpanReceiverConfiguration {
     public static class RateLimitServerInterceptorConfiguration {
         @Bean
         public Bandwidth spanBandwidth(@Value("${collector.receiver.grpc.span.stream.flow-control.rate-limit.capacity:5000}") long capacity,
-                                            @Value("${collector.receiver.grpc.span.stream.flow-control.rate-limit.refill-greedy:1000}") long refillTokens) {
+                                       @Value("${collector.receiver.grpc.span.stream.flow-control.rate-limit.refill-greedy:1000}") long refillTokens) {
             return Bandwidth
                     .builder()
                     .capacity(capacity)
@@ -106,7 +106,7 @@ public class GrpcSpanReceiverConfiguration {
                                          IgnoreAddressFilter addressFilter,
                                          @Qualifier("spanServiceList")
                                          List<ServerServiceDefinition> spanServiceList,
-                                         @Qualifier("spanInterceptorList")
+                                         @Qualifier("spanInterceptor")
                                          List<ServerInterceptor> spanInterceptorList,
                                          @Qualifier("serverTransportFilterList")
                                          List<ServerTransportFilter> serverTransportFilterList,
@@ -151,8 +151,9 @@ public class GrpcSpanReceiverConfiguration {
     }
 
     @Bean
-    public List<ServerInterceptor> spanInterceptorList() {
-        return List.of(ServerInterceptorFactory.headerReader("span"));
+    @Qualifier("spanInterceptor")
+    public ServerInterceptor spanInterceptorList() {
+        return ServerInterceptorFactory.headerReader("span");
     }
 
 }

@@ -113,7 +113,7 @@ public class GrpcAgentConfiguration {
                                           IgnoreAddressFilter addressFilter,
                                           @Qualifier("agentServiceList")
                                           List<ServerServiceDefinition> spanServiceList,
-                                          @Qualifier("agentInterceptorList")
+                                          @Qualifier("agentInterceptor")
                                           List<ServerInterceptor> spanInterceptorList,
                                           @Qualifier("grpcAgentServerExecutor")
                                           Executor grpcSpanExecutor,
@@ -212,7 +212,8 @@ public class GrpcAgentConfiguration {
     }
 
     @Bean
-    public List<ServerInterceptor> agentInterceptorList() {
-        return List.of(ServerInterceptorFactory.headerReader("agent"));
+    @Qualifier("agentInterceptor")
+    public ServerInterceptor agentInterceptorList() {
+        return ServerInterceptorFactory.headerReader("agent");
     }
 }
