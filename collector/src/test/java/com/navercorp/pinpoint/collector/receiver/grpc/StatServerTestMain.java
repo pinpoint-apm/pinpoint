@@ -17,25 +17,24 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
-import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import io.grpc.ServerInterceptor;
+import io.github.bucket4j.Bandwidth;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
-import org.springframework.beans.factory.FactoryBean;
 
 import java.net.InetAddress;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -68,27 +67,16 @@ public class StatServerTestMain {
         grpcReceiver.destroy();
     }
 
-    private ServerServiceDefinition newStatBindableService(Executor executor) throws Exception {
-        GrpcStreamProperties streamProperties = newStreamProperties();
+    private ServerServiceDefinition newStatBindableService(Executor executor) {
 
-
-        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor,
-                Executors.newSingleThreadScheduledExecutor(),
-                streamProperties);
-        ServerInterceptor interceptor = interceptorFactory.getObject();
+        Bandwidth bandwidth = Bandwidth.builder().capacity(1000).refillGreedy(200, Duration.ofSeconds(1)).build();
+        RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-stat", executor, bandwidth, 1);
         MockDispatchHandler dispatchHandler = new MockDispatchHandler();
         ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
         StatService statService = new StatService(dispatchHandler, serverRequestFactory, StreamCloseOnError.FALSE);
-        return ServerInterceptors.intercept(statService, interceptor);
+        return ServerInterceptors.intercept(statService, rateLimit);
     }
 
-    private GrpcStreamProperties newStreamProperties() {
-        GrpcStreamProperties properties = new GrpcStreamProperties();
-        properties.setCallInitRequestCount(100);
-        properties.setSchedulerPeriodMillis(1000);
-        properties.setSchedulerRecoveryMessageCount(100);
-        return properties;
-    }
 
     public static void main(String[] args) throws Exception {
         StatServerTestMain main = new StatServerTestMain();

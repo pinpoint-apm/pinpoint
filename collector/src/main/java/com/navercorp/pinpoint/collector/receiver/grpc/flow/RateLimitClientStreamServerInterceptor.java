@@ -60,10 +60,6 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
         this.bandwidthLogger = ThrottledLogger.getLogger(logger, throttledLoggerRatio);
     }
 
-    Bandwidth getBandwidth() {
-        return bandwidth;
-    }
-
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         final ServerCallWrapper serverCall = newServerCallWrapper(call, headers);

@@ -99,9 +99,6 @@ public class GrpcSpanConfigurationTest {
         assertEquals(4, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
 
-        assertEquals(2, streamProperties.getSchedulerThreadSize());
-        assertEquals(3, streamProperties.getSchedulerPeriodMillis());
-        assertEquals(4, streamProperties.getCallInitRequestCount());
         assertEquals(5, streamProperties.getThrottledLoggerRatio());
     }
 
