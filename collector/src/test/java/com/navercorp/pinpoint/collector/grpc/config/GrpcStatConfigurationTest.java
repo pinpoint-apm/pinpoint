@@ -48,9 +48,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
         "collector.receiver.grpc.stat.worker.executor.monitor-enable=false",
 
         // # Stream scheduler for rejected execution
-        "collector.receiver.grpc.stat.stream.scheduler_thread_size=2",
-        "collector.receiver.grpc.stat.stream.scheduler_period_millis=2",
-        "collector.receiver.grpc.stat.stream.call_init_request_count=2",
         "collector.receiver.grpc.stat.stream.throttled_logger_ratio=2",
 
         // # Server Option
