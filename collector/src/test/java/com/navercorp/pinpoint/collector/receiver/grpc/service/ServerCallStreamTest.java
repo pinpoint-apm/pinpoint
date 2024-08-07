@@ -28,7 +28,7 @@ class ServerCallStreamTest {
 
     @Test
     void onNextError_atomicity() {
-        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, responseStream, dispatch, StreamCloseOnError.TRUE, Empty::getDefaultInstance);
+        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, 1, responseStream, dispatch, StreamCloseOnError.TRUE, Empty::getDefaultInstance);
 
         serverCallStream.onNextError(newError());
         verify(responseStream).onError(any());
@@ -50,7 +50,7 @@ class ServerCallStreamTest {
     void onNextError_streamCancel() {
         when(responseStream.isCancelled()).thenReturn(true);
 
-        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, responseStream, dispatch, StreamCloseOnError.TRUE, Empty::getDefaultInstance);
+        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, 1, responseStream, dispatch, StreamCloseOnError.TRUE, Empty::getDefaultInstance);
 
         serverCallStream.onNextError(newError());
         verify(responseStream).isCancelled();
@@ -62,7 +62,7 @@ class ServerCallStreamTest {
 
     @Test
     void onNextError_StreamCloseOnError() {
-        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, responseStream, dispatch, StreamCloseOnError.FALSE, Empty::getDefaultInstance);
+        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, 1, responseStream, dispatch, StreamCloseOnError.FALSE, Empty::getDefaultInstance);
 
         serverCallStream.onNextError(newError());
         verify(responseStream, never()).isCancelled();
@@ -74,7 +74,7 @@ class ServerCallStreamTest {
 
     @Test
     void onError() {
-        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, responseStream, dispatch, StreamCloseOnError.FALSE, Empty::getDefaultInstance);
+        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, 1, responseStream, dispatch, StreamCloseOnError.FALSE, Empty::getDefaultInstance);
 
         serverCallStream.onError(newError());
         verify(responseStream).onCompleted();
