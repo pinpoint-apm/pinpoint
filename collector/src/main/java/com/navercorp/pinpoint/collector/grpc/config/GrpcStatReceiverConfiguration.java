@@ -38,6 +38,7 @@ import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
+import io.netty.buffer.ByteBufAllocator;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -107,6 +108,7 @@ public class GrpcStatReceiverConfiguration {
     @Bean
     public GrpcReceiver grpcStatReceiver(@Qualifier("grpcStatReceiverProperties")
                                          GrpcReceiverProperties properties,
+                                         @Qualifier("monitoredByteBufAllocator") ByteBufAllocator byteBufAllocator,
                                          IgnoreAddressFilter addressFilter,
                                          @Qualifier("statServiceList")
                                          List<ServerServiceDefinition> spanServiceList,
@@ -128,6 +130,7 @@ public class GrpcStatReceiverConfiguration {
         grpcReceiver.setExecutor(grpcSpanExecutor);
         grpcReceiver.setEnable(properties.isEnable());
         grpcReceiver.setServerOption(properties.getServerOption());
+        grpcReceiver.setByteBufAllocator(byteBufAllocator);
         grpcReceiver.setMonitor(monitor);
         return grpcReceiver;
     }

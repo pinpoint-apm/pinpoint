@@ -46,6 +46,7 @@ import io.grpc.ServerTransportFilter;
 import io.grpc.Status;
 import io.grpc.internal.PinpointDnsNameResolverProvider;
 import io.grpc.stub.StreamObserver;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
@@ -165,7 +166,7 @@ public class ChannelFactoryTest {
             throws SSLException, NoSuchFieldException, IllegalAccessException {
         logger.debug("server start");
 
-        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, null, ServerOption.newBuilder().build());
+        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, null, ServerOption.newBuilder().build(), PooledByteBufAllocator.DEFAULT);
         spanService = new SpanService();
 
         serverFactory.addService(spanService.bindService());

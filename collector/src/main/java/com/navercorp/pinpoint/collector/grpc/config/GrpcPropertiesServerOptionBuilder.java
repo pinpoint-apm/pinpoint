@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.grpc.server.ServerOption;
+import io.netty.buffer.ByteBufAllocator;
 import org.springframework.util.unit.DataSize;
 
 import java.time.Duration;

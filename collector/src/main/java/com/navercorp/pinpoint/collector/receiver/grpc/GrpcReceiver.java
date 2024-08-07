@@ -35,6 +35,7 @@ import io.grpc.ServerCallExecutorSupplier;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.ssl.SslContext;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
@@ -75,6 +76,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private List<ServerTransportFilter> transportFilterList;
 
     private ServerOption serverOption;
+    private ByteBufAllocator byteBufAllocator;
 
     private SslContext sslContext;
 
@@ -98,9 +100,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Objects.requireNonNull(this.serverOption, "serverOption");
 
         if (sslContext != null) {
-            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption, sslContext);
+            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption, byteBufAllocator, sslContext);
         } else {
-            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption);
+            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption, byteBufAllocator);
         }
 
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);
@@ -237,6 +239,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.serverOption = serverOption;
     }
 
+    public void setByteBufAllocator(ByteBufAllocator byteBufAllocator) {
+        this.byteBufAllocator = byteBufAllocator;
+    }
 
     public void setSslContext(SslContext sslContext) {
         this.sslContext = sslContext;

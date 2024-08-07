@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
+import io.netty.buffer.ByteBufAllocator;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +79,8 @@ public class ServerOption {
     // ChannelOption
     private final int receiveBufferSize;
 
+    private final ByteBufAllocator allocator;
+
     private final long grpcMaxTermWaitTimeMillis;
 
     public final ChannelTypeEnum channelTypeEnum;
@@ -85,7 +88,8 @@ public class ServerOption {
     ServerOption(long keepAliveTime, long keepAliveTimeout, long permitKeepAliveTime,
                  long maxConnectionIdle, long maxConnectionAge, long maxConnectionAgeGrace,
                  int maxConcurrentCallsPerConnection, int maxInboundMessageSize, int maxHeaderListSize,
-                 long handshakeTimeout, int flowControlWindow, int receiveBufferSize, long grpcMaxTermWaitTimeMillis,
+                 long handshakeTimeout, int flowControlWindow, int receiveBufferSize,
+                 ByteBufAllocator allocator, long grpcMaxTermWaitTimeMillis,
                  ChannelTypeEnum channelTypeEnum) {
         this.keepAliveTime = keepAliveTime;
         this.keepAliveTimeout = keepAliveTimeout;
@@ -101,6 +105,7 @@ public class ServerOption {
         this.handshakeTimeout = handshakeTimeout;
         this.flowControlWindow = flowControlWindow;
         this.receiveBufferSize = receiveBufferSize;
+        this.allocator = allocator;
         this.grpcMaxTermWaitTimeMillis = grpcMaxTermWaitTimeMillis;
         this.channelTypeEnum = Objects.requireNonNull(channelTypeEnum, "channelTypeEnum");
     }
@@ -155,6 +160,10 @@ public class ServerOption {
 
     public int getReceiveBufferSize() {
         return receiveBufferSize;
+    }
+
+    public ByteBufAllocator getAllocator() {
+        return allocator;
     }
 
     public long getGrpcMaxTermWaitTimeMillis() {
@@ -217,6 +226,8 @@ public class ServerOption {
 
         private int receiveBufferSize = DEFAULT_RECEIVE_BUFFER_SIZE;
 
+        private ByteBufAllocator allocator;
+
         private long grpcMaxTermWaitTimeMillis = DEFAULT_GRPC_MAX_TERM_WAIT_TIME_MILLIS;
 
         private ChannelTypeEnum channelTypeEnum = ChannelTypeEnum.valueOf(DEFAULT_CHANNEL_TYPE);
@@ -228,7 +239,8 @@ public class ServerOption {
             return new ServerOption(keepAliveTime, keepAliveTimeout, permitKeepAliveTime,
                     maxConnectionIdle, maxConnectionAge, maxConnectionAgeGrace,
                     maxConcurrentCallsPerConnection, maxInboundMessageSize,
-                    maxHeaderListSize, handshakeTimeout, flowControlWindow, receiveBufferSize, grpcMaxTermWaitTimeMillis, channelTypeEnum);
+                    maxHeaderListSize, handshakeTimeout, flowControlWindow, receiveBufferSize, allocator,
+                    grpcMaxTermWaitTimeMillis, channelTypeEnum);
         }
 
         public void setKeepAliveTime(long keepAliveTime) {
@@ -289,6 +301,10 @@ public class ServerOption {
         public void setReceiveBufferSize(int receiveBufferSize) {
             Assert.isTrue(receiveBufferSize > 0, "receiveBufferSize " + receiveBufferSize + " must be positive");
             this.receiveBufferSize = receiveBufferSize;
+        }
+
+        public void setAllocator(ByteBufAllocator allocator) {
+            this.allocator = allocator;
         }
 
         public void setGrpcMaxTermWaitTimeMillis(long grpcMaxTermWaitTimeMillis) {

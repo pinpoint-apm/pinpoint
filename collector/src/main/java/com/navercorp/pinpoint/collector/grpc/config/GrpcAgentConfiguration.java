@@ -48,6 +48,7 @@ import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
+import io.netty.buffer.ByteBufAllocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
@@ -110,6 +111,7 @@ public class GrpcAgentConfiguration {
     @Bean
     public GrpcReceiver grpcAgentReceiver(@Qualifier("grpcAgentReceiverProperties")
                                           GrpcReceiverProperties properties,
+                                          @Qualifier("monitoredByteBufAllocator") ByteBufAllocator byteBufAllocator,
                                           IgnoreAddressFilter addressFilter,
                                           @Qualifier("agentServiceList")
                                           List<ServerServiceDefinition> spanServiceList,
@@ -129,6 +131,7 @@ public class GrpcAgentConfiguration {
         grpcReceiver.setExecutor(grpcSpanExecutor);
         grpcReceiver.setEnable(properties.isEnable());
         grpcReceiver.setServerOption(properties.getServerOption());
+        grpcReceiver.setByteBufAllocator(byteBufAllocator);
 
         grpcReceiver.setServerCallExecutorSupplier(simpleServerCallExecutorSupplier);
 
