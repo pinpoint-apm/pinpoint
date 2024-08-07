@@ -27,6 +27,7 @@ import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import io.grpc.netty.NettyServerBuilder;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
@@ -73,24 +74,28 @@ public class ServerFactory {
     private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
 
     private final ServerOption serverOption;
+    private final ByteBufAllocator byteBufAllocator;
     private final SslContext sslContext;
     private ChannelzRegistry channelzRegistry;
 
     public ServerFactory(String name, String hostname, int port,
                          Executor serverExecutor,
                          ServerCallExecutorSupplier callExecutor,
-                         ServerOption serverOption) {
-        this(name, hostname, port, serverExecutor, callExecutor, serverOption, null);
+                         ServerOption serverOption,
+                         ByteBufAllocator byteBufAllocator) {
+        this(name, hostname, port, serverExecutor, callExecutor, serverOption, byteBufAllocator, null);
     }
 
     public ServerFactory(String name, String hostname, int port,
                          Executor serverExecutor,
                          ServerCallExecutorSupplier callExecutor,
                          ServerOption serverOption,
+                         ByteBufAllocator byteBufAllocator,
                          SslContext sslContext) {
         this.name = Objects.requireNonNull(name, "name");
         this.hostname = Objects.requireNonNull(hostname, "hostname");
         this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
+        this.byteBufAllocator = Objects.requireNonNull(byteBufAllocator, "byteBufAllocator");
 
         this.port = port;
 
@@ -195,6 +200,7 @@ public class ServerFactory {
         builder.withChildOption(ChannelOption.SO_RCVBUF, this.serverOption.getReceiveBufferSize());
         final WriteBufferWaterMark disabledWriteBufferWaterMark = new WriteBufferWaterMark(0, Integer.MAX_VALUE);
         builder.withChildOption(ChannelOption.WRITE_BUFFER_WATER_MARK, disabledWriteBufferWaterMark);
+        builder.withChildOption(ChannelOption.ALLOCATOR, this.byteBufAllocator);
 
         builder.handshakeTimeout(this.serverOption.getHandshakeTimeout(), TimeUnit.MILLISECONDS);
         builder.flowControlWindow(this.serverOption.getFlowControlWindow());

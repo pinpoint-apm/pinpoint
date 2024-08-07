@@ -21,7 +21,13 @@ import io.grpc.ServerInterceptor;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.binder.MeterBinder;
 import io.micrometer.core.instrument.binder.grpc.MetricCollectingServerInterceptor;
+import io.micrometer.core.instrument.binder.netty4.NettyAllocatorMetrics;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufAllocatorMetricProvider;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.EventLoopGroup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -100,4 +106,13 @@ public class MicrometerConfiguration {
         return builder;
     }
 
+    @Bean
+    @Qualifier("monitoredByteBufAllocator")
+    public ByteBufAllocator monitoredByteBufAllocator(MeterRegistry meterRegistry){
+        ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
+        if (allocator != null) {
+            new NettyAllocatorMetrics((ByteBufAllocatorMetricProvider) allocator).bindTo(meterRegistry);
+        }
+        return allocator;
+    }
 }
