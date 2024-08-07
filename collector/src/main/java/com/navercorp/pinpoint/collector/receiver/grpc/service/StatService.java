@@ -39,6 +39,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author jaehong.kim
@@ -46,6 +47,8 @@ import java.util.Objects;
 public class StatService extends StatGrpc.StatImplBase {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+
+    private final AtomicLong serverStreamId = new AtomicLong();
 
     private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
@@ -62,7 +65,7 @@ public class StatService extends StatGrpc.StatImplBase {
     @Override
     public StreamObserver<PStatMessage> sendAgentStat(StreamObserver<Empty> responseStream) {
         final ServerCallStreamObserver<Empty> responseObserver = (ServerCallStreamObserver<Empty>) responseStream;
-        return new ServerCallStream<>(logger, responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
+        return new ServerCallStream<>(logger, serverStreamId.incrementAndGet(), responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
     }
 
     private void messageDispatch(PStatMessage statMessage, ServerCallStream<PStatMessage, Empty> stream) {

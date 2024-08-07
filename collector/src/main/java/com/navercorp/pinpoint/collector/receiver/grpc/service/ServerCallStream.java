@@ -25,6 +25,8 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
 
     private volatile int handleErrorState;
 
+    private final long streamId;
+
     private final ServerCallStreamObserver<Res> responseObserver;
     private final StreamCloseOnError streamCloseOnError;
     private final Supplier<Res> responseSupplier;
@@ -32,11 +34,13 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
     private final ServerStreamDispatch<Req, Res> dispatch;
 
     public ServerCallStream(Logger logger,
+                            long streamId,
                             ServerCallStreamObserver<Res> responseObserver,
                             ServerStreamDispatch<Req, Res> dispatch,
                             StreamCloseOnError streamCloseOnError,
                             Supplier<Res> responseSupplier) {
         this.logger = Objects.requireNonNull(logger, "logger");
+        this.streamId = streamId;
         this.responseObserver = Objects.requireNonNull(responseObserver, "responseObserver");
         this.dispatch = Objects.requireNonNull(dispatch, "dispatch");
 
@@ -56,7 +60,7 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
         Status status = Status.fromThrowable(throwable);
         Metadata metadata = Status.trailersFromThrowable(throwable);
         if (logger.isInfoEnabled()) {
-            logger.info("onError: Failed to span stream, {} {} {}", header, status, metadata);
+            logger.info("onError: Failed to span streamId=, {} {} {}", streamId, header, status, metadata);
         }
 
         responseCompleted();
@@ -65,14 +69,14 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
     @Override
     public void onCompleted() {
         Header header = ServerContext.getAgentInfo();
-        logger.info("onCompleted {}", header);
+        logger.info("onCompleted streamId={} {}", streamId, header);
 
         responseCompleted();
     }
 
     private void responseCompleted() {
         if (responseObserver.isCancelled()) {
-            logger.info("responseCompleted: ResponseObserver is cancelled");
+            logger.info("responseCompleted: ResponseObserver is cancelled streamId={}", streamId);
             return;
         }
         Res response = responseSupplier.get();
@@ -86,14 +90,14 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
 
     public void onNextError(Throwable e) {
         if (!UPDATER.compareAndSet(this, HANDLE_ERROR_STATE_INIT, HANDLE_ERROR_STATE_COMPLETED)) {
-            logger.info("handleError: handleError already finished");
+            logger.info("handleError: handleError already finished streamId={}", streamId);
             return;
         }
         if (!streamCloseOnError.onError(e)) {
             return;
         }
         if (responseObserver.isCancelled()) {
-            logger.info("handleError: ResponseObserver is cancelled");
+            logger.info("handleError: ResponseObserver is cancelled streamId={}", streamId);
             return;
         }
         if (e instanceof StatusException || e instanceof StatusRuntimeException) {
