@@ -23,18 +23,18 @@ import java.util.StringTokenizer;
 
 public class VersionPrefixRewriter {
 
-    static final String[] SPECIAL_PATHS = {
-            "api",
-            "api-public"
+    static final String[] DEFAULT_SPECIAL_PATHS = {
+            "/api",
+            "/api-public"
     };
 
-    static final String[] RESOURCE_PATHS = {
-            "assets",
-            "fonts",
-            "img"
+    static final String[] DEFAULT_RESOURCE_PATHS = {
+            "/assets",
+            "/fonts",
+            "/img"
     };
 
-    static final String MAIN = "/index.html";
+    static final String DEFAULT_MAIN_PATH = "/index.html";
 
     private final VersionToken versionToken = new DefaultVersionToken();
     private final String page;
@@ -44,7 +44,13 @@ public class VersionPrefixRewriter {
 
 
     public VersionPrefixRewriter() {
-        this(MAIN, List.of(SPECIAL_PATHS), List.of(RESOURCE_PATHS));
+        this(DEFAULT_MAIN_PATH, List.of(DEFAULT_SPECIAL_PATHS), List.of(DEFAULT_RESOURCE_PATHS));
+    }
+
+    public VersionPrefixRewriter(String page, String[] specialPaths, String[] resourcePaths) {
+        this.page = Objects.requireNonNull(page, "page");
+        this.specialPaths = List.of(Objects.requireNonNull(specialPaths, "specialPaths"));
+        this.resourcePaths = List.of(Objects.requireNonNull(resourcePaths, "resourcePaths"));
     }
 
     public VersionPrefixRewriter(String page, List<String> specialPaths, List<String> resourcePaths) {
@@ -61,7 +67,7 @@ public class VersionPrefixRewriter {
         }
 
         String command = tokenizer.nextToken();
-        if (specialPaths.contains(command)) {
+        if (specialPaths.contains("/" + command)) {
             return null;
         }
         // next token
@@ -92,7 +98,7 @@ public class VersionPrefixRewriter {
     }
 
     private boolean isStaticResource(String command) {
-        if (resourcePaths.contains(command)) {
+        if (resourcePaths.contains("/" + command)) {
             return true;
         }
         return command.indexOf('.') != -1;

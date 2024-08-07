@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.web.servlet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static com.navercorp.pinpoint.web.servlet.VersionPrefixRewriter.MAIN;
+import static com.navercorp.pinpoint.web.servlet.VersionPrefixRewriter.DEFAULT_MAIN_PATH;
 
 class VersionPrefixRewriterTest {
 
@@ -43,7 +43,7 @@ class VersionPrefixRewriterTest {
     @Test
     void dispatch() {
         String rewrite = rewriter.rewrite("/");
-        Assertions.assertEquals(MAIN, rewrite);
+        Assertions.assertEquals(DEFAULT_MAIN_PATH, rewrite);
     }
 
     @Test
@@ -55,7 +55,7 @@ class VersionPrefixRewriterTest {
     @Test
     public void dispatch_resource_main() {
         String rewrite = rewriter.rewrite("/main");
-        Assertions.assertEquals(MAIN, rewrite);
+        Assertions.assertEquals(DEFAULT_MAIN_PATH, rewrite);
     }
 
     @Test
@@ -68,7 +68,7 @@ class VersionPrefixRewriterTest {
     @Test
     public void version_main() {
         String rewrite = rewriter.rewrite(VERSION);
-        Assertions.assertEquals(VERSION + MAIN, rewrite);
+        Assertions.assertEquals(VERSION + DEFAULT_MAIN_PATH, rewrite);
     }
 
     @Test
@@ -86,7 +86,7 @@ class VersionPrefixRewriterTest {
     @Test
     public void version_resource_main() {
         String rewrite = rewriter.rewrite("/v3/main");
-        Assertions.assertEquals(VERSION + MAIN, rewrite);
+        Assertions.assertEquals(VERSION + DEFAULT_MAIN_PATH, rewrite);
     }
 
 }
