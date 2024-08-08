@@ -23,6 +23,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.MeterBinder;
 import io.micrometer.core.instrument.binder.grpc.MetricCollectingServerInterceptor;
+import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
 import io.micrometer.core.instrument.binder.netty4.NettyAllocatorMetrics;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufAllocatorMetricProvider;
@@ -60,6 +61,9 @@ public class MicrometerConfiguration {
     public MonitoredThreadPoolExecutorFactoryProvider micrometerMonitoredThreadPoolExecutorFactoryProvider(
             MeterRegistry meterRegistry
     ) {
+        try (Log4j2Metrics is = new Log4j2Metrics()) {
+            is.bindTo(meterRegistry);
+        }
         return new MicrometerThreadPoolExecutorFactoryProvider(meterRegistry);
     }
 
