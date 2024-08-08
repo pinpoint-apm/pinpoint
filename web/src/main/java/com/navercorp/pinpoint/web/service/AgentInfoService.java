@@ -73,8 +73,6 @@ public interface AgentInfoService {
 
     List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery query);
 
-    boolean isActiveAgent(String agentId, Range range);
-
     InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes);
 
     boolean isExistAgentId(String agentId);

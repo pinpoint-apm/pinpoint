@@ -17,8 +17,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.BackwardRangeSplitter;
 import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -26,9 +24,9 @@ import com.navercorp.pinpoint.common.server.util.time.RangeSplitter;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -91,25 +89,23 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentLifeCycleDao agentLifeCycleDao;
 
-    private final AgentStatDao<JvmGcBo> jvmGcDao;
     private final HyperLinkFactory hyperLinkFactory;
+    private final ActiveAgentValidator activeAgentValidator;
 
-    // legacy node agent support
-    private final List<Integer> legacyAgent = List.of(1400, 1401);
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService,
                                 ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao,
-                                AgentStatDao<JvmGcBo> jvmGcDao,
+                                ActiveAgentValidator activeAgentValidator,
                                 HyperLinkFactory hyperLinkFactory) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
-        this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
+        this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
@@ -198,32 +194,15 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             logger.trace("agentStatusFilter=true");
             return true;
         }
-        if (isActiveAgentByPing(agentInfo.getAgentId(), range)) {
-            logger.trace("agent ping=true");
+        Application agent = new Application(agentInfo.getAgentId(), agentInfo.getServiceType());
+        String agentVersion = agentInfo.getAgentVersion();
+        if (activeAgentValidator.isActiveAgent(agent, agentVersion, range)) {
             return true;
-        }
-        if (legacyAgentSupport(agentAndStatus)) {
-            if (isActiveAgentByGcStat(agentInfo.getAgentId(), range)) {
-                logger.trace("agent gcStat=true");
-                return true;
-            }
         }
         logger.trace("isActiveAgentPredicate=false");
         return false;
     }
 
-    private boolean legacyAgentSupport(AgentAndStatus agentAndStatus) {
-        AgentInfo agentInfo = agentAndStatus.getAgentInfo();
-        int serviceTypeCode = agentInfo.getServiceTypeCode();
-        if (!legacyAgent.contains(serviceTypeCode)) {
-            return false;
-        }
-//        String agentVersion = agentInfo.getAgentVersion();
-//        if (!legacyAgentVersion.contains(serviceTypeCode)) {
-//            return true;
-//        }
-        return true;
-    }
 
     @Override
     public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, Period durationDays) {
@@ -303,8 +282,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         List<AgentInfo> result = new ArrayList<>();
         for (AgentInfo agentInfo : filteredAgentInfoList) {
-            String agentId = agentInfo.getAgentId();
-            if (isActiveAgent2(agentId, ranges)) {
+            Application agent = new Application(agentInfo.getAgentId(), agentInfo.getServiceType());
+            if (activeAgentValidator.isActiveAgent(agent, agentInfo.getAgentVersion(), ranges)) {
                 result.add(agentInfo);
             }
         }
@@ -351,13 +330,13 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
-            boolean dataExists = isActiveAgent(agentId, fastRange);
+            boolean dataExists = activeAgentValidator.isActiveAgent(agentId, fastRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
                 continue;
             }
 
-            dataExists = isActiveAgent(agentId, queryRange);
+            dataExists = activeAgentValidator.isActiveAgent(agentId, queryRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
             }
@@ -509,37 +488,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return this.agentLifeCycleDao.getAgentStatus(query);
     }
 
-    @Override
-    public boolean isActiveAgent(String agentId, Range range) {
-        Objects.requireNonNull(agentId, "agentId");
-        return isActiveAgentByGcStat(agentId, range) ||
-                isActiveAgentByPing(agentId, range);
-    }
-
-    public boolean isActiveAgent2(String agentId, Range range) {
-        Objects.requireNonNull(agentId, "agentId");
-        return isActiveAgentByPing(agentId, range) ||
-                isActiveAgentByGcStat(agentId, range);
-    }
-
-    private boolean isActiveAgent2(String agentId, List<Range> ranges) {
-        for (Range range : ranges) {
-            if (isActiveAgent2(agentId, range)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isActiveAgentByGcStat(String agentId, Range range) {
-        return this.jvmGcDao.agentStatExists(agentId, range);
-    }
-
-    private boolean isActiveAgentByPing(String agentId, Range range) {
-        return this.agentEventService.getAgentEvents(agentId, range)
-                .stream()
-                .anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
-    }
 
     @Override
     public InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes) {

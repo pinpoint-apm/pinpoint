@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,23 +38,23 @@ public class AdminServiceImplTest {
     ApplicationIndexDao applicationIndexDao;
 
     @Mock
-    AgentInfoService agentInfoService;
+    ActiveAgentValidator activeAgentValidator;
 
     @BeforeEach
     public void setUp() {
-        adminService = new AdminServiceImpl(applicationIndexDao, agentInfoService);
+        adminService = new AdminServiceImpl(applicationIndexDao, activeAgentValidator);
     }
 
     @Test
     public void constructorRequireNonNullTest() {
 
-        assertThatThrownBy(() -> new AdminServiceImpl(null, agentInfoService))
+        assertThatThrownBy(() -> new AdminServiceImpl(null, activeAgentValidator))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("applicationIndexDao");
 
         assertThatThrownBy(() -> new AdminServiceImpl(applicationIndexDao, null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("agentInfoService");
+                .hasMessage("activeAgentValidator");
 
         assertThatThrownBy(() -> new AdminServiceImpl(null, null))
                 .isInstanceOf(NullPointerException.class)
