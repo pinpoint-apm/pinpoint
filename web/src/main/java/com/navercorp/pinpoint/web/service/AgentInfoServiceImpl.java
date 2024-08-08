@@ -94,6 +94,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private final AgentStatDao<JvmGcBo> jvmGcDao;
     private final HyperLinkFactory hyperLinkFactory;
 
+    // legacy node agent support
+    private final List<Integer> legacyAgent = List.of(1400, 1401);
+
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService,
                                 ApplicationIndexDao applicationIndexDao,
@@ -161,21 +164,63 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(applicationName, "applicationName");
 
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, range.getTo());
-        Predicate<AgentStatus> agentStatusFilter0 = agentStatusFilter.or(x -> isActiveAgent(x.getAgentId(), range));
-
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
         }
 
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(
-                x -> agentInfoPredicate.test(x.getAgentInfo()) && agentStatusFilter0.test(x.getStatus()),
+                agentAndStatus -> isActiveAgentPredicate(agentAndStatus, agentInfoPredicate, agentStatusFilter, range),
                 SortByAgentInfo.comparing(AgentStatusAndLink::getAgentInfo, sortBy.getRule()),
                 hyperLinkFactory,
                 agentInfoAndStatuses
         );
 
-        logger.debug("getAgentsMapByHostname={}", agentsMapByHost);
+        int total = agentsMapByHost.getAgentsListsList()
+                .stream()
+                .mapToInt(list -> list.getInstancesList().size())
+                .sum();
+        logger.debug("getAgentsMapByHostname={} {}", agentsMapByHost, total);
         return agentsMapByHost;
+    }
+
+    private boolean isActiveAgentPredicate(AgentAndStatus agentAndStatus,
+                                           AgentInfoFilter agentInfoPredicate,
+                                           Predicate<AgentStatus> agentStatusFilter,
+                                           Range range) {
+        logger.trace("isActiveAgentPredicate {}", agentAndStatus);
+        AgentInfo agentInfo = agentAndStatus.getAgentInfo();
+        if (agentInfoPredicate.test(agentInfo)) {
+            logger.trace("agentInfoPredicate=true");
+        }
+        if (agentStatusFilter.test(agentAndStatus.getStatus())) {
+            logger.trace("agentStatusFilter=true");
+            return true;
+        }
+        if (isActiveAgentByPing(agentInfo.getAgentId(), range)) {
+            logger.trace("agent ping=true");
+            return true;
+        }
+        if (legacyAgentSupport(agentAndStatus)) {
+            if (isActiveAgentByGcStat(agentInfo.getAgentId(), range)) {
+                logger.trace("agent gcStat=true");
+                return true;
+            }
+        }
+        logger.trace("isActiveAgentPredicate=false");
+        return false;
+    }
+
+    private boolean legacyAgentSupport(AgentAndStatus agentAndStatus) {
+        AgentInfo agentInfo = agentAndStatus.getAgentInfo();
+        int serviceTypeCode = agentInfo.getServiceTypeCode();
+        if (!legacyAgent.contains(serviceTypeCode)) {
+            return false;
+        }
+//        String agentVersion = agentInfo.getAgentVersion();
+//        if (!legacyAgentVersion.contains(serviceTypeCode)) {
+//            return true;
+//        }
+        return true;
     }
 
     @Override
