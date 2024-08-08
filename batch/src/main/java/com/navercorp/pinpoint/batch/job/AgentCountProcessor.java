@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.batch.job;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
+import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.ItemProcessor;
 
-import jakarta.annotation.Nonnull;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -35,16 +35,16 @@ public class AgentCountProcessor implements ItemProcessor<String, Integer> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationIndexDao applicationIndexDao;
-    private final AgentInfoService agentInfoService;
+    private final ActiveAgentValidator activeAgentValidator;
     private final long duration;
 
     public AgentCountProcessor(
             ApplicationIndexDao applicationIndexDao,
-            AgentInfoService agentInfoService,
+            ActiveAgentValidator activeAgentValidator,
             BatchProperties batchProperties
     ) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
 
         long durationDays = batchProperties.getCleanupInactiveAgentsDurationDays();
         this.duration = TimeUnit.DAYS.toMillis(durationDays);
@@ -63,6 +63,6 @@ public class AgentCountProcessor implements ItemProcessor<String, Integer> {
     private boolean isActive(String agentId) {
         long now = System.currentTimeMillis();
         Range range = Range.between(now - duration, now);
-        return agentInfoService.isActiveAgent(agentId, range);
+        return activeAgentValidator.isActiveAgent(agentId, range);
     }
 }
