@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.otlp.common.defined;
 /**
  * @author minwoo-jung
  */
-public record Layout(int x, int y, int width, int height) {
+public record Layout(int x, int y, int w, int h) {
 }
