@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AlarmService;
+import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
 import org.springframework.batch.item.ItemProcessor;
@@ -53,7 +53,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    private final AgentInfoService agentInfoService;
+    private final ActiveAgentValidator activeAgentValidator;
 
     private final CheckerRegistry checkerRegistry;
 
@@ -61,13 +61,13 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
             DataCollectorFactory dataCollectorFactory,
             AlarmService alarmService,
             ApplicationIndexDao applicationIndexDao,
-            AgentInfoService agentInfoService,
+            ActiveAgentValidator activeAgentValidator,
             CheckerRegistry checkerRegistry
     ) {
         this.dataCollectorFactory = Objects.requireNonNull(dataCollectorFactory, "dataCollectorFactory");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
         this.checkerRegistry = Objects.requireNonNull(checkerRegistry, "checkerRegistry");
     }
 
@@ -102,13 +102,17 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
 
     private Supplier<List<String>> getAgentIdsSupplier(Application application, long now) {
         Range range = Range.between(now - activeDuration, now);
-        return Suppliers.memoize(() -> fetchActiveAgents(application.getName(), range));
+        return Suppliers.memoize(() -> fetchActiveAgents(application, range));
     }
 
-    private List<String> fetchActiveAgents(String applicationId, Range activeRange) {
-        return applicationIndexDao.selectAgentIds(applicationId)
+    private List<String> fetchActiveAgents(Application application, Range activeRange) {
+        List<String> agentList = applicationIndexDao.selectAgentIds(application.getName());
+        return agentList
                 .stream()
-                .filter(id -> agentInfoService.isActiveAgent(id, activeRange))
+                .filter(id -> {
+                    Application app = new Application(id, application.getServiceType());
+                    return activeAgentValidator.isActiveAgent(app, activeRange);
+                })
                 .toList();
     }
 

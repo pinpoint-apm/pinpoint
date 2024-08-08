@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,11 +45,11 @@ public class AdminServiceImpl implements AdminService {
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    private final AgentInfoService agentInfoService;
+    private final ActiveAgentValidator activeAgentService;
 
-    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, AgentInfoService agentInfoService) {
+    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, ActiveAgentValidator activeAgentService) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.activeAgentService = Objects.requireNonNull(activeAgentService, "activeAgentValidator");
     }
 
     @Override
@@ -184,7 +185,7 @@ public class AdminServiceImpl implements AdminService {
         long now = System.currentTimeMillis();
         Range range = Range.between(now - TimeUnit.DAYS.toMillis(durationDays), now);
 
-        return !this.agentInfoService.isActiveAgent(agentId, range);
+        return !this.activeAgentService.isActiveAgent(agentId, range);
     }
 
 }
