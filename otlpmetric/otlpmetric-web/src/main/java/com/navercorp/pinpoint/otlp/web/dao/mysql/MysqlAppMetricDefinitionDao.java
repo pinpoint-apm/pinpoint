@@ -62,8 +62,7 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
     @Override
     public void updateAppMetricDefinitionList(List<AppMetricDefinition> appMetricDefinitionList) {
         AppMetricDefDto appMetricDefDto = mapper.toDto(appMetricDefinitionList);
-        int result = sqlSessionTemplate.update(NAMESPACE + "updateAppMetricDefinition", appMetricDefDto);
-        System.out.println("result = " + result);
+        sqlSessionTemplate.update(NAMESPACE + "updateAppMetricDefinition", appMetricDefDto);
     }
 
     static class Mapper {

@@ -16,34 +16,31 @@
 
 package com.navercorp.pinpoint.otlp.common.definition.property;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author minwoo-jung
  */
-public class Metric {
+public class TagCluster {
+    private final String tag;
+    private final List<FieldAndUnit> fieldAndUnitList;
 
-    private final String metricName;
-    private final Map<String, TagCluster> tagMap;
-
-    public Metric(String metricName) {
-        this.metricName = metricName;
-        this.tagMap = new HashMap<>();
+    public TagCluster(String tag) {
+        this.tag = tag;
+        this.fieldAndUnitList = new ArrayList<>();
     }
 
-    public void addTagAndUnit(String tag, String fieldName, String unit) {
-        TagCluster tagCluster = tagMap.computeIfAbsent(tag, k -> new TagCluster(tag));
-        tagCluster.addFieldAndUnit(fieldName, unit);
+    public void addFieldAndUnit(String fieldName, String unit) {
+        FieldAndUnit fieldAndUnit = new FieldAndUnit(fieldName, unit);
+        fieldAndUnitList.add(fieldAndUnit);
     }
 
-    public String getMetricName() {
-        return metricName;
+    public List<FieldAndUnit> getFieldAndUnitList() {
+        return fieldAndUnitList;
     }
 
-    public List<TagCluster> getTagClusterList() {
-        return List.copyOf(tagMap.values());
+    public String getTags() {
+        return tag;
     }
-
 }

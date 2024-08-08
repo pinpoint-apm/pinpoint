@@ -43,12 +43,15 @@ public class OpenTelemetryMetricController {
         tenantId = tenantProvider.getTenantId();
     }
 
+
+    @Deprecated
     @GetMapping("/metricGroups")
     public List<String> getMetricGroups(@RequestParam("applicationId") @NotBlank String applicationId,
                                         @RequestParam(value = "agentId", required = false) String agentId) {
         return otlpMetricWebService.getMetricGroupList(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId);
     }
 
+    @Deprecated
     @GetMapping("/metrics")
     public List<String> getMetricGroups(@RequestParam("applicationId") @NotBlank String applicationId,
                                         @RequestParam(value = "agentId", required = false) String agentId,
@@ -56,6 +59,7 @@ public class OpenTelemetryMetricController {
         return otlpMetricWebService.getMetricList(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName);
     }
 
+    @Deprecated
     @GetMapping("/tags")
     public List<String> getTags(@RequestParam("applicationId") @NotBlank String applicationId,
                                 @RequestParam(value = "agentId", required = false) String agentId,
