@@ -135,4 +135,25 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
             return new OtlpMetricChartQueryParameter(this);
         }
     }
+
+    @Override
+    public String toString() {
+        return "OtlpMetricChartQueryParameter{" +
+                "serviceId='" + serviceId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", metricGroupName='" + metricGroupName + '\'' +
+                ", metricName='" + metricName + '\'' +
+                ", fieldName='" + fieldName + '\'' +
+                ", tags=" + tags +
+                ", version='" + version + '\'' +
+                ", aggreFunc=" + aggreFunc +
+                ", dataType=" + dataType +
+                ", TimePrecision=" + timePrecision +
+                ", range=" + range.prettyToString() +
+                ", range(from)=" + range.getFrom() +
+                ", range(to)=" + range.getTo() +
+                ", limit=" + limit +
+                '}';
+    }
 }

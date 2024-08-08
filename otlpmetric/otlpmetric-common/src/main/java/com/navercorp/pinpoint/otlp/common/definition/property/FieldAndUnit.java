@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.otlp.common.definition.property;
 /**
  * @author minwoo-jung
  */
-public record Tag(String tag, String unit) {
+public record FieldAndUnit(String fieldName, String unit) {
 }

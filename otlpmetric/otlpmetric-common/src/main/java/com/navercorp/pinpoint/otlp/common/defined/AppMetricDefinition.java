@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.common.defined;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -32,20 +33,20 @@ public class AppMetricDefinition {
     private final String title;
     private final String metricGroupName;
     private final String metricName;
-    private final String fieldName;
     private final String tags;
+    private final List<String> fieldNameList;
     private final String unit;
     private final String chartType;
     private final Layout layout;
 
 
-    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, String fieldName, String tags, String unit, String chartType, Layout layout) {
+    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, List<String> fieldNameList, String tags, String unit, String chartType, Layout layout) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.id = id;
         this.title = StringPrecondition.requireHasLength(title, "title");
         this.metricGroupName = StringPrecondition.requireHasLength(metricGroupName, "metricGroupName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
-        this.fieldName = "";
+        this.fieldNameList = fieldNameList;
         this.tags = StringPrecondition.requireHasLength(tags, "tags");
         this.unit = StringPrecondition.requireHasLength(unit, "unit");
         this.chartType = StringPrecondition.requireHasLength(chartType, "chartType");
@@ -76,8 +77,8 @@ public class AppMetricDefinition {
         return metricName;
     }
 
-    public String getFieldName() {
-        return fieldName;
+    public List<String> getFieldNameList() {
+        return fieldNameList;
     }
 
     public String getTags() {
