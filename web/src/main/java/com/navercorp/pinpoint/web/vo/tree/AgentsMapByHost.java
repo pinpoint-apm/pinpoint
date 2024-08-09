@@ -66,6 +66,10 @@ public class AgentsMapByHost {
         return new AgentStatusAndLink(agentInfo, status, hyperLinks);
     }
 
+    public int size() {
+        return instancesListMap.size();
+    }
+
     @Override
     public String toString() {
         return "AgentsMapByHost{" +
