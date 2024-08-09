@@ -25,12 +25,14 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -84,6 +86,7 @@ public class HttpClientIT {
         try {
             // Execute the method.
             client.executeMethod(method);
+            assertCaller(method);
         } catch (Exception ignored) {
         } finally {
             method.releaseConnection();
@@ -118,4 +121,14 @@ public class HttpClientIT {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
     }
+
+    private void assertCaller(GetMethod method) {
+        final Header[] headers = method.getResponseHeaders(WebServer.CALLER_RESPONSE_HEADER_NAME);
+        Assertions.assertNotNull(headers, "caller headers null");
+        Assertions.assertEquals(1, headers.length, "caller headers count");
+        final String caller = headers[0].getValue();
+        Assertions.assertNotNull(caller, "caller null");
+        Assertions.assertTrue("mockApplicationName".contentEquals(caller), "not caller mockApplicationName");
+    }
+
 }
