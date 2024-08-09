@@ -28,6 +28,9 @@ pinpoint:
       webhook: true
     realtime:
       enabled: false
+  web:
+    agent-status:
+      legacy-agent-support: true
 
 hbase:
   client:

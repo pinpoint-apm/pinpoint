@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,14 +29,14 @@ import java.util.Objects;
 public class BatchAgentServiceImpl implements BatchAgentService {
 
     private final ApplicationIndexDao applicationIndexDao;
-    private final AgentInfoService agentInfoService;
+    private final ActiveAgentValidator activeAgentService;
 
     public BatchAgentServiceImpl(
             ApplicationIndexDao applicationIndexDao,
-            AgentInfoService agentInfoService
+            ActiveAgentValidator activeAgentService
     ) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.activeAgentService = Objects.requireNonNull(activeAgentService, "activeAgentService");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class BatchAgentServiceImpl implements BatchAgentService {
 
     @Override
     public boolean isActive(String agentId, Range range) {
-        return this.agentInfoService.isActiveAgent(agentId, range);
+        return this.activeAgentService.isActiveAgent(agentId, range);
     }
 
     @Override
