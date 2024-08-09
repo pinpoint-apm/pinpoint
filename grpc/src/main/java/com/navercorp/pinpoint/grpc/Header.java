@@ -143,7 +143,7 @@ public class Header {
                 ", socketId=" + socketId +
                 ", serviceType=" + serviceType +
                 ", supportCommandCodeList=" + supportCommandCodeList +
-                ", retryFriendlyResponse='" + grpcBuiltInRetry + '\'' +
+                ", grpcBuiltInRetry='" + grpcBuiltInRetry + '\'' +
                 ", properties=" + properties +
                 '}';
     }
