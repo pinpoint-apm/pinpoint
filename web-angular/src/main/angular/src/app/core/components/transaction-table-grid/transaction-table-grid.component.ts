@@ -6,6 +6,7 @@ export interface IGridData {
     id: number;
     startTime: number;
     path: string;
+    requestPath?: string;
     endpoint: string;
     responseTime: number;
     exception: number;
@@ -157,9 +158,9 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 suppressSizeToFit: true
             },
             {
-                headerName: 'Path',
+                headerName: 'RoutePath',
                 field: 'path',
-                width: 370,
+                width: 100,
                 cellRenderer: (params: any) => {
                     const span = this.renderer.createElement('span');
                     const text = this.renderer.createText(params.value);
@@ -171,6 +172,14 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                     return span;
                 },
                 tooltipField: 'path'
+            },
+            {
+                headerName: 'RequestPath',
+                field: 'requestPath',
+                width: 270,
+                cellStyle: this.alignLeftCellStyle,
+                suppressSizeToFit: true,
+                tooltipField: 'realPath'
             },
             {
                 headerName: 'EndPoint',

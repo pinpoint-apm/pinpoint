@@ -205,6 +205,7 @@ public interface AnnotationKey {
     AnnotationKey HTTP_URL = AnnotationKeyFactory.of(40, "http.url");
     AnnotationKey HTTP_PARAM = AnnotationKeyFactory.of(41, "http.param", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_PARAM_ENTITY = AnnotationKeyFactory.of(42, "http.entity", VIEW_IN_RECORD_SET);
+    AnnotationKey HTTP_REQUEST_PATH = AnnotationKeyFactory.of(44, "http.req.path", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_COOKIE = AnnotationKeyFactory.of(45, "http.cookie", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_STATUS_CODE = AnnotationKeyFactory.of(46, "http.status.code", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_REQUEST_HEADER = AnnotationKeyFactory.of(47, "http.req.header", VIEW_IN_RECORD_SET);

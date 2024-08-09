@@ -34,6 +34,9 @@ public interface DotMetaDataView {
     @JsonProperty("remoteAddr")
     String getRemoteAddr();
 
+    @JsonProperty("requestPath")
+    String getRequestPath();
+
     @JsonProperty("spanId")
     String getSpanId();
 }
