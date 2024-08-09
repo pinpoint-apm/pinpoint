@@ -175,11 +175,13 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                 agentInfoAndStatuses
         );
 
-        int total = agentsMapByHost.getAgentsListsList()
-                .stream()
-                .mapToInt(list -> list.getInstancesList().size())
-                .sum();
-        logger.debug("getAgentsMapByHostname={} {}", agentsMapByHost, total);
+        final int totalAgentCount = agentsMapByHost.size();
+        if (logger.isInfoEnabled()) {
+            logger.info("getAgentsMapByHostname size:{}", totalAgentCount);
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("getAgentsMapByHostname size:{} data:{}", totalAgentCount, agentsMapByHost);
+        }
         return agentsMapByHost;
     }
 
