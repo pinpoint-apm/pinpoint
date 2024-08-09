@@ -75,6 +75,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventAp
             // Set sampling rate to false
             this.requestTraceWriter.write(request);
         }
+        this.requestTraceWriter.write(request, trace.getRequestId());
     }
 
     @Override

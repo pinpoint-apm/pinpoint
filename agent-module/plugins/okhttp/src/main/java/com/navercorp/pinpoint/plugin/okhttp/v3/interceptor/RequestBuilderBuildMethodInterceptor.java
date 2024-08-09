@@ -70,6 +70,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
                 return;
             }
             final Request.Builder builder = ((Request.Builder) target);
+            this.requestTraceWriter.write(builder, trace.getRequestId());
             if (trace.canSampled()) {
                 final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
                 final Object attachment = getAttachment(invocation);
