@@ -35,7 +35,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -72,16 +71,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
                            @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
                            SpanSerializerV2 spanSerializer,
                            SpanChunkSerializerV2 spanChunkSerializer,
-                           @Value("${collector.span.durability:USE_DEFAULT}")
-                           String spanDurability) {
+                           DurabilityApplier durabilityApplier) {
         this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.spanSerializer = Objects.requireNonNull(spanSerializer, "spanSerializer");
         this.spanChunkSerializer = Objects.requireNonNull(spanChunkSerializer, "spanChunkSerializer");
 
-        this.durabilityApplier = new DurabilityApplier(spanDurability);
-        logger.info("Span(Trace Put) durability:{}", durabilityApplier);
+        this.durabilityApplier = Objects.requireNonNull(durabilityApplier, "durabilityApplier");
     }
 
     @Override
