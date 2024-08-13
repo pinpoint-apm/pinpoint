@@ -37,6 +37,7 @@ public class AppMetricDefinition {
     private final List<String> fieldNameList;
     private final String unit;
     private final String chartType;
+    private final String aggregationFunction;
     private final Layout layout;
 
 
@@ -50,6 +51,7 @@ public class AppMetricDefinition {
         this.tags = StringPrecondition.requireHasLength(tags, "tags");
         this.unit = StringPrecondition.requireHasLength(unit, "unit");
         this.chartType = StringPrecondition.requireHasLength(chartType, "chartType");
+        this.aggregationFunction = StringPrecondition.requireHasLength(chartType, "aggregationFunction");
         this.layout = Objects.requireNonNull(layout, "layout");
     }
 
@@ -92,6 +94,11 @@ public class AppMetricDefinition {
     public String getChartType() {
         return chartType;
     }
+
+    public String getAggregationFunction() {
+        return aggregationFunction;
+    }
+
 
     public int getSchemaVersion() {
         return SCHEMA_VERSION;
