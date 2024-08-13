@@ -20,11 +20,12 @@ import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -51,12 +52,16 @@ public class AgentLifecycleListener implements LifecycleListener {
         logger.info("connect:{}", lifecycle);
         final Header header = lifecycle.getHeader();
         try {
-            final AgentInfoBo agentInfoBo = agentInfoService.getAgentInfo(header.getAgentId(), header.getAgentStartTime());
-            if (null != agentInfoBo) {
-                lifecycle.setServiceType(agentInfoBo.getServiceTypeCode());
+            if (lifecycle.getServiceType() == ServiceType.UNDEFINED.getCode()) {
+                // fallback
+                final AgentInfoBo agentInfoBo = agentInfoService.getSimpleAgentInfo(header.getAgentId(), header.getAgentStartTime());
+                logger.info("ServiceType is UNDEFINED. Fallback:AgentInfo lookup {} -> {}", lifecycle, agentInfoBo);
+                if (agentInfoBo != null) {
+                    lifecycle.setServiceType(agentInfoBo.getServiceTypeCode());
+                }
             }
         } catch (Exception e) {
-            logger.warn("Failed to handle. ping session={}", lifecycle, e);
+            logger.warn("Fallback:AgentInfo lookup Failed. session={}", lifecycle, e);
         }
         lifecycleService.updateState(lifecycle, ManagedAgentLifeCycle.RUNNING);
     }
