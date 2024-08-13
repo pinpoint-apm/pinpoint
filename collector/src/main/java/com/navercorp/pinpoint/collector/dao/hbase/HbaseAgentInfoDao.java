@@ -21,9 +21,11 @@ import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.dao.hbase.mapper.SingleResultsExtractor;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -53,10 +55,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     public HbaseAgentInfoDao(HbaseOperations hbaseTemplate,
                              TableNameProvider tableNameProvider,
-                             ResultsExtractor<AgentInfoBo> agentInfoResultsExtractor) {
+                             RowMapper<AgentInfoBo> agentInfoMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.agentInfoResultsExtractor = Objects.requireNonNull(agentInfoResultsExtractor, "agentInfoResultsExtractor");
+
+        this.agentInfoResultsExtractor = new SingleResultsExtractor<>(agentInfoMapper);
     }
 
     @Override
@@ -94,11 +97,23 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         hbaseTemplate.put(agentInfoTableName, put);
     }
 
-    public AgentInfoBo getAgentInfo(final String agentId, final long timestamp) {
+    public AgentInfoBo getSimpleAgentInfo(final String agentId, final long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
 
-        final Scan scan = createScan(agentId, timestamp);
         final TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return getSimpleAgentInfoBoByScanner(agentId, timestamp, agentInfoTableName);
+//        return getAgentInfoBoByGet(agentId, timestamp, agentInfoTableName);
+    }
+
+//    private AgentInfoBo getSimpleAgentInfoBoByGet(String agentId, long timestamp, TableName agentInfoTableName) {
+//        byte[] rowKey = rowKeyEncoder.encodeRowKey(agentId, timestamp);
+//        Get get = new Get(rowKey);
+//        get.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_IDENTIFIER);
+//        return hbaseTemplate.get(agentInfoTableName, get, agentInfoMapper);
+//    }
+
+    private AgentInfoBo getSimpleAgentInfoBoByScanner(String agentId, long timestamp, TableName agentInfoTableName) {
+        final Scan scan = createScan(agentId, timestamp);
         return this.hbaseTemplate.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
@@ -110,9 +125,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);
-        scan.addFamily(DESCRIPTOR.getName());
+
         scan.readVersions(1);
+        scan.setOneRowLimit();
         scan.setCaching(SCANNER_CACHING);
+
+        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_IDENTIFIER);
 
         return scan;
     }

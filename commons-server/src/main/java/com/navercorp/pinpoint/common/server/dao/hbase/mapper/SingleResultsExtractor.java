@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 import com.google.common.collect.Iterables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.springframework.stereotype.Component;
@@ -30,21 +29,25 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Component
-public class AgentInfoBoResultsExtractor implements ResultsExtractor<AgentInfoBo> {
+public class SingleResultsExtractor<T> implements ResultsExtractor<T> {
 
-    private final RowMapper<AgentInfoBo> agentInfoMapper;
+    private final RowMapper<T> mapper;
 
-    public AgentInfoBoResultsExtractor(RowMapper<AgentInfoBo> agentInfoMapper) {
-        this.agentInfoMapper = Objects.requireNonNull(agentInfoMapper, "agentInfoMapper");
+    public SingleResultsExtractor(RowMapper<T> mapper) {
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
+    }
+
+    public RowMapper<T> getMapper() {
+        return mapper;
     }
 
     @Override
-    public AgentInfoBo extractData(ResultScanner results) throws Exception {
+    public T extractData(ResultScanner results) throws Exception {
         final Result first = Iterables.getFirst(results, null);
         if (first == null) {
             return null;
         }
-        return agentInfoMapper.mapRow(first, 0);
+        return mapper.mapRow(first, 0);
 
     }
 }

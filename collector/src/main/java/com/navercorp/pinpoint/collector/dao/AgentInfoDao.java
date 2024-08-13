@@ -25,5 +25,5 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 public interface AgentInfoDao {
     void insert(AgentInfoBo agentInfo);
 
-    AgentInfoBo getAgentInfo(String agentId, long timestamp);
+    AgentInfoBo getSimpleAgentInfo(String agentId, long timestamp);
 }

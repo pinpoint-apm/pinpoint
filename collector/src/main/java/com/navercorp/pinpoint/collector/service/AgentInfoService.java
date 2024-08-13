@@ -50,7 +50,7 @@ public class AgentInfoService {
         applicationIndexDao.insert(agentInfoBo);
     }
 
-    public AgentInfoBo getAgentInfo(@NotBlank final String agentId, @PositiveOrZero final long timestamp) {
-        return agentInfoDao.getAgentInfo(agentId, timestamp);
+    public AgentInfoBo getSimpleAgentInfo(@NotBlank final String agentId, @PositiveOrZero final long timestamp) {
+        return agentInfoDao.getSimpleAgentInfo(agentId, timestamp);
     }
 }

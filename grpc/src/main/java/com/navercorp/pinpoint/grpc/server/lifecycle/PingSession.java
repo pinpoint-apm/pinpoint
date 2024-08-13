@@ -53,11 +53,16 @@ public class PingSession {
     }
 
     public short getServiceType() {
-        return serviceType;
+        if (serviceType != ServiceType.UNDEFINED.getCode()) {
+            return serviceType;
+        }
+        return (short) header.getServiceType();
     }
 
     public void setServiceType(short serviceType) {
-        this.serviceType = serviceType;
+        if (header.getServiceType() == ServiceType.UNDEFINED.getCode()) {
+            this.serviceType = serviceType;
+        }
     }
 
     // Flag to avoid duplication.
