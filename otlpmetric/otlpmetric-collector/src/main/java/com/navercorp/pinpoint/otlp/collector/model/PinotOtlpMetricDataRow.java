@@ -24,7 +24,7 @@ public class PinotOtlpMetricDataRow {
 
     protected final String  serviceId;
     @NotBlank
-    protected final String applicationName;
+    protected final String applicationId;
     @NotBlank
     protected final String agentId;
     protected final String metricGroupName;
@@ -42,7 +42,7 @@ public class PinotOtlpMetricDataRow {
                                   List<String> tags, String version,
                                   Long eventTime, Long startTime) {
         this.serviceId = serviceId;
-        this.applicationName = applicationName;
+        this.applicationId = applicationName;
         this.agentId = agentId;
         this.metricGroupName = metricGroupName;
         this.metricName = metricName;
@@ -58,8 +58,8 @@ public class PinotOtlpMetricDataRow {
         return serviceId;
     }
 
-    public String getApplicationName() {
-        return applicationName;
+    public String getApplicationId() {
+        return applicationId;
     }
 
     public String getMetricGroupName() {
@@ -101,7 +101,7 @@ public class PinotOtlpMetricDataRow {
     public String toString() {
         final StringBuilder sb = new StringBuilder("PinotOtlpMetricDataRow{");
         sb.append("serviceNamespace=").append(serviceId.toString());
-        sb.append(", serviceName=").append(applicationName.toString());
+        sb.append(", serviceName=").append(applicationId.toString());
         sb.append(", agentId=").append(agentId);
         sb.append(", metricGroupName=").append(metricGroupName);
         sb.append(", metricName=").append(metricName);

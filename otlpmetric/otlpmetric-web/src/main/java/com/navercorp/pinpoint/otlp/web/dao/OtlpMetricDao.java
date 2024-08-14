@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.otlp.web.dao;
 
-import com.navercorp.pinpoint.otlp.web.view.OtlpChartView;
 import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
 import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartQueryParameter;
 import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartResult;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricDataQueryParameter;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -17,7 +17,11 @@ public interface OtlpMetricDao {
 
     List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag);
 
+    List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag, List<String> fieldNameList);
+
     CompletableFuture<List<OtlpMetricChartResult>> getChartPoints(OtlpMetricChartQueryParameter chartQueryParameter);
+
+    CompletableFuture<List<OtlpMetricChartResult>> getChartPoints(OtlpMetricDataQueryParameter chartQueryParameter);
 
     String getSummary(OtlpMetricChartQueryParameter chartQueryParameter);
 

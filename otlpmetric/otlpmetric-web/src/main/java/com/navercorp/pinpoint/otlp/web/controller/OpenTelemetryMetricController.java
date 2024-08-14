@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.otlp.web.controller;
 
+import com.navercorp.pinpoint.otlp.common.definition.property.AggregationFunction;
+import com.navercorp.pinpoint.otlp.common.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.web.service.OtlpMetricWebService;
 import com.navercorp.pinpoint.otlp.web.view.OtlpChartView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
@@ -77,5 +79,21 @@ public class OpenTelemetryMetricController {
                                        @RequestParam("from") @PositiveOrZero long from,
                                        @RequestParam("to") @PositiveOrZero long to) {
         return otlpMetricWebService.getMetricChartData(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName, metricName, tag, from, to);
+    }
+
+    @GetMapping("/metricData")
+    public OtlpChartView getMetricChartDataV2(@RequestParam("applicationId") @NotBlank String applicationId,
+                                            @RequestParam(value = "agentId", required = false) String agentId,
+                                            @RequestParam("metricGroupName") @NotBlank String metricGroupName,
+                                            @RequestParam("metricName") @NotBlank String metricName,
+                                            @RequestParam("tags") String tags,
+                                            @RequestParam("fieldNameList") List<String> fieldNameList,
+                                            @RequestParam("from") @PositiveOrZero long from,
+                                            @RequestParam("to") @PositiveOrZero long to,
+                                            @RequestParam("chartType") String chartTypeName,
+                                            @RequestParam("aggregationFunction") String aggregationFunctionName) {
+        ChartType chartType = ChartType.fromChartName(chartTypeName);
+        AggregationFunction aggregationFunction = AggregationFunction.fromAggregationFunctionName(aggregationFunctionName);
+        return otlpMetricWebService.getMetricData(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName, metricName, tags, fieldNameList, from, to, chartType, aggregationFunction);
     }
 }
