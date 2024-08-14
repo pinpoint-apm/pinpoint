@@ -58,6 +58,12 @@
     "SELECT_HOST_GROUP": "호스트 그룹을 선택하세요.",
     "INPUT_HOST_GROUP": "호스트 그룹 이름을 입력하세요."
   },
+  "OPEN_TELEMETRY": {
+    "METRIC": "메트릭",
+    "CREATE_METRIC_BUTTON": "새 메트릭 생성",
+    "CREATE_METRIC_DESC": "새로운 메트릭을 생성합니다.",
+    "SAVE_DASHBOARD": "대시보드 저장"
+  },
   "CONFIGURATION": {
     "GENERAL": {
       "DESC": "설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원할 예정입니다.",
