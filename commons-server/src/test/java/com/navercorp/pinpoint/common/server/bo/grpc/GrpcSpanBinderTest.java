@@ -12,7 +12,7 @@ class GrpcSpanBinderTest {
     @Test
     void bindSpanBo_InvalidParentApplicationName() {
 
-        BindAttribute bindAttribute = new BindAttribute("agentId", "applicationName", 1234, System.currentTimeMillis());
+        BindAttribute bindAttribute = new BindAttribute("agentId-1", "appName-1", 1234, System.currentTimeMillis());
         GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
 
         PAcceptEvent event = PAcceptEvent.newBuilder()
