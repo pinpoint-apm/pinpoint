@@ -15,12 +15,7 @@
  */
 package com.navercorp.pinpoint.collector.monitor;
 
-import com.codahale.metrics.MetricRegistry;
-import com.navercorp.pinpoint.collector.monitor.dropwizard.DropwizardThreadPoolExecutorFactory;
-import com.navercorp.pinpoint.collector.monitor.micrometer.MicrometerThreadPoolExecutorFactory;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
-import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author intr3p1d

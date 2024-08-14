@@ -17,10 +17,7 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.manage.HBaseManager;
-import com.navercorp.pinpoint.collector.monitor.dropwizard.BulkOperationMetrics;
-import com.navercorp.pinpoint.collector.monitor.dropwizard.HBaseAsyncOperationMetrics;
 import com.navercorp.pinpoint.common.hbase.async.HBaseTableMultiplexerFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.LoggingHbasePutWriter;
@@ -38,8 +35,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 
-import java.util.List;
-
 @Configuration
 @Import({
         CommonCacheManagerConfiguration.class,
@@ -52,11 +47,6 @@ public class HbaseAsyncConfiguration {
     @Bean
     public HbaseBatchPerformanceCounter batchPerformanceCounter() {
         return new HbaseBatchPerformanceCounter();
-    }
-
-    @Bean
-    public HBaseAsyncOperationMetrics asyncOperationMetrics(List<HBaseBatchPerformance> hBaseAsyncOperationList) {
-        return new HBaseAsyncOperationMetrics(hBaseAsyncOperationList);
     }
 
     @Configuration
@@ -81,8 +71,8 @@ public class HbaseAsyncConfiguration {
 
         @Bean
         public HbasePutWriter spanPutWriter(@Qualifier("batchConnectionFactory") Connection connection,
-                                             HbaseBatchPerformanceCounter counter,
-                                             HbaseMultiplexerProperties properties) throws Exception {
+                                            HbaseBatchPerformanceCounter counter,
+                                            HbaseMultiplexerProperties properties) throws Exception {
             HbasePutWriter writer = newPutWriter(connection, counter, properties);
             logger.info("HbaseSpanPutWriter:{}", writer);
             return writer;
@@ -98,16 +88,9 @@ public class HbaseAsyncConfiguration {
 
     }
 
-
-    @Bean
-    public BulkOperationMetrics cachedStatisticsDaoMetrics(List<BulkOperationReporter> bulkOperationReporters) {
-        return new BulkOperationMetrics(bulkOperationReporters);
-    }
-
     @Bean
     public HBaseManager hBaseManager(@Qualifier("batchPerformanceCounter") HBaseBatchPerformance hBaseAsyncOperation) {
         return new HBaseManager(hBaseAsyncOperation);
     }
-
 
 }

@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.collector.grpc;
 
-import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.grpc.channelz.ChannelzConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcAgentConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcAgentReceiverConfiguration;
@@ -28,17 +27,10 @@ import com.navercorp.pinpoint.collector.grpc.config.GrpcSpanReceiverConfiguratio
 import com.navercorp.pinpoint.collector.grpc.config.GrpcStatConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcStatReceiverConfiguration;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
-import com.navercorp.pinpoint.collector.monitor.config.DropwizardConfiguration;
 import com.navercorp.pinpoint.collector.monitor.config.MicrometerConfiguration;
-import com.navercorp.pinpoint.collector.monitor.dropwizard.DropwizardThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.MonitoringExecutors;
-import com.navercorp.pinpoint.collector.monitor.micrometer.MicrometerThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
-import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +52,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
         GrpcKeepAliveScheduler.class,
 
-        DropwizardConfiguration.class,
         MicrometerConfiguration.class,
 
         ChannelzConfiguration.class
