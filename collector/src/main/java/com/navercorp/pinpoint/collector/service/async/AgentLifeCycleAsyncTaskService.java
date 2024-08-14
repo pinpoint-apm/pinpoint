@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -61,15 +61,7 @@ public class AgentLifeCycleAsyncTaskService {
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
 
         final String agentId = agentProperty.getAgentId();
-        if (agentId == null) {
-            logger.warn("Failed to handle event of agent life cycle, agentId is null. agentProperty={}", agentProperty);
-            return;
-        }
         final String applicationName = agentProperty.getApplicationName();
-        if (applicationName == null) {
-            logger.warn("Failed to handle event of agent life cycle, applicationName is null. agentProperty={}", agentProperty);
-            return;
-        }
 
         final long startTimestamp = agentProperty.getStartTime();
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);

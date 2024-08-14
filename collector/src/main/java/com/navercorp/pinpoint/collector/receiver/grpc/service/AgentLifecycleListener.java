@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import org.apache.logging.log4j.LogManager;
@@ -50,11 +48,10 @@ public class AgentLifecycleListener implements LifecycleListener {
     @Override
     public void connect(PingSession lifecycle) {
         logger.info("connect:{}", lifecycle);
-        final Header header = lifecycle.getHeader();
         try {
-            if (lifecycle.getServiceType() == ServiceType.UNDEFINED.getCode()) {
+            if (lifecycle.isUndefinedServiceType()) {
                 // fallback
-                final AgentInfoBo agentInfoBo = agentInfoService.getSimpleAgentInfo(header.getAgentId(), header.getAgentStartTime());
+                final AgentInfoBo agentInfoBo = agentInfoService.getSimpleAgentInfo(lifecycle.getAgentId(), lifecycle.getAgentStartTime());
                 logger.info("ServiceType is UNDEFINED. Fallback:AgentInfo lookup {} -> {}", lifecycle, agentInfoBo);
                 if (agentInfoBo != null) {
                     lifecycle.setServiceType(agentInfoBo.getServiceTypeCode());
