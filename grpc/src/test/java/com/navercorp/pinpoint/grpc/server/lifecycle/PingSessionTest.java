@@ -32,4 +32,17 @@ class PingSessionTest {
         session.setServiceType(ServiceType.SPRING.getCode());
         Assertions.assertEquals(ServiceType.SPRING.getCode(), session.getServiceType());
     }
+
+    @Test
+    void nextEventIdAllocator() {
+        Header header = new Header("name", "agentId", "agentName", "appName",
+                ServiceType.SPRING.getCode(),  11, 22, Collections.emptyList());
+
+        PingSession session = new PingSession(1L, header);
+
+        Assertions.assertEquals(1, session.nextEventIdAllocator());
+        Assertions.assertEquals(2, session.nextEventIdAllocator());
+
+    }
+
 }

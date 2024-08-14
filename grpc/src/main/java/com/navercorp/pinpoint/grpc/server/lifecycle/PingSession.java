@@ -20,16 +20,20 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * @author Woonduk Kang(emeroad)
  * @author jaehong.kim
  */
 public class PingSession {
+    private static final AtomicLongFieldUpdater<PingSession> UPDATER = AtomicLongFieldUpdater.newUpdater(PingSession.class, "eventIdAllocator");
+
     private final Long id;
     private final Header header;
-    private final AtomicLong eventIdAllocator;
+
+    private volatile long eventIdAllocator = 0;
+
     private short serviceType = ServiceType.UNDEFINED.getCode();
     private boolean updated = false;
     private long lastPingTimeMillis;
@@ -37,7 +41,6 @@ public class PingSession {
     public PingSession(Long id, Header header) {
         this.id = Objects.requireNonNull(id, "transportMetadata");
         this.header = Objects.requireNonNull(header, "header");
-        this.eventIdAllocator = new AtomicLong();
     }
 
     public Header getHeader() {
@@ -49,7 +52,7 @@ public class PingSession {
     }
 
     public long nextEventIdAllocator() {
-        return eventIdAllocator.incrementAndGet();
+        return UPDATER.incrementAndGet(this);
     }
 
     public short getServiceType() {
