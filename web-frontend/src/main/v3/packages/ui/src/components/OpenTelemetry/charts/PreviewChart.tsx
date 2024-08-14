@@ -39,7 +39,7 @@ const chartConfig = {
 export interface PreviewChartProps {}
 
 export const PreviewChart = () => {
-  const { chartType, yAxisUnit, metricTitle } = useAtomValue(userMetricConfigAtom);
+  const { chartType, unit, title } = useAtomValue(userMetricConfigAtom);
   const chartData = Array(tickCount)
     .fill(now)
     .map((now, i) => {
@@ -66,7 +66,7 @@ export const PreviewChart = () => {
               axisLine={false}
               tickLine={false}
               tickMargin={8}
-              label={{ value: yAxisUnit, position: 'insideLeft', angle: -90 }}
+              label={{ value: unit, position: 'insideLeft', angle: -90 }}
             />
             <ChartTooltip
               content={<ChartTooltipContent className="w-36" nameKey="views" hideLabel />}
@@ -94,7 +94,7 @@ export const PreviewChart = () => {
               axisLine={false}
               tickLine={false}
               tickMargin={8}
-              label={{ value: yAxisUnit, position: 'insideLeft', angle: -90 }}
+              label={{ value: unit, position: 'insideLeft', angle: -90 }}
             />
             <ChartTooltip
               content={
@@ -138,7 +138,7 @@ export const PreviewChart = () => {
               axisLine={false}
               tickLine={false}
               tickMargin={8}
-              label={{ value: yAxisUnit, position: 'insideLeft', angle: -90 }}
+              label={{ value: unit, position: 'insideLeft', angle: -90 }}
             />
             <ChartTooltip
               content={<ChartTooltipContent className="w-36" nameKey="views" hideLabel />}
@@ -159,8 +159,8 @@ export const PreviewChart = () => {
   return (
     <Card className="border-none rounded-none shadow-none">
       <CardHeader>
-        <CardTitle>Metric Preview</CardTitle>
-        <CardDescription>{metricTitle}</CardDescription>
+        <CardTitle className="font-medium">Metric Preview</CardTitle>
+        <CardDescription>{title}</CardDescription>
       </CardHeader>
       <CardContent>{renderChart()}</CardContent>
     </Card>

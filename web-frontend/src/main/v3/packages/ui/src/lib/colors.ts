@@ -39,7 +39,9 @@ export const getDarkenHexColor = (hexColor: string, amount = 0.2) => {
   b = Math.max(0, Math.min(255, Math.floor(b * (1 - amount))));
 
   // 어두워진 RGB 값을 다시 hex로 변환
-  const darkenedHex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  const darkenedHex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b
+    .toString(16)
+    .padStart(2, '0')}`;
 
   return darkenedHex;
 };

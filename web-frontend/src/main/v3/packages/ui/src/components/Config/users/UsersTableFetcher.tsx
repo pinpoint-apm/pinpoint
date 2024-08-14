@@ -65,17 +65,13 @@ export const UsersTableFetcher = React.forwardRef<UsersTableAction, UsersTableFe
       setOpenUserInfo(true);
     };
 
-    React.useImperativeHandle(
-      ref,
-      () => {
-        return {
-          refresh: () => {
-            mutate();
-          },
-        };
-      },
-      [],
-    );
+    React.useImperativeHandle(ref, () => {
+      return {
+        refresh: () => {
+          mutate();
+        },
+      };
+    }, []);
 
     return (
       <div className="space-y-2">
