@@ -136,6 +136,9 @@ public class GrpcSpanBinder {
                 final String parentApplicationName = parentInfo.getParentApplicationName();
                 if (validateParentApplicationName(parentApplicationName)) {
                     spanBo.setParentApplicationId(parentApplicationName);
+                } else {
+                    throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName
+                           + " agent:"+ attribute.getApplicationName() + "/" + attribute.getAgentId());
                 }
                 spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
             }
@@ -159,7 +162,7 @@ public class GrpcSpanBinder {
             return false;
         }
         if (!IdValidateUtils.validateId(parentApplicationName)) {
-            throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName);
+            return false;
         }
         return true;
     }
