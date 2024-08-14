@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.otlp.web.vo;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class OtlpMetricDetailsQueryParam {
@@ -8,37 +10,34 @@ public class OtlpMetricDetailsQueryParam {
     private final String agentId;
     private final String metricGroupName;
     private final String metricName;
-    private String fieldName;
+    private List<String> fieldNameList;
     private String rawTags;
 
+    @Deprecated
     public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String rawTags) {
         this.serviceId = serviceId;
         this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
         this.agentId = agentId;
         this.metricGroupName = Objects.requireNonNull(metricGroupName, "metricGroupName");
         this.metricName = Objects.requireNonNull(metricName, "metricName");
-        this.fieldName = "";
+        this.fieldNameList = Collections.emptyList();
         this.rawTags = rawTags;
 
     }
 
     // TODO: check if this is needed
-    public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String fieldName, String rawTags) {
+    public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> fieldNameList, String rawTags) {
         this.serviceId = serviceId;
         this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
         this.agentId = agentId;
         this.metricGroupName = Objects.requireNonNull(metricGroupName, "metricGroupName");
         this.metricName = Objects.requireNonNull(metricName, "metricName");
-        this.fieldName = fieldName;
+        this.fieldNameList = fieldNameList;
         this.rawTags = rawTags;
     }
 
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
+    public List<String> getFieldNameList() {
+        return fieldNameList;
     }
 
     public String getServiceId() {

@@ -21,10 +21,10 @@ import java.util.List;
 public class PinotOtlpMetricDoubleData extends PinotOtlpMetricDataRow {
     private final double value;
 
-    public PinotOtlpMetricDoubleData(String serviceId, String applicationName,
+    public PinotOtlpMetricDoubleData(String serviceId, String applicationId,
                                      String agentId, String metricGroupName, String metricName, String fieldName,
                                      int flag, List<String> tags, String version, double value, Long eventTime, Long startTime) {
-        super(serviceId, applicationName, agentId, metricGroupName, metricName, fieldName, flag, tags, version, eventTime, startTime);
+        super(serviceId, applicationId, agentId, metricGroupName, metricName, fieldName, flag, tags, version, eventTime, startTime);
         this.value = value;
     }
 

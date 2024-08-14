@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class OtlpMetricChartQueryParameter extends QueryParameter {
     private final String serviceId;
     private final String applicationId;

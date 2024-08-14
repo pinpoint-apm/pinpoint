@@ -28,6 +28,10 @@ public class EnumGetter<E extends Enum<E>> {
         this.set = EnumSet.allOf(eClass);
     }
 
+    public EnumGetter(EnumSet<E> set) {
+        this.set = set;
+    }
+
     public E fromValueWithFallBack(
             Function<E, String> getter,
             String value,

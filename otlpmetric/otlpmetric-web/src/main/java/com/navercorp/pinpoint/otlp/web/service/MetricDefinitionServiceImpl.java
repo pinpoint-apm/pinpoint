@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.otlp.web.service;
 
+import com.navercorp.pinpoint.otlp.common.definition.property.AggregationFunction;
+import com.navercorp.pinpoint.otlp.common.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.common.definition.property.MetricDefinitionProperty;
 import com.navercorp.pinpoint.otlp.common.definition.property.MetricGroup;
 import com.navercorp.pinpoint.otlp.web.dao.MetricDefinitionDao;
@@ -40,17 +42,8 @@ public class MetricDefinitionServiceImpl implements MetricMetadataService {
 
     public MetricDefinitionServiceImpl(@Valid MetricDefinitionDao metricDefinitionDao) {
         this.metricDefinitionDao = metricDefinitionDao;
-
-        this.chartTypeList = new ArrayList<>();
-        chartTypeList.add("bar");
-        chartTypeList.add("areaSpline");
-        chartTypeList.add("spline");
-
-        this.aggregationFunctionList = new ArrayList<>();
-        aggregationFunctionList.add("sum");
-        aggregationFunctionList.add("avg");
-        aggregationFunctionList.add("min");
-        aggregationFunctionList.add("max");
+        this.chartTypeList = ChartType.getChartNameList();
+        this.aggregationFunctionList = AggregationFunction.getAggregationFunctionNameList();
     }
 
     @Override

@@ -50,13 +50,18 @@
             unit,
             version
         FROM otlpMetricMetadata
-        WHERE serviceId = #{serviceId}
-            AND applicationId = #{applicationId}
+        WHERE applicationId = #{applicationId}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
             AND metricGroupName = #{metricGroupName}
             AND metricName = #{metricName}
+        <if test="fieldNameList != null and fieldNameList.size() > 0">
+            AND fieldName IN
+            <foreach collection="fieldNameList" item="fieldName" separator="," open="(" close=")">
+                #{fieldName}
+            </foreach>
+        </if>
             AND rawTags = #{rawTags}
     </select>
 
@@ -149,8 +154,8 @@
             LASTWITHTIME(value, eventTime, 'long') as value
         </if>
         FROM otlpMetricLong
-        WHERE serviceId = #{serviceId}
-        AND applicationId = #{applicationId}
+        WHERE
+            applicationId = #{applicationId}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
@@ -186,19 +191,19 @@
         LASTWITHTIME(value, eventTime, 'double') as value
         </if>
         FROM otlpMetricDouble
-        WHERE serviceId = #{serviceId}
-        AND applicationId = #{applicationId}
-        <if test="agentId != null">
-        AND agentId = #{agentId}
-        </if>
-        AND metricGroupName = #{metricGroupName}
-        AND metricName = #{metricName}
-        AND fieldName = #{fieldName}
-        <foreach collection="tags" item="tag" separator=" ">
-        AND tags = #{tag}
-        </foreach>
-        AND version = #{version}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        WHERE
+            applicationId = #{applicationId}
+            <if test="agentId != null">
+            AND agentId = #{agentId}
+            </if>
+            AND metricGroupName = #{metricGroupName}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            <foreach collection="tags" item="tag" separator=" ">
+            AND tags = #{tag}
+            </foreach>
+            AND version = #{version}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
         LIMIT #{limit}

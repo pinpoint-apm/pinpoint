@@ -46,6 +46,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
     }
 
+    @Deprecated
     @Override
     public List<String> getMetricGroups(String tenantId, String serviceId, String applicationId, String agentId) {
         List<String> metricGroups = this.syncTemplate.selectList(NAMESPACE + "getMetricGroups",
@@ -53,6 +54,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
         return metricGroups;
     }
 
+    @Deprecated
     @Override
     public List<String> getMetrics(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName) {
         // TODO:
@@ -63,6 +65,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
         return metrics;
     }
 
+    @Deprecated
     @Override
     public List<String> getTags(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName) {
         OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, null);
@@ -71,6 +74,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
         return tags;
     }
 
+    @Deprecated
     @Override
     public List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag) {
         OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, tag);
@@ -78,7 +82,24 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     }
 
     @Override
+    public List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag, List<String> fieldNameList) {
+        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, fieldNameList, tag);
+        return this.syncTemplate.selectList(NAMESPACE + "getFields", queryParam);
+    }
+
+
+    @Deprecated
+    @Override
     public CompletableFuture<List<OtlpMetricChartResult>> getChartPoints(OtlpMetricChartQueryParameter chartQueryParameter) {
+        if (chartQueryParameter.getDataType() == DataType.LONG) {
+            return asyncTemplate.selectList(NAMESPACE + "getLongChartData", chartQueryParameter);
+        } else {
+            return asyncTemplate.selectList(NAMESPACE + "getDoubleChartData", chartQueryParameter);
+        }
+    }
+
+    @Override
+    public CompletableFuture<List<OtlpMetricChartResult>> getChartPoints(OtlpMetricDataQueryParameter chartQueryParameter) {
         if (chartQueryParameter.getDataType() == DataType.LONG) {
             return asyncTemplate.selectList(NAMESPACE + "getLongChartData", chartQueryParameter);
         } else {
