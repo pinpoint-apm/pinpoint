@@ -65,13 +65,12 @@ public class DefaultAgentProperty implements AgentProperty {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultAgentProperty{");
-        sb.append("applicationName='").append(applicationName).append('\'');
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", properties=").append(properties);
-        sb.append(", serviceType=").append(serviceType);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultAgentProperty{" +
+                "applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", agentStartTime=" + agentStartTime +
+                ", properties=" + properties +
+                ", serviceType=" + serviceType +
+                '}';
     }
 }

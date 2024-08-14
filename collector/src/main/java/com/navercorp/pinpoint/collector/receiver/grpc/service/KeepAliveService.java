@@ -23,12 +23,10 @@ import com.navercorp.pinpoint.collector.service.async.DefaultAgentProperty;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSessionRegistry;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -60,11 +58,12 @@ public class KeepAliveService {
         }
     }
 
-    private AgentProperty newChannelProperties(Header header, short serviceType) {
-        final String applicationName = header.getApplicationName();
-        final String agentId = header.getAgentId();
-        final long agentStartTime = header.getAgentStartTime();
-        return new DefaultAgentProperty(applicationName, serviceType, agentId, agentStartTime, header.getProperties());
+    private AgentProperty newChannelProperties(PingSession pingSession) {
+        final String applicationName = pingSession.getApplicationName();
+        final String agentId = pingSession.getAgentId();
+        final long agentStartTime = pingSession.getAgentStartTime();
+        short serviceType = pingSession.getServiceType();
+        return new DefaultAgentProperty(applicationName, serviceType, agentId, agentStartTime, pingSession.getProperties());
     }
 
     public void updateState(PingSession lifecycle, ManagedAgentLifeCycle managedAgentLifeCycle) {
@@ -75,24 +74,18 @@ public class KeepAliveService {
     }
 
     public void updateState(PingSession pingSession, boolean closeState, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType) {
-        final Header header = pingSession.getHeader();
-        if (header == null) {
-            // TODO dump client ip for debug
-            logger.warn("Not found request header");
-            return;
-        }
 
         final long pingTimestamp = System.currentTimeMillis();
-        final long socketId = header.getSocketId();
+        final long socketId = pingSession.getSocketId();
         if (socketId == -1) {
             // TODO dump client ip for debug
-            logger.warn("SocketId not exist. header:{}", header);
+            logger.warn("SocketId not exist. pingSession:{}", pingSession);
             // skip
             return;
         }
 
         try {
-            final AgentProperty agentProperty = newChannelProperties(header, pingSession.getServiceType());
+            final AgentProperty agentProperty = newChannelProperties(pingSession);
             long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier((int)socketId, (int) pingSession.nextEventIdAllocator());
             this.agentLifeCycleAsyncTask.handleLifeCycleEvent(agentProperty , pingTimestamp, agentLifeCycleState, eventIdentifier);
             this.agentEventAsyncTask.handleEvent(agentProperty, pingTimestamp, agentEventType);
@@ -102,15 +95,8 @@ public class KeepAliveService {
     }
 
     public void updateState(PingSession pingSession) {
-        final Header header = pingSession.getHeader();
-        if (header == null) {
-            // TODO dump client ip for debug
-            logger.warn("Not found request header");
-            return;
-        }
-
         try {
-            final AgentProperty agentProperty = newChannelProperties(header, pingSession.getServiceType());
+            final AgentProperty agentProperty = newChannelProperties(pingSession);
             this.agentLifeCycleAsyncTask.handlePingEvent(agentProperty);
         } catch (Exception e) {
             logger.warn("Failed to update state. ping session={}", pingSession, e);

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.grpc.server.lifecycle;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -50,7 +50,7 @@ public class DefaultPingEventHandler implements PingEventHandler {
 
         final Long transportId = transportMetadata.getTransportId();
         final Header header = ServerContext.getAgentInfo();
-        final PingSession pingSession = new PingSession(transportId, header);
+        final PingSession pingSession = PingSession.of(transportId, header);
         pingSession.setLastPingTimeMillis(System.currentTimeMillis());
         final PingSession oldSession = pingSessionRegistry.add(pingSession.getId(), pingSession);
         if (oldSession != null) {
