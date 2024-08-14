@@ -15,35 +15,36 @@
  */
 package com.navercorp.pinpoint.collector.monitor.config;
 
+import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
+import com.navercorp.pinpoint.collector.monitor.micrometer.BulkOperationMetrics;
+import com.navercorp.pinpoint.collector.monitor.micrometer.HBaseAsyncOperationMetrics;
 import com.navercorp.pinpoint.collector.monitor.micrometer.MicrometerThreadPoolExecutorFactoryProvider;
+import com.navercorp.pinpoint.common.hbase.counter.HBaseBatchPerformance;
 import io.grpc.ServerInterceptor;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import io.micrometer.core.instrument.binder.MeterBinder;
 import io.micrometer.core.instrument.binder.grpc.MetricCollectingServerInterceptor;
 import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
 import io.micrometer.core.instrument.binder.netty4.NettyAllocatorMetrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufAllocatorMetricProvider;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.EventLoopGroup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 /**
  * @author intr3p1d
  */
 @Configuration
-@ConditionalOnProperty(
-        value = "pinpoint.modules.collector.monitor.metric",
-        havingValue = "micrometer"
-)
 public class MicrometerConfiguration {
     private final Logger logger = LogManager.getLogger(MicrometerConfiguration.class);
     private static final String GRPC_INTERCEPTOR_TAG_KEY = "service";
@@ -54,10 +55,12 @@ public class MicrometerConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(
-            value = "pinpoint.modules.collector.monitor.metric",
-            havingValue = "micrometer"
-    )
+    @ConditionalOnMissingBean(MeterRegistry.class)
+    public MeterRegistry simpleMeterRegistry() {
+        return new SimpleMeterRegistry();
+    }
+
+    @Bean
     public MonitoredThreadPoolExecutorFactoryProvider micrometerMonitoredThreadPoolExecutorFactoryProvider(
             MeterRegistry meterRegistry
     ) {
@@ -112,11 +115,28 @@ public class MicrometerConfiguration {
 
     @Bean
     @Qualifier("monitoredByteBufAllocator")
-    public ByteBufAllocator monitoredByteBufAllocator(MeterRegistry meterRegistry){
+    public ByteBufAllocator monitoredByteBufAllocator(MeterRegistry meterRegistry) {
         ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
         if (allocator != null) {
             new NettyAllocatorMetrics((ByteBufAllocatorMetricProvider) allocator).bindTo(meterRegistry);
         }
         return allocator;
     }
+
+    @Bean
+    public BulkOperationMetrics cachedStatisticsDaoMetrics(
+            List<BulkOperationReporter> bulkOperationReporters,
+            MeterRegistry meterRegistry
+    ) {
+        return new BulkOperationMetrics(bulkOperationReporters, meterRegistry);
+    }
+
+    @Bean
+    public HBaseAsyncOperationMetrics asyncOperationMetrics(
+            List<HBaseBatchPerformance> hBaseAsyncOperationList,
+            MeterRegistry meterRegistry
+    ) {
+        return new HBaseAsyncOperationMetrics(hBaseAsyncOperationList, meterRegistry);
+    }
+
 }

@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.log.collector;
 
-import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.log.collector.grpc.LogCollectorGrpcServerConfig;
 import com.navercorp.pinpoint.log.collector.redis.LogCollectorRedisServerConfig;
 import org.springframework.context.annotation.Bean;
@@ -28,10 +27,5 @@ import org.springframework.context.annotation.Import;
 @Configuration(proxyBeanMethods = false)
 @Import({ LogCollectorGrpcServerConfig.class, LogCollectorRedisServerConfig.class })
 public class LogCollectorConfig {
-
-    @Bean
-    MetricRegistry metricRegistry() {
-        return new MetricRegistry();
-    }
 
 }

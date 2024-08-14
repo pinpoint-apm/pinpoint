@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,28 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+package com.navercorp.pinpoint.collector.monitor.micrometer;
 
-package com.navercorp.pinpoint.collector.monitor.dropwizard;
-
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricSet;
 import com.navercorp.pinpoint.common.hbase.counter.HBaseBatchPerformance;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
  */
-public class HBaseAsyncOperationMetrics implements MetricSet {
+public class HBaseAsyncOperationMetrics {
 
     private static final String HBASE_ASYNC_OPS = "hbase.async.ops";
     private static final String COUNT = HBASE_ASYNC_OPS + ".count";
@@ -43,56 +37,40 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
     private static final String AVERAGE_LATENCY = HBASE_ASYNC_OPS + ".latency.value";
 
     private final List<HBaseBatchPerformance> hBaseAsyncOperations;
+    private final MeterRegistry meterRegistry;
 
-    public HBaseAsyncOperationMetrics(List<HBaseBatchPerformance> hBaseAsyncOperationList) {
-        Objects.requireNonNull(hBaseAsyncOperationList, "hBaseAsyncOperation");
-
-        this.hBaseAsyncOperations = hBaseAsyncOperationList.stream()
+    public HBaseAsyncOperationMetrics(List<HBaseBatchPerformance> hBaseAsyncOperationList, MeterRegistry meterRegistry) {
+        this.hBaseAsyncOperations = Objects.requireNonNull(hBaseAsyncOperationList, "hBaseAsyncOperationList").stream()
                 .filter(HBaseBatchPerformance::isAvailable)
                 .collect(Collectors.toList());
+        this.meterRegistry = Objects.requireNonNull(meterRegistry, "meterRegistry");
+        registerMetrics();
     }
 
-    @Override
-    public Map<String, Metric> getMetrics() {
+    private void registerMetrics() {
         if (CollectionUtils.isEmpty(hBaseAsyncOperations)) {
-            return Collections.emptyMap();
+            return;
         }
 
-        final Map<String, Metric> gauges = new HashMap<>(3);
-        gauges.put(COUNT, new Gauge<Long>() {
-            @Override
-            public Long getValue() {
-                return hBaseAsyncOperations.stream()
+        Gauge.builder(COUNT, hBaseAsyncOperations, ops -> ops.stream()
                         .mapToLong(HBaseBatchPerformance::getOpsCount)
-                        .sum();
-            }
-        });
-        gauges.put(REJECTED_COUNT, new Gauge<Long>() {
-            @Override
-            public Long getValue() {
-                return hBaseAsyncOperations.stream()
-                        .mapToLong(HBaseBatchPerformance::getOpsRejectedCount)
-                        .sum();
-            }
-        });
-        gauges.put(FAILED_COUNT, new Gauge<Long>() {
-            @Override
-            public Long getValue() {
-                return hBaseAsyncOperations.stream()
-                        .mapToLong(HBaseBatchPerformance::getOpsFailedCount)
-                        .sum();
-            }
-        });
-        gauges.put(WAITING_COUNT, new Gauge<Long>() {
-            @Override
-            public Long getValue() {
-                return hBaseAsyncOperations.stream()
-                        .mapToLong(HBaseBatchPerformance::getCurrentOpsCount)
-                        .sum();
-            }
-        });
+                        .sum())
+                .register(meterRegistry);
 
-        return Collections.unmodifiableMap(gauges);
+        Gauge.builder(REJECTED_COUNT, hBaseAsyncOperations, ops -> ops.stream()
+                        .mapToLong(HBaseBatchPerformance::getOpsRejectedCount)
+                        .sum())
+                .register(meterRegistry);
+
+        Gauge.builder(FAILED_COUNT, hBaseAsyncOperations, ops -> ops.stream()
+                        .mapToLong(HBaseBatchPerformance::getOpsFailedCount)
+                        .sum())
+                .register(meterRegistry);
+
+        Gauge.builder(WAITING_COUNT, hBaseAsyncOperations, ops -> ops.stream()
+                        .mapToLong(HBaseBatchPerformance::getCurrentOpsCount)
+                        .sum())
+                .register(meterRegistry);
     }
 
 }

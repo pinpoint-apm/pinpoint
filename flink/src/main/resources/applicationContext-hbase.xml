@@ -7,10 +7,6 @@
         <constructor-arg ref="hbaseConnection"/>
     </bean>
 
-    <bean id="asyncOperationMetrics" class="com.navercorp.pinpoint.collector.monitor.dropwizard.HBaseAsyncOperationMetrics">
-        <constructor-arg ref="asyncOperation"/>
-    </bean>
-
     <bean id="applicationStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg ref="applicationStatRangeHasher"/>
     </bean>
