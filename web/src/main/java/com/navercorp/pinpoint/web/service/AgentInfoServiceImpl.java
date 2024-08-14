@@ -17,10 +17,8 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.util.time.BackwardRangeSplitter;
 import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.time.RangeSplitter;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -37,6 +35,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
@@ -241,16 +240,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationHours, List<Application> applicationList, Predicate<AgentInfo> agentInfoPredicate) {
+    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationHours, List<Application> applicationList, AgentInfoFilter agentInfoFilter) {
         List<String> applicationNameList = getApplicationNameList(applicationList);
-        return getApplicationAgentHostList2(offset, limit, durationHours, applicationNameList, agentInfoPredicate);
+        return getApplicationAgentHostList2(offset, limit, durationHours, applicationNameList, agentInfoFilter);
     }
 
-    private ApplicationAgentHostList getApplicationAgentHostList2(int offset, int limit, int durationHours, List<String> applicationNameList, Predicate<AgentInfo> agentInfoPredicate) {
+    private ApplicationAgentHostList getApplicationAgentHostList2(int offset, int limit, int durationHours, List<String> applicationNameList, AgentInfoFilter agentInfoFilter) {
         if (offset > applicationNameList.size()) {
             ApplicationAgentHostList.Builder builder = newBuilder(offset, offset, applicationNameList.size());
             return builder.build();
         }
+        final long currentTime = System.currentTimeMillis();
         final int startIndex = offset - 1;
         final int endIndex = Math.min(startIndex + limit, applicationNameList.size());
 
@@ -258,50 +258,30 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         for (int i = startIndex; i < endIndex; i++) {
             String applicationName = applicationNameList.get(i);
 
-            List<AgentInfo> agentInfoList = getAgentInfoList(applicationName, durationHours, agentInfoPredicate);
-
+            List<AgentInfo> agentInfoList = getAgentInfoList(applicationName, currentTime, durationHours, agentInfoFilter);
             builder.addAgentInfo(applicationName, agentInfoList);
         }
         return builder.build();
     }
 
-    private List<AgentInfo> getAgentInfoList(String applicationName, int durationHours, Predicate<AgentInfo> agentInfoPredicate) {
-        long currentTime = System.currentTimeMillis();
-        List<String> agentIds = new ArrayList<>(new HashSet<>(this.applicationIndexDao.selectAgentIds(applicationName)));
-        List<AgentInfo> agentInfoList = this.agentInfoDao.getSimpleAgentInfos(agentIds, currentTime);
-        List<AgentInfo> filteredAgentInfoList = filterAgentInfo(agentInfoPredicate, agentInfoList);
-        if (CollectionUtils.isEmpty(agentIds)) {
+    private List<AgentInfo> getAgentInfoList(String applicationName, long timestamp, int durationHours, AgentInfoFilter agentInfoFilter) {
+        List<AgentInfo> filteredAgentInfoList = getAgentsByApplicationNameWithoutStatus(applicationName, timestamp).stream()
+                .filter(agentInfoFilter)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(filteredAgentInfoList)) {
             return Collections.emptyList();
         }
         if (durationHours <= 0) {
             return filteredAgentInfoList;
         }
-        long from = currentTime - TimeUnit.HOURS.toMillis(durationHours);
-        RangeSplitter rangeSplitter = new BackwardRangeSplitter();
-        List<Range> ranges = rangeSplitter.splitRange(from, currentTime);
 
-        List<AgentInfo> result = new ArrayList<>();
-        for (AgentInfo agentInfo : filteredAgentInfoList) {
-            Application agent = new Application(agentInfo.getAgentId(), agentInfo.getServiceType());
-            if (activeAgentValidator.isActiveAgent(agent, agentInfo.getAgentVersion(), ranges)) {
-                result.add(agentInfo);
-            }
-        }
-        return result;
-    }
-
-    private List<AgentInfo> filterAgentInfo(Predicate<AgentInfo> agentInfoPredicate, List<AgentInfo> agentInfoList) {
-        if (agentInfoPredicate == null) {
-            return agentInfoList;
-        }
-
-        List<AgentInfo> result = new ArrayList<>();
-        for (AgentInfo agentInfo : agentInfoList) {
-            if (agentInfoPredicate.test(agentInfo)) {
-                result.add(agentInfo);
-            }
-        }
-        return result;
+        Range range = Range.between(timestamp - TimeUnit.HOURS.toMillis(durationHours), timestamp);
+        List<AgentAndStatus> agentAndStatusList = getAgentAndStatuses(filteredAgentInfoList, timestamp);
+        List<AgentInfo> filteredActiveAgentInfoList = agentAndStatusList.stream()
+                .filter(agentAndStatus -> isActiveAgentPredicate(agentAndStatus, AgentInfoFilters.acceptAll(), AgentStatusFilters.recentRunning(range.getFrom()), range))
+                .map(AgentAndStatus::getAgentInfo)
+                .collect(Collectors.toList());
+        return filteredActiveAgentInfoList;
     }
 
     private ApplicationAgentHostList.Builder newBuilder(int offset, int endIndex, int totalApplications) {
@@ -355,18 +335,21 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp) {
         List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
+        List<AgentAndStatus> result = getAgentAndStatuses(agentInfos, timestamp);
+        return new HashSet<>(result);
+    }
 
-        List<AgentAndStatus> result = new ArrayList<>(agentInfos.size());
+    private List<AgentAndStatus> getAgentAndStatuses(List<AgentInfo> agentInfoList, long timestamp) {
+        List<AgentAndStatus> result = new ArrayList<>(agentInfoList.size());
 
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, Instant.ofEpochMilli(timestamp));
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfoList, Instant.ofEpochMilli(timestamp));
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
         for (int i = 0; i < agentStatus.size(); i++) {
             Optional<AgentStatus> status = agentStatus.get(i);
-            AgentInfo agentInfo = agentInfos.get(i);
+            AgentInfo agentInfo = agentInfoList.get(i);
             result.add(new AgentAndStatus(agentInfo, status.orElse(null)));
         }
-
-        return new HashSet<>(result);
+        return result;
     }
 
 

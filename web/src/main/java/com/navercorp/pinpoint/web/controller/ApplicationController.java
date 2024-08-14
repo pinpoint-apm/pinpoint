@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.service.CommonService;
 import com.navercorp.pinpoint.web.util.TagApplicationsUtils;
 import com.navercorp.pinpoint.web.view.TagApplications;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 import jakarta.validation.constraints.NotBlank;
@@ -43,7 +43,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Period;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  * @author Taejin Koo
@@ -91,14 +90,14 @@ public class ApplicationController {
             @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
             @RequestParam(value = "durationHours", required = false, defaultValue = "0") @PositiveOrZero int durationHours,
-            @RequestParam(value = "isContainer", required = false) Boolean isContainer,
-            @RequestParam(value = "clearCache", required = false, defaultValue = "false") boolean clearCache
+            @RequestParam(value = "useCache", required = false, defaultValue = "true") Boolean useCache,
+            @RequestParam(value = "isContainer", required = false) Boolean isContainer
     ) {
         int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
         durationHours = Math.min(MAX_DURATION_DAYS * 24, durationHours);
-        Predicate<AgentInfo> agentInfoFilter = createAgentInfoFilter(isContainer);
+        AgentInfoFilter agentInfoFilter = createAgentInfoFilter(isContainer);
 
-        List<Application> applicationList = getApplicationListFromCache(clearCache);
+        List<Application> applicationList = getApplicationList(useCache);
 
         return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationHours, applicationList, agentInfoFilter);
     }
@@ -108,36 +107,34 @@ public class ApplicationController {
             @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
             @RequestParam(value = "durationDays", required = false, defaultValue = "0") @PositiveOrZero int durationDays,
-            @RequestParam(value = "isContainer", required = false) Boolean isContainer,
-            @RequestParam(value = "clearCache", required = false, defaultValue = "false") boolean clearCache
+            @RequestParam(value = "useCache", required = false, defaultValue = "true") Boolean useCache,
+            @RequestParam(value = "isContainer", required = false) Boolean isContainer
     ) {
         int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
         int durationHours = Math.min(MAX_DURATION_DAYS * 24, durationDays * 24);
-        return getApplicationHostInfoV2(offset, maxLimit, durationHours, isContainer, clearCache);
+        return getApplicationHostInfoV2(offset, maxLimit, durationHours, useCache, isContainer);
     }
 
-    private Predicate<AgentInfo> createAgentInfoFilter(Boolean isContainer) {
+    private AgentInfoFilter createAgentInfoFilter(Boolean isContainer) {
         if (isContainer != null) {
             return AgentInfoFilters.isContainer(isContainer);
         }
         return AgentInfoFilters.acceptAll();
     }
 
-    private List<Application> getApplicationListFromCache(boolean clearCache) {
-        if (clearCache) {
-            cacheService.remove(KEY);
+    private List<Application> getApplicationList(boolean useCache) {
+        if (!useCache) {
+            return commonService.selectAllApplicationNames();
         }
 
-        final TagApplications cachedApplications = cacheService.get(KEY);
-        if (cachedApplications == null) {
-            final List<Application> applicationList = commonService.selectAllApplicationNames();
-            final TagApplications tagApplications = TagApplicationsUtils.wrapApplicationList(applicationList);
-
-            cacheService.put(KEY, tagApplications);
-            return applicationList;
-        } else {
-            return cachedApplications.getApplicationList();
+        final TagApplications cachedTagApplications = cacheService.get(KEY);
+        if (cachedTagApplications != null) {
+            return cachedTagApplications.getApplicationList();
         }
+        final List<Application> applicationList = commonService.selectAllApplicationNames();
+        final TagApplications tagApplications = TagApplicationsUtils.wrapApplicationList(applicationList);
+        cacheService.put(KEY, tagApplications);
+        return applicationList;
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")
