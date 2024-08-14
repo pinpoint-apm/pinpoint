@@ -95,3 +95,6 @@ export const CONFIG_INSTALLATION_INFO = `${LOCAL_API_PATH}/getAgentInstallationI
 export const CONFIG_USER_GROUP = `${LOCAL_API_PATH}/userGroup`;
 export const CONFIG_GROUP_MEMBER = `${LOCAL_API_PATH}/userGroup/member`;
 export const CONFIG_USERS = `${LOCAL_API_PATH}/user`;
+
+export const OTLP_METRIC_DEF_PROPERTY = `${LOCAL_API_PATH}/otlp/metricDef/property`;
+export const OTLP_METRIC_DEF_USER_DEFINED = `${LOCAL_API_PATH}/otlp/metricDef/userDefined`;

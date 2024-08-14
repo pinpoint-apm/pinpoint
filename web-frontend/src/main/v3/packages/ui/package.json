@@ -71,6 +71,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.0.6",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@tanstack/react-table": "^8.10.7",
     "@tanstack/react-virtual": "^3.0.1",
     "@types/react-text-truncate": "^0.14.3",

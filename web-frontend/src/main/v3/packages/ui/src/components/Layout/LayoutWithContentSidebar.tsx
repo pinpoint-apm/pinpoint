@@ -15,7 +15,7 @@ export const LayoutWithContentSidebar = ({
       <div className="w-60 min-w-[15rem] border-r-1 h-full overflow-auto scrollbar-hide">
         {sidebar}
       </div>
-      <div className="flex flex-wrap justify-center w-full p-5 pt-4 pb-10 overflow-auto">
+      <div className="flex flex-wrap justify-center w-full p-5 pt-4 pb-10 overflow-auto bg-primary-foreground">
         <div className={cn('flex flex-col w-full h-full max-w-8xl', contentWrapperClassName)}>
           {content}
         </div>

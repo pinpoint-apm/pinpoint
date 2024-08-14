@@ -1,10 +1,9 @@
 import { atom } from 'jotai';
 
 type UserMetricConfig = {
+  title?: string;
+  unit?: string;
   chartType?: string;
-  yAxisUnit?: string;
-  metricTitle?: string;
 };
 
-export const openMetricDefinitionAtom = atom<boolean>(true);
 export const userMetricConfigAtom = atom<UserMetricConfig>({});

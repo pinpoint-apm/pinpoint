@@ -46,14 +46,15 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
       const serviceType = data.applicationMapData.nodeDataArray.find(
         (node) => node.applicationName === applicationName,
       )?.serviceType;
-      const navigatePath = `${getTransactionDetailPath({ applicationName, serviceType })}?${getTransactionDetailQueryString(
-        {
-          agentId: data.agentId,
-          traceId: data.transactionId,
-          spanId: transactionInfo.spanId,
-          focusTimestamp: transactionInfo.focusTimestamp,
-        },
-      )}`;
+      const navigatePath = `${getTransactionDetailPath({
+        applicationName,
+        serviceType,
+      })}?${getTransactionDetailQueryString({
+        agentId: data.agentId,
+        traceId: data.transactionId,
+        spanId: transactionInfo.spanId,
+        focusTimestamp: transactionInfo.focusTimestamp,
+      })}`;
       navigate(navigatePath, {
         replace: true,
       });

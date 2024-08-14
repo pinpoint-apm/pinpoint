@@ -19,5 +19,5 @@ export const queryFn = (url: string) => async () => {
 };
 
 export const queryClient = new QueryClient({
-  defaultOptions: { queries: { refetchOnWindowFocus: false } },
+  defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: 3000 } },
 });
