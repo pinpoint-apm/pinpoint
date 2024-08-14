@@ -9,14 +9,11 @@ import {
   ApplicationCombinedList,
   ApplicationCombinedListProps,
   OpenTelemetrySidebar,
-  MetricDefinitionSheet,
-  Button,
+  OpenTelemetryDashboard,
 } from '../components';
 import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/utils';
 import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/hooks';
 import { PiChartBarHorizontalDuotone } from 'react-icons/pi';
-import { openMetricDefinitionAtom } from '@pinpoint-fe/atoms';
-import { useSetAtom } from 'jotai';
 
 export interface OpenTelemetryPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
@@ -25,7 +22,6 @@ export interface OpenTelemetryPageProps {
 export const OpenTelemetryPage = ({
   ApplicationList = ApplicationCombinedList,
 }: OpenTelemetryPageProps) => {
-  const setOpen = useSetAtom(openMetricDefinitionAtom);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { searchParameters, application, agentId } = useOpenTelemetrySearchParameters();
@@ -72,13 +68,9 @@ export const OpenTelemetryPage = ({
         </div>
       </MainHeader>
       {application && (
-        <LayoutWithContentSidebar contentWrapperClassName="h-fit">
+        <LayoutWithContentSidebar contentWrapperClassName="max-w-full">
           <OpenTelemetrySidebar />
-          <Button className=" w-max" variant={'outline'} onClick={() => setOpen(true)}>
-            Open Sheet
-          </Button>
-          {/* TODO: add metric list */}
-          <MetricDefinitionSheet />
+          <OpenTelemetryDashboard />
         </LayoutWithContentSidebar>
       )}
     </div>

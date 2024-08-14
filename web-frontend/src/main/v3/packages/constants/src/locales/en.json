@@ -58,6 +58,12 @@
     "SELECT_HOST_GROUP": "Select your host-group",
     "INPUT_HOST_GROUP": "Input host-group name"
   },
+  "OPEN_TELEMETRY": {
+    "METRIC": "Metric",
+    "CREATE_METRIC_BUTTON": "Create a new metric",
+    "CREATE_METRIC_DESC": "Create a new metric",
+    "SAVE_DASHBOARD": "Save Dashboard"
+  },
   "CONFIGURATION": {
     "GENERAL": {
       "DESC": "User configuration is stored in browser cache. Server-side storage will be supported in a future release.",

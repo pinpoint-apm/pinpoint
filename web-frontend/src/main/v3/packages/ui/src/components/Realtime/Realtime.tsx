@@ -97,7 +97,7 @@ export const Realtime = () => {
           >
             <ResizablePanel>{isFocus && <ServerMap shouldPoll={true} />}</ResizablePanel>
             <ResizableHandle withHandle className="!h-1" />
-            <div className="bg-secondary h-9 px-4">
+            <div className="px-4 bg-secondary h-9">
               <div className="flex items-center h-full font-semibold">Active Request</div>
             </div>
             <ResizablePanel className="!overflow-auto">

@@ -1,6 +1,7 @@
 import colors from 'tailwindcss/colors';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import tailwindScrollbarHide from 'tailwind-scrollbar-hide';
+import tailwindContainerQueries from '@tailwindcss/container-queries';
 //
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -16,6 +17,9 @@ export default {
       },
     },
     extend: {
+      blur: {
+        xs: '2px',
+      },
       fontSize: {
         xxs: '0.625rem',
       },
@@ -24,6 +28,7 @@ export default {
       },
       spacing: {
         90: '22.5rem',
+        160: '40rem',
       },
       colors: {
         border: 'hsl(var(--ui-border))',
@@ -94,5 +99,5 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate, tailwindScrollbarHide],
+  plugins: [tailwindcssAnimate, tailwindScrollbarHide, tailwindContainerQueries],
 };

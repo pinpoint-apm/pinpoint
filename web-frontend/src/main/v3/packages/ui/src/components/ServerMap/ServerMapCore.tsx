@@ -383,9 +383,16 @@ export const ServerMapCore = ({
               }}
               renderEdgeLabel={(edge: MergedEdge) => {
                 if (edge?.transactionInfo?.totalCount) {
-                  return `${addCommas(edge?.transactionInfo?.totalCount)}${edge.transactionInfo?.avgResponseTime ? ` (${edge.transactionInfo.avgResponseTime} ms)` : ''}`;
+                  return `${addCommas(edge?.transactionInfo?.totalCount)}${
+                    edge.transactionInfo?.avgResponseTime
+                      ? ` (${edge.transactionInfo.avgResponseTime} ms)`
+                      : ''
+                  }`;
                 } else if (edge?.edges) {
-                  return `${edge.edges.reduce((acc, curr) => acc + curr.transactionInfo?.totalCount, 0)}`;
+                  return `${edge.edges.reduce(
+                    (acc, curr) => acc + curr.transactionInfo?.totalCount,
+                    0,
+                  )}`;
                 }
                 return '';
               }}

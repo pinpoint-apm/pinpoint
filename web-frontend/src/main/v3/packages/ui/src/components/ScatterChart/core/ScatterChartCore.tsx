@@ -89,40 +89,36 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
     const [isSettingAxis, setIsSettingAxis] = React.useState(false);
     const [checkedLegends, setCheckedLegends] = React.useState(['success', 'fail']);
 
-    React.useImperativeHandle(
-      ref,
-      () => {
-        return {
-          isMounted: () => {
-            return !!scatterRef.current;
-          },
-          getChartSize: () => {
-            return getChartSize();
-          },
-          startRealtime: (duration: number) => {
-            scatterRef.current?.startRealtime(duration);
-          },
-          stopRealtime: () => {
-            scatterRef.current?.stopRealtime();
-          },
-          isRealtime: () => {
-            return !!scatterRef.current?.isRealtime;
-          },
-          render: (data: ScatterDataType[]) => {
-            scatterRef.current?.render(data, { append: true });
-          },
-          clear: () => {
-            scatterRef.current?.clear();
-          },
-          setAxisOption: (option: Partial<ScatterChartOption['axis']>) => {
-            scatterRef.current?.setOption({
-              axis: option,
-            });
-          },
-        };
-      },
-      [scatterRef.current],
-    );
+    React.useImperativeHandle(ref, () => {
+      return {
+        isMounted: () => {
+          return !!scatterRef.current;
+        },
+        getChartSize: () => {
+          return getChartSize();
+        },
+        startRealtime: (duration: number) => {
+          scatterRef.current?.startRealtime(duration);
+        },
+        stopRealtime: () => {
+          scatterRef.current?.stopRealtime();
+        },
+        isRealtime: () => {
+          return !!scatterRef.current?.isRealtime;
+        },
+        render: (data: ScatterDataType[]) => {
+          scatterRef.current?.render(data, { append: true });
+        },
+        clear: () => {
+          scatterRef.current?.clear();
+        },
+        setAxisOption: (option: Partial<ScatterChartOption['axis']>) => {
+          scatterRef.current?.setOption({
+            axis: option,
+          });
+        },
+      };
+    }, [scatterRef.current]);
 
     React.useEffect(() => {
       return () => {
