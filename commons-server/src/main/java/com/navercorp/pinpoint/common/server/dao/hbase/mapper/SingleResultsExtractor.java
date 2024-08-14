@@ -28,7 +28,6 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component
 public class SingleResultsExtractor<T> implements ResultsExtractor<T> {
 
     private final RowMapper<T> mapper;
