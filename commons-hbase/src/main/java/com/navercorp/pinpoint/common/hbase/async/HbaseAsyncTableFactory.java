@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.common.hbase.async;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
-import org.apache.hadoop.hbase.client.AsyncBufferedMutator;
-import org.apache.hadoop.hbase.client.AsyncBufferedMutatorBuilder;
 import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.AsyncTableBuilder;
@@ -53,23 +51,6 @@ public class HbaseAsyncTableFactory implements AsyncTableFactory {
     public AsyncTable<ScanResultConsumer> getTable(TableName tableName, ExecutorService pool) {
         AsyncTableBuilder<ScanResultConsumer> builder = connection.getTableBuilder(tableName, pool);
         this.customizer.customize(builder);
-        return builder.build();
-    }
-
-
-    @Override
-    @Cacheable(cacheNames = "bufferedMutator-pool", keyGenerator = "tableNameAndPoolKeyGenerator", cacheManager = "hbaseAsyncBufferedMutatorManager")
-    public AsyncBufferedMutator getBufferedMutator(TableName tableName, ExecutorService pool) {
-        AsyncBufferedMutatorBuilder builder = connection.getBufferedMutatorBuilder(tableName, pool);
-        customizer.customize(builder);
-        return builder.build();
-    }
-
-    @Override
-    @Cacheable(cacheNames = "bufferedMutator", keyGenerator = "tableNameAndPoolKeyGenerator", cacheManager = "hbaseAsyncBufferedMutatorManager")
-    public AsyncBufferedMutator getBufferedMutator(TableName tableName) {
-        AsyncBufferedMutatorBuilder builder = connection.getBufferedMutatorBuilder(tableName);
-        customizer.customize(builder);
         return builder.build();
     }
 

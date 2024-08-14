@@ -17,21 +17,16 @@
 
 package com.navercorp.pinpoint.common.hbase.async;
 
-import org.apache.hadoop.hbase.client.AsyncBufferedMutatorBuilder;
 import org.apache.hadoop.hbase.client.AsyncTableBuilder;
 
-import java.util.concurrent.TimeUnit;
-
 public class DefaultAsyncTableCustomizer implements AsyncTableCustomizer {
+
+    public DefaultAsyncTableCustomizer() {
+    }
 
     @Override
     public void customize(AsyncTableBuilder<?> builder) {
 
     }
 
-    @Override
-    public void customize(AsyncBufferedMutatorBuilder builder) {
-
-        builder.setWriteBufferPeriodicFlush(500, TimeUnit.MILLISECONDS);
-    }
 }
