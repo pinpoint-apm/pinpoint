@@ -24,12 +24,16 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
 import com.navercorp.pinpoint.common.hbase.HbaseVersionCheckBean;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
+import com.navercorp.pinpoint.common.hbase.async.AsyncBufferedMutatorCustomizer;
+import com.navercorp.pinpoint.common.hbase.async.AsyncBufferedMutatorFactory;
 import com.navercorp.pinpoint.common.hbase.async.AsyncHbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.BatchAsyncHbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.ConcurrencyDecorator;
+import com.navercorp.pinpoint.common.hbase.async.DefaultAsyncBufferedMutatorCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.DefaultAsyncTableCustomizer;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncBufferedMutatorFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncCacheConfiguration;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
@@ -76,6 +80,19 @@ public class HbaseTemplateConfiguration {
     @Bean
     public AsyncTableFactory hbaseAsyncTableFactory(@Qualifier("hbaseAsyncConnection") AsyncConnection connection, AsyncTableCustomizer customizer) {
         return new HbaseAsyncTableFactory(connection, customizer);
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "hbase.client.put-writer.async-buffered-mutator")
+    public AsyncBufferedMutatorCustomizer asyncBufferedMutatorCustomizer() {
+        return new DefaultAsyncBufferedMutatorCustomizer();
+    }
+
+    @Bean
+    public AsyncBufferedMutatorFactory hbaseAsyncBufferedMutatorFactory(@Qualifier("hbaseAsyncConnection") AsyncConnection connection,
+                                                                        AsyncBufferedMutatorCustomizer customizer) {
+        logger.info("AsyncBufferedMutatorCustomizer {}", customizer);
+        return new HbaseAsyncBufferedMutatorFactory(connection, customizer);
     }
 
 
@@ -136,7 +153,7 @@ public class HbaseTemplateConfiguration {
         @Primary
         @Bean
         public HbasePutWriter hbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
-                                                  @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
+                                             @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
             HbasePutWriter putWriter = newPutWriter(asyncTableFactory, decorator);
             logger.info("hbasePutWriter {}", putWriter);
             return putWriter;
@@ -149,7 +166,7 @@ public class HbaseTemplateConfiguration {
 
         @Bean
         public HbasePutWriter spanPutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
-                                             @Qualifier("spanConcurrencyDecorator") HbasePutWriterDecorator decorator) {
+                                            @Qualifier("spanConcurrencyDecorator") HbasePutWriterDecorator decorator) {
             HbasePutWriter putWriter = newPutWriter(asyncTableFactory, decorator);
             logger.info("hbaseSpanPutWriter {}", putWriter);
             return putWriter;
@@ -179,8 +196,8 @@ public class HbaseTemplateConfiguration {
 
         @Primary
         @Bean
-        public HbasePutWriter hbasePutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
-                                                  @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
+        public HbasePutWriter hbasePutWriter(@Qualifier("hbaseAsyncBufferedMutatorFactory") AsyncBufferedMutatorFactory asyncTableFactory,
+                                             @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator) {
             HbasePutWriter hbasePutWriter = newPutWriter(asyncTableFactory, decorator);
             logger.info("hbasePutWriter {}", hbasePutWriter);
             return hbasePutWriter;
@@ -192,8 +209,8 @@ public class HbaseTemplateConfiguration {
         }
 
         @Bean
-        public HbasePutWriter spanPutWriter(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
-                                             @Qualifier("spanConcurrencyDecorator") HbasePutWriterDecorator decorator) {
+        public HbasePutWriter spanPutWriter(@Qualifier("hbaseAsyncBufferedMutatorFactory") AsyncBufferedMutatorFactory asyncTableFactory,
+                                            @Qualifier("spanConcurrencyDecorator") HbasePutWriterDecorator decorator) {
             HbasePutWriter hbasePutWriter = newPutWriter(asyncTableFactory, decorator);
             logger.info("HbaseSpanPutWriter {}", hbasePutWriter);
             return hbasePutWriter;
@@ -204,7 +221,7 @@ public class HbaseTemplateConfiguration {
             return new ConcurrencyDecorator(concurrency);
         }
 
-        private HbasePutWriter newPutWriter(AsyncTableFactory asyncTableFactory, HbasePutWriterDecorator decorator) {
+        private HbasePutWriter newPutWriter(AsyncBufferedMutatorFactory asyncTableFactory, HbasePutWriterDecorator decorator) {
             HbasePutWriter writer = new BatchAsyncHbasePutWriter(asyncTableFactory);
             HbasePutWriter putWriter = decorator.decorator(writer);
             return new LoggingHbasePutWriter(putWriter);

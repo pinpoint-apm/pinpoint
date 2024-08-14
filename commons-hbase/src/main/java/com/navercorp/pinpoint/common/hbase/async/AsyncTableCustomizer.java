@@ -17,11 +17,8 @@
 
 package com.navercorp.pinpoint.common.hbase.async;
 
-import org.apache.hadoop.hbase.client.AsyncBufferedMutatorBuilder;
 import org.apache.hadoop.hbase.client.AsyncTableBuilder;
 
 public interface AsyncTableCustomizer {
     void customize(AsyncTableBuilder<?> builder);
-
-    void customize(AsyncBufferedMutatorBuilder builder);
 }

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.hbase.async;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
-import org.apache.hadoop.hbase.client.AsyncBufferedMutator;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.ScanResultConsumer;
 
@@ -38,8 +37,4 @@ public interface AsyncTableFactory {
      */
     AsyncTable<ScanResultConsumer> getTable(TableName tableName, ExecutorService pool);
 
-
-    AsyncBufferedMutator getBufferedMutator(TableName tableName, ExecutorService pool);
-
-    AsyncBufferedMutator getBufferedMutator(TableName tableName);
 }

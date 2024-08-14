@@ -26,9 +26,9 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class BatchAsyncHbasePutWriter implements HbasePutWriter {
-    private final AsyncTableFactory asyncTableFactory;
+    private final AsyncBufferedMutatorFactory asyncTableFactory;
 
-    public BatchAsyncHbasePutWriter(AsyncTableFactory asyncTableFactory) {
+    public BatchAsyncHbasePutWriter(AsyncBufferedMutatorFactory asyncTableFactory) {
         this.asyncTableFactory = Objects.requireNonNull(asyncTableFactory, "asyncTableFactory");
     }
 
