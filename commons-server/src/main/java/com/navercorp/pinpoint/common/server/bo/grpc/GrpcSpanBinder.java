@@ -134,13 +134,15 @@ public class GrpcSpanBinder {
                 }
 
                 final String parentApplicationName = parentInfo.getParentApplicationName();
-                if (validateParentApplicationName(parentApplicationName)) {
+                // If root node, parentApplicationName is null
+                if (StringUtils.hasLength(parentApplicationName)) {
+                    if (!IdValidateUtils.validateId(parentApplicationName)) {
+                        throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName
+                                + " agent:" + attribute.getApplicationName() + "/" + attribute.getAgentId());
+                    }
                     spanBo.setParentApplicationId(parentApplicationName);
-                } else {
-                    throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName
-                           + " agent:"+ attribute.getApplicationName() + "/" + attribute.getAgentId());
+                    spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
                 }
-                spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
             }
         }
 
@@ -157,15 +159,6 @@ public class GrpcSpanBinder {
         return spanBo;
     }
 
-    private boolean validateParentApplicationName(String parentApplicationName) {
-        if (StringUtils.isEmpty(parentApplicationName)) {
-            return false;
-        }
-        if (!IdValidateUtils.validateId(parentApplicationName)) {
-            return false;
-        }
-        return true;
-    }
 
     private String getExceptionMessage(PIntStringValue exceptionInfo) {
         if (exceptionInfo.hasStringValue()) {
