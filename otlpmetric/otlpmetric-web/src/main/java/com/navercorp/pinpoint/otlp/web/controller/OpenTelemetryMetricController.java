@@ -82,7 +82,7 @@ public class OpenTelemetryMetricController {
     }
 
     @GetMapping("/metricData")
-    public OtlpChartView getMetricChartDataV2(@RequestParam("applicationId") @NotBlank String applicationId,
+    public OtlpChartView getMetricChartDataV2(@RequestParam("applicationName") @NotBlank String applicationName,
                                             @RequestParam(value = "agentId", required = false) String agentId,
                                             @RequestParam("metricGroupName") @NotBlank String metricGroupName,
                                             @RequestParam("metricName") @NotBlank String metricName,
@@ -94,6 +94,7 @@ public class OpenTelemetryMetricController {
                                             @RequestParam("aggregationFunction") String aggregationFunctionName) {
         ChartType chartType = ChartType.fromChartName(chartTypeName);
         AggregationFunction aggregationFunction = AggregationFunction.fromAggregationFunctionName(aggregationFunctionName);
-        return otlpMetricWebService.getMetricData(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName, metricName, tags, fieldNameList, from, to, chartType, aggregationFunction);
+        //TODO : (minwoo) remove tenantId, serviceId
+        return otlpMetricWebService.getMetricData(tenantId, DEFAULT_SERVICE_ID, applicationName, agentId, metricGroupName, metricName, tags, fieldNameList, from, to, chartType, aggregationFunction);
     }
 }
