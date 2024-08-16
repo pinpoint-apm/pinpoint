@@ -14,42 +14,46 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * @author HyunGil Jeong
- */
-@Component
-public class AgentEventResultsExtractor implements ResultsExtractor<List<AgentEventBo>> {
+public class ListMergeResultsExtractor<T> implements ResultsExtractor<List<T>> {
 
-    private final RowMapper<List<AgentEventBo>> agentEventMapper;
+    private final RowMapper<List<T>> mapper;
 
-    public AgentEventResultsExtractor(@Qualifier("agentEventMapper") RowMapper<List<AgentEventBo>> agentEventMapper) {
-        this.agentEventMapper = Objects.requireNonNull(agentEventMapper, "agentEventMapper");
+    public ListMergeResultsExtractor(RowMapper<List<T>> mapper) {
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     @Override
-    public List<AgentEventBo> extractData(ResultScanner results) throws Exception {
-        List<AgentEventBo> agentEvents = new ArrayList<>();
+    public List<T> extractData(ResultScanner results) throws Exception {
+        List<T> agentEvents = new ArrayList<>();
         int rowNum = 0;
         for (Result result : results) {
-            List<AgentEventBo> intermediateEvents = agentEventMapper.mapRow(result, rowNum++);
-            if (!intermediateEvents.isEmpty()) {
-                agentEvents.addAll(intermediateEvents);
+            List<T> lists = mapper.mapRow(result, rowNum++);
+            if (!lists.isEmpty()) {
+                agentEvents.addAll(lists);
             }
         }
         return agentEvents;
+    }
+
+    public RowMapper<List<T>> getMapper() {
+        return mapper;
+    }
+
+    @Override
+    public String toString() {
+        return "ListMergeResultsExtractor{" +
+                "mapper=" + mapper +
+                '}';
     }
 }

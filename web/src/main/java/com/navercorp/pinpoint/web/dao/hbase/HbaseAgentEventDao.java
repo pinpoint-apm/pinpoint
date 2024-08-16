@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Gets;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.dao.hbase.mapper.ListMergeResultsExtractor;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -69,12 +70,12 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     public HbaseAgentEventDao(HbaseOperations hbaseOperations,
                               TableNameProvider tableNameProvider,
-                              @Qualifier("agentEventMapper") RowMapper<List<AgentEventBo>> agentEventMapper,
-                              ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor) {
+                              @Qualifier("agentEventMapper")
+                              RowMapper<List<AgentEventBo>> agentEventMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentEventMapper = Objects.requireNonNull(agentEventMapper, "agentEventMapper");
-        this.agentEventResultsExtractor = Objects.requireNonNull(agentEventResultsExtractor, "agentEventResultsExtractor");
+        this.agentEventResultsExtractor = new ListMergeResultsExtractor<>(agentEventMapper);
     }
 
     @Override
