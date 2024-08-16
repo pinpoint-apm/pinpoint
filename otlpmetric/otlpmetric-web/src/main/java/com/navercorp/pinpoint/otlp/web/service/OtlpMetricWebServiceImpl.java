@@ -109,17 +109,17 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     }
 
     @Override
-    public OtlpChartView getMetricData(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tags, List<String> fieldNameList, long from, long to, ChartType chartType, AggregationFunction aggregationFunction) {
+    public OtlpChartView getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, String tags, List<String> fieldNameList, long from, long to, ChartType chartType, AggregationFunction aggregationFunction) {
         // TODO : (minwoo)
         // 3 Check for unnecessary parameters
         // 4 Process data based on aggregationfunction
         // 5 Generate view data based on the chartType parameter entered by the user
-        List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationId, agentId, metricGroupName, metricName, tags, fieldNameList);
+        List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationName, agentId, metricGroupName, metricName, tags, fieldNameList);
 
         OtlpMetricDataQueryParameter.Builder builder =
                 new OtlpMetricDataQueryParameter.Builder()
                         .setServiceId(serviceId)
-                        .setApplicationId(applicationId)
+                        .setApplicationId(applicationName)
                         .setAgentId(agentId)
                         .setMetricGroupName(metricGroupName)
                         .setMetricName(metricName)
@@ -154,7 +154,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                     }
                 }
             } catch (Exception e) {
-                logger.warn("Failed to get OTLP metric data for applicationID: {}, metric: {}.{}.{}", applicationId, metricGroupName, metricName, key.fieldName());
+                logger.warn("Failed to get OTLP metric data for applicationID: {}, metric: {}.{}.{}", applicationName, metricGroupName, metricName, key.fieldName());
             }
         }
 
