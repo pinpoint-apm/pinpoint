@@ -45,6 +45,8 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private static final ServerGroupList EMPTY = ServerGroupList.empty();
+
     private final ServerGroupListFactory serverGroupListFactory;
 
     private final Executor executor;
@@ -143,8 +145,8 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
             Node node = pair.node();
             CompletableFuture<ServerGroupList> future = pair.future();
             try {
-                ServerGroupList serverGroupList = future.getNow(null);
-                if (serverGroupList == null) {
+                ServerGroupList serverGroupList = future.getNow(EMPTY);
+                if (serverGroupList == EMPTY) {
                     serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
                 }
                 node.setServerGroupList(serverGroupList);

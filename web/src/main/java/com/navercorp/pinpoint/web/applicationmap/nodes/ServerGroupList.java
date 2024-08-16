@@ -38,16 +38,12 @@ import java.util.stream.Collectors;
  */
 @JsonSerialize(using = ServerGroupListSerializer.class)
 public class ServerGroupList {
-    public static final ServerGroupList EMPTY = new ServerGroupList();
+    public static final ServerGroupList EMPTY = new ServerGroupList(List.of());
 
     private final List<ServerGroup> serverGroupList;
 
     public static ServerGroupList empty() {
         return EMPTY;
-    }
-
-    ServerGroupList() {
-        this.serverGroupList = List.of();
     }
 
     ServerGroupList(List<ServerGroup> serverGroupList) {
