@@ -357,7 +357,6 @@
         <dependency>
             <groupId>org.semver4j</groupId>
             <artifactId>semver4j</artifactId>
-            <version>5.3.0</version>
         </dependency>
 
         <!-- Test dependencies -->
