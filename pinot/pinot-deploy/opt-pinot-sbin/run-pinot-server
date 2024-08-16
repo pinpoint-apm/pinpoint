@@ -1,0 +1,3 @@
+#!/bin/sh
+export JAVA_OPTS="-Xms4G -Xmx16G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xlog:gc:logs/gc-pinot-server.log"
+"${PINOT_HOME}/bin/pinot-admin.sh" StartServer -zkAddress zk:2181

@@ -1,0 +1,20 @@
+[Unit]
+Description=Apache Pinot kafka
+Documentation=https://docs.pinot.apache.org/
+After=network-online.target 
+Wants=pinot-controller.service pinot-broker.service pinot-server.service
+PartOf=pinot.service
+ 
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/pinot
+User=pinot
+Group=pinot
+WorkingDirectory=/opt/pinot
+ExecStart=/opt/pinot/sbin/run-pinot-kafka
+StandardOutput=file:///var/log/pinot/kafka-output.log
+StandardError=file:///var/log/pinot/kafka-error.log
+SuccessExitStatus=0 143
+ 
+[Install]
+WantedBy=multi-user.target

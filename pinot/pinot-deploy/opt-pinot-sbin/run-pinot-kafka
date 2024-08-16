@@ -1,0 +1,2 @@
+#!/bin/sh
+"${PINOT_HOME}/bin/pinot-admin.sh" StartKafka -zkAddress=zk:2181/kafka -port 19092

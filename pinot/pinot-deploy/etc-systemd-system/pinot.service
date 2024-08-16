@@ -1,0 +1,20 @@
+[Unit]
+Description=Apache Pinot Launcher Service
+Documentation=https://docs.pinot.apache.org/
+After=network-online.target 
+Requires=pinot-controller.service pinot-broker.service pinot-server.service pinot-kafka.service
+ 
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/default/pinot
+User=pinot
+Group=pinot
+WorkingDirectory=/opt/pinot
+ExecStart=/usr/bin/date
+StandardOutput=file:///var/log/pinot/launcher-output.log
+StandardError=file:///var/log/pinot/launcher-error.log
+SuccessExitStatus=0
+RemainAfterExit=yes
+ 
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+#!/bin/sh
+"${PINOT_HOME}/sbin/run-pinot-controller"
+"${PINOT_HOME}/sbin/run-pinot-broker"
+"${PINOT_HOME}/sbin/run-pinot-server"
+"${PINOT_HOME}/sbin/run-pinot-kafka"
