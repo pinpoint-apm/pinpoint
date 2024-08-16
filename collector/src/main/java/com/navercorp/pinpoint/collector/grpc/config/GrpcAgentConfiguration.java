@@ -39,9 +39,9 @@ import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
-import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingEventHandler;
+import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingEventHandlerFactory;
 import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingSessionRegistry;
-import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
+import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandlerFactory;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSessionRegistry;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
@@ -74,7 +74,7 @@ public class GrpcAgentConfiguration {
     @Bean
     public AgentService agentService(@Qualifier("grpcDispatchHandlerFactoryBean")
                                      DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-                                     PingEventHandler pingEventHandler,
+                                     PingEventHandlerFactory pingEventHandler,
                                      @Qualifier("grpcAgentWorkerExecutor")
                                      Executor executor,
                                      ServerRequestFactory serverRequestFactory) {
@@ -192,9 +192,9 @@ public class GrpcAgentConfiguration {
     }
 
     @Bean
-    public PingEventHandler pingEventHandler(PingSessionRegistry pingSessionRegistry,
-                                                   AgentLifecycleListener agentLifecycleListener) {
-        return new DefaultPingEventHandler(pingSessionRegistry, agentLifecycleListener);
+    public PingEventHandlerFactory pingEventHandler(PingSessionRegistry pingSessionRegistry,
+                                                       AgentLifecycleListener agentLifecycleListener) {
+        return new DefaultPingEventHandlerFactory(pingSessionRegistry, agentLifecycleListener);
     }
 
     @Bean

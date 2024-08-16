@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFacto
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
+import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandlerFactory;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -60,7 +61,8 @@ public class AgentServerTestMain {
         grpcReceiver.setBindAddress(builder.build());
 
         PingEventHandler pingEventHandler = mock(PingEventHandler.class);
-        BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler, Executors.newFixedThreadPool(8), serverRequestFactory);
+        PingEventHandlerFactory pingEventHandlerFactory = () -> pingEventHandler;
+        BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandlerFactory, Executors.newFixedThreadPool(8), serverRequestFactory);
 
         MetadataService metadataService = new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8), serverRequestFactory);
         List<ServerServiceDefinition> serviceList = List.of(agentService.bindService(), metadataService.bindService());

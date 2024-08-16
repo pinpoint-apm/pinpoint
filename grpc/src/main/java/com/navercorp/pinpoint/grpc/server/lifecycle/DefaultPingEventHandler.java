@@ -17,12 +17,11 @@
 package com.navercorp.pinpoint.grpc.server.lifecycle;
 
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
-import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,27 +30,46 @@ import java.util.Objects;
 public class DefaultPingEventHandler implements PingEventHandler {
     private static final long PING_MIN_TIME_MILLIS = 60 * 1000; // 1min
 
+    private static final AtomicIntegerFieldUpdater<DefaultPingEventHandler> UPDATER = AtomicIntegerFieldUpdater.newUpdater(DefaultPingEventHandler.class, "connect");
+    private static final int INIT = 0;
+    private static final int CONNECTED = 1;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final PingSessionRegistry pingSessionRegistry;
     private final LifecycleListener lifecycleListener;
 
-    public DefaultPingEventHandler(PingSessionRegistry pingSessionRegistry, LifecycleListener lifecycleListener) {
+    private volatile int connect = INIT;
+
+    private final PingSession pingSession;
+
+
+    public DefaultPingEventHandler(PingSessionRegistry pingSessionRegistry, LifecycleListener lifecycleListener,
+                                   long transportId, Header header) {
         this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
         this.lifecycleListener = Objects.requireNonNull(lifecycleListener, "lifecycleListener");
+
+        this.pingSession = PingSession.of(transportId, header);
+        pingSession.setLastPingTimeMillis(getCurrentPingTimeMillis());
     }
 
-    @Override
-    public void connect() {
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
-        if (transportMetadata == null) {
-            logger.info("Skip connect event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo());
-            return;
-        }
+    public PingSession getPingSession() {
+        return pingSession;
+    }
 
-        final Long transportId = transportMetadata.getTransportId();
-        final Header header = ServerContext.getAgentInfo();
-        final PingSession pingSession = PingSession.of(transportId, header);
-        pingSession.setLastPingTimeMillis(System.currentTimeMillis());
+    public void ping() {
+        if (UPDATER.compareAndSet(this, INIT, CONNECTED)) {
+            connect0();
+        } else {
+            ping0();
+        }
+    }
+
+    public void connect0() {
+        logger.debug("connect {}", pingSession);
+        pingSession.setLastPingTimeMillis(getCurrentPingTimeMillis());
+
+
         final PingSession oldSession = pingSessionRegistry.add(pingSession.getId(), pingSession);
         if (oldSession != null) {
             logger.warn("Duplicated ping session old={}, new={}", oldSession, pingSession);
@@ -59,21 +77,15 @@ public class DefaultPingEventHandler implements PingEventHandler {
         lifecycleListener.connect(pingSession);
     }
 
-    @Override
-    public void ping() {
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
-        if (transportMetadata == null) {
-            logger.info("Skip ping event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo());
-            return;
-        }
+    long getCurrentPingTimeMillis() {
+        return System.currentTimeMillis();
+    }
 
-        final PingSession pingSession = pingSessionRegistry.get(transportMetadata.getTransportId());
-        if (pingSession == null) {
-            logger.info("Skip ping event handle of ping, not found ping session. transportMetadata={}", transportMetadata);
-            return;
-        }
+
+    public void ping0() {
+
         // Avoid too frequent updates.
-        final long currentTimeMillis = System.currentTimeMillis();
+        final long currentTimeMillis = getCurrentPingTimeMillis();
         if (PING_MIN_TIME_MILLIS < (currentTimeMillis - pingSession.getLastPingTimeMillis())) {
             return;
         }
@@ -84,36 +96,17 @@ public class DefaultPingEventHandler implements PingEventHandler {
 
     @Override
     public void close() {
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
-        if (transportMetadata == null) {
-            logger.info("Skip close event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo());
-            return;
-        }
 
-        final PingSession removedSession = pingSessionRegistry.remove(transportMetadata.getTransportId());
-        if (removedSession == null) {
-            return;
-        }
+        pingSessionRegistry.remove(pingSession.getId());
+
         if (logger.isDebugEnabled()) {
-            logger.debug("Remove ping session. pingSession={}", removedSession);
+            logger.debug("Remove ping session. pingSession={}", pingSession);
         }
-        lifecycleListener.close(removedSession);
+        lifecycleListener.close(pingSession);
     }
 
     @Override
-    public void update(final short serviceType) {
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
-        if (transportMetadata == null) {
-            logger.info("Skip update event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo());
-            return;
-        }
-
-        final PingSession pingSession = pingSessionRegistry.get(transportMetadata.getTransportId());
-        if (pingSession == null) {
-            logger.info("Skip update event handle of ping, not found ping session. transportMetadata={}", transportMetadata);
-            return;
-        }
-        pingSession.setServiceType(serviceType);
+    public void update() {
         if (logger.isDebugEnabled()) {
             logger.debug("Update ping session. PingSession={}", pingSession);
         }

@@ -172,7 +172,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         final int totalAgentCount = agentsMapByHost.size();
         if (logger.isInfoEnabled()) {
-            logger.info("getAgentsMapByHostname size:{}", totalAgentCount);
+            logger.info("getAgentsMapByHostname filter:{}-->{}", agentInfoAndStatuses.size(), totalAgentCount);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("getAgentsMapByHostname size:{} data:{}", totalAgentCount, agentsMapByHost);
@@ -187,6 +187,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         logger.trace("isActiveAgentPredicate {}", agentAndStatus);
         AgentInfo agentInfo = agentAndStatus.getAgentInfo();
         if (agentInfoPredicate.test(agentInfo)) {
+            logger.info("-----------isActiveAgentPredicate {}", agentAndStatus);
             logger.trace("agentInfoPredicate=true");
         }
         if (agentStatusFilter.test(agentAndStatus.getStatus())) {
@@ -479,6 +480,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         AgentStatus initialStatus = getAgentStatus(agentId, range.getFrom());
         List<AgentEvent> agentEvents = agentEventService.getAgentEvents(agentId, range);
+        logger.info("---------agentEvents:{}", agentEvents);
 
         List<AgentStatusTimelineSegment> warningStatusTimelineSegmentList = agentWarningStatService.select(agentId, range);
 

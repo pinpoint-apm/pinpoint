@@ -21,11 +21,12 @@ package com.navercorp.pinpoint.grpc.server.lifecycle;
  * @author jaehong.kim
  */
 public interface PingEventHandler {
-    void connect();
+
+    PingSession getPingSession();
 
     void ping();
 
     void close();
 
-    void update(short serviceType);
+    void update();
 }

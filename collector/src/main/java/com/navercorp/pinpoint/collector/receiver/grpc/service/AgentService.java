@@ -20,8 +20,11 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.server.AgentKey;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
+import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
+import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandlerFactory;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PPing;
@@ -44,24 +47,25 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author jaehong.kim
  */
 public class AgentService extends AgentGrpc.AgentImplBase {
-    private static final AtomicLong idAllocator = new AtomicLong();
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+
+    private final AtomicLong idAllocator = new AtomicLong();
+
     private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
-    private final PingEventHandler pingEventHandler;
+    private final PingEventHandlerFactory pingEventHandlerProvider;
     private final Executor executor;
 
     public AgentService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-                        PingEventHandler pingEventHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
+                        PingEventHandlerFactory pingEventHandlerProvider, Executor executor, ServerRequestFactory serverRequestFactory) {
         this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler, serverRequestFactory);
-        this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler");
+        this.pingEventHandlerProvider = Objects.requireNonNull(pingEventHandlerProvider, "pingEventHandlerProvider");
         Objects.requireNonNull(executor, "executor");
         this.executor = Context.currentContextExecutor(executor);
     }
@@ -72,14 +76,26 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             logger.debug("Request PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
+
+        final com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
+        final boolean legacyAgent = !header.isServiceTypeSupported();
+        if (legacyAgent) {
+            final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
+            AgentKey key = new AgentKey(header.getAgentId(), header.getAgentStartTime());
+            transportMetadata.registerServiceType(key, (short)agentInfo.getServiceType());
+        }
+
+        PingEventHandler pingEventHandler = pingEventHandlerProvider.createPingEventHandler();
         try {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     final Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
                     simpleRequestHandlerAdaptor.request(message, responseObserver);
-                    // Update service type of PingSession
-                    AgentService.this.pingEventHandler.update((short) agentInfo.getServiceType());
+                    if (legacyAgent) {
+                        // Update service type of PingSession
+                        pingEventHandler.update();
+                    }
                 }
             });
         } catch (RejectedExecutionException ree) {
@@ -92,30 +108,26 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     @Override
     public StreamObserver<PPing> pingSession(final StreamObserver<PPing> response) {
         final ServerCallStreamObserver<PPing> responseObserver = (ServerCallStreamObserver<PPing>) response;
+
+        final PingEventHandler pingEventHandler = pingEventHandlerProvider.createPingEventHandler();
+
         return new StreamObserver<>() {
-            private final AtomicBoolean first = new AtomicBoolean(false);
             private final ThrottledLogger thLogger = ThrottledLogger.getLogger(AgentService.this.logger, 100);
 
             private final long id = nextSessionId();
+
             @Override
             public void onNext(PPing ping) {
-                if (first.compareAndSet(false, true)) {
-                    // Only first
-                    if (isDebug) {
-                        thLogger.debug("PingSession:{} start:{}", id, MessageFormatUtils.debugLog(ping));
-                    }
-                    AgentService.this.pingEventHandler.connect();
-                } else {
-                    AgentService.this.pingEventHandler.ping();
-                }
                 if (isDebug) {
-                    thLogger.debug("PingSession:{} onNext:{}", id, MessageFormatUtils.debugLog(ping));
+                    thLogger.debug("PingSession:{} onNext:Ping", id);
                 }
+                pingEventHandler.ping();
+
                 if (responseObserver.isReady()) {
                     PPing replay = newPing();
                     responseObserver.onNext(replay);
                 } else {
-                    thLogger.warn("ping message is ignored: stream is not ready: {}", ServerContext.getAgentInfo());
+                    thLogger.warn("Ping message is ignored: stream is not ready: {}", ServerContext.getAgentInfo());
                 }
             }
 
@@ -136,15 +148,15 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
             @Override
             public void onCompleted() {
-                if (isDebug) {
-                    thLogger.debug("PingSession:{} onCompleted()", id);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("PingSession:{} onCompleted()", id);
                 }
                 responseObserver.onCompleted();
                 disconnect();
             }
 
             private void disconnect() {
-                AgentService.this.pingEventHandler.close();
+                pingEventHandler.close();
             }
 
         };
