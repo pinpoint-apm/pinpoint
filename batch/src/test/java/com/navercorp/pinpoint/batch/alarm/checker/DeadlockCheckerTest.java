@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
+import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -68,9 +68,9 @@ public class DeadlockCheckerTest {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, false, "");
 
         Range range = Range.between(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
-        when(mockAgentEventDao.getAgentEvents(AGENT_ID_1, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_1, createEventTimestamp(), AgentEventType.AGENT_CLOSED_BY_SERVER)));
-        when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_DEADLOCK_DETECTED)));
-        when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));
+        when(mockAgentEventDao.getAgentEvents(AGENT_ID_1, range, deadLock())).thenReturn(List.of(createAgentEvent(AGENT_ID_1, createEventTimestamp(), AgentEventType.AGENT_CLOSED_BY_SERVER)));
+        when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, deadLock())).thenReturn(List.of(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_DEADLOCK_DETECTED)));
+        when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, deadLock())).thenReturn(List.of(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));
 
         AgentEventDataCollector dataCollector = new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, mockAgentEventDao, mockAgentIds, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DeadlockChecker checker = new DeadlockChecker(dataCollector, rule);
@@ -89,9 +89,9 @@ public class DeadlockCheckerTest {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, false, "");
 
         Range range = Range.between(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
-        when(mockAgentEventDao.getAgentEvents(AGENT_ID_1, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_1, createEventTimestamp(), AgentEventType.AGENT_CLOSED_BY_SERVER)));
-        when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_SHUTDOWN)));
-        when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, Set.of())).thenReturn(List.of(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));
+        when(mockAgentEventDao.getAgentEvents(AGENT_ID_1, range, deadLock())).thenReturn(List.of(createAgentEvent(AGENT_ID_1, createEventTimestamp(), AgentEventType.AGENT_CLOSED_BY_SERVER)));
+        when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, deadLock())).thenReturn(List.of(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_SHUTDOWN)));
+        when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, deadLock())).thenReturn(List.of(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));
 
         AgentEventDataCollector dataCollector = new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, mockAgentEventDao, mockAgentIds, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DeadlockChecker checker = new DeadlockChecker(dataCollector, rule);
@@ -103,6 +103,10 @@ public class DeadlockCheckerTest {
 
         List<String> smsMessage = checker.getSmsMessage();
         assertThat(smsMessage).isEmpty();
+    }
+
+    private AgentEventQuery deadLock() {
+        return AgentEventDataCollector.DEADLOCK;
     }
 
     private AgentEventBo createAgentEvent(String agentId, long eventTimestamp, AgentEventType agentEventType) {

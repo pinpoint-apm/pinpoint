@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.web.dao;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -30,6 +30,6 @@ public interface AgentEventDao {
 
     AgentEventBo getAgentEvent(String agentId, long eventTimestamp, AgentEventType eventType);
 
-    List<AgentEventBo> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypes);
+    List<AgentEventBo> getAgentEvents(String agentId, Range range, AgentEventQuery filter);
 
 }

@@ -21,17 +21,20 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
+import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Taejin Koo
  */
 public class AgentEventDataCollector extends DataCollector {
+
+    public static final AgentEventQuery DEADLOCK = AgentEventQuery.include(Set.of(AgentEventType.AGENT_DEADLOCK_DETECTED));
 
     private final AgentEventDao agentEventDao;
 
@@ -67,7 +70,7 @@ public class AgentEventDataCollector extends DataCollector {
         Range range = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
 
         for (String agentId : agentIds) {
-            List<AgentEventBo> agentEventBoList = agentEventDao.getAgentEvents(agentId, range, Collections.emptySet());
+            List<AgentEventBo> agentEventBoList = agentEventDao.getAgentEvents(agentId, range, DEADLOCK);
             if (hasDeadlockEvent(agentEventBoList)) {
                 agentDeadlockEventDetected.put(agentId, true);
             }

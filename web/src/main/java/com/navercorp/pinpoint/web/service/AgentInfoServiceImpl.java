@@ -187,10 +187,10 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         logger.trace("isActiveAgentPredicate {}", agentAndStatus);
         AgentInfo agentInfo = agentAndStatus.getAgentInfo();
         if (agentInfoPredicate.test(agentInfo)) {
-            logger.trace("agentInfoPredicate=true");
+            logger.trace("agentInfoPredicate=true {}", agentAndStatus);
         }
         if (agentStatusFilter.test(agentAndStatus.getStatus())) {
-            logger.trace("agentStatusFilter=true");
+            logger.trace("agentStatusFilter=true {}", agentAndStatus);
             return true;
         }
         Application agent = new Application(agentInfo.getAgentId(), agentInfo.getServiceType());
@@ -198,7 +198,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         if (activeAgentValidator.isActiveAgent(agent, agentVersion, range)) {
             return true;
         }
-        logger.trace("isActiveAgentPredicate=false");
+        logger.trace("isActiveAgentPredicate=false {}", agentAndStatus);
         return false;
     }
 

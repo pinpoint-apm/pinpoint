@@ -14,5 +14,5 @@ public interface ActiveAgentValidator {
 
     boolean isActiveAgent(Application agent, String version, List<Range> ranges);
 
-    boolean isActiveAgentByPing(String agentId, Range range);
+    boolean isActiveAgentByEvent(String agentId, Range range);
 }
