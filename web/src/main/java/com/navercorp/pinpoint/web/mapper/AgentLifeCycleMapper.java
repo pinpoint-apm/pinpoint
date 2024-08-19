@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -61,8 +60,7 @@ public class AgentLifeCycleMapper implements RowMapper<AgentLifeCycleBo> {
             final long eventTimestamp = buffer.readLong();
             final long eventIdentifier = buffer.readLong();
             final AgentLifeCycleState agentLifeCycleState = AgentLifeCycleState.getStateByCode(buffer.readShort());
-            final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
-            return agentLifeCycleBo;
+            return new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
         }
         return null;
     }
