@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
+import com.navercorp.pinpoint.web.dao.AgentInfoQuery;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
@@ -398,7 +399,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        List<DetailedAgentInfo> agentInfos = this.agentInfoDao.getDetailedAgentInfos(agentIds, timestamp, false, true);
+        List<DetailedAgentInfo> agentInfos = this.agentInfoDao.getDetailedAgentInfos(agentIds, timestamp, AgentInfoQuery.jvm());
 
         return agentInfos.stream()
                 .filter(Objects::nonNull)

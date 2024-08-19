@@ -29,7 +29,7 @@ public class AgentStatus {
 
     private final String agentId;
 
-    private long eventTimestamp;
+    private final long eventTimestamp;
 
     private final AgentLifeCycleState state;
 
@@ -57,27 +57,23 @@ public class AgentStatus {
         if (o == null || getClass() != o.getClass()) return false;
 
         AgentStatus that = (AgentStatus) o;
-
-        if (eventTimestamp != that.eventTimestamp) return false;
-        if (!agentId.equals(that.agentId)) return false;
-        return state == that.state;
+        return eventTimestamp == that.eventTimestamp && agentId.equals(that.agentId) && state == that.state;
     }
 
     @Override
     public int hashCode() {
         int result = agentId.hashCode();
-        result = 31 * result + (int) (eventTimestamp ^ (eventTimestamp >>> 32));
+        result = 31 * result + Long.hashCode(eventTimestamp);
         result = 31 * result + state.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentStatus{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", eventTimestamp=").append(eventTimestamp);
-        sb.append(", state=").append(state);
-        sb.append('}');
-        return sb.toString();
+        return "AgentStatus{" +
+                "agentId='" + agentId + '\'' +
+                ", eventTimestamp=" + eventTimestamp +
+                ", state=" + state +
+                '}';
     }
 }
