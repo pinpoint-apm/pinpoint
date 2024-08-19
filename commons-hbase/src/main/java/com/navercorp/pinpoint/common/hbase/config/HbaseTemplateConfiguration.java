@@ -27,8 +27,11 @@ import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.navercorp.pinpoint.common.hbase.async.AsyncBufferedMutatorCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncBufferedMutatorFactory;
 import com.navercorp.pinpoint.common.hbase.async.AsyncHbasePutWriter;
+import com.navercorp.pinpoint.common.hbase.async.AsyncPollerOption;
+import com.navercorp.pinpoint.common.hbase.async.AsyncPollingPutWriter;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
+import com.navercorp.pinpoint.common.hbase.async.AsyncTableWriterFactory;
 import com.navercorp.pinpoint.common.hbase.async.BatchAsyncHbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.ConcurrencyDecorator;
 import com.navercorp.pinpoint.common.hbase.async.DefaultAsyncBufferedMutatorCustomizer;
@@ -39,6 +42,7 @@ import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriterDecorator;
 import com.navercorp.pinpoint.common.hbase.async.LoggingHbasePutWriter;
+import com.navercorp.pinpoint.common.hbase.async.TableWriterFactory;
 import com.navercorp.pinpoint.common.hbase.util.DefaultScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
@@ -78,7 +82,9 @@ public class HbaseTemplateConfiguration {
     }
 
     @Bean
-    public AsyncTableFactory hbaseAsyncTableFactory(@Qualifier("hbaseAsyncConnection") AsyncConnection connection, AsyncTableCustomizer customizer) {
+    public AsyncTableFactory hbaseAsyncTableFactory(@Qualifier("hbaseAsyncConnection")
+                                                    AsyncConnection connection,
+                                                    AsyncTableCustomizer customizer) {
         return new HbaseAsyncTableFactory(connection, customizer);
     }
 
@@ -89,7 +95,8 @@ public class HbaseTemplateConfiguration {
     }
 
     @Bean
-    public AsyncBufferedMutatorFactory hbaseAsyncBufferedMutatorFactory(@Qualifier("hbaseAsyncConnection") AsyncConnection connection,
+    public AsyncBufferedMutatorFactory hbaseAsyncBufferedMutatorFactory(@Qualifier("hbaseAsyncConnection")
+                                                                        AsyncConnection connection,
                                                                         AsyncBufferedMutatorCustomizer customizer) {
         logger.info("AsyncBufferedMutatorCustomizer {}", customizer);
         return new HbaseAsyncBufferedMutatorFactory(connection, customizer);
@@ -223,6 +230,70 @@ public class HbaseTemplateConfiguration {
 
         private HbasePutWriter newPutWriter(AsyncBufferedMutatorFactory asyncTableFactory, HbasePutWriterDecorator decorator) {
             HbasePutWriter writer = new BatchAsyncHbasePutWriter(asyncTableFactory);
+            HbasePutWriter putWriter = decorator.decorator(writer);
+            return new LoggingHbasePutWriter(putWriter);
+        }
+    }
+
+    @org.springframework.context.annotation.Configuration
+    @ConditionalOnProperty(name = "hbase.client.put-writer", havingValue = "asyncPoller")
+    public static class AsyncPollerPutWriterConfig {
+        private final Logger logger = LogManager.getLogger(AsyncPollerPutWriterConfig.class);
+
+        public AsyncPollerPutWriterConfig() {
+            logger.info("Install {}", AsyncPollerPutWriterConfig.class.getSimpleName());
+        }
+
+        @ConfigurationProperties(prefix = "hbase.client.put-writer.async-poller.span")
+        @Bean
+        public AsyncPollerOption spanPollerOption() {
+            return new AsyncPollerOption();
+        }
+
+        @Primary
+        @Bean
+        public HbasePutWriter hbasePutWriter(@Qualifier("hbaseAsyncConnection") AsyncConnection connection,
+                                             @Qualifier("concurrencyDecorator") HbasePutWriterDecorator decorator,
+                                             @Qualifier("defaultPollerOption")
+                                             AsyncPollerOption option) {
+
+            HbasePutWriter hbasePutWriter = newPollerWriter("asyncPoller-", connection, decorator, option);
+            logger.info("hbasePollerPutWriter {}", hbasePutWriter);
+            return hbasePutWriter;
+        }
+
+        @ConfigurationProperties(prefix = "hbase.client.put-writer.async-poller.default")
+        @Bean
+        public AsyncPollerOption defaultPollerOption() {
+            return new AsyncPollerOption();
+        }
+
+        @Bean
+        public HbasePutWriterDecorator concurrencyDecorator(@Value("${hbase.client.put-writer.concurrency-limit:100000}") int concurrency) {
+            return new ConcurrencyDecorator(concurrency);
+        }
+
+        @Bean
+        public HbasePutWriter spanPutWriter(@Qualifier("hbaseAsyncConnection") AsyncConnection connection,
+                                            @Qualifier("spanConcurrencyDecorator") HbasePutWriterDecorator decorator,
+                                            @Qualifier("defaultPollerOption")
+                                            AsyncPollerOption option) {
+
+            HbasePutWriter hbasePutWriter = newPollerWriter("spanAsyncPoller-", connection, decorator, option);
+            logger.info("HbaseSpanPollerPutWriter {}", hbasePutWriter);
+            return hbasePutWriter;
+        }
+
+        @Bean
+        public HbasePutWriterDecorator spanConcurrencyDecorator(@Value("${hbase.client.span-put-writer.concurrency-limit:1000000}") int concurrency) {
+            return new ConcurrencyDecorator(concurrency);
+        }
+
+        private HbasePutWriter newPollerWriter(String name, AsyncConnection connection,
+                                               HbasePutWriterDecorator decorator,
+                                               AsyncPollerOption option) {
+            TableWriterFactory factory = new AsyncTableWriterFactory(connection);
+            HbasePutWriter writer = new AsyncPollingPutWriter(name, factory, option);
             HbasePutWriter putWriter = decorator.decorator(writer);
             return new LoggingHbasePutWriter(putWriter);
         }
