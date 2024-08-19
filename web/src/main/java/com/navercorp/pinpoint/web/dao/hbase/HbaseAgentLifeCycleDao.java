@@ -78,7 +78,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         Scan scan = createScan(agentId, 0, timestamp);
 
         TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations.find(agentLifeCycleTableName, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
+        ResultsExtractor<AgentLifeCycleBo> resultsExtractor = getRecentAgentLifeCycleResultsExtractor(timestamp);
+        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations.find(agentLifeCycleTableName, scan, resultsExtractor);
         return createAgentStatus(agentId, agentLifeCycleBo);
     }
 
@@ -94,9 +95,14 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         Scan scan = createScan(agentId, fromTimestamp, toTimestamp);
 
         TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations.find(agentLifeCycleTableName, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
+        ResultsExtractor<AgentLifeCycleBo> resultsExtractor = getRecentAgentLifeCycleResultsExtractor(timestamp);
+        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations.find(agentLifeCycleTableName, scan, resultsExtractor);
         AgentStatus agentStatus = createAgentStatus(agentId, agentLifeCycleBo);
         return Optional.of(agentStatus);
+    }
+
+    private ResultsExtractor<AgentLifeCycleBo> getRecentAgentLifeCycleResultsExtractor(long timestamp) {
+        return new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp);
     }
 
     /**
@@ -121,8 +127,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
             }
         }
 
-        ResultsExtractor<AgentLifeCycleBo> action = new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, agentStatusQuery.getQueryTimestamp());
         TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        ResultsExtractor<AgentLifeCycleBo> action = getRecentAgentLifeCycleResultsExtractor(agentStatusQuery.getQueryTimestamp());
         List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations.findParallel(agentLifeCycleTableName, scans, action);
 
         int idx = 0;
@@ -168,7 +174,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         private final long queryTimestamp;
 
         private MostRecentAgentLifeCycleResultsExtractor(RowMapper<AgentLifeCycleBo> agentLifeCycleMapper, long queryTimestamp) {
-            this.agentLifeCycleMapper = agentLifeCycleMapper;
+            this.agentLifeCycleMapper = Objects.requireNonNull(agentLifeCycleMapper, "agentLifeCycleMapper");
             this.queryTimestamp = queryTimestamp;
         }
 
