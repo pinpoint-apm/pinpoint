@@ -1,8 +1,9 @@
 package com.navercorp.pinpoint.web.service.component;
 
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.service.AgentEventService;
+import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +27,7 @@ public class DefaultActiveAgentValidator implements ActiveAgentValidator {
     @Override
     public boolean isActiveAgent(String agentId, Range range) {
         Objects.requireNonNull(agentId, "agentId");
-        if (isActiveAgentByPing(agentId, range)) {
+        if (isActiveAgentByEvent(agentId, range)) {
             return true;
         }
         return agentCompatibility.isActiveAgent(agentId, range);
@@ -43,7 +44,8 @@ public class DefaultActiveAgentValidator implements ActiveAgentValidator {
         String agentId = agent.getName();
         if (!agentCompatibility.isLegacyAgent(agent.getServiceTypeCode(), version)) {
             logger.trace("isActiveAgentByPing");
-            if (isActiveAgentByPing(agentId, range)) {
+
+            if (isActiveAgentByEvent(agentId, range)) {
                 return true;
             }
         } else {
@@ -66,10 +68,10 @@ public class DefaultActiveAgentValidator implements ActiveAgentValidator {
     }
 
     @Override
-    public boolean isActiveAgentByPing(String agentId, Range range) {
-        return this.agentEventService.getAgentEvents(agentId, range)
-                .stream()
-                .anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
+    public boolean isActiveAgentByEvent(String agentId, Range range) {
+        AgentEventQuery query = AgentEventQuery.all().withOneRowScan();
+        List<AgentEvent> recentAgentEvent = this.agentEventService.getAgentEvents(agentId, range, query);
+        return CollectionUtils.hasLength(recentAgentEvent);
     }
 
 

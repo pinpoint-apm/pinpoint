@@ -61,13 +61,13 @@ class DefaultActiveAgentValidatorTest {
 
         Assertions.assertFalse(validator.isActiveAgent(node, "0.8.0", Range.between(0, 1)));
 
-        verify(agentEventService).getAgentEvents(any(), any());
+        verify(agentEventService).getAgentEvents(any(), any(), any());
     }
 
     @Test
-    void isActiveAgent_new_node_with_ping() {
+    void isActiveAgent_new_node_with_event() {
         AgentEvent ping = new AgentEvent("test", 1, 1, AgentEventType.AGENT_PING);
-        when(agentEventService.getAgentEvents(any(), any())).thenReturn(List.of(ping));
+        when(agentEventService.getAgentEvents(any(), any(), any())).thenReturn(List.of(ping));
 
         LegacyAgentCompatibility agentCompatibility = new DefaultLegacyAgentCompatibility(jvmGcDao);
         ActiveAgentValidator validator = new DefaultActiveAgentValidator(agentEventService, agentCompatibility);

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
+import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.DurationalAgentEvent;
 import org.apache.commons.collections4.CollectionUtils;
@@ -37,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.PriorityQueue;
-import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -54,7 +54,9 @@ public class AgentEventServiceImpl implements AgentEventService {
 
     private final AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1;
 
-    public AgentEventServiceImpl(AgentEventDao agentEventDao, AgentEventMessageDeserializer agentEventMessageDeserializer, AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1) {
+    public AgentEventServiceImpl(AgentEventDao agentEventDao,
+                                 AgentEventMessageDeserializer agentEventMessageDeserializer,
+                                 AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1) {
         this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
         this.agentEventMessageDeserializer = Objects.requireNonNull(agentEventMessageDeserializer, "agentEventMessageDeserializer");
         this.agentEventMessageDeserializerV1 = Objects.requireNonNull(agentEventMessageDeserializerV1, "agentEventMessageDeserializerV1");
@@ -62,15 +64,16 @@ public class AgentEventServiceImpl implements AgentEventService {
 
     @Override
     public List<AgentEvent> getAgentEvents(String agentId, Range range) {
-        return getAgentEvents(agentId, range, Collections.emptySet());
+        return getAgentEvents(agentId, range, AgentEventQuery.all());
     }
 
     @Override
-    public List<AgentEvent> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypeCodes) {
+    public List<AgentEvent> getAgentEvents(String agentId, Range range, AgentEventQuery query) {
         Objects.requireNonNull(agentId, "agentId");
-        Objects.requireNonNull(excludeEventTypeCodes, "excludeEventTypeCodes");
+        Objects.requireNonNull(query, "query");
 
-        List<AgentEventBo> agentEventBos = this.agentEventDao.getAgentEvents(agentId, range, excludeEventTypeCodes);
+        List<AgentEventBo> agentEventBos = this.agentEventDao.getAgentEvents(agentId, range, query);
+
         List<AgentEvent> agentEvents = createAgentEvents(agentEventBos);
         agentEvents.sort(AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
         return agentEvents;

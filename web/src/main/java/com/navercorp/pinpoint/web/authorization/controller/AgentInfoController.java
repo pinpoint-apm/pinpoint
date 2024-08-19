@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
 import com.navercorp.pinpoint.web.view.tree.SimpleTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeNode;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
@@ -185,7 +186,8 @@ public class AgentInfoController {
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         final Range range = Range.between(from, to);
         final Set<AgentEventType> excludeEventTypes = getAgentEventTypes(excludeEventTypeCodes);
-        return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypes);
+        AgentEventQuery exclude = AgentEventQuery.exclude(excludeEventTypes);
+        return this.agentEventService.getAgentEvents(agentId, range, exclude);
     }
 
     private static Set<AgentEventType> getAgentEventTypes(int[] excludeEventTypeCodes) {

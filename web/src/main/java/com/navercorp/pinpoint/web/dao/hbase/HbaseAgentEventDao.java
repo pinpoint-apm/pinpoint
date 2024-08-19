@@ -29,13 +29,11 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import org.apache.hadoop.hbase.CompareOperator;
+import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.BinaryComparator;
-import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.QualifierFilter;
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +42,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -68,6 +65,8 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
+    private final AgentEventFilterBuilder filterBuilder = new AgentEventFilterBuilder();
+
     public HbaseAgentEventDao(HbaseOperations hbaseOperations,
                               TableNameProvider tableNameProvider,
                               @Qualifier("agentEventMapper")
@@ -79,31 +78,37 @@ public class HbaseAgentEventDao implements AgentEventDao {
     }
 
     @Override
-    public List<AgentEventBo> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypes) {
+    public List<AgentEventBo> getAgentEvents(String agentId, Range range, AgentEventQuery query) {
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(range, "range");
+        Objects.requireNonNull(query, "query");
 
+        Scan scan = createScan(agentId, range, query);
+
+
+        TableName table = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        List<AgentEventBo> agentEvents = this.hbaseOperations.find(table, scan, agentEventResultsExtractor);
+        logger.debug("getAgentEvents() query:{} agentEvents:{}", query, agentEvents);
+        return agentEvents;
+    }
+
+
+    private Scan createScan(String agentId, Range range, AgentEventQuery query) {
         Scan scan = new Scan();
-        scan.readVersions(1);
         scan.setCaching(SCANNER_CACHE_SIZE);
 
         scan.withStartRow(createRowKey(agentId, range.getTo()));
         scan.withStopRow(createRowKey(agentId, range.getFrom()));
         scan.addFamily(DESCRIPTOR.getName());
 
-        if (CollectionUtils.hasLength(excludeEventTypes)) {
-            FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-            for (AgentEventType excludeEventType : excludeEventTypes) {
-                byte[] excludeQualifier = Bytes.toBytes(excludeEventType.getCode());
-                filterList.addFilter(new QualifierFilter(CompareOperator.NOT_EQUAL, new BinaryComparator(excludeQualifier)));
-            }
-            scan.setFilter(filterList);
+        Filter filter = filterBuilder.queryToFilter(query);
+        if (filter != null) {
+            scan.setFilter(filter);
         }
-
-        TableName agentEventTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<AgentEventBo> agentEvents = this.hbaseOperations.find(agentEventTableName, scan, agentEventResultsExtractor);
-        logger.debug("agentEvents found. {}", agentEvents);
-        return agentEvents;
+        if (query.isOneRowScan()) {
+            scan.setOneRowLimit();
+        }
+        return scan;
     }
 
     @Override
