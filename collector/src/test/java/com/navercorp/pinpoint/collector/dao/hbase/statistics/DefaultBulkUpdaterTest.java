@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.Flusher;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.Incrementer;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.TestData;

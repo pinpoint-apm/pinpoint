@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.collector.monitor.micrometer;
 
 import com.navercorp.pinpoint.collector.monitor.LoggingRejectedExecutionHandler;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutor;
-import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactory;
 import com.navercorp.pinpoint.collector.monitor.RejectedExecutionHandlerChain;
+import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactory;
 import com.navercorp.pinpoint.collector.monitor.BypassRunnableDecorator;
 import com.navercorp.pinpoint.collector.monitor.RunnableDecorator;
 import io.micrometer.core.instrument.Counter;

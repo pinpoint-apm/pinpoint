@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;

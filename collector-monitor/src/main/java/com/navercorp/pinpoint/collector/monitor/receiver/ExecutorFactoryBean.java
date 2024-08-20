@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver;
+package com.navercorp.pinpoint.collector.monitor.receiver;
 
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactory;
 import jakarta.annotation.Nonnull;
