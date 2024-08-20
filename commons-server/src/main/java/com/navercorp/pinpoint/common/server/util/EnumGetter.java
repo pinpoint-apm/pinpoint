@@ -37,14 +37,14 @@ public class EnumGetter<E extends Enum<E>> {
             String value,
             E defaultEnum
     ) {
-        E ele = fromValue(getter, value);
+        E ele = fromValueIgnoreCase(getter, value);
         if (ele == null) {
             return defaultEnum;
         }
         return ele;
     }
 
-    public E fromValue(
+    public E fromValueIgnoreCase(
             Function<E, String> getter,
             String value
     ) {
@@ -56,12 +56,12 @@ public class EnumGetter<E extends Enum<E>> {
         return null;
     }
 
-    public E fromCode(
-            Function<E, Integer> getter,
-            Integer code
+    public <V> E fromValue(
+            Function<E, V> getter,
+            V value
     ) {
         for (E ele : set) {
-            if (getter.apply(ele).equals(code)) {
+            if (getter.apply(ele).equals(value)) {
                 return ele;
             }
         }

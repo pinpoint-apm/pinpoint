@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.exceptiontrace.web.util;
 import com.navercorp.pinpoint.common.server.util.EnumGetter;
 import com.navercorp.pinpoint.exceptiontrace.common.pinot.PinotColumns;
 
-import java.util.EnumSet;
-
 /**
  * @author intr3p1d
  */
@@ -48,6 +46,6 @@ public enum OrderByAttributes {
     }
 
     public static OrderByAttributes fromValue(String name) {
-        return GETTER.fromValue(OrderByAttributes::getName, name);
+        return GETTER.fromValueIgnoreCase(OrderByAttributes::getName, name);
     }
 }

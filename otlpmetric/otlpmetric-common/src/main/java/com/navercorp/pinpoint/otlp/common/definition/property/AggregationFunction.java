@@ -53,11 +53,11 @@ public enum AggregationFunction {
 
 
     public static AggregationFunction fromAggregationFunctionName(String functionName) {
-        return GETTER.fromValue(AggregationFunction::getAggregationFunctionName, functionName);
+        return GETTER.fromValueIgnoreCase(AggregationFunction::getAggregationFunctionName, functionName);
     }
 
     public static AggregationFunction fromCode(int code) {
-        return GETTER.fromCode(AggregationFunction::getCode, code);
+        return GETTER.fromValue(AggregationFunction::getCode, code);
     }
 
     public static List<String> getAggregationFunctionNameList() {

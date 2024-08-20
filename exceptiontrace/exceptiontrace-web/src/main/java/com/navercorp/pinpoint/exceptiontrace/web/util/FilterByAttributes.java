@@ -45,7 +45,7 @@ public class FilterByAttributes {
         }
 
         public static FilterByColumn fromValue(String column) {
-            return GETTER.fromValue((FilterByColumn x) -> x.getColumn().getName(), column);
+            return GETTER.fromValueIgnoreCase((FilterByColumn x) -> x.getColumn().getName(), column);
         }
     }
 

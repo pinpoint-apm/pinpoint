@@ -53,6 +53,6 @@ public enum GroupByAttributes {
     }
 
     public static GroupByAttributes fromValue(String name) {
-        return GETTER.fromValue(GroupByAttributes::getName, name);
+        return GETTER.fromValueIgnoreCase(GroupByAttributes::getName, name);
     }
 }
