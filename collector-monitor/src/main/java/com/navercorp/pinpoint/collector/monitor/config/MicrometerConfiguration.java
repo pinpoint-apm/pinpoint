@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.collector.monitor.config;
 
-import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
 import com.navercorp.pinpoint.collector.monitor.micrometer.BulkOperationMetrics;
 import com.navercorp.pinpoint.collector.monitor.micrometer.HBaseAsyncOperationMetrics;

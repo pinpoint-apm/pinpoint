@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.collector.monitor.micrometer;
 
-import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactory;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactoryProvider;
+import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactory;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;

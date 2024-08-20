@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.collector.monitor.micrometer;
 
-import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;

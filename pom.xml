@@ -88,6 +88,7 @@
         <module>agent-module</module>
 
         <module>collector</module>
+        <module>collector-monitor</module>
         <module>collector-starter</module>
         <module>commons</module>
         <module>commons-buffer</module>
@@ -440,6 +441,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-batch-alarmsender</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-collector-monitor</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

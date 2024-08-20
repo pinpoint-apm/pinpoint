@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean;
+import com.navercorp.pinpoint.collector.monitor.receiver.ExecutorFactoryBean;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import org.springframework.beans.factory.annotation.Qualifier;

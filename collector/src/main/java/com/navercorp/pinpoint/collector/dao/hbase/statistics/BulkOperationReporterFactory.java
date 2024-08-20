@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.BeansException;
