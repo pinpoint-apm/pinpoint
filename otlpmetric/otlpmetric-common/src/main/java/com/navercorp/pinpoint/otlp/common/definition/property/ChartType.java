@@ -52,7 +52,7 @@ public enum ChartType {
 
 
     public static ChartType fromChartName(String chartName) {
-        return GETTER.fromValue(ChartType::getChartName, chartName);
+        return GETTER.fromValueIgnoreCase(ChartType::getChartName, chartName);
     }
 
     public static List<String> getChartNameList() {
