@@ -44,7 +44,7 @@
             DISTINCT (fieldName),
             metricType,
             dataType,
-            aggreFunc,
+            aggreFunc AS aggregationFunction,
             aggreTemporality AS aggregationTemporality,
             description,
             unit,
@@ -138,19 +138,19 @@
         SELECT
             DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
             version,
-        <if test="aggreFunc == 0">
+        <if test="aggregationFunction.getCode() == 0">
             AVG(value) as value
         </if>
-        <if test="aggreFunc == 1">
+        <if test="aggregationFunction.getCode() == 1">
             SUM(value) as value
         </if>
-        <if test="aggreFunc == 2">
+        <if test="aggregationFunction.getCode() == 2">
             MIN(value) as value
         </if>
-        <if test="aggreFunc == 3">
+        <if test="aggregationFunction.getCode() == 3">
             MAX(value) as value
         </if>
-        <if test="aggreFunc == 4">
+        <if test="aggregationFunction.getCode() == 4">
             LASTWITHTIME(value, eventTime, 'long') as value
         </if>
         FROM otlpMetricLong
@@ -164,7 +164,8 @@
         AND fieldName = #{fieldName}
         <foreach collection="tags" item="tag" separator=" ">
         AND tags = #{tag}
-        </foreach>        AND version = #{version}
+        </foreach>
+        AND version = #{version}
         AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
@@ -175,19 +176,19 @@
         SELECT
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
         version,
-        <if test="aggreFunc == 0">
+        <if test="aggregationFunction.getCode() == 0">
         AVG(value) as value
         </if>
-        <if test="aggreFunc == 1">
+        <if test="aggregationFunction.getCode() == 1">
         SUM(value) as value
         </if>
-        <if test="aggreFunc == 2">
+        <if test="aggregationFunction.getCode() == 2">
         MIN(value) as value
         </if>
-        <if test="aggreFunc == 3">
+        <if test="aggregationFunction.getCode() == 3">
         MAX(value) as value
         </if>
-        <if test="aggreFunc == 4">
+        <if test="aggregationFunction.getCode() == 4">
         LASTWITHTIME(value, eventTime, 'double') as value
         </if>
         FROM otlpMetricDouble
@@ -208,5 +209,82 @@
         ORDER BY eventTime asc
         LIMIT #{limit}
     </select>
+
+    <select id="getLongMetricData" resultType="OtlpMetricChartResult" parameterType="OtlpMetricDataQueryParameter">
+        SELECT
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
+        version,
+        <if test="aggregationFunction.getCode() == 0">
+            AVG(value) as value
+        </if>
+        <if test="aggregationFunction.getCode() == 1">
+            SUM(value) as value
+        </if>
+        <if test="aggregationFunction.getCode() == 2">
+            MIN(value) as value
+        </if>
+        <if test="aggregationFunction.getCode() == 3">
+            MAX(value) as value
+        </if>
+        <if test="aggregationFunction.getCode() == 4">
+            LASTWITHTIME(value, eventTime, 'long') as value
+        </if>
+        FROM otlpMetricLong
+        WHERE
+        applicationId = #{applicationId}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        AND metricGroupName = #{metricGroupName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tags" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND version = #{version}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY eventTime, version
+        ORDER BY eventTime asc
+        LIMIT #{limit}
+    </select>
+
+    <select id="getDoubleMetricData" resultType="OtlpMetricChartResult" parameterType="OtlpMetricDataQueryParameter">
+        SELECT
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
+        version,
+        <if test="aggregationFunction.getCode() == 0">
+            AVG(value) as value
+        </if>
+        <if test="aggregationFunction.getCode() == 1">
+            SUM(value) as value
+        </if>
+        <if test="aggregationFunction.getCode() == 2">
+            MIN(value) as value
+        </if>
+        <if test="aggregationFunction.getCode() == 3">
+            MAX(value) as value
+        </if>
+        <if test="aggregationFunction.getCode() == 4">
+            LASTWITHTIME(value, eventTime, 'double') as value
+        </if>
+        FROM otlpMetricDouble
+        WHERE
+        applicationId = #{applicationId}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        AND metricGroupName = #{metricGroupName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tags" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND version = #{version}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY eventTime, version
+        ORDER BY eventTime asc
+        LIMIT #{limit}
+    </select>
+
 
 </mapper>

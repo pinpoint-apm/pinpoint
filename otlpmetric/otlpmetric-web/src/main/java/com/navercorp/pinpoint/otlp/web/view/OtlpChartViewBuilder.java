@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.otlp.web.view;
 
+import com.navercorp.pinpoint.otlp.common.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
 import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartResult;
@@ -30,6 +31,7 @@ public abstract class OtlpChartViewBuilder {
         this.chartFieldViewBuilder = new OtlpChartFieldViewBuilder();
     }
 
+    @Deprecated
     public static OtlpChartViewBuilder newBuilder(MetricType chartType) {
         switch (chartType) {
             case SUM:
@@ -46,10 +48,28 @@ public abstract class OtlpChartViewBuilder {
         }
     }
 
+    public static OtlpChartViewBuilder newBuilder(ChartType chartType) {
+        switch (chartType) {
+            case SPLINE:
+            case AREA_SPLINE:
+            case BAR:
+                return new OtlpChartSumGaugeViewBuilder();
+            default:
+                throw new OtlpParsingException("Should not reach here.");
+        }
+    }
+
+    @Deprecated
+    public OtlpChartView legacyBuild() {
+        checkValidity(timestamp.size());
+        return new OtlpChartView(timestamp, description, hasSummaryField, fields);
+    }
+
     public OtlpChartView build() {
         checkValidity(timestamp.size());
         return new OtlpChartView(timestamp, description, hasSummaryField, fields);
     }
+
 
     public OtlpChartViewBuilder self() {
         return this;

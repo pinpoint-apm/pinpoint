@@ -58,6 +58,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     }
 
 
+    @Deprecated
     @Override
     public OtlpChartView getMetricChartData(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag, long from, long to) {
         List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationId, agentId, metricGroupName, metricName, tag);
@@ -98,22 +99,18 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                     if ((chartViewBuilder.hasSummaryField()) && (chartFieldView != null)) {
                         OtlpMetricChartQueryParameter chartQueryParameter = setupQueryParameter(builder, key);
                         String value = otlpMetricDao.getSummary(chartQueryParameter);
-                        chartFieldView.setSummaryField(key.aggreFunc().name(), value);
+                        chartFieldView.setSummaryField(key.aggregationFunction().getAggregationFunctionName(), value);
                     }
                 }
             } catch (Exception e) {
                 logger.warn("Failed to get OTLP metric data for applicationID: {}, metric: {}.{}.{}", applicationId, metricGroupName, metricName, key.fieldName());
             }
         }
-        return chartViewBuilder.build();
+        return chartViewBuilder.legacyBuild();
     }
 
     @Override
     public OtlpChartView getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, String tags, List<String> fieldNameList, long from, long to, ChartType chartType, AggregationFunction aggregationFunction) {
-        // TODO : (minwoo)
-        // 3 Check for unnecessary parameters
-        // 4 Process data based on aggregationfunction
-        // 5 Generate view data based on the chartType parameter entered by the user
         List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationName, agentId, metricGroupName, metricName, tags, fieldNameList);
 
         OtlpMetricDataQueryParameter.Builder builder =
@@ -124,6 +121,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                         .setMetricGroupName(metricGroupName)
                         .setMetricName(metricName)
                         .setTags(tags)
+                        .setAggregationFunction(aggregationFunction)
                         .setTimeWindow(new TimeWindow(Range.between(from, to), DEFAULT_TIME_WINDOW_SAMPLER));
         List<QueryResult<CompletableFuture<List<OtlpMetricChartResult>>, FieldAttribute>> queryResult = new ArrayList<>();
 
@@ -133,9 +131,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
             queryResult.add(new QueryResult<>(chartPoints, field));
         }
 
-        // TODO : (minwoo) using the chartType of a parameter
-        MetricType metricType = fields.get(0).metricType();
-        OtlpChartViewBuilder chartViewBuilder = OtlpChartViewBuilder.newBuilder(metricType);
+        OtlpChartViewBuilder chartViewBuilder = OtlpChartViewBuilder.newBuilder(chartType);
 
         for (QueryResult<CompletableFuture<List<OtlpMetricChartResult>>, FieldAttribute> result : queryResult) {
             CompletableFuture<List<OtlpMetricChartResult>> future = result.future();
@@ -154,19 +150,18 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                     }
                 }
             } catch (Exception e) {
-                logger.warn("Failed to get OTLP metric data for applicationID: {}, metric: {}.{}.{}", applicationName, metricGroupName, metricName, key.fieldName());
+                logger.warn("Failed to get OTLP metric data for applicationID: {}, metric: {}.{}.{}", applicationName, metricGroupName, metricName, key.fieldName(), e);
             }
         }
 
         return chartViewBuilder.build();
-
     }
 
 
     @Deprecated
     private OtlpMetricChartQueryParameter setupQueryParameter(OtlpMetricChartQueryParameter.Builder builder, FieldAttribute field) {
         return builder.setFieldName(field.fieldName())
-                .setAggreFunc(field.aggreFunc())
+                .setAggregationFunction(field.aggregationFunction())
                 .setDataType(field.dataType())
                 .setVersion(field.version())
                 .build();
@@ -174,7 +169,6 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
 
     private OtlpMetricDataQueryParameter setupQueryParameter(OtlpMetricDataQueryParameter.Builder builder, FieldAttribute field) {
         return builder.setFieldName(field.fieldName())
-                .setAggreFunc(field.aggreFunc())
                 .setDataType(field.dataType())
                 .setVersion(field.version())
                 .build();

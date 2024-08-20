@@ -101,9 +101,9 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     @Override
     public CompletableFuture<List<OtlpMetricChartResult>> getChartPoints(OtlpMetricDataQueryParameter chartQueryParameter) {
         if (chartQueryParameter.getDataType() == DataType.LONG) {
-            return asyncTemplate.selectList(NAMESPACE + "getLongChartData", chartQueryParameter);
+            return asyncTemplate.selectList(NAMESPACE + "getLongMetricData", chartQueryParameter);
         } else {
-            return asyncTemplate.selectList(NAMESPACE + "getDoubleChartData", chartQueryParameter);
+            return asyncTemplate.selectList(NAMESPACE + "getDoubleMetricData", chartQueryParameter);
         }
     }
 

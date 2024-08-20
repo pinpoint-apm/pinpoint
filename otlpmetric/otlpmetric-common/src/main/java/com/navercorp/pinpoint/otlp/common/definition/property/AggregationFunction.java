@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
  * @author minwoo-jung
  */
 public enum AggregationFunction {
-    AVG(1, "avg"),
-    SUM(2, "sum"),
-    MIN(3, "min"),
-    MAX(4, "max"),
-    LATEST(5, "latest");
+    AVG(0, "avg"),
+    SUM(1, "sum"),
+    MIN(2, "min"),
+    MAX(3, "max"),
+    LATEST(4, "latest");
 
     private final int code;
     private final String functionName;
@@ -52,8 +52,12 @@ public enum AggregationFunction {
     private static final EnumGetter<AggregationFunction> GETTER = new EnumGetter<>(ENUM_SET);
 
 
-    public static AggregationFunction fromAggregationFunctionName(String aggregationFunctionName) {
-        return GETTER.fromValue(AggregationFunction::getAggregationFunctionName, aggregationFunctionName);
+    public static AggregationFunction fromAggregationFunctionName(String functionName) {
+        return GETTER.fromValue(AggregationFunction::getAggregationFunctionName, functionName);
+    }
+
+    public static AggregationFunction fromCode(int code) {
+        return GETTER.fromCode(AggregationFunction::getCode, code);
     }
 
     public static List<String> getAggregationFunctionNameList() {

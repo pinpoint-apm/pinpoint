@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.otlp.web.view;
 
+import com.navercorp.pinpoint.otlp.common.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.AggreTemporality;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
@@ -17,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OtlpChartFieldViewTest {
     private String chartType = "spline";
-    private FieldAttribute testField = new FieldAttribute("fieldName", MetricType.GAUGE, DataType.DOUBLE, AggreFunc.AVERAGE, AggreTemporality.UNSPECIFIED, "description", "unit", "version");
+    private FieldAttribute testField = new FieldAttribute("fieldName", MetricType.GAUGE, DataType.DOUBLE, AggregationFunction.AVG, AggreTemporality.UNSPECIFIED, "description", "unit", "version");
     private OtlpMetricChartResult dp1 = new OtlpMetricChartResult(1L, "", 1);
     private OtlpMetricChartResult dp2 = new OtlpMetricChartResult(3L, "", 2);
     private OtlpMetricChartResult dp3 = new OtlpMetricChartResult(4L, "", 3);
