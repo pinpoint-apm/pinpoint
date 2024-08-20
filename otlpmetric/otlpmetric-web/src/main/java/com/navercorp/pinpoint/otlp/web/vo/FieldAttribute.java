@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.otlp.web.vo;
 
+import com.navercorp.pinpoint.otlp.common.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.AggreTemporality;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
@@ -11,7 +12,7 @@ public record FieldAttribute(
         String fieldName,
         MetricType metricType,
         DataType dataType,
-        AggreFunc aggreFunc,
+        AggregationFunction aggregationFunction,
         AggreTemporality aggregationTemporality,
         String description,
         String unit,
@@ -21,7 +22,7 @@ public record FieldAttribute(
         Objects.requireNonNull(fieldName);
         Objects.requireNonNull(metricType);
         Objects.requireNonNull(dataType);
-        Objects.requireNonNull(aggreFunc);
+        Objects.requireNonNull(aggregationFunction);
         Objects.requireNonNull(aggregationTemporality);
     }
 }

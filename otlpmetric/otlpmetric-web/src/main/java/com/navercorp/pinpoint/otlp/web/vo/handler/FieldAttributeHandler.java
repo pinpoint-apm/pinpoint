@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.otlp.web.vo.handler;
 
+import com.navercorp.pinpoint.otlp.common.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.AggreTemporality;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
@@ -43,15 +44,15 @@ public class FieldAttributeHandler implements TypeHandler<FieldAttribute> {
             String fieldName = rs.getString("fieldName");
             MetricType metricType = MetricType.forNumber(rs.getInt("metricType"));
             DataType dataType = DataType.forNumber(rs.getInt("dataType"));
-            AggreFunc aggreFunc = AggreFunc.forNumber(rs.getInt("aggreFunc"));
+            AggregationFunction aggregationFunction = AggregationFunction.fromCode(rs.getInt("aggregationFunction"));
             AggreTemporality aggreTemporality = AggreTemporality.forNumber(rs.getInt("aggregationTemporality"));
             String description = rs.getString("description");
             String unit = rs.getString("unit");
             String version = rs.getString("version");
-            return new FieldAttribute(fieldName, metricType, dataType, aggreFunc, aggreTemporality, description, unit, version);
+            return new FieldAttribute(fieldName, metricType, dataType, aggregationFunction, aggreTemporality, description, unit, version);
         } catch (SQLException e) {
-            logger.warn("FieldAttribute parsing error.");
-            return null;
+            logger.error("FieldAttribute parsing error.", e);
+            throw new RuntimeException("FieldAttribute parsing error.", e);
         }
     }
     private FieldAttribute parseResult(CallableStatement cs) {
@@ -59,15 +60,15 @@ public class FieldAttributeHandler implements TypeHandler<FieldAttribute> {
             String fieldName = cs.getString("fieldName");
             MetricType metricType = MetricType.forNumber(cs.getInt("metricType"));
             DataType dataType = DataType.forNumber(cs.getInt("dataType"));
-            AggreFunc aggreFunc = AggreFunc.forNumber(cs.getInt("aggreFunc"));
+            AggregationFunction aggregationFunction = AggregationFunction.fromCode(cs.getInt("aggregationFunction"));
             AggreTemporality aggreTemporality = AggreTemporality.forNumber(cs.getInt("aggregationTemporality"));
             String description = cs.getString("description");
             String unit = cs.getString("unit");
             String version = cs.getString("version");
-            return new FieldAttribute(fieldName, metricType, dataType, aggreFunc, aggreTemporality, description, unit, version);
+            return new FieldAttribute(fieldName, metricType, dataType, aggregationFunction, aggreTemporality, description, unit, version);
         } catch (SQLException e) {
-            logger.warn("FieldAttribute parsing error.");
-            return null;
+            logger.error("FieldAttribute parsing error.", e);
+            throw new RuntimeException("FieldAttribute parsing error.", e);
         }
     }
 }

@@ -33,6 +33,7 @@ public class OtlpMetricPinotRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias(OtlpMetricDetailsQueryParam.class);
         typeAliasRegistry.registerAlias(FieldAttribute.class);
         typeAliasRegistry.registerAlias(OtlpMetricChartQueryParameter.class);
+        typeAliasRegistry.registerAlias(OtlpMetricDataQueryParameter.class);
         typeAliasRegistry.registerAlias(OtlpMetricChartResult.class);
         typeAliasRegistry.registerAlias(AggreFunc.class);
         typeAliasRegistry.registerAlias(DataType.class);

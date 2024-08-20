@@ -55,4 +55,16 @@ public class EnumGetter<E extends Enum<E>> {
         }
         return null;
     }
+
+    public E fromCode(
+            Function<E, Integer> getter,
+            Integer code
+    ) {
+        for (E ele : set) {
+            if (getter.apply(ele).equals(code)) {
+                return ele;
+            }
+        }
+        return null;
+    }
 }

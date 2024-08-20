@@ -70,6 +70,7 @@ public class OpenTelemetryMetricController {
         return otlpMetricWebService.getTags(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName, metricName);
     }
 
+    @Deprecated
     @GetMapping("/chart")
     public OtlpChartView getMetricChartData(@RequestParam("applicationId") @NotBlank String applicationId,
                                        @RequestParam(value = "agentId", required = false) String agentId,

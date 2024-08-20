@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.otlp.web.vo;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.otlp.common.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
 
@@ -21,7 +22,7 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
     private final String fieldName;
     private final List<String> tags;
     private final String version;
-    private final int aggreFunc;
+    private final AggregationFunction aggregationFunction;
     private final int dataType;
     private final TimeWindow timeWindow;
 
@@ -38,7 +39,7 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
         this.metricName = builder.metricName;
         this.fieldName = builder.fieldName;
         this.tags = builder.tags;
-        this.aggreFunc = builder.aggreFunc;
+        this.aggregationFunction = builder.aggregationFunction;
         this.dataType = builder.dataType;
         this.version = builder.version;
         this.timeWindow = builder.timeWindow;
@@ -53,7 +54,7 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
         private String fieldName;
         private List<String> tags = Arrays.asList();
         private String version;
-        private int aggreFunc;
+        private AggregationFunction aggregationFunction;
         private int dataType;
         private TimeWindow timeWindow;
 
@@ -97,8 +98,8 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder setAggreFunc(AggreFunc aggreFunc) {
-            this.aggreFunc = aggreFunc.getNumber();
+        public Builder setAggregationFunction(AggregationFunction aggregationFunction) {
+            this.aggregationFunction = aggregationFunction;
             return self();
         }
 
@@ -148,7 +149,7 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
                 ", fieldName='" + fieldName + '\'' +
                 ", tags=" + tags +
                 ", version='" + version + '\'' +
-                ", aggreFunc=" + aggreFunc +
+                ", aggregationFunction=" + aggregationFunction +
                 ", dataType=" + dataType +
                 ", TimePrecision=" + timePrecision +
                 ", range=" + range.prettyToString() +

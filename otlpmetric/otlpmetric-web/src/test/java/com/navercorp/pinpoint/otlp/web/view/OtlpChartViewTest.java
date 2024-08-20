@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.otlp.web.view;
 
+import com.navercorp.pinpoint.otlp.common.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.AggreTemporality;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
@@ -25,7 +26,7 @@ public class OtlpChartViewTest {
 
     @Test
     public void shiftFillEmptyValueShouldAddTimestampAndValue() {
-        FieldAttribute fieldAttribute = new FieldAttribute("test", MetricType.GAUGE, DataType.DOUBLE, AggreFunc.AVERAGE, AggreTemporality.DELTA, "description", "unit", "version");
+        FieldAttribute fieldAttribute = new FieldAttribute("test", MetricType.GAUGE, DataType.DOUBLE, AggregationFunction.AVG, AggreTemporality.DELTA, "description", "unit", "version");
         List<OtlpMetricChartResult> dataPoints = Arrays.asList(new OtlpMetricChartResult(123456789L, "", 100));
 
         otlpChartViewBuilder.add(fieldAttribute, dataPoints);
@@ -43,7 +44,7 @@ public class OtlpChartViewTest {
 
     @Test
     public void addShouldAddFieldData() {
-        FieldAttribute fieldAttribute = new FieldAttribute("test", MetricType.GAUGE, DataType.DOUBLE, AggreFunc.AVERAGE, AggreTemporality.DELTA, "description", "unit", "version");
+        FieldAttribute fieldAttribute = new FieldAttribute("test", MetricType.GAUGE, DataType.DOUBLE, AggregationFunction.AVG, AggreTemporality.DELTA, "description", "unit", "version");
         List<OtlpMetricChartResult> dataPoints1 = Arrays.asList(new OtlpMetricChartResult(123456789L, "", 100));
         otlpChartViewBuilder.add(fieldAttribute, dataPoints1);
         assertEquals(1, otlpChartViewBuilder.getFields().size());
