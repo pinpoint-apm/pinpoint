@@ -30,9 +30,9 @@
 
     <repositories>
         <repository>
-            <id>bintray</id>
-            <name>bintray</name>
-            <url>https://jcenter.bintray.com</url>
+            <id>jboss-maven2-release-repository</id>
+            <name>JBoss Public Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/public/</url>
         </repository>
         <repository>
             <id>jboss-3rd-party-releases</id>
