@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.ParallelScan;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
@@ -103,15 +104,19 @@ public class MapHbaseConfiguration {
         return config.hbaseAsyncTableFactory(connection, customizer);
     }
 
+    @Bean
+    public HbaseAsyncTemplate mapHbaseAsyncTemplate(@Qualifier("mapHbaseAsyncTableFactory") AsyncTableFactory tableFactory) {
+        return config.asyncTemplate(tableFactory);
+    }
 
     @Bean
     public HbaseTemplate mapHbaseTemplate(@Qualifier("hbaseConfiguration") Configuration configurable,
                                           @Qualifier("mapHbaseTableFactory") TableFactory tableFactory,
-                                          @Qualifier("mapHbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                          @Qualifier("mapHbaseAsyncTemplate") HbaseAsyncTemplate asyncTemplate,
                                           Optional<ParallelScan> parallelScan,
                                           @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync,
                                           ScanMetricReporter reporter) {
-        return config.hbaseTemplate(configurable, tableFactory, asyncTableFactory, parallelScan, nativeAsync, reporter);
+        return config.hbaseTemplate(configurable, tableFactory, asyncTemplate, parallelScan, nativeAsync, reporter);
     }
 
     @Bean

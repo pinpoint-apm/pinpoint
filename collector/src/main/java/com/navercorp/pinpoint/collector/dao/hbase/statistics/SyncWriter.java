@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
+import com.navercorp.pinpoint.common.hbase.CheckAndMax;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -50,7 +51,7 @@ public class SyncWriter implements BulkWriter {
         TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey.getRowKey());
         Increment increment = Increments.increment(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), 1);
-        this.hbaseTemplate.asyncIncrement(tableName, increment);
+        this.hbaseTemplate.increment(tableName, increment);
     }
 
     @Override
@@ -61,7 +62,8 @@ public class SyncWriter implements BulkWriter {
 
         TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey.getRowKey());
-        this.hbaseTemplate.maxColumnValue(tableName, rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), value);
+        CheckAndMax checkAndMax = new CheckAndMax(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), value);
+        this.hbaseTemplate.maxColumnValue(tableName, checkAndMax);
     }
 
     @Override

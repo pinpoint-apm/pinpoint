@@ -16,14 +16,11 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.navercorp.pinpoint.common.hbase.async.AdvancedAsyncTableCallback;
-import com.navercorp.pinpoint.common.hbase.async.AsyncTableCallback;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
@@ -31,7 +28,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author emeroad
@@ -69,12 +65,9 @@ public interface HbaseOperations {
     /**
      *
      * @param tableName  target table
-     * @param rowName to check
-     * @param familyName column family to check
-     * @param qualifier column qualifier to check
-     * @param value if the value provided is greater than the saved, update the saved
+     * @param checkAndMax checkAndMax
      */
-    void maxColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long value);
+    CasResult maxColumnValue(TableName tableName, final CheckAndMax checkAndMax);
 
     void delete(TableName tableName, final Delete delete);
     void delete(TableName tableName, final List<Delete> deletes);
@@ -109,14 +102,6 @@ public interface HbaseOperations {
      * @return
      */
     List<Result> increment(TableName tableName, final List<Increment> incrementList);
-
-    long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount);
-    long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final Durability durability);
-
-    CompletableFuture<Result> asyncIncrement(final TableName tableName, final Increment incrementList);
-    List<CompletableFuture<Result>> asyncIncrement(final TableName tableName, final List<Increment> incrementList);
-    CompletableFuture<Long> asyncIncrement(TableName tableName, byte[] row, byte[] family, byte[] qualifier, long amount, Durability durability);
-
 
     /**
      * Executes the given action against the specified table handling resource management.
@@ -158,7 +143,4 @@ public interface HbaseOperations {
     <T> List<T> find(TableName tableName, final Scan scan, final RowMapper<T> action);
 
 
-    <T> T asyncExecute(TableName tableName, AdvancedAsyncTableCallback<T> action);
-
-    <T> T asyncExecute(TableName tableName, AsyncTableCallback<T> action);
 }

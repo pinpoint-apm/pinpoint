@@ -1,9 +1,12 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
+import com.navercorp.pinpoint.common.hbase.CasResult;
+import com.navercorp.pinpoint.common.hbase.CheckAndMax;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.logging.log4j.LogManager;
@@ -12,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author emeroad
@@ -20,7 +24,6 @@ public class DefaultBulkWriter implements BulkWriter {
 
     private final Logger logger;
 
-    private final HbaseOperations hbaseTemplate;
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final BulkIncrementer bulkIncrementer;
@@ -29,22 +32,27 @@ public class DefaultBulkWriter implements BulkWriter {
 
     private final HbaseColumnFamily tableDescriptor;
     private final TableNameProvider tableNameProvider;
-
+    private final HbaseAsyncTemplate asyncTemplate;
+    private int batchSize = 200;
 
     public DefaultBulkWriter(String loggerName,
-                             HbaseOperations hbaseTemplate,
+                             HbaseAsyncTemplate asyncTemplate,
                              RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                              BulkIncrementer bulkIncrementer,
                              BulkUpdater bulkUpdater,
                              HbaseColumnFamily tableDescriptor,
                              TableNameProvider tableNameProvider) {
         this.logger = LogManager.getLogger(loggerName);
-        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
         this.bulkIncrementer = Objects.requireNonNull(bulkIncrementer, "bulkIncrementer");
         this.bulkUpdater = Objects.requireNonNull(bulkUpdater, "bulkUpdater");
         this.tableDescriptor = Objects.requireNonNull(tableDescriptor, "tableDescriptor");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 
     @Override
@@ -77,16 +85,18 @@ public class DefaultBulkWriter implements BulkWriter {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} to [{}] Increment:{}", this.getClass().getSimpleName(), tableName, increments.size());
             }
-            hbaseTemplate.asyncIncrement(tableName, increments);
+            List<List<Increment>> partition = ListUtils.partition(increments, batchSize);
+            for (List<Increment> incrementList : partition) {
+                asyncTemplate.increment(tableName, incrementList);
+            }
         }
 
     }
 
-    private void checkAndMax(TableName tableName, byte[] rowKey, byte[] columnName, long val) {
-        Objects.requireNonNull(rowKey, "rowKey");
-        Objects.requireNonNull(columnName, "columnName");
-
-        hbaseTemplate.maxColumnValue(tableName, rowKey, getColumnFamilyName(), columnName, val);
+    private CompletableFuture<CasResult> checkAndMax(TableName tableName, CheckAndMax checkAndMax) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(checkAndMax, "checkAndMax");
+        return this.asyncTemplate.maxColumnValue(tableName, checkAndMax);
     }
 
     @Override
@@ -104,7 +114,9 @@ public class DefaultBulkWriter implements BulkWriter {
             final RowInfo rowInfo = entry.getKey();
             final Long val = entry.getValue();
             final byte[] rowKey = getDistributedKey(rowInfo.getRowKey().getRowKey());
-            checkAndMax(rowInfo.getTableName(), rowKey, rowInfo.getColumnName().getColumnName(), val);
+            byte[] columnName = rowInfo.getColumnName().getColumnName();
+            CheckAndMax checkAndMax = new CheckAndMax(rowKey, getColumnFamilyName(), columnName, val);
+            checkAndMax(rowInfo.getTableName(), checkAndMax);
         }
     }
 

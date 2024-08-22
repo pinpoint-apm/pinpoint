@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.common.hbase.async.DefaultAsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncBufferedMutatorFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncCacheConfiguration;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriterDecorator;
 import com.navercorp.pinpoint.common.hbase.async.LoggingHbasePutWriter;
@@ -46,6 +47,9 @@ import com.navercorp.pinpoint.common.hbase.async.TableWriterFactory;
 import com.navercorp.pinpoint.common.hbase.util.DefaultScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
+import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.Connection;
@@ -60,6 +64,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
 
 @org.springframework.context.annotation.Configuration
 @Import({
@@ -109,10 +115,21 @@ public class HbaseTemplateConfiguration {
     }
 
     @Bean
+    public HbaseAsyncTemplate asyncTemplate(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory) {
+        ExecutorService executor = newAsyncTemplateExecutor();
+        return new HbaseAsyncTemplate(asyncTableFactory, executor);
+    }
+
+    private ExecutorService newAsyncTemplateExecutor() {
+        ThreadFactory threadFactory = new PinpointThreadFactory("Pinpoint-asyncTemplate", true);
+        return ExecutorFactory.newFixedThreadPool(CpuUtils.workerCount(), 1024*1024, threadFactory);
+    }
+
+    @Bean
     @Primary
     public HbaseTemplate hbaseTemplate(@Qualifier("hbaseConfiguration") Configuration configurable,
                                        @Qualifier("hbaseTableFactory") TableFactory tableFactory,
-                                       @Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                       @Qualifier("asyncTemplate") HbaseAsyncTemplate asyncTemplate,
                                        Optional<ParallelScan> parallelScan,
                                        @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync,
                                        ScanMetricReporter scanMetricReporter) {
@@ -128,7 +145,7 @@ public class HbaseTemplateConfiguration {
             template2.setMaxConcurrentAsyncScanner(scan.getMaxConcurrentAsyncScanner());
         }
 
-        template2.setAsyncTableFactory(asyncTableFactory);
+        template2.setAsyncTemplate(asyncTemplate);
         template2.setNativeAsync(nativeAsync);
         template2.setScanMetricReporter(scanMetricReporter);
         return template2;
