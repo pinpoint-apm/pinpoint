@@ -88,20 +88,6 @@ public class HbaseTemplateConfiguration {
         return new HbaseAsyncTableFactory(connection, customizer);
     }
 
-    @Bean
-    @ConfigurationProperties(prefix = "hbase.client.put-writer.async-buffered-mutator")
-    public AsyncBufferedMutatorCustomizer asyncBufferedMutatorCustomizer() {
-        return new DefaultAsyncBufferedMutatorCustomizer();
-    }
-
-    @Bean
-    public AsyncBufferedMutatorFactory hbaseAsyncBufferedMutatorFactory(@Qualifier("hbaseAsyncConnection")
-                                                                        AsyncConnection connection,
-                                                                        AsyncBufferedMutatorCustomizer customizer) {
-        logger.info("AsyncBufferedMutatorCustomizer {}", customizer);
-        return new HbaseAsyncBufferedMutatorFactory(connection, customizer);
-    }
-
 
     @Bean
     @ConditionalOnProperty(name = "hbase.client.parallel.scan.enable", havingValue = "true")
@@ -199,6 +185,20 @@ public class HbaseTemplateConfiguration {
 
         public AsyncBufferedHbasePutWriterConfig() {
             logger.info("Install {}", AsyncBufferedHbasePutWriterConfig.class.getSimpleName());
+        }
+
+        @Bean
+        @ConfigurationProperties(prefix = "hbase.client.put-writer.async-buffered-mutator")
+        public AsyncBufferedMutatorCustomizer asyncBufferedMutatorCustomizer() {
+            return new DefaultAsyncBufferedMutatorCustomizer();
+        }
+
+        @Bean
+        public AsyncBufferedMutatorFactory hbaseAsyncBufferedMutatorFactory(@Qualifier("hbaseAsyncConnection")
+                                                                            AsyncConnection connection,
+                                                                            AsyncBufferedMutatorCustomizer customizer) {
+            logger.info("AsyncBufferedMutatorCustomizer {}", customizer);
+            return new HbaseAsyncBufferedMutatorFactory(connection, customizer);
         }
 
         @Primary
