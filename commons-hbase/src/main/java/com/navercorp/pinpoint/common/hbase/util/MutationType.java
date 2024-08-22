@@ -21,6 +21,7 @@ public enum MutationType {
     APPEND,
     INCREMENT,
     PUT,
+    GET,
     DELETE,
     CHECK_AND_MUTATE;
 

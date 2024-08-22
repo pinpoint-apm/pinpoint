@@ -16,18 +16,16 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.navercorp.pinpoint.common.hbase.async.AdvancedAsyncTableCallback;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableCallback;
-import com.navercorp.pinpoint.common.hbase.future.FutureDecorator;
-import com.navercorp.pinpoint.common.hbase.future.FutureLoggingDecorator;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
 import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.scan.Scanner;
-import com.navercorp.pinpoint.common.hbase.util.CheckAndMutates;
 import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
-import com.navercorp.pinpoint.common.hbase.util.MutationType;
+import com.navercorp.pinpoint.common.hbase.util.FutureUtils;
+import com.navercorp.pinpoint.common.hbase.util.HBaseExceptionUtils;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
@@ -38,12 +36,10 @@ import com.sematext.hbase.wd.DistributedScanner;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
@@ -53,7 +49,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.ScanResultConsumer;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hbase.thirdparty.com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,8 +69,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 /**
  * @author emeroad
@@ -99,7 +94,6 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     private int maxConcurrentAsyncScanner = 256;
 
 
-    private final FutureDecorator futureDecorator = new FutureLoggingDecorator(logger);
     private boolean nativeAsync = false;
 
     private static final CheckAndMutateResult CHECK_AND_MUTATE_RESULT_FAILURE = new CheckAndMutateResult(false, null);
@@ -107,6 +101,8 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     private ScanMetricReporter scanMetric = new EmptyScanMetricReporter();
 
     private ResultScannerFactory scannerFactory;
+
+    private HbaseAsyncTemplate asyncTemplate;
 
     public HbaseTemplate() {
     }
@@ -139,21 +135,34 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         this.scanMetric = scanReporter;
     }
 
+    public void setAsyncTemplate(HbaseAsyncTemplate asyncTemplate) {
+        this.asyncTemplate = asyncTemplate;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+
     @Override
     public void afterPropertiesSet() {
         Configuration configuration = getConfiguration();
         Objects.requireNonNull(configuration, "configuration is required");
         Objects.requireNonNull(getTableFactory(), "tableFactory is required");
-        Objects.requireNonNull(getAsyncTableFactory(), "asyncTableFactory is required");
+        Objects.requireNonNull(asyncTemplate, "asyncTemplate is required");
 
-        PinpointThreadFactory parallelScannerThreadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner", true);
+        this.executor = newExecutor();
+        this.scannerFactory = new ResultScannerFactory(maxConcurrentAsyncScanner);
+    }
+
+    private ExecutorService newExecutor() {
+        ThreadFactory threadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner", true);
         if (this.maxThreadsPerParallelScan <= 1) {
             this.enableParallelScan = false;
-            this.executor = Executors.newSingleThreadExecutor(parallelScannerThreadFactory);
+            return Executors.newSingleThreadExecutor(threadFactory);
         } else {
-            this.executor = ExecutorFactory.newFixedThreadPool(this.maxThreads, 1024, parallelScannerThreadFactory);
+            return ExecutorFactory.newFixedThreadPool(this.maxThreads, 1024 * 4, threadFactory);
         }
-        this.scannerFactory = new ResultScannerFactory(maxConcurrentAsyncScanner);
     }
 
     @Override
@@ -222,14 +231,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     @Override
     public void put(TableName tableName, final Put put) {
         if (nativeAsync) {
-            asyncExecute(tableName, new AsyncTableCallback<>() {
-                @Override
-                public Void doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
-                    CompletableFuture<Void> future = table.put(put);
-                    futureDecorator.apply(future, tableName, MutationType.PUT);
-                    return null;
-                }
-            });
+            asyncTemplate.put(tableName, put);
         } else {
             execute(tableName, new TableCallback<>() {
                 @Override
@@ -244,23 +246,16 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     @Override
     public void put(TableName tableName, final List<Put> puts) {
         if (nativeAsync) {
-            asyncExecute(tableName, new AsyncTableCallback<>() {
+            asyncTemplate.put(tableName, puts);
+        } else {
+            execute(tableName, new TableCallback<>() {
                 @Override
-                public Void doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
-                    List<CompletableFuture<Void>> futures = table.put(puts);
-                    futureDecorator.apply(futures, tableName, MutationType.PUT);
+                public Object doInTable(Table table) throws Throwable {
+                    table.put(puts);
                     return null;
                 }
             });
-            return;
         }
-        execute(tableName, new TableCallback<>() {
-            @Override
-            public Object doInTable(Table table) throws Throwable {
-                table.put(puts);
-                return null;
-            }
-        });
     }
 
     @Override
@@ -280,21 +275,9 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     @Override
     public List<CheckAndMutateResult> checkAndMutate(TableName tableName, List<CheckAndMutate> checkAndMutates) {
         if (nativeAsync) {
-            return asyncExecute(tableName, new AsyncTableCallback<>() {
+            List<CompletableFuture<CheckAndMutateResult>> futures = asyncTemplate.checkAndMutate(tableName, checkAndMutates);
 
-                @Override
-                public List<CheckAndMutateResult> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
-                    final List<CheckAndMutateResult> result = new ArrayList<>(checkAndMutates.size());
-
-                    List<CompletableFuture<CheckAndMutateResult>> futures = table.checkAndMutate(checkAndMutates);
-                    futureDecorator.apply(futures, tableName, MutationType.CHECK_AND_MUTATE);
-
-                    for (CompletableFuture<CheckAndMutateResult> future : futures) {
-                        result.add(future.join());
-                    }
-                    return result;
-                }
-            });
+            return FutureUtils.allOf(futures);
         }
         return execute(tableName, new TableCallback<>() {
             @Override
@@ -302,68 +285,38 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 try {
                     return table.checkAndMutate(checkAndMutates);
                 } catch (IOException e) {
-                    return List.of(CHECK_AND_MUTATE_RESULT_FAILURE, CHECK_AND_MUTATE_RESULT_FAILURE);
+                    return Collections.nCopies(checkAndMutates.size(), CHECK_AND_MUTATE_RESULT_FAILURE);
                 }
             }
         });
     }
 
-
     @Override
-    public void maxColumnValue(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, long value) {
-        final byte[] valBytes = Bytes.toBytes(value);
-        Put put = new Put(rowName, true);
-        put.addColumn(familyName, qualifier, valBytes);
+    public CasResult maxColumnValue(TableName tableName, CheckAndMax checkAndMax) {
+        if (nativeAsync) {
+            CompletableFuture<CasResult> future = this.asyncTemplate.maxColumnValue(tableName, checkAndMax);
+            CasResult result = future.join();
+            logger.debug("maxColumnValue result:{}", result);
+            return result;
+        } else {
 
-        CheckAndMutate checkAndPut = CheckAndMutate.newBuilder(rowName)
-                .ifNotExists(familyName, qualifier)
-                .build(put);
 
-//        CasResult result = this.execute(tableName, new TableCallback<CasResult>() {
-//            @Override
-//            public CasResult doInTable(Table table) throws Throwable {
-//                CheckAndMutateResult result = table.checkAndMutate(checkAndPut);
-//                if (result.isSuccess()) {
-//                    logger.debug("MaxUpdate success for null");
-//                    return CasResult.INITIAL_UPDATE;
-//                }
-//                CheckAndMutate checkAndMax = CheckAndMutates.max(rowName, familyName, qualifier, valBytes, put);
-//                CheckAndMutateResult maxResult = table.checkAndMutate(checkAndMax);
-//                if (maxResult.isSuccess()) {
-//                    logger.debug("MaxUpdate success for GREATER");
-//                    return CasResult.CAS_NEW;
-//                }
-//                logger.trace("MaxUpdate failure for ConcurrentUpdate {}", maxResult.getResult());
-//                return CasResult.CAS_OLD;
-//            }
-//        });
-//        logger.debug("maxColumnValue result:{}", result);
-
-        CompletableFuture<CasResult> result = this.asyncExecute(tableName, new AsyncTableCallback<>() {
-            @Override
-            public CompletableFuture<CasResult> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
-                CompletableFuture<CheckAndMutateResult> result = table.checkAndMutate(checkAndPut);
-                return result.thenCompose(new Function<CheckAndMutateResult, CompletableFuture<CasResult>>() {
-                    @Override
-                    public CompletableFuture<CasResult> apply(CheckAndMutateResult checkAndMutateResult) {
-                        if (checkAndMutateResult.isSuccess()) {
-                            return CompletableFuture.completedFuture(CasResult.INITIAL_UPDATE);
-                        }
-
-                        CheckAndMutate checkAndMax = CheckAndMutates.max(rowName, familyName, qualifier, valBytes, put);
-                        CompletableFuture<CheckAndMutateResult> maxFuture = table.checkAndMutate(checkAndMax);
-                        return maxFuture.thenApply(CasResult::casResult);
+            CasResult result = this.execute(tableName, new TableCallback<CasResult>() {
+                @Override
+                public CasResult doInTable(Table table) throws Throwable {
+                    CheckAndMutate checkAndMutate = CheckAndMax.initialMax(checkAndMax);
+                    CheckAndMutateResult result = table.checkAndMutate(checkAndMutate);
+                    if (result.isSuccess()) {
+                        return CasResult.INITIAL_UPDATE;
                     }
-                });
-            }
-        });
-        result.whenComplete((r, e) -> {
-            if (e != null) {
-                logger.info("maxColumnValue failed", e);
-            } else {
-                logger.debug("maxColumnValue result:{}", r);
-            }
-        });
+                    CheckAndMutate cas = CheckAndMax.casMax(checkAndMutate);
+                    CheckAndMutateResult maxResult = table.checkAndMutate(cas);
+                    return CasResult.casResult(maxResult);
+                }
+            });
+            logger.debug("maxColumnValue result:{}", result);
+            return result;
+        }
     }
 
 
@@ -423,9 +376,9 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         if (isSimpleScan(scans.size())) {
             return find(tableName, scans, action);
         }
-        return asyncExecute(tableName, new AdvancedAsyncTableCallback<>() {
+        return asyncTemplate.execute(tableName, new AsyncTableCallback<>() {
             @Override
-            public List<T> doInTable(AsyncTable<AdvancedScanResultConsumer> table) throws Throwable {
+            public List<T> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
                 final Scan[] copy = scans.toArray(new Scan[0]);
 
                 final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", copy);
@@ -475,7 +428,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     private <T> List<Callable<T>> callable(TableName tableName, ResultsExtractor<T> action, Scan[] scans, Collection<ScanMetrics> scanMetricsList) {
         List<Callable<T>> callables = new ArrayList<>(scans.length);
 
-        for (Scan scan: scans) {
+        for (Scan scan : scans) {
             callables.add(new Callable<T>() {
 
                 @Override
@@ -567,9 +520,9 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     protected final <T> T executeDistributedScan_async(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         assertAccessAvailable();
 
-        final T result = asyncExecute(tableName, new AdvancedAsyncTableCallback<>() {
+        final T result = asyncTemplate.execute(tableName, new AsyncTableCallback<>() {
             @Override
-            public T doInTable(AsyncTable<AdvancedScanResultConsumer> table) throws Throwable {
+            public T doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
                 final StopWatch watch = StopWatch.createStarted();
                 final boolean debugEnabled = logger.isDebugEnabled();
 
@@ -658,9 +611,9 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
             StopWatch watch = StopWatch.createStarted();
 
             final Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
-            T result = asyncExecute(tableName, new AdvancedAsyncTableCallback<T>() {
+            T result = asyncTemplate.execute(tableName, new AsyncTableCallback<T>() {
                 @Override
-                public T doInTable(AsyncTable<AdvancedScanResultConsumer> table) throws Throwable {
+                public T doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
                     ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
                     ResultScanner[] resultScanners = ScanUtils.newScanners(table, scans);
 
@@ -705,7 +658,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
             if (th instanceof ScanTaskException) {
                 throwable = th.getCause();
             }
-            return rethrowHbaseException(throwable);
+            return HBaseExceptionUtils.rethrowHbaseException(throwable);
         }
     }
 
@@ -719,38 +672,12 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         });
     }
 
-    @Override
-    public CompletableFuture<Long> asyncIncrement(TableName tableName, byte[] row, byte[] family, byte[] qualifier, long amount, Durability durability) {
-        return asyncExecute(tableName, new AsyncTableCallback<CompletableFuture<Long>>() {
-            @Override
-            public CompletableFuture<Long> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
-                CompletableFuture<Long> future = table.incrementColumnValue(row, family, qualifier, amount, durability);
-
-                futureDecorator.apply(future, table.getName(), MutationType.INCREMENT);
-                return future;
-            }
-        });
-    }
-
 
     @Override
     public List<Result> increment(final TableName tableName, final List<Increment> incrementList) {
         if (nativeAsync) {
-            AsyncTable<ScanResultConsumer> table = getAsyncTable(tableName);
-
-            @SuppressWarnings("unchecked")
-            CompletableFuture<Result>[] futures = new CompletableFuture[incrementList.size()];
-
-            for (int i = 0; i < incrementList.size(); i++) {
-                Increment increment = incrementList.get(i);
-                CompletableFuture<Result> result = table.increment(increment);
-                futures[i] = result;
-            }
-            List<Result> results = new ArrayList<>(futures.length);
-            for (CompletableFuture<Result> future : futures) {
-                results.add(future.join());
-            }
-            return results;
+            List<CompletableFuture<Result>> futures = asyncTemplate.increment(tableName, incrementList);
+            return FutureUtils.allOf(futures);
         }
 
         return execute(tableName, new TableCallback<>() {
@@ -777,54 +704,6 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     }
 
     @Override
-    public List<CompletableFuture<Result>> asyncIncrement(final TableName tableName, final List<Increment> incrementList) {
-        return asyncExecute(tableName, new AsyncTableCallback<List<CompletableFuture<Result>>>() {
-            @Override
-            public List<CompletableFuture<Result>> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
-                List<CompletableFuture<Result>> results = new ArrayList<>(incrementList.size());
-                for (Increment increment : incrementList) {
-                    CompletableFuture<Result> result = table.increment(increment);
-                    futureDecorator.apply(result, tableName, MutationType.INCREMENT);
-                    results.add(result);
-                }
-                return results;
-            }
-        });
-    }
-
-    @Override
-    public CompletableFuture<Result> asyncIncrement(final TableName tableName, Increment increment) {
-        return asyncExecute(tableName, new AsyncTableCallback<CompletableFuture<Result>>() {
-            @Override
-            public CompletableFuture<Result> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
-                CompletableFuture<Result> future = table.increment(increment);
-                futureDecorator.apply(future, tableName, MutationType.INCREMENT);
-                return future;
-            }
-        });
-    }
-
-    @Override
-    public long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
-        return execute(tableName, new TableCallback<>() {
-            @Override
-            public Long doInTable(Table table) throws Throwable {
-                return table.incrementColumnValue(rowName, familyName, qualifier, amount);
-            }
-        });
-    }
-
-    @Override
-    public long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final Durability durability) {
-        return execute(tableName, new TableCallback<>() {
-            @Override
-            public Long doInTable(Table table) throws Throwable {
-                return table.incrementColumnValue(rowName, familyName, qualifier, amount, durability);
-            }
-        });
-    }
-
-    @Override
     public <T> T execute(TableName tableName, TableCallback<T> action) {
         Objects.requireNonNull(tableName, "tableName");
         Objects.requireNonNull(action, "action");
@@ -835,7 +714,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         try {
             return action.doInTable(table);
         } catch (Throwable e) {
-            return rethrowHbaseException(e);
+            return HBaseExceptionUtils.rethrowHbaseException(e);
         } finally {
             releaseTable(table);
         }
@@ -845,51 +724,4 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         getTableFactory().releaseTable(table);
     }
 
-
-    @Override
-    public <T> T asyncExecute(TableName tableName, AdvancedAsyncTableCallback<T> action) {
-        Objects.requireNonNull(tableName, "tableName");
-        Objects.requireNonNull(action, "action");
-        assertAccessAvailable();
-
-        final AsyncTable<AdvancedScanResultConsumer> table = getAdvancedAsyncTable(tableName);
-        try {
-            return action.doInTable(table);
-        } catch (Throwable e) {
-            return rethrowHbaseException(e);
-        }
-    }
-
-    private <T> T rethrowHbaseException(Throwable e) {
-        if (e instanceof RuntimeException ex) {
-            throw ex;
-        }
-        if (e instanceof Error error) {
-            throw error;
-        }
-        throw new HbaseSystemException(e);
-    }
-
-
-    @Override
-    public <T> T asyncExecute(TableName tableName, AsyncTableCallback<T> action) {
-        Objects.requireNonNull(tableName, "tableName");
-        Objects.requireNonNull(action, "action");
-        assertAccessAvailable();
-
-        final AsyncTable<ScanResultConsumer> table = getAsyncTable(tableName);
-        try {
-            return action.doInTable(table);
-        } catch (Throwable e) {
-            return rethrowHbaseException(e);
-        }
-    }
-
-    private AsyncTable<ScanResultConsumer> getAsyncTable(TableName tableName) {
-        return getAsyncTableFactory().getTable(tableName, executor);
-    }
-
-    private AsyncTable<AdvancedScanResultConsumer> getAdvancedAsyncTable(TableName tableName) {
-        return getAsyncTableFactory().getTable(tableName);
-    }
 }

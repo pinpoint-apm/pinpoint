@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.hbase.util;
 
+import com.navercorp.pinpoint.common.hbase.HbaseSystemException;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 
 import java.util.HashSet;
@@ -17,5 +18,15 @@ public final class HBaseExceptionUtils {
             hostErrors.add(hostnamePort);
         }
         return hostErrors.toString();
+    }
+
+    public static <T> T rethrowHbaseException(Throwable e) {
+        if (e instanceof RuntimeException ex) {
+            throw ex;
+        }
+        if (e instanceof Error error) {
+            throw error;
+        }
+        throw new HbaseSystemException(e);
     }
 }
