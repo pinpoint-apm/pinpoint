@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.otlp.web.config.mysql;
 
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
-import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
 import com.navercorp.pinpoint.otlp.web.dao.model.AppMetricDefDto;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;

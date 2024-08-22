@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.definition.property;
+package com.navercorp.pinpoint.otlp.common.util;
+
+import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 
 /**
  * @author minwoo-jung
  */
-public record FieldAndUnit(String fieldName, String unit) {
+public interface UncollectedDataCreator<T extends Number> {
+    MetricPoint<T> createUnCollectedPoint(long xVal);
 }

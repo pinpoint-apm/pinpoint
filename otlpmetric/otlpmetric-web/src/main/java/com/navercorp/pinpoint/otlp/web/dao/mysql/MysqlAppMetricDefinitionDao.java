@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
-import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
 import com.navercorp.pinpoint.otlp.web.dao.AppMetricDefinitionDao;
 import com.navercorp.pinpoint.otlp.web.dao.model.AppMetricDefDto;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 

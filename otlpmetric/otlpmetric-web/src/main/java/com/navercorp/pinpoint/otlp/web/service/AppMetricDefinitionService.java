@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.web.service;
 
-import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
 
 import java.util.List;
 

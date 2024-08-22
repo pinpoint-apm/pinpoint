@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.otlp.web.dao.pinot;
 
-import com.navercorp.pinpoint.otlp.common.definition.property.MetricDescriptor;
-import com.navercorp.pinpoint.otlp.common.definition.property.MetricGroup;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricDescriptor;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricGroup;
 import com.navercorp.pinpoint.otlp.web.dao.MetricDefinitionDao;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;

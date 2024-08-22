@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.otlp.web.service;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
 import com.navercorp.pinpoint.otlp.web.dao.AppMetricDefinitionDao;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
