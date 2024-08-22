@@ -75,7 +75,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * @author emeroad
@@ -319,59 +319,49 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 .ifNotExists(familyName, qualifier)
                 .build(put);
 
-//        this.execute(tableName, new TableCallback<Object>() {
+//        CasResult result = this.execute(tableName, new TableCallback<CasResult>() {
 //            @Override
-//            public Object doInTable(Table table) throws Throwable {
+//            public CasResult doInTable(Table table) throws Throwable {
 //                CheckAndMutateResult result = table.checkAndMutate(checkAndPut);
 //                if (result.isSuccess()) {
 //                    logger.debug("MaxUpdate success for null");
-//                    return null;
+//                    return CasResult.INITIAL_UPDATE;
 //                }
-//                CheckAndMutate checkAndMax = checkAndMax(rowName, familyName, qualifier, valBytes, put);
+//                CheckAndMutate checkAndMax = CheckAndMutates.max(rowName, familyName, qualifier, valBytes, put);
 //                CheckAndMutateResult maxResult = table.checkAndMutate(checkAndMax);
 //                if (maxResult.isSuccess()) {
 //                    logger.debug("MaxUpdate success for GREATER");
-//                } else {
-//                    logger.trace("MaxUpdate failure for ConcurrentUpdate");
+//                    return CasResult.CAS_NEW;
 //                }
-//                return null;
+//                logger.trace("MaxUpdate failure for ConcurrentUpdate {}", maxResult.getResult());
+//                return CasResult.CAS_OLD;
 //            }
 //        });
+//        logger.debug("maxColumnValue result:{}", result);
 
-        this.asyncExecute(tableName, new AsyncTableCallback<>() {
+        CompletableFuture<CasResult> result = this.asyncExecute(tableName, new AsyncTableCallback<>() {
             @Override
-            public Void doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
+            public CompletableFuture<CasResult> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
                 CompletableFuture<CheckAndMutateResult> result = table.checkAndMutate(checkAndPut);
-                result.whenCompleteAsync(new BiConsumer<CheckAndMutateResult, Throwable>() {
+                return result.thenCompose(new Function<CheckAndMutateResult, CompletableFuture<CasResult>>() {
                     @Override
-                    public void accept(CheckAndMutateResult checkAndMutateResult, Throwable throwable) {
-                        if (throwable != null) {
-                            logger.warn("{} MaxUpdate(EQUALS) failure", tableName, throwable);
-                            return;
-                        }
+                    public CompletableFuture<CasResult> apply(CheckAndMutateResult checkAndMutateResult) {
                         if (checkAndMutateResult.isSuccess()) {
-                            logger.debug("{} MaxUpdate(EQUALS) success", tableName);
-                        } else {
-                            CheckAndMutate checkAndMax = CheckAndMutates.max(rowName, familyName, qualifier, valBytes, put);
-                            CompletableFuture<CheckAndMutateResult> maxFuture = table.checkAndMutate(checkAndMax);
-                            maxFuture.whenComplete(new BiConsumer<CheckAndMutateResult, Throwable>() {
-                                @Override
-                                public void accept(CheckAndMutateResult maxResult, Throwable throwable) {
-                                    if (throwable != null) {
-                                        logger.warn("{} MaxUpdate(GREATER) exceptionally", tableName, throwable);
-                                        return;
-                                    }
-                                    if (maxResult.isSuccess()) {
-                                        logger.debug("{} MaxUpdate(GREATER) success", tableName);
-                                    } else {
-                                        logger.trace("{} MaxUpdate(GREATER) failure", tableName);
-                                    }
-                                }
-                            });
+                            return CompletableFuture.completedFuture(CasResult.INITIAL_UPDATE);
                         }
+
+                        CheckAndMutate checkAndMax = CheckAndMutates.max(rowName, familyName, qualifier, valBytes, put);
+                        CompletableFuture<CheckAndMutateResult> maxFuture = table.checkAndMutate(checkAndMax);
+                        return maxFuture.thenApply(CasResult::casResult);
                     }
                 });
-                return null;
+            }
+        });
+        result.whenComplete((r, e) -> {
+            if (e != null) {
+                logger.info("maxColumnValue failed", e);
+            } else {
+                logger.debug("maxColumnValue result:{}", r);
             }
         });
     }
@@ -455,7 +445,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         if (isSimpleScan(copy.length)) {
             return find(tableName, scans, action);
         }
-        
+
         final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi", copy);
         final Collection<ScanMetrics> scanMetricsList = new ArrayBlockingQueue<>(copy.length);
 
