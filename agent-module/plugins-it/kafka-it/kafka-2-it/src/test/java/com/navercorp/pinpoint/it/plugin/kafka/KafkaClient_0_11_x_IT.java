@@ -46,9 +46,11 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_MULTI_RECOR
 @SharedTestLifeCycleClass(Kafka2UnitServer.class)
 public class KafkaClient_0_11_x_IT extends KafkaClient2ITBase {
 
+    Random random = new Random();
+
     @Test
     public void producerSendTest() throws NoSuchMethodException {
-        int messageCount = new Random().nextInt(5) + 1;
+        int messageCount = random.nextInt(5) + 1;
         final TestProducer producer = new TestProducer();
         System.out.println("##brokerUrl=" + brokerUrl);
         producer.sendMessage(brokerUrl, messageCount);

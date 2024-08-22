@@ -47,10 +47,10 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 @SharedDependency({"org.apache.kafka:kafka_2.12:2.6.0", "org.apache.zookeeper:zookeeper:3.8.1", "io.dropwizard.metrics:metrics-core:4.1.12.1"})
 @SharedTestLifeCycleClass(Kafka2UnitServer.class)
 public class KafkaClient_2_7_x_IT extends KafkaClient2ITBase {
-
+    Random random = new Random();
     @Test
     public void producerSendTest() throws NoSuchMethodException {
-        int messageCount = new Random().nextInt(5) + 1;
+        int messageCount = random.nextInt(5) + 1;
         final TestProducer producer = new TestProducer();
         producer.sendMessage(brokerUrl, messageCount);
         KafkaClientITBase.verifyProducerSend(brokerUrl, messageCount);

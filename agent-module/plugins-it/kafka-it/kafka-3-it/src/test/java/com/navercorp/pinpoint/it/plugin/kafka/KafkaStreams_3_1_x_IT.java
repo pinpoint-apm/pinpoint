@@ -43,9 +43,10 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 @SharedDependency({"org.apache.kafka:kafka-streams:2.5.0", TestcontainersOption.TEST_CONTAINER, TestcontainersOption.KAFKA, "org.apache.zookeeper:zookeeper:3.8.1", "io.dropwizard.metrics:metrics-core:4.1.12.1"})
 @SharedTestLifeCycleClass(KafkaStreamsUnitServer.class)
 public class KafkaStreams_3_1_x_IT extends KafkaStreamsIT {
+    Random random = new Random();
     @Test
     public void streamsProducerSendTest() throws NoSuchMethodException {
-        int messageCount = new Random().nextInt(5) + 1;
+        int messageCount = random.nextInt(5) + 1;
         final TestProducer producer = new TestProducer();
 
         producer.sendMessageForStream(brokerUrl, messageCount, TRACE_TYPE_RECORD);

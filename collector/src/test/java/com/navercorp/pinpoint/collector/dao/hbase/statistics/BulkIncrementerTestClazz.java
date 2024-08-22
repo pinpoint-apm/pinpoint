@@ -43,6 +43,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class BulkIncrementerTestClazz {
 
+    static final Random random = new Random();
+
     private static final byte[] CF = Bytes.toBytes("CF");
 
     static List<TestDataSet> createRandomTestDataSetList(int numTables, int numRowIds, int numColumnIds, int maxCallCount) {
@@ -52,7 +54,7 @@ public class BulkIncrementerTestClazz {
         }
 
         final int numTestDataSets = numTables * numRowIds * numColumnIds;
-        final Random random = new Random();
+
         List<TestDataSet> testDataSets = new ArrayList<>(numTestDataSets);
         for (TableName tableName : tableNames) {
             for (int i = 0; i < numRowIds; i++) {
@@ -99,7 +101,7 @@ public class BulkIncrementerTestClazz {
                     ByteBuffer key = ByteBuffer.wrap(keyValue.getKey());
                     Long value = keyValue.getValue();
                     if (value != null) {
-                        convertedKeyValueMap.merge(key, value, (val, prev) -> val + prev);
+                        convertedKeyValueMap.merge(key, value, Long::sum);
                     }
                 }
             }
@@ -175,13 +177,11 @@ public class BulkIncrementerTestClazz {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("TestDataSet{");
-            sb.append("tableName=").append(tableName);
-            sb.append(", row=").append(rowKey.getId());
-            sb.append(", column=").append(columnName.getId());
-            sb.append(", count=").append(count);
-            sb.append('}');
-            return sb.toString();
+            return "TestDataSet{" + "tableName=" + tableName +
+                    ", row=" + rowKey.getId() +
+                    ", column=" + columnName.getId() +
+                    ", count=" + count +
+                    '}';
         }
     }
 
@@ -288,11 +288,9 @@ public class BulkIncrementerTestClazz {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("TestColumnName{");
-            sb.append("id=").append(id);
-            sb.append(", count=").append(count);
-            sb.append('}');
-            return sb.toString();
+            return "TestColumnName{" + "id=" + id +
+                    ", count=" + count +
+                    '}';
         }
     }
 
