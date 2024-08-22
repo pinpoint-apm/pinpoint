@@ -39,8 +39,12 @@ public class DefaultAsyncBufferedMutatorCustomizer implements AsyncBufferedMutat
 
     @Override
     public void customize(AsyncBufferedMutatorBuilder builder) {
-        builder.setWriteBufferSize(writeBufferSize);
-        builder.setWriteBufferPeriodicFlush(writeBufferPeriodicFlush, TimeUnit.MILLISECONDS);
+        if (writeBufferSize > 0) {
+            builder.setWriteBufferSize(writeBufferSize);
+        }
+        if (writeBufferPeriodicFlush > 0) {
+            builder.setWriteBufferPeriodicFlush(writeBufferPeriodicFlush, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Override
