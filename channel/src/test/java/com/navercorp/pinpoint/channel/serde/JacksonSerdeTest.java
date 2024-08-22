@@ -31,10 +31,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JacksonSerdeTest {
 
+    Random random = new Random();
+
     @Test
     @DisplayName("Serialize -> Deserialize should be identity")
     public void testIdentity() throws IOException {
-        Random random = new Random();
+
         int p0 = random.nextInt();
         int p1 = random.nextInt();
 

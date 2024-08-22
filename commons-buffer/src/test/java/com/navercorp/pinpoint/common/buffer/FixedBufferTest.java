@@ -414,7 +414,6 @@ public class FixedBufferTest {
 
     //    @Test
     public void find_SVInt_errorCode() {
-        Random random = new Random();
         byte[] bytes = new byte[10];
 
         while (true) {
@@ -437,7 +436,6 @@ public class FixedBufferTest {
 
     //    @Test
     public void find_SVLong_errorCode() {
-        Random random = new Random();
         byte[] bytes = new byte[10];
 
         while (true) {
