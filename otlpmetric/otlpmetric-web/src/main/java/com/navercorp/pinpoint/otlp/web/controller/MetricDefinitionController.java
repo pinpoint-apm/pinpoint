@@ -18,13 +18,12 @@ package com.navercorp.pinpoint.otlp.web.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
-import com.navercorp.pinpoint.otlp.common.defined.AppMetricDefinition;
-import com.navercorp.pinpoint.otlp.common.definition.property.MetricDefinitionProperty;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricDefinitionProperty;
 import com.navercorp.pinpoint.otlp.web.service.AppMetricDefinitionService;
 import com.navercorp.pinpoint.otlp.web.service.MetricMetadataService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

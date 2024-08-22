@@ -14,19 +14,29 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.web.dao;
-
-import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
+package com.navercorp.pinpoint.otlp.web.view.legacy;
 
 import java.util.List;
 
-/**
- * @author minwoo-jung
- */
-public interface AppMetricDefinitionDao {
-    void insertAppMetricDefinitionList(List<AppMetricDefinition> appMetricMetadataList);
+public class OtlpChartExpHistogramViewBuilder extends OtlpChartViewBuilder {
 
-    List<AppMetricDefinition> selectAppMetricDefinitionList(String applicationName);
+    public OtlpChartExpHistogramViewBuilder() {
+        super(CHART_TYPE_BAR);
+    }
 
-    void updateAppMetricDefinitionList(List<AppMetricDefinition> appMetricDefinitionList);
+    @Override
+    protected void checkValidity(int timestampSize) {
+
+    }
+
+    @Override
+    protected String checkChartType(String fieldName, String description) {
+        return null;
+    }
+
+    @Override
+    protected void setMetadata(String name, List<Number> values, String description) {
+        throw new UnsupportedOperationException("ExpHistogramViewBuilder does not support metadata.");
+
+    }
 }

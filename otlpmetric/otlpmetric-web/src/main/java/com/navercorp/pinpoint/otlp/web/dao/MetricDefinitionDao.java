@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.web.dao;
 
-import com.navercorp.pinpoint.otlp.common.definition.property.MetricGroup;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricGroup;
 
 import java.util.List;
 

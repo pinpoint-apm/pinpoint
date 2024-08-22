@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.web.service;
 
-import com.navercorp.pinpoint.otlp.common.definition.property.MetricDefinitionProperty;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricDefinitionProperty;
 
 /**
  * @author minwoo-jung

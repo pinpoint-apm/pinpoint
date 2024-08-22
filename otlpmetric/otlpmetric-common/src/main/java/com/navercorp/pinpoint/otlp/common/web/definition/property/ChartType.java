@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.definition.property;
+package com.navercorp.pinpoint.otlp.common.web.definition.property;
 
 import com.navercorp.pinpoint.common.server.util.EnumGetter;
 

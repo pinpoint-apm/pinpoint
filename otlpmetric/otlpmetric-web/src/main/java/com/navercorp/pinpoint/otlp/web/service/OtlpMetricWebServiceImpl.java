@@ -4,32 +4,43 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.otlp.common.definition.property.AggregationFunction;
-import com.navercorp.pinpoint.otlp.common.definition.property.ChartType;
+import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
+import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
+import com.navercorp.pinpoint.otlp.common.util.DoubleUncollectedDataCreator;
+import com.navercorp.pinpoint.otlp.common.util.TimeSeriesBuilder;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
+import com.navercorp.pinpoint.otlp.common.web.model.MetricValue;
 import com.navercorp.pinpoint.otlp.web.dao.OtlpMetricDao;
-import com.navercorp.pinpoint.otlp.web.view.OtlpChartFieldView;
-import com.navercorp.pinpoint.otlp.web.view.OtlpChartView;
-import com.navercorp.pinpoint.otlp.web.view.OtlpChartViewBuilder;
+import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartFieldView;
+import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartView;
+import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartViewBuilder;
 import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
+import com.navercorp.pinpoint.otlp.web.vo.MetricData;
 import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartQueryParameter;
 import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartResult;
 import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricDataQueryParameter;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    @Deprecated
     public static final OtlpChartView EMPTY_CHART = OtlpChartViewBuilder.EMPTY_CHART_VIEW;
+    @Deprecated
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
 
     @NotNull private final OtlpMetricDao otlpMetricDao;
@@ -80,15 +91,15 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                         .setMetricName(metricName)
                         .setTags(tags)
                         .setTimeWindow(new TimeWindow(Range.between(from, to), DEFAULT_TIME_WINDOW_SAMPLER));
-        List<QueryResult<CompletableFuture<List<OtlpMetricChartResult>>, FieldAttribute>> queryResult = new ArrayList<>();
+        List<LegacyQueryResult<CompletableFuture<List<OtlpMetricChartResult>>, FieldAttribute>> legacyQueryResult = new ArrayList<>();
 
         for (FieldAttribute field : fields) {
             OtlpMetricChartQueryParameter chartQueryParameter = setupQueryParameter(builder, field);
             CompletableFuture<List<OtlpMetricChartResult>> chartPoints = otlpMetricDao.getChartPoints(chartQueryParameter);
-            queryResult.add(new QueryResult<>(chartPoints, field));
+            legacyQueryResult.add(new LegacyQueryResult<>(chartPoints, field));
         }
 
-        for (QueryResult<CompletableFuture<List<OtlpMetricChartResult>>, FieldAttribute> result : queryResult) {
+        for (LegacyQueryResult<CompletableFuture<List<OtlpMetricChartResult>>, FieldAttribute> result : legacyQueryResult) {
             CompletableFuture<List<OtlpMetricChartResult>> future = result.future();
             FieldAttribute key = result.key();
 
@@ -110,7 +121,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     }
 
     @Override
-    public OtlpChartView getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, String tags, List<String> fieldNameList, long from, long to, ChartType chartType, AggregationFunction aggregationFunction) {
+    public MetricData getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, String tags, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow) {
         List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationName, agentId, metricGroupName, metricName, tags, fieldNameList);
 
         OtlpMetricDataQueryParameter.Builder builder =
@@ -122,39 +133,50 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                         .setMetricName(metricName)
                         .setTags(tags)
                         .setAggregationFunction(aggregationFunction)
-                        .setTimeWindow(new TimeWindow(Range.between(from, to), DEFAULT_TIME_WINDOW_SAMPLER));
-        List<QueryResult<CompletableFuture<List<OtlpMetricChartResult>>, FieldAttribute>> queryResult = new ArrayList<>();
+                        .setTimeWindow(timeWindow);
+        List<QueryResult<CompletableFuture<List<MetricPoint>>, FieldAttribute>> queryResult = new ArrayList<>();
 
         for (FieldAttribute field : fields) {
             OtlpMetricDataQueryParameter chartQueryParameter = setupQueryParameter(builder, field);
-            CompletableFuture<List<OtlpMetricChartResult>> chartPoints = otlpMetricDao.getChartPoints(chartQueryParameter);
+            CompletableFuture<List<MetricPoint>> chartPoints = otlpMetricDao.getChartPoints(chartQueryParameter);
             queryResult.add(new QueryResult<>(chartPoints, field));
         }
 
-        OtlpChartViewBuilder chartViewBuilder = OtlpChartViewBuilder.newBuilder(chartType);
+        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
+        // TODO: (minwoo) set unit data
+        MetricData metricData = new MetricData(timeStampList, chartType, fields.get(0).unit());
 
-        for (QueryResult<CompletableFuture<List<OtlpMetricChartResult>>, FieldAttribute> result : queryResult) {
-            CompletableFuture<List<OtlpMetricChartResult>> future = result.future();
-            FieldAttribute key = result.key();
+            for (QueryResult<CompletableFuture<List<MetricPoint>>, FieldAttribute> result : queryResult) {
+                CompletableFuture<List<MetricPoint>> future = result.future();
+                FieldAttribute fieldAttribute = result.key();
+                try {
+                    List<MetricPoint> meticDataList = future.get();
+                    addMetricValue(timeWindow, meticDataList, metricData, fieldAttribute.fieldName(), fieldAttribute.version());
+                } catch(Exception e){
+                    logger.warn("Failed to get OTLP metric data for applicationID: {}, metricGroup: {}, metricName {}, FieldAttribute", applicationName, metricGroupName, metricName, fieldAttribute, e);
+                }
+            }
 
-            try {
-                List<OtlpMetricChartResult> otlpMetricChartResults = future.get();
-                if (otlpMetricChartResults != null) {
-                    OtlpChartFieldView chartFieldView = chartViewBuilder.add(key, otlpMetricChartResults);
-                    if ((chartViewBuilder.hasSummaryField()) && (chartFieldView != null)) {
-                    // TODO : (minwoo) Get summary data
+        return metricData;
+    }
+
+    private void addMetricValue(TimeWindow timeWindow, List<MetricPoint> meticDataList, MetricData metricData, String legendName, String version){
+        TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(timeWindow, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+        List<MetricPoint> metricPointList = timeSeriesBuilder.build(meticDataList);
+        List<Number> valueList = metricPointList.stream().map(MetricPoint::getYVal).collect(Collectors.toList());
+
+        metricData.addMetricValue(new MetricValue(legendName, valueList, version));
+
+//                if (otlpMetricChartResults != null) {
+        // TODO : (minwoo) Get summary data
+        //                    if ((metricData.hasSummaryField()) && (chartFieldView != null)) {
+
 
 //                        OtlpMetricDataQueryParameter chartQueryParameter = setupQueryParameter(builder, key);
 //                        String value = otlpMetricDao.getSummary(chartQueryParameter);
 //                        chartFieldView.setSummaryField(key.aggreFunc().name(), value);
-                    }
-                }
-            } catch (Exception e) {
-                logger.warn("Failed to get OTLP metric data for applicationID: {}, metric: {}.{}.{}", applicationName, metricGroupName, metricName, key.fieldName(), e);
-            }
-        }
-
-        return chartViewBuilder.build();
+//                    }
+//                }
     }
 
 
@@ -175,7 +197,9 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     }
 
 
+    @Deprecated
     // TODO: duplicate record
-    private record QueryResult<E, K>(CompletableFuture<List<OtlpMetricChartResult>> future, K key) {}
+    private record LegacyQueryResult<E, K>(CompletableFuture<List<OtlpMetricChartResult>> future, K key) {}
 
+    private record QueryResult<E, K>(CompletableFuture<List<MetricPoint>> future, K key) {}
 }

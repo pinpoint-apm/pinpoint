@@ -3,6 +3,20 @@
 <mapper namespace="com.navercorp.pinpoint.otlp.web.dao.pinot.PinotOtlpMetricDao">
 
 
+    <resultMap id="doubleMetricPointResultMap" type="MetricPoint">
+        <constructor>
+            <arg column="eventTime" javaType="_long"/>
+            <arg column="value" javaType="Number" typeHandler="DoubleHandler"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="longMetricPointResultMap" type="MetricPoint">
+        <constructor>
+            <arg column="eventTime" javaType="_long"/>
+            <arg column="value" javaType="Number" typeHandler="LongHandler"/>
+        </constructor>
+    </resultMap>
+
     <select id="getMetricGroups" resultType="string" parameterType="OtlpMetricGroupsQueryParam">
         SELECT
             DISTINCT (metricGroupName)
@@ -210,10 +224,9 @@
         LIMIT #{limit}
     </select>
 
-    <select id="getLongMetricData" resultType="OtlpMetricChartResult" parameterType="OtlpMetricDataQueryParameter">
+    <select id="getLongMetricData" parameterType="OtlpMetricDataQueryParameter" resultMap="longMetricPointResultMap" >
         SELECT
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
-        version,
         <if test="aggregationFunction.getCode() == 0">
             AVG(value) as value
         </if>
@@ -248,10 +261,9 @@
         LIMIT #{limit}
     </select>
 
-    <select id="getDoubleMetricData" resultType="OtlpMetricChartResult" parameterType="OtlpMetricDataQueryParameter">
+    <select id="getDoubleMetricData" parameterType="OtlpMetricDataQueryParameter" resultMap="doubleMetricPointResultMap" >
         SELECT
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
-        version,
         <if test="aggregationFunction.getCode() == 0">
             AVG(value) as value
         </if>
@@ -285,6 +297,4 @@
         ORDER BY eventTime asc
         LIMIT #{limit}
     </select>
-
-
 </mapper>

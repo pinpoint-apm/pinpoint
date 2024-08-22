@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.defined;
+package com.navercorp.pinpoint.otlp.common.web.defined;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 

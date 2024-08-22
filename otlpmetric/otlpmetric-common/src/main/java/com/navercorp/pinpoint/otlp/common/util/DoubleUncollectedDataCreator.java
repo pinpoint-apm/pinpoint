@@ -14,10 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.defined;
+package com.navercorp.pinpoint.otlp.common.util;
+
+import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 
 /**
  * @author minwoo-jung
  */
-public record Layout(int x, int y, int w, int h) {
+public class DoubleUncollectedDataCreator implements UncollectedDataCreator<Double> {
+    private static final Double UNCOLLECTED_VALUE = -1D;
+    public static final UncollectedDataCreator<Double> UNCOLLECTED_DATA_CREATOR = new DoubleUncollectedDataCreator();
+
+
+    @Override
+    public MetricPoint<Double> createUnCollectedPoint(long xVal) {
+        return new MetricPoint(xVal, UNCOLLECTED_VALUE);
+    }
+
 }

@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.web.dao;
-
-import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
-
-import java.util.List;
+package com.navercorp.pinpoint.otlp.common.web.defined;
 
 /**
  * @author minwoo-jung
  */
-public interface AppMetricDefinitionDao {
-    void insertAppMetricDefinitionList(List<AppMetricDefinition> appMetricMetadataList);
-
-    List<AppMetricDefinition> selectAppMetricDefinitionList(String applicationName);
-
-    void updateAppMetricDefinitionList(List<AppMetricDefinition> appMetricDefinitionList);
+public record Layout(int x, int y, int w, int h) {
 }
