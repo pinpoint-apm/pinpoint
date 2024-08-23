@@ -19,14 +19,17 @@ package com.navercorp.pinpoint.exceptiontrace.web.dao;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ErrorSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ClpConvertedEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionEntityMapper;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ClpConverted;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ClpQueryParameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -52,6 +55,7 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String SELECT_GROUP_SUMMARIES_QUERY = "selectGroupSummaries";
     private static final String SELECT_CHART_QUERY = "selectChartValueViews";
     private static final String SELECT_ERROR_SUMMARIES_QUERY = "selectErrorSummaries";
+    private static final String SELECT_CLP_VARIABLES_QUERY = "selectClpVariables";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -123,5 +127,14 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
                                 e, exceptionTraceQueryParameter.getGroupByAttributes()
                         )
                 ).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ClpConverted> getReplacedVariables(ClpQueryParameter queryParameter) {
+        List<ClpConvertedEntity> clpConvertedEntities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_CLP_VARIABLES_QUERY, queryParameter);
+
+        return clpConvertedEntities.stream()
+                .map(mapper::toClpConverted)
+                .collect(Collectors.toList());
     }
 }

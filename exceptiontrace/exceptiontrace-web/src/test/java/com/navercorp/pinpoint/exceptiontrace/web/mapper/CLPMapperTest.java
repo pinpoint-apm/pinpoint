@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
-import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
+import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.correctEncoding;
+import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replaceSimple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -23,7 +23,7 @@ class CLPMapperTest {
         String example = "INFO Task \u0011\u0000 assigned to container: [NodeAddress:\u0011\u0001, ...\n" +
                 "ContainerID:\u0011\u0002], operation took \u0012\u0013 seconds";
 
-        String replaced = replacePlaceHolders(example);
+        String replaced = replaceSimple(example);
         logger.info(example);
         logger.info(replaced);
         assertNotEquals(example, replaced);
@@ -36,7 +36,7 @@ class CLPMapperTest {
         String rawExample = "getAgentsList.from: \u0011 ì\u009D´ì\u0083\u0081ì\u009D´ì\u0096´ì\u0095¼ í\u0095©ë\u008B\u0088ë\u008B¤";
         String example = "getAgentsList.from: \u0011 이상이어야 합니다";
 
-        assertEquals(example, makeReadableString(rawExample));
+        assertEquals(example, correctEncoding(rawExample));
     }
 
     @Test
@@ -44,7 +44,7 @@ class CLPMapperTest {
         String rawExample = "\\n not found: limit=\u0011 content=â\u0080¦";
         String example = "\\n not found: limit=\u0011 content=…";
 
-        assertEquals(example, makeReadableString(rawExample));
+        assertEquals(example, correctEncoding(rawExample));
     }
 
     @Test
@@ -52,6 +52,6 @@ class CLPMapperTest {
         String rawExample = "Request processing failed: jakarta.validation.ConstraintViolationException";
         String example = "Request processing failed: jakarta.validation.ConstraintViolationException";
 
-        assertEquals(example, makeReadableString(rawExample));
+        assertEquals(example, correctEncoding(rawExample));
     }
 }

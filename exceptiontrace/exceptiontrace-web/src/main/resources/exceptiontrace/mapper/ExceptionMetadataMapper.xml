@@ -53,9 +53,9 @@
     <select id="selectExceptions" resultMap="exceptionMetaDataEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="fullExceptionColumns"></include>
+        <include refid="fullExceptionColumns"/>
         FROM
-        <include refid="exceptionTraceTable"></include>
+        <include refid="exceptionTraceTable"/>
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
@@ -77,9 +77,9 @@
     <select id="selectSummarizedExceptions" resultMap="exceptionMetaDataEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="summarizedExceptionColumns"></include>
+        <include refid="summarizedExceptionColumns"/>
         FROM
-        <include refid="exceptionTraceTable"></include>
+        <include refid="exceptionTraceTable"/>
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
@@ -89,7 +89,7 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        <include refid="filterByGivenColumnsAndValue"></include>
+        <include refid="filterByGivenColumnsAndValue"/>
         ORDER BY ${orderBy.getAttributeName} ${isDesc}
         LIMIT ${limit}
     </select>
@@ -97,9 +97,9 @@
     <select id="selectExactException" resultMap="exceptionMetaDataEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
-        <include refid="summarizedExceptionColumns"></include>
+        <include refid="summarizedExceptionColumns"/>
         FROM
-        <include refid="exceptionTraceTable"></include>
+        <include refid="exceptionTraceTable"/>
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
@@ -115,4 +115,27 @@
         ORDER BY "timestamp" asc
         LIMIT ${limit}
     </select>
+    <select id="selectClpVariables" resultMap="clpConvertedEntity"
+            parameterType="ClpQueryParameter">
+        SELECT
+        as "replacedToken",
+        ${targetColumn.getSliceFunction.getName}(${targetColumn.getColumns.getName}, #{targetIndex}, #{targetIndex} + 1)
+        count(*) as "count"
+        FROM
+        <include refid="exceptionTraceTable"/>
+        WHERE
+        tenantId = #{tenantId}
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        AND applicationName = #{applicationName}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        AND errorMessage_logtype = #{logType}
+        GROUP BY "replacedToken"
+        ORDER BY "count" desc,
+        "replacedToken"
+        LIMIT 100
+    </select>
+
+
 </mapper>

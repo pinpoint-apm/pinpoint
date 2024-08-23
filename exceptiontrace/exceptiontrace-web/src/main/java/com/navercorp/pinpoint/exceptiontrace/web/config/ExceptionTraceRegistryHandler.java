@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.exceptiontrace.web.config;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ErrorSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ClpConvertedEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ClpQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
@@ -36,7 +38,9 @@ public class ExceptionTraceRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias(ErrorSummaryEntity.class);
         typeAliasRegistry.registerAlias(ExceptionGroupSummaryEntity.class);
         typeAliasRegistry.registerAlias(ExceptionChartValueViewEntity.class);
+        typeAliasRegistry.registerAlias(ClpConvertedEntity.class);
         typeAliasRegistry.registerAlias(ExceptionTraceQueryParameter.class);
+        typeAliasRegistry.registerAlias(ClpQueryParameter.class);
     }
 
     @Override

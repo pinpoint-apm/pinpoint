@@ -21,10 +21,12 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ErrorSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
+import com.navercorp.pinpoint.exceptiontrace.web.entity.ClpConvertedEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ClpConverted;
 import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
 import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
 import com.navercorp.pinpoint.exceptiontrace.web.model.params.GroupFilterParams;
@@ -40,10 +42,12 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.function.Function;
 
-import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
-import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
+import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.fixAndEscapeLogType;
 
 /**
  * @author intr3p1d
@@ -60,7 +64,8 @@ import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replace
 public interface ExceptionEntityMapper {
 
     @Mappings({
-            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
+            @Mapping(source = ".", target = "stackTrac" +
+                    "e", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
     })
     ExceptionMetaData toModel(ExceptionMetaDataEntity entity);
 
@@ -98,6 +103,11 @@ public interface ExceptionEntityMapper {
             List<GroupByAttributes> attributesList
     );
 
+    @Mappings({
+    })
+    ClpConverted toClpConverted(ClpConvertedEntity entity);
+
+
     @AfterMapping
     default void addGroupFilterParams(
             GroupedFieldNameEntity entity,
@@ -117,7 +127,12 @@ public interface ExceptionEntityMapper {
         grouped.setGroupFilterParams(params);
     }
 
-    @AfterMapping
+    @Named("encode")
+    default String encode(String string) {
+        return URLEncoder.encode(string, StandardCharsets.UTF_8);
+    }
+
+    @Named("addGroupedFieldName")
     default void addGroupedFieldName(
             GroupedFieldNameEntity entity,
             List<GroupByAttributes> attributesList,
@@ -129,8 +144,9 @@ public interface ExceptionEntityMapper {
                 case STACK_TRACE -> groupedFieldName.setStackTraceHash(checkIfNull(entity.getStackTraceHash()));
                 case URI_TEMPLATE -> groupedFieldName.setUriTemplate(checkIfNull(entity.getUriTemplate()));
                 case ERROR_CLASS_NAME -> groupedFieldName.setErrorClassName(checkIfNull(entity.getErrorClassName()));
-                case ERROR_MESSAGE_LOG_TYPE ->
-                        groupedFieldName.setErrorMessage(checkIfNull(selectErrorMessage(entity)));
+                case ERROR_MESSAGE_LOG_TYPE -> groupedFieldName.setErrorMessage(checkIfNull(
+                        entity.getErrorMessage_logtype()
+                ));
             }
         }
         grouped.setGroupedFieldName(groupedFieldName);
@@ -139,9 +155,7 @@ public interface ExceptionEntityMapper {
     @Named("selectErrorMessage")
     default String selectErrorMessage(GroupedFieldNameEntity entity) {
         if (entity.getErrorMessage_logtype() != null) {
-            return replacePlaceHolders(
-                    makeReadableString(entity.getErrorMessage_logtype())
-            );
+            return fixAndEscapeLogType(entity.getErrorMessage_logtype());
         }
         return entity.getErrorMessage();
     }

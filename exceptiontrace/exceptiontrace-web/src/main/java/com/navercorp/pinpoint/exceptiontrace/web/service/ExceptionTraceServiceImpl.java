@@ -19,9 +19,11 @@ package com.navercorp.pinpoint.exceptiontrace.web.service;
 import com.navercorp.pinpoint.exceptiontrace.web.dao.ExceptionTraceDao;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ClpConverted;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ClpQueryParameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -67,4 +69,9 @@ public class ExceptionTraceServiceImpl implements ExceptionTraceService {
     public List<ErrorSummary> getErrorSummaries(ExceptionTraceQueryParameter queryParameter) {
         return exceptionTraceDao.getErrorSummaries(queryParameter);
     }
+    @Override
+    public List<ClpConverted> getReplacedVariables(ClpQueryParameter queryParameter) {
+        return exceptionTraceDao.getReplacedVariables(queryParameter);
+    }
+
 }
