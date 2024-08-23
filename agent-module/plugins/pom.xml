@@ -117,6 +117,7 @@
         <module>clickhouse-jdbc</module>
         <module>spring-cloud-sleuth</module>
         <module>spring-stub</module>
+        <module>ktor</module>
     </modules>
 
 
