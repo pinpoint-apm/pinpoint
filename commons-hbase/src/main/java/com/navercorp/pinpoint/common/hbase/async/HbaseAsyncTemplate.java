@@ -18,20 +18,32 @@ package com.navercorp.pinpoint.common.hbase.async;
 
 import com.navercorp.pinpoint.common.hbase.CasResult;
 import com.navercorp.pinpoint.common.hbase.CheckAndMax;
+import com.navercorp.pinpoint.common.hbase.HbaseSystemException;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.future.FutureDecorator;
 import com.navercorp.pinpoint.common.hbase.future.FutureLoggingDecorator;
+import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
+import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
+import com.navercorp.pinpoint.common.hbase.scan.Scanner;
 import com.navercorp.pinpoint.common.hbase.util.HBaseExceptionUtils;
 import com.navercorp.pinpoint.common.hbase.util.MutationType;
+import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
+import com.navercorp.pinpoint.common.util.StopWatch;
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import com.sematext.hbase.wd.DistributedScanner;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
+import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.ScanResultConsumer;
 import org.apache.hbase.thirdparty.com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.LogManager;
@@ -58,11 +70,18 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
     private final AsyncTableFactory asyncTableFactory;
     private final ExecutorService executor;
 
+    private final ScanMetricReporter scanMetric;
+    private final ResultScannerFactory scannerFactory;
+
     private final FutureDecorator futureDecorator = new FutureLoggingDecorator(logger);
 
     public HbaseAsyncTemplate(AsyncTableFactory asyncTableFactory,
+                              ResultScannerFactory scannerFactory,
+                              ScanMetricReporter scanMetric,
                               ExecutorService executor) {
         this.asyncTableFactory = Objects.requireNonNull(asyncTableFactory, "asyncTableFactory");
+        this.scannerFactory = Objects.requireNonNull(scannerFactory, "scannerFactory");
+        this.scanMetric = Objects.requireNonNull(scanMetric, "scanMetric");
         this.executor = Objects.requireNonNull(executor, "executor");
     }
 
@@ -124,14 +143,52 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
                 CompletableFuture<Result> result = table.get(get);
                 return result.thenApply(new Function<Result, T>() {
                     @Override
-                    public T apply(Result result1) {
+                    public T apply(Result result) {
                         try {
-                            return mapper.mapRow(result1, 0);
+                            return mapper.mapRow(result, 0);
                         } catch (Exception e) {
                             return HBaseExceptionUtils.rethrowHbaseException(e);
                         }
                     };
                 });
+            }
+        });
+        futureDecorator.apply(futures, tableName, MutationType.GET);
+        return futures;
+    }
+
+    @Override
+    public <T> List<CompletableFuture<T>> get(TableName tableName, final List<Get> gets, final RowMapper<T> mapper) {
+        List<CompletableFuture<T>> futures = this.execute(tableName, new AsyncTableCallback<>() {
+            @Override
+            public List<CompletableFuture<T>> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
+                List<CompletableFuture<Result>> results = table.get(gets);
+                List<CompletableFuture<T>> mapperResult = new ArrayList<>(results.size());
+                for (CompletableFuture<Result> result : results) {
+                    mapperResult.add(result.thenApply(new Function<Result, T>() {
+                        @Override
+                        public T apply(Result result) {
+                            try {
+                                return mapper.mapRow(result, 0);
+                            } catch (Exception e) {
+                                return HBaseExceptionUtils.rethrowHbaseException(e);
+                            }
+                        };
+                    }));
+                }
+                return mapperResult;
+            }
+        });
+        futureDecorator.apply(futures, tableName, MutationType.GET);
+        return futures;
+    }
+
+    @Override
+    public CompletableFuture<Void> delete(TableName tableName, final Delete delete) {
+        CompletableFuture<Void> futures = this.execute(tableName, new AsyncTableCallback<>() {
+            @Override
+            public CompletableFuture<Void> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
+                return table.delete(delete);
             }
         });
         futureDecorator.apply(futures, tableName, MutationType.GET);
@@ -238,6 +295,78 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
         });
         futureDecorator.apply(futures, tableName, MutationType.CHECK_AND_MUTATE);
         return futures;
+    }
+
+    public <T> List<T> findParallel(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+        return execute(tableName, new AsyncTableCallback<>() {
+            @Override
+            public List<T> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
+                final Scan[] copy = scans.toArray(new Scan[0]);
+
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", copy);
+
+                Scanner<T> scanner = scannerFactory.newScanner(table, copy);
+                List<T> results = scanner.extractData(action);
+                reporter.report(scanner::getScanMetrics);
+                return results;
+            }
+        });
+    }
+
+    public <T> T executeDistributedScan(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+        final T result = execute(tableName, new AsyncTableCallback<>() {
+            @Override
+            public T doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
+                final StopWatch watch = StopWatch.createStarted();
+                final boolean debugEnabled = logger.isDebugEnabled();
+
+                Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
+                final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
+                try (ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners)) {
+                    if (debugEnabled) {
+                        logger.debug("DistributedScanner createTime: {}ms", watch.stop());
+                        watch.start();
+                    }
+                    return action.extractData(scanner);
+                } finally {
+                    if (debugEnabled) {
+                        logger.debug("DistributedScanner scanTime: {}ms", watch.stop());
+                    }
+                    reporter.report(splitScanners);
+                }
+            }
+        });
+        return result;
+    }
+
+    public <T> T executeParallelDistributedScan(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+        try {
+            StopWatch watch = StopWatch.createStarted();
+
+            final Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
+            T result = execute(tableName, new AsyncTableCallback<T>() {
+                @Override
+                public T doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
+                    ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
+                    ResultScanner[] resultScanners = ScanUtils.newScanners(table, scans);
+
+                    ResultScanner scanner = new DistributedScanner(rowKeyDistributor, resultScanners);
+                    try (scanner) {
+                        return action.extractData(scanner);
+                    } finally {
+                        reporter.report(resultScanners);
+                    }
+                }
+            });
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("executeParallelDistributedScan createTime: {}ms", watch.stop());
+            }
+            return result;
+        } catch (Exception e) {
+            throw new HbaseSystemException(e);
+        }
     }
 
 

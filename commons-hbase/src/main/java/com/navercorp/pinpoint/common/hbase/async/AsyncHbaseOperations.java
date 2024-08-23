@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
+import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Increment;
@@ -21,6 +22,7 @@ public interface AsyncHbaseOperations {
 
     <T> T execute(TableName tableName, AsyncTableCallback<T> action);
 
+
     CompletableFuture<Void> put(TableName tableName, Put put);
 
     List<CompletableFuture<Void>> put(TableName tableName, List<Put> puts);
@@ -28,20 +30,30 @@ public interface AsyncHbaseOperations {
 
     <T> CompletableFuture<T> get(TableName tableName, Get get, RowMapper<T> mapper);
 
+    <T> List<CompletableFuture<T>> get(TableName tableName, final List<Get> gets, final RowMapper<T> mapper);
+
+
+    CompletableFuture<Void> delete(TableName tableName, final Delete delete);
+
 
     default CompletableFuture<Long> increment(TableName tableName, byte[] row, byte[] family, byte[] qualifier, long amount) {
         return increment(tableName, row, family, qualifier, amount, Durability.SKIP_WAL);
     }
 
     default CompletableFuture<Long> increment(TableName tableName, byte[] row, byte[] family, byte[] qualifier, long amount, Durability durability) {
-        return increment(tableName, new Increment(row).addColumn(family, qualifier, amount).setDurability(durability)).thenApply((r) -> {
+        Increment increment = new Increment(row).
+                addColumn(family, qualifier, amount).
+                setDurability(durability);
+
+        return increment(tableName, increment).thenApply((r) -> {
             return Bytes.toLong(r.getValue(family, qualifier));
         });
     }
 
-    List<CompletableFuture<Result>> increment(TableName tableName, List<Increment> incrementList);
 
     CompletableFuture<Result> increment(TableName tableName, Increment increment);
+
+    List<CompletableFuture<Result>> increment(TableName tableName, List<Increment> incrementList);
 
 
     CompletableFuture<CasResult> maxColumnValue(TableName tableName, CheckAndMax max);

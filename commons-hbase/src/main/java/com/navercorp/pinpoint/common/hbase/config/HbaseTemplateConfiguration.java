@@ -44,6 +44,7 @@ import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriterDecorator;
 import com.navercorp.pinpoint.common.hbase.async.LoggingHbasePutWriter;
 import com.navercorp.pinpoint.common.hbase.async.TableWriterFactory;
+import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.util.DefaultScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
@@ -115,9 +116,23 @@ public class HbaseTemplateConfiguration {
     }
 
     @Bean
-    public HbaseAsyncTemplate asyncTemplate(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory) {
+    public ResultScannerFactory resultScannerFactory(Optional<ParallelScan> parallelScan) {
+        int partitionSize = getPartitionSize(parallelScan);
+        return new ResultScannerFactory(partitionSize);
+    }
+
+    private int getPartitionSize(Optional<ParallelScan> parallelScan) {
+        return parallelScan
+                .map(ParallelScan::getMaxConcurrentAsyncScanner)
+                .orElse(ParallelScan.DEFAULT_MAX_CONCURRENT_ASYNC_SCANNER);
+    }
+
+    @Bean
+    public HbaseAsyncTemplate asyncTemplate(@Qualifier("hbaseAsyncTableFactory") AsyncTableFactory asyncTableFactory,
+                                            ScanMetricReporter scanMetricReporter,
+                                            ResultScannerFactory resultScannerFactory) {
         ExecutorService executor = newAsyncTemplateExecutor();
-        return new HbaseAsyncTemplate(asyncTableFactory, executor);
+        return new HbaseAsyncTemplate(asyncTableFactory, resultScannerFactory, scanMetricReporter, executor);
     }
 
     private ExecutorService newAsyncTemplateExecutor() {
@@ -132,6 +147,7 @@ public class HbaseTemplateConfiguration {
                                        @Qualifier("asyncTemplate") HbaseAsyncTemplate asyncTemplate,
                                        Optional<ParallelScan> parallelScan,
                                        @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync,
+                                       ResultScannerFactory resultScannerFactory,
                                        ScanMetricReporter scanMetricReporter) {
         HbaseTemplate template2 = new HbaseTemplate();
         template2.setConfiguration(configurable);
@@ -142,8 +158,8 @@ public class HbaseTemplateConfiguration {
             template2.setEnableParallelScan(true);
             template2.setMaxThreads(scan.getMaxThreads());
             template2.setMaxThreadsPerParallelScan(scan.getMaxThreadsPerParallelScan());
-            template2.setMaxConcurrentAsyncScanner(scan.getMaxConcurrentAsyncScanner());
         }
+        template2.setResultScannerFactory(resultScannerFactory);
 
         template2.setAsyncTemplate(asyncTemplate);
         template2.setNativeAsync(nativeAsync);

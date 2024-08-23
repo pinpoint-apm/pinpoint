@@ -20,9 +20,12 @@ package com.navercorp.pinpoint.common.hbase.config;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 
 public class ParallelScan {
+
+    public static final int DEFAULT_MAX_CONCURRENT_ASYNC_SCANNER = 256;
+
     private int maxThreads = CpuUtils.workerCount() * 4;
     private int maxThreadsPerParallelScan = CpuUtils.workerCount();
-    private int maxConcurrentAsyncScanner = 256;
+    private int maxConcurrentAsyncScanner = DEFAULT_MAX_CONCURRENT_ASYNC_SCANNER;
 
 
     public ParallelScan() {

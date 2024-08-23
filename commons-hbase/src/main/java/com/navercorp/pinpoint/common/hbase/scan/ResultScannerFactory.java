@@ -73,4 +73,12 @@ public class ResultScannerFactory {
             }
         }
     }
+
+
+    @Override
+    public String toString() {
+        return "ResultScannerFactory{" +
+                "partitionSize=" + partitionSize +
+                '}';
+    }
 }
