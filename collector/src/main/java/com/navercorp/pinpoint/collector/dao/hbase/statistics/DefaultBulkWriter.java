@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.common.hbase.CasResult;
 import com.navercorp.pinpoint.common.hbase.CheckAndMax;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -12,10 +11,11 @@ import org.apache.hadoop.hbase.client.Increment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author emeroad
@@ -93,12 +93,6 @@ public class DefaultBulkWriter implements BulkWriter {
 
     }
 
-    private CompletableFuture<CasResult> checkAndMax(TableName tableName, CheckAndMax checkAndMax) {
-        Objects.requireNonNull(tableName, "tableName");
-        Objects.requireNonNull(checkAndMax, "checkAndMax");
-        return this.asyncTemplate.maxColumnValue(tableName, checkAndMax);
-    }
-
     @Override
     public void flushAvgMax() {
 
@@ -110,13 +104,25 @@ public class DefaultBulkWriter implements BulkWriter {
             }
         }
 
+        Map<TableName, List<CheckAndMax>> maxUpdates = new HashMap<>();
         for (Map.Entry<RowInfo, Long> entry : maxUpdateMap.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
             final Long val = entry.getValue();
             final byte[] rowKey = getDistributedKey(rowInfo.getRowKey().getRowKey());
             byte[] columnName = rowInfo.getColumnName().getColumnName();
             CheckAndMax checkAndMax = new CheckAndMax(rowKey, getColumnFamilyName(), columnName, val);
-            checkAndMax(rowInfo.getTableName(), checkAndMax);
+
+            List<CheckAndMax> checkAndMaxes = maxUpdates.computeIfAbsent(rowInfo.getTableName(), k -> new ArrayList<>());
+            checkAndMaxes.add(checkAndMax);
+        }
+
+        for (Map.Entry<TableName, List<CheckAndMax>> entry : maxUpdates.entrySet()) {
+            TableName tableName = entry.getKey();
+            List<CheckAndMax> maxs = entry.getValue();
+            List<List<CheckAndMax>> partition = ListUtils.partition(maxs, batchSize);
+            for (List<CheckAndMax> checkAndMaxes : partition) {
+                this.asyncTemplate.maxColumnValue(tableName, checkAndMaxes);
+            }
         }
     }
 
