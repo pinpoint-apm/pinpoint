@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 /**
  * @author Woonduk Kang(emeroad)
  */
-final class DefineClassFactory {
+public final class DefineClassFactory {
     private static final DefineClass defineClass = newDefineClass();
 
     private static DefineClass newDefineClass() {
@@ -44,7 +44,7 @@ final class DefineClassFactory {
         return new ReflectionDefineClass();
     }
 
-    static DefineClass getDefineClass() {
+    public static DefineClass getDefineClass() {
         return defineClass;
     }
 

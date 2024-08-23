@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.jsr166.ConcurrentWeakHashMap;
+import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
@@ -46,7 +47,10 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final int jvmVersion = JvmUtils.getVersion().getClassVersion();
     private final JarReader pluginJarReader;
+
+    private final DefineClass defineClass;
 
     // TODO remove static field
     private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<>();
@@ -54,9 +58,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private final PluginConfig pluginConfig;
 
-    public PlainClassLoaderHandler(PluginConfig pluginConfig) {
+    public PlainClassLoaderHandler(DefineClass defineClass, PluginConfig pluginConfig) {
+        this.defineClass = Objects.requireNonNull(defineClass, "defineClass");
         this.pluginConfig = Objects.requireNonNull(pluginConfig, "pluginConfig");
-
         this.pluginJarReader = new JarReader(pluginConfig.getPluginJarFile());
     }
 
@@ -238,8 +242,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private SimpleClassMetadata parseClass(FileBinary fileBinary) {
         byte[] fileBinaryArray = fileBinary.getFileBinary();
-        SimpleClassMetadata classMetadata = SimpleClassMetadataReader.readSimpleClassMetadata(fileBinaryArray);
-        return classMetadata;
+        return SimpleClassMetadataReader.readSimpleClassMetadata(fileBinaryArray);
     }
 
     private void define0(final ClassLoader classLoader, ClassLoaderAttachment attachment, SimpleClassMetadata currentClass, Map<String, SimpleClassMetadata> classMetaMap, ClassLoadingChecker classLoadingChecker) {
@@ -249,20 +252,24 @@ public class PlainClassLoaderHandler implements ClassInjector {
         if (attachment.containsClass(currentClass.getClassName())) {
             return;
         }
-
+        // multi module case : module-info
+        if (currentClass.getVersion() > jvmVersion) {
+            logger.info("Skip define class. className:{} version:{} jvmVersion:{}", currentClass.getClassName(), currentClass.getVersion(), jvmVersion);
+            return;
+        }
 
         final String superName = currentClass.getSuperClassName();
         if (isDebug) {
             logger.debug("className:{} super:{}", currentClass.getClassName(), superName);
         }
-        if (!"java.lang.Object".equals(superName)) {
+        // null case : package-info, module-info
+        if (superName != null && !"java.lang.Object".equals(superName)) {
             if (!isSkipClass(superName, classLoader, classLoadingChecker)) {
                 SimpleClassMetadata superClassBinary = classMetaMap.get(superName);
                 if (isDebug) {
                     logger.debug("superClass dependency define super:{} ori:{}", superClassBinary.getClassName(), currentClass.getClassName());
                 }
                 define0(classLoader, attachment, superClassBinary, classMetaMap, classLoadingChecker);
-
             }
         }
 
@@ -293,7 +300,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         // for debug
         final String className = classMetadata.getClassName();
         final byte[] classBytes = classMetadata.getClassBinary();
-        return DefineClassFactory.getDefineClass().defineClass(classLoader, className, classBytes);
+        return defineClass.defineClass(classLoader, className, classBytes);
     }
 
     private boolean isSkipClass(final String className, final ClassLoader classLoader, final ClassLoadingChecker classLoadingChecker) {

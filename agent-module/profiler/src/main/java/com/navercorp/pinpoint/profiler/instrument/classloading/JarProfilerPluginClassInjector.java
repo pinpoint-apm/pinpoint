@@ -43,7 +43,9 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
         this.bootstrapCore = Objects.requireNonNull(bootstrapCore, "bootstrapCore");
         this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine);
         this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig);
-        this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
+
+        final DefineClass defineClass = instrumentEngine.getDefineClass();
+        this.plainClassLoaderHandler = new PlainClassLoaderHandler(defineClass, pluginConfig);
     }
 
     @Override

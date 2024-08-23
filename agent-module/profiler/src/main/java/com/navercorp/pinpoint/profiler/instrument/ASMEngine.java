@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.profiler.instrument.classloading.DefineClass;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,11 +39,13 @@ public class ASMEngine implements InstrumentEngine {
 
     private final Instrumentation instrumentation;
     private final EngineComponent engineComponent;
+    private final DefineClass defineClass;
 
 
-    public ASMEngine(Instrumentation instrumentation, EngineComponent engineComponent) {
+    public ASMEngine(Instrumentation instrumentation, EngineComponent engineComponent, DefineClass defineClass) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.engineComponent = Objects.requireNonNull(engineComponent, "engineComponent");
+        this.defineClass = Objects.requireNonNull(defineClass, "defineClass");
     }
 
     @Override
@@ -78,5 +81,10 @@ public class ASMEngine implements InstrumentEngine {
             logger.info("appendToBootstrapClassPath:{}", jarFile.getName());
         }
         instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
+    }
+
+    @Override
+    public DefineClass getDefineClass() {
+        return defineClass;
     }
 }

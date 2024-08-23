@@ -35,8 +35,9 @@ public class PlainClassLoaderHandlerTest {
     @Test
     public void injectClass_bootstrapClass() {
         PluginConfig pluginConfig = newPluginConfig();
+        final DefineClass defineClass = DefineClassFactory.getDefineClass();
 
-        ClassInjector plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
+        ClassInjector plainClassLoaderHandler = new PlainClassLoaderHandler(defineClass, pluginConfig);
         Assertions.assertThrows(Exception.class, () -> {
             plainClassLoaderHandler.injectClass(this.getClass().getClassLoader(), "com.navercorp.pinpoint.bootstrap.Test");
         });

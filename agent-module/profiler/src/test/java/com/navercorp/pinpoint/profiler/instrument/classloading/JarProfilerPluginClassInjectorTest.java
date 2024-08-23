@@ -45,7 +45,9 @@ public class JarProfilerPluginClassInjectorTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final List<String> LOG4_IMPL = Collections.singletonList(CharUtils.class.getPackage().getName());
+    private static final List<String> COMMONS_LANG = Collections.singletonList(CharUtils.class.getPackage().getName());
+
+    private final DefineClass defineClass = DefineClassFactory.getDefineClass();
 
     @Test
     public void testInjectClass() throws Exception {
@@ -54,15 +56,15 @@ public class JarProfilerPluginClassInjectorTest {
 
         final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{plugin.getURL()});
 
-        final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(LOG4_IMPL);
+        final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(COMMONS_LANG);
         final PluginPackageClassRequirementFilter pluginPackageRequirementFilter = new PluginPackageClassRequirementFilter(Collections.emptyList());
         PluginConfig pluginConfig = new PluginConfig(plugin, pluginPackageFilter, pluginPackageRequirementFilter);
         logger.debug("pluginConfig:{}", pluginConfig);
 
-        ClassInjector injector = new PlainClassLoaderHandler(pluginConfig);
+        ClassInjector injector = new PlainClassLoaderHandler(defineClass, pluginConfig);
         final Class<?> commonsLangClass = injector.injectClass(contextTypeMatchClassLoader, className);
 
-        logger.debug("ClassLoader{}", commonsLangClass.getClassLoader());
+        logger.debug("ClassLoader:{}", commonsLangClass.getClassLoader());
         Assertions.assertEquals(commonsLangClass.getName(), className, "check className");
         Assertions.assertEquals(commonsLangClass.getClassLoader().getClass().getName(), CONTEXT_TYPE_MATCH_CLASS_LOADER, "check ClassLoader");
 
@@ -75,9 +77,11 @@ public class JarProfilerPluginClassInjectorTest {
             final Constructor<ClassLoader> constructor = aClass.getConstructor(ClassLoader.class);
             constructor.setAccessible(true);
 
-            List<String> lib = LOG4_IMPL;
+            List<String> lib = COMMONS_LANG;
+            ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+            String className = this.getClass().getName();
+            ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(className, urlArray, systemClassLoader, lib);
 
-            ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urlArray, ClassLoader.getSystemClassLoader(), lib);
             final ClassLoader contextTypeMatchClassLoader = constructor.newInstance(testClassLoader);
 
             logger.debug("cl:{}", contextTypeMatchClassLoader);

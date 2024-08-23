@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.profiler.instrument.DefaultEngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.EngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.ScopeFactory;
+import com.navercorp.pinpoint.profiler.instrument.classloading.DefineClass;
+import com.navercorp.pinpoint.profiler.instrument.classloading.DefineClassFactory;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -71,7 +73,8 @@ public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
             // WARNING must be singleton
             final ScopeFactory scopeFactory = new ScopeFactory();
             EngineComponent engineComponent = new DefaultEngineComponent(objectBinderFactory, interceptorRegistryBinder, interceptorDefinitionFactory, apiMetaDataServiceProvider, scopeFactory);
-            return new ASMEngine(instrumentation, engineComponent);
+            DefineClass defineClass = DefineClassFactory.getDefineClass();
+            return new ASMEngine(instrumentation, engineComponent, defineClass);
 
         } else {
             logger.warn("Unknown InstrumentEngine:{}", instrumentEngine);
