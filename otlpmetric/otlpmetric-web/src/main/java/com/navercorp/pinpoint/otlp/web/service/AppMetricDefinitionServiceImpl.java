@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.web.service;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinitionGroup;
 import com.navercorp.pinpoint.otlp.web.dao.AppMetricDefinitionDao;
 import org.springframework.stereotype.Service;
 
@@ -50,14 +51,16 @@ public class AppMetricDefinitionServiceImpl implements AppMetricDefinitionServic
     }
 
     @Override
-    public List<AppMetricDefinition> getUserDefinedMetric(String applicationName) {
-        return appMetricDefinitionDao.selectAppMetricDefinitionList(applicationName);
+    public AppMetricDefinitionGroup getUserDefinedMetric(String applicationName) {
+        List<AppMetricDefinition> appMetricDefinitionList = appMetricDefinitionDao.selectAppMetricDefinitionList(applicationName);
+        return new AppMetricDefinitionGroup(applicationName, appMetricDefinitionList);
     }
 
     @Override
-    public void updateUserDefinedMetric(List<AppMetricDefinition> appMetricDefinitionList) {
-        generateAndSetUniqueId(appMetricDefinitionList);
-        appMetricDefinitionDao.updateAppMetricDefinitionList(appMetricDefinitionList);
+    public void updateUserDefinedMetric(AppMetricDefinitionGroup appMetricDefinitionGroup) {
+        List<AppMetricDefinition> appMetricDefinitionList = appMetricDefinitionGroup.getAppMetricDefinitionList();
+        generateAndSetUniqueId(appMetricDefinitionGroup.getAppMetricDefinitionList());
+        appMetricDefinitionDao.updateAppMetricDefinitionList(appMetricDefinitionGroup.getApplicationName(), appMetricDefinitionList);
     }
 
     private void generateAndSetUniqueId(List<AppMetricDefinition> appMetricDefinitionList) {

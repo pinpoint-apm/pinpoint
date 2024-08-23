@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.web.service;
 
 import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinitionGroup;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public interface AppMetricDefinitionService {
 
     boolean existUserDefinedMetric(String applicationName, String metricName);
 
-    List<AppMetricDefinition> getUserDefinedMetric(String applicationName);
+    AppMetricDefinitionGroup getUserDefinedMetric(String applicationName);
 
-    void updateUserDefinedMetric(List<AppMetricDefinition> appMetricDefinitionList);
+    void updateUserDefinedMetric(AppMetricDefinitionGroup appMetricDefinitionGroup);
 }

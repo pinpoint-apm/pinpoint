@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.otlp.web.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
-import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinitionGroup;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricDefinitionProperty;
 import com.navercorp.pinpoint.otlp.web.service.AppMetricDefinitionService;
 import com.navercorp.pinpoint.otlp.web.service.MetricMetadataService;
@@ -52,13 +52,13 @@ public class MetricDefinitionController {
     }
 
     @GetMapping("/metricDef/userDefined")
-    public List<AppMetricDefinition> addUserDefinedMetric(@RequestParam("applicationName") String applicationName) {
+    public AppMetricDefinitionGroup addUserDefinedMetric(@RequestParam("applicationName") String applicationName) {
         return appMetricDefinitionService.getUserDefinedMetric(applicationName);
     }
 
     @PatchMapping(value = "/metricDef/userDefined")
-    public Response updateUserDefinedMetric(@RequestBody List<AppMetricDefinition> appMetricDefinitionList) {
-        appMetricDefinitionService.updateUserDefinedMetric(appMetricDefinitionList);
+    public Response updateUserDefinedMetric(@RequestBody AppMetricDefinitionGroup appMetricDefinitionGroup) {
+        appMetricDefinitionService.updateUserDefinedMetric(appMetricDefinitionGroup);
         return SimpleResponse.ok();
     }
 }
