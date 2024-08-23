@@ -88,6 +88,7 @@
         <module>okhttp-plugin-testweb</module>
         <module>grpc-plugin-testweb</module>
         <module>resilience4j-plugin-testweb</module>
+        <module>ktor-plugin-testweb</module>
         <module>closed-module-testweb</module>
         <module>closed-module-testlib</module>
     </modules>

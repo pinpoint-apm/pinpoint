@@ -1,0 +1,8 @@
+serviceTypes:
+  - code: 1160
+    name: 'KTOR'
+    property:
+      recordStatistics: true
+  - code: 1161
+    name: 'KTOR_INTERNAL'
+    desc: 'KTOR'
