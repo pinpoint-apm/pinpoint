@@ -30,6 +30,9 @@ import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.DefaultAsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
+import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
+import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
+import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.CpuUtils;
@@ -220,10 +223,13 @@ public class HbaseConfig {
     public HbaseAdminFactory hbaseAdminFactory(Connection connection) {
         return new HbaseAdminFactory(connection);
     }
+
     @Bean
     public HbaseAsyncTemplate hbaseAsyncTemplate(AsyncTableFactory asyncTableFactory) {
         ExecutorService executor = newAsyncTemplateExecutor();
-        return new HbaseAsyncTemplate(asyncTableFactory, executor);
+        ScanMetricReporter scanMetricReporter = new EmptyScanMetricReporter();
+        ResultScannerFactory scannerFactory = new ResultScannerFactory(4);
+        return new HbaseAsyncTemplate(asyncTableFactory, scannerFactory, scanMetricReporter, executor);
     }
 
     private ExecutorService newAsyncTemplateExecutor() {

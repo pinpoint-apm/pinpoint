@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.ParallelScan;
+import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
@@ -105,8 +106,11 @@ public class MapHbaseConfiguration {
     }
 
     @Bean
-    public HbaseAsyncTemplate mapHbaseAsyncTemplate(@Qualifier("mapHbaseAsyncTableFactory") AsyncTableFactory tableFactory) {
-        return config.asyncTemplate(tableFactory);
+    public HbaseAsyncTemplate mapHbaseAsyncTemplate(@Qualifier("mapHbaseAsyncTableFactory")
+                                                        AsyncTableFactory tableFactory,
+                                                    ScanMetricReporter scanMetricReporter,
+                                                    ResultScannerFactory resultScannerFactory) {
+        return config.asyncTemplate(tableFactory, scanMetricReporter, resultScannerFactory);
     }
 
     @Bean
@@ -115,8 +119,9 @@ public class MapHbaseConfiguration {
                                           @Qualifier("mapHbaseAsyncTemplate") HbaseAsyncTemplate asyncTemplate,
                                           Optional<ParallelScan> parallelScan,
                                           @Value("${hbase.client.nativeAsync:false}") boolean nativeAsync,
+                                          ResultScannerFactory resultScannerFactory,
                                           ScanMetricReporter reporter) {
-        return config.hbaseTemplate(configurable, tableFactory, asyncTemplate, parallelScan, nativeAsync, reporter);
+        return config.hbaseTemplate(configurable, tableFactory, asyncTemplate, parallelScan, nativeAsync, resultScannerFactory, reporter);
     }
 
     @Bean
