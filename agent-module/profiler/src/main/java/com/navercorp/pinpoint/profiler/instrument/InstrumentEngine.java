@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.profiler.instrument.classloading.DefineClass;
 
 import java.security.ProtectionDomain;
 import java.util.jar.JarFile;
@@ -32,4 +33,6 @@ public interface InstrumentEngine {
     InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws NotFoundInstrumentException;
 
     void appendToBootstrapClassPath(JarFile jarFile);
+
+    DefineClass getDefineClass();
 }

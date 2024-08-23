@@ -20,6 +20,6 @@ package com.navercorp.pinpoint.profiler.instrument.classloading;
 /**
  * @author Woonduk Kang(emeroad)
  */
-interface DefineClass {
+public interface DefineClass {
     Class<?> defineClass(ClassLoader classLoader, String className, byte[] b);
 }
