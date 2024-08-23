@@ -50,7 +50,10 @@ public class SyncWriter implements BulkWriter {
 
         TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey.getRowKey());
+
         Increment increment = Increments.increment(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), 1);
+        increment.setReturnResults(false);
+
         this.hbaseTemplate.increment(tableName, increment);
     }
 

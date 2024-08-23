@@ -17,12 +17,11 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +63,8 @@ public class RowKeyMerge {
             for (Map.Entry<RowKey, List<ColumnName>> rowKeyEntry : tableRowKeys.getValue().entrySet()) {
                 Increment increment = createIncrement(rowKeyEntry, rowKeyDistributorByHashPrefix);
                 incrementList.add(increment);
+
+
             }
             tableIncrementMap.put(tableName, incrementList);
         }
@@ -74,9 +75,12 @@ public class RowKeyMerge {
         RowKey rowKey = rowKeyEntry.getKey();
         byte[] key = getRowKey(rowKey, rowKeyDistributorByHashPrefix);
         final Increment increment = new Increment(key);
+        increment.setReturnResults(false);
         for (ColumnName columnName : rowKeyEntry.getValue()) {
             increment.addColumn(family, columnName.getColumnName(), columnName.getCallCount());
         }
+
+
         logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
         return increment;
     }
