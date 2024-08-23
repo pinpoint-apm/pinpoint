@@ -49,7 +49,10 @@ public class AppMetricDefinition {
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.fieldNameList = fieldNameList;
         this.tags = StringPrecondition.requireHasLength(tags, "tags");
-        this.unit = StringPrecondition.requireHasLength(unit, "unit");
+
+        // TODO : (minwoo) Need to decide later if unit is required.
+//        this.unit = StringPrecondition.requireHasLength(unit, "unit");
+        this.unit = unit;
         this.chartType = StringPrecondition.requireHasLength(chartType, "chartType");
         this.aggregationFunction = StringPrecondition.requireHasLength(chartType, "aggregationFunction");
         this.layout = Objects.requireNonNull(layout, "layout");
