@@ -47,8 +47,8 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
     }
 
     @Override
-    public void insertAppMetricDefinitionList(List<AppMetricDefinition> appMetricDefinitionList) {
-        AppMetricDefDto appMetricDefDto = mapper.toDto(appMetricDefinitionList);
+    public void insertAppMetricDefinitionList(String applicationName, List<AppMetricDefinition> appMetricDefinitionList) {
+        AppMetricDefDto appMetricDefDto = mapper.toDto(applicationName, appMetricDefinitionList);
         sqlSessionTemplate.insert(NAMESPACE + "insertAppMetricDefinition", appMetricDefDto);
     }
 
@@ -59,8 +59,8 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
     }
 
     @Override
-    public void updateAppMetricDefinitionList(List<AppMetricDefinition> appMetricDefinitionList) {
-        AppMetricDefDto appMetricDefDto = mapper.toDto(appMetricDefinitionList);
+    public void updateAppMetricDefinitionList(String applicationName, List<AppMetricDefinition> appMetricDefinitionList) {
+        AppMetricDefDto appMetricDefDto = mapper.toDto(applicationName, appMetricDefinitionList);
         sqlSessionTemplate.update(NAMESPACE + "updateAppMetricDefinition", appMetricDefDto);
     }
 
@@ -72,10 +72,8 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
             this.mapper = Objects.requireNonNull(mapper, "mapper");
         }
 
-        public AppMetricDefDto toDto(List<AppMetricDefinition> appMetricDefinitionList) {
+        public AppMetricDefDto toDto(String applicationName, List<AppMetricDefinition> appMetricDefinitionList) {
             Objects.requireNonNull(appMetricDefinitionList, "appMetricDefinitionList");
-
-            String applicationName = appMetricDefinitionList.get(0).getApplicationName();
 
             try {
                 String metricConfigJson = mapper.writeValueAsString(appMetricDefinitionList);
