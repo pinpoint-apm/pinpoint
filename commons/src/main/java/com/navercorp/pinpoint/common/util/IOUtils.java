@@ -21,10 +21,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.DatagramSocket;
-import java.net.Socket;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -117,11 +116,17 @@ public final class IOUtils {
 
 
     public static void closeQuietly(Closeable closeable) {
+        closeQuietly(closeable, null);
+    }
+
+    public static void closeQuietly(Closeable closeable, Consumer<IOException> consumer) {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException ignored) {
-                // skip
+            } catch (IOException ioe) {
+                if (consumer != null) {
+                    consumer.accept(ioe);
+                }
             }
         }
     }
@@ -129,28 +134,6 @@ public final class IOUtils {
     public static void close(Closeable closeable) throws IOException {
         if (closeable != null) {
             closeable.close();
-        }
-    }
-
-    public static void closeQuietly(Socket socket) {
-        if (socket != null) {
-            try {
-                socket.close();
-            } catch (IOException ignored) {
-                // skip
-            }
-        }
-    }
-
-    public static void close(Socket socket) throws IOException {
-        if (socket != null) {
-            socket.close();
-        }
-    }
-
-    public static void closeQuietly(DatagramSocket datagramSocket) {
-        if (datagramSocket != null) {
-            datagramSocket.close();
         }
     }
 

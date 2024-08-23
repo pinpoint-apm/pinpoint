@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.TestSocketUtils;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,30 +63,19 @@ public class ConnectionTest {
 
     @AfterAll
     public static void tearDown() throws Exception {
-        if (ts != null) {
-            ts.stop();
-            ZKUtils.closeQuietly(ts);
-        }
+        IOUtils.closeQuietly(ts);
     }
 
     // If the Instance of ZookeeperServer is changed, Zookeeper will not automatically reconnect.
     @Test
     public void zookeeperExpiredTest() throws Exception {
-        ZooKeeper zookeeper = new ZooKeeper(ts.getConnectString(), 5000, new Watcher() {
-            @Override
-            public void process(WatchedEvent watchedEvent) {
-                logger.info("process:{}", watchedEvent);
-            }
-        });
-
-        try {
+        try (ZooKeeper zookeeper = getZooKeeper()) {
             assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
 
             ts.restart();
             assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
 
-            ts.stop();
-            ZKUtils.closeQuietly(ts);
+            IOUtils.closeQuietly(ts);
 
             assertAwaitState(ZooKeeper.States.CONNECTING, zookeeper);
 
@@ -93,29 +84,27 @@ public class ConnectionTest {
 
             Assertions.assertThrows(ConditionTimeoutException.class, () -> assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper));
 
-        } finally {
-            ZKUtils.closeQuietly(zookeeper);
         }
     }
 
     // If the Instance of ZookeeperServer is changed, Zookeeper will not automatically reconnect.
     @Test
     public void zookeeperReconnectTest() throws Exception {
-        ZooKeeper zookeeper = new ZooKeeper(ts.getConnectString(), 5000, new Watcher() {
+        try (ZooKeeper zookeeper = getZooKeeper()) {
+            assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
+
+            ts.restart();
+            assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
+        }
+    }
+
+    private ZooKeeper getZooKeeper() throws IOException {
+        return new ZooKeeper(ts.getConnectString(), 5000, new Watcher() {
             @Override
             public void process(WatchedEvent watchedEvent) {
                 logger.info("process:{}", watchedEvent);
             }
         });
-
-        try {
-            assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
-
-            ts.restart();
-            assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
-        } finally {
-            ZKUtils.closeQuietly(zookeeper);
-        }
     }
 
 
@@ -137,8 +126,7 @@ public class ConnectionTest {
 
             assertAwaitState(true, curatorZookeeperClient);
 
-            ts.stop();
-            ZKUtils.closeQuietly(ts);
+            IOUtils.closeQuietly(ts);
 
             assertAwaitState(false, curatorZookeeperClient);
 

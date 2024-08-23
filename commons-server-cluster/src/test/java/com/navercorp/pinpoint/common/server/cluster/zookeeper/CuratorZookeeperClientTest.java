@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.BadOperationException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
+import org.apache.commons.io.IOUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.logging.log4j.LogManager;
@@ -95,18 +96,14 @@ public class CuratorZookeeperClientTest {
 
     @AfterAll
     public static void tearDownClass() throws Exception {
-        ZKUtils.closeQuietly(curatorZookeeperClient);
+        IOUtils.closeQuietly(curatorZookeeperClient);
 
-        if (ts != null) {
-            ts.stop();
-            ZKUtils.closeQuietly(ts);
-        }
+        IOUtils.closeQuietly(ts);
     }
 
     @Test
     public void createAndDeleteTest() throws Exception {
-        ZooKeeper zooKeeper = createZookeeper();
-        try {
+        try (ZooKeeper zooKeeper = createZookeeper()) {
             String message = createTestMessage();
             String testNodePath = createTestNodePath();
 
@@ -119,16 +116,12 @@ public class CuratorZookeeperClientTest {
             curatorZookeeperClient.delete(testNodePath);
 
             Assertions.assertFalse(isExistNode(zooKeeper, testNodePath));
-        } finally {
-            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 
     @Test
     public void createOrSetNodeTest() throws Exception {
-        ZooKeeper zooKeeper = createZookeeper();
-
-        try {
+        try (ZooKeeper zooKeeper = createZookeeper()) {
             String message = createTestMessage();
             String testNodePath = createTestNodePath() + "/temp";
 
@@ -151,16 +144,13 @@ public class CuratorZookeeperClientTest {
             Assertions.assertTrue(existNode);
 
             curatorZookeeperClient.delete(testNodePath);
-        } finally {
-            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 
     @Test
     public void alreadyExistNodeCreateTest() {
         Assertions.assertThrows(BadOperationException.class, () -> {
-            ZooKeeper zooKeeper = createZookeeper();
-            try {
+            try (ZooKeeper zooKeeper = createZookeeper()) {
                 String message = createTestMessage();
                 String testNodePath = createTestNodePath();
 
@@ -168,16 +158,13 @@ public class CuratorZookeeperClientTest {
                 Assertions.assertTrue(isExistNode(zooKeeper, testNodePath));
 
                 curatorZookeeperClient.createNode(new CreateNodeMessage(testNodePath, "test".getBytes()));
-            } finally {
-                ZKUtils.closeQuietly(zooKeeper);
             }
         });
     }
 
     @Test
     public void getTest() throws Exception {
-        ZooKeeper zooKeeper = createZookeeper();
-        try {
+        try (ZooKeeper zooKeeper = createZookeeper()) {
             String testNodePath = createTestNodePath();
 
             curatorZookeeperClient.createNode(new CreateNodeMessage(testNodePath, "".getBytes()));
@@ -192,8 +179,6 @@ public class CuratorZookeeperClientTest {
             message = createTestMessage();
             curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes(), true));
             assertGetWatchedEvent(testNodePath, message);
-        } finally {
-            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 
@@ -210,8 +195,7 @@ public class CuratorZookeeperClientTest {
 
     @Test
     public void getChildrenTest() throws Exception {
-        ZooKeeper zooKeeper = createZookeeper();
-        try {
+        try (ZooKeeper zooKeeper = createZookeeper()) {
             String testNodePath = createTestNodePath();
 
             ZKPaths.PathAndNode pathAndNode = ZKPaths.getPathAndNode(testNodePath);
@@ -229,8 +213,6 @@ public class CuratorZookeeperClientTest {
 
             childrenNode = curatorZookeeperClient.getChildNodeList(pathAndNode.getPath(), false);
             Assertions.assertFalse(childrenNode.isEmpty());
-        } finally {
-            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 
