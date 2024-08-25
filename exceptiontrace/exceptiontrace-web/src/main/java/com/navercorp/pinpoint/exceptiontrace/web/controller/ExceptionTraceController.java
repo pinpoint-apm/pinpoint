@@ -20,9 +20,11 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ClpConverted;
+import com.navercorp.pinpoint.exceptiontrace.web.query.ClpQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
-import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ErrorSummaryView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
@@ -193,6 +195,37 @@ public class ExceptionTraceController {
                 .addAllGroupByList(groupByList)
                 .build();
         return exceptionTraceService.getGroupSummaries(
+                queryParameter
+        );
+    }
+
+    @GetMapping("/replacedTokens")
+    public List<ClpConverted> getReplacedVariables(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+
+            @RequestParam("logType") String logType,
+            @RequestParam("targetColumn") String targetColumn,
+            @RequestParam("targetIndex") int targetIndex
+    ) {
+        Range range = Range.between(from, to);
+        rangeValidator.validate(range);
+
+        ClpQueryParameter queryParameter = new ClpQueryParameter.Builder()
+                .setTableName(tableName)
+                .setTenantId(tenantProvider.getTenantId())
+                .setApplicationName(applicationName)
+                .setAgentId(agentId)
+                .setRange(Range.between(from, to))
+                .setTimePrecision(DETAILED_TIME_PRECISION)
+                .setLogType(logType)
+                .setTargetColumn(targetColumn)
+                .setTargetIndex(targetIndex)
+                .build();
+
+        return exceptionTraceService.getReplacedVariables(
                 queryParameter
         );
     }
