@@ -11,8 +11,9 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib';
 import { PiTrash } from 'react-icons/pi';
 import { PiNotePencil } from 'react-icons/pi';
+import { PropsWithChildren } from 'react';
 
-export interface WidgetProps {
+export interface WidgetProps extends PropsWithChildren {
   title?: string;
   onClickEdit?: () => void;
   onClickDelete?: () => void;
@@ -21,7 +22,7 @@ export interface WidgetProps {
 export const DRAGGABLE_HANDLE_CLASS = '__pp_widget_draggable_hanlde__';
 export const DRAGGABLE_CANCEL_CLASS = '__pp_widget_draggable_cancel__';
 
-export const Widget = ({ title, onClickEdit, onClickDelete }: WidgetProps) => {
+export const Widget = ({ title, children, onClickEdit, onClickDelete }: WidgetProps) => {
   const { t } = useTranslation();
   return (
     <div className="h-full bg-white border rounded-sm">
@@ -60,6 +61,7 @@ export const Widget = ({ title, onClickEdit, onClickDelete }: WidgetProps) => {
           </Button>
         </div>
       </div>
+      {children && <div className="h-[calc(100%-2rem)]">{children}</div>}
     </div>
   );
 };

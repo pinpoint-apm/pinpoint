@@ -32,6 +32,7 @@ export * from './useGetInspectorAgentInfoData';
 export * from './useGetInspectorAgentStatusTimeline';
 export * from './useGetInspectorApplicationChartData';
 export * from './useGetInspectorApplicationDataSourceChartData';
+export * from './useGetOtlpMetricData';
 export * from './useGetOtlpMetricDefProperty';
 export * from './useGetOtlpMetricDefUserDefined';
 export * from './useGetScatterData';

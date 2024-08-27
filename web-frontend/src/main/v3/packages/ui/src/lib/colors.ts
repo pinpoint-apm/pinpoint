@@ -5,6 +5,13 @@ export const getRandomColor = () => {
   return `#${random.slice(0, 6)}`;
 };
 
+export const getRandomColorInHSL = () => {
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = 70 + Math.floor(Math.random() * 30); // 70% ~ 100%
+  const lightness = 50 + Math.floor(Math.random() * 20); // 50% ~ 70%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+};
+
 export const getLuminanceByBT709 = (hexColor: string) => {
   hexColor = hexColor.replace(/^#/, '');
   // 3자리 16진수인 경우를 처리
