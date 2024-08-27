@@ -39,33 +39,40 @@ export const ApplicationCombinedList = ({
     [],
   );
 
+  const isFavoriteApplication = (application: ApplicationType) => {
+    return favoriteList.find((favoriteApp: ApplicationType) => {
+      return favoriteApp.applicationName === application.applicationName;
+    });
+  };
+
   const handleClickItem = (application: ApplicationType) => {
     onClickApplication?.(application);
   };
 
-  const handleClickFavorite = (e: React.MouseEvent, application: ApplicationType) => {
+  const handleClickFavorite = (
+    e: React.MouseEvent,
+    application: ApplicationType,
+    option?: { disableToast: boolean },
+  ) => {
     e.stopPropagation();
 
-    const isExist = favoriteList.find((favoriteApp: ApplicationType) => {
-      return favoriteApp.applicationName === application.applicationName;
-    });
-
-    if (isExist) {
+    if (isFavoriteApplication(application)) {
       setFavoriteList(
         favoriteList.filter(
           (favoriteApp: ApplicationType) =>
             favoriteApp.applicationName !== application.applicationName,
         ),
       );
-      toast({
-        description: (
-          <div className="flex items-center gap-2 text-xs">
-            <LuStarOff />
-            {removeFavoriteMessage}
-          </div>
-        ),
-        variant: 'small',
-      });
+      !option?.disableToast &&
+        toast({
+          description: (
+            <div className="flex items-center gap-1 text-xs">
+              <LuStarOff />
+              {removeFavoriteMessage}
+            </div>
+          ),
+          variant: 'small',
+        });
     } else {
       setFavoriteList(
         [...favoriteList, application].sort((a, b) => {
@@ -75,15 +82,16 @@ export const ApplicationCombinedList = ({
           return 1;
         }),
       );
-      toast({
-        description: (
-          <div className="flex items-center gap-2 text-xs">
-            <LuStar className="fill-emerald-400 stroke-emerald-400" />
-            {addFavoriteMessage}
-          </div>
-        ),
-        variant: 'small',
-      });
+      !option?.disableToast &&
+        toast({
+          description: (
+            <div className="flex items-center gap-2 text-xs">
+              <LuStar className="fill-emerald-400 stroke-emerald-400" />
+              {addFavoriteMessage}
+            </div>
+          ),
+          variant: 'small',
+        });
     }
   };
 
@@ -95,7 +103,7 @@ export const ApplicationCombinedList = ({
       >
         <div className="flex items-center w-full p-1 pt-2">
           {selectedApplication ? (
-            <div className="flex items-center gap-2 overflow-hidden">
+            <div className="flex items-center flex-1 gap-2 overflow-hidden group/applist-input">
               <img
                 width={24}
                 height="auto"
@@ -103,6 +111,17 @@ export const ApplicationCombinedList = ({
                 src={getServerIconPath(selectedApplication)}
               />
               <div className="truncate">{selectedApplication.applicationName}</div>
+              <div
+                className="flex-none hidden w-5 h-5 ml-auto cursor-pointer group-hover/applist-input:block"
+                onClick={(e) => handleClickFavorite(e, selectedApplication, { disableToast: true })}
+              >
+                <LuStar
+                  className={cn('opacity-50 pb-0.5', {
+                    'fill-emerald-400 stroke-emerald-400 opacity-70':
+                      isFavoriteApplication(selectedApplication),
+                  })}
+                />
+              </div>
             </div>
           ) : (
             selectPlaceHolder
@@ -154,9 +173,7 @@ export const ApplicationCombinedList = ({
                   onClickItem={handleClickItem}
                   itemAs={PopoverClose}
                   itemChild={(application) => {
-                    const isFavorite = favoriteList.find(
-                      (favorite) => favorite.applicationName === application.applicationName,
-                    );
+                    const isFavorite = isFavoriteApplication(application);
                     return (
                       <>
                         <ApplicationItem {...application} />
