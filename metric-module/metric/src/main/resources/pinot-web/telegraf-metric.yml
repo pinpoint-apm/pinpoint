@@ -116,3 +116,12 @@ mappings:
         matchingRule: ANY_ONE
       - name: "waiting"
         matchingRule: ANY_ONE
+
+  - definitionId: "processFd"
+    name: "procstat"
+    title: "process fd count"
+    grouping: "TAG"
+    unit: "count"
+    fields:
+      - name: "num_fds"
+        matchingRule: PASSED_ALL
