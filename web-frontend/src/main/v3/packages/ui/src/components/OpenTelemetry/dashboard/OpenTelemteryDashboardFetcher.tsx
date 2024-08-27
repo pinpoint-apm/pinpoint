@@ -30,6 +30,7 @@ import { Widget } from '../../Dashboard/Widget';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { DashBoard } from '../../Dashboard/DashBoard';
 import { MetricDefinitionSheet } from '../definition/MetricDefinitionSheet';
+import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
 
 export interface OpenTelemetryDashboardFetcherProps {}
 
@@ -153,7 +154,12 @@ export const OpenTelemetryDashboardFetcher = () => {
                       onClickEdit={() => {
                         setCurrentEditingTarget(metric);
                       }}
-                    />
+                    >
+                      <OpenTelemetryMetric
+                        metricDefinition={metric}
+                        dashboardId={applicationName}
+                      />
+                    </Widget>
                   </div>
                 );
               })}
