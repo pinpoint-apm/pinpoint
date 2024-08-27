@@ -19,7 +19,10 @@ package com.navercorp.pinpoint.collector.scheduler;
 
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import jakarta.annotation.PostConstruct;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -30,20 +33,27 @@ import java.util.Objects;
 
 @Component
 public class AvgMaxLinkScheduler {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TaskScheduler scheduler;
     private final List<CachedStatisticsDao> statisticsDaoList;
+    private final Duration flushInterval;
+
 
     public AvgMaxLinkScheduler(@Qualifier("statisticsLinkScheduler") TaskScheduler scheduler,
+                               @Value("${collector.map-link.avg.flush-period:5000}") Duration flushInterval,
                                List<CachedStatisticsDao> statisticsDaoList) {
         this.scheduler = Objects.requireNonNull(scheduler, "scheduler");
         this.statisticsDaoList = Objects.requireNonNull(statisticsDaoList, "statisticsDaoList");
+        this.flushInterval = Objects.requireNonNull(flushInterval, "flushInterval");
+        logger.info("AvgMaxLinkScheduler flushPeriod={}", flushInterval);
+        logger.info("AvgMaxLinkScheduler CachedStatisticsDao:{}", statisticsDaoList);
     }
 
     @PostConstruct
     public void linkScheduling()  {
         for (CachedStatisticsDao dao : statisticsDaoList) {
-            this.scheduler.scheduleWithFixedDelay(dao::flushAvgMax, Duration.ofMillis(1000));
+            this.scheduler.scheduleWithFixedDelay(dao::flushAvgMax, flushInterval);
         }
     }
 }
