@@ -98,3 +98,4 @@ export const CONFIG_USERS = `${LOCAL_API_PATH}/user`;
 
 export const OTLP_METRIC_DEF_PROPERTY = `${LOCAL_API_PATH}/otlp/metricDef/property`;
 export const OTLP_METRIC_DEF_USER_DEFINED = `${LOCAL_API_PATH}/otlp/metricDef/userDefined`;
+export const OTLP_METRIC_DATA = `${LOCAL_API_PATH}/otlp/metricData`;

@@ -31,6 +31,7 @@ export * from './InspectorAgentStatusTimeline';
 export * from './InspectorApplicationChart';
 export * from './InspectorApplicationDataSourceChart';
 export * from './MenuItem';
+export * from './OtlpMetricData';
 export * from './OtlpMetricDefProperty';
 export * from './OtlpMetricDefUserDefined';
 export * from './Scatter';

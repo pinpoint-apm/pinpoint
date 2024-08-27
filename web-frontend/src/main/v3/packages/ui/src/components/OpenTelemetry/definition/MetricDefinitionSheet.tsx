@@ -17,7 +17,7 @@ export const MetricDefinitionSheet = ({
   onCancel,
   ...props
 }: MetricDefinitionSheetProps) => {
-  const title = metric?.id ? `Edit ${metric.title}` : `Add Metric`; // TODO: Add or Update Metric
+  const title = metric?.id ? `Edit ${metric.title}` : `Add Metric`;
 
   return (
     <Sheet {...props}>
