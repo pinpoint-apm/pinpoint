@@ -19,13 +19,37 @@ package com.navercorp.pinpoint.exceptiontrace.web.entity;
  * @author intr3p1d
  */
 public class ExceptionGroupSummaryEntity extends GroupedFieldNameEntity {
+    private String values;
+    private long count;
     private String mostRecentErrorClass;
     private String mostRecentErrorMessage;
-    private long count;
+    private String firstLineOfClassName;
+    private String firstLineOfMethodName;
     private long firstOccurred;
     private long lastOccurred;
+    private String applicationName;
+    private String agentId;
+    private String transactionId;
+    private String spanId;
+    private String exceptionId;
 
     public ExceptionGroupSummaryEntity() {
+    }
+
+    public String getValues() {
+        return values;
+    }
+
+    public void setValues(String values) {
+        this.values = values;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
     }
 
     public String getMostRecentErrorClass() {
@@ -44,12 +68,20 @@ public class ExceptionGroupSummaryEntity extends GroupedFieldNameEntity {
         this.mostRecentErrorMessage = mostRecentErrorMessage;
     }
 
-    public long getCount() {
-        return count;
+    public String getFirstLineOfClassName() {
+        return firstLineOfClassName;
     }
 
-    public void setCount(long count) {
-        this.count = count;
+    public void setFirstLineOfClassName(String firstLineOfClassName) {
+        this.firstLineOfClassName = firstLineOfClassName;
+    }
+
+    public String getFirstLineOfMethodName() {
+        return firstLineOfMethodName;
+    }
+
+    public void setFirstLineOfMethodName(String firstLineOfMethodName) {
+        this.firstLineOfMethodName = firstLineOfMethodName;
     }
 
     public long getFirstOccurred() {
@@ -66,5 +98,45 @@ public class ExceptionGroupSummaryEntity extends GroupedFieldNameEntity {
 
     public void setLastOccurred(long lastOccurred) {
         this.lastOccurred = lastOccurred;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public String getSpanId() {
+        return spanId;
+    }
+
+    public void setSpanId(String spanId) {
+        this.spanId = spanId;
+    }
+
+    public String getExceptionId() {
+        return exceptionId;
+    }
+
+    public void setExceptionId(String exceptionId) {
+        this.exceptionId = exceptionId;
     }
 }

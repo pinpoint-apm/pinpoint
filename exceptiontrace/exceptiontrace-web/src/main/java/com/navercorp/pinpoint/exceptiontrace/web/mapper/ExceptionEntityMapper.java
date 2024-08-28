@@ -18,12 +18,10 @@ package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
-import com.navercorp.pinpoint.exceptiontrace.web.entity.ErrorSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
 import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
@@ -81,20 +79,11 @@ public interface ExceptionEntityMapper {
     @Mappings({
             @Mapping(target = "groupedFieldName", ignore = true),
             @Mapping(target = "groupFilterParams", ignore = true),
-    })
-    ExceptionGroupSummary toSummary(
-            ExceptionGroupSummaryEntity entity,
-            List<GroupByAttributes> attributesList
-    );
-
-    @Mappings({
-            @Mapping(target = "groupedFieldName", ignore = true),
-            @Mapping(target = "groupFilterParams", ignore = true),
             @Mapping(source = "entity.values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),
             @Mapping(target = "lastTransactionSearchParams", source = "entity"),
     })
-    ErrorSummary toErrorSummary(
-            ErrorSummaryEntity entity,
+    ExceptionGroupSummary toSummary(
+            ExceptionGroupSummaryEntity entity,
             List<GroupByAttributes> attributesList
     );
 

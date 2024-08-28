@@ -47,7 +47,7 @@ public class GroupedFieldName {
                 Stream.of(
                                 uriTemplate,
                                 errorClassName,
-                                defaultIfEmpty(errorMessage, EMPTY_STRING),
+                                errorMessage,
                                 stackTraceHash
                         )
                         .filter(StringUtils::hasLength)

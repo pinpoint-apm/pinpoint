@@ -17,21 +17,48 @@ package com.navercorp.pinpoint.exceptiontrace.web.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.exceptiontrace.web.model.params.GroupFilterParams;
+import com.navercorp.pinpoint.exceptiontrace.web.model.params.TransactionSearchParams;
+
+import java.util.List;
 
 /**
  * @author intr3p1d
  */
 public class ExceptionGroupSummary implements Grouped {
 
+    private List<Integer> values;
+    private long count;
+
     private GroupedFieldName groupedFieldName;
     private GroupFilterParams groupFilterParams;
+
     private String mostRecentErrorClass;
     private String mostRecentErrorMessage;
-    private long count;
+    private String firstLineOfClassName;
+    private String firstLineOfMethodName;
     private long firstOccurred;
     private long lastOccurred;
 
+    private TransactionSearchParams lastTransactionSearchParams;
+
+
     public ExceptionGroupSummary() {
+    }
+
+    public List<Integer> getValues() {
+        return values;
+    }
+
+    public void setValues(List<Integer> values) {
+        this.values = values;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
     }
 
     @JsonProperty("fieldName")
@@ -69,12 +96,20 @@ public class ExceptionGroupSummary implements Grouped {
         this.mostRecentErrorMessage = mostRecentErrorMessage;
     }
 
-    public long getCount() {
-        return count;
+    public String getFirstLineOfClassName() {
+        return firstLineOfClassName;
     }
 
-    public void setCount(long count) {
-        this.count = count;
+    public void setFirstLineOfClassName(String firstLineOfClassName) {
+        this.firstLineOfClassName = firstLineOfClassName;
+    }
+
+    public String getFirstLineOfMethodName() {
+        return firstLineOfMethodName;
+    }
+
+    public void setFirstLineOfMethodName(String firstLineOfMethodName) {
+        this.firstLineOfMethodName = firstLineOfMethodName;
     }
 
     public long getFirstOccurred() {
@@ -93,15 +128,26 @@ public class ExceptionGroupSummary implements Grouped {
         this.lastOccurred = lastOccurred;
     }
 
+    public TransactionSearchParams getLastTransactionSearchParams() {
+        return lastTransactionSearchParams;
+    }
+
+    public void setLastTransactionSearchParams(TransactionSearchParams lastTransactionSearchParams) {
+        this.lastTransactionSearchParams = lastTransactionSearchParams;
+    }
+
     @Override
     public String toString() {
-        return "ExceptionTraceSummary{" +
-                "groupedFieldName=" + groupedFieldName +
+        return "ExceptionGroupSummary{" +
+                "values=" + values +
+                ", count=" + count +
+                ", groupedFieldName=" + groupedFieldName +
+                ", groupFilterParams=" + groupFilterParams +
                 ", mostRecentErrorClass='" + mostRecentErrorClass + '\'' +
                 ", mostRecentErrorMessage='" + mostRecentErrorMessage + '\'' +
-                ", count=" + count +
                 ", firstOccurred=" + firstOccurred +
                 ", lastOccurred=" + lastOccurred +
+                ", lastTransactionSearchParams=" + lastTransactionSearchParams +
                 '}';
     }
 }
