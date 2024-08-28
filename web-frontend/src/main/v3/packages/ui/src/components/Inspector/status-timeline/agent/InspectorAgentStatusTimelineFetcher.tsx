@@ -12,7 +12,7 @@ export const InspectorAgentStatusTimelineFetcher = ({
   const { data, totalRange, activeRange } = useGetInspectorAgentStatusTimeline();
 
   return (
-    <div className={cn('py-4 px-4 bg-white h-24 rounded', className)}>
+    <div className={cn('py-4 px-4 h-24', className)}>
       {data && (
         <StatusTimeline
           data={data}
