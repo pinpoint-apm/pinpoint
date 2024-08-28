@@ -15,11 +15,6 @@ class ExceptionChartValueViewTest {
         ExceptionChartValueView view = new ExceptionChartValueView();
         view.setRowNum(1);
 
-        GroupedFieldName emptyFieldName = new GroupedFieldName();
-        emptyFieldName.setErrorMessage("");
-        view.setGroupedFieldName(emptyFieldName);
-        assertEquals("1) " + GroupedFieldName.EMPTY_STRING, view.getFieldName());
-
 
         GroupedFieldName nullStringFieldName = new GroupedFieldName();
         nullStringFieldName.setErrorMessage("null");

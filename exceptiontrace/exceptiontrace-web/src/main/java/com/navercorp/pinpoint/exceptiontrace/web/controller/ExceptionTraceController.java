@@ -18,13 +18,11 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
 import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ErrorSummaryView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
 import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
@@ -105,40 +103,6 @@ public class ExceptionTraceController {
         );
     }
 
-    @GetMapping("/summary")
-    public List<ErrorSummaryView> getErrorSummaries(
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
-    ) {
-        Range range = Range.between(from, to);
-        rangeValidator.validate(range);
-        TimeWindow timeWindow = new TimeWindow(range, ROUGH_TIME_WINDOW_SAMPLER);
-
-
-        ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
-                .setTableName(tableName)
-                .setTenantId(tenantProvider.getTenantId())
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setRange(range)
-                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
-                .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
-                .setGroupByAttributes(List.of(
-                        GroupByAttributes.ERROR_MESSAGE_LOG_TYPE,
-                        GroupByAttributes.ERROR_CLASS_NAME,
-                        GroupByAttributes.STACK_TRACE
-                ))
-                .build();
-
-        return exceptionTraceService.getErrorSummaries(
-                queryParameter
-        ).stream().map(
-                (ErrorSummary e) -> new ErrorSummaryView(e, timeWindow)
-        ).toList();
-    }
-
     @GetMapping("/errorList")
     public List<ExceptionDetailView> getListOfExceptionMetaDataByGivenRange(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -160,7 +124,6 @@ public class ExceptionTraceController {
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(range)
-                .setTimePrecision(DETAILED_TIME_PRECISION)
                 .setHardLimit(count)
                 .addAllFilters(filters)
                 .setOrderBy(orderBy)
@@ -182,6 +145,7 @@ public class ExceptionTraceController {
     ) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range, ROUGH_TIME_WINDOW_SAMPLER);
 
         ExceptionTraceQueryParameter queryParameter = new ExceptionTraceQueryParameter.Builder()
                 .setTableName(tableName)
@@ -189,7 +153,8 @@ public class ExceptionTraceController {
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.between(from, to))
-                .setTimePrecision(DETAILED_TIME_PRECISION)
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
+                .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
                 .addAllGroupByList(groupByList)
                 .build();
         return exceptionTraceService.getGroupSummaries(

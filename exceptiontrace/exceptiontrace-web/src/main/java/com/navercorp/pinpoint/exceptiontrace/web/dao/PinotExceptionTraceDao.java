@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.exceptiontrace.web.dao;
 
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
-import com.navercorp.pinpoint.exceptiontrace.web.entity.ErrorSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ErrorSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionEntityMapper;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
@@ -114,14 +112,4 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
                 ).collect(Collectors.toList());
     }
 
-    @Override
-    public List<ErrorSummary> getErrorSummaries(ExceptionTraceQueryParameter exceptionTraceQueryParameter) {
-        List<ErrorSummaryEntity> entities = this.sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_ERROR_SUMMARIES_QUERY, exceptionTraceQueryParameter);
-        return entities.stream()
-                .map((ErrorSummaryEntity e) ->
-                        mapper.toErrorSummary(
-                                e, exceptionTraceQueryParameter.getGroupByAttributes()
-                        )
-                ).collect(Collectors.toList());
-    }
 }

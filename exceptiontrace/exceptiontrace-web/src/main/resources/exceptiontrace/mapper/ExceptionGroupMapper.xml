@@ -11,14 +11,28 @@
     <select id="selectGroupSummaries" resultMap="exceptionGroupSummaryEntity"
             parameterType="ExceptionTraceQueryParameter">
         SELECT
+        arraySliceInt(
+        HISTOGRAM("timestamp", #{range.from}, #{range.to}, #{timeWindowRangeCount}), 0, #{timeWindowRangeCount}
+        ) as "values",
+        count(*) as "count",
         <include refid="getGroupedFieldNameEntity"></include>
         LASTWITHTIME(errorClassName, "timestamp", 'STRING') as "mostRecentErrorClass",
         LASTWITHTIME(
         <include refid="getErrorMessage"></include>,
         "timestamp", 'STRING') as "mostRecentErrorMessage",
-        count(*) as "count",
+        LASTWITHTIME(arrayElementAtString(stackTraceClassName, 1), "timestamp",
+        'STRING') as firstLineOfClassName,
+        LASTWITHTIME(arrayElementAtString(stackTraceMethodName, 1), "timestamp",
+        'STRING') as firstLineOfMethodName,
         FIRSTWITHTIME("timestamp", "timestamp", 'LONG') as "firstOccurred",
-        LASTWITHTIME("timestamp", "timestamp", 'LONG') as "lastOccurred"
+        LASTWITHTIME("timestamp", "timestamp", 'LONG') as "lastOccurred",
+
+        applicationName,
+
+        LASTWITHTIME(agentId, "timestamp", 'STRING') as "agentId",
+        LASTWITHTIME(transactionId, "timestamp", 'STRING') as "transactionId",
+        LASTWITHTIME(spanId, "timestamp", 'LONG') as "spanId",
+        LASTWITHTIME(exceptionId, "timestamp", 'LONG') as "exceptionId"
 
         FROM
         <include refid="exceptionTraceTable"></include>
