@@ -21,6 +21,8 @@ export interface WidgetProps extends PropsWithChildren {
 
 export const DRAGGABLE_HANDLE_CLASS = '__pp_widget_draggable_hanlde__';
 export const DRAGGABLE_CANCEL_CLASS = '__pp_widget_draggable_cancel__';
+export const WIDGET_WIDTH = 5;
+export const WIDGET_HEIGHT = 2;
 
 export const Widget = ({ title, children, onClickEdit, onClickDelete }: WidgetProps) => {
   const { t } = useTranslation();
