@@ -14,7 +14,7 @@ export const UrlStatChart = ({ ...props }: UrlStatChartProps) => {
     { id: 'latency', display: 'Latency' },
   ];
   return (
-    <Tabs defaultValue="total">
+    <Tabs defaultValue="total" className="p-3 bg-white border rounded">
       <TabsList>
         {tabList.map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id}>

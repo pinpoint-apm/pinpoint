@@ -104,7 +104,7 @@ export const InspectorAgentInfoFetcher = () => {
   const [isOpen, setIsOpen] = React.useState(true);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border rounded">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="bg-white border rounded">
       <div className="flex px-4 py-2">
         <CollapsibleTrigger className="mr-auto cursor-pointer" asChild>
           <div className="flex items-center gap-1">

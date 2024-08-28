@@ -46,11 +46,11 @@ export const ErrorAnalysisTableFetcher = ({
   return (
     <TooltipProvider delayDuration={100}>
       <DataTableCountOfRows
-        triggerClassName="mt-10 mb-2"
+        triggerClassName="mt-10 mb-2 bg-white"
         selectedCount={count}
         onChange={(c) => setCount(c)}
       />
-      <div className={cn('rounded-md border', className)}>
+      <div className={cn('rounded-md border bg-white', className)}>
         <DataTable
           tableClassName="[&>tbody]:text-xs"
           columns={columns}

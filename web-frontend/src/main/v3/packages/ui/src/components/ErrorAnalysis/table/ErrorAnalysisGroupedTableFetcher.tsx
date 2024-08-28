@@ -36,7 +36,7 @@ export const ErrorAnalysisGroupedTableFetcher = ({
   });
 
   return (
-    <div className={cn('rounded-md border', className)}>
+    <div className={cn('rounded-md border bg-white', className)}>
       <DataTable tableClassName="[&>tbody]:text-xs" columns={columns} data={data || []} />
     </div>
   );

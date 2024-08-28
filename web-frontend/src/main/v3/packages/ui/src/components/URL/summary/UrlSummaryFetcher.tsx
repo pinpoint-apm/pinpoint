@@ -48,7 +48,7 @@ export const UrlSummaryFetcher = ({ className }: UrlSummaryFetcherProps) => {
         selectedCount={count}
         onChange={(c) => setCount(c)}
       />
-      <div className={cn('max-h-[calc(100%-26rem)] rounded-md border', className)}>
+      <div className={cn('max-h-[calc(100%-26rem)] rounded-md border bg-white', className)}>
         <DataTable
           tableClassName="text-xs"
           columns={columns}
