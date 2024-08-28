@@ -27,7 +27,7 @@ export const InspectorApplicationStatusTimelineFetcher = ({
   };
 
   return (
-    <div className={cn('py-4 px-4 bg-white h-24 rounded', className)}>
+    <div className={cn('py-4 px-4 h-24', className)}>
       <StatusTimeline
         data={data}
         totalRange={totalRange}

@@ -24,7 +24,7 @@ export const DataTableCountOfRows = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className={triggerClassName}>
-        <Button variant="outline" size="sm" className="ml-auto h-8 flex">
+        <Button variant="outline" size="sm" className="flex h-8 ml-auto bg-white">
           View {selectedCount}
         </Button>
       </DropdownMenuTrigger>
