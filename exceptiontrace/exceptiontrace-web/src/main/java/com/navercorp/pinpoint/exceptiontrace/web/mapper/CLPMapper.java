@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author intr3p1d
@@ -34,9 +36,23 @@ public class CLPMapper {
         return new String(encodedLogTypeBytes, StandardCharsets.UTF_8);
     }
 
+    private static final Pattern PATTERN = Pattern.compile(
+            String.format("(%s).{1}|(%s).{1}", DICTIONARY_VARIABLE_VALUE, NON_DICTIONARY_VALUE)
+    );
+
     static String replacePlaceHolders(String encodedLogType) {
-        return encodedLogType
-                .replaceAll(String.valueOf(DICTIONARY_VARIABLE_VALUE), DICTIONARY_REPLACEMENT)
-                .replaceAll(String.valueOf(NON_DICTIONARY_VALUE), NON_DICTIONARY_REPLACEMENT);
+        Matcher matcher = PATTERN.matcher(encodedLogType);
+        StringBuilder result = new StringBuilder();
+
+        while (matcher.find()) {
+            if (matcher.group(1) != null) {
+                matcher.appendReplacement(result, DICTIONARY_REPLACEMENT);
+            } else if (matcher.group(2) != null) {
+                matcher.appendReplacement(result, NON_DICTIONARY_REPLACEMENT);
+            }
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
     }
 }
