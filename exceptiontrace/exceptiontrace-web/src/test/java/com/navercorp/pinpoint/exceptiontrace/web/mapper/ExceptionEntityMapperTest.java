@@ -246,7 +246,7 @@ class ExceptionEntityMapperTest {
     @Test
     public void testSelectErrorMessage() {
         GroupedFieldNameEntity entity = new GroupedFieldNameEntity();
-        entity.setErrorMessage_logtype("getAgentsList.from: \u0011 ì\u009D´ì\u0083\u0081ì\u009D´ì\u0096´ì\u0095¼ í\u0095©ë\u008B\u0088ë\u008B¤");
+        entity.setErrorMessage_logtype("getAgentsList.from: \u0011\u0001 ì\u009D´ì\u0083\u0081ì\u009D´ì\u0096´ì\u0095¼ í\u0095©ë\u008B\u0088ë\u008B¤");
 
         String result = mapper.selectErrorMessage(entity);
         assertEquals(

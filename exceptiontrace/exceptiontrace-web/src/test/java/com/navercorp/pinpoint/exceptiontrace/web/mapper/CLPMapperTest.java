@@ -29,12 +29,16 @@ class CLPMapperTest {
         assertNotEquals(example, replaced);
         assertFalse(replaced.contains("\u0011"));
         assertFalse(replaced.contains("\u0012"));
+        assertFalse(replaced.contains("\u0000"));
+        assertFalse(replaced.contains("\u0001"));
+        assertFalse(replaced.contains("\u0002"));
+        assertFalse(replaced.contains("\u0013"));
     }
 
     @Test
     public void testMakeReadable1() throws IOException {
-        String rawExample = "getAgentsList.from: \u0011 ì\u009D´ì\u0083\u0081ì\u009D´ì\u0096´ì\u0095¼ í\u0095©ë\u008B\u0088ë\u008B¤";
-        String example = "getAgentsList.from: \u0011 이상이어야 합니다";
+        String rawExample = "getAgentsList.from: \u0011\u0000 ì\u009D´ì\u0083\u0081ì\u009D´ì\u0096´ì\u0095¼ í\u0095©ë\u008B\u0088ë\u008B¤";
+        String example = "getAgentsList.from: \u0011\u0000 이상이어야 합니다";
 
         assertEquals(example, makeReadableString(rawExample));
     }
