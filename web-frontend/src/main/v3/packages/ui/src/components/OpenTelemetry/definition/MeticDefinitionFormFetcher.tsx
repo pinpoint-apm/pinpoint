@@ -33,6 +33,7 @@ import {
 import { toast } from '../../../components/Toast';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { Checkbox } from '../../ui/checkbox';
+import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
 // import { Checkbox } from '../../../components/ui';
 
 const metricDefinitionFormSchemaFactory = (t: TFunction) => {
@@ -191,10 +192,10 @@ export const MetricDefinitionFormFetcher = ({
             id: metric.id,
             applicationName,
             layout: {
-              w: 5,
-              h: 2,
-              x: 0,
-              y: 0,
+              w: metric.layout.w,
+              h: metric.layout.h,
+              x: metric.layout.x,
+              y: metric.layout.y,
             },
             // TODO:
             unit: 'byte',
@@ -211,10 +212,7 @@ export const MetricDefinitionFormFetcher = ({
             ...data,
             applicationName,
             layout: {
-              w: 5,
-              h: 2,
-              x: 0,
-              y: 0,
+              ...getNewWidgetLayout(metrics || []),
             },
             // TODO:
             unit: 'byte',
@@ -377,6 +375,7 @@ export const MetricDefinitionFormFetcher = ({
                   {selectedTagItem?.fieldAndUnitList?.length && (
                     <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                       <Checkbox
+                        id="all"
                         checked={field?.value?.length === selectedTagItem?.fieldAndUnitList?.length}
                         onCheckedChange={(checked) => {
                           if (checked) {
@@ -389,7 +388,9 @@ export const MetricDefinitionFormFetcher = ({
                           }
                         }}
                       />
-                      <FormLabel className="text-sm font-normal">all</FormLabel>
+                      <FormLabel className="text-sm font-normal" htmlFor="all">
+                        all
+                      </FormLabel>
                     </FormItem>
                   )}
                   {selectedTagItem?.fieldAndUnitList.map((fieldItem, i) => {
