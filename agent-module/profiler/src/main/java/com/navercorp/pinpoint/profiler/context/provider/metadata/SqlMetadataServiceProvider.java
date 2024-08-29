@@ -56,17 +56,18 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
     @Override
     public SqlMetaDataService get() {
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
+        final int maxSqlLength = profilerConfig.getMaxSqlLength();
 
         if (monitorConfig.isSqlStatEnable()) {
             final int maxSqlCacheLength = profilerConfig.getMaxSqlCacheLength();
 
             UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(jdbcSqlCacheSize, maxSqlCacheLength);
-            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer);
+            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
             return new SqlUidMetaDataService(sqlCacheService);
         } else {
             final SimpleCache<String> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
             SimpleCachingSqlNormalizer simpleCachingSqlNormalizer = new SimpleCachingSqlNormalizer(stringCache);
-            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer);
+            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
             return new DefaultSqlMetaDataService(sqlCacheService);
         }
     }

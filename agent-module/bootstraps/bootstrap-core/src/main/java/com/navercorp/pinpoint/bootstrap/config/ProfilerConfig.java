@@ -46,6 +46,8 @@ public interface ProfilerConfig {
 
     int getMaxSqlCacheLength();
 
+    int getMaxSqlLength();
+
     String getGrpcStatLoggingPeriod();
 
     @InterfaceAudience.Private
