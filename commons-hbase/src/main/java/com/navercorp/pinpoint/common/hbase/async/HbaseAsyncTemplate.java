@@ -113,6 +113,9 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     @Override
     public CompletableFuture<Void> put(TableName tableName, final Put put) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(put, "put");
+
         CompletableFuture<Void> future = this.execute(tableName, new AsyncTableCallback<>() {
             @Override
             public CompletableFuture<Void> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -125,6 +128,9 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     @Override
     public List<CompletableFuture<Void>> put(TableName tableName, final List<Put> puts) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(puts, "puts");
+
         List<CompletableFuture<Void>> futures = this.execute(tableName, new AsyncTableCallback<>() {
             @Override
             public List<CompletableFuture<Void>> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -137,6 +143,10 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     @Override
     public <T> CompletableFuture<T> get(TableName tableName, final Get get, final RowMapper<T> mapper) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(get, "get");
+        Objects.requireNonNull(mapper, "mapper");
+
         CompletableFuture<T> futures = this.execute(tableName, new AsyncTableCallback<>() {
             @Override
             public CompletableFuture<T> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -159,6 +169,10 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     @Override
     public <T> List<CompletableFuture<T>> get(TableName tableName, final List<Get> gets, final RowMapper<T> mapper) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(gets, "gets");
+        Objects.requireNonNull(mapper, "mapper");
+
         List<CompletableFuture<T>> futures = this.execute(tableName, new AsyncTableCallback<>() {
             @Override
             public List<CompletableFuture<T>> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -185,6 +199,9 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     @Override
     public CompletableFuture<Void> delete(TableName tableName, final Delete delete) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(delete, "delete");
+
         CompletableFuture<Void> futures = this.execute(tableName, new AsyncTableCallback<>() {
             @Override
             public CompletableFuture<Void> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -198,6 +215,9 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     @Override
     public List<CompletableFuture<Result>> increment(final TableName tableName, final List<Increment> incrementList) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(incrementList, "incrementList");
+
         List<CompletableFuture<Result>> futures = execute(tableName, new AsyncTableCallback<List<CompletableFuture<Result>>>() {
             @Override
             public List<CompletableFuture<Result>> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -211,6 +231,9 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     @Override
     public CompletableFuture<Result> increment(final TableName tableName, Increment increment) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(increment, "increment");
+
         CompletableFuture<Result> future = execute(tableName, new AsyncTableCallback<CompletableFuture<Result>>() {
             @Override
             public CompletableFuture<Result> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -223,7 +246,10 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
 
     @Override
-    public CompletableFuture<CasResult> maxColumnValue(TableName tableName, CheckAndMax max) {
+    public CompletableFuture<CasResult> maxColumnValue(final TableName tableName, CheckAndMax max) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(max, "max");
+
         CompletableFuture<CasResult> result = this.execute(tableName, new AsyncTableCallback<>() {
             @Override
             public CompletableFuture<CasResult> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -256,7 +282,9 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     }
 
-    public List<CompletableFuture<CasResult>> maxColumnValue(TableName tableName, List<CheckAndMax> maxs) {
+    public List<CompletableFuture<CasResult>> maxColumnValue(final TableName tableName, List<CheckAndMax> maxs) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(maxs, "maxs");
 
         List<CheckAndMutate> checkAndMutates = new ArrayList<>(maxs.size());
         for (CheckAndMax max : maxs) {
@@ -287,6 +315,9 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
 
     @Override
     public List<CompletableFuture<CheckAndMutateResult>> checkAndMutate(TableName tableName, List<CheckAndMutate> checkAndMutates) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(checkAndMutates, "checkAndMutates");
+
         List<CompletableFuture<CheckAndMutateResult>> futures = execute(tableName, new AsyncTableCallback<>() {
             @Override
             public List<CompletableFuture<CheckAndMutateResult>> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -298,6 +329,10 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
     }
 
     public <T> List<T> findParallel(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(scans, "scans");
+        Objects.requireNonNull(action, "action");
+
         return execute(tableName, new AsyncTableCallback<>() {
             @Override
             public List<T> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -314,6 +349,11 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
     }
 
     public <T> T executeDistributedScan(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(scan, "scan");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(action, "action");
+
         final T result = execute(tableName, new AsyncTableCallback<>() {
             @Override
             public T doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
@@ -341,6 +381,11 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
     }
 
     public <T> T executeParallelDistributedScan(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(scan, "scan");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(action, "action");
+
         try {
             StopWatch watch = StopWatch.createStarted();
 
