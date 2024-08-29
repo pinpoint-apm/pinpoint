@@ -44,7 +44,7 @@ public interface ProfilerConfig {
 
     int getMaxSqlBindValueSize();
 
-    int getMaxSqlLength();
+    int getMaxSqlCacheLength();
 
     String getGrpcStatLoggingPeriod();
 

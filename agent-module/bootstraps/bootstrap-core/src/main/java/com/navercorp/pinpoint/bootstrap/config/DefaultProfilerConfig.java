@@ -72,7 +72,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.jdbc.maxsqlbindvaluesize}")
     private int maxSqlBindValueSize = 1024;
     @Value("${profiler.jdbc.sqlcachelengthlimit}")
-    private int maxSqlLength = 2048;
+    private int maxSqlCacheLength = 2048;
 
     @Value("${profiler.transport.grpc.stats.logging.period}")
     private String grpcStatLoggingPeriod = "PT1M";
@@ -137,8 +137,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public int getMaxSqlLength() {
-        return maxSqlLength;
+    public int getMaxSqlCacheLength() {
+        return maxSqlCacheLength;
     }
 
     @Override
@@ -290,7 +290,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
                 ", jdbcSqlCacheSize=" + jdbcSqlCacheSize +
                 ", traceSqlBindValue=" + traceSqlBindValue +
                 ", maxSqlBindValueSize=" + maxSqlBindValueSize +
-                ", maxSqlLength=" + maxSqlLength +
+                ", maxSqlCacheLength=" + maxSqlCacheLength +
                 ", grpcStatLoggingPeriod='" + grpcStatLoggingPeriod + '\'' +
                 ", httpStatusCodeErrors=" + httpStatusCodeErrors +
                 ", injectionModuleFactoryClazzName='" + injectionModuleFactoryClazzName + '\'' +
