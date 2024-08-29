@@ -192,6 +192,7 @@ public class AsyncPollerThread implements Closeable {
     @Override
     public String toString() {
         return "AsyncPollerThread{" +
+                "writerFactory=" + writerFactory +
                 ", queueSize=" + queueSize +
                 ", writeBufferSize=" + writeBufferSize +
                 ", writeBufferPeriodicFlush=" + writeBufferPeriodicFlush +

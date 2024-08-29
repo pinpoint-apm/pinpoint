@@ -290,8 +290,8 @@ public class HbaseTemplateConfiguration {
                                              @Qualifier("defaultPollerOption")
                                              AsyncPollerOption option) {
 
-            HbasePutWriter hbasePutWriter = newPollerWriter("asyncPoller-", connection, decorator, option);
-            logger.info("hbasePollerPutWriter {}", hbasePutWriter);
+            HbasePutWriter hbasePutWriter = newPollerWriter("hbaseAsyncPoller-", connection, decorator, option);
+            logger.info("HbasePollerPutWriter {}", hbasePutWriter);
             return hbasePutWriter;
         }
 
@@ -307,13 +307,13 @@ public class HbaseTemplateConfiguration {
         }
 
         @Bean
-        public HbasePutWriter spanPutWriter(@Qualifier("hbaseAsyncConnection") AsyncConnection connection,
+        public HbasePutWriter spanPutWriter(@Qualifier("spanAsyncConnection") AsyncConnection connection,
                                             @Qualifier("spanConcurrencyDecorator") HbasePutWriterDecorator decorator,
                                             @Qualifier("defaultPollerOption")
                                             AsyncPollerOption option) {
 
             HbasePutWriter hbasePutWriter = newPollerWriter("spanAsyncPoller-", connection, decorator, option);
-            logger.info("HbaseSpanPollerPutWriter {}", hbasePutWriter);
+            logger.info("SpanPollerPutWriter {}", hbasePutWriter);
             return hbasePutWriter;
         }
 

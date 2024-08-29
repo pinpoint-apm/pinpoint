@@ -97,6 +97,11 @@ public class HbaseClientConfiguration {
     }
 
     @Bean
+    public FactoryBean<AsyncConnection> spanAsyncConnection(Configuration configuration, User user) {
+        return new AsyncConnectionFactoryBean(configuration, user);
+    }
+
+    @Bean
     public ExecutorCustomizer<ThreadPoolExecutorFactoryBean> hbaseExecutorCustomizer() {
         return new ThreadPoolExecutorCustomizer();
     }

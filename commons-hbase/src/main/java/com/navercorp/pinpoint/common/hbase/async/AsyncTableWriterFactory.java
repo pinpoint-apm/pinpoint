@@ -18,4 +18,11 @@ public class AsyncTableWriterFactory implements TableWriterFactory {
         final AsyncTable<?> table = connection.getTable(tableName);
         return table::put;
     }
+
+    @Override
+    public String toString() {
+        return "AsyncTableWriterFactory{" +
+                "connection=" + connection +
+                '}';
+    }
 }
