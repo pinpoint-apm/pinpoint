@@ -82,7 +82,7 @@ public class AgentInfoController {
     public TreeView<TreeNode<AgentAndStatus>> getAgentList(
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
-        final AgentStatusFilter filter = AgentStatusFilters.recentRunning(from);
+        final AgentStatusFilter filter = AgentStatusFilters.recentStatus(from);
         final AgentsMapByApplication<AgentAndStatus> allAgentsList =
                 this.agentInfoService.getAllAgentsList(filter, Range.between(from, to));
         return treeView(allAgentsList);
@@ -115,7 +115,7 @@ public class AgentInfoController {
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
-        final AgentStatusFilter currentRunFilter = AgentStatusFilters.recentRunning(from);
+        final AgentStatusFilter currentRunFilter = AgentStatusFilters.recentStatus(from);
         final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
                 currentRunFilter,
                 applicationName,

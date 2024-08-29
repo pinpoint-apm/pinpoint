@@ -49,7 +49,7 @@ class AgentLookupServiceImpl implements AgentLookupService {
         long now = System.currentTimeMillis();
         long from = now - recentness.toMillis();
         return intoClusterKeyList(this.agentInfoService.getAgentsListByApplicationName(
-                AgentStatusFilters.recentRunning(from),
+                AgentStatusFilters.recentStatus(from),
                 applicationName,
                 Range.between(from, now),
                 SortByAgentInfo.Rules.AGENT_NAME_ASC
