@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 class SqlUidMetaDataServiceTest {
     SqlUidMetaDataService sut;
@@ -40,25 +39,12 @@ class SqlUidMetaDataServiceTest {
 
     SqlCacheService<byte[]> newSqlCacheService() {
         UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(100, LENGTH_LIMIT);
-        return new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer);
+        return new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer, 1000);
     }
 
     @AfterEach
     void tearDown() throws Exception {
         autoCloseable.close();
-    }
-
-    @Test
-    void sendDataOnce() {
-        String sql = "select * from A";
-
-        UidParsingResult parsingResult = (UidParsingResult) sut.wrapSqlResult(sql);
-
-        assertTrue(sqlCacheService.cacheSql(parsingResult, SqlUidMetaDataService::newSqlUidMetaData));
-        verify(dataSender).request(any(SqlUidMetaData.class));
-
-        assertFalse(sqlCacheService.cacheSql(parsingResult, SqlUidMetaDataService::newSqlUidMetaData));
-        verifyNoMoreInteractions(dataSender);
     }
 
     @Test

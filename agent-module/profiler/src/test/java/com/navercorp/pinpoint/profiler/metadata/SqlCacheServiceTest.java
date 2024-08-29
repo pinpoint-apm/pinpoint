@@ -20,34 +20,66 @@ import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
+@ExtendWith(MockitoExtension.class)
 public class SqlCacheServiceTest {
+    private static final int MAX_LENGTH = 1000;
+
+    private SqlCacheService<Integer> sut;
+
+    @Mock
+    private EnhancedDataSender<MetaDataType> dataSender;
+
+    @BeforeEach
+    public void setUp() {
+        SimpleCache<String> sqlCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 100);
+        SimpleCachingSqlNormalizer cachingSqlNormalizer = new SimpleCachingSqlNormalizer(sqlCache);
+        sut = new SqlCacheService<>(dataSender, cachingSqlNormalizer, MAX_LENGTH);
+    }
 
     @Test
     public void cacheSql() {
-        final EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> sqlCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 100);
-        SimpleCachingSqlNormalizer simpleCachingSqlNormalizer = new SimpleCachingSqlNormalizer(sqlCache);
-        final SqlCacheService<Integer> sqlMetaDataService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer);
-
         final String sql = "select * from A";
         final ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult(sql);
 
-        boolean newValue = sqlMetaDataService.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
+        boolean newValue = sut.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
+        boolean notNewValue = sut.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
 
-        Assertions.assertTrue(newValue);
+        assertTrue(newValue);
         verify(dataSender).request(any(SqlMetaData.class));
 
-        boolean notNewValue = sqlMetaDataService.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
         Assertions.assertFalse(notNewValue);
-        verify(dataSender).request(any(SqlMetaData.class));
+        verifyNoMoreInteractions(dataSender);
+    }
+
+    @Test
+    public void trimSql() {
+        final String sql = veryLongString();
+        final ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult(sql);
+
+        sut.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
+
+        assertTrue(parsingResult.getSql().length() < sql.length());
+    }
+
+    private String veryLongString() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < MAX_LENGTH + 100; i++) {
+            builder.append("a");
+        }
+        return builder.toString();
     }
 }
