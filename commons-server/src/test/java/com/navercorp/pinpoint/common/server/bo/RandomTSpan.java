@@ -48,11 +48,11 @@ public class RandomTSpan {
         tSpan.setParentSpanId(random.nextInt(0, 100000));
         tSpan.setStartTime(System.currentTimeMillis() + random.nextInt(0, 1000));
         tSpan.setElapsed(random.nextInt(0, 2000));
-        tSpan.setRpc(RandomStringUtils.random(10));
+        tSpan.setRpc(randomAlphanumeric(10));
 
         tSpan.setServiceType(randomServerServiceType());
-        tSpan.setEndPoint(RandomStringUtils.random(20));
-        tSpan.setRemoteAddr(RandomStringUtils.random(20));
+        tSpan.setEndPoint(randomAlphanumeric(20));
+        tSpan.setRemoteAddr(randomAlphanumeric(20));
 
         List<TAnnotation> tAnnotationList = randomTAnnotationList();
         if (CollectionUtils.isNotEmpty(tAnnotationList)) {
@@ -73,7 +73,7 @@ public class RandomTSpan {
         if (random.nextBoolean()) {
             TIntStringValue exceptionInfo = new TIntStringValue();
             exceptionInfo.setIntValue(random.nextInt(0, 5000));
-            exceptionInfo.setStringValue(RandomStringUtils.random(100));
+            exceptionInfo.setStringValue(randomAlphanumeric(100));
             tSpan.setExceptionInfo(exceptionInfo);
         }
         tSpan.setLoggingTransactionInfo((byte) random.nextInt(0, 256));
@@ -99,7 +99,7 @@ public class RandomTSpan {
         // sort order
         tAnnotation.setKey(key);
         TAnnotationValue tAnnotationValue = new TAnnotationValue();
-        tAnnotationValue.setStringValue(RandomStringUtils.random(10));
+        tAnnotationValue.setStringValue(randomAlphanumeric(10));
         tAnnotation.setValue(tAnnotationValue);
         return tAnnotation;
     }
@@ -111,10 +111,10 @@ public class RandomTSpan {
         tSpanEvent.setSequence(sequence);
         tSpanEvent.setStartElapsed(random.nextInt(0, 1000));
         tSpanEvent.setEndElapsed(random.nextInt(0, 1000));
-//        tSpanEvent.setRpc(RandomStringUtils.random(10));
+//        tSpanEvent.setRpc(randomAlphanumeric(10));
 //         Database (2000 ~ 2899)
         tSpanEvent.setServiceType((short) random.nextInt(2000, 2889));
-        tSpanEvent.setEndPoint(RandomStringUtils.random(10));
+        tSpanEvent.setEndPoint(randomAlphanumeric(10));
 
         List<TAnnotation> tAnnotationList = randomTAnnotationList();
         if (CollectionUtils.isNotEmpty(tAnnotationList)) {
@@ -123,7 +123,7 @@ public class RandomTSpan {
         tSpanEvent.setDepth(random.nextInt(0, 256));
         tSpanEvent.setNextSpanId(random.nextLong());
 
-        tSpanEvent.setDestinationId(RandomStringUtils.random(20));
+        tSpanEvent.setDestinationId(randomAlphanumeric(20));
         tSpanEvent.setApiId(random.nextInt(0, 65535));
 
         tSpanEvent.setNextAsyncId(random.nextInt());
@@ -131,7 +131,7 @@ public class RandomTSpan {
         if (random.nextBoolean()) {
             TIntStringValue exceptionInfo = new TIntStringValue();
             exceptionInfo.setIntValue(random.nextInt(0, 5000));
-            exceptionInfo.setStringValue(RandomStringUtils.random(100));
+            exceptionInfo.setStringValue(randomAlphanumeric(100));
             tSpanEvent.setExceptionInfo(exceptionInfo);
         }
 
@@ -154,10 +154,15 @@ public class RandomTSpan {
         tSpanChunk.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), random.nextLong(0, Long.MAX_VALUE)));
         tSpanChunk.setSpanId(random.nextLong());
 
-        tSpanChunk.setEndPoint(RandomStringUtils.random(20));
+        tSpanChunk.setEndPoint(randomAlphanumeric(20));
 
 //        tSpanChunk.setSpanEventList()
         tSpanChunk.setApplicationServiceType(randomServerServiceType());
         return tSpanChunk;
+    }
+
+
+    private String randomAlphanumeric(int count) {
+        return RandomStringUtils.insecure().nextAlphabetic(count);
     }
 }

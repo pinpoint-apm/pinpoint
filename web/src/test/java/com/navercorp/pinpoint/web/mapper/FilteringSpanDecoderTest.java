@@ -164,7 +164,7 @@ public class FilteringSpanDecoderTest {
         }
 
         private static TransactionId createTransactionId() {
-            String agentId = RandomStringUtils.randomAlphanumeric(4, 24);
+            String agentId = RandomStringUtils.insecure().nextAlphanumeric(4, 24);
 
             long boundAgentStartTime = System.currentTimeMillis();
             long originAgentStartTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(30);

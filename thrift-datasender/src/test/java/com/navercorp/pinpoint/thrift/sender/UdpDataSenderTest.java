@@ -54,6 +54,7 @@ public class UdpDataSenderTest {
     private final int PORT = SocketUtils.findAvailableUdpPort(9009);
 
     private final BiPredicate<byte[], TBase<?, ?>> maxBytesLengthPredicate = new MaxBytesLengthPredicate<>(logger, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
+    RandomStringUtils randomString = RandomStringUtils.insecure();
 
     @BeforeAll
     public static void before() {
@@ -105,7 +106,7 @@ public class UdpDataSenderTest {
 
     @Test
     public void sendExceedData() throws InterruptedException {
-        String random = RandomStringUtils.randomAlphabetic(ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH + 100);
+        String random = randomAlphabetic(ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH + 100);
         TAgentInfo agentInfo = new TAgentInfo();
         agentInfo.setAgentId(random);
         boolean limit = sendMessage_getLimit(agentInfo, 1000);
@@ -116,13 +117,17 @@ public class UdpDataSenderTest {
 
     @Test
     public void sendData() throws InterruptedException {
-        String random = RandomStringUtils.randomAlphabetic(100);
+        String random = randomAlphabetic(100);
         TAgentInfo agentInfo = new TAgentInfo();
         agentInfo.setAgentId(random);
         boolean limit = sendMessage_getLimit(agentInfo, 1000);
 
         // do not execute.
         Assertions.assertFalse(limit);
+    }
+
+    private String randomAlphabetic(int count) {
+        return randomString.nextAlphabetic(count);
     }
 
 
