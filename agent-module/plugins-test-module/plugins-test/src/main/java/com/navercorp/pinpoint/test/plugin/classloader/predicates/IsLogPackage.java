@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-import java.util.function.Predicate;
+public class IsLogPackage extends PackageFilter {
+    public static final String[] PACKAGES = new String[] {
+            "org.apache.logging.",
+            "org.slf4j.",
+            "log4j2."
+    };
 
-public class IsLogPackage implements Predicate<String> {
-    @Override
-    public boolean test(String name) {
-        return name.startsWith("org.apache.logging.")
-                || name.startsWith("org.slf4j.")
-                || name.startsWith("log4j2.");
+    public IsLogPackage() {
+        super(PACKAGES);
     }
 }

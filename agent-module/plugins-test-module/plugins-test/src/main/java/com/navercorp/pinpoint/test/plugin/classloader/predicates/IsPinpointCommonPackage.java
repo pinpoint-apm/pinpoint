@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-import java.util.function.Predicate;
+public class IsPinpointCommonPackage extends PackageFilter {
+    public static final String[] PACKAGES = new String[] {
+            "com.navercorp.pinpoint.common.",
+    };
 
-public class IsPinpointCommonPackage implements Predicate<String> {
-    @Override
-    public boolean test(String name) {
-        return name.startsWith("com.navercorp.pinpoint.common.");
+    public IsPinpointCommonPackage() {
+        super(PACKAGES);
     }
 }

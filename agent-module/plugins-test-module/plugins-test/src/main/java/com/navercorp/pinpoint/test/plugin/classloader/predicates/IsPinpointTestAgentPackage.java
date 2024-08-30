@@ -16,11 +16,15 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-import java.util.function.Predicate;
+public class IsPinpointTestAgentPackage extends PackageFilter {
 
-public class IsPinpointTestAgentPackage implements Predicate<String> {
-    @Override
-    public boolean test(String name) {
-        return name.startsWith("com.navercorp.pinpoint.profiler.test.") || name.startsWith("com.navercorp.pinpoint.test.plugin.agent.");
+    public static final String[] PACKAGES = new String[] {
+            "com.navercorp.pinpoint.profiler.test.",
+            "com.navercorp.pinpoint.test.plugin.agent.",
+    };
+
+    public IsPinpointTestAgentPackage() {
+        super(PACKAGES);
     }
+
 }

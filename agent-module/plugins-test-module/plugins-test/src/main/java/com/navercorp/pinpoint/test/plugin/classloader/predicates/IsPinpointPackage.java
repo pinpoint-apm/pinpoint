@@ -16,19 +16,22 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-import java.util.function.Predicate;
 
-public class IsPinpointPackage implements Predicate<String> {
-    @Override
-    public boolean test(String name) {
-        return name.startsWith("com.navercorp.pinpoint.bootstrap.")
-                || name.startsWith("com.navercorp.pinpoint.exception.")
-                || name.startsWith("com.navercorp.pinpoint.profiler.")
-                || name.startsWith("com.navercorp.pinpoint.common.")
-                || name.startsWith("com.navercorp.pinpoint.sdk.")
-                || name.startsWith("com.navercorp.pinpoint.grpc.")
-                || name.startsWith("com.navercorp.pinpoint.hbase.")
-                || name.startsWith("com.navercorp.pinpoint.agent.plugin.")
-                || name.startsWith("com.navercorp.pinpoint.plugin.");
+public class IsPinpointPackage extends PackageFilter {
+    public static final String[] PACKAGES = new String[] {
+        "com.navercorp.pinpoint.bootstrap.",
+        "com.navercorp.pinpoint.exception.",
+        "com.navercorp.pinpoint.profiler.",
+        "com.navercorp.pinpoint.common.",
+        "com.navercorp.pinpoint.sdk.",
+        "com.navercorp.pinpoint.grpc.",
+        "com.navercorp.pinpoint.hbase.",
+        "com.navercorp.pinpoint.agent.plugin.",
+        "com.navercorp.pinpoint.plugin.",
+    };
+
+    public IsPinpointPackage() {
+        super(PACKAGES);
     }
+
 }

@@ -27,15 +27,16 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
 // parent: jdk, log, junit
 public class PluginTestClassLoader extends URLClassLoader {
-    public static final IsJdkPackage isJdkPackage = new IsJdkPackage();
-    public static final IsLogPackage isLogPackage = new IsLogPackage();
-    public static final IsJunitPackage isJunitPackage = new IsJunitPackage();
-    public static final IsPinpointCommonPackage isPinpointCommonPackage = new IsPinpointCommonPackage();
+    public static final Predicate<String> isJdkPackage = new IsJdkPackage();
+    public static final Predicate<String> isLogPackage = new IsLogPackage();
+    public static final Predicate<String> isJunitPackage = new IsJunitPackage();
+    public static final Predicate<String> isPinpointCommonPackage = new IsPinpointCommonPackage();
 
     // find child first classloader
     static {
