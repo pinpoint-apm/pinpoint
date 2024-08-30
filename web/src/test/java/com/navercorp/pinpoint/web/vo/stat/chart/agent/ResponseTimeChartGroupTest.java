@@ -18,19 +18,19 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ResponseTimeSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ResponseTimeSampler;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -41,6 +41,7 @@ public class ResponseTimeChartGroupTest {
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
     private static final int RANDOM_LIST_MAX_SIZE = 10;
     private static final int RANDOM_AVG_MAX_SIZE = 300000;
+    private final Random random = new Random();
 
     private final ResponseTimeSampler sampler = new ResponseTimeSampler();
 
@@ -73,7 +74,7 @@ public class ResponseTimeChartGroupTest {
     }
 
     private SampledResponseTime createSampledResponseTime(long timestamp, int maxConnectionSize) {
-        int listSize = RandomUtils.nextInt(1, RANDOM_LIST_MAX_SIZE);
+        int listSize = random.nextInt(1, RANDOM_LIST_MAX_SIZE);
 
         List<ResponseTimeBo> responseTimeBoList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {

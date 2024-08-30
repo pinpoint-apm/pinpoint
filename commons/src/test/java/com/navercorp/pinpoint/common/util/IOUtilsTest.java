@@ -1,13 +1,15 @@
 package com.navercorp.pinpoint.common.util;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Random;
 
 public class IOUtilsTest {
+
+    private final Random random = new Random();
 
     @Test
     public void toByteArray_small() throws IOException {
@@ -73,7 +75,7 @@ public class IOUtilsTest {
     }
 
     private void assertToByteArray(final int sourceBytesSize, final int available, final int osBuffer) throws IOException {
-        byte[] source = RandomUtils.nextBytes(sourceBytesSize);
+        byte[] source = nextBytes(sourceBytesSize);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(source) {
             @Override
@@ -92,6 +94,12 @@ public class IOUtilsTest {
         byte[] bytes = IOUtils.toByteArray(inputStream);
 
         Assertions.assertArrayEquals(source, bytes);
+    }
+
+    private byte[] nextBytes(int size) {
+        byte[] bytes = new byte[size];
+        random.nextBytes(bytes);
+        return bytes;
     }
 
 }

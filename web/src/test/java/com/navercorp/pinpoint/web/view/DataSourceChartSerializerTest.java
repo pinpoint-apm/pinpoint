@@ -21,14 +21,13 @@ import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +37,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -54,6 +54,7 @@ public class DataSourceChartSerializerTest {
     private final DataSourceSampler sampler = new DataSourceSampler();
 
     private final ObjectMapper mapper = Jackson.newMapper();
+    private final Random random = new Random();
 
     @Mock
     private ServiceTypeRegistryService serviceTypeRegistryService;
@@ -86,7 +87,7 @@ public class DataSourceChartSerializerTest {
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {
         List<SampledDataSource> sampledDataSourceList = new ArrayList<>();
 
-        int maxConnectionSize = RandomUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
+        int maxConnectionSize = random.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
 
         long from = timeWindow.getWindowRange().getFrom();
         long to = timeWindow.getWindowRange().getTo();
@@ -99,7 +100,7 @@ public class DataSourceChartSerializerTest {
     }
 
     private SampledDataSource createSampledDataSource(long timestamp, int maxConnectionSize) {
-        int testObjectSize = RandomUtils.nextInt(1, CREATE_TEST_OBJECT_MAX_SIZE);
+        int testObjectSize = random.nextInt(1, CREATE_TEST_OBJECT_MAX_SIZE);
         List<DataSourceBo> dataSourceBoList = DataSourceTestUtils.createDataSourceBoList(1, testObjectSize, maxConnectionSize);
         return sampler.sampleDataPoints(0, timestamp, dataSourceBoList, null);
     }

@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -55,12 +55,13 @@ public class DeadlockCheckerTest {
     private static final long INTERVAL_MILLIS = 300000;
     private static final long START_TIME_MILLIS = CURRENT_TIME_MILLIS - INTERVAL_MILLIS;
     private static final List<String> mockAgentIds = List.of(AGENT_ID_1, AGENT_ID_2, AGENT_ID_3);
+    private final Random random = new Random();
 
     @Mock
     private AgentEventDao mockAgentEventDao;
 
     private long createEventTimestamp() {
-        return RandomUtils.nextLong(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
+        return random.nextLong(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
     }
 
     @Test
