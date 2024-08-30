@@ -23,32 +23,51 @@ import java.util.function.Predicate;
 
 // exclude "javax.servlet.", "javax.xml.bind.", "javax.annotation.", "javax.ws", "javax.jms", "java.", "jdk.", ...
 public class IsJdkPackage implements Predicate<String> {
+
+    public static final String[] PACKAGES = new String[] {
+            "java.",
+            "jdk.",
+            "javax.",
+            "sun.",
+            "com.sun.",
+            "org.w3c.",
+            "org.xml.",
+            "org.ietf.jgss.",
+    };
+
+    public static final String[] FRAMEWORK_PACKAGE = new String[] {
+            "javax.servlet.",
+            "javax.jms",
+            "javax.ws",
+    };
+
+    public static final String[] JAVA9_PACKAGE = new String[] {
+            "javax.xml.bind.",
+            "javax.annotation",
+    };
+
+    private final PackageFilter jdkFilter = new PackageFilter(PACKAGES);
+
+    private final PackageFilter frameworkFilter = new PackageFilter(FRAMEWORK_PACKAGE);
+
+    private final boolean isJava9 = JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9);
+    private final PackageFilter java9Filter = new PackageFilter(JAVA9_PACKAGE);
+
+    public IsJdkPackage() {
+    }
+
     @Override
     public boolean test(String name) {
-        if(name.startsWith("javax.servlet.")) {
+        if (frameworkFilter.test(name)) {
             return false;
         }
 
-        final JvmVersion version = JvmUtils.getVersion();
-        if (version.onOrAfter(JvmVersion.JAVA_9)) {
-            if (name.startsWith("javax.xml.bind.")
-                    || name.startsWith("javax.annotation.")) {
+        if (isJava9) {
+            if (java9Filter.test(name)) {
                 return false;
             }
         }
-
-        if (name.startsWith("javax.jms")
-                || name.startsWith("javax.ws")) {
-            return false;
-        }
-        return name.startsWith("java.")
-                || name.startsWith("jdk.")
-                || name.startsWith("javax.")
-                || name.startsWith("sun.")
-                || name.startsWith("com.sun.")
-                || name.startsWith("org.w3c.")
-                || name.startsWith("org.xml.")
-                || name.startsWith("org.ietf.jgss.");
+        return jdkFilter.test(name);
 
     }
 }

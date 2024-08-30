@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-import java.util.function.Predicate;
+public class IsFastXmlPackage extends PackageFilter {
+    public static final String[] PACKAGES = new String[] {
+            "com.fasterxml.",
+    };
 
-public class IsFastXmlPackage implements Predicate<String> {
-    @Override
-    public boolean test(String name) {
-        return name.startsWith("com.fasterxml.");
+    public IsFastXmlPackage() {
+        super(PACKAGES);
     }
 }

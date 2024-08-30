@@ -30,6 +30,7 @@ import java.security.CodeSigner;
 import java.security.CodeSource;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -39,13 +40,13 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
     public static final IsPinpointBootstrapPluginTestPackage isPinpointBootstrapPluginTestPackage = new IsPinpointBootstrapPluginTestPackage();
 
     private PluginAgentTestClassLoader agentClassLoader;
-    private TranslatorAdaptor translator;
+    private final TranslatorAdaptor translator;
 
     private List<String> transformIncludeList;
 
     public PluginTestJunitTestClassLoader(URL[] urls, ClassLoader parent, TranslatorAdaptor translator) {
         super(urls, parent);
-        this.translator = translator;
+        this.translator = Objects.requireNonNull(translator, "translator");
         setClassLoaderName(getClass().getSimpleName());
     }
 

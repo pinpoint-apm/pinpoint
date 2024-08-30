@@ -16,13 +16,15 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-import java.util.function.Predicate;
 
-public class IsJunitPackage implements Predicate<String> {
-    @Override
-    public boolean test(String name) {
-        return name.startsWith("org.junit.jupiter.")
-                || name.startsWith("org.mockito.")
-                || name.startsWith("com.intellij.");
+public class IsJunitPackage extends PackageFilter {
+    public static final String[] PACKAGES = new String[] {
+            "org.junit.jupiter.",
+            "org.mockito.",
+            "com.intellij.",
+    };
+
+    public IsJunitPackage() {
+        super(PACKAGES);
     }
 }
