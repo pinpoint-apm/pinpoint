@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -56,7 +56,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
     private static final long START_TIME_MILLIS = CURRENT_TIME_MILLIS - INTERVAL_MILLIS;
 
     private static final List<String> mockAgentIds = List.of(AGENT_ID);
-
+    private final Random random = new Random();
 
     private static final long TIMESTAMP_INTERVAL = 5000L;
 
@@ -138,15 +138,15 @@ public class DataSourceConnectionUsageRateCheckerTest {
     private List<Long> createTimestamps(long initialTimestamp, int numValues) {
         long minTimestampInterval = TIMESTAMP_INTERVAL - 5L;
         long maxTimestampInterval = TIMESTAMP_INTERVAL + 5L;
-        return createIncreasingValues(initialTimestamp, initialTimestamp, minTimestampInterval, maxTimestampInterval, numValues);
+        return createIncreasingValues(initialTimestamp, initialTimestamp + 1, minTimestampInterval, maxTimestampInterval, numValues);
     }
 
-    private List<Long> createIncreasingValues(Long minValue, Long maxValue, Long minIncrement, Long maxIncrement, int numValues) {
+    private List<Long> createIncreasingValues(long minValue, long maxValue, long minIncrement, long maxIncrement, int numValues) {
         List<Long> values = new ArrayList<>(numValues);
-        long value = RandomUtils.nextLong(minValue, maxValue);
+        long value = random.nextLong(minValue, maxValue);
         values.add(value);
         for (int i = 0; i < numValues - 1; i++) {
-            long increment = RandomUtils.nextLong(minIncrement, maxIncrement);
+            long increment = random.nextLong(minIncrement, maxIncrement);
             value = value + increment;
             values.add(value);
         }

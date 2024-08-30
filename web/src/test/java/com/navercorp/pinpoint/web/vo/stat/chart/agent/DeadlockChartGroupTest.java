@@ -18,19 +18,19 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DeadlockSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DeadlockSampler;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @author Taejin Koo
@@ -39,7 +39,7 @@ public class DeadlockChartGroupTest {
 
     private static final int RANDOM_LIST_MAX_SIZE = 11; // Random API's upper bound field is exclusive
     private static final int RANDOM_MAX_DEADLOCKED_SIZE = 301; // Random API's upper bound field is exclusive
-
+    private final Random random = new Random();
     private final DeadlockSampler sampler = new DeadlockSampler();
 
     @Test
@@ -66,10 +66,11 @@ public class DeadlockChartGroupTest {
         return sampledDeadlockList;
     }
 
-    private SampledDeadlock createDeadlock(long timestamp) {
-        int listSize = RandomUtils.nextInt(1, RANDOM_LIST_MAX_SIZE);
 
-        int deadlockedSize = RandomUtils.nextInt(1, RANDOM_MAX_DEADLOCKED_SIZE);
+    private SampledDeadlock createDeadlock(long timestamp) {
+        int listSize = random.nextInt(1, RANDOM_LIST_MAX_SIZE);
+
+        int deadlockedSize = random.nextInt(1, RANDOM_MAX_DEADLOCKED_SIZE);
 
         List<DeadlockThreadCountBo> deadlockThreadCountBoList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {

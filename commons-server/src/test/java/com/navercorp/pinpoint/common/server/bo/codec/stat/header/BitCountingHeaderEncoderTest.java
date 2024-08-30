@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat.header;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +35,7 @@ public class BitCountingHeaderEncoderTest {
     @Test
     public void test_with_random_codes() {
         // Given
-        final int numCodes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numCodes = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         final List<Integer> givenCodes = new ArrayList<>(numCodes);
         for (int i = 0; i < numCodes; i++) {
             givenCodes.add(RANDOM.nextInt(5));
@@ -60,7 +59,7 @@ public class BitCountingHeaderEncoderTest {
     @Test
     public void test_zeroes() {
         // Given
-        final int numCodes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numCodes = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         // When
         AgentStatHeaderEncoder encoder = new BitCountingHeaderEncoder();
         for (int i = 0; i < numCodes; i++) {
@@ -77,8 +76,8 @@ public class BitCountingHeaderEncoderTest {
     @Test
     public void test_zeroes_followed_by_random_codes() {
         // Given
-        final int numZeroes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
-        final int numRandomCodes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numZeroes = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numRandomCodes = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         final int numTotalCodes = numZeroes + numRandomCodes;
         List<Integer> givenCodes = new ArrayList<>(numTotalCodes);
         for (int i = 0; i < numZeroes; i++) {

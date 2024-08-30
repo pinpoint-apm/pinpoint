@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -85,9 +84,9 @@ public class AgentStatMapperV2Test {
         List<TestAgentStat> givenAgentStats = new ArrayList<>();
         List<Put> puts = new ArrayList<>();
         long initialTimestamp = System.currentTimeMillis();
-        int numBatch = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        int numBatch = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         for (int i = 0; i < numBatch; i++) {
-            int batchSize = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+            int batchSize = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
             List<TestAgentStat> agentStatBatch = createAgentStats(initialTimestamp, COLLECT_INVERVAL, batchSize);
             givenAgentStats.addAll(agentStatBatch);
             puts.addAll(this.hbaseOperationFactory.createPuts(AGENT_ID, AGENT_STAT_TYPE, agentStatBatch, this.serializer));

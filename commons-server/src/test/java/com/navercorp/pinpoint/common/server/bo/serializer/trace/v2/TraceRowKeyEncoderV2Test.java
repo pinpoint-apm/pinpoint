@@ -21,16 +21,18 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.Random;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class TraceRowKeyEncoderV2Test {
 
-    private RowKeyDistributorByHashPrefix distributorByHashPrefix = newDistributorByHashPrefix();
+    private final Random random = new Random();
+    private final RowKeyDistributorByHashPrefix distributorByHashPrefix = newDistributorByHashPrefix();
 
     private RowKeyDistributorByHashPrefix newDistributorByHashPrefix() {
         int startOffsetForMod = 32;
@@ -47,7 +49,7 @@ public class TraceRowKeyEncoderV2Test {
     @Test
     public void encodeRowKey() {
 
-        TransactionId spanTransactionId = new TransactionId("traceAgentId", System.currentTimeMillis(), RandomUtils.nextLong(0, 10000));
+        TransactionId spanTransactionId = new TransactionId("traceAgentId", System.currentTimeMillis(), random.nextLong(0, 10000));
 
         byte[] rowKey = traceRowKeyEncoder.encodeRowKey(spanTransactionId);
         TransactionId transactionId = traceRowKeyDecoder.decodeRowKey(rowKey);

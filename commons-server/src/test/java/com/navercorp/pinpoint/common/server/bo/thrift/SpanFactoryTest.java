@@ -28,11 +28,11 @@ import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -49,7 +49,7 @@ public class SpanFactoryTest {
     private final SpanFactoryAssert spanFactoryAssert = new SpanFactoryAssert();
 
     private final RandomTSpan random = new RandomTSpan();
-
+    private final Random RANDOM = new Random();
 
     @Test
     public void testNewSpanBo() {
@@ -89,7 +89,7 @@ public class SpanFactoryTest {
     @Test
     public void testNewSpanEventBo() {
 
-        TSpanEvent tSpanEvent = random.randomTSpanEvent((short) RandomUtils.nextInt(0, 100));
+        TSpanEvent tSpanEvent = random.randomTSpanEvent((short) RANDOM.nextInt(0, 100));
         SpanEventBo spanEventBo = spanFactory.buildSpanEventBo(tSpanEvent);
 
         spanFactoryAssert.assertSpanEvent(tSpanEvent, spanEventBo);

@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +55,7 @@ public class TestAgentStatFactory {
     private static final UriStatHistogramBucket.Layout layout = UriStatHistogramBucket.getLayout();
 
     public static List<JvmGcBo> createJvmGcBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createJvmGcBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -114,7 +113,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<JvmGcDetailedBo> createJvmGcDetailedBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createJvmGcDetailedBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -159,7 +158,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<CpuLoadBo> createCpuLoadBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createCpuLoadBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -182,7 +181,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<TransactionBo> createTransactionBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createTransactionBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -250,7 +249,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<ActiveTraceBo> createActiveTraceBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createActiveTraceBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -289,7 +288,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<ResponseTimeBo> createResponseTimeBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createResponseTimeBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -310,7 +309,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<DeadlockThreadCountBo> createDeadlockBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createDeadlockBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -334,7 +333,7 @@ public class TestAgentStatFactory {
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
 
     public static List<DataSourceListBo> createDataSourceListBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createDataSourceListBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -342,8 +341,8 @@ public class TestAgentStatFactory {
         List<DataSourceListBo> dataSourceListBos = new ArrayList<>(numValues);
 
         for (int i = 0; i < numValues; i++) {
-            int maxConnectionSize = RandomUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
-            int dataSourceBoSize = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+            int maxConnectionSize = RANDOM.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
+            int dataSourceBoSize = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
             DataSourceListBo dataSourceListBo = createDataSourceListBo(agentId, startTimestamp, initialTimestamp, i + 1, maxConnectionSize, dataSourceBoSize);
             dataSourceListBos.add(dataSourceListBo);
         }
@@ -379,7 +378,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<FileDescriptorBo> createFileDescriptorBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createFileDescriptorBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -400,7 +399,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<DirectBufferBo> createDirectBufferBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createDirectBufferBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -429,7 +428,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<TotalThreadCountBo> createTotalThreadCountBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createTotalThreadCountBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -452,7 +451,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<LoadedClassBo> createLoadedClassBos(String agentId, long startTimestamp, long initialTimestamp) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createLoadedClassBos(agentId, startTimestamp, initialTimestamp, numValues);
     }
 
@@ -477,7 +476,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<AgentUriStatBo> createAgentUriStatBo(String agentId) {
-        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numValues = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
         return createAgentUriStatBo(agentId, numValues);
     }
 
@@ -496,9 +495,9 @@ public class TestAgentStatFactory {
         List<EachUriStatBo> result = new ArrayList<>();
 
         for (int i = 0; i < numValues; i++) {
-            final int requestCount = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+            final int requestCount = RANDOM.nextInt(1, MAX_NUM_TEST_VALUES);
 
-            boolean includeFail = RandomUtils.nextBoolean();
+            boolean includeFail = RANDOM.nextBoolean();
             EachUriStatBo eachUriStatBo = createEachUriStatBo("/index" + i + ".html", requestCount, includeFail);
             result.add(eachUriStatBo);
         }
@@ -509,7 +508,7 @@ public class TestAgentStatFactory {
     private static EachUriStatBo createEachUriStatBo(String uri, int requestCount, boolean includeFail) {
         int[] elapsedTimes = new int[requestCount];
         for (int i = 0; i < requestCount; i++) {
-            final int elapsedTime = RandomUtils.nextInt(1, 10000);
+            final int elapsedTime = RANDOM.nextInt(1, 10000);
             elapsedTimes[i] = elapsedTime;
         }
 
@@ -536,7 +535,7 @@ public class TestAgentStatFactory {
         int histogramSize = UriStatHistogramBucket.values().length;
         int[] histogramBucket = new int[histogramSize];
         for (int i = 0; i < elapsedTimes.length; i++) {
-            if (RandomUtils.nextInt(0, sample) != 0) {
+            if (RANDOM.nextInt(0, sample) != 0) {
                 continue;
             }
 

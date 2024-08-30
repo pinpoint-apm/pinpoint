@@ -14,7 +14,6 @@ import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 
@@ -43,6 +43,7 @@ public class SpanEncoderTest {
     private final long spanAcceptedTime = System.currentTimeMillis();
 
     private final RandomTSpan randomTSpan = new RandomTSpan();
+    private final Random random = new Random();
 
     private final SpanFactory spanFactory = new SpanFactory();
 
@@ -120,7 +121,7 @@ public class SpanEncoderTest {
 
     private long getCollectorAcceptTime() {
         long currentTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(30);
-        long randomSeed = RandomUtils.nextLong(0, TimeUnit.DAYS.toMillis(60));
+        long randomSeed = random.nextLong(0, TimeUnit.DAYS.toMillis(60));
         return currentTime - randomSeed;
     }
 

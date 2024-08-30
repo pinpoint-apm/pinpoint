@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecoding
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +49,7 @@ public class AgentStatEncoderTest {
     @Test
     public void stats_should_be_encoded_and_decoded_into_same_value() {
         long initialTimestamp = System.currentTimeMillis();
-        int numStats = RandomUtils.nextInt(1, 21);
+        int numStats = RANDOM.nextInt(1, 21);
         List<TestAgentStat> expectedAgentStats = this.createTestAgentStats(initialTimestamp, numStats);
         long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
         long timestampDelta = initialTimestamp - baseTimestamp;
