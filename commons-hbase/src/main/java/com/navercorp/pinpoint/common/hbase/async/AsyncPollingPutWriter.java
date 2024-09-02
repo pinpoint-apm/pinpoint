@@ -44,13 +44,13 @@ public class AsyncPollingPutWriter implements HbasePutWriter, Closeable {
     }
 
     private AsyncPollerThread getExecutor(TableName tableName, Put put) {
-        final int mod = mod(tableName, put);
+        final int mod = mod(tableName.hashCode(), put.getRow());
         return pollers[mod];
     }
 
-    private int mod(TableName tableName, Put put) {
-        int hashcode = tableName.hashCode() + Arrays.hashCode(put.getRow());
-        return Math.abs(Math.floorMod(hashcode, pollers.length));
+    int mod(int hbaseCode, byte[] row) {
+        int hashcode = hbaseCode + Arrays.hashCode(row);
+        return Math.floorMod(hashcode, pollers.length);
     }
 
     @Override

@@ -66,4 +66,18 @@ class AsyncPollingPutWriterTest {
     private <T> List<CompletableFuture<T>> putAll(List<Put> list) {
         return FutureUtils.newFutureList(() -> CompletableFuture.completedFuture(null), list.size());
     }
+
+    @Test
+    void mod() throws Exception {
+        AsyncPollerOption option = new AsyncPollerOption();
+        option.setParallelism(2);
+
+        AsyncPollingPutWriter writer = new AsyncPollingPutWriter("test", factory, option);
+
+        int mod = writer.mod(Integer.MIN_VALUE, new byte[0]);
+        Assertions.assertTrue(mod > 0);
+
+        writer.close();
+    }
+
 }
