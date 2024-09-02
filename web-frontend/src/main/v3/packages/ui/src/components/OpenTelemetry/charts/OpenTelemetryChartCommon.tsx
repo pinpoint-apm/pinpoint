@@ -23,8 +23,6 @@ export const OpenTelemetryChartCommon = ({
   gridConfig,
   xAxisConfig,
   yAxisConfig,
-  // legendConfig,
-  // tooltipConfig,
 }: OpenTelemetryChartCommonProps) => {
   return (
     <>
