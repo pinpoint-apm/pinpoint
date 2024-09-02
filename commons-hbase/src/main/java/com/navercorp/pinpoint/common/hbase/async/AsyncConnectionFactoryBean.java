@@ -50,7 +50,7 @@ public class AsyncConnectionFactoryBean implements FactoryBean<AsyncConnection>,
     private final Configuration configuration;
     private AsyncConnection connection;
 
-    private AsyncConnectionCleaner cleaner = new AsyncConnectionCleaner();
+    private final AsyncConnectionCleaner cleaner = new AsyncConnectionCleaner();
     private Consumer<AsyncConnection> postProcessor;
 
     public AsyncConnectionFactoryBean(Configuration configuration, User user) {

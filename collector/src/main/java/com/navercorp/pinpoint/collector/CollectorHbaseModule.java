@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyE
 import com.navercorp.pinpoint.collector.util.DurabilityApplier;
 import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
+import com.navercorp.pinpoint.common.hbase.config.HbasePutWriterConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.server.CommonsHbaseConfiguration;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -33,6 +34,8 @@ import org.springframework.context.annotation.PropertySource;
 
         HbaseClientConfiguration.class,
         HbaseTemplateConfiguration.class,
+        HbasePutWriterConfiguration.class,
+
         BatchHbaseClientConfiguration.class,
 
         HbaseAsyncConfiguration.class,
