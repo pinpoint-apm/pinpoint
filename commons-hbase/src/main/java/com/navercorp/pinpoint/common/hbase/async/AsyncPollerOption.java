@@ -12,6 +12,8 @@ public class AsyncPollerOption {
     private int cpuRatio = 1;
     private int minCpuCore = 2;
 
+    private int connectionSize = 1;
+
 
     public int getQueueSize() {
         return queueSize;
@@ -74,6 +76,14 @@ public class AsyncPollerOption {
         this.minCpuCore = minCpuCore;
     }
 
+    public int getConnectionSize() {
+        return connectionSize;
+    }
+
+    public void setConnectionSize(int connectionSize) {
+        this.connectionSize = connectionSize;
+    }
+
     @Override
     public String toString() {
         return "AsyncPollerOption{" +
@@ -83,6 +93,7 @@ public class AsyncPollerOption {
                 ", parallelism=" + parallelism +
                 ", cpuRatio=" + cpuRatio +
                 ", minCpuCore=" + minCpuCore +
+                ", connectionSize=" + connectionSize +
                 '}';
     }
 }
