@@ -16,24 +16,31 @@
 
 package test.pinpoint.plugin.kafka;
 
-import org.apache.commons.io.FileUtils;
+import com.navercorp.pinpoint.it.plugin.kafka.util.TempDirectory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Copy of https://github.com/chbatey/kafka-unit/blob/master/src/main/java/info/batey/kafka/unit/KafkaUnit.java
  * Some codes have been modified for testing from the copied code.
  */
 public class ZookeeperUnitServer {
-    private int port;
-    private int maxConnections;
+    private final Logger logger = LogManager.getLogger(getClass());
+
+    private final int port;
+    private final int maxConnections;
     private ServerCnxnFactory factory;
+
+    private Path snapshotDir;
+    private Path logDir;
 
     public ZookeeperUnitServer(int port) {
         this.port = port;
@@ -46,25 +53,16 @@ public class ZookeeperUnitServer {
     }
 
     public void startup() {
-        final File snapshotDir;
-        final File logDir;
         try {
-            snapshotDir = Files.createTempDirectory("zookeeper-snapshot").toFile();
-            logDir = Files.createTempDirectory("zookeeper-logs").toFile();
+            snapshotDir = Files.createTempDirectory("zookeeper-snapshot");
+            logDir = Files.createTempDirectory("zookeeper-logs");
         } catch (IOException ioe) {
             throw new RuntimeException("Unable to start Kafka", ioe);
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                FileUtils.deleteDirectory(snapshotDir);
-                FileUtils.deleteDirectory(logDir);
-            } catch (IOException ignore) {}
-        }));
-
         try {
             int tickTime = 500;
-            ZooKeeperServer zkServer = new ZooKeeperServer(snapshotDir, logDir, tickTime);
+            ZooKeeperServer zkServer = new ZooKeeperServer(snapshotDir.toFile(), logDir.toFile(), tickTime);
             factory = NIOServerCnxnFactory.createFactory();
             factory.configure(new InetSocketAddress("localhost", port), maxConnections);
             factory.startup(zkServer);
@@ -78,5 +76,9 @@ public class ZookeeperUnitServer {
 
     public void shutdown() {
         factory.shutdown();
+        logger.info("delete temp dir");
+        TempDirectory.deleteTempDirectory(snapshotDir);
+        TempDirectory.deleteTempDirectory(logDir);
     }
+
 }

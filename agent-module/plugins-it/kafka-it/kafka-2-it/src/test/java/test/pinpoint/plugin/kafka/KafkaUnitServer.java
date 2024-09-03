@@ -1,6 +1,6 @@
 package test.pinpoint.plugin.kafka;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public abstract class KafkaUnitServer {
@@ -12,7 +12,7 @@ public abstract class KafkaUnitServer {
     protected Properties kafkaBrokerConfig;
     protected int zkMaxConnections;
     protected ZookeeperUnitServer zookeeper;
-    protected File logDir;
+    protected Path logDir;
 
     public KafkaUnitServer(int zkPort, int brokerPort, int zkMaxConnections) {
         this.kafkaBrokerConfig = new Properties();
