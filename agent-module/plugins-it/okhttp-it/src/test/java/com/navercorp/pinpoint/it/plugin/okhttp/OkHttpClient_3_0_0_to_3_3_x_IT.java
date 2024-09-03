@@ -165,11 +165,6 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
         if (noPort == port) {
             return host;
         }
-        final int hostLength = host == null ? 0 : host.length();
-        final StringBuilder builder = new StringBuilder(hostLength + 6);
-        builder.append(host);
-        builder.append(':');
-        builder.append(port);
-        return builder.toString();
+        return host + ':' + port;
     }
 }

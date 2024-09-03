@@ -21,5 +21,5 @@ package com.navercorp.pinpoint.it.plugin.jdbc;
  */
 public enum PreparedStatementType {
     Server,
-    Client;
+    Client
 }

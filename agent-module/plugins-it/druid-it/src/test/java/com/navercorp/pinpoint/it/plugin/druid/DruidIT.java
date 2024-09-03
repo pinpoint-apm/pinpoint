@@ -37,7 +37,7 @@ public class DruidIT {
     }
 
     @Test
-    public void test() throws InterruptedException, SQLException {
+    public void test() throws SQLException {
         DruidDataSource dataSource = new DruidDataSource();
 
         dataSource.setUrl(JDBC_URL);
@@ -58,9 +58,7 @@ public class DruidIT {
             verifier.verifyTrace(event(serviceType, getConnectionMethod));
             verifier.verifyTrace(event(serviceType, closeConnectionMethod));
         } finally {
-            if (dataSource != null) {
-                dataSource.close();
-            }
+            dataSource.close();
         }
     }
 

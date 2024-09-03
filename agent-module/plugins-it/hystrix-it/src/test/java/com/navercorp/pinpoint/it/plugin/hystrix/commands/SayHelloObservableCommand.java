@@ -60,7 +60,7 @@ public class SayHelloObservableCommand extends HystrixObservableCommand<String> 
     }
 
     public static SayHelloObservableCommand createForTimeout(String commandGroup, String name, int timeoutMs) {
-        return new SayHelloObservableCommand(HystrixTestHelper.ExecutionOption.TIMEOUT, commandGroup, name, HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(timeoutMs), timeoutMs * 2);
+        return new SayHelloObservableCommand(HystrixTestHelper.ExecutionOption.TIMEOUT, commandGroup, name, HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(timeoutMs), timeoutMs * 2L);
     }
 
     public static SayHelloObservableCommand createForShortCircuit(String commandGroup, String name) {

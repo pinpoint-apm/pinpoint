@@ -144,7 +144,7 @@ public class Coroutines_1_6_IT {
 
     private void assertRunblockingDispatch(List<String> executedMethod, AtomicInteger index) {
         Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
-        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).equals(ASYNC_INVOCATION));
+        Assertions.assertEquals(ASYNC_INVOCATION, executedMethod.get(index.getAndIncrement()));
         // run dispatchedContinuation
         Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
     }
@@ -152,7 +152,7 @@ public class Coroutines_1_6_IT {
 
     private void assertFirstDispatch(List<String> executedMethod, AtomicInteger index) {
         Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
-        Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).equals(ASYNC_INVOCATION));
+        Assertions.assertEquals(ASYNC_INVOCATION, executedMethod.get(index.getAndIncrement()));
         // run dispatchedContinuation
         Assertions.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
     }

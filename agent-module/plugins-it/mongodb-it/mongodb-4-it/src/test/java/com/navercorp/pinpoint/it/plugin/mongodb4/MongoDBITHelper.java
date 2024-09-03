@@ -129,7 +129,7 @@ public class MongoDBITHelper {
         Document document = createComplexDocument();
         document.append("decimal128", new BsonDecimal128(new Decimal128(55)));
 
-        collection.insertOne((Document) document);
+        collection.insertOne(document);
 
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
 

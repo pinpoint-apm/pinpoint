@@ -10,13 +10,13 @@ public class BuilderUtils {
         void call(T target);
     }
 
-    private static Call<ManagedChannelBuilder<?>> usePlaintext = getUsePlainText();
+    private static final Call<ManagedChannelBuilder<?>> usePlaintext = getUsePlainText();
 
     public static void usePlainText(ManagedChannelBuilder<?> builder) {
         usePlaintext.call(builder);
     }
 
-    private static Call getUsePlainText() {
+    private static Call<ManagedChannelBuilder<?>> getUsePlainText() {
         final Class<ManagedChannelBuilder> builderClass = ManagedChannelBuilder.class;
 
         final Method oldUsePlaintext = getMethod(builderClass, "usePlaintext");

@@ -16,7 +16,6 @@
 
 package test.pinpoint.plugin.rabbitmq;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -28,11 +27,7 @@ public interface MessageConverter<T> {
     MessageConverter<String> FOR_TEST = new MessageConverter<String>() {
         @Override
         public String convertMessage(byte[] messageBody) {
-            try {
-                return new String(messageBody, StandardCharsets.UTF_8.name());
-            } catch (UnsupportedEncodingException e) {
-                return new String(messageBody, StandardCharsets.UTF_8);
-            }
+            return new String(messageBody, StandardCharsets.UTF_8);
         }
     };
 }
