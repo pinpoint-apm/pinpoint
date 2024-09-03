@@ -16,11 +16,11 @@
 
 package test.pinpoint.plugin.kafka;
 
+import com.navercorp.pinpoint.it.plugin.kafka.util.TempDirectory;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,11 +67,11 @@ public class Kafka2UnitServer implements SharedTestLifeCycle {
         }
         try {
             TEST_CONSUMER.shutdown();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignore) {
         }
     }
 
-    class Kafka2Server extends KafkaUnitServer {
+    static class Kafka2Server extends KafkaUnitServer {
         private KafkaServerStartable broker;
 
         public Kafka2Server(int zkPort, int brokerPort) {
@@ -88,18 +88,16 @@ public class Kafka2UnitServer implements SharedTestLifeCycle {
             zookeeper.startup();
 
             try {
-                logDir = Files.createTempDirectory("kafka").toFile();
+                logDir = Files.createTempDirectory("kafka");
             } catch (IOException e) {
                 throw new RuntimeException("Unable to start Kafka", e);
             }
-            logDir.deleteOnExit();
-            Runtime.getRuntime().addShutdownHook(new Thread(getDeleteLogDirectoryAction()));
 
             kafkaBrokerConfig.setProperty("zookeeper.connect", zookeeperString);
             kafkaBrokerConfig.setProperty("broker.id", "1");
             kafkaBrokerConfig.setProperty("host.name", "localhost");
             kafkaBrokerConfig.setProperty("port", Integer.toString(brokerPort));
-            kafkaBrokerConfig.setProperty("log.dir", logDir.getAbsolutePath());
+            kafkaBrokerConfig.setProperty("log.dir", logDir.toAbsolutePath().toString());
             kafkaBrokerConfig.setProperty("log.flush.interval.messages", String.valueOf(1));
             kafkaBrokerConfig.setProperty("delete.topic.enable", String.valueOf(true));
             kafkaBrokerConfig.setProperty("offsets.topic.replication.factor", String.valueOf(1));
@@ -117,21 +115,7 @@ public class Kafka2UnitServer implements SharedTestLifeCycle {
             if (zookeeper != null) {
                 zookeeper.shutdown();
             }
-        }
-
-        private Runnable getDeleteLogDirectoryAction() {
-            return new Runnable() {
-                @Override
-                public void run() {
-                    if (logDir != null) {
-                        try {
-                            FileUtils.deleteDirectory(logDir);
-                        } catch (IOException e) {
-                            logger.warn("Problems deleting temporary directory " + logDir.getAbsolutePath(), e);
-                        }
-                    }
-                }
-            };
+            TempDirectory.deleteTempDirectory(logDir);
         }
     }
 }

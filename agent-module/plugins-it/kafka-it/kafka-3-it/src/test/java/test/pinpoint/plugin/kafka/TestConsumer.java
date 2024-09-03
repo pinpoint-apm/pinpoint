@@ -42,7 +42,7 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
  */
 public class TestConsumer {
 
-    private static final Logger logger = LogManager.getLogger(KafkaUnitServer.class);
+    private static final Logger logger = LogManager.getLogger(TestConsumer.class);
     private final Thread consumerThread;
     private final Poller poller;
 

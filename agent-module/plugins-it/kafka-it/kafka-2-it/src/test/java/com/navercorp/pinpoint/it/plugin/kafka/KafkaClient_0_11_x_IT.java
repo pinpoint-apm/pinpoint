@@ -39,7 +39,7 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_MULTI_RECOR
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-kafka-client.config")
 @Dependency({
-        "org.apache.kafka:kafka_2.12:[0.11.0.0]", "log4j:log4j:[1.2.17]", "commons-io:commons-io:[2.5.0]",
+        "org.apache.kafka:kafka_2.12:[0.11.0.0]",
         "org.apache.kafka:kafka-clients:[0.11.0.0,0.11.max]"
 })
 @SharedDependency({"org.apache.kafka:kafka_2.12:2.6.0", "org.apache.zookeeper:zookeeper:3.8.1", "io.dropwizard.metrics:metrics-core:4.1.12.1"})

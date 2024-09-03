@@ -63,7 +63,7 @@ public class Kafka3UnitServer implements SharedTestLifeCycle {
         if (TEST_CONSUMER != null) {
             try {
                 TEST_CONSUMER.shutdown();
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
         }
         if (container != null) {
