@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
@@ -20,19 +21,28 @@ class CLPMapperTest {
 
     @Test
     public void testEncodedLogtype() {
-        String example = "INFO Task \u0011\u0000 assigned to container: [NodeAddress:\u0011\u0001, ...\n" +
+        String original = "INFO Task \u0011\u0000 assigned to container: [NodeAddress:\u0011\u0001, ...\n" +
                 "ContainerID:\u0011\u0002], operation took \u0012\u0013 seconds";
 
-        String replaced = replacePlaceHolders(example);
-        logger.info(example);
+        String replaced = replacePlaceHolders(original);
+        logger.info(original);
         logger.info(replaced);
-        assertNotEquals(example, replaced);
+        assertNotEquals(original, replaced);
         assertFalse(replaced.contains("\u0011"));
         assertFalse(replaced.contains("\u0012"));
         assertFalse(replaced.contains("\u0000"));
         assertFalse(replaced.contains("\u0001"));
         assertFalse(replaced.contains("\u0002"));
         assertFalse(replaced.contains("\u0013"));
+    }
+
+    @Test
+    public void testEncodedLogtype2() {
+        String original = "example text";
+        String replaced = replacePlaceHolders(original);
+
+        assertEquals(original, replaced);
+        assertEquals(System.identityHashCode(original), System.identityHashCode(replaced));
     }
 
     @Test
