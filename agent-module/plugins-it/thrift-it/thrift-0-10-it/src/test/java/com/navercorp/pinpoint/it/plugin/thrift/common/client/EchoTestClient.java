@@ -24,10 +24,10 @@ import org.apache.thrift.TException;
  */
 public interface EchoTestClient {
 
-    public String echo(String message) throws TException;
+    String echo(String message) throws TException;
 
-    public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception;
+    void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception;
 
-    public void close();
+    void close();
 
 }

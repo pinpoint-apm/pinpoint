@@ -26,7 +26,7 @@ public class KafkaITConstants {
     public static final String TOPIC = "kafka-it-topic";
     public static final String INPUT_TOPIC = "kafka-streams-test-input";
     public static final String OUTPUT_TOPIC = "kafka-streams-test-output";
-    public static final String MESSAGE = "message-" + UUID.randomUUID().toString();
+    public static final String MESSAGE = "message-" + UUID.randomUUID();
     public static final String GROUP_ID = "kafka-it-group";
     public static final String KAFKA_CLIENT_SERVICE_TYPE = "KAFKA_CLIENT";
     public static final String KAFKA_CLIENT_INTERNAL_SERVICE_TYPE = "KAFKA_CLIENT_INTERNAL";

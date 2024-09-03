@@ -43,7 +43,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -85,13 +85,11 @@ public class InformixConnectionIT {
     }
 
     private static String createConnectionUrl(String url, String username, String password) {
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("jdbc:informix-sqli:");
-        urlBuilder.append(url);
-        urlBuilder.append(":");
-        urlBuilder.append("user=").append(username).append(";");
-        urlBuilder.append("password=").append(password);
-        return urlBuilder.toString();
+        return "jdbc:informix-sqli:" +
+                url +
+                ":" +
+                "user=" + username + ";" +
+                "password=" + password;
     }
 
     private static List<String> createTableQuery() {
@@ -101,7 +99,7 @@ public class InformixConnectionIT {
                 "   name    CHAR(20)\n" +
                 "   );";
 
-        return Arrays.asList(create1);
+        return Collections.singletonList(create1);
     }
 
     @Test

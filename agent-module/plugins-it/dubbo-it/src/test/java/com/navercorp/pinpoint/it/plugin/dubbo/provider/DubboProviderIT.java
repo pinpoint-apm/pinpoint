@@ -92,7 +92,7 @@ public class DubboProviderIT {
 
     @Test
     public void testProvider() {
-        AbstractProxyInvoker abstractProxyInvoker = new AbstractProxyInvoker(new String(), String.class, url) {
+        AbstractProxyInvoker abstractProxyInvoker = new AbstractProxyInvoker("", String.class, url) {
             @Override
             protected Object doInvoke(Object proxy, String methodName, Class[] parameterTypes, Object[] arguments) throws Throwable {
                 Method method = proxy.getClass().getMethod(methodName, parameterTypes);
@@ -115,7 +115,7 @@ public class DubboProviderIT {
     public void testDoNotTrace() {
         when(rpcInvocation.getAttachment(META_DO_NOT_TRACE)).thenReturn("1");
 
-        AbstractProxyInvoker abstractProxyInvoker = new AbstractProxyInvoker(new String(), String.class, url) {
+        AbstractProxyInvoker abstractProxyInvoker = new AbstractProxyInvoker("", String.class, url) {
             @Override
             protected Object doInvoke(Object proxy, String methodName, Class[] parameterTypes, Object[] arguments) throws Throwable {
                 Method method = proxy.getClass().getMethod(methodName, parameterTypes);

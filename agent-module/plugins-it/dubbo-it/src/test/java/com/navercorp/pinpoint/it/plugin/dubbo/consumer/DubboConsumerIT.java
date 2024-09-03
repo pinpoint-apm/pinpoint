@@ -103,7 +103,7 @@ public class DubboConsumerIT {
         verifier.verifyTraceCount(0);
     }
 
-    public static interface Demo {
+    public interface Demo {
     }
 
     public static class MockInvoker<T> extends AbstractInvoker<T> {

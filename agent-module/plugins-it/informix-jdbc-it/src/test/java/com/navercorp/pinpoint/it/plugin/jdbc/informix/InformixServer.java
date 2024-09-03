@@ -28,14 +28,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
 public class InformixServer implements SharedTestLifeCycle {
     private static final Logger LOGGER = LogManager.getLogger(InformixServer.class);
 
-    private static GenericContainer<?> container = new GenericContainer<>("ibmcom/informix-developer-database:latest");
+    private static final GenericContainer<?> container = new GenericContainer<>("ibmcom/informix-developer-database:latest");
 
     @Override
     public Properties beforeAll() {
@@ -81,13 +81,12 @@ public class InformixServer implements SharedTestLifeCycle {
     }
 
     private static String createConnectionUrl(String url, String username, String password) {
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("jdbc:informix-sqli:");
-        urlBuilder.append(url);
-        urlBuilder.append(":");
-        urlBuilder.append("user=").append(username).append(";");
-        urlBuilder.append("password=").append(password);
-        return urlBuilder.toString();
+        String urlBuilder = "jdbc:informix-sqli:" +
+                url +
+                ":" +
+                "user=" + username + ";" +
+                "password=" + password;
+        return urlBuilder;
     }
 
 
@@ -98,7 +97,7 @@ public class InformixServer implements SharedTestLifeCycle {
                 "   name    CHAR(20)\n" +
                 "   );";
 
-        return Arrays.asList(create1);
+        return Collections.singletonList(create1);
     }
 
     @Override

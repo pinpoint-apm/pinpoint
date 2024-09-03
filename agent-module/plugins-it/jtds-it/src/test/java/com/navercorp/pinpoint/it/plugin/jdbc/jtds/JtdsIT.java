@@ -53,7 +53,7 @@ public class JtdsIT extends DataBaseTestCase {
     private static final String MSSQL = "MSSQL";
     private static final String MSSQL_EXECUTE_QUERY = "MSSQL_EXECUTE_QUERY";
 
-    private static DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
+    private static final DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
     private static DriverProperties jtdsDriverProperties;
     private static JDBCDriverClass driverClass;
     private static JDBCApi jdbcApi;

@@ -38,7 +38,7 @@ public abstract class GrpcITBase {
 
     private final Logger logger = Logger.getLogger(Grpc_1_21_0_to_IT.class.getName());
 
-    private final String REQUEST = "hello";
+    private final static String REQUEST = "hello";
 
     @Test
     public void requestResponseTest() throws Exception {

@@ -57,7 +57,7 @@ public class HystrixTestHelper {
         NORMAL,
         EXCEPTION,
         TIMEOUT,
-        SHORT_CIRCUIT;
+        SHORT_CIRCUIT
     }
 
     public static void verifyHystrixMetricsInitialization(PluginTestVerifier verifier, String command, String commandGroup) {

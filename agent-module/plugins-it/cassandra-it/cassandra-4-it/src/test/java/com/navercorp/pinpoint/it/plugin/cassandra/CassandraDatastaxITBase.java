@@ -49,7 +49,7 @@ public abstract class CassandraDatastaxITBase {
     private static final String CQL_INSERT = String.format("INSERT INTO %s (%s, %s) VALUES (?, ?);", TEST_TABLE, TEST_COL_ID, TEST_COL_VALUE);
     // for normalized sql used for sql cache
     private static final String LOCAL_DATACENTER = "datacenter1";
-    private static String HOST = "127.0.0.1";
+    private static final String HOST = "127.0.0.1";
     private static String CASSANDRA_ADDRESS;
 
     private static int PORT;

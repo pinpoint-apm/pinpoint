@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Test;
 @Dependency({ "commons-httpclient:commons-httpclient:[3.0],[3.0.1],[3.1]", WebServer.VERSION})
 public class HttpClientIT {
 
-    private static String VERSION = JDBCTestConstants.VERSION;
+    private static final String VERSION = JDBCTestConstants.VERSION;
 
     public static WebServer webServer;
 

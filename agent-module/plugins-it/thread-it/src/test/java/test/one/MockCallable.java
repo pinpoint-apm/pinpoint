@@ -3,7 +3,7 @@ package test.one;
 import java.util.concurrent.Callable;
 
 public class MockCallable implements Callable<String> {
-    private String name;
+    private final String name;
 
     public MockCallable(String name) {
         this.name = name;
@@ -14,4 +14,4 @@ public class MockCallable implements Callable<String> {
         System.out.println("callable-----------------");
         return this.name;
     }
-};
+}

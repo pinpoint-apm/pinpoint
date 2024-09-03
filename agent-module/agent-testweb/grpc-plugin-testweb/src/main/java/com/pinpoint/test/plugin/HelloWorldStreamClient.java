@@ -94,7 +94,7 @@ public class HelloWorldStreamClient {
                         // in a timely manor or else message processing throughput will suffer.
                         requestStream.setOnReadyHandler(new Runnable() {
                             // An iterator is used so we can pause and resume iteration of the request data.
-                            Iterator<String> iterator = names().iterator();
+                            final Iterator<String> iterator = names().iterator();
 
                             @Override
                             public void run() {
