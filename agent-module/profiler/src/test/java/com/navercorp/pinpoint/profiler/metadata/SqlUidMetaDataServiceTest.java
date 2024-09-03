@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
@@ -16,78 +16,65 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class SqlUidMetaDataServiceTest {
+    static int LENGTH_LIMIT = 100;
+
     SqlUidMetaDataService sut;
+    SqlCacheService<byte[]> sqlCacheService;
 
     @Mock
     EnhancedDataSender<MetaDataType> dataSender;
 
-    AutoCloseable autoCloseable;
-
-    SqlCacheService<byte[]> sqlCacheService;
-
-    static int LENGTH_LIMIT = 100;
-
     @BeforeEach
     void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
-
-        this.sqlCacheService = newSqlCacheService();
-
+        UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(100, LENGTH_LIMIT);
+        sqlCacheService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer, 1000);
         sut = new SqlUidMetaDataService(sqlCacheService);
     }
 
-    SqlCacheService<byte[]> newSqlCacheService() {
-        UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(100, LENGTH_LIMIT);
-        return new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer, 1000);
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        autoCloseable.close();
-    }
-
     @Test
-    void sameSql() {
+    void sameSqlSameId() {
         String sql = "select * from A";
 
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(sql);
+        assertNew(parsingResult1);
+
         UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(sql);
+        assertCached(parsingResult2);
 
-        assertTrue(sqlCacheService.cacheSql(parsingResult1, SqlUidMetaDataService::newSqlUidMetaData));
-        assertFalse(sqlCacheService.cacheSql(parsingResult2, SqlUidMetaDataService::newSqlUidMetaData));
-
-        assertArrayEquals(parsingResult1.getId(), parsingResult2.getId());
+        assertSameId(parsingResult1, parsingResult2);
         verify(dataSender, times(1)).request(any(SqlUidMetaData.class));
     }
 
     @Test
-    void sameSql_clearCache() {
+    void sameSqlSameId_clearCache() {
         String sql = "select * from A";
 
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(sql);
+        assertNew(parsingResult1);
+
+        setUp();
+
         UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(sql);
+        assertNew(parsingResult2);
 
-        assertTrue(sqlCacheService.cacheSql(parsingResult1, SqlUidMetaDataService::newSqlUidMetaData));
-        sqlCacheService = newSqlCacheService();
-        assertTrue(sqlCacheService.cacheSql(parsingResult2, SqlUidMetaDataService::newSqlUidMetaData));
-
-        assertArrayEquals(parsingResult1.getId(), parsingResult2.getId());
+        assertSameId(parsingResult1, parsingResult2);
         verify(dataSender, times(2)).request(any(SqlUidMetaData.class));
     }
 
     @Test
-    void differentSql() {
+    void differentSqlDifferentId() {
         String sql1 = "select * from A";
-        String sql2 = "select * from B";
-
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(sql1);
+        assertNew(parsingResult1);
+
+        String sql2 = "select * from B";
         UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(sql2);
+        assertNew(parsingResult2);
 
-        assertTrue(sqlCacheService.cacheSql(parsingResult1, SqlUidMetaDataService::newSqlUidMetaData));
-        assertTrue(sqlCacheService.cacheSql(parsingResult2, SqlUidMetaDataService::newSqlUidMetaData));
-
-        assertFalse(Arrays.equals(parsingResult1.getId(), parsingResult2.getId()));
+        assertDifferentId(parsingResult1, parsingResult2);
+        verify(dataSender, times(2)).request(any(SqlUidMetaData.class));
     }
 
     @Test
@@ -95,12 +82,12 @@ class SqlUidMetaDataServiceTest {
         String veryLongSql = veryLongSql();
 
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(veryLongSql);
+        assertNew(parsingResult1);
+
         UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(veryLongSql);
+        assertNew(parsingResult2);
 
-        assertTrue(sqlCacheService.cacheSql(parsingResult1, SqlUidMetaDataService::newSqlUidMetaData));
-        assertTrue(sqlCacheService.cacheSql(parsingResult2, SqlUidMetaDataService::newSqlUidMetaData));
-
-        assertArrayEquals(parsingResult1.getId(), parsingResult2.getId());
+        assertSameId(parsingResult1, parsingResult2);
     }
 
     String veryLongSql() {
@@ -109,5 +96,21 @@ class SqlUidMetaDataServiceTest {
             a.append("a");
         }
         return a.toString();
+    }
+
+    void assertNew(UidParsingResult parsingResult) {
+        assertTrue(sqlCacheService.cacheSql(parsingResult, SqlUidMetaDataService::newSqlUidMetaData));
+    }
+
+    void assertCached(UidParsingResult parsingResult) {
+        assertFalse(sqlCacheService.cacheSql(parsingResult, SqlUidMetaDataService::newSqlUidMetaData));
+    }
+
+    static void assertSameId(UidParsingResult parsingResult1, UidParsingResult parsingResult2) {
+        assertArrayEquals(parsingResult1.getId(), parsingResult2.getId());
+    }
+
+    static void assertDifferentId(UidParsingResult parsingResult1, UidParsingResult parsingResult2) {
+        assertFalse(Arrays.equals(parsingResult1.getId(), parsingResult2.getId()));
     }
 }
