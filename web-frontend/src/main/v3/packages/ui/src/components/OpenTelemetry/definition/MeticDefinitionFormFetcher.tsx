@@ -166,12 +166,12 @@ export const MetricDefinitionFormFetcher = ({
       label: 'Bar',
       icon: (props: IconBaseProps) => <FcBarChart {...props} />,
     },
-    areaSpline: {
+    line: {
       id: 'line',
       label: 'Line',
       icon: (props: IconBaseProps) => <FcLineChart {...props} />,
     },
-    spline: {
+    area: {
       id: 'area',
       label: 'Area',
       icon: (props: IconBaseProps) => <FcAreaChart {...props} />,
