@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
  */
 public enum ChartType {
 
-    SPLINE(1, "spline"),
-    AREA_SPLINE(2, "areaSpline"),
+    LINE(1, "line"),
+    AREA(2, "area"),
     BAR(3, "bar");
 
     private final int code;

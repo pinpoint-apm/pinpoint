@@ -71,7 +71,7 @@ public class MetricDataView {
             return legendName;
         }
 
-        public List<Number> getValueList() {
+        public List<Number> getValues() {
             return valueList;
         }
 
