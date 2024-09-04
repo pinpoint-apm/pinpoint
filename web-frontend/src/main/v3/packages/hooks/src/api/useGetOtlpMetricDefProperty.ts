@@ -14,7 +14,7 @@ const getQueryString = (queryParams: Partial<OtlpMetricDefProperty.Parameters>) 
 
 export const useGetOtlpMetricDefProperty = () => {
   // const { application } = useOpenTelemetrySearchParameters();
-  const queryString = getQueryString({ applicationName: '00000000-0000-0000-0000-000000000000' });
+  const queryString = getQueryString({ applicationName: 'minwoo_local_app' });
 
   const { data, isLoading, refetch } = useSuspenseQuery<OtlpMetricDefProperty.Response | null>({
     queryKey: [END_POINTS.OTLP_METRIC_DEF_PROPERTY, queryString],

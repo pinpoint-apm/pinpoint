@@ -36,7 +36,7 @@ export interface OpenTelemetryDashboardFetcherProps {}
 
 export const OpenTelemetryDashboardFetcher = () => {
   // TODO
-  const applicationName = '00000000-0000-0000-0000-000000000000';
+  const applicationName = 'minwoo_local_app';
   const { t } = useTranslation();
   const { data, refetch } = useGetOtlpMetricDefUserDefined();
   const metrics = data?.appMetricDefinitionList;
