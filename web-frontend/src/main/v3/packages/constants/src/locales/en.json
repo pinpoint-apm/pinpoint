@@ -35,6 +35,7 @@
     "SUBMIT_SUCCESS": "Successfully submitted.",
     "SUBMIT_FAIL": "Failed to submit.",
     "REMOVE_SUCCESS": "Successfully removed.",
+    "TARGET_REMOVE_SUCCESS": "\"{{target}}\" has been deleted.",
     "REMOVE_FAIL": "Failed to remove."
   },
   "APP_SELECT": {
@@ -62,7 +63,9 @@
     "METRIC": "Metric",
     "CREATE_METRIC_BUTTON": "Create a new metric",
     "CREATE_METRIC_DESC": "Create a new metric",
-    "SAVE_DASHBOARD": "Save Dashboard"
+    "SAVE_DASHBOARD": "Save Dashboard",
+    "SAVE_DASHBOARD_SUCCESS": "The current dashboard status has been saved.",
+    "SAVE_DASHBOARD_FAIL": "Saving the current dashboard status failed."
   },
   "CONFIGURATION": {
     "GENERAL": {

@@ -128,13 +128,11 @@ export const MetricDefinitionFormFetcher = ({
   const { mutate: updateMetrics } = usePatchOtlpMetricDefUserDefined({
     onSuccess: (res) => {
       if (res.result === 'SUCCESS') {
-        toast.success(
-          `${metricDefinitionForm.getValues().title}을(를) ${metric?.id ? '수정했습니다.' : '생성했습니다.'}`,
-        );
+        toast.success(`${metric?.id ? t('COMMON.UPDATE_SUCCESS') : t('COMMON.CREATE_SUCCESS')}`);
         refetch();
         onComplete?.();
       } else {
-        toast.error('fail');
+        toast.error(`${metric?.id ? t('COMMON.UPDATE_FAIL') : t('COMMON.CREATE_FAILED')}`);
       }
     },
   });
@@ -229,7 +227,7 @@ export const MetricDefinitionFormFetcher = ({
         className="relative flex-1 overflow-y-auto"
         onSubmit={metricDefinitionForm.handleSubmit(handleSubmit)}
       >
-        <div className="p-4 space-y-4 md:space-y-6 md:p-6">
+        <div className="p-4 space-y-4 md:p-6">
           <h3 className="py-3 font-medium">1. Data configuration</h3>
           <FormField
             name="metricGroupName"
@@ -473,7 +471,7 @@ export const MetricDefinitionFormFetcher = ({
           />
         </div>
         <Separator className="mt-3" />
-        <div className="p-4 space-y-4 md:space-y-6 md:p-6">
+        <div className="p-4 space-y-4 md:p-6">
           <h3 className="py-3 font-medium">2. Graph configuration</h3>
           <FormField
             name="chartType"
