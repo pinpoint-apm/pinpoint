@@ -44,16 +44,15 @@ public class CLPMapper {
         Matcher matcher = PATTERN.matcher(encodedLogType);
         StringBuilder result = new StringBuilder();
 
-        boolean matches = false;
         while (matcher.find()) {
-            matches = true;
             if (matcher.group(1) != null) {
                 matcher.appendReplacement(result, DICTIONARY_REPLACEMENT);
             } else if (matcher.group(2) != null) {
                 matcher.appendReplacement(result, NON_DICTIONARY_REPLACEMENT);
             }
         }
-        if (!matches) {
+
+        if (result.isEmpty()) {
             return encodedLogType;
         }
         matcher.appendTail(result);
