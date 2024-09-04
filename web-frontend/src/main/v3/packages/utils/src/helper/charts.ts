@@ -59,6 +59,7 @@ export const getEllipsisText = ({
 };
 
 const enum DATA_UNIT {
+  BYTES = 'bytes',
   BYTE = 'byte',
   COUNT = 'count',
   PERCENT = 'percent',
@@ -67,6 +68,7 @@ const enum DATA_UNIT {
 
 export const getFormat = (dataUnit: string) => {
   switch (dataUnit) {
+    case DATA_UNIT.BYTES:
     case DATA_UNIT.BYTE:
       return (v: number) => abbreviateNumber(v, ['', 'K', 'M', 'G']);
     case DATA_UNIT.COUNT:
