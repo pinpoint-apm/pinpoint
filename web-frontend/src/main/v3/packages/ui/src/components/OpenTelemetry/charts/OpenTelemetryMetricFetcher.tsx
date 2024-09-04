@@ -23,7 +23,7 @@ export const OpenTelemetryMetricFetcher = ({
       (acc, metricValue) => {
         return {
           ...acc,
-          [metricValue.legendName]: metricValue.valueList,
+          [metricValue.legendName]: metricValue.values,
         };
       },
       {} as { [key: string]: number[] },

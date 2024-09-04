@@ -21,7 +21,7 @@ export namespace OtlpMetricData {
 
   export interface MetricValue {
     legendName: string;
-    valueList: number[];
+    values: number[];
     version?: string;
   }
 }
