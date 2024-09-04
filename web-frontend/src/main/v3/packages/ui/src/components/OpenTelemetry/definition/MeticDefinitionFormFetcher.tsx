@@ -82,7 +82,7 @@ export const MetricDefinitionFormFetcher = ({
   const formId = '__metric_definition__';
   // TODO
   // const { application } = useOpenTelemetrySearchParameters();
-  const applicationName = '00000000-0000-0000-0000-000000000000';
+  const applicationName = 'minwoo_local_app';
   const { refetch } = useGetOtlpMetricDefUserDefined();
   const setUserMetricConfig = useSetAtom(userMetricConfigAtom);
   const { t } = useTranslation();
