@@ -39,9 +39,10 @@ public class AppMetricDefinition {
     private final String chartType;
     private final String aggregationFunction;
     private final Layout layout;
+    private final boolean stack;
 
 
-    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, List<String> fieldNameList, String tags, String unit, String chartType, Layout layout) {
+    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, List<String> fieldNameList, String tags, String unit, String chartType, Layout layout, boolean stack) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.id = id;
         this.title = StringPrecondition.requireHasLength(title, "title");
@@ -56,6 +57,7 @@ public class AppMetricDefinition {
         this.chartType = StringPrecondition.requireHasLength(chartType, "chartType");
         this.aggregationFunction = StringPrecondition.requireHasLength(chartType, "aggregationFunction");
         this.layout = Objects.requireNonNull(layout, "layout");
+        this.stack = stack;
     }
 
     public String getApplicationName() {
@@ -109,6 +111,10 @@ public class AppMetricDefinition {
 
     public Layout getLayout() {
         return layout;
+    }
+
+    public boolean getStack() {
+        return stack;
     }
 
 }
