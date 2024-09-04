@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
+import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionEntityMapper;
+import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionModelMapper;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
@@ -29,6 +31,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionGroupSummaryView;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.constraints.NotBlank;
@@ -70,14 +73,19 @@ public class ExceptionTraceController {
     @Value("${pinpoint.modules.web.exceptiontrace.table:exceptionTrace}")
     private String tableName;
 
+    private final ExceptionModelMapper mapper;
+
+
     public ExceptionTraceController(
             ExceptionTraceService exceptionTraceService,
             TenantProvider tenantProvider,
-            @Qualifier("rangeValidator7d") RangeValidator rangeValidator
+            @Qualifier("rangeValidator7d") RangeValidator rangeValidator,
+            ExceptionModelMapper mapper
     ) {
         this.exceptionTraceService = Objects.requireNonNull(exceptionTraceService, "exceptionTraceService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
         this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     @GetMapping("/transactionInfo")
@@ -135,7 +143,7 @@ public class ExceptionTraceController {
     }
 
     @GetMapping("/errorList/groupBy")
-    public List<ExceptionGroupSummary> getListOfExceptionMetaDataWithDynamicGroupBy(
+    public List<ExceptionGroupSummaryView> getListOfExceptionMetaDataWithDynamicGroupBy(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") @PositiveOrZero long from,
@@ -159,7 +167,9 @@ public class ExceptionTraceController {
                 .build();
         return exceptionTraceService.getGroupSummaries(
                 queryParameter
-        );
+        ).stream().map(
+                (ExceptionGroupSummary e) -> mapper.toSummaryView(e, timeWindow)
+        ).toList();
     }
 
     @GetMapping("/chart")

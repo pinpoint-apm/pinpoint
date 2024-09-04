@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.exceptiontrace.web.model;
+package com.navercorp.pinpoint.exceptiontrace.web.view;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
 import com.navercorp.pinpoint.exceptiontrace.web.model.params.GroupFilterParams;
 import com.navercorp.pinpoint.exceptiontrace.web.model.params.TransactionSearchParams;
 
-import java.util.List;
 
 /**
  * @author intr3p1d
  */
-public class ExceptionGroupSummary implements Grouped {
+public class ExceptionGroupSummaryView {
 
-    private List<Integer> values;
+    private ExceptionChartView chart;
     private long count;
 
     private GroupedFieldName groupedFieldName;
@@ -42,15 +41,15 @@ public class ExceptionGroupSummary implements Grouped {
     private TransactionSearchParams lastTransactionSearchParams;
 
 
-    public ExceptionGroupSummary() {
+    public ExceptionGroupSummaryView() {
     }
 
-    public List<Integer> getValues() {
-        return values;
+    public ExceptionChartView getChart() {
+        return chart;
     }
 
-    public void setValues(List<Integer> values) {
-        this.values = values;
+    public void setChart(ExceptionChartView chart) {
+        this.chart = chart;
     }
 
     public long getCount() {
@@ -61,23 +60,18 @@ public class ExceptionGroupSummary implements Grouped {
         this.count = count;
     }
 
-    @JsonProperty("fieldName")
-    @Override
     public GroupedFieldName getGroupedFieldName() {
         return groupedFieldName;
     }
 
-    @Override
     public void setGroupedFieldName(GroupedFieldName groupedFieldName) {
         this.groupedFieldName = groupedFieldName;
     }
 
-    @Override
     public GroupFilterParams getGroupFilterParams() {
         return groupFilterParams;
     }
 
-    @Override
     public void setGroupFilterParams(GroupFilterParams groupFilterParams) {
         this.groupFilterParams = groupFilterParams;
     }
@@ -136,22 +130,5 @@ public class ExceptionGroupSummary implements Grouped {
 
     public void setLastTransactionSearchParams(TransactionSearchParams lastTransactionSearchParams) {
         this.lastTransactionSearchParams = lastTransactionSearchParams;
-    }
-
-    @Override
-    public String toString() {
-        return "ExceptionGroupSummary{" +
-                "values=" + values +
-                ", count=" + count +
-                ", groupedFieldName=" + groupedFieldName +
-                ", groupFilterParams=" + groupFilterParams +
-                ", mostRecentErrorClass='" + mostRecentErrorClass + '\'' +
-                ", mostRecentErrorMessage='" + mostRecentErrorMessage + '\'' +
-                ", firstLineOfClassName='" + firstLineOfClassName + '\'' +
-                ", firstLineOfMethodName='" + firstLineOfMethodName + '\'' +
-                ", firstOccurred=" + firstOccurred +
-                ", lastOccurred=" + lastOccurred +
-                ", lastTransactionSearchParams=" + lastTransactionSearchParams +
-                '}';
     }
 }
