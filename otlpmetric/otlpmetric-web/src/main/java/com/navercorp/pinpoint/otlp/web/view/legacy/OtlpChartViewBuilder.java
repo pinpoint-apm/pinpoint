@@ -70,8 +70,8 @@ public abstract class OtlpChartViewBuilder {
 
     public static OtlpChartViewBuilder newBuilder(ChartType chartType) {
         switch (chartType) {
-            case SPLINE:
-            case AREA_SPLINE:
+            case LINE:
+            case AREA:
             case BAR:
                 return new OtlpChartSumGaugeViewBuilder();
             default:
