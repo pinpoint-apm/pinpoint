@@ -46,9 +46,6 @@ export const OpenTelemetryDashboardFetcher = () => {
         refetch();
         setCurrentDeletingTarget(undefined);
         setCurrentEditingTarget(undefined);
-        toast.success('success');
-      } else {
-        toast.error('fail');
       }
     },
   });
@@ -62,6 +59,26 @@ export const OpenTelemetryDashboardFetcher = () => {
   }>({
     layouts: { sm: [] },
   });
+
+  const updateMetricsWithToastMessage = (
+    props: Parameters<typeof updateMetrics>[0],
+    {
+      successMessage,
+      errorMessage,
+    }: {
+      successMessage: string;
+      errorMessage: string;
+    },
+  ) => {
+    updateMetrics(props, {
+      onSuccess: () => {
+        toast.success(successMessage);
+      },
+      onError: () => {
+        toast.error(errorMessage);
+      },
+    });
+  };
 
   // grid-layout 변경 시 사용
   const onLayoutChange = (layouts: ReactGridLayout.Layout[], layout: ReactGridLayout.Layouts) => {
@@ -107,10 +124,16 @@ export const OpenTelemetryDashboardFetcher = () => {
           },
         };
       });
-      updateMetrics({
-        applicationName: applicationName,
-        appMetricDefinitionList: newMetics as OtlpMetricDefUserDefined.Metric[],
-      });
+      updateMetricsWithToastMessage(
+        {
+          applicationName: applicationName,
+          appMetricDefinitionList: newMetics as OtlpMetricDefUserDefined.Metric[],
+        },
+        {
+          successMessage: t('OPEN_TELEMETRY.SAVE_DASHBOARD_SUCCESS'),
+          errorMessage: t('SAVE_DASHBOARD_FAIL.SAVE_DASHBOARD_FAIL'),
+        },
+      );
     }
   };
 
@@ -213,11 +236,18 @@ export const OpenTelemetryDashboardFetcher = () => {
                   const targetExceptedMetrics = metrics.filter(
                     (m) => m.id !== currentDeletingTarget.id,
                   );
-                  updateMetrics({
-                    //  TODO
-                    applicationName,
-                    appMetricDefinitionList: targetExceptedMetrics,
-                  });
+                  updateMetricsWithToastMessage(
+                    {
+                      applicationName,
+                      appMetricDefinitionList: targetExceptedMetrics,
+                    },
+                    {
+                      successMessage: t('COMMON.TARGET_REMOVE_SUCCESS', {
+                        target: `${currentDeletingTarget.title}`,
+                      }),
+                      errorMessage: t('COMMON.REMOVE_FAIL'),
+                    },
+                  );
                 }
               }}
             >
