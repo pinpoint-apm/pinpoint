@@ -49,7 +49,6 @@ import java.util.Properties;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-clickhouse-jdbc-plugin"})
 @Dependency({
         "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
 })
 @PinpointConfig("pinpoint-clickhouse.config")
 @SharedDependency({

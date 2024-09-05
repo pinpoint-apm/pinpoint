@@ -38,7 +38,6 @@ import org.junit.jupiter.api.Test;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"org.postgresql:postgresql:[9.min,9.4.1207)",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION})
 @SharedDependency({"org.postgresql:postgresql:9.4.1207", PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 @SharedTestLifeCycleClass(PostgreSqlServer.class)
