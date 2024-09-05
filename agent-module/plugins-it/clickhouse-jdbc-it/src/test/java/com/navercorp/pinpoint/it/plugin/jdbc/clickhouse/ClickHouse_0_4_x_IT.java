@@ -52,7 +52,6 @@ import java.util.Properties;
         "com.clickhouse:clickhouse-jdbc:[0.4.0,]",
         "com.clickhouse:clickhouse-http-client:0.4.1",
         "net.jpountz.lz4:lz4:1.3.0",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
 })
 @PinpointConfig("pinpoint-clickhouse.config")
 @SharedDependency({

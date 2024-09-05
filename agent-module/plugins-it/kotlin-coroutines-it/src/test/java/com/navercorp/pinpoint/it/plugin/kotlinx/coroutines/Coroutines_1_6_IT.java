@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-coroutines.config")
 @Dependency({
-        "log4j:log4j:[1.2.17]",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core:[1.6.0,)",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.1.0"
 })
@@ -52,7 +51,7 @@ public class Coroutines_1_6_IT {
     private static final String ASYNC_INVOCATION = "Asynchronous Invocation";
 
     @Test
-    public void executeRunBlockingWitoutContext() {
+    public void executeRunBlockingWithoutContext() {
         final boolean activeAsync = false;
 
         // This test has 1 ~ 4 executed Async Invocation

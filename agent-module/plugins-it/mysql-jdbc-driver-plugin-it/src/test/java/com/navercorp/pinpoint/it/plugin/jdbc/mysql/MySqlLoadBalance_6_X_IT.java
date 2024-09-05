@@ -129,7 +129,7 @@ public class MySqlLoadBalance_6_X_IT extends MySql_IT_Base {
 
     private void preparedStatement(Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement("select 1");
-        logger.info("PreparedStatement className:" + preparedStatement.getClass().getName());
+        logger.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.close();
         preparedStatement.close();

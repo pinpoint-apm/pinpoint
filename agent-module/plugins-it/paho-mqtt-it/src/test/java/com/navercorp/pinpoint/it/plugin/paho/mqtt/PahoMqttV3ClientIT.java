@@ -54,11 +54,11 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.root;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-paho-mqttv3-plugin-test.config")
 @Dependency({"org.eclipse.paho:org.eclipse.paho.client.mqttv3:[1.2.5][1.1.1][1.0.2]",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         TestcontainersOption.TEST_CONTAINER
 })
 public class PahoMqttV3ClientIT {
-    private static final GenericContainer<?> container = new GenericContainer(DockerImageName.parse("eclipse-mosquitto:1.6.15"))
+    @SuppressWarnings("resource")
+    private static final GenericContainer<?> container = new GenericContainer<>(DockerImageName.parse("eclipse-mosquitto:1.6.15"))
             .withExposedPorts(1883)
             .waitingFor(Wait.forListeningPort());
 
