@@ -39,7 +39,6 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 @Dependency({"org.postgresql:r2dbc-postgresql:[0.8.12.RELEASE],[0.9.1.RELEASE]",
         "org.postgresql:postgresql:9.4.1207",
         "org.springframework.data:spring-data-r2dbc:1.5.1",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION})
 @SharedDependency({"org.postgresql:postgresql:42.3.2", PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 @SharedTestLifeCycleClass(PostgreSqlServer.class)

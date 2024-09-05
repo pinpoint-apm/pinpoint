@@ -39,7 +39,6 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 @Dependency({"org.mariadb:r2dbc-mariadb:[1.1.2]",
         "org.mariadb.jdbc:mariadb-java-client:3.0.6",
         "org.springframework.data:spring-data-r2dbc:1.5.1",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION})
 @SharedDependency({"org.mariadb.jdbc:mariadb-java-client:3.0.6", PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
 @SharedTestLifeCycleClass(MariadbServer.class)

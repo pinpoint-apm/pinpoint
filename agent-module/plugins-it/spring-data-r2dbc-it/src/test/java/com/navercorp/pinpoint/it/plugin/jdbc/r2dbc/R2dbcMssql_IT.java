@@ -39,7 +39,6 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 @Dependency({"io.r2dbc:r2dbc-mssql:[0.9.0]",
         "com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre8",
         "org.springframework.data:spring-data-r2dbc:1.5.1",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION})
 @SharedDependency({"com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre8", PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
 @SharedTestLifeCycleClass(MssqlServer.class)

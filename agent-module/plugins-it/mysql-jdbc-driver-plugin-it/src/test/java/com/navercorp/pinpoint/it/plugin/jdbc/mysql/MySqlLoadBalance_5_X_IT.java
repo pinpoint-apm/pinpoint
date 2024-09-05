@@ -47,9 +47,7 @@ import java.sql.Statement;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"mysql:mysql-connector-java:[5.1.6],[5.1.34],[5.1.36,5.max]",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
-        JDBCTestConstants.VERSION})
+@Dependency({"mysql:mysql-connector-java:[5.1.6],[5.1.34],[5.1.36,5.max]", JDBCTestConstants.VERSION})
 @SharedDependency({"mysql:mysql-connector-java:8.0.28", JDBCTestConstants.VERSION, TestcontainersOption.MYSQLDB})
 @SharedTestLifeCycleClass(MySqlServer5.class)
 public class MySqlLoadBalance_5_X_IT extends MySql_IT_Base {
