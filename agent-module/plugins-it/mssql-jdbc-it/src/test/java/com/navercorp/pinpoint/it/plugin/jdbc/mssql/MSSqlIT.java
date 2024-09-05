@@ -51,7 +51,6 @@ import java.util.Properties;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8],[6.2.0.jre8],[6.4.0.jre8],[7.0.0.jre8],[7.2.0.jre8],[7.4.0.jre8]",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION})
 @PinpointConfig("pinpoint-mssql.config")
 @SharedDependency({"com.microsoft.sqlserver:mssql-jdbc:7.0.0.jre8", PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})

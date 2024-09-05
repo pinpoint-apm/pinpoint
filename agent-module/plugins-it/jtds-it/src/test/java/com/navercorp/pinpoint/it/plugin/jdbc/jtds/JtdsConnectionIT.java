@@ -54,7 +54,6 @@ import java.util.Properties;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"net.sourceforge.jtds:jtds:[1.2.8]", "com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8]",
-        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         PluginITConstants.VERSION,
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
 public class JtdsConnectionIT {
