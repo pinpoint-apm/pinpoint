@@ -26,6 +26,7 @@ export namespace OtlpMetricDefUserDefined {
     fieldNameList: string[];
     tags: string;
     unit?: string;
+    stack: boolean;
     chartType: string;
     layout: Layout;
     aggregationFunction: string;
