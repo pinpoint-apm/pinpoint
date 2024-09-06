@@ -34,6 +34,7 @@ import { toast } from '../../../components/Toast';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
+import { Switch } from '../../../components/ui/switch';
 // import { Checkbox } from '../../../components/ui';
 
 const metricDefinitionFormSchemaFactory = (t: TFunction) => {
@@ -65,6 +66,7 @@ const metricDefinitionFormSchemaFactory = (t: TFunction) => {
     title: z.string({
       required_error: t('COMMON.REQUIRED', { requiredField: 'Metric title' }),
     }),
+    stack: z.boolean().default(false).optional(),
   });
 };
 
@@ -97,6 +99,7 @@ export const MetricDefinitionFormFetcher = ({
       aggregationFunction: metric?.aggregationFunction,
       chartType: metric?.chartType || 'line',
       title: metric?.title,
+      stack: metric?.stack,
     },
   });
   const { data: defPropertyData } = useGetOtlpMetricDefProperty();
@@ -189,6 +192,7 @@ export const MetricDefinitionFormFetcher = ({
             ...data,
             id: metric.id,
             applicationName,
+            stack: !!data.stack,
             layout: {
               w: metric.layout.w,
               h: metric.layout.h,
@@ -209,6 +213,7 @@ export const MetricDefinitionFormFetcher = ({
           {
             ...data,
             applicationName,
+            stack: !!data.stack,
             layout: {
               ...getNewWidgetLayout(metrics || []),
             },
@@ -560,6 +565,24 @@ export const MetricDefinitionFormFetcher = ({
                       {...field}
                       placeholder={'Input metric title'}
                     />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="stack"
+            control={metricDefinitionForm.control}
+            render={({ field }) => (
+              <FormItem className="sm:grid sm:grid-cols-12">
+                <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
+                  Stack
+                </FormLabel>
+                <div className="sm:!mt-0 sm:col-span-8">
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <FormDescription />
                   <FormMessage />
