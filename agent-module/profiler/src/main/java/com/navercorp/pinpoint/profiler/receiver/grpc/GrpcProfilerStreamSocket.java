@@ -21,9 +21,9 @@ import io.grpc.stub.ClientResponseObserver;
 /**
  * @author Taejin Koo
  */
-public interface GrpcProfilerStreamSocket<T> {
+public interface GrpcProfilerStreamSocket<Req, Res> {
 
-    void send(T send);
+    void send(Req send);
 
     void close();
 
@@ -33,6 +33,6 @@ public interface GrpcProfilerStreamSocket<T> {
 
     void disconnect(Throwable throwable);
 
-    ClientResponseObserver getResponseObserver();
+    ClientResponseObserver<Req, Res> getResponseObserver();
 
 }

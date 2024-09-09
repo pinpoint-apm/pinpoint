@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
 import io.grpc.stub.ClientResponseObserver;
@@ -27,7 +28,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<PCmdActiveThreadCountRes.Builder> {
+public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<PCmdActiveThreadCountRes, Empty> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -36,7 +37,7 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
     private final int streamObserverId;
     private int sequenceId = 0;
 
-    private final PinpointClientResponseObserver<PCmdActiveThreadCountRes> clientResponseObserver;
+    private final PinpointClientResponseObserver<PCmdActiveThreadCountRes, Empty> clientResponseObserver;
 
     public ActiveThreadCountStreamSocket(int streamObserverId, GrpcStreamService grpcStreamService) {
         this.streamObserverId = streamObserverId;
@@ -44,15 +45,19 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
         this.clientResponseObserver = new PinpointClientResponseObserver<>(this);
     }
 
-    @Override
-    public void send(PCmdActiveThreadCountRes.Builder sendBuilder) {
+    public PCmdStreamResponse newHeader() {
         PCmdStreamResponse.Builder headerResponseBuilder = PCmdStreamResponse.newBuilder();
         headerResponseBuilder.setResponseId(streamObserverId);
         headerResponseBuilder.setSequenceId(getSequenceId());
-        sendBuilder.setCommonStreamResponse(headerResponseBuilder.build());
+        return headerResponseBuilder.build();
+    }
 
+    @Override
+    public void send(PCmdActiveThreadCountRes activeThreadCount) {
         if (clientResponseObserver.isReady()) {
-            clientResponseObserver.getRequestObserver().onNext(sendBuilder.build());
+            clientResponseObserver.sendRequest(activeThreadCount);
+        } else {
+            logger.info("Send fail. (ActiveThreadCount) client is not ready. streamObserverId:{}", streamObserverId);
         }
     }
 
@@ -86,18 +91,12 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
     }
 
     private void close0(Throwable throwable) {
-        if (clientResponseObserver.isReady()) {
-            if (throwable == null) {
-                clientResponseObserver.getRequestObserver().onCompleted();
-            } else {
-                clientResponseObserver.getRequestObserver().onError(throwable);
-            }
-        }
+        clientResponseObserver.close(throwable);
         grpcStreamService.unregister(this);
     }
 
     @Override
-    public ClientResponseObserver getResponseObserver() {
+    public ClientResponseObserver<PCmdActiveThreadCountRes, Empty> getResponseObserver() {
         return clientResponseObserver;
     }
 
