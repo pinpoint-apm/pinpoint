@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.google.protobuf.Empty;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 
@@ -25,14 +24,14 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class PinpointClientResponseObserver<ReqT> implements ClientResponseObserver<ReqT, Empty> {
+public class PinpointClientResponseObserver<ReqT, ResT> implements ClientResponseObserver<ReqT, ResT> {
 
-    private final GrpcProfilerStreamSocket pinpointGrpcProfilerStreamSocket;
+    private final GrpcProfilerStreamSocket<ReqT, ResT> socket;
 
     private volatile ClientCallStreamObserver<ReqT> requestStream;
 
-    public PinpointClientResponseObserver(GrpcProfilerStreamSocket pinpointGrpcProfilerStreamSocket) {
-        this.pinpointGrpcProfilerStreamSocket = Objects.requireNonNull(pinpointGrpcProfilerStreamSocket, "pinpointGrpcProfilerStreamSocket");
+    public PinpointClientResponseObserver(GrpcProfilerStreamSocket<ReqT, ResT> socket) {
+        this.socket = Objects.requireNonNull(socket, "socket");
     }
 
     @Override
@@ -41,26 +40,48 @@ public class PinpointClientResponseObserver<ReqT> implements ClientResponseObser
     }
 
     @Override
-    public void onNext(Empty value) {
+    public void onNext(ResT res) {
         // do nothing
     }
 
     @Override
     public void onError(Throwable t) {
-        pinpointGrpcProfilerStreamSocket.disconnect(t);
+        socket.disconnect(t);
     }
 
     @Override
     public void onCompleted() {
-        pinpointGrpcProfilerStreamSocket.disconnect();
+        socket.disconnect();
+    }
+
+    public void sendRequest(ReqT value) {
+        final ClientCallStreamObserver<ReqT> copy = this.requestStream;
+        if (copy == null) {
+            return;
+        }
+        copy.onNext(value);
     }
 
     public boolean isReady() {
-        return requestStream != null;
+        final ClientCallStreamObserver<ReqT> copy = this.requestStream;
+        if (copy == null) {
+            return false;
+        }
+        return copy.isReady();
     }
 
-    public ClientCallStreamObserver<ReqT> getRequestObserver() {
-        return requestStream;
+
+    public void close(Throwable throwable) {
+        final ClientCallStreamObserver<ReqT> copy = requestStream;
+        if (copy == null) {
+            return;
+        }
+
+        if (throwable == null) {
+            copy.onCompleted();
+        } else {
+            copy.onError(throwable);
+        }
     }
 
 }

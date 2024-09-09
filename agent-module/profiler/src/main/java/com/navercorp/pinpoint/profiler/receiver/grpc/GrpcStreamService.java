@@ -41,7 +41,7 @@ public class GrpcStreamService {
 
     private final AtomicReference<TimerTask> currentTaskReference = new AtomicReference<>();
 
-    private final List<GrpcProfilerStreamSocket<?>> grpcProfilerStreamSocketList = new CopyOnWriteArrayList<>();
+    private final List<GrpcProfilerStreamSocket<?, ?>> grpcProfilerStreamSocketList = new CopyOnWriteArrayList<>();
 
     public GrpcStreamService(String name, long flushDelay) {
         Objects.requireNonNull(name, "name");
@@ -50,11 +50,11 @@ public class GrpcStreamService {
         this.flushDelay = flushDelay;
     }
 
-    public GrpcProfilerStreamSocket<?>[] getStreamSocketList() {
+    public GrpcProfilerStreamSocket<?, ?>[] getStreamSocketList() {
         return grpcProfilerStreamSocketList.toArray(new GrpcProfilerStreamSocket[0]);
     }
 
-    public boolean register(GrpcProfilerStreamSocket<?> streamSocket, TimerTask timerTask) {
+    public boolean register(GrpcProfilerStreamSocket<?, ?> streamSocket, TimerTask timerTask) {
         synchronized (lock) {
             grpcProfilerStreamSocketList.add(streamSocket);
             boolean turnOn = currentTaskReference.compareAndSet(null, timerTask);
@@ -67,7 +67,7 @@ public class GrpcStreamService {
         return false;
     }
 
-    public boolean unregister(GrpcProfilerStreamSocket<?> streamSocket) {
+    public boolean unregister(GrpcProfilerStreamSocket<?, ?> streamSocket) {
         synchronized (lock) {
             grpcProfilerStreamSocketList.remove(streamSocket);
             // turnoff
@@ -91,8 +91,8 @@ public class GrpcStreamService {
                 timer.cancel();
             }
 
-            GrpcProfilerStreamSocket<?>[] streamSockets = grpcProfilerStreamSocketList.toArray(new GrpcProfilerStreamSocket[0]);
-            for (GrpcProfilerStreamSocket<?> streamSocket : streamSockets) {
+            GrpcProfilerStreamSocket<?, ?>[] streamSockets = grpcProfilerStreamSocketList.toArray(new GrpcProfilerStreamSocket[0]);
+            for (GrpcProfilerStreamSocket<?, ?> streamSocket : streamSockets) {
                 if (streamSocket != null) {
                     streamSocket.close();
                 }
