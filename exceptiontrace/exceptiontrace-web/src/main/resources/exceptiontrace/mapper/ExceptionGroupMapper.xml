@@ -29,7 +29,12 @@
 
         applicationName,
 
-        LASTWITHTIME(agentId, "timestamp", 'STRING') as "agentId",
+        <if test="agentId == null">
+            LASTWITHTIME(agentId, "timestamp", 'STRING') as "agentId",
+        </if>
+        <if test="agentId != null">
+            agentId,
+        </if>
         LASTWITHTIME(transactionId, "timestamp", 'STRING') as "transactionId",
         LASTWITHTIME(spanId, "timestamp", 'LONG') as "spanId",
         LASTWITHTIME(exceptionId, "timestamp", 'LONG') as "exceptionId"
@@ -45,6 +50,9 @@
             AND agentId = #{agentId}
         </if>
         GROUP BY applicationName
+        <if test="agentId != null">
+            , agentId
+        </if>
         <include refid="groupByAllAttributes"></include>
         ORDER BY count(*) desc
         LIMIT 10
