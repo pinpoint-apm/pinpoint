@@ -53,6 +53,7 @@ public interface AgentInfoService {
     AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter, AgentInfoFilter agentInfoPredicate, String applicationName, Range range, SortByAgentInfo.Rules sortBy);
     AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter, String applicationName, Range range, SortByAgentInfo.Rules sortBy);
 
+    @Deprecated
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, Period durationDays);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays, List<Application> applicationList, AgentInfoFilter agentInfoFilter);
