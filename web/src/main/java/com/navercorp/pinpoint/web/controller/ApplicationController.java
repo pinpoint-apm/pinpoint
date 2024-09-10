@@ -71,8 +71,8 @@ public class ApplicationController {
         this.cacheService = Objects.requireNonNull(cacheService, "cacheService");
     }
 
-    @GetMapping(value = "/getApplicationHostInfo")
-    public ApplicationAgentHostList getApplicationHostInfo(
+    @GetMapping(value = "/getApplicationHostInfoV1")
+    public ApplicationAgentHostList getApplicationHostInfoV1(
             @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
             @RequestParam(value = "durationDays", required = false) @PositiveOrZero Integer durationDays
@@ -85,7 +85,7 @@ public class ApplicationController {
         return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDaysPeriod);
     }
 
-    @GetMapping(value = "/getApplicationHostInfoV2", params = "durationHours")
+    @GetMapping(value = "/getApplicationHostInfo", params = "durationHours")
     public ApplicationAgentHostList getApplicationHostInfoV2(
             @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
@@ -102,7 +102,7 @@ public class ApplicationController {
         return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationHours, applicationList, agentInfoFilter);
     }
 
-    @GetMapping(value = "/getApplicationHostInfoV2")
+    @GetMapping(value = "/getApplicationHostInfo")
     public ApplicationAgentHostList getApplicationHostInfoDaysV2(
             @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,

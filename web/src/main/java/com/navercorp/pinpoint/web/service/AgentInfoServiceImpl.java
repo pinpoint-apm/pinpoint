@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
+import com.navercorp.pinpoint.web.service.component.LegacyAgentCompatibility;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -91,7 +92,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final HyperLinkFactory hyperLinkFactory;
     private final ActiveAgentValidator activeAgentValidator;
-
+    private final LegacyAgentCompatibility legacyAgentCompatibility;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService,
@@ -99,7 +100,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao,
                                 ActiveAgentValidator activeAgentValidator,
-                                HyperLinkFactory hyperLinkFactory) {
+                                HyperLinkFactory hyperLinkFactory,
+                                LegacyAgentCompatibility legacyAgentCompatibility) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
@@ -107,6 +109,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+        this.legacyAgentCompatibility = Objects.requireNonNull(legacyAgentCompatibility, "legacyAgentCompatibility");
     }
 
     @Override
@@ -204,6 +207,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
 
+    @Deprecated
     @Override
     public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, Period durationDays) {
         if (offset <= 0) {
@@ -217,6 +221,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return getApplicationAgentHostList0(offset, limit, durationDays);
     }
 
+    @Deprecated
     private ApplicationAgentHostList getApplicationAgentHostList0(int offset, int limit, Period durationDays) {
         List<String> applicationNameList = getApplicationNameList(applicationIndexDao.selectAllApplicationNames());
         if (offset > applicationNameList.size()) {
@@ -279,16 +284,32 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Range range = Range.between(timestamp - TimeUnit.HOURS.toMillis(durationHours), timestamp);
         List<AgentAndStatus> agentAndStatusList = getAgentAndStatuses(filteredAgentInfoList, timestamp);
         List<AgentInfo> filteredActiveAgentInfoList = agentAndStatusList.stream()
-                .filter(agentAndStatus -> isActiveAgentPredicate(agentAndStatus, AgentInfoFilters.acceptAll(), AgentStatusFilters.recentRunning(range.getFrom()), range))
+                .filter(agentAndStatus -> isActiveAgentSimplePredicate(agentAndStatus, AgentStatusFilters.recentRunning(range.getFrom()), range))
                 .map(AgentAndStatus::getAgentInfo)
                 .collect(Collectors.toList());
         return filteredActiveAgentInfoList;
+    }
+
+    private boolean isActiveAgentSimplePredicate(AgentAndStatus agentAndStatus, AgentStatusFilter agentStatusFilter, Range range) {
+        if (agentStatusFilter.test(agentAndStatus.getStatus())) {
+            return true;
+        }
+
+        AgentInfo agentInfo = agentAndStatus.getAgentInfo();
+        if (legacyAgentCompatibility.isLegacyAgent(agentInfo.getServiceTypeCode(), agentInfo.getAgentVersion())) {
+            if (legacyAgentCompatibility.isActiveAgent(agentInfo.getAgentId(), range)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private ApplicationAgentHostList.Builder newBuilder(int offset, int endIndex, int totalApplications) {
         return ApplicationAgentHostList.newBuilder(offset, endIndex, totalApplications);
     }
 
+    @Deprecated
     private List<String> getAgentIdList(String applicationName, Period durationDays) {
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
         if (CollectionUtils.isEmpty(agentIds)) {
