@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -28,7 +30,6 @@ import java.util.Objects;
 public class EmptyActiveTraceHistogram implements ActiveTraceHistogram {
 
     private final HistogramSchema histogramSchema;
-
 
     public EmptyActiveTraceHistogram(HistogramSchema histogramSchema) {
         this.histogramSchema = Objects.requireNonNull(histogramSchema, "histogramSchema");
@@ -59,6 +60,8 @@ public class EmptyActiveTraceHistogram implements ActiveTraceHistogram {
         return 0;
     }
 
-
-
+    @Override
+    public List<Integer> getCounter() {
+        return Arrays.asList(0, 0, 0, 0);
+    }
 }

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.receiver.grpc.ProfilerGrpcCommandService;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -32,8 +33,8 @@ public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServ
     private final IntHashMap<ProfilerCommandService> profilerCommandServiceRepository;
     private final Set<Short> codeSet;
 
-    DefaultProfilerCommandServiceLocator(ProfilerCommandLocatorBuilder builder) {
-        Map<Short, ProfilerCommandService> commandServiceRepository = builder.getProfilerCommandServiceRepository();
+    DefaultProfilerCommandServiceLocator(Map<Short, ProfilerCommandService> commandServiceRepository) {
+        Objects.requireNonNull(commandServiceRepository, "commandServiceRepository");
         this.profilerCommandServiceRepository = IntHashMapUtils.copyShortMap(commandServiceRepository);
         this.codeSet = buildCodeSet(commandServiceRepository);
     }

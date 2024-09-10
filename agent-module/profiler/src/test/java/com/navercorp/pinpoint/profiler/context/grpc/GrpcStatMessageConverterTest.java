@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PDataSource;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapperImpl;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapper;
@@ -248,7 +247,7 @@ class GrpcStatMessageConverterTest {
         // check ActiveTraceHistogram
         assertEquals(agentStat.getActiveTrace().getHistogramSchema().getTypeCode(), pAgentStat.getActiveTrace().getHistogram().getHistogramSchemaType());
         assertEquals(
-                ActiveTraceHistogramUtils.asList(agentStat.getActiveTrace()),
+                agentStat.getActiveTrace().getCounter(),
                 pAgentStat.getActiveTrace().getHistogram().getActiveTraceCountList()
         );
 

@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.grpc.trace.PResponseTime;
 import com.navercorp.pinpoint.grpc.trace.PTotalThread;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
@@ -130,7 +129,7 @@ public interface AgentStatMapper {
 
     @Named("ToActiveTraceCount")
     default List<Integer> toList(ActiveTraceHistogram histogram) {
-        return ActiveTraceHistogramUtils.asList(histogram);
+        return histogram.getCounter();
     }
 
     @Mappings({
