@@ -27,14 +27,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ActiveTraceHistogramUtilsTest {
+public class EmptyActiveTraceHistogramTest {
     @Test
-    public void asList_ZERO_CASE() {
+    public void getCounter() {
 
         ActiveTraceHistogram emptyHistogram = new EmptyActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
 
-        List<Integer> zeroList = ActiveTraceHistogramUtils.asList(emptyHistogram);
-        assertThat(zeroList).hasSize(4);
+        List<Integer> counter = emptyHistogram.getCounter();
+        assertThat(counter).hasSize(4)
+                .containsExactly(0, 0, 0, 0);
+
         assertEquals(emptyHistogram.getFastCount(), 0);
         assertEquals(emptyHistogram.getNormalCount(), 0);
         assertEquals(emptyHistogram.getSlowCount(), 0);

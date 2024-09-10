@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 
+import java.util.List;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -33,4 +35,5 @@ public interface ActiveTraceHistogram {
 
     int getVerySlowCount();
 
+    List<Integer> getCounter();
 }

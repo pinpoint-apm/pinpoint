@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
 import com.navercorp.pinpoint.grpc.trace.PCommandType;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import io.grpc.stub.ClientResponseObserver;
 import org.apache.logging.log4j.LogManager;
@@ -76,7 +75,7 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
         responseBuilder.setTimeStamp(currentTime);
         responseBuilder.setHistogramSchemaType(histogram.getHistogramSchema().getTypeCode());
 
-        final List<Integer> activeTraceCountList = ActiveTraceHistogramUtils.asList(histogram);
+        final List<Integer> activeTraceCountList = histogram.getCounter();
         for (Integer activeTraceCount : activeTraceCountList) {
             responseBuilder.addActiveThreadCount(activeTraceCount);
         }

@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * @author koo.taejin
  */
-public interface ProfilerCommandServiceLocator<REQ, RES> {
+public interface ProfilerCommandServiceLocator {
 
     ProfilerCommandService getService(short commandCode);
 

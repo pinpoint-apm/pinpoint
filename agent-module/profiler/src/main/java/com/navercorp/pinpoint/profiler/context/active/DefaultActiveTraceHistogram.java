@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.SlotType;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -86,5 +88,9 @@ public class DefaultActiveTraceHistogram implements ActiveTraceHistogram {
         return verySlowCount;
     }
 
+    @Override
+    public List<Integer> getCounter() {
+        return Arrays.asList(fastCount, normalCount, slowCount, verySlowCount);
+    }
 
 }

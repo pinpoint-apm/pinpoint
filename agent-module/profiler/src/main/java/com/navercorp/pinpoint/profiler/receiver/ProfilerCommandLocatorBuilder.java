@@ -64,7 +64,8 @@ public class ProfilerCommandLocatorBuilder {
     }
 
     public ProfilerCommandServiceLocator build() {
-        return new DefaultProfilerCommandServiceLocator(this);
+        Map<Short, ProfilerCommandService> repository = this.getProfilerCommandServiceRepository();
+        return new DefaultProfilerCommandServiceLocator(repository);
     }
 
     protected Map<Short, ProfilerCommandService> getProfilerCommandServiceRepository() {
