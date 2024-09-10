@@ -15,8 +15,13 @@ public class AgentStatusFilters {
         return RUNNING;
     }
 
+    @Deprecated
     public static AgentStatusFilter recentRunning(long minEventTimestamp) {
         return new RecentRunningFilter(minEventTimestamp);
+    }
+
+    public static AgentStatusFilter recentStatus(long minEventTimestamp) {
+        return new RecentStatusFilter(minEventTimestamp);
     }
 
     private static class AcceptAll implements AgentStatusFilter {
@@ -45,6 +50,16 @@ public class AgentStatusFilters {
             return
                     agentStatus.getState() == AgentLifeCycleState.RUNNING ||
                     agentStatus.getEventTimestamp() >= minEventTimestamp;
+        }
+    }
+
+    private record RecentStatusFilter(long minEventTimestamp) implements AgentStatusFilter {
+        @Override
+        public boolean test(AgentStatus agentStatus) {
+            if (agentStatus == null) {
+                return false;
+            }
+            return agentStatus.getEventTimestamp() >= minEventTimestamp;
         }
     }
 

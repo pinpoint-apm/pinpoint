@@ -85,7 +85,7 @@ public class AgentListController {
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
-        final AgentStatusFilter filter = AgentStatusFilters.recentRunning(from);
+        final AgentStatusFilter filter = AgentStatusFilters.recentStatus(from);
         final AgentsMapByApplication<AgentAndStatus> allAgentsList = this.agentInfoService.getAllAgentsList(
                 filter,
                 Range.between(from, to)
@@ -127,7 +127,7 @@ public class AgentListController {
     ) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
         final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
-                AgentStatusFilters.recentRunning(from),
+                AgentStatusFilters.recentStatus(from),
                 AgentInfoFilters.exactServiceType(serviceTypeCode, serviceTypeName),
                 applicationName,
                 Range.between(from, to),

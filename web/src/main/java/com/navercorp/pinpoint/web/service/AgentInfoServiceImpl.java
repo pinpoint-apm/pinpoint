@@ -279,7 +279,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Range range = Range.between(timestamp - TimeUnit.HOURS.toMillis(durationHours), timestamp);
         List<AgentAndStatus> agentAndStatusList = getAgentAndStatuses(filteredAgentInfoList, timestamp);
         List<AgentInfo> filteredActiveAgentInfoList = agentAndStatusList.stream()
-                .filter(agentAndStatus -> isActiveAgentPredicate(agentAndStatus, AgentInfoFilters.acceptAll(), AgentStatusFilters.recentRunning(range.getFrom()), range))
+                .filter(agentAndStatus -> isActiveAgentPredicate(agentAndStatus, AgentInfoFilters.acceptAll(), AgentStatusFilters.recentStatus(range.getFrom()), range))
                 .map(AgentAndStatus::getAgentInfo)
                 .collect(Collectors.toList());
         return filteredActiveAgentInfoList;
