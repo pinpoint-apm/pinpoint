@@ -20,8 +20,8 @@ type LegendChangeChallbackData = {
 type LegendEventData<T extends LegendEventTypes> = T extends 'clickLegend'
   ? LegendClickCallbackData
   : T extends 'change'
-  ? LegendChangeChallbackData
-  : never;
+    ? LegendChangeChallbackData
+    : never;
 
 export interface LegendEventCallback<T extends LegendEventTypes> {
   (event: MouseEvent, data: LegendEventData<T>): void;

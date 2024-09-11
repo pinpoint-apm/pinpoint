@@ -67,10 +67,10 @@ export type EventData<T> = T extends (...args: any[]) => void ? Parameters<T>[1]
 export type EventCallback<T> = T extends 'clickLegend'
   ? LegendEventCallback<T>
   : T extends GuideEventTypes
-  ? GuideEventCallback<T>
-  : T extends ViewportEventTypes
-  ? ViewportEventCallback<T>
-  : never;
+    ? GuideEventCallback<T>
+    : T extends ViewportEventTypes
+      ? ViewportEventCallback<T>
+      : never;
 
 export class ScatterChart {
   static REALTIME_MULTIPLE = 3;

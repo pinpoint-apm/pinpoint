@@ -6,7 +6,9 @@ import { cn } from '../../../lib';
 type CustomChartTooltipContentProps = Omit<
   React.ComponentProps<typeof ChartTooltipContent>,
   'formatter'
-> & { formatter?: (value: number, index: number) => string };
+> & {
+  formatter?: (value: number, index: number) => string;
+};
 export interface OpenTelemetryChartTooltipContentProps extends CustomChartTooltipContentProps {}
 
 export const OpenTelemetryChartTooltipContent = ({
