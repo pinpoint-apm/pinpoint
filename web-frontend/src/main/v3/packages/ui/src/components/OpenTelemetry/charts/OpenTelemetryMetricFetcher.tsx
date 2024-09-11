@@ -1,14 +1,15 @@
 import { format } from 'date-fns';
-import { type ChartConfig } from '../../ui/chart';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { useGetOtlpMetricData } from '@pinpoint-fe/hooks';
 import { getFormat } from '@pinpoint-fe/utils';
 import { COLORS } from './constant';
-import { OpenTelemetryChart } from './OpenTelemetryChart';
+import { ChartDataConfig, OpenTelemetryChart } from './OpenTelemetryChart';
 import { getRandomColorInHSL } from '../../../lib/colors';
 
 export interface OpenTelemetryMetricFetcherProps {
-  metricDefinition: OtlpMetricDefUserDefined.Metric;
+  metricDefinition: OtlpMetricDefUserDefined.Metric & {
+    showTotal?: boolean; // will be added in the form
+  };
   dashboardId?: string;
 }
 
@@ -17,6 +18,7 @@ export const OpenTelemetryMetricFetcher = ({
   dashboardId,
 }: OpenTelemetryMetricFetcherProps) => {
   const { data } = useGetOtlpMetricData(metricDefinition);
+  const { stack, showTotal = true } = metricDefinition;
 
   const dataSets =
     data?.metricValues.reduce(
@@ -46,9 +48,10 @@ export const OpenTelemetryMetricFetcher = ({
       [key]: {
         label: key,
         color: COLORS[i] ?? getRandomColorInHSL(),
+        stack,
       },
     };
-  }, {}) satisfies ChartConfig;
+  }, {}) satisfies ChartDataConfig;
 
   return (
     data && (
@@ -69,6 +72,9 @@ export const OpenTelemetryMetricFetcher = ({
             angle: -90,
             style: { fontSize: '0.75rem' },
           },
+        }}
+        tooltipConfig={{
+          showTotal,
         }}
       />
     )

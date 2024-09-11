@@ -34,12 +34,18 @@ const CHART_DEFINITION = {
   },
 } as const;
 const DEFAULT_CHART_TYPE = 'line';
+
+export type ChartDataConfig = ChartConfig & {
+  [key: string]: {
+    stack?: boolean;
+  };
+};
 export interface OpenTelemetryChartProps extends OpenTelemetryChartCommonProps {
   chartType: string;
   chartData: {
     [key: string]: number;
   }[];
-  chartDataConfig: ChartConfig;
+  chartDataConfig: ChartDataConfig;
   dashboardId?: string;
 }
 export const OpenTelemetryChart = ({
@@ -53,6 +59,10 @@ export const OpenTelemetryChart = ({
   const { ChartComponent, ChartChildComponent, chartChildProps } =
     CHART_DEFINITION[chartType as keyof typeof CHART_DEFINITION] ||
     CHART_DEFINITION[DEFAULT_CHART_TYPE];
+  const uniqueId = React.useId();
+  const getStackId = (dataKey: string) => {
+    return chartDataConfig[dataKey].stack ? uniqueId : undefined;
+  };
 
   return (
     <ChartContainer config={chartDataConfig} className="w-full h-full p-1.5 aspect-auto">
@@ -67,6 +77,7 @@ export const OpenTelemetryChart = ({
           <ChartChildComponent
             key={key}
             dataKey={key}
+            stackId={getStackId(key)}
             fill={`var(--color-${key})`}
             stroke={`var(--color-${key})`}
             {...chartChildProps}
