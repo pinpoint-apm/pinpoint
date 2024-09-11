@@ -1,25 +1,30 @@
-import { format } from 'date-fns';
 import React from 'react';
+import { format } from 'date-fns';
 import { ChartTooltipContent } from '../../ui/chart';
 import { cn } from '../../../lib';
+import { COLORS } from './constant';
 
+const TOTAL_DATA_KEY = 'total' as const;
+const TOTAL_DATA_COLOR = COLORS[COLORS.length - 1];
 type CustomChartTooltipContentProps = Omit<
   React.ComponentProps<typeof ChartTooltipContent>,
   'formatter'
 > & {
   formatter?: (value: number, index: number) => string;
+  showTotal?: boolean;
 };
 export interface OpenTelemetryChartTooltipContentProps extends CustomChartTooltipContentProps {}
 
 export const OpenTelemetryChartTooltipContent = ({
   active,
-  payload,
+  payload = [],
   hideLabel,
   label,
   labelClassName,
   indicator = 'dot',
   labelFormatter = (label) => format(label, 'HH:mm:ss'),
   formatter = (value) => `${value}`,
+  showTotal = false,
 }: OpenTelemetryChartTooltipContentProps) => {
   const renderTooltipLabel = () => {
     if (hideLabel || !payload?.length) {
@@ -30,12 +35,29 @@ export const OpenTelemetryChartTooltipContent = ({
       <div className={cn('font-medium', labelClassName)}>{labelFormatter(label, payload)}</div>
     );
   };
+
+  const tooltipPayload = showTotal
+    ? [
+        ...payload,
+        {
+          dataKey: TOTAL_DATA_KEY,
+          name: TOTAL_DATA_KEY,
+          value: payload?.reduce((acc, curr) => {
+            const value = curr.value as number;
+
+            return acc + value;
+          }, 0),
+          color: TOTAL_DATA_COLOR,
+        },
+      ]
+    : payload;
+
   return (
     active && (
       <div className="grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
         {renderTooltipLabel()}
         <div className="grid gap-1.5">
-          {payload?.map((item, index) => {
+          {tooltipPayload?.map((item, index) => {
             const indicatorColor = item.color;
             // const nestLabel = payload.length === 1 && indicator !== 'dot';
 

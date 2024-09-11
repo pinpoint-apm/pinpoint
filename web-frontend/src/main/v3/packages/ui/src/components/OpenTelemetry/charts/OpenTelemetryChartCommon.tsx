@@ -16,14 +16,17 @@ export interface OpenTelemetryChartCommonProps {
   xAxisConfig?: XAxisProps;
   yAxisConfig?: YAxisProps;
   legendConfig?: LegendProps;
-  tooltipConfig?: TooltipProps<number, string>;
+  tooltipConfig?: TooltipProps<number, string> & { showTotal?: boolean };
 }
 
 export const OpenTelemetryChartCommon = ({
   gridConfig,
   xAxisConfig,
   yAxisConfig,
+  tooltipConfig,
 }: OpenTelemetryChartCommonProps) => {
+  const { showTotal, ...restTooltipConfig } = tooltipConfig || {};
+
   return (
     <>
       <CartesianGrid vertical={false} {...gridConfig} />
@@ -45,8 +48,10 @@ export const OpenTelemetryChartCommon = ({
           <OpenTelemetryChartTooltipContent
             indicator="line"
             formatter={yAxisConfig?.tickFormatter}
+            showTotal={showTotal}
           />
         }
+        {...restTooltipConfig}
       />
       <ChartLegend content={<ChartLegendContent />} />
     </>
