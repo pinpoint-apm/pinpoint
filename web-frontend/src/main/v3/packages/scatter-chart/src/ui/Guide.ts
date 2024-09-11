@@ -29,8 +29,8 @@ type GuideDragEndCallbackData = {
 type GuideEventData<T extends GuideEventTypes> = T extends 'click'
   ? Coord
   : T extends 'dragEnd'
-  ? GuideDragEndCallbackData
-  : never;
+    ? GuideDragEndCallbackData
+    : never;
 
 export interface GuideEventCallback<T extends GuideEventTypes> {
   (event: MouseEvent, data: GuideEventData<T>): void;
