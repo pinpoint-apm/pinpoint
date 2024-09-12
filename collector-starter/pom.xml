@@ -17,8 +17,6 @@
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-
-        <pinpoint.collector.executable.name>${project.artifactId}-${project.version}</pinpoint.collector.executable.name>
     </properties>
 
     <dependencies>
@@ -85,7 +83,6 @@
                     <executable>true</executable>
                     <attach>true</attach>
                     <classifier>exec</classifier>
-                    <finalName>${pinpoint.collector.executable.name}</finalName>
                     <image>
                         <name>${docker.repository.name}/pinpoint-collector</name>
                         <tags>${docker.repository.name}/pinpoint-collector:${project.version}-metric,${docker.repository.name}/pinpoint-collector:latest-metric</tags>
