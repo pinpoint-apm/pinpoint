@@ -49,7 +49,6 @@
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
-            <version>1.0.16</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.projectreactor.netty.incubator</groupId>

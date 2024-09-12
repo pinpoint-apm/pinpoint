@@ -384,18 +384,6 @@
             </dependency>
 
             <dependency>
-                <groupId>io.projectreactor</groupId>
-                <artifactId>reactor-core</artifactId>
-                <version>3.3.0.RELEASE</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.projectreactor.netty</groupId>
-                <artifactId>reactor-netty</artifactId>
-                <version>0.9.1.RELEASE</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.eclipse.paho</groupId>
                 <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
                 <version>1.2.5</version>
@@ -426,6 +414,12 @@
                 <groupId>dev.miku</groupId>
                 <artifactId>r2dbc-mysql</artifactId>
                 <version>0.8.2.RELEASE</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.projectreactor.netty.incubator</groupId>
+                        <artifactId>reactor-netty-incubator-quic</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.jasync-sql</groupId>
@@ -441,6 +435,12 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>r2dbc-postgresql</artifactId>
                 <version>0.9.1.RELEASE</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.projectreactor.netty.incubator</groupId>
+                        <artifactId>reactor-netty-incubator-quic</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.oracle.database.r2dbc</groupId>
