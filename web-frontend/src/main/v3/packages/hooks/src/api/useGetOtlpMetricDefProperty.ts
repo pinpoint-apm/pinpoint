@@ -1,6 +1,6 @@
 import { END_POINTS, OtlpMetricDefProperty } from '@pinpoint-fe/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/utils';
-// import { useOpenTelemetrySearchParameters } from '../searchParameters';
+import { useOpenTelemetrySearchParameters } from '../searchParameters';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
@@ -13,8 +13,8 @@ const getQueryString = (queryParams: Partial<OtlpMetricDefProperty.Parameters>) 
 };
 
 export const useGetOtlpMetricDefProperty = () => {
-  // const { application } = useOpenTelemetrySearchParameters();
-  const queryString = getQueryString({ applicationName: 'minwoo_local_app' });
+  const { application } = useOpenTelemetrySearchParameters();
+  const queryString = getQueryString({ applicationName: application?.applicationName });
 
   const { data, isLoading, refetch } = useSuspenseQuery<OtlpMetricDefProperty.Response | null>({
     queryKey: [END_POINTS.OTLP_METRIC_DEF_PROPERTY, queryString],

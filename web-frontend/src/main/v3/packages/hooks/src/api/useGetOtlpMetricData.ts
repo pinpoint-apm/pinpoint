@@ -2,7 +2,7 @@ import { END_POINTS, OtlpMetricData, OtlpMetricDefUserDefined } from '@pinpoint-
 import { convertParamsToQueryString } from '@pinpoint-fe/utils';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
-// import { useOpenTelemetrySearchParameters } from '../searchParameters';
+import { useOpenTelemetrySearchParameters } from '../searchParameters';
 
 const getQueryString = (queryParams: Partial<OtlpMetricData.Parameters>) => {
   if (queryParams.applicationName && queryParams.metricGroupName && queryParams.metricName) {
@@ -20,10 +20,11 @@ export const useGetOtlpMetricData = ({
   aggregationFunction,
   fieldNameList,
 }: OtlpMetricDefUserDefined.Metric) => {
+  const { application, dateRange } = useOpenTelemetrySearchParameters();
   const queryParams = {
-    applicationName: 'minwoo_local_app', // * temp
-    from: 1723616400000, // * temp
-    to: 1723617000000, // * temp
+    applicationName: application?.applicationName,
+    from: dateRange.from.getTime(),
+    to: dateRange.to.getTime(),
     metricGroupName,
     metricName,
     chartType,
@@ -31,7 +32,6 @@ export const useGetOtlpMetricData = ({
     aggregationFunction,
     fieldNameList: fieldNameList.join(','),
   };
-  //   const { application, dateRange } = useOpenTelemetrySearchParameters();
   const queryString = getQueryString(queryParams);
 
   const { data, isLoading, refetch } = useSuspenseQuery<OtlpMetricData.Response | null>({
