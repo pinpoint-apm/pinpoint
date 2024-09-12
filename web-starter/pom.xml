@@ -17,8 +17,6 @@
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
 
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-
-        <pinpoint.web.executable.name>${project.artifactId}-${project.version}</pinpoint.web.executable.name>
     </properties>
 
     <dependencies>
@@ -73,7 +71,6 @@
                     <executable>true</executable>
                     <attach>true</attach>
                     <classifier>exec</classifier>
-                    <finalName>${pinpoint.web.executable.name}</finalName>
                     <image>
                         <name>${docker.repository.name}/pinpoint-web</name>
                         <tags>${docker.repository.name}/pinpoint-web:${project.version}-metric,${docker.repository.name}/pinpoint-web:latest-metric</tags>

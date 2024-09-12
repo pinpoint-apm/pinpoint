@@ -19,8 +19,6 @@
 
         <!-- for development option -->
         <skip.agent.distribution>false</skip.agent.distribution>
-
-        <pinpoint.log.collector.executable.name>${project.artifactId}-${project.version}</pinpoint.log.collector.executable.name>
     </properties>
 
     <dependencies>
@@ -104,7 +102,6 @@
                     <executable>true</executable>
                     <attach>true</attach>
                     <classifier>exec</classifier>
-                    <finalName>${pinpoint.log.collector.executable.name}</finalName>
                 </configuration>
             </plugin>
         </plugins>
