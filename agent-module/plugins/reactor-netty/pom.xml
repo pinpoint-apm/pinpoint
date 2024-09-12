@@ -32,6 +32,12 @@
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.projectreactor.netty.incubator</groupId>
+                    <artifactId>reactor-netty-incubator-quic</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>provided</scope>
         </dependency>
     </dependencies>
