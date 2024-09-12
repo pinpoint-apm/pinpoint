@@ -20,6 +20,7 @@ import {
 } from '../../../components/ui';
 import {
   useGetOtlpMetricDefUserDefined,
+  useOpenTelemetrySearchParameters,
   usePatchOtlpMetricDefUserDefined,
 } from '@pinpoint-fe/hooks';
 import { RxPlusCircled } from 'react-icons/rx';
@@ -35,8 +36,8 @@ import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
 export interface OpenTelemetryDashboardFetcherProps {}
 
 export const OpenTelemetryDashboardFetcher = () => {
-  // TODO
-  const applicationName = 'minwoo_local_app';
+  const { application } = useOpenTelemetrySearchParameters();
+  const applicationName = application?.applicationName || '';
   const { t } = useTranslation();
   const { data, refetch } = useGetOtlpMetricDefUserDefined();
   const metrics = data?.appMetricDefinitionList;
@@ -126,7 +127,7 @@ export const OpenTelemetryDashboardFetcher = () => {
       });
       updateMetricsWithToastMessage(
         {
-          applicationName: applicationName,
+          applicationName,
           appMetricDefinitionList: newMetics as OtlpMetricDefUserDefined.Metric[],
         },
         {

@@ -27,6 +27,7 @@ import { IconBaseProps } from 'react-icons/lib';
 import {
   useGetOtlpMetricDefProperty,
   useGetOtlpMetricDefUserDefined,
+  useOpenTelemetrySearchParameters,
   // useOpenTelemetrySearchParameters,
   usePatchOtlpMetricDefUserDefined,
 } from '@pinpoint-fe/hooks';
@@ -82,9 +83,8 @@ export const MetricDefinitionFormFetcher = ({
   onClickCancel,
 }: MetricDefinitionFormFetcherProps) => {
   const formId = '__metric_definition__';
-  // TODO
-  // const { application } = useOpenTelemetrySearchParameters();
-  const applicationName = 'minwoo_local_app';
+  const { application } = useOpenTelemetrySearchParameters();
+  const applicationName = application?.applicationName || '';
   const { refetch } = useGetOtlpMetricDefUserDefined();
   const setUserMetricConfig = useSetAtom(userMetricConfigAtom);
   const { t } = useTranslation();
