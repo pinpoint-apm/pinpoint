@@ -26,12 +26,12 @@ public class SimpleCacheFactory {
     public SimpleCacheFactory() {
     }
 
-    public <T> SimpleCache<T> newSimpleCache() {
-        return new SimpleCache<>();
+    public <T> SimpleCache<T, Integer> newSimpleCache() {
+        return SimpleCache.newIdCache();
     }
 
-    public <T> SimpleCache<T> newSimpleCache(int cacheSize) {
-        return new SimpleCache<>(cacheSize);
+    public <T> SimpleCache<T, Integer> newSimpleCache(int cacheSize) {
+        return SimpleCache.newIdCache(cacheSize);
     }
 }
 

@@ -44,7 +44,7 @@ public class StringMetadataServiceProvider implements Provider<StringMetaDataSer
 
     @Override
     public StringMetaDataService get() {
-        final SimpleCache<String> stringCache = simpleCacheFactory.newSimpleCache();
+        final SimpleCache<String, Integer> stringCache = simpleCacheFactory.newSimpleCache();
         return new DefaultStringMetaDataService(enhancedDataSender, stringCache);
     }
 }

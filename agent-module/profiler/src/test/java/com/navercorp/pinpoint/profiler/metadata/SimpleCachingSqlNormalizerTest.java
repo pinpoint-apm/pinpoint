@@ -27,7 +27,7 @@ public class SimpleCachingSqlNormalizerTest {
 
     @Test
     public void testNormalizedSql() {
-        SimpleCache<String> cache = newCache(1);
+        SimpleCache<String, Integer> cache = newCache(1);
         SimpleCachingSqlNormalizer normalizer = new SimpleCachingSqlNormalizer(cache);
         ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult("select * from dual");
 
@@ -45,7 +45,7 @@ public class SimpleCachingSqlNormalizerTest {
 
     @Test
     public void testNormalizedSql_cache_expire() {
-        SimpleCache<String> cache = newCache(1);
+        SimpleCache<String, Integer> cache = newCache(1);
         SimpleCachingSqlNormalizer normalizer = new SimpleCachingSqlNormalizer(cache);
         ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult("select * from table1");
         boolean newCache = normalizer.normalizedSql(parsingResult);
@@ -61,7 +61,7 @@ public class SimpleCachingSqlNormalizerTest {
         Assertions.assertTrue(newCache_parsingResult1_recached);
     }
 
-    private SimpleCache<String> newCache(int size) {
-        return new SimpleCache<>(size);
+    private SimpleCache<String, Integer> newCache(int cacheSize) {
+        return SimpleCache.newIdCache();
     }
 }

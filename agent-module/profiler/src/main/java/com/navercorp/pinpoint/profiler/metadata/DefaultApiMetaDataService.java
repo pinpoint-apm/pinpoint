@@ -28,11 +28,11 @@ import java.util.Objects;
  */
 public class DefaultApiMetaDataService implements ApiMetaDataService {
 
-    private final SimpleCache<String> apiCache;
+    private final SimpleCache<String, Integer> apiCache;
 
     private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultApiMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> apiCache) {
+    public DefaultApiMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String, Integer> apiCache) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
         this.apiCache = Objects.requireNonNull(apiCache, "apiCache");
     }

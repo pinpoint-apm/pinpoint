@@ -18,51 +18,61 @@ package com.navercorp.pinpoint.profiler.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * @author emeroad
  */
-public class SimpleCache<T> implements Cache<T, Result<Integer>> {
+public class SimpleCache<K, V> implements Cache<K, Result<V>> {
     // zero means not exist.
-    private final ConcurrentMap<T, Result<Integer>> cache;
-    private final AtomicInteger idGen = new AtomicInteger();
+    private final ConcurrentMap<K, V> cache;
+    private final Function<K, V> idFunction;
 
-    public SimpleCache() {
-        this(1024);
+    public static <K> SimpleCache<K, Integer> newIdCache() {
+        return newIdCache(1024);
     }
 
-    public SimpleCache(int cacheSize) {
+    public static <K> SimpleCache<K, Integer> newIdCache(int cacheSize) {
+        return new SimpleCache<>(cacheSize, new AtomicIntId<>());
+    }
+
+    public SimpleCache(Function<K, V> idFunction) {
+        this(1024, idFunction);
+    }
+
+    public SimpleCache(int cacheSize, Function<K, V> idFunction) {
         this.cache = createCache(cacheSize);
+        this.idFunction = Objects.requireNonNull(idFunction, "idFunction");
     }
 
-    private ConcurrentMap<T, Result<Integer>> createCache(int maxCacheSize) {
+    private ConcurrentMap<K, V> createCache(int maxCacheSize) {
         final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
-        com.github.benmanes.caffeine.cache.Cache<T, Result<Integer>> localCache = cacheBuilder.build();
+        com.github.benmanes.caffeine.cache.Cache<K, V> localCache = cacheBuilder.build();
         return localCache.asMap();
     }
 
     @Override
-    public Result<Integer> put(T value) {
-        final Result<Integer> find = this.cache.get(value);
-        if (find != null) {
-            return find;
-        }
-
-        // Use negative values too to reduce data size
-        final int newId = nextId();
-        final Result<Integer> result = new Result<>(false, newId);
-        final Result<Integer> before = this.cache.putIfAbsent(value, result);
-        if (before != null) {
-            return before;
-        }
-        return new Result<>(true, newId);
+    public Result<V> put(K value) {
+        final PutIfAbsent putIfAbsent = new PutIfAbsent();
+        final V id = this.cache.computeIfAbsent(value, putIfAbsent);
+        return new Result<>(putIfAbsent.called, id);
     }
 
-    private int nextId() {
-        return this.idGen.incrementAndGet();
+    private class PutIfAbsent implements Function<K, V> {
+
+        private boolean called;
+
+        public PutIfAbsent() {
+        }
+
+        @Override
+        public V apply(K key) {
+            this.called = true;
+            return idFunction.apply(key);
+        }
     }
 }

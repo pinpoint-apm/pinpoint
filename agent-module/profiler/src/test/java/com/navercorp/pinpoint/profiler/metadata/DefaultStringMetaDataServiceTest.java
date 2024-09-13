@@ -33,7 +33,7 @@ public class DefaultStringMetaDataServiceTest {
     @Test
     public void cacheString() {
         EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> stringCache = new SimpleCache<>();
+        SimpleCache<String, Integer> stringCache = SimpleCache.newIdCache();
         StringMetaDataService stringMetaDataService = new DefaultStringMetaDataService(dataSender, stringCache);
 
         String str = "test";
