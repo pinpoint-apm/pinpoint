@@ -45,7 +45,7 @@ public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> 
     @Override
     public ApiMetaDataService get() {
         final EnhancedDataSender<MetaDataType> enhancedDataSender = this.enhancedDataSenderProvider.get();
-        final SimpleCache<String> simpleCache = simpleCacheFactory.newSimpleCache();
+        final SimpleCache<String, Integer> simpleCache = simpleCacheFactory.newSimpleCache();
         return new DefaultApiMetaDataService(enhancedDataSender, simpleCache);
     }
 }

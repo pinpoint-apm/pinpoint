@@ -16,15 +16,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UidCacheTest {
-    UidCache sut;
+class SimpleCacheUidFunctionTest {
+    SimpleCache<String, byte[]> sut;
 
     @Mock
     Function<String, byte[]> uidFunction;
 
     @BeforeEach
     void setUp() {
-        sut = new UidCache(1024, uidFunction);
+        sut = new SimpleCache<>(1024, uidFunction);
 
         when(uidFunction.apply(any()))
                 .thenReturn(new byte[]{});

@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class MockApiMetaDataService implements ApiMetaDataService {
 
-    private final SimpleCache<String> apiCache = new SimpleCache<>();
+    private final SimpleCache<String, Integer> apiCache = SimpleCache.newIdCache();
 
     private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 

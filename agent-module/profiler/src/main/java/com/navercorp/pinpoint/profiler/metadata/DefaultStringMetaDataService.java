@@ -27,11 +27,11 @@ import java.util.Objects;
  */
 public class DefaultStringMetaDataService implements StringMetaDataService {
 
-    private final SimpleCache<String> stringCache;
+    private final SimpleCache<String, Integer> stringCache;
 
     private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultStringMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> stringCache) {
+    public DefaultStringMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String, Integer> stringCache) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
         this.stringCache = Objects.requireNonNull(stringCache, "stringCache");
 

@@ -65,7 +65,7 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
             SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
             return new SqlUidMetaDataService(sqlCacheService);
         } else {
-            final SimpleCache<String> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
+            final SimpleCache<String, Integer> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
             SimpleCachingSqlNormalizer simpleCachingSqlNormalizer = new SimpleCachingSqlNormalizer(stringCache);
             SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
             return new DefaultSqlMetaDataService(sqlCacheService);

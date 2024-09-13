@@ -35,7 +35,7 @@ public class DefaultApiMetaDataServiceTest {
     @Test
     public void cacheApi() {
         EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> cache = new SimpleCache<>();
+        SimpleCache<String, Integer> cache = SimpleCache.newIdCache();
         ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService(dataSender, cache);
 
         MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method",
