@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +44,7 @@ public class SqlCacheServiceTest {
 
     @BeforeEach
     public void setUp() {
-        SimpleCache<String> sqlCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 100);
+        SimpleCache<String> sqlCache = new SimpleCache<>(100);
         SimpleCachingSqlNormalizer cachingSqlNormalizer = new SimpleCachingSqlNormalizer(sqlCache);
         sut = new SqlCacheService<>(dataSender, cachingSqlNormalizer, MAX_LENGTH);
     }

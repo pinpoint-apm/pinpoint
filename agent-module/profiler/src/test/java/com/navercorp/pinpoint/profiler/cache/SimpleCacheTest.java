@@ -26,23 +26,19 @@ public class SimpleCacheTest {
 
     @Test
     public void startKey0() {
-        SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(0), 1024);
-        Result<Integer> test = cache.put("test");
-        Assertions.assertEquals(0, test.getId());
+        SimpleCache<String> cache = new SimpleCache<>();
+        Result<Integer> test1 = cache.put("test1");
+        Result<Integer> test2 = cache.put("test2");
+        Assertions.assertEquals(1, test1.getId());
+        Assertions.assertEquals(2, test2.getId());
     }
 
-    @Test
-    public void startKey1() {
-        SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 1);
-        Result<Integer> test = cache.put("test");
-        Assertions.assertEquals(-1, test.getId());
-    }
 
     @Test
     public void put() {
-        SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator());
+        SimpleCache<String> cache = new SimpleCache<>();
         Result<Integer> test = cache.put("test");
-        Assertions.assertEquals(-1, test.getId());
+        Assertions.assertEquals(1, test.getId());
         Assertions.assertTrue(test.isNewValue());
 
         Result<Integer> recheck = cache.put("test");
@@ -50,7 +46,7 @@ public class SimpleCacheTest {
         Assertions.assertFalse(recheck.isNewValue());
 
         Result<Integer> newValue = cache.put("new");
-        Assertions.assertEquals(1, newValue.getId());
+        Assertions.assertEquals(2, newValue.getId());
         Assertions.assertTrue(newValue.isNewValue());
 
     }
