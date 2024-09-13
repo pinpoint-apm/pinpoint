@@ -38,4 +38,9 @@ public class Result<ID> {
     public ID getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "Result{" + newValue +", " + id + '}';
+    }
 }

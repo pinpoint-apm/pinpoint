@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
 import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
 import com.navercorp.pinpoint.profiler.cache.Cache;
 import com.navercorp.pinpoint.profiler.cache.Result;
-import com.navercorp.pinpoint.profiler.cache.UidCache;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,7 +22,7 @@ public class UidCachingSqlNormalizer implements CachingSqlNormalizer<ParsingResu
     private final int lengthLimit;
 
     public UidCachingSqlNormalizer(int cacheSize, int lengthLimit) {
-        this.sqlCache = new UidCache(cacheSize, hashFunction);
+        this.sqlCache = new SimpleCache<>(cacheSize, hashFunction);
         this.sqlNormalizer = new DefaultSqlNormalizer();
         this.lengthLimit = lengthLimit;
     }

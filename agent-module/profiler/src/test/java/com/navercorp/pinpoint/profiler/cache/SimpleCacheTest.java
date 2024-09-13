@@ -26,9 +26,10 @@ public class SimpleCacheTest {
 
     @Test
     public void startKey0() {
-        SimpleCache<String> cache = new SimpleCache<>();
+        SimpleCache<String, Integer> cache = SimpleCache.newIdCache();
         Result<Integer> test1 = cache.put("test1");
         Result<Integer> test2 = cache.put("test2");
+
         Assertions.assertEquals(1, test1.getId());
         Assertions.assertEquals(2, test2.getId());
     }
@@ -36,7 +37,7 @@ public class SimpleCacheTest {
 
     @Test
     public void put() {
-        SimpleCache<String> cache = new SimpleCache<>();
+        SimpleCache<String, Integer> cache = SimpleCache.newIdCache();;
         Result<Integer> test = cache.put("test");
         Assertions.assertEquals(1, test.getId());
         Assertions.assertTrue(test.isNewValue());
