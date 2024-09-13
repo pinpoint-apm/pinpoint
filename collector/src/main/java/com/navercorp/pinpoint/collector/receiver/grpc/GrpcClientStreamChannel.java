@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
@@ -26,18 +27,16 @@ import com.navercorp.pinpoint.rpc.stream.StreamChannelRepository;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
-
-import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * @author Taejin Koo
@@ -46,8 +45,11 @@ public class GrpcClientStreamChannel extends AbstractStreamChannel implements Cl
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AtomicReference<StreamObserver<Empty>> connectionObserverReference = new AtomicReference<>();
+    @SuppressWarnings("rawtypes")
+    private static final AtomicReferenceFieldUpdater<GrpcClientStreamChannel, StreamObserver> REF
+            = AtomicReferenceFieldUpdater.newUpdater(GrpcClientStreamChannel.class, StreamObserver.class, "connectionObserver");
 
+    private volatile StreamObserver<Empty> connectionObserver;
     private final InetSocketAddress remoteAddress;
     private final ClientStreamChannelEventHandler streamChannelEventHandler;
 
@@ -78,12 +80,12 @@ public class GrpcClientStreamChannel extends AbstractStreamChannel implements Cl
 
     // handle create success
     public boolean setConnectionObserver(StreamObserver<Empty> connectionObserver) {
-        return connectionObserverReference.compareAndSet(null, connectionObserver);
+        return REF.compareAndSet(this, null, connectionObserver);
     }
 
     @Override
     public boolean changeStateConnected() {
-        if (connectionObserverReference.get() == null) {
+        if (REF.get(this) == null) {
             return false;
         }
         return super.changeStateConnected();
@@ -119,7 +121,8 @@ public class GrpcClientStreamChannel extends AbstractStreamChannel implements Cl
     }
 
     private void close0(StreamCode code) {
-        StreamObserver<Empty> connectionObserver = connectionObserverReference.get();
+        @SuppressWarnings("unchecked")
+        StreamObserver<Empty> connectionObserver = REF.get(this);
         if (connectionObserver != null) {
             if (code == StreamCode.STATE_CLOSED) {
                 Empty empty = Empty.newBuilder().build();
@@ -130,7 +133,7 @@ public class GrpcClientStreamChannel extends AbstractStreamChannel implements Cl
                 connectionObserver.onNext(empty);
                 connectionObserver.onError(new StatusException(Status.ABORTED.withDescription(code.name())));
             }
-            connectionObserverReference.compareAndSet(connectionObserver, null);
+            REF.compareAndSet(this, connectionObserver, null);
         }
     }
 

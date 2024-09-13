@@ -23,18 +23,21 @@ import reactor.core.scheduler.Scheduler;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * @author youngjin.kim2
  */
 public class IntervalRunner implements InitializingBean, DisposableBean {
 
+    private static final AtomicReferenceFieldUpdater<IntervalRunner, Disposable> REF
+            = AtomicReferenceFieldUpdater.newUpdater(IntervalRunner.class, Disposable.class, "disposable");
+
     private final Runnable runnable;
     private final Duration period;
     private final Scheduler scheduler;
 
-    private final AtomicReference<Disposable> disposableRef = new AtomicReference<>();
+    private volatile Disposable disposable;
 
     public IntervalRunner(Runnable runnable, Duration period, Scheduler scheduler) {
         this.runnable = Objects.requireNonNull(runnable, "runnable");
@@ -44,7 +47,7 @@ public class IntervalRunner implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() {
-        Disposable disposable = this.disposableRef.get();
+        Disposable disposable = REF.get(this);
         if (disposable != null) {
             disposable.dispose();
         }
@@ -53,7 +56,7 @@ public class IntervalRunner implements InitializingBean, DisposableBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         Disposable disposable = Flux.interval(this.period, this.scheduler).subscribe(t -> this.runnable.run());
-        if (!disposableRef.compareAndSet(null, disposable)) {
+        if (!REF.compareAndSet(this, null, disposable)) {
             disposable.dispose();
         }
     }

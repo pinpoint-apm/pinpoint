@@ -15,42 +15,45 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper.util;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 public class CommonStateContext {
 
-    private final AtomicReference<CommonState> currentState = new AtomicReference<>();
+    private static final AtomicReferenceFieldUpdater<CommonStateContext, CommonState> REF
+            = AtomicReferenceFieldUpdater.newUpdater(CommonStateContext.class, CommonState.class, "currentState");
+
+    private volatile CommonState currentState = null;
 
     public CommonStateContext() {
-        currentState.set(CommonState.NEW);
+        REF.set(this, CommonState.NEW);
     }
 
     public CommonState getCurrentState() {
-        return currentState.get();
+        return REF.get(this);
     }
 
     public boolean changeStateInitializing() {
-        return currentState.compareAndSet(CommonState.NEW, CommonState.INITIALIZING);
+        return REF.compareAndSet(this, CommonState.NEW, CommonState.INITIALIZING);
     }
 
     public boolean changeStateStarted() {
-        return currentState.compareAndSet(CommonState.INITIALIZING, CommonState.STARTED);
+        return REF.compareAndSet(this, CommonState.INITIALIZING, CommonState.STARTED);
     }
 
     public boolean changeStateDestroying() {
-        return currentState.compareAndSet(CommonState.STARTED, CommonState.DESTROYING);
+        return REF.compareAndSet(this, CommonState.STARTED, CommonState.DESTROYING);
     }
 
     public boolean changeStateStopped() {
-        return currentState.compareAndSet(CommonState.DESTROYING, CommonState.STOPPED);
+        return REF.compareAndSet(this, CommonState.DESTROYING, CommonState.STOPPED);
     }
 
     public boolean changeStateIllegal() {
-        currentState.set(CommonState.ILLEGAL_STATE);
+        REF.set(this, CommonState.ILLEGAL_STATE);
         return true;
     }
 
     public boolean isStarted() {
-        return currentState.get() == CommonState.STARTED;
+        return REF.get(this) == CommonState.STARTED;
     }
 }

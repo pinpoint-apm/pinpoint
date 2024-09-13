@@ -36,7 +36,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * @author youngjin.kim2
@@ -118,18 +118,21 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
     }
 
     private static class SupplyCollector {
+        @SuppressWarnings("rawtypes")
+        private static final AtomicReferenceFieldUpdater<SupplyCollector, List> REF
+                = AtomicReferenceFieldUpdater.newUpdater(SupplyCollector.class, List.class, "agents");
         String applicationName;
         long supplyExpiredIn;
 
         long sessionStartedAt = System.currentTimeMillis();
         long shouldConnectUntil = sessionStartedAt + MAX_CONNECTION_WAITING_MILLIS;
 
-        AtomicReference<List<ClusterKey>> agentsRef;
+        private volatile  List<ClusterKey> agents;
         Map<ClusterKey, ATCSupply> supplyMap = new ConcurrentHashMap<>();
         Map<ClusterKey, Long> updatedAtMap = new ConcurrentHashMap<>();
 
         SupplyCollector(String applicationName, long supplyExpiredIn) {
-            this.agentsRef = new AtomicReference<>(null);
+            this.agents = null;
             this.applicationName = applicationName;
             this.supplyExpiredIn = supplyExpiredIn;
         }
@@ -150,7 +153,8 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         }
 
         public ActiveThreadCountResponse compose(Long t) {
-            List<ClusterKey> agents = this.agentsRef.get();
+            @SuppressWarnings("unchecked")
+            List<ClusterKey> agents = REF.get(this);
             if (agents == null) {
                 return null;
             }
@@ -164,7 +168,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         }
 
         public void updateAgents(List<ClusterKey> agents) {
-            this.agentsRef.set(agents);
+            REF.set(this, agents);
         }
 
         private void putAgent(ActiveThreadCountResponse response, ClusterKey agent, long now) {
