@@ -31,10 +31,9 @@ public class IntervalRunnerTest {
 
     @Test
     public void test() throws Exception {
-        AtomicInteger counter = new AtomicInteger(0);
-        IntervalRunner runner = new IntervalRunner(() -> {
-            counter.getAndIncrement();
-        }, Duration.ofMillis(10), Schedulers.boundedElastic());
+        final AtomicInteger counter = new AtomicInteger(0);
+
+        IntervalRunner runner = new IntervalRunner(counter::getAndIncrement, Duration.ofMillis(10), Schedulers.boundedElastic());
         runner.afterPropertiesSet();
         Mono.delay(Duration.ofMillis(100)).block();
         runner.destroy();

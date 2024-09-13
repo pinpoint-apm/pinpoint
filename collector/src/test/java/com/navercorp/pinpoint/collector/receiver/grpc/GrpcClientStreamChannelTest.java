@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Taejin Koo
  */
 public class GrpcClientStreamChannelTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final InetSocketAddress mockRemoteAddress = new InetSocketAddress("127.0.0.1", 61611);
 
@@ -49,7 +50,7 @@ public class GrpcClientStreamChannelTest {
 
         grpcClientStreamChannel.init();
 
-        StreamException streamException = null;
+        StreamException streamException = new StreamException(StreamCode.STATE_CLOSED);
         try {
             grpcClientStreamChannel.connect(new Runnable() {
                 @Override
@@ -70,7 +71,7 @@ public class GrpcClientStreamChannelTest {
         GrpcClientStreamChannel grpcClientStreamChannel = new GrpcClientStreamChannel(mockRemoteAddress, 20, new StreamChannelRepository(), ClientStreamChannelEventHandler.DISABLED_INSTANCE);
         grpcClientStreamChannel.init();
 
-        StreamException streamException = null;
+        StreamException streamException = new StreamException(StreamCode.STATE_CLOSED);
         try {
             grpcClientStreamChannel.connect(new Runnable() {
                 @Override
@@ -102,7 +103,7 @@ public class GrpcClientStreamChannelTest {
         CountDownLatch threadCompleteLatch = connect(grpcClientStreamChannel, connectCompleteLatch);
 
         final AtomicInteger callCompletedCount = new AtomicInteger(0);
-        grpcClientStreamChannel.setConnectionObserver(new StreamObserver<Empty>() {
+        grpcClientStreamChannel.setConnectionObserver(new StreamObserver<>() {
             @Override
             public void onNext(Empty value) {
 
@@ -159,7 +160,7 @@ public class GrpcClientStreamChannelTest {
                         }
                     }, 1000);
                 } catch (StreamException e) {
-                    e.printStackTrace();
+                    logger.debug("connect error", e);
                 } finally {
                     threadCompleteLatch.countDown();
                 }
