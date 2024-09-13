@@ -19,22 +19,16 @@ package com.navercorp.pinpoint.profiler.context.provider.metadata;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
-import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SimpleCacheFactoryProvider implements Provider<SimpleCacheFactory> {
 
-    private final IdAllocator.ID_TYPE type;
-
     @Inject
     public SimpleCacheFactoryProvider(TransportModule transportModule) {
-//        if (TransportModule.THRIFT == transportModule) {
-//            this.type = IdAllocator.ID_TYPE.ZIGZAG;
-//        }
         if (TransportModule.GRPC == transportModule) {
-            this.type = IdAllocator.ID_TYPE.BYPASS;
+            // do nothing
         } else {
             throw new IllegalStateException("Unsupported transportModule:" + transportModule);
         }
@@ -42,6 +36,6 @@ public class SimpleCacheFactoryProvider implements Provider<SimpleCacheFactory> 
 
     @Override
     public SimpleCacheFactory get() {
-        return new SimpleCacheFactory(type);
+        return new SimpleCacheFactory();
     }
 }

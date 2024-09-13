@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -27,16 +27,14 @@ import java.util.concurrent.ConcurrentMap;
 public class SimpleCache<T> implements Cache<T, Result<Integer>> {
     // zero means not exist.
     private final ConcurrentMap<T, Result<Integer>> cache;
-    private final IdAllocator idAllocator;
+    private final AtomicInteger idGen = new AtomicInteger();
 
-    public SimpleCache(IdAllocator idAllocator) {
-        this(idAllocator, 1024);
+    public SimpleCache() {
+        this(1024);
     }
 
-    public SimpleCache(IdAllocator idAllocator, int cacheSize) {
+    public SimpleCache(int cacheSize) {
         this.cache = createCache(cacheSize);
-        this.idAllocator = Objects.requireNonNull(idAllocator, "idTransformer");
-
     }
 
     private ConcurrentMap<T, Result<Integer>> createCache(int maxCacheSize) {
@@ -65,6 +63,6 @@ public class SimpleCache<T> implements Cache<T, Result<Integer>> {
     }
 
     private int nextId() {
-        return this.idAllocator.allocate();
+        return this.idGen.incrementAndGet();
     }
 }
