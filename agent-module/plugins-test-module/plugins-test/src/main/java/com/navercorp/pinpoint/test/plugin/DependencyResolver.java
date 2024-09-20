@@ -61,6 +61,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -95,9 +96,13 @@ public class DependencyResolver {
     }
 
     private static class TraceRepositoryCache implements RepositoryCache {
-        private final RepositoryCache delegate = new DefaultRepositoryCache();
+        private final RepositoryCache delegate;
         private final AtomicInteger hit = new AtomicInteger();
         private final AtomicInteger miss = new AtomicInteger();
+
+        public TraceRepositoryCache(RepositoryCache delegate) {
+            this.delegate = Objects.requireNonNull(delegate, "delegate");
+        }
 
         @Override
         public void put(RepositorySystemSession session, Object key, Object data) {
@@ -141,11 +146,12 @@ public class DependencyResolver {
     }
 
     private static RepositoryCache newRepositoryCache() {
+        RepositoryCache cache = new DefaultRepositoryCache();
         final String enableTraceCache = System.getProperty("pinpoint.ittest.tracecache", "false");
         if (Boolean.parseBoolean(enableTraceCache)) {
-            return new TraceRepositoryCache();
+            return new TraceRepositoryCache(cache);
         }
-        return new DefaultRepositoryCache();
+        return cache;
     }
 
     private static String resolveLocalRepository() {
