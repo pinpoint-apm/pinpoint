@@ -66,7 +66,7 @@ public class JtdsConnectionIT {
     public static final JdbcDatabaseContainer<?> mssqlserver = newMSSQLServerContainer(logger.getName());
 
     public static JdbcDatabaseContainer<?> newMSSQLServerContainer(String loggerName) {
-        final MSSQLServerContainer<?> mssqlServerContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2019-latest");
+        final MSSQLServerContainer<?> mssqlServerContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         mssqlServerContainer.acceptLicense();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
         mssqlServerContainer.withPassword(JtdsITConstants.PASSWORD);

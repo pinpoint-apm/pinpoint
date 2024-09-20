@@ -36,7 +36,7 @@ public class MssqlServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-CU12");
+        container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         container.waitingFor(Wait.forListeningPort());
         container.withInitScript("mssql-init.sql");
         container.start();

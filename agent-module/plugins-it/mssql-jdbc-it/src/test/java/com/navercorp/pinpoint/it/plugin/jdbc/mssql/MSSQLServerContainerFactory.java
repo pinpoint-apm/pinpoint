@@ -29,7 +29,7 @@ public final class MSSQLServerContainerFactory {
     }
 
     public static MSSQLServerContainer<?> newMSSQLServerContainer(String loggerName) {
-        final MSSQLServerContainer<?> mssqlServerContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-CU12");
+        final MSSQLServerContainer<?> mssqlServerContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         mssqlServerContainer.acceptLicense();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
 

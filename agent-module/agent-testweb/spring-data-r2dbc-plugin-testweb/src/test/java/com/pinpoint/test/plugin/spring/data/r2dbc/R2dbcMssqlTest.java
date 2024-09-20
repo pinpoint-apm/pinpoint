@@ -31,7 +31,7 @@ public class R2dbcMssqlTest {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
         Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer(), "ARM not supported");
 
-        container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-CU12");
+        container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         container.acceptLicense();
         container.withInitScript("mssql-init.sql");
         container.start();
