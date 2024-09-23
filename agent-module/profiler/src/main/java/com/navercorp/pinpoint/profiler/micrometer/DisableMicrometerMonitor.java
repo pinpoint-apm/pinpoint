@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.monitor.config;
+package com.navercorp.pinpoint.profiler.micrometer;
 
-public interface MonitorConfig {
-    int getProfileJvmStatCollectIntervalMs();
+import com.google.inject.Inject;
 
-    int getProfileJvmStatBatchSendCount();
+/**
+ * MicrometerMonitor
+ *
+ */
+public class DisableMicrometerMonitor implements MicrometerMonitor {
 
-    boolean isProfilerJvmStatCollectDetailedMetrics();
 
-    boolean isCustomMetricEnable();
+    @Inject
+    public DisableMicrometerMonitor() {
+    }
 
-    int getCustomMetricLimitSize();
 
-    boolean isUriStatEnable();
+    @Override
+    public void start() {
+    }
 
-    boolean getUriStatCollectHttpMethod();
-
-    boolean isSqlStatEnable();
-
-    boolean isSqlErrorEnable();
-
-    int getSqlErrorCount();
-
-    int getCompletedUriStatDataLimitSize();
+    @Override
+    public void stop() {
+    }
 
 }

@@ -44,6 +44,7 @@ import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootloader;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.micrometer.MicrometerMonitor;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import org.apache.logging.log4j.LogManager;
@@ -66,6 +67,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final DeadlockMonitor deadlockMonitor;
     private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
+    private final MicrometerMonitor micrometerMonitor;
 
     private final TraceContext traceContext;
 
@@ -131,6 +133,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+        this.micrometerMonitor = injector.getInstance(MicrometerMonitor.class);
     }
 
     private void lambdaFactorySetup(Instrumentation instrumentation, ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
@@ -227,11 +230,13 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor.start();
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
+        this.micrometerMonitor.start();
     }
 
     @Override
     public void close() {
         this.agentInfoSender.stop();
+        this.micrometerMonitor.stop();
         this.agentStatMonitor.stop();
         this.deadlockMonitor.stop();
 

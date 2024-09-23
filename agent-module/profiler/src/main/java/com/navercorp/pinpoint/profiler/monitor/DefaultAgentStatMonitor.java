@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollec
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
-import com.navercorp.pinpoint.profiler.monitor.micrometer.MicrometerCollectingJob;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -103,11 +102,6 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
         if (monitorConfig.isUriStatEnable() && uriStatStorage != null) {
             Runnable uriStatCollectingJob = new UriStatCollectingJob(dataSender, uriStatStorage);
             runnableList.add(uriStatCollectingJob);
-        }
-
-        if (monitorConfig.isMicrometerEnable()) {
-            new MicrometerCollectingJob(monitorConfig.getMicrometerUrl(), monitorConfig.getMicrometerStep(),
-                    monitorConfig.getMicrometerBatchSize(), monitorConfig.getApplicationName(), monitorConfig.getAgentId());
         }
 
         this.statMonitorJob = new StatMonitorJob(runnableList);
