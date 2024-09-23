@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.mapper;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -38,8 +39,11 @@ import java.util.Objects;
 public class MapStructUtils {
     private final ObjectMapper mapper;
 
+    private final JavaType listLongJavaType;
+
     public MapStructUtils(ObjectMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
+        this.listLongJavaType = mapper.getTypeFactory().constructCollectionType(List.class, Long.class);
     }
 
 
@@ -64,8 +68,7 @@ public class MapStructUtils {
             return Collections.emptyList();
         }
         try {
-            List<T> value = mapper.readValue(s, new TypeReference<List<T>>() {});
-            return value;
+            return mapper.readValue(s, new TypeReference<>() {});
         } catch (JacksonException e) {
             throw new JsonRuntimeException("Json read error", e);
         }
@@ -76,7 +79,7 @@ public class MapStructUtils {
             return Collections.emptyList();
         }
         try {
-            return mapper.readValue(s, new TypeReference<List<Long>>() {});
+            return mapper.readValue(s, listLongJavaType);
         } catch (JacksonException e) {
             throw new JsonRuntimeException("Json read error", e);
         }
