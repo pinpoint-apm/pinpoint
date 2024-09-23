@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.it.plugin.jdbc.r2dbc;
 
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
@@ -28,7 +26,6 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import java.util.Properties;
 
 public class MssqlServer implements SharedTestLifeCycle {
-    private final Logger logger = LogManager.getLogger(getClass());
 
     private static MSSQLServerContainer<?> container;
 
@@ -37,6 +34,7 @@ public class MssqlServer implements SharedTestLifeCycle {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
         container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
+        container.acceptLicense();
         container.waitingFor(Wait.forListeningPort());
         container.withInitScript("mssql-init.sql");
         container.start();
