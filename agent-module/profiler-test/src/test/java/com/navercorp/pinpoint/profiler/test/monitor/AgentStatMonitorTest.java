@@ -38,6 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -77,13 +78,16 @@ public class AgentStatMonitorTest {
 
 //        profilerConfig.getProfileJvmStatCollectIntervalMs(), profilerConfig.getProfileJvmStatBatchSendCount()
 
-        MonitorConfig mockProfilerConfig = Mockito.mock(MonitorConfig.class);
+        MonitorConfig mockProfilerConfig = mock(MonitorConfig.class);
         Mockito.when(mockProfilerConfig.getProfileJvmStatCollectIntervalMs()).thenReturn((int) collectionIntervalMs);
         Mockito.when(mockProfilerConfig.getProfileJvmStatBatchSendCount()).thenReturn(numCollectionsPerBatch);
 
         // When
-        AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
-                agentStatCollector, null, null, mockProfilerConfig);
+        AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender,
+                "agentId",
+                System.currentTimeMillis(),
+                agentStatCollector, null, null,
+                mockProfilerConfig);
         monitor.start();
         Thread.sleep(totalTestDurationMs);
         monitor.stop();

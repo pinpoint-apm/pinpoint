@@ -14,30 +14,35 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.micrometer;
+package com.navercorp.pinpoint.profiler.micrometer;
 
 import io.micrometer.core.instrument.Clock;
-import io.micrometer.core.instrument.binder.jvm.*;
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmCompilationMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmHeapPressureMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmInfoMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.binder.system.DiskSpaceMetrics;
 import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.registry.otlp.OtlpConfig;
 import io.micrometer.registry.otlp.OtlpMeterRegistry;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import java.io.Closeable;
 import java.io.File;
-import java.util.Properties;
+import java.util.Objects;
 
-public class MicrometerCollectingJob {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
+public class AgentOtlpMeterRegistry implements Closeable {
 
     private final OtlpMeterRegistry meterRegistry;
 
-    public MicrometerCollectingJob(String micrometerUrl, String micrometerStep, String micrometerBatchSize, String applicationName, String agentId) {
-        this.meterRegistry = new OtlpMeterRegistry(getOtlpConfig(micrometerUrl, micrometerStep, micrometerBatchSize, "", applicationName, agentId), Clock.SYSTEM);
+    public AgentOtlpMeterRegistry(OtlpConfig otlpConfig) {
+        Objects.requireNonNull(otlpConfig, "otlpConfig");
+
+        this.meterRegistry = new OtlpMeterRegistry(otlpConfig, Clock.SYSTEM);
         bindMetrics();
     }
 
@@ -58,14 +63,9 @@ public class MicrometerCollectingJob {
         new UptimeMetrics().bindTo(meterRegistry);
     }
 
-    private OtlpConfig getOtlpConfig(String micrometerUrl, String micrometerStep, String micrometerBatchSize,
-                                     String serviceName, String applicationName, String agentId) {
-        Properties propertiesConfig = new Properties();
-        propertiesConfig.put("otlp.url", micrometerUrl);
-        propertiesConfig.put("otlp.step", String.valueOf(micrometerStep));
-        propertiesConfig.put("otlp.batchSize", String.valueOf(micrometerBatchSize));
-        propertiesConfig.put("otlp.resourceAttributes", "service.namespace=" + serviceName + ",service.name=" + applicationName + ",pinpoint.agentId=" + agentId);
-        OtlpConfig otlpConfig = (key -> (String) propertiesConfig.get(key));
-        return otlpConfig;
+
+    @Override
+    public void close() {
+        meterRegistry.close();
     }
 }

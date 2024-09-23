@@ -49,6 +49,8 @@ import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatche
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.micrometer.config.DefaultMicrometerConfig;
+import com.navercorp.pinpoint.profiler.micrometer.config.MicrometerConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
 import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
@@ -115,6 +117,10 @@ public class ConfigModule extends AbstractModule {
         logger.info("{}", monitorConfig);
         bind(MonitorConfig.class).toInstance(monitorConfig);
 
+        MicrometerConfig micrometerConfig = new DefaultMicrometerConfig();
+        configurationLoader.load(micrometerConfig);
+        logger.info("{}", micrometerConfig);
+        bind(MicrometerConfig.class).toInstance(micrometerConfig);
 
         bind(TransportModule.class).toInstance(profilerConfig.getTransportModule());
 
