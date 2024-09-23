@@ -17,13 +17,24 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+@JsonSerialize(using = TagSerializer.class)
 public class Tags {
-    private final List<Tag> tags = new ArrayList<>();
+    private final List<Tag> tags;
+
+    public Tags() {
+        this.tags = new ArrayList<>();
+    }
+
+    public Tags(List<Tag> tags) {
+        this.tags = Objects.requireNonNull(tags, "tags");
+    }
 
     @JsonAnySetter
     public void add(String name, String value) {

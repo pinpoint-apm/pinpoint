@@ -16,17 +16,12 @@
 
 package com.navercorp.pinpoint.metric.common.mybatis.typehandler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
-import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.Tags;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.TypeHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -40,7 +35,18 @@ import java.util.List;
 @MappedJdbcTypes({JdbcType.VARCHAR})
 public class TagListTypeHandler extends TagListSerializer implements TypeHandler<List<Tag>> {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    static ObjectMapper getMapper() {
+        return Jackson.newBuilder()
+                .build();
+    }
+
+    public TagListTypeHandler() {
+        this(getMapper());
+    }
+
+    public TagListTypeHandler(ObjectMapper mapper) {
+        super(mapper);
+    }
 
     @Override
     public void setParameter(PreparedStatement ps, int i, List<Tag> parameter, JdbcType jdbcType) throws SQLException {

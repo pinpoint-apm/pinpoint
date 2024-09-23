@@ -20,16 +20,16 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.model.Tags;
 
 import java.io.IOException;
-import java.util.List;
 
-public class TagMySqlSerializer extends JsonSerializer<List<Tag>> {
+public class TagSerializer extends JsonSerializer<Tags> {
 
     @Override
-    public void serialize(List<Tag> tags, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Tags tags, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartObject();
-        for (Tag tag : tags) {
+        for (Tag tag : tags.getTags()) {
             gen.writeStringField(tag.getName(), tag.getValue());
         }
         gen.writeEndObject();
