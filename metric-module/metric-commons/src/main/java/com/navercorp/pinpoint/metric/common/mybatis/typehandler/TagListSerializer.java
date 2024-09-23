@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.metric.common.mybatis.typehandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.server.util.json.Jackson;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.Tags;
@@ -26,34 +26,36 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo-jung
  */
 public class TagListSerializer {
 
-    private final static Logger logger = LogManager.getLogger(TagListSerializer.class.getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final static ObjectMapper OBJECT_MAPPER = getMapper();
+    private final ObjectMapper mapper;
+    private final ObjectReader reader;
 
-    static ObjectMapper getMapper() {
-        return Jackson.newBuilder()
-                .serializerByType(List.class, new TagMySqlSerializer())
-                .build();
+    public TagListSerializer(ObjectMapper mapper) {
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
+        reader = mapper.readerFor(Tags.class);
     }
 
-    public static String serialize(List<Tag> tagList) {
+    public String serialize(List<Tag> tagList) {
         try {
-            return OBJECT_MAPPER.writeValueAsString(tagList);
+            Tags tags = new Tags(tagList);
+            return mapper.writeValueAsString(tags);
         } catch (JsonProcessingException e) {
             logger.error("Error serializing List<Tag> : {}", tagList, e);
             throw new JsonRuntimeException("Error serializing tagList", e);
         }
     }
 
-    public static List<Tag> deserialize(String tagListJson) {
+    public List<Tag> deserialize(String tagListJson) {
         try {
-            Tags tags = OBJECT_MAPPER.readValue(tagListJson, Tags.class);
+            Tags tags = reader.readValue(tagListJson);
             return tags.getTags();
         } catch (JsonProcessingException e) {
             logger.error("Error deserializing tagList json : {}", tagListJson, e);

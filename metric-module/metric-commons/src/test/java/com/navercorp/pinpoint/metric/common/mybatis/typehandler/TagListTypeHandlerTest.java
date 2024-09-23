@@ -16,36 +16,50 @@
 
 package com.navercorp.pinpoint.metric.common.mybatis.typehandler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.Tags;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 public class TagListTypeHandlerTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    ObjectMapper mapper = new ObjectMapper();
+
 
     @Test
-    public void test() throws JsonProcessingException {
-        ObjectMapper mapper = TagListTypeHandler.getMapper();
+    void json() throws SQLException {
+
+        TagListTypeHandler handler = new TagListTypeHandler(mapper);
 
         List<Tag> list = List.of(
                 new Tag("a", "1"),
-                new Tag("a", "2")
+                new Tag("b", "2")
         );
 
-        String json = mapper.writeValueAsString(list);
-        logger.debug("serialize:{}", json);
+        PreparedStatement statement = mock(PreparedStatement.class);
+        handler.setParameter(statement, 0, list, null);
 
-        Tags tags = mapper.readValue(json, Tags.class);
-        logger.debug("deserialize:{}", tags.getTags());
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(statement).setString(anyInt(), captor.capture());
 
-        Assertions.assertEquals(list, tags.getTags());
+        ResultSet resultSet = mock(ResultSet.class);
+        when(resultSet.getString(any())).thenReturn(captor.getValue());
+
+        List<Tag> newTags = handler.getResult(resultSet, "columnName");
+        Assertions.assertEquals(list, newTags);
+
     }
 }

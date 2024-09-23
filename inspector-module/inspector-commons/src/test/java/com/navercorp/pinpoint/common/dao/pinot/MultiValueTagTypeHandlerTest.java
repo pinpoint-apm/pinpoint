@@ -18,9 +18,7 @@ class MultiValueTagTypeHandlerTest {
     @Test
     void getResult() throws SQLException {
         String json = """
-                [ "name1:1", "name2:2" ]
-                """;
-
+                [ "name1:1", "name2:2" ]""";
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.getString(any())).thenReturn(json);
 
