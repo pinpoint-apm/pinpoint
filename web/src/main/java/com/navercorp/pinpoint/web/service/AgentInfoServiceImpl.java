@@ -284,7 +284,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Range range = Range.between(timestamp - TimeUnit.HOURS.toMillis(durationHours), timestamp);
         List<AgentAndStatus> agentAndStatusList = getAgentAndStatuses(filteredAgentInfoList, timestamp);
         List<AgentInfo> filteredActiveAgentInfoList = agentAndStatusList.stream()
-                .filter(agentAndStatus -> isActiveAgentSimplePredicate(agentAndStatus, AgentStatusFilters.recentRunning(range.getFrom()), range))
+                .filter(agentAndStatus -> isActiveAgentSimplePredicate(agentAndStatus, AgentStatusFilters.recentStatus(range.getFrom()), range))
                 .map(AgentAndStatus::getAgentInfo)
                 .collect(Collectors.toList());
         return filteredActiveAgentInfoList;
@@ -294,12 +294,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         if (agentStatusFilter.test(agentAndStatus.getStatus())) {
             return true;
         }
-
         AgentInfo agentInfo = agentAndStatus.getAgentInfo();
         if (legacyAgentCompatibility.isLegacyAgent(agentInfo.getServiceTypeCode(), agentInfo.getAgentVersion())) {
-            if (legacyAgentCompatibility.isActiveAgent(agentInfo.getAgentId(), range)) {
-                return true;
-            }
+            return legacyAgentCompatibility.isActiveAgent(agentInfo.getAgentId(), range);
         }
 
         return false;

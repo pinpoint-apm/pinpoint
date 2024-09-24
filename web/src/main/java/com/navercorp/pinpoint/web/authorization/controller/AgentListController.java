@@ -10,6 +10,8 @@ import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramSe
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.ApplicationAgentInfoMapServiceImpl;
+import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
 import com.navercorp.pinpoint.web.view.tree.StaticTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -31,10 +33,9 @@ import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,19 +57,24 @@ public class AgentListController {
     private final ServiceTypeRegistryService registry;
     private final ApplicationFactory applicationFactory;
     private final ResponseTimeHistogramService responseTimeHistogramService;
+
+    private final ApplicationAgentInfoMapServiceImpl applicationAgentInfoService;
+
     private final SortByAgentInfo.Rules DEFAULT_SORT_BY = SortByAgentInfo.Rules.AGENT_ID_ASC;
+    private final ApplicationAgentListQueryRule DEFAULT_APPLICATION_AGENT_LIST_RULES = ApplicationAgentListQueryRule.ACTIVE_STATUS;
 
     public AgentListController(
             AgentInfoService agentInfoService,
             ServiceTypeRegistryService registry,
             ApplicationFactory applicationFactory,
-            ResponseTimeHistogramService responseTimeHistogramService
-    ) {
+            ResponseTimeHistogramService responseTimeHistogramService,
+            ApplicationAgentInfoMapServiceImpl applicationAgentInfoService) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.responseTimeHistogramService =
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
+        this.applicationAgentInfoService = applicationAgentInfoService;
     }
 
     @GetMapping(value = "/search-all")
@@ -85,7 +91,7 @@ public class AgentListController {
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
-        final AgentStatusFilter filter = AgentStatusFilters.recentRunning(from);
+        final AgentStatusFilter filter = AgentStatusFilters.recentStatus(from);
         final AgentsMapByApplication<AgentAndStatus> allAgentsList = this.agentInfoService.getAllAgentsList(
                 filter,
                 Range.between(from, to)
@@ -103,15 +109,18 @@ public class AgentListController {
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy) {
+            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy,
+            @RequestParam(value = "query", required = false) String query) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
+        final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, DEFAULT_APPLICATION_AGENT_LIST_RULES);
         final long timestamp = System.currentTimeMillis();
-        final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
-                AgentStatusFilters.running(),
-                AgentInfoFilters.exactServiceType(serviceTypeCode, serviceTypeName),
-                applicationName,
+        final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        final AgentsMapByHost list = this.applicationAgentInfoService.getAgentsListByApplicationName(
+                application,
                 Range.between(timestamp, timestamp),
-                paramSortBy
+                paramSortBy,
+                applicationAgentListQueryRule,
+                AgentInfoFilters.acceptAll()
         );
         return treeView(list);
     }
@@ -123,15 +132,17 @@ public class AgentListController {
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy
-    ) {
+            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy,
+            @RequestParam(value = "query", required = false) String query) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
-        final AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
-                AgentStatusFilters.recentRunning(from),
-                AgentInfoFilters.exactServiceType(serviceTypeCode, serviceTypeName),
-                applicationName,
+        final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, DEFAULT_APPLICATION_AGENT_LIST_RULES);
+        final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        final AgentsMapByHost list = this.applicationAgentInfoService.getAgentsListByApplicationName(
+                application,
                 Range.between(from, to),
-                paramSortBy
+                paramSortBy,
+                applicationAgentListQueryRule,
+                AgentInfoFilters.acceptAll()
         );
         return treeView(list);
     }
@@ -149,7 +160,7 @@ public class AgentListController {
         ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         if (serviceType.isWas()) {
             return getAgentsList(
-                    applicationName, serviceTypeCode, serviceTypeName, from, to, sortBy
+                    applicationName, serviceTypeCode, serviceTypeName, from, to, sortBy, null
             );
         }
 
@@ -241,6 +252,18 @@ public class AgentListController {
                         Range.between(from, to)
                 );
         return treeView(allAgentsList);
+    }
+
+    private Application createApplication(String applicationName, Short serviceTypeCode, String serviceTypeName) {
+        if (StringUtils.hasLength(applicationName)) {
+            if (serviceTypeCode != null) {
+                return applicationFactory.createApplication(applicationName, serviceTypeCode);
+            } else if (serviceTypeName != null) {
+                return applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+            }
+        }
+        // return application with without service type
+        return new Application(applicationName, ServiceType.UNDEFINED);
     }
 
 }
