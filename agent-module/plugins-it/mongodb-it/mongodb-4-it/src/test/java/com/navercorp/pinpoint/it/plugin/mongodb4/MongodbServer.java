@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.junit.Assume;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import java.util.Properties;
 
@@ -31,7 +30,7 @@ public class MongodbServer implements SharedTestLifeCycle {
     @Override
     public Properties beforeAll() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        container = new MongoDBContainer(DockerImageName.parse("mongo:4.0.28"));
+        container = new MongoDBContainer("mongo:4.4.29");
         container.start();
 
         final String url = "mongodb://" + container.getHost() + ":" + container.getFirstMappedPort();

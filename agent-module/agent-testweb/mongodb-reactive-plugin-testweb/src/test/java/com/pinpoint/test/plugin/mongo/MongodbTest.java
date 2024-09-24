@@ -21,7 +21,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.utility.DockerImageName;
 
 public class MongodbTest {
     private static MongoDBContainer container;
@@ -29,7 +28,7 @@ public class MongodbTest {
     @BeforeClass
     public static void beforeClass() {
 //        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        container = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
+        container = new MongoDBContainer("mongo:4.4.29");
         container.start();
 
         System.out.println("##host=" + container.getHost());
