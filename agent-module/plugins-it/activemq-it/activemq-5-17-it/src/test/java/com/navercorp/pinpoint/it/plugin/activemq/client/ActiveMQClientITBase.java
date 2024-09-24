@@ -43,9 +43,8 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
 import java.lang.reflect.Method;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -77,8 +76,7 @@ public abstract class ActiveMQClientITBase {
         final String testQueueName = "TestPullQueue";
         final ActiveMQQueue testQueue = new ActiveMQQueue(testQueueName);
         final String testMessage = "Hello World for Queue!";
-        final CountDownLatch consumerLatch = new CountDownLatch(1);
-        final AtomicReference<Exception> exception = new AtomicReference<>();
+        final CompletableFuture<Message> receivedMessage = new CompletableFuture<>();
         // create producer
         final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
         final MessageProducer producer = new MessageProducerBuilder(producerSession, testQueue).waitTillStarted().build();
@@ -91,11 +89,10 @@ public abstract class ActiveMQClientITBase {
             @Override
             public void run() {
                 try {
-                    messageReceiver.receiveMessage(1000L);
+                    Message message = messageReceiver.receiveMessage(1000L);
+                    receivedMessage.complete(message);
                 } catch (Exception e) {
-                    exception.set(e);
-                } finally {
-                    consumerLatch.countDown();
+                    receivedMessage.completeExceptionally(e);
                 }
             }
         });
@@ -103,10 +100,9 @@ public abstract class ActiveMQClientITBase {
         // When
         producer.send(expectedTextMessage);
         consumerThread.start();
-        consumerLatch.await(1L, TimeUnit.SECONDS);
 
         // Then
-        assertNoConsumerError(exception.get());
+        assertNoConsumerError(receivedMessage);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -137,8 +133,7 @@ public abstract class ActiveMQClientITBase {
         final ActiveMQQueue testQueue = new ActiveMQQueue(testQueueName);
         final String testMessage = "Hello World for Queue!";
         final MessagePrinter messagePrinter = new MessagePrinter();
-        final CountDownLatch consumerLatch = new CountDownLatch(1);
-        final AtomicReference<Exception> exception = new AtomicReference<>();
+        final CompletableFuture<Message> receivedMessage = new CompletableFuture<>();
         // create producer
         final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
         final MessageProducer producer = new MessageProducerBuilder(producerSession, testQueue).waitTillStarted().build();
@@ -152,10 +147,9 @@ public abstract class ActiveMQClientITBase {
                     public void onMessage(Message message) {
                         try {
                             messagePrinter.printMessage(message);
+                            receivedMessage.complete(message);
                         } catch (Exception e) {
-                            exception.set(e);
-                        } finally {
-                            consumerLatch.countDown();
+                            receivedMessage.completeExceptionally(e);
                         }
                     }
                 })
@@ -163,10 +157,9 @@ public abstract class ActiveMQClientITBase {
 
         // When
         producer.send(expectedTextMessage);
-        consumerLatch.await(1L, TimeUnit.SECONDS);
 
         // Then
-        assertNoConsumerError(exception.get());
+        assertNoConsumerError(receivedMessage);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -234,8 +227,8 @@ public abstract class ActiveMQClientITBase {
         final String testTopicName = "TestPullTopic";
         final ActiveMQTopic testTopic = new ActiveMQTopic(testTopicName);
         final String testMessage = "Hello World for Topic!";
-        final CountDownLatch consumerLatch = new CountDownLatch(2);
-        final AtomicReference<Exception> exception = new AtomicReference<>();
+        final CompletableFuture<Message> receivedMessage1 = new CompletableFuture<>();
+        final CompletableFuture<Message> receivedMessage2 = new CompletableFuture<>();
         // create producer
         final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
         final MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();
@@ -248,11 +241,10 @@ public abstract class ActiveMQClientITBase {
             @Override
             public void run() {
                 try {
-                    messageReceiver1.receiveMessage(1000L);
+                    Message message = messageReceiver1.receiveMessage(1000L);
+                    receivedMessage1.complete(message);
                 } catch (Exception e) {
-                    exception.set(e);
-                } finally {
-                    consumerLatch.countDown();
+                    receivedMessage1.completeExceptionally(e);
                 }
             }
         });
@@ -263,11 +255,10 @@ public abstract class ActiveMQClientITBase {
             @Override
             public void run() {
                 try {
-                    messageReceiver2.receiveMessage(1000L);
+                    Message message = messageReceiver2.receiveMessage(1000L);
+                    receivedMessage2.complete(message);
                 } catch (Exception e) {
-                    exception.set(e);
-                } finally {
-                    consumerLatch.countDown();
+                    receivedMessage2.completeExceptionally(e);
                 }
             }
         });
@@ -276,10 +267,10 @@ public abstract class ActiveMQClientITBase {
         producer.send(expectedTextMessage);
         consumer1Thread.start();
         consumer2Thread.start();
-        consumerLatch.await(1L, TimeUnit.SECONDS);
 
         // Then
-        assertNoConsumerError(exception.get());
+        assertNoConsumerError(receivedMessage1);
+        assertNoConsumerError(receivedMessage2);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -313,8 +304,8 @@ public abstract class ActiveMQClientITBase {
         final ActiveMQTopic testTopic = new ActiveMQTopic(testTopicName);
         final String testMessage = "Hello World for Topic!";
         final MessagePrinter messagePrinter = new MessagePrinter();
-        final CountDownLatch consumerLatch = new CountDownLatch(2);
-        final AtomicReference<Exception> exception = new AtomicReference<>();
+        final CompletableFuture<Message> receivedMessage = new CompletableFuture<>();
+
         // create producer
         final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
         final MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();
@@ -325,10 +316,9 @@ public abstract class ActiveMQClientITBase {
             public void onMessage(Message message) {
                 try {
                     messagePrinter.printMessage(message);
+                    receivedMessage.complete(message);
                 } catch (Exception e) {
-                    exception.set(e);
-                } finally {
-                    consumerLatch.countDown();
+                    receivedMessage.completeExceptionally(e);
                 }
             }
         };
@@ -345,10 +335,9 @@ public abstract class ActiveMQClientITBase {
 
         // When
         producer.send(expectedTextMessage);
-        consumerLatch.await(1L, TimeUnit.SECONDS);
 
         // Then
-        assertNoConsumerError(exception.get());
+        assertNoConsumerError(receivedMessage);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -483,5 +472,19 @@ public abstract class ActiveMQClientITBase {
 
     protected final void assertNoConsumerError(Exception consumerException) {
         Assertions.assertNull(consumerException, "Failed with exception : " + consumerException);
+    }
+
+    protected final void assertNoConsumerError(CompletableFuture<Message> consumerException) {
+        Exception exception = null;
+        try {
+            TextMessage message = (TextMessage) consumerException.get(1000, TimeUnit.MILLISECONDS);
+            System.out.println("Received message : " + message.getText());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            exception = e;
+        } catch (Throwable th) {
+            exception = (Exception) th;
+        }
+        Assertions.assertNull(exception, "Failed with exception : " + exception);
     }
 }

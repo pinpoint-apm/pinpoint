@@ -35,13 +35,15 @@ public class MessageReceiver {
         this.messageConsumer = Objects.requireNonNull(messageConsumer, "messageConsumer");
     }
 
-    public void receiveMessage() throws JMSException {
+    public Message receiveMessage() throws JMSException {
         Message message = messageConsumer.receive();
         messageLogger.printMessage(message);
+        return message;
     }
 
-    public void receiveMessage(long timeout) throws JMSException {
+    public Message receiveMessage(long timeout) throws JMSException {
         Message message = messageConsumer.receive(timeout);
         messageLogger.printMessage(message);
+        return message;
     }
 }
