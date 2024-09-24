@@ -88,6 +88,10 @@ public class ResponseTime {
         histogram.addCallCountByElapsedTime(elapsedTime, error);
     }
 
+    public Set<String> getAgentIds() {
+        return responseHistogramMap.keySet();
+    }
+
     public Collection<TimeHistogram> getAgentResponseHistogramList() {
         return responseHistogramMap.values();
     }
