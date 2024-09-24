@@ -62,6 +62,9 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * **Infrastructure**
   ![Infrastructure](doc/images/ss-Infrastructure-metric.png)
 
+* **Error-Analysis**
+  ![Error-Analysis](doc/images/ss_error-analysis.png)
+
 ## Supported Modules
 * JDK 8+
 * [Tomcat](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/tomcat), [Jetty](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jetty), [JBoss EAP](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jboss), [Resin](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/resin), [Websphere](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/websphere), [Vertx](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/vertx), [Weblogic](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/weblogic), [Undertow](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/undertow), [Akka HTTP](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/akka-http)
