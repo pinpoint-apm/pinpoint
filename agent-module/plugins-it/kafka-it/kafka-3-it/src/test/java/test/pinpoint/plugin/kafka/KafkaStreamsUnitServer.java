@@ -46,7 +46,7 @@ public class KafkaStreamsUnitServer implements SharedTestLifeCycle {
     @Override
     public Properties beforeAll() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"));
+        container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"));
 
         container.start();
         int port = container.getFirstMappedPort();

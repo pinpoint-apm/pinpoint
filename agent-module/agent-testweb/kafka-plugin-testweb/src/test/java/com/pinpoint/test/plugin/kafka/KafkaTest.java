@@ -15,7 +15,7 @@ public class KafkaTest {
     public static void beforeClass() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"));
+        container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"));
 
         container.start();
         final String bootstrapServers = container.getBootstrapServers();
