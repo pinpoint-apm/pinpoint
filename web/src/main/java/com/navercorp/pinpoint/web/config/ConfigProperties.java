@@ -55,7 +55,7 @@ public class ConfigProperties {
     @Value("${security.guide.url:#{null}}")
     private String securityGuideUrl;
 
-    @Value("${config.show.v3Inspector:false}")
+    @Value("${config.show.v3Inspector:true}")
     private boolean showV3Inspector;
 
     @Value("${config.show.applicationStat:false}")
