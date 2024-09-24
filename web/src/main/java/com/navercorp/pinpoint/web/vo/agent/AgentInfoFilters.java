@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.vo.agent;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import java.util.Objects;
 
 /**
@@ -30,6 +32,10 @@ public class AgentInfoFilters {
 
     public static AgentInfoFilter exactServiceType(Short serviceTypeCode, String serviceTypeName) {
         return new ExactServiceType(serviceTypeCode, serviceTypeName);
+    }
+
+    public static AgentInfoFilter exactServiceType(String serviceTypeName) {
+        return new ExactServiceType(null, serviceTypeName);
     }
 
     public static AgentInfoFilter isContainer(boolean isContainer) {
@@ -49,11 +55,13 @@ public class AgentInfoFilters {
             if (agentInfo == null) {
                 return false;
             }
-            if (serviceTypeCode != null) {
-                return agentInfo.getServiceType().getCode() == serviceTypeCode;
-            }
-            if (serviceTypeName != null) {
-                return Objects.equals(agentInfo.getServiceType().getName(), serviceTypeName);
+            if (agentInfo.getServiceType() != null) {
+                if (serviceTypeCode != null) {
+                    return agentInfo.getServiceType().getCode() == serviceTypeCode;
+                }
+                if (serviceTypeName != null) {
+                    return Objects.equals(agentInfo.getServiceType().getName(), serviceTypeName);
+                }
             }
             // pass when given conditions are null
             return true;
