@@ -55,6 +55,9 @@ public class ConfigProperties {
     @Value("${security.guide.url:#{null}}")
     private String securityGuideUrl;
 
+    @Value("${config.show.v3Inspector:false}")
+    private boolean showV3Inspector;
+
     @Value("${config.show.applicationStat:false}")
     private boolean showApplicationStat;
 
@@ -111,6 +114,10 @@ public class ConfigProperties {
         return this.openSource;
     }
 
+    public boolean isShowV3Inspector() {
+        return showV3Inspector;
+    }
+
     public boolean isShowApplicationStat() {
         return this.showApplicationStat;
     }
@@ -161,6 +168,7 @@ public class ConfigProperties {
         sb.append(", enableServerMapRealTime=").append(enableServerMapRealTime);
         sb.append(", openSource=").append(openSource);
         sb.append(", securityGuideUrl='").append(securityGuideUrl).append('\'');
+        sb.append(", showV3Inspector=").append(showV3Inspector);
         sb.append(", showApplicationStat=").append(showApplicationStat);
         sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);

@@ -5,6 +5,7 @@ export interface Configuration {
   sendUsage: boolean;
   editUserInfo: boolean;
   enableServerMapRealTime: boolean;
+  showV3Inspector: boolean;
   showApplicationStat: boolean;
   showStackTraceOnError: boolean;
   showSystemMetric: boolean;

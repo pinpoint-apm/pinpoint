@@ -22,6 +22,7 @@ public class ConfigPropertiesExporter implements FrontendConfigExporter {
         export.put("sendUsage", webProperties.getSendUsage());
         export.put("editUserInfo", webProperties.getEditUserInfo());
         export.put("enableServerMapRealTime", webProperties.isEnableServerMapRealTime());
+        export.put("showV3Inspector", webProperties.isShowV3Inspector());
         export.put("showApplicationStat", webProperties.isShowApplicationStat());
         export.put("showStackTraceOnError", webProperties.isShowStackTraceOnError());
         export.put("showSystemMetric", webProperties.isShowSystemMetric());
