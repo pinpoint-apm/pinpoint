@@ -128,8 +128,15 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
         }
     }
 
-    @Override public void start() {}
-    @Override public void stop() {}
+    @Override
+    public void start() {
+        logger.info("Started");
+    }
+
+    @Override
+    public void stop() {
+        logger.info("Stopped");
+    }
 
     @Override
     public String getRequestMapping() {

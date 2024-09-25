@@ -45,7 +45,7 @@ public class EmptyStreamObserver implements StreamObserver<Empty> {
         logger.info("onCompleted.");
     }
 
-    static StreamObserver create() {
+    static StreamObserver<Empty> create() {
         return new EmptyStreamObserver();
     }
 
