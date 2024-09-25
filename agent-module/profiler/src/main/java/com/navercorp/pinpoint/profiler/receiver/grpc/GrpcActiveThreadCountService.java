@@ -42,8 +42,8 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
-    private static final Logger LOGGER = LogManager.getLogger(GrpcActiveThreadCountService.class);
-    private final boolean isDebug = LOGGER.isDebugEnabled();
+    private final Logger logger = LogManager.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final ActiveTraceRepository activeTraceRepository;
 
@@ -85,7 +85,7 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
 
     @Override
     public void close() throws IOException {
-        LOGGER.info("close");
+        logger.info("close");
         grpcStreamService.close();
     }
 
@@ -94,7 +94,7 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
         @Override
         public void run() {
             if (isDebug) {
-                LOGGER.debug("ActiveThreadCountTimerTask started. streamSocketList:{}", Arrays.toString(grpcStreamService.getStreamSocketList()));
+                logger.debug("ActiveThreadCountTimerTask started. streamSocketList:{}", Arrays.toString(grpcStreamService.getStreamSocketList()));
             }
 
             PCmdActiveThreadCountRes.Builder activeThreadCountResponseBuilder = getActiveThreadCountResponse();
@@ -109,10 +109,10 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
 
                         stream.send(activeThreadCount);
                         if (isDebug) {
-                            LOGGER.debug("ActiveThreadCountStreamSocket. {}", stream);
+                            logger.debug("ActiveThreadCountStreamSocket. {}", stream);
                         }
                     } catch (Throwable e) {
-                        LOGGER.warn("failed to execute ActiveThreadCountTimerTask.run method. streamSocket:{}, message:{}", streamSocket, e.getMessage(), e);
+                        logger.warn("failed to execute ActiveThreadCountTimerTask.run method. streamSocket:{}, message:{}", streamSocket, e.getMessage(), e);
                         streamSocket.close(e);
                     }
                 }

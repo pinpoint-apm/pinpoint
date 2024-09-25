@@ -52,8 +52,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AgentService extends AgentGrpc.AgentImplBase {
     private static final AtomicLong idAllocator = new AtomicLong();
+
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+
     private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
     private final PingEventHandler pingEventHandler;
     private final Executor executor;
@@ -68,7 +69,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
     @Override
     public void requestAgentInfo(PAgentInfo agentInfo, StreamObserver<PResult> responseObserver) {
-        if (isDebug) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Request PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
@@ -101,14 +102,14 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             public void onNext(PPing ping) {
                 if (first.compareAndSet(false, true)) {
                     // Only first
-                    if (isDebug) {
+                    if (logger.isDebugEnabled()) {
                         thLogger.debug("PingSession:{} start:{}", id, MessageFormatUtils.debugLog(ping));
                     }
                     AgentService.this.pingEventHandler.connect();
                 } else {
                     AgentService.this.pingEventHandler.ping();
                 }
-                if (isDebug) {
+                if (logger.isDebugEnabled()) {
                     thLogger.debug("PingSession:{} onNext:{}", id, MessageFormatUtils.debugLog(ping));
                 }
                 if (responseObserver.isReady()) {
@@ -136,7 +137,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
             @Override
             public void onCompleted() {
-                if (isDebug) {
+                if (logger.isDebugEnabled()) {
                     thLogger.debug("PingSession:{} onCompleted()", id);
                 }
                 responseObserver.onCompleted();

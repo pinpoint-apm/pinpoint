@@ -27,6 +27,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -60,6 +61,8 @@ public class RedisActiveThreadCountWebSocketHandler {
     }
 
     public void handleActiveThreadCount(WebSocketSession wsSession, String applicationName) {
+        Objects.requireNonNull(applicationName, "applicationName");
+
         logger.info("ATC Requested. session: {}, applicationName: {}", wsSession, applicationName);
         HandlerSession handlerSession = HandlerSession.get(wsSession);
         if (handlerSession == null) {
@@ -133,7 +136,8 @@ public class RedisActiveThreadCountWebSocketHandler {
         private void start0(String applicationName) {
             try {
                 this.applicationName = applicationName;
-                this.disposable = this.atcService.getResponses(applicationName).subscribe(this::sendMessage);
+                Flux<ActiveThreadCountResponse> responses = this.atcService.getResponses(applicationName);
+                this.disposable = responses.subscribe(this::sendMessage);
             } catch (Exception e) {
                 logger.error("Failed to start atc session");
                 throw new RuntimeException(e);

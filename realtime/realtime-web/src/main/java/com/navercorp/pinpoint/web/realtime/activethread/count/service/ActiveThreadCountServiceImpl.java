@@ -78,9 +78,8 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         Disposable updateDisposable = this.scheduler.schedulePeriodically(() -> {
             getAgents(taskDecorator, applicationName).subscribe(agents -> {
                 for (ClusterKey agent : agents) {
-                    Disposable disposable = this.atcDao.getSupplies(agent).subscribe(supply -> {
-                        collector.add(supply);
-                    });
+                    Flux<ATCSupply> supplies = this.atcDao.getSupplies(agent);
+                    Disposable disposable = supplies.subscribe(collector::add);
                     Disposable prev = disposableMap.put(agent, disposable);
                     if (prev != null) {
                         Mono.delay(Duration.ofSeconds(3), this.scheduler).subscribe(t -> prev.dispose());
@@ -95,7 +94,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
                 .doFinally(e -> {
                     updateDisposable.dispose();
                     Mono.delay(Duration.ofMillis(500)).subscribe(t -> {
-                        for (Disposable d: disposableMap.values()) {
+                        for (Disposable d : disposableMap.values()) {
                             d.dispose();
                         }
                     });
@@ -107,7 +106,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
     }
 
     private Mono<List<ClusterKey>> getAgents(TimerTaskDecorator taskDecorator, String applicationName) {
-        return Mono.<List<ClusterKey>>create(sink -> {
+        return Mono.create(sink -> {
             taskDecorator.decorate(new TimerTask() {
                 @Override
                 public void run() {
@@ -161,7 +160,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
 
             long now = System.currentTimeMillis();
             ActiveThreadCountResponse response = new ActiveThreadCountResponse(applicationName, now);
-            for (ClusterKey agent: agents) {
+            for (ClusterKey agent : agents) {
                 putAgent(response, agent, now);
             }
             return response;

@@ -286,6 +286,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     @Override
     public StreamObserver<PCmdActiveThreadCountRes> commandStreamActiveThreadCount(StreamObserver<Empty> responseObserver) {
+        logger.debug("commandStreamActiveThreadCount started");
+
         ServerCallStreamObserver<Empty> serverResponseObserver = (ServerCallStreamObserver<Empty>) responseObserver;
         return new ActiveThreadCountResponseStreamObserver(serverResponseObserver, this.activeThreadCountSinkRepo) {
             @Override

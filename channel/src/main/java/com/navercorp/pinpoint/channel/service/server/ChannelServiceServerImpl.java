@@ -134,7 +134,8 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
         @Override
         public boolean consume(byte[] rawDemand) {
             try {
-                return responseToDemand(getProtocol().deserializeDemand(rawDemand));
+                D demand = getProtocol().deserializeDemand(rawDemand);
+                return responseToDemand(demand);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to supply for demand: " + BytesUtils.toString(rawDemand), e);
             }
@@ -162,7 +163,7 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
         private final Supplier<PubChannel> channelSupplier = Suppliers.memoize(this::buildPubChannel);
 
         PubChannelProxy(D demand) {
-            this.demand = demand;
+            this.demand = Objects.requireNonNull(demand, "demand");
         }
 
         @Override
@@ -171,7 +172,7 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
                 byte[] rawResponse = getProtocol().serializeSupply(supply);
                 this.channelSupplier.get().publish(rawResponse);
             } catch (Exception e) {
-                logger.error("Failed to send", e);
+                logger.warn("Failed to send", e);
             }
         }
 
