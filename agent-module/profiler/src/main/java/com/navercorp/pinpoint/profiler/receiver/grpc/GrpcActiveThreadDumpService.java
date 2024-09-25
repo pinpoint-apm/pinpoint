@@ -96,7 +96,7 @@ public class GrpcActiveThreadDumpService implements ProfilerGrpcCommandService {
     }
 
     private List<PActiveThreadDump> toPActiveThreadDump(Collection<ThreadDump> activeTraceInfoList) {
-        final List<PActiveThreadDump> result = new ArrayList<PActiveThreadDump>(activeTraceInfoList.size());
+        final List<PActiveThreadDump> result = new ArrayList<>(activeTraceInfoList.size());
         for (ThreadDump threadDump : activeTraceInfoList) {
             PActiveThreadDump pActiveThreadLightDump = createActiveThreadDump(threadDump);
             result.add(pActiveThreadLightDump);

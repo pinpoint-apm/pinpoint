@@ -73,7 +73,7 @@ public class AbstractChannelServiceClient<D, S> implements ChannelServiceClient 
                 getProtocol()
         );
         Subscription subscription = supplyChannel.subscribe(subConsumer);
-        deferredDisposable.setDisposable(() -> subscription.unsubscribe());
+        deferredDisposable.setDisposable(subscription::unsubscribe);
         return subscription;
     }
 

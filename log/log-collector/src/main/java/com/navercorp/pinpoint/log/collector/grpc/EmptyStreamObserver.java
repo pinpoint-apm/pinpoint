@@ -15,20 +15,26 @@
  */
 package com.navercorp.pinpoint.log.collector.grpc;
 
-import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 
 /**
  * @author youngjin.kim2
  */
-public class EmptyStreamObserver implements StreamObserver<Empty> {
-    @Override public void onNext(Empty t) {}
-    @Override public void onError(Throwable throwable) {}
-    @Override public void onCompleted() {}
+public class EmptyStreamObserver<T> implements StreamObserver<T> {
+    @Override
+    public void onNext(T t) {
+    }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public void onError(Throwable throwable) {
+    }
+
+    @Override
+    public void onCompleted() {
+    }
+
     static <T> StreamObserver<T> create() {
-        return (StreamObserver<T>) new EmptyStreamObserver();
+        return new EmptyStreamObserver<>();
     }
 
 }

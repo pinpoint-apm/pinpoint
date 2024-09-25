@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.RedisAct
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -29,6 +31,7 @@ import java.util.Objects;
  * @author youngjin.kim2
  */
 public class RedisActiveThreadCountHandlerAdaptor extends ActiveThreadCountHandler {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final RedisActiveThreadCountWebSocketHandler delegate;
 
@@ -42,16 +45,25 @@ public class RedisActiveThreadCountHandlerAdaptor extends ActiveThreadCountHandl
         this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
-    @Override public void start() {}
-    @Override public void stop() {}
+    @Override
+    public void start() {
+        logger.info("Started");
+    }
+
+    @Override
+    public void stop() {
+        logger.info("Stopped");
+    }
 
     @Override
     public void afterConnectionEstablished(@Nonnull WebSocketSession session) {
+        logger.debug("Connection established: {}", session);
         this.delegate.afterConnectionEstablished(session);
     }
 
     @Override
     public void afterConnectionClosed(@Nonnull WebSocketSession session, @Nonnull CloseStatus status) {
+        logger.debug("Connection closed: {}, {}", session, status);
         this.delegate.afterConnectionClosed(session, status);
     }
 
