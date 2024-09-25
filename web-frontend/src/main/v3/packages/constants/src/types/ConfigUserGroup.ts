@@ -1,5 +1,5 @@
 export namespace ConfigUserGroup {
-  export type Parameters = { userId: string | undefined } | { userGroupId: string };
+  export type Parameters = {} | { userId: string } | { userGroupId: string };
   export type Body = {
     id: string;
     userId: string;

@@ -10,14 +10,14 @@ import { convertParamsToQueryString } from '@pinpoint-fe/utils';
 import { UserGroupTableToolbar } from './UserGroupTableToolbar';
 
 export interface UserGroupTableFetcherProps {
-  userId: string;
+  userId?: string;
   enableUserGroupAdd?: boolean;
   enableAllUserGroupRemove?: boolean;
   enableOnlyMyUserGroupRemove?: boolean;
 }
 
 export const UserGroupTableFetcher = ({
-  userId,
+  userId = '',
   enableAllUserGroupRemove = false,
   enableOnlyMyUserGroupRemove = true,
   ...props
@@ -25,7 +25,8 @@ export const UserGroupTableFetcher = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [query, setQuery] = React.useState('');
-  const { data, mutate } = useGetConfigUserGroup(query ? { userGroupId: query } : { userId });
+  const queryParams = query ? { userGroupId: query } : userId ? { userId } : {};
+  const { data, mutate } = useGetConfigUserGroup(queryParams);
   const myUserGroupListRef = React.useRef<ConfigUserGroup.UserGroup[]>();
   const myUserGroupList = query ? myUserGroupListRef.current : data;
   const { isMutating, onRemove } = useDeleteConfigUserGroup({
