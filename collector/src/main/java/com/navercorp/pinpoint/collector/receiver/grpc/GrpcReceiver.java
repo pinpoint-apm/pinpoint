@@ -76,7 +76,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private List<ServerTransportFilter> transportFilterList;
 
     private ServerOption serverOption;
-    private ByteBufAllocator byteBufAllocator;
+    private ByteBufAllocator byteBufAllocator = ByteBufAllocator.DEFAULT;
 
     private SslContext sslContext;
 
