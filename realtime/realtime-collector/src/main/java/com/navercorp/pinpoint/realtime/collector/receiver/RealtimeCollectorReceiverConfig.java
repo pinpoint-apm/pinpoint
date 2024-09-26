@@ -15,20 +15,17 @@
  */
 package com.navercorp.pinpoint.realtime.collector.receiver;
 
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnectionRepository;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcCommandService;
-import com.navercorp.pinpoint.realtime.collector.sink.ErrorSinkRepository;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadCountPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadDumpPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadLightDumpPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.EchoPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.RealtimeCollectorSinkConfig;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.MonoSink;
 
 /**
  * @author youngjin.kim2
@@ -45,15 +42,13 @@ public class RealtimeCollectorReceiverConfig {
     @Bean("commandService")
     GrpcCommandService grpcCommandService(
             GrpcAgentConnectionRepository agentConnectionRepository,
-            ErrorSinkRepository errorSinkRepository,
-            SinkRepository<FluxSink<PCmdActiveThreadCountRes>> activeThreadCountSinkRepository,
-            SinkRepository<MonoSink<PCmdActiveThreadDumpRes>> activeThreadDumpSinkRepository,
-            SinkRepository<MonoSink<PCmdActiveThreadLightDumpRes>> activeThreadLightDumpSinkRepository,
-            SinkRepository<MonoSink<PCmdEchoResponse>> echoSinkRepository
+            SinkRepository<ActiveThreadCountPublisher> activeThreadCountSinkRepository,
+            SinkRepository<ActiveThreadDumpPublisher> activeThreadDumpSinkRepository,
+            SinkRepository<ActiveThreadLightDumpPublisher> activeThreadLightDumpSinkRepository,
+            SinkRepository<EchoPublisher> echoSinkRepository
     ) {
         return new GrpcCommandService(
                 agentConnectionRepository,
-                errorSinkRepository,
                 activeThreadCountSinkRepository,
                 activeThreadDumpSinkRepository,
                 activeThreadLightDumpSinkRepository,

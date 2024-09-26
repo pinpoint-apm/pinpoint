@@ -22,11 +22,11 @@ import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnection;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnectionRepository;
 import com.navercorp.pinpoint.realtime.collector.service.EchoService;
+import com.navercorp.pinpoint.realtime.collector.sink.EchoPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import com.navercorp.pinpoint.realtime.dto.Echo;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoSink;
 
 import java.util.Objects;
 
@@ -36,11 +36,11 @@ import java.util.Objects;
 class GrpcEchoService implements EchoService {
 
     private final GrpcAgentConnectionRepository connectionRepository;
-    private final SinkRepository<MonoSink<PCmdEchoResponse>> sinkRepository;
+    private final SinkRepository<EchoPublisher> sinkRepository;
 
     GrpcEchoService(
             GrpcAgentConnectionRepository connectionRepository,
-            SinkRepository<MonoSink<PCmdEchoResponse>> sinkRepository
+            SinkRepository<EchoPublisher> sinkRepository
     ) {
         this.connectionRepository = Objects.requireNonNull(connectionRepository, "connectionRepository");
         this.sinkRepository = Objects.requireNonNull(sinkRepository, "sinkRepository");
@@ -59,7 +59,8 @@ class GrpcEchoService implements EchoService {
                 return;
             }
 
-            long sinkId = this.sinkRepository.put(sink);
+            final long sinkId = this.sinkRepository.put(new EchoPublisher(sink));
+            sink.onDispose(() -> this.sinkRepository.invalidate(sinkId));
             conn.request(PCmdRequest.newBuilder()
                     .setRequestId(Long.valueOf(sinkId).intValue())
                     .setCommandEcho(PCmdEcho.newBuilder()

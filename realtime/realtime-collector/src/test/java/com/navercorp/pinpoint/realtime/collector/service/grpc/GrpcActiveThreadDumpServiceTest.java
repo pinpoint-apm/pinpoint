@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnection;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnectionRepository;
 import com.navercorp.pinpoint.realtime.collector.service.ActiveThreadDumpService;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadDumpPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadLightDumpPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
@@ -32,7 +34,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.MonoSink;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -50,13 +51,13 @@ public class GrpcActiveThreadDumpServiceTest {
 
     private static final long SINK_ID = 0;
 
-    @Mock SinkRepository<MonoSink<PCmdActiveThreadDumpRes>> detailSinkRepository;
-    @Mock SinkRepository<MonoSink<PCmdActiveThreadLightDumpRes>> lightSinkRepository;
+    @Mock SinkRepository<ActiveThreadDumpPublisher> detailSinkRepository;
+    @Mock SinkRepository<ActiveThreadLightDumpPublisher> lightSinkRepository;
     @Mock GrpcAgentConnection connection;
     @Mock GrpcAgentConnectionRepository connectionRepository;
     @Test
     public void testDetailDump() {
-        AtomicReference<MonoSink<PCmdActiveThreadDumpRes>> sinkRef = new AtomicReference<>();
+        AtomicReference<ActiveThreadDumpPublisher> sinkRef = new AtomicReference<>();
 
         doAnswer(inv -> {
             sinkRef.set(inv.getArgument(0));
@@ -68,8 +69,8 @@ public class GrpcActiveThreadDumpServiceTest {
             assertThat(req.getRequestId()).isEqualTo(SINK_ID);
             assertThat(req.getCommandCase()).isEqualTo(PCmdRequest.CommandCase.COMMANDACTIVETHREADDUMP);
 
-            MonoSink<PCmdActiveThreadDumpRes> sink = sinkRef.get();
-            sink.success(mockDetailResponse());
+            ActiveThreadDumpPublisher sink = sinkRef.get();
+            sink.publish(mockDetailResponse());
             return null;
         }).when(connection).request(any());
 
@@ -104,7 +105,7 @@ public class GrpcActiveThreadDumpServiceTest {
 
     @Test
     public void testLightDump() {
-        AtomicReference<MonoSink<PCmdActiveThreadLightDumpRes>> sinkRef = new AtomicReference<>();
+        AtomicReference<ActiveThreadLightDumpPublisher> sinkRef = new AtomicReference<>();
 
         doAnswer(inv -> {
             sinkRef.set(inv.getArgument(0));
@@ -116,8 +117,8 @@ public class GrpcActiveThreadDumpServiceTest {
             assertThat(req.getRequestId()).isEqualTo(SINK_ID);
             assertThat(req.getCommandCase()).isEqualTo(PCmdRequest.CommandCase.COMMANDACTIVETHREADLIGHTDUMP);
 
-            MonoSink<PCmdActiveThreadLightDumpRes> sink = sinkRef.get();
-            sink.success(mockLightResponse());
+            ActiveThreadLightDumpPublisher sink = sinkRef.get();
+            sink.publish(mockLightResponse());
             return null;
         }).when(connection).request(any());
 

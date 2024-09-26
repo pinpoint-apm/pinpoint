@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SimpleSinkRepository<T> implements SinkRepository<T> {
 
-    private final Map<Long, T> map = new ConcurrentHashMap<>();
     private final AtomicLong idCounter;
+    protected final Map<Long, T> map = new ConcurrentHashMap<>();
 
     SimpleSinkRepository(AtomicLong idCounter) {
         this.idCounter = Objects.requireNonNull(idCounter, "idCounter");
@@ -49,4 +49,11 @@ public class SimpleSinkRepository<T> implements SinkRepository<T> {
         this.map.remove(id);
     }
 
+    @Override
+    public void error(long id, Throwable th) {
+        T t = this.map.get(id);
+        if (t instanceof Publisher<?> publisher) {
+            publisher.error(th);
+        }
+    }
 }

@@ -15,22 +15,20 @@
  */
 package com.navercorp.pinpoint.realtime.collector.service.grpc;
 
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.realtime.collector.receiver.RealtimeCollectorReceiverConfig;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnectionRepository;
 import com.navercorp.pinpoint.realtime.collector.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.realtime.collector.service.ActiveThreadDumpService;
 import com.navercorp.pinpoint.realtime.collector.service.EchoService;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadCountPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadDumpPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadLightDumpPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.EchoPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.MonoSink;
 
 import java.time.Duration;
 
@@ -47,7 +45,7 @@ public class RealtimeCollectorGrpcServiceConfig {
     @Bean
     public ActiveThreadCountService grpcActiveThreadCountService(
             GrpcAgentConnectionRepository connectionRepository,
-            SinkRepository<FluxSink<PCmdActiveThreadCountRes>> sinkRepository
+            SinkRepository<ActiveThreadCountPublisher> sinkRepository
     ) {
         return new GrpcActiveThreadCountService(connectionRepository, sinkRepository, this.atcDemandDuration);
     }
@@ -55,8 +53,8 @@ public class RealtimeCollectorGrpcServiceConfig {
     @Bean
     public ActiveThreadDumpService grpcActiveThreadDumpService(
             GrpcAgentConnectionRepository connectionRepository,
-            SinkRepository<MonoSink<PCmdActiveThreadDumpRes>> sinkRepository,
-            SinkRepository<MonoSink<PCmdActiveThreadLightDumpRes>> lightSinkRepository
+            SinkRepository<ActiveThreadDumpPublisher> sinkRepository,
+            SinkRepository<ActiveThreadLightDumpPublisher> lightSinkRepository
     ) {
         return new GrpcActiveThreadDumpService(connectionRepository, sinkRepository, lightSinkRepository);
     }
@@ -64,7 +62,7 @@ public class RealtimeCollectorGrpcServiceConfig {
     @Bean
     public EchoService grpcEchoService(
             GrpcAgentConnectionRepository connectionRepository,
-            SinkRepository<MonoSink<PCmdEchoResponse>> sinkRepository
+            SinkRepository<EchoPublisher> sinkRepository
     ) {
         return new GrpcEchoService(connectionRepository, sinkRepository);
     }

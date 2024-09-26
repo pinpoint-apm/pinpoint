@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnection;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnectionRepository;
 import com.navercorp.pinpoint.realtime.collector.service.ActiveThreadCountService;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadCountPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import com.navercorp.pinpoint.realtime.dto.ATCDemand;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
@@ -32,7 +33,6 @@ import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -48,7 +48,7 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
     private final Logger logger = LogManager.getLogger(GrpcActiveThreadCountService.class);
 
     private final GrpcAgentConnectionRepository connectionRepository;
-    private final SinkRepository<FluxSink<PCmdActiveThreadCountRes>> sinkRepository;
+    private final SinkRepository<ActiveThreadCountPublisher> sinkRepository;
     private final Duration demandDuration;
 
     private final Cache<ClusterKey, Flux<ATCSupply>> fluxCache = CacheBuilder.newBuilder()
@@ -59,7 +59,7 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
 
     GrpcActiveThreadCountService(
             GrpcAgentConnectionRepository connectionRepository,
-            SinkRepository<FluxSink<PCmdActiveThreadCountRes>> sinkRepository,
+            SinkRepository<ActiveThreadCountPublisher> sinkRepository,
             Duration demandDuration
     ) {
         this.connectionRepository = Objects.requireNonNull(connectionRepository, "connectionRepository");
@@ -94,7 +94,7 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
                         return;
                     }
 
-                    long sinkId = this.sinkRepository.put(sink);
+                    final long sinkId = this.sinkRepository.put(new ActiveThreadCountPublisher(sink));
                     sink.onDispose(() -> {
                         this.sinkRepository.invalidate(sinkId);
                     });
