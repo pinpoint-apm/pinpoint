@@ -35,7 +35,10 @@ import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdServiceHandshake;
 import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
-import com.navercorp.pinpoint.realtime.collector.sink.ErrorSinkRepository;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadCountPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadDumpPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadLightDumpPublisher;
+import com.navercorp.pinpoint.realtime.collector.sink.EchoPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import io.grpc.Context;
 import io.grpc.Contexts;
@@ -53,9 +56,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoSink;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -77,17 +78,15 @@ public class GrpcCommandServiceTest {
     private static final long SINK_ID = 2345;
 
     @Mock GrpcAgentConnectionRepository agentConnectionRepository;
-    @Mock ErrorSinkRepository sinkRepository;
-    @Mock SinkRepository<FluxSink<PCmdActiveThreadCountRes>> activeThreadCountSinkRepo;
-    @Mock SinkRepository<MonoSink<PCmdActiveThreadDumpRes>> activeThreadDumpSinkRepo;
-    @Mock SinkRepository<MonoSink<PCmdActiveThreadLightDumpRes>> activeThreadLightDumpSinkRepo;
-    @Mock SinkRepository<MonoSink<PCmdEchoResponse>> echoSinkRepo;
+    @Mock SinkRepository<ActiveThreadCountPublisher> activeThreadCountSinkRepo;
+    @Mock SinkRepository<ActiveThreadDumpPublisher> activeThreadDumpSinkRepo;
+    @Mock SinkRepository<ActiveThreadLightDumpPublisher> activeThreadLightDumpSinkRepo;
+    @Mock SinkRepository<EchoPublisher> echoSinkRepo;
 
     @Test
     public void testActiveThreadCount() throws IOException {
         GrpcCommandService service = new GrpcCommandService(
                 agentConnectionRepository,
-                sinkRepository,
                 activeThreadCountSinkRepo,
                 activeThreadDumpSinkRepo,
                 activeThreadLightDumpSinkRepo,
@@ -101,7 +100,7 @@ public class GrpcCommandServiceTest {
             return null;
         }).when(agentConnectionRepository).add(any());
 
-        AtomicReference<FluxSink<PCmdActiveThreadCountRes>> sinkRef = new AtomicReference<>();
+        AtomicReference<ActiveThreadCountPublisher> sinkRef = new AtomicReference<>();
         doAnswer(inv -> sinkRef.get()).when(activeThreadCountSinkRepo).get(eq(SINK_ID));
 
         String serverName = InProcessServerBuilder.generateName();
@@ -128,7 +127,7 @@ public class GrpcCommandServiceTest {
         GrpcAgentConnection conn = connRef.get();
 
         List<PCmdActiveThreadCountRes> res = Flux.<PCmdActiveThreadCountRes>create(sink -> {
-            sinkRef.set(sink);
+            sinkRef.set(new ActiveThreadCountPublisher(sink));
             conn.request(PCmdRequest.newBuilder()
                     .setCommandActiveThreadCount(PCmdActiveThreadCount.getDefaultInstance())
                     .setRequestId((int) SINK_ID)
@@ -144,7 +143,6 @@ public class GrpcCommandServiceTest {
     public void testActiveThreadDump() throws IOException {
         GrpcCommandService service = new GrpcCommandService(
                 agentConnectionRepository,
-                sinkRepository,
                 activeThreadCountSinkRepo,
                 activeThreadDumpSinkRepo,
                 activeThreadLightDumpSinkRepo,
@@ -158,7 +156,7 @@ public class GrpcCommandServiceTest {
             return null;
         }).when(agentConnectionRepository).add(any());
 
-        AtomicReference<MonoSink<PCmdActiveThreadDumpRes>> sinkRef = new AtomicReference<>();
+        AtomicReference<ActiveThreadDumpPublisher> sinkRef = new AtomicReference<>();
         doAnswer(inv -> sinkRef.get()).when(activeThreadDumpSinkRepo).get(eq(SINK_ID));
 
         String serverName = InProcessServerBuilder.generateName();
@@ -185,7 +183,7 @@ public class GrpcCommandServiceTest {
         GrpcAgentConnection conn = connRef.get();
 
         PCmdActiveThreadDumpRes res = Mono.<PCmdActiveThreadDumpRes>create(sink -> {
-            sinkRef.set(sink);
+            sinkRef.set(new ActiveThreadDumpPublisher(sink));
             conn.request(PCmdRequest.newBuilder()
                     .setCommandActiveThreadDump(PCmdActiveThreadDump.getDefaultInstance())
                     .setRequestId((int) SINK_ID)
@@ -201,7 +199,6 @@ public class GrpcCommandServiceTest {
     public void testActiveThreadLightDump() throws IOException {
         GrpcCommandService service = new GrpcCommandService(
                 agentConnectionRepository,
-                sinkRepository,
                 activeThreadCountSinkRepo,
                 activeThreadDumpSinkRepo,
                 activeThreadLightDumpSinkRepo,
@@ -215,7 +212,7 @@ public class GrpcCommandServiceTest {
             return null;
         }).when(agentConnectionRepository).add(any());
 
-        AtomicReference<MonoSink<PCmdActiveThreadLightDumpRes>> sinkRef = new AtomicReference<>();
+        AtomicReference<ActiveThreadLightDumpPublisher> sinkRef = new AtomicReference<>();
         doAnswer(inv -> sinkRef.get()).when(activeThreadLightDumpSinkRepo).get(eq(SINK_ID));
 
         String serverName = InProcessServerBuilder.generateName();
@@ -242,7 +239,7 @@ public class GrpcCommandServiceTest {
         GrpcAgentConnection conn = connRef.get();
 
         PCmdActiveThreadLightDumpRes res = Mono.<PCmdActiveThreadLightDumpRes>create(sink -> {
-            sinkRef.set(sink);
+            sinkRef.set(new ActiveThreadLightDumpPublisher(sink));
             conn.request(PCmdRequest.newBuilder()
                     .setCommandActiveThreadLightDump(PCmdActiveThreadLightDump.getDefaultInstance())
                     .setRequestId((int) SINK_ID)
@@ -258,7 +255,6 @@ public class GrpcCommandServiceTest {
     public void testEcho() throws IOException {
         GrpcCommandService service = new GrpcCommandService(
                 agentConnectionRepository,
-                sinkRepository,
                 activeThreadCountSinkRepo,
                 activeThreadDumpSinkRepo,
                 activeThreadLightDumpSinkRepo,
@@ -272,7 +268,7 @@ public class GrpcCommandServiceTest {
             return null;
         }).when(agentConnectionRepository).add(any());
 
-        AtomicReference<MonoSink<PCmdEchoResponse>> sinkRef = new AtomicReference<>();
+        AtomicReference<EchoPublisher> sinkRef = new AtomicReference<>();
         doAnswer(inv -> sinkRef.get()).when(echoSinkRepo).get(eq(SINK_ID));
 
         String serverName = InProcessServerBuilder.generateName();
@@ -299,7 +295,7 @@ public class GrpcCommandServiceTest {
         GrpcAgentConnection conn = connRef.get();
 
         PCmdEchoResponse res = Mono.<PCmdEchoResponse>create(sink -> {
-            sinkRef.set(sink);
+            sinkRef.set(new EchoPublisher(sink));
             conn.request(PCmdRequest.newBuilder()
                     .setCommandEcho(PCmdEcho.getDefaultInstance())
                     .setRequestId((int) SINK_ID)

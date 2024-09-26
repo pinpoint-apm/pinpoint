@@ -100,4 +100,10 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
         return clientResponseObserver;
     }
 
+    @Override
+    public String toString() {
+        return "ActiveThreadCountStreamSocket{" +
+                "streamObserverId=" + streamObserverId +
+                '}';
+    }
 }

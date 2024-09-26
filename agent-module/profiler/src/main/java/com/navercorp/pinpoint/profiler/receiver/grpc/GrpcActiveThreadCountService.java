@@ -108,6 +108,9 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
                         PCmdActiveThreadCountRes activeThreadCount = activeThreadCountResponseBuilder.build();
 
                         stream.send(activeThreadCount);
+                        if (isDebug) {
+                            LOGGER.debug("ActiveThreadCountStreamSocket. {}", stream);
+                        }
                     } catch (Throwable e) {
                         LOGGER.warn("failed to execute ActiveThreadCountTimerTask.run method. streamSocket:{}, message:{}", streamSocket, e.getMessage(), e);
                         streamSocket.close(e);

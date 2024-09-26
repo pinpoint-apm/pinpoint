@@ -15,19 +15,10 @@
  */
 package com.navercorp.pinpoint.realtime.collector.sink;
 
-import com.google.common.cache.CacheBuilder;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
-import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.MonoSink;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -36,66 +27,28 @@ import java.util.concurrent.atomic.AtomicLong;
 @Configuration(proxyBeanMethods = false)
 public class RealtimeCollectorSinkConfig {
 
-    @Value("${pinpoint.modules.realtime.sink.guava.enabled:false}")
-    private boolean enableGuava;
-
-    @Value("${pinpoint.modules.realtime.sink.guava.max-size:65536}")
-    private long maxGuavaCacheSize;
-
     @Bean("sinkIdCounter")
     public AtomicLong sinkIdCounter() {
         return new AtomicLong(0);
     }
 
     @Bean
-    public SinkRepository<FluxSink<PCmdActiveThreadCountRes>> activeThreadCountSinkRepository(
-            @Qualifier("sinkIdCounter") AtomicLong idCounter
-    ) {
-        return this.buildSink(idCounter);
+    public SinkRepository<ActiveThreadCountPublisher> activeThreadCountSinkRepository(@Qualifier("sinkIdCounter") AtomicLong idCounter) {
+        return new ActiveThreadCountPublisherSinkRepository(idCounter);
     }
 
     @Bean
-    public SinkRepository<MonoSink<PCmdActiveThreadDumpRes>> activeThreadDumpSinkRepository(
-            @Qualifier("sinkIdCounter") AtomicLong idCounter
-    ) {
-        return this.buildSink(idCounter);
+    public SinkRepository<ActiveThreadDumpPublisher> activeThreadDumpSinkRepository(@Qualifier("sinkIdCounter") AtomicLong idCounter) {
+        return new SimpleSinkRepository<>(idCounter);
     }
 
     @Bean
-    public SinkRepository<MonoSink<PCmdActiveThreadLightDumpRes>> activeThreadLightDumpSinkRepository(
-            @Qualifier("sinkIdCounter") AtomicLong idCounter
-    ) {
-        return this.buildSink(idCounter);
+    public SinkRepository<ActiveThreadLightDumpPublisher> activeThreadLightDumpSinkRepository(@Qualifier("sinkIdCounter") AtomicLong idCounter) {
+        return new SimpleSinkRepository<>(idCounter);
     }
 
     @Bean
-    public SinkRepository<MonoSink<PCmdEchoResponse>> echoSinkRepository(
-            @Qualifier("sinkIdCounter") AtomicLong idCounter
-    ) {
-        return this.buildSink(idCounter);
+    public SinkRepository<EchoPublisher> echoSinkRepository(@Qualifier("sinkIdCounter") AtomicLong idCounter) {
+        return new SimpleSinkRepository<>(idCounter);
     }
-
-    private <T> SinkRepository<T> buildSink(AtomicLong idCounter) {
-        if (this.enableGuava) {
-            return this.buildGuavaSink(idCounter);
-        } else {
-            return new SimpleSinkRepository<>(idCounter);
-        }
-    }
-
-    private <T> SinkRepository<T> buildGuavaSink(AtomicLong idCounter) {
-        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
-                .maximumSize(this.maxGuavaCacheSize)
-                .weakKeys();
-        return new GuavaSinkRepository<>(cacheBuilder, idCounter);
-    }
-
-    @Bean
-    public ErrorSinkRepository commandErrorSinkRepository(
-            List<SinkRepository<MonoSink<?>>> monoSinkRepositories,
-            List<SinkRepository<FluxSink<?>>> fluxSinkRepositories
-    ) {
-        return new IterativeErrorSinkRepository(monoSinkRepositories, fluxSinkRepositories);
-    }
-
 }

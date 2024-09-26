@@ -64,6 +64,10 @@ public class AgentServerTestMain {
 
         MetadataService metadataService = new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8), serverRequestFactory);
         List<ServerServiceDefinition> serviceList = List.of(agentService.bindService(), metadataService.bindService());
+
+        grpcReceiver.setBindAddress(builder.build());
+        grpcReceiver.setAddressFilter(new MockAddressFilter());
+
         grpcReceiver.setBindableServiceList(serviceList);
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
