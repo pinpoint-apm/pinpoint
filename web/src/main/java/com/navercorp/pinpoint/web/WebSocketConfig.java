@@ -26,11 +26,13 @@ import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 import java.util.List;
 
@@ -54,6 +56,12 @@ public class WebSocketConfig {
                 webSocketHandlerDecoratorFactory,
                 customHandshakeInterceptor
         );
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "pinpoint.web.websocket")
+    public ServletServerContainerFactoryBean createWebSocketContainer() {
+        return new ServletServerContainerFactoryBean();
     }
 
     @Bean

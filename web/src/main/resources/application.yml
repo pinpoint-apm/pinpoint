@@ -39,6 +39,13 @@ hbase:
 
 pinpoint.web.cache-resources: true
 
+pinpoint.web.websocket:
+  async-send-timeout:
+  max-session-idle-timeout: 10800000 # 3 hours
+  max-binary-message-buffer-size:
+  max-text-message-buffer-size:
+
+
 ---
 spring.config.activate.on-profile: local
 pinpoint.web.cache-resources: false
