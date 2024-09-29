@@ -102,16 +102,20 @@ export const ScatterChartStatic = ({
         ...props.toolbarOption,
       }}
       onDragEnd={(data, checkedLegends) => {
-        window.open(
-          `${BASE_PATH}${getTransactionListPath(
-            application,
-            searchParameters,
-          )}&${getTranscationListQueryString({
-            ...data,
-            checkedLegends,
-            agentId: selectedAgentId === SCATTER_DATA_TOTAL_KEY ? '' : selectedAgentId,
-          })}`,
-        );
+        if (props?.onDragEnd) {
+          props.onDragEnd(data, checkedLegends);
+        } else {
+          window.open(
+            `${BASE_PATH}${getTransactionListPath(
+              application,
+              searchParameters,
+            )}&${getTranscationListQueryString({
+              ...data,
+              checkedLegends,
+              agentId: selectedAgentId === SCATTER_DATA_TOTAL_KEY ? '' : selectedAgentId,
+            })}`,
+          );
+        }
       }}
     />
   );

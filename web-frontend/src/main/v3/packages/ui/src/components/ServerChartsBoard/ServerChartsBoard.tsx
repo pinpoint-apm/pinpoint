@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorBoundary } from '@pinpoint-fe/ui';
+import { ChartBoardSkeleton, ErrorBoundary } from '../';
 import {
   ServerChartsBoardFetcher,
   ServerChartsBoardFetcherProps,
@@ -9,8 +9,8 @@ export interface ServerChartsBoardProps extends ServerChartsBoardFetcherProps {}
 
 export const ServerChartsBoard = ({ ...props }: ServerChartsBoardProps) => {
   return (
-    <ErrorBoundary fallback={<h2>Could not fetch posts.</h2>}>
-      <React.Suspense fallback={<h1>Loading posts...</h1>}>
+    <ErrorBoundary>
+      <React.Suspense fallback={<ChartBoardSkeleton />}>
         <ServerChartsBoardFetcher {...props} />
       </React.Suspense>
     </ErrorBoundary>

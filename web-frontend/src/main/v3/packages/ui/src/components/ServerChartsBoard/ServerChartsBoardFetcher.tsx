@@ -1,7 +1,7 @@
 import React from 'react';
 import useSWR from 'swr';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { ChartsBoard, ChartsBoardProps, ChartBoardSkeleton } from '@pinpoint-fe/ui';
+import { ChartsBoard, ChartsBoardProps } from '..';
 import { END_POINTS, GetResponseTimeHistogram, GetServerMap } from '@pinpoint-fe/constants';
 import {
   serverMapCurrentTargetDataAtom,
@@ -12,13 +12,16 @@ import {
 import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
 import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/hooks';
 import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from '@pinpoint-fe/ui';
 
 export interface ServerChartsBoardFetcherProps extends ChartsBoardProps {
   disableFetch: boolean;
 }
 
-const ServerChartsBoard = ({ disableFetch, children, ...props }: ServerChartsBoardFetcherProps) => {
+export const ServerChartsBoardFetcher = ({
+  disableFetch,
+  children,
+  ...props
+}: ServerChartsBoardFetcherProps) => {
   const { searchParameters } = useSearchParameters();
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom);
   const currentServer = useAtomValue(currentServerAtom);
@@ -97,15 +100,5 @@ const ServerChartsBoard = ({ disableFetch, children, ...props }: ServerChartsBoa
     >
       {children}
     </ChartsBoard>
-  );
-};
-
-export const ServerChartsBoardFetcher = (props: ServerChartsBoardFetcherProps) => {
-  return (
-    <ErrorBoundary>
-      <React.Suspense fallback={<ChartBoardSkeleton />}>
-        <ServerChartsBoard {...props} />
-      </React.Suspense>
-    </ErrorBoundary>
   );
 };

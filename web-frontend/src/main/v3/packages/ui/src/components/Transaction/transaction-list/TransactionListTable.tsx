@@ -1,4 +1,4 @@
-import { HeatmapDrag } from '@pinpoint-fe/constants';
+import { Transaction } from '@pinpoint-fe/constants';
 import { VirtualizedDataTable, VirtualizedDataTableProps } from '../../DataTable';
 import { transactionListTableColumns } from '.';
 import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
@@ -10,8 +10,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 export interface TransactionListTableProps
-  extends Pick<VirtualizedDataTableProps<HeatmapDrag.Metadatum, unknown>, 'onClickRow'> {
-  data?: HeatmapDrag.Metadatum[];
+  extends Pick<VirtualizedDataTableProps<Transaction, unknown>, 'onClickRow'> {
+  data?: Transaction[];
 }
 
 export const TransactionListTable = ({ data, ...props }: TransactionListTableProps) => {

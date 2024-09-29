@@ -55,6 +55,7 @@ export * from './usePostBind';
 export * from './usePostConfigGroupMember';
 export * from './usePostConfigUserGroup';
 export * from './usePostConfigUsers';
+export * from './usePostTransactionMetaData';
 export * from './usePutConfigUsers';
 export * from './useWebhookIncludeMutaion';
 export * from './useWebhookMutation';
