@@ -52,7 +52,8 @@
   },
   "TRANSACTION_LIST": {
     "SELECT_TRANSACTION": "Select your transaction",
-    "TRANSACTION_RETRIEVE_ERROR": "Transaction information is missing<br>Will go to Main"
+    "TRANSACTION_RETRIEVE_ERROR": "Transaction information is missing.",
+    "TRANSACTION_RETRIEVE_ERROR_DESC": "Please start it over from the Servermap/Filtered page.  (If you close this dialog, you will be redirected to the Servermap page.)"
   },
   "METRIC": {
     "HOST_GROUP_LIST": "Host-Group List",

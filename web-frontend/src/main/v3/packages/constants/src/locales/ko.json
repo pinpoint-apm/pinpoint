@@ -52,7 +52,8 @@
   },
   "TRANSACTION_LIST": {
     "SELECT_TRANSACTION": "Transaction을 선택하세요.",
-    "TRANSACTION_RETRIEVE_ERROR": "Transaction 정보가 없습니다.<br>Main 화면으로 이동합니다."
+    "TRANSACTION_RETRIEVE_ERROR": "Transaction 정보가 없습니다.",
+    "TRANSACTION_RETRIEVE_ERROR_DESC": "Servermap/Filtered 페이지에서 다시 시도해 주세요. (이 창을 닫으면 Servermap 페이지로 이동합니다)"
   },
   "METRIC": {
     "HOST_GROUP_LIST": "호스트 그룹 목록",

@@ -1,4 +1,4 @@
-import { ApplicationType, HeatmapDrag, BASE_PATH } from '@pinpoint-fe/constants';
+import { ApplicationType, BASE_PATH, Transaction } from '@pinpoint-fe/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { FaFire } from 'react-icons/fa';
@@ -8,7 +8,7 @@ import { getTransactionDetailPath, getTransactionDetailQueryString } from '@pinp
 
 export const transactionListTableColumns = (
   application: ApplicationType | null,
-): ColumnDef<HeatmapDrag.Metadatum>[] => [
+): ColumnDef<Transaction>[] => [
   {
     accessorKey: 'index',
     header: '#',

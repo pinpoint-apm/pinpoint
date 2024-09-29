@@ -8,11 +8,12 @@ import {
   getFilteredMapPath,
   getApplicationKey,
   getServerMapPath,
+  getTransactionListPath,
+  getTranscationListQueryString,
 } from '@pinpoint-fe/utils';
 import { useFilteredMapParameters } from '@pinpoint-fe/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@/components/ServerList/ServerList';
-import { ServerChartsBoardFetcher } from '@/components/ServerChartsBoard/ServerChartsBoardFetcher';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
@@ -32,6 +33,7 @@ import {
   FilteredMap as FilteredMapComponent,
   LayoutWithHorizontalResizable,
   Separator,
+  ServerChartsBoard,
   withInitialFetch,
 } from '@pinpoint-fe/ui';
 import { differenceInMinutes } from 'date-fns';
@@ -451,6 +453,24 @@ export const FilteredMapPage = ({}: FilteredMapPageProps) => {
                                     }
                                     range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                                     selectedAgentId={SCATTER_DATA_TOTAL_KEY}
+                                    onDragEnd={(data, checkedLables) => {
+                                      if (checkedLables.length) {
+                                        window.__pp_scatter_data__ =
+                                          scatterDataByApplicationKey?.[
+                                            getApplicationKey(serverMapCurrentTarget)
+                                          ]?.acc;
+                                        window.open(
+                                          `${BASE_PATH}${getTransactionListPath(
+                                            serverMapCurrentTarget,
+                                            searchParameters,
+                                          )}&${getTranscationListQueryString({
+                                            ...data,
+                                            checkedLegends: checkedLables,
+                                            agentId: '',
+                                          })}&withFilter=true`,
+                                        );
+                                      }
+                                    }}
                                   />
                                 </div>
                                 <Separator />
@@ -483,7 +503,7 @@ export const FilteredMapPage = ({}: FilteredMapPageProps) => {
                       <ServerList disableFetch={!openServerView} />
                     </div>
                     <div style={{ width: currentPanelWidth }}>
-                      <ServerChartsBoardFetcher
+                      <ServerChartsBoard
                         header={
                           <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
                             <div className="flex items-center justify-center">
@@ -517,12 +537,30 @@ export const FilteredMapPage = ({}: FilteredMapPageProps) => {
                                 }
                                 range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                                 selectedAgentId={currentServer?.agentId}
+                                onDragEnd={(data, checkedLables) => {
+                                  if (checkedLables.length) {
+                                    window.__pp_scatter_data__ =
+                                      scatterDataByApplicationKey?.[
+                                        getApplicationKey(serverMapCurrentTarget)
+                                      ]?.acc;
+                                    window.open(
+                                      `${BASE_PATH}${getTransactionListPath(
+                                        application,
+                                        searchParameters,
+                                      )}&${getTranscationListQueryString({
+                                        ...data,
+                                        checkedLegends: checkedLables,
+                                        agentId: currentServer?.agentId,
+                                      })}&withFilter=true`,
+                                    );
+                                  }
+                                }}
                               />
                             </div>
                             <Separator />
                           </>
                         )}
-                      </ServerChartsBoardFetcher>
+                      </ServerChartsBoard>
                     </div>
                   </Drawer>
                 </>

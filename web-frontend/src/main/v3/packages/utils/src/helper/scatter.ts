@@ -5,7 +5,7 @@ import {
   ScatterDataByAgent,
 } from '@pinpoint-fe/constants';
 
-export const getScatterChartedData = (dotList: number[], from: number) => {
+const getScatterChartedData = (dotList: number[], from: number) => {
   return {
     x: from + dotList[0],
     y: dotList[1],
@@ -14,15 +14,41 @@ export const getScatterChartedData = (dotList: number[], from: number) => {
   };
 };
 
+const getFilterMapScatterChartedData = (
+  dotList: number[],
+  from: number,
+  transactionId: number,
+  collectorAcceptTime: number,
+  agentId: string,
+) => {
+  return {
+    ...getScatterChartedData(dotList, from),
+    transactionId,
+    collectorAcceptTime,
+    agentId,
+  };
+};
+
 export const getScatterData = (
   newData: GetScatter.Response | FilteredMap.ScatterData,
   prevData?: ScatterDataByAgent,
+  // this for filtermap
+  option?: { isFilterMap?: boolean },
 ) => {
   const metadata = newData?.scatter?.metadata;
   const result = newData?.scatter?.dotList?.reduce<ScatterDataByAgent>(
     (prev, dot, i) => {
-      const agentName = metadata[dot[2]][0];
-      const scatterData = getScatterChartedData(dot, newData.from);
+      const agentMetaData = metadata[dot[2]];
+      const agentName = agentMetaData[0];
+      const scatterData = option?.isFilterMap
+        ? getFilterMapScatterChartedData(
+            dot,
+            newData.from,
+            dot[3],
+            agentMetaData[2],
+            agentMetaData[1],
+          )
+        : getScatterChartedData(dot, newData.from);
 
       // 한 틱 단위 ex) 5000개 에 대한 정보
       if (i === 0) {

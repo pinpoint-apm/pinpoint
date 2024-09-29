@@ -17,7 +17,6 @@ import { useServerMapSearchParameters } from '@pinpoint-fe/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@/components/ServerList/ServerList';
 import { RxChevronRight } from 'react-icons/rx';
-import { ServerChartsBoardFetcher } from '@/components/ServerChartsBoard/ServerChartsBoardFetcher';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
@@ -50,6 +49,7 @@ import {
   Separator,
   ApplicationCombinedList,
   withInitialFetch,
+  ServerChartsBoard,
 } from '@pinpoint-fe/ui';
 import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
 import { Edge, Node } from '@pinpoint-fe/server-map';
@@ -431,7 +431,7 @@ export const ServerMapPage = ({}: ServermapPageProps) => {
                       <ServerList disableFetch={!openServerView} />
                     </div>
                     <div style={{ width: currentPanelWidth }}>
-                      <ServerChartsBoardFetcher
+                      <ServerChartsBoard
                         header={
                           <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
                             <div className="flex items-center">
@@ -464,7 +464,7 @@ export const ServerMapPage = ({}: ServermapPageProps) => {
                             <Separator />
                           </>
                         )}
-                      </ServerChartsBoardFetcher>
+                      </ServerChartsBoard>
                     </div>
                   </Drawer>
                 </>

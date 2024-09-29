@@ -3,6 +3,7 @@ import { getDateRange } from './utils';
 
 export const useTransactionSearchParameters = () => {
   const props = useSearchParameters();
+  const withFilter = props.searchParameters.withFilter === 'true' ? true : false;
   const dateRange = getDateRange(props.search, false);
   const parseDragInfo = props.searchParameters?.dragInfo
     ? JSON.parse(props.searchParameters.dragInfo)
@@ -13,6 +14,7 @@ export const useTransactionSearchParameters = () => {
   return {
     ...props,
     dateRange,
+    withFilter,
     dragInfo: parseDragInfo,
     transactionInfo: parsedTransactionInfo,
   };

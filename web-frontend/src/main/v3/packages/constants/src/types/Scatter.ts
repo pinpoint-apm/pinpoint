@@ -5,6 +5,9 @@ export type ScatterData = {
   y: number;
   type: string;
   hidden: boolean;
+  transactionId?: string;
+  collectorAcceptTime?: number;
+  agentId?: string;
 };
 
 export type ScatterDataByAgent = {
