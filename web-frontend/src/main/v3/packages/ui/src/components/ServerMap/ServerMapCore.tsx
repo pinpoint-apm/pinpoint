@@ -244,7 +244,7 @@ export const ServerMapCore = ({
           <div className="flex absolute flex-col z-[3] gap-2 right-4 bottom-6">
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     variant="outline"
                     className="flex w-12 h-12 p-2 text-lg bg-white"
@@ -258,7 +258,7 @@ export const ServerMapCore = ({
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     variant="outline"
                     className="flex w-12 h-12 p-2 text-lg bg-white"

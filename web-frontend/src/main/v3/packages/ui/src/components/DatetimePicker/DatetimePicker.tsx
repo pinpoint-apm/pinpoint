@@ -167,7 +167,7 @@ export const DatetimePicker = React.memo(
               {enableRealtimeButton &&
                 (isRealtime ? (
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Button
                         variant="outline"
                         className="h-8 px-2 py-1 border-l-0 rounded-none"
@@ -180,7 +180,7 @@ export const DatetimePicker = React.memo(
                   </Tooltip>
                 ) : (
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Button
                         className="h-8 px-2 py-1 border-l-0 rounded-none"
                         variant="outline"

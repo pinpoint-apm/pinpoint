@@ -42,7 +42,7 @@ export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
   return (
     <>
       <Popover>
-        <PopoverTrigger>
+        <PopoverTrigger asChild>
           <Button variant="ghost" className="inline-flex h-full px-2 py-1">
             Apdex{' '}
             <div className={`font-bold ml-1.5 ${RankColorClassNameMap[rank]}`}>
