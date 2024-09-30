@@ -55,7 +55,7 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
       <PopoverTrigger>
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 variant="outline"
                 className="flex p-2 text-gray-400 h-100 hover:text-gray-500"
@@ -161,12 +161,12 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
             </ButtonGroup>
           </div>
           <div className="flex justify-end gap-2 ">
-            <PopoverClose>
+            <PopoverClose asChild>
               <Button className="w-20 font-normal" variant="outline">
                 Cancel
               </Button>
             </PopoverClose>
-            <PopoverClose>
+            <PopoverClose asChild>
               <Button
                 className="w-20 font-normal"
                 onClick={() => {
