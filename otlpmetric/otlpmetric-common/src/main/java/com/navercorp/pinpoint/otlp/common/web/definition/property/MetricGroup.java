@@ -35,7 +35,7 @@ public class MetricGroup {
 
     public void addUniqueMetric(MetricDescriptor metricDescriptor) {
         Metric metric = metricMap.computeIfAbsent(metricDescriptor.metricName(), k -> new Metric(metricDescriptor.metricName()));
-        metric.addTagAndUnit(metricDescriptor.rawTags(), metricDescriptor.fieldName(), metricDescriptor.unit());
+        metric.addTagAndField(metricDescriptor.rawTags(), metricDescriptor.fieldName(), metricDescriptor.unit());
     }
 
     public String getMetricGroupName() {

@@ -27,15 +27,20 @@ public class Metric {
 
     private final String metricName;
     private final Map<String, TagCluster> tagMap;
+    private final Map<String, FieldCluster> fieldMap;
 
     public Metric(String metricName) {
         this.metricName = metricName;
         this.tagMap = new HashMap<>();
+        this.fieldMap = new HashMap<>();
     }
 
-    public void addTagAndUnit(String tag, String fieldName, String unit) {
+    public void addTagAndField(String tag, String fieldName, String unit) {
         TagCluster tagCluster = tagMap.computeIfAbsent(tag, k -> new TagCluster(tag));
         tagCluster.addFieldAndUnit(fieldName, unit);
+
+        FieldCluster fieldCluster = fieldMap.computeIfAbsent(fieldName, k -> new FieldCluster(fieldName, unit));
+        fieldCluster.addTagGroup(tag);
     }
 
     public String getMetricName() {
@@ -44,6 +49,10 @@ public class Metric {
 
     public List<TagCluster> getTagClusterList() {
         return List.copyOf(tagMap.values());
+    }
+
+    public List<FieldCluster> getFieldClusterList() {
+        return List.copyOf(fieldMap.values());
     }
 
 }

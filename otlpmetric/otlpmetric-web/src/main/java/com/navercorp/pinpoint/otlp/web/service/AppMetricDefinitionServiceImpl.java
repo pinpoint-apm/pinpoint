@@ -59,25 +59,6 @@ public class AppMetricDefinitionServiceImpl implements AppMetricDefinitionServic
     @Override
     public void updateUserDefinedMetric(AppMetricDefinitionGroup appMetricDefinitionGroup) {
         List<AppMetricDefinition> appMetricDefinitionList = appMetricDefinitionGroup.getAppMetricDefinitionList();
-        generateAndSetUniqueId(appMetricDefinitionGroup.getAppMetricDefinitionList());
         appMetricDefinitionDao.updateAppMetricDefinitionList(appMetricDefinitionGroup.getApplicationName(), appMetricDefinitionList);
-    }
-
-    private void generateAndSetUniqueId(List<AppMetricDefinition> appMetricDefinitionList) {
-        Set<String> existingIds = appMetricDefinitionList.stream()
-                                                            .map(AppMetricDefinition::getId)
-                                                            .filter(StringUtils::hasLength)
-                                                            .collect(Collectors.toSet());
-
-        appMetricDefinitionList.stream().filter(appMetricDefinition -> StringUtils.isEmpty(appMetricDefinition.getId()))
-                                        .forEach(definition -> {
-                                                    String newId;
-
-                                                    do {
-                                                        newId = UUID.randomUUID().toString().substring(0, 8);
-                                                    } while (!existingIds.add(newId));
-
-                                                    definition.setId(newId);
-                                                });
     }
 }

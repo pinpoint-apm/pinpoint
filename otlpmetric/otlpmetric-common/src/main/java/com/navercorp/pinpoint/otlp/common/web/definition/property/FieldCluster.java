@@ -22,25 +22,23 @@ import java.util.List;
 /**
  * @author minwoo-jung
  */
-public class TagCluster {
-    private final String tagGroup;
-    private final List<FieldAndUnit> fieldAndUnitList;
+public class FieldCluster {
 
-    public TagCluster(String tag) {
-        this.tagGroup = tag;
-        this.fieldAndUnitList = new ArrayList<>();
+    private final String fieldName;
+    private final String unit;
+    private final List<String> tagGroupList;
+
+    public FieldCluster(String fieldName, String unit) {
+        this.fieldName = fieldName;
+        this.unit = unit;
+        this.tagGroupList = new ArrayList<>();
     }
 
-    public void addFieldAndUnit(String fieldName, String unit) {
-        FieldAndUnit fieldAndUnit = new FieldAndUnit(fieldName, unit);
-        fieldAndUnitList.add(fieldAndUnit);
+    public void addTagGroup(String tagGroup) {
+        tagGroupList.add(tagGroup);
     }
 
-    public List<FieldAndUnit> getFieldAndUnitList() {
-        return fieldAndUnitList;
-    }
-
-    public String getTagGroup() {
-        return tagGroup;
+    public List<String> getTagGroupList() {
+        return tagGroupList;
     }
 }

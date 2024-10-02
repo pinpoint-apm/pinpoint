@@ -33,7 +33,8 @@ public class AppMetricDefinition {
     private final String title;
     private final String metricGroupName;
     private final String metricName;
-    private final String tags;
+    private final String primaryForFieldAndTagRelation;
+    private final List<String> tagGroupList;
     private final List<String> fieldNameList;
     private final String unit;
     private final String chartType;
@@ -41,16 +42,15 @@ public class AppMetricDefinition {
     private final Layout layout;
     private final boolean stack;
 
-
-    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, List<String> fieldNameList, String tags, String unit, String chartType, Layout layout, boolean stack) {
+    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, String primaryForFieldAndTagRelation, List<String> fieldNameList, List<String> tagGroupList, String unit, String chartType, Layout layout, boolean stack) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.id = id;
         this.title = StringPrecondition.requireHasLength(title, "title");
         this.metricGroupName = StringPrecondition.requireHasLength(metricGroupName, "metricGroupName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+        this.primaryForFieldAndTagRelation = StringPrecondition.requireHasLength(primaryForFieldAndTagRelation, "primaryForFieldAndTagRelation");
         this.fieldNameList = fieldNameList;
-        this.tags = StringPrecondition.requireHasLength(tags, "tags");
-
+        this.tagGroupList = tagGroupList;
         // TODO : (minwoo) Need to decide later if unit is required.
 //        this.unit = StringPrecondition.requireHasLength(unit, "unit");
         this.unit = unit;
@@ -88,8 +88,8 @@ public class AppMetricDefinition {
         return fieldNameList;
     }
 
-    public String getTags() {
-        return tags;
+    public List<String> getTagGroupList() {
+        return tagGroupList;
     }
 
     public String getUnit() {
@@ -115,6 +115,10 @@ public class AppMetricDefinition {
 
     public boolean getStack() {
         return stack;
+    }
+
+    public String getPrimaryForFieldAndTagRelation() {
+        return primaryForFieldAndTagRelation;
     }
 
 }
