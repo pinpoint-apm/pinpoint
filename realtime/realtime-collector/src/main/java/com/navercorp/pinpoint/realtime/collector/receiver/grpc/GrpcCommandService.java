@@ -287,17 +287,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     @Override
     public StreamObserver<PCmdActiveThreadCountRes> commandStreamActiveThreadCount(StreamObserver<Empty> responseObserver) {
         ServerCallStreamObserver<Empty> serverResponseObserver = (ServerCallStreamObserver<Empty>) responseObserver;
-        return new ActiveThreadCountResponseStreamObserver(serverResponseObserver, this.activeThreadCountSinkRepo) {
-            @Override
-            protected long extractSinkId(PCmdActiveThreadCountRes response) {
-                return response.getCommonStreamResponse().getResponseId();
-            }
-
-            @Override
-            protected int extractSequence(PCmdActiveThreadCountRes response) {
-                return response.getCommonStreamResponse().getSequenceId();
-            }
-        };
+        return new ActiveThreadCountResponseStreamObserver(serverResponseObserver, this.activeThreadCountSinkRepo);
     }
 
     private <T> void emitMono(T response, StreamObserver<Empty> responseObserver, Publisher<T> sink) {
