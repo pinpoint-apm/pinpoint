@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -104,13 +105,10 @@ public class DelegateEnumerationTest {
         List<String> valueList = new ArrayList<>(hashTable.values());
 
         Enumeration<String> enumeration = hashTable.elements();
-        DelegateEnumeration<String> delegateEnumeration = new DelegateEnumeration<>(enumeration, new DelegateEnumeration.Filter<String>() {
+        DelegateEnumeration<String> delegateEnumeration = new DelegateEnumeration<>(enumeration, new Predicate<String>() {
             @Override
-            public boolean filter(String s) {
-                if ("bb".equals(s)) {
-                    return true;
-                }
-                return false;
+            public boolean test(String s) {
+                return "bb".equals(s);
             }
         });
 

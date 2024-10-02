@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.context;
 
-import com.navercorp.pinpoint.common.util.DelegateEnumeration;
+import java.util.function.Predicate;
 
 /**
  * @author emeroad
@@ -54,9 +54,10 @@ public enum Header {
         return name.regionMatches(true, 0, FILTER_PATTERN_PREFIX, 0, FILTER_PATTERN_PREFIX_LENGTH);
     }
 
-    public static DelegateEnumeration.Filter FILTER = new DelegateEnumeration.Filter() {
+    @SuppressWarnings("rawtypes")
+    public static Predicate FILTER = new Predicate() {
         @Override
-        public boolean filter(Object o) {
+        public boolean test(Object o) {
             if (o instanceof String) {
                 return startWithPinpointHeader((String) o);
             }
