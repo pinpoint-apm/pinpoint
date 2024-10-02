@@ -5,3 +5,4 @@ export * from './useChartTooltip';
 export * from './useChartType';
 export * from './useDataSourceChartConfig';
 export * from './useDataSourceChartTooltip';
+export * from './util';

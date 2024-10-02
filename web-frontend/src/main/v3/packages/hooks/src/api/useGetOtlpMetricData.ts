@@ -16,9 +16,10 @@ export const useGetOtlpMetricData = ({
   metricGroupName,
   metricName,
   chartType,
-  tags,
-  aggregationFunction,
+  primaryForFieldAndTagRelation,
+  tagGroupList,
   fieldNameList,
+  aggregationFunction,
 }: OtlpMetricDefUserDefined.Metric) => {
   const { application, dateRange } = useOpenTelemetrySearchParameters();
   const queryParams = {
@@ -28,9 +29,10 @@ export const useGetOtlpMetricData = ({
     metricGroupName,
     metricName,
     chartType,
-    tags,
+    primaryForFieldAndTagRelation,
+    tagGroupList: tagGroupList?.join('&tagGroupList='),
     aggregationFunction,
-    fieldNameList: fieldNameList.join(','),
+    fieldNameList: fieldNameList?.join('&fieldNameList='),
   };
   const queryString = getQueryString(queryParams);
 

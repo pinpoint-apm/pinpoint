@@ -90,7 +90,7 @@ export const AgentListFetcher = ({
                   })}
                 >
                   <Tooltip>
-                    <TooltipTrigger className="w-full">
+                    <TooltipTrigger className="w-full" asChild>
                       <div className="flex items-center">
                         <div className="truncate">{group.groupName}</div>
                         {isCollapsible && (
@@ -120,7 +120,7 @@ export const AgentListFetcher = ({
                           agentRenderer(instance)
                         ) : (
                           <Tooltip>
-                            <TooltipTrigger>
+                            <TooltipTrigger asChild>
                               <div className="grid grid-cols-[1rem_auto] items-center">
                                 {selectedAgentId === instance.agentId ? <RxCheck /> : <span />}
                                 <div className="truncate">{instance.agentId}</div>

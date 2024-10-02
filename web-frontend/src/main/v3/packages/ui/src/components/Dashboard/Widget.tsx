@@ -37,7 +37,7 @@ export const Widget = ({ title, children, onClickEdit, onClickDelete }: WidgetPr
       >
         <h3 className="flex-1 pl-1 text-sm truncate">{title}</h3>
         <DropdownMenu>
-          <DropdownMenuTrigger className="@md:hidden">
+          <DropdownMenuTrigger className="@md:hidden" asChild>
             <Button variant="ghost" className="px-2 py-1 rounded-sm h-7">
               <RxDotsVertical />
             </Button>

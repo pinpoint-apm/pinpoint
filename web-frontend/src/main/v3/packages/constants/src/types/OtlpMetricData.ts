@@ -1,4 +1,18 @@
 export namespace OtlpMetricData {
+  export interface Body {
+    applicationName: string;
+    metricGroupName: string;
+    agentId?: string;
+    metricName: string;
+    tagGroupList: string[];
+    from: number;
+    to: number;
+    chartType?: string;
+    aggregationFunction?: string;
+    fieldNameList: string[];
+    primaryForFieldAndTagRelation: 'tag' | 'field';
+  }
+
   export interface Parameters {
     applicationName: string;
     metricGroupName: string;

@@ -66,7 +66,8 @@
     "CREATE_METRIC_DESC": "새로운 메트릭을 생성합니다.",
     "SAVE_DASHBOARD": "대시보드 저장",
     "SAVE_DASHBOARD_SUCCESS": "현재 대시보드 상태를 저장했습니다.",
-    "SAVE_DASHBOARD_FAIL": "현재 대시보드 상태 저장에 실패했습니다."
+    "SAVE_DASHBOARD_FAIL": "현재 대시보드 상태 저장에 실패했습니다.",
+    "FIELD_OR_TAG_SELECTBOX_DESC": "Field, tag는 1(field):N(tag), 1(tag):N(field) 관계를 갖습니다.\n1:N 에서 '1'이 되는 속성을 먼저 선택하시면 'N' 속성은 자동으로 결정됩니다."
   },
   "CONFIGURATION": {
     "GENERAL": {

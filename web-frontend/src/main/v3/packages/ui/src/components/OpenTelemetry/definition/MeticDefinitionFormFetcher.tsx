@@ -36,39 +36,53 @@ import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
 import { Switch } from '../../../components/ui/switch';
+import { HelpPopover } from '../../../components/HelpPopover';
 // import { Checkbox } from '../../../components/ui';
 
 const metricDefinitionFormSchemaFactory = (t: TFunction) => {
-  return z.object({
-    metricGroupName: z.string({
-      required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric group' }),
-    }),
-    metricName: z.string({
-      required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric name' }),
-    }),
-    tags: z.string({
-      required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Tag' }),
-    }),
-    fieldNameList: z.array(
-      z.string({
-        required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Field Name' }),
+  return z
+    .object({
+      metricGroupName: z.string({
+        required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric group' }),
       }),
-    ),
-    aggregationFunction: z.string({
-      required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Aggregation function' }),
-    }),
-    chartType: z.string({
-      required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Chart type' }),
-    }),
-    // TODO:
-    // unit: z.string({
-    //   required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Y-axis unit' }),
-    // }),
-    title: z.string({
-      required_error: t('COMMON.REQUIRED', { requiredField: 'Metric title' }),
-    }),
-    stack: z.boolean().default(false).optional(),
-  });
+      metricName: z
+        .string({
+          required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric name' }),
+        })
+        .min(1, t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric name' })),
+      primaryForFieldAndTagRelation: z.enum(['tag', 'field']),
+      tagGroupList: z.array(z.string()),
+      fieldNameList: z.array(z.string()),
+      aggregationFunction: z.string({
+        required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Aggregation function' }),
+      }),
+      chartType: z.string({
+        required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Chart type' }),
+      }),
+      // TODO:
+      // unit: z.string({
+      //   required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Y-axis unit' }),
+      // }),
+      title: z.string().min(1, t('COMMON.REQUIRED', { requiredField: 'Metric title' })),
+      stack: z.boolean().default(false).optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.primaryForFieldAndTagRelation === 'tag' && data?.tagGroupList?.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('COMMON.REQUIRED_SELECT', { requiredField: 'Tag' }),
+          path: ['tagGroupList'],
+        });
+      }
+      if (data.primaryForFieldAndTagRelation === 'field' && data?.fieldNameList?.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('COMMON.REQUIRED_SELECT', { requiredField: 'Field' }),
+          path: ['fieldNameList'],
+        });
+      }
+      return true;
+    });
 };
 
 export interface MetricDefinitionFormFetcherProps {
@@ -94,39 +108,88 @@ export const MetricDefinitionFormFetcher = ({
     defaultValues: {
       metricGroupName: metric?.metricGroupName,
       metricName: metric?.metricName,
-      tags: metric?.tags,
-      fieldNameList: metric?.fieldNameList,
+      primaryForFieldAndTagRelation: metric?.primaryForFieldAndTagRelation || 'tag',
+      tagGroupList: metric?.tagGroupList || [],
+      fieldNameList: metric?.fieldNameList || [],
       aggregationFunction: metric?.aggregationFunction,
       chartType: metric?.chartType || 'line',
-      title: metric?.title,
+      title: metric?.title || '',
       stack: metric?.stack,
     },
   });
   const { data: defPropertyData } = useGetOtlpMetricDefProperty();
+
   const [
     metricGroupName,
     metricName,
     chartType,
     // unit,
-    tags,
+    primaryForFieldAndTagRelation,
+    tagGroupList,
+    fieldNameList,
     title,
   ] = metricDefinitionForm.watch([
     'metricGroupName',
     'metricName',
     'chartType',
     // 'unit',
-    'tags',
+    'primaryForFieldAndTagRelation',
+    'tagGroupList',
+    'fieldNameList',
     'title',
   ]);
+
   const selectedMetricGroupItem = defPropertyData?.metricGroupList.find((metricGroupItem) => {
     return metricGroupItem.metricGroupName === metricGroupName;
   });
   const selectedMetricItem = selectedMetricGroupItem?.metricList.find((metricItem) => {
     return metricItem.metricName === metricName;
   });
-  const selectedTagItem = selectedMetricItem?.tagClusterList.find((tagCluster) => {
-    return tagCluster.tags === tags;
-  });
+
+  const propertyList = React.useMemo(() => {
+    if (primaryForFieldAndTagRelation === 'tag') {
+      return selectedMetricItem?.tagClusterList?.map((tagCluster) => tagCluster?.tagGroup) || [];
+    }
+    return (
+      selectedMetricItem?.fieldClusterList?.map((fieldCluster) => fieldCluster?.fieldName) || []
+    );
+  }, [primaryForFieldAndTagRelation, selectedMetricItem]);
+
+  const propertyLegendList = React.useMemo(() => {
+    if (primaryForFieldAndTagRelation === 'tag') {
+      return (
+        selectedMetricItem?.tagClusterList
+          ?.find((tagCluster) => {
+            return tagCluster.tagGroup === tagGroupList?.[0];
+          })
+          ?.fieldAndUnitList?.map((fieldItem) => {
+            return {
+              name: fieldItem?.fieldName,
+              unit: fieldItem?.unit,
+            };
+          }) || []
+      );
+    }
+
+    const fieldCluster = selectedMetricItem?.fieldClusterList?.find((fieldCluster) => {
+      return fieldCluster.fieldName === fieldNameList?.[0];
+    });
+
+    return (
+      fieldCluster?.tagGroupList?.map((tagItem) => {
+        return {
+          name: tagItem,
+          unit: fieldCluster?.unit,
+        };
+      }) || []
+    );
+  }, [
+    defPropertyData,
+    selectedMetricItem,
+    primaryForFieldAndTagRelation,
+    tagGroupList,
+    fieldNameList,
+  ]);
 
   const { mutate: updateMetrics } = usePatchOtlpMetricDefUserDefined({
     onSuccess: (res) => {
@@ -154,14 +217,10 @@ export const MetricDefinitionFormFetcher = ({
     title,
   ]);
 
-  // React.useEffect(() => {
-  //   console.log(metricGroupName);
-
-  // }, [metricGroupName]);
-
-  // React.useEffect(() => {
-  //   metricDefinitionForm.setValue('tags', '');
-  // }, [metricName]);
+  React.useEffect(() => {
+    metricDefinitionForm.trigger('fieldNameList');
+    metricDefinitionForm.trigger('tagGroupList');
+  }, [primaryForFieldAndTagRelation]);
 
   const chartItem = {
     bar: {
@@ -187,17 +246,17 @@ export const MetricDefinitionFormFetcher = ({
       updateMetrics({
         applicationName,
         appMetricDefinitionList: [
-          ...(metrics || []).filter((m) => m.id !== metric.id),
+          ...(metrics || []).filter((m) => m.id !== metric?.id),
           {
             ...data,
-            id: metric.id,
+            id: metric?.id,
             applicationName,
             stack: !!data.stack,
             layout: {
-              w: metric.layout.w,
-              h: metric.layout.h,
-              x: metric.layout.x,
-              y: metric.layout.y,
+              w: metric?.layout.w,
+              h: metric?.layout.h,
+              x: metric?.layout.x,
+              y: metric?.layout.y,
             },
             // TODO:
             unit: 'byte',
@@ -246,7 +305,7 @@ export const MetricDefinitionFormFetcher = ({
                   <Select
                     onValueChange={(value) => {
                       metricDefinitionForm.setValue('fieldNameList', []);
-                      metricDefinitionForm.setValue('tags', '');
+                      metricDefinitionForm.setValue('tagGroupList', []);
                       metricDefinitionForm.setValue('metricName', '');
                       field.onChange(value);
                     }}
@@ -290,7 +349,7 @@ export const MetricDefinitionFormFetcher = ({
                     value={field.value}
                     onValueChange={(value) => {
                       metricDefinitionForm.setValue('fieldNameList', []);
-                      metricDefinitionForm.setValue('tags', '');
+                      metricDefinitionForm.setValue('tagGroupList', []);
                       field.onChange(value);
                     }}
                     disabled={!metricGroupName}
@@ -320,119 +379,184 @@ export const MetricDefinitionFormFetcher = ({
               </FormItem>
             )}
           />
-          <FormField
-            name="tags"
-            control={metricDefinitionForm.control}
-            render={({ field, fieldState }) => (
-              <FormItem className="sm:grid sm:grid-cols-12">
-                <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
-                  Tag
-                </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      metricDefinitionForm.setValue('fieldNameList', []);
-                      field.onChange(value);
-                    }}
-                    disabled={!metricName}
-                  >
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn('focus-visible:ring-0', {
-                          'border-status-fail': fieldState.invalid,
-                        })}
+          <div className="sm:grid sm:grid-cols-12">
+            <FormField
+              name="primaryForFieldAndTagRelation"
+              control={metricDefinitionForm.control}
+              render={({ field, fieldState }) => (
+                <FormItem className="content-center pr-4 font-normal sm:col-span-4 text-muted-foreground">
+                  <div className="sm:!mt-0 sm:col-span-8">
+                    <div className="flex gap-1">
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          metricDefinitionForm.setValue('fieldNameList', []);
+                          metricDefinitionForm.setValue('tagGroupList', []);
+                          field.onChange(value);
+                        }}
+                        disabled={!metricName}
                       >
-                        <SelectValue placeholder="Select tag" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="z-[5001] max-w-[calc(100vw-2rem)] max-sm:max-w-[var(--radix-select-trigger-width)]">
-                      {selectedMetricItem?.tagClusterList.map((tagCluster, i) => {
-                        return (
-                          <SelectItem
-                            key={i}
-                            value={tagCluster.tags}
-                            // className="[&>span]:block [&>span]:truncate [&>span]:flex-1"
-                          >
-                            {tagCluster.tags}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription />
-                  <FormMessage />
-                </div>
-              </FormItem>
-            )}
-          />
+                        <SelectTrigger
+                          className={cn('focus-visible:ring-0', {
+                            'border-status-fail': fieldState.invalid,
+                          })}
+                        >
+                          <SelectValue placeholder="Select property" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[5001] max-w-[calc(100vw-2rem)] max-sm:max-w-[var(--radix-select-trigger-width)]">
+                          <SelectItem value="tag">Tag</SelectItem>
+                          <SelectItem value="field">Field</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <HelpPopover
+                        title={'Tag / Field'}
+                        content={
+                          <ul className="flex flex-col gap-2 ml-4 text-xs">
+                            {t('OPEN_TELEMETRY.FIELD_OR_TAG_SELECTBOX_DESC')
+                              .split('\n')
+                              .map((txt, i) => (
+                                <li key={i} className="list-disc">
+                                  {txt}
+                                </li>
+                              ))}
+                          </ul>
+                        }
+                      />
+                    </div>
+                    <FormDescription />
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              name={primaryForFieldAndTagRelation === 'tag' ? 'tagGroupList' : 'fieldNameList'}
+              control={metricDefinitionForm.control}
+              render={({ field, fieldState }) => (
+                <FormItem className="sm:!mt-0 sm:col-span-8">
+                  <div className="sm:!mt-0 sm:col-span-8">
+                    <Select
+                      value={field.value?.[0] || ''}
+                      onValueChange={(value) => {
+                        metricDefinitionForm.setValue('fieldNameList', []);
+                        metricDefinitionForm.setValue('tagGroupList', []);
+                        field.onChange([value]);
+                      }}
+                      disabled={!metricName}
+                    >
+                      <FormControl>
+                        <SelectTrigger
+                          className={cn('focus-visible:ring-0', {
+                            'border-status-fail': fieldState.invalid,
+                          })}
+                        >
+                          <SelectValue placeholder={`Select ${primaryForFieldAndTagRelation}`} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="z-[5001] max-w-[calc(100vw-2rem)] max-sm:max-w-[var(--radix-select-trigger-width)]">
+                        {propertyList?.map((propertyItem, i) => {
+                          return (
+                            <SelectItem
+                              key={i}
+                              value={propertyItem}
+                              // className="[&>span]:block [&>span]:truncate [&>span]:flex-1"
+                            >
+                              {propertyItem}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription />
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
           <FormField
-            name="fieldNameList"
+            name={primaryForFieldAndTagRelation === 'tag' ? 'fieldNameList' : 'tagGroupList'}
             control={metricDefinitionForm.control}
             render={({ field }) => (
               <FormItem className="sm:grid sm:grid-cols-12">
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
-                  Field name
+                  {primaryForFieldAndTagRelation === 'tag' ? 'Field name' : 'Tags'}
                 </FormLabel>
                 <div className="sm:!mt-0 sm:col-span-8 border rounded min-h-8 max-h-96 overflow-y-auto p-2">
-                  {selectedTagItem?.fieldAndUnitList?.length && (
-                    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                      <Checkbox
-                        id="all"
-                        checked={field?.value?.length === selectedTagItem?.fieldAndUnitList?.length}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            metricDefinitionForm.setValue(
-                              'fieldNameList',
-                              selectedTagItem.fieldAndUnitList.map((item) => item.fieldName),
-                            );
-                          } else {
-                            metricDefinitionForm.setValue('fieldNameList', []);
-                          }
-                        }}
-                      />
-                      <FormLabel className="text-sm font-normal" htmlFor="all">
-                        all
-                      </FormLabel>
-                    </FormItem>
+                  {!!propertyLegendList?.length && (
+                    <>
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                        <Checkbox
+                          id="all"
+                          checked={field?.value?.length === propertyLegendList?.length}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              metricDefinitionForm.setValue(
+                                primaryForFieldAndTagRelation === 'tag'
+                                  ? 'fieldNameList'
+                                  : 'tagGroupList',
+                                propertyLegendList?.map((legendItem) => legendItem?.name),
+                              );
+                            } else {
+                              metricDefinitionForm.setValue(
+                                primaryForFieldAndTagRelation === 'tag'
+                                  ? 'fieldNameList'
+                                  : 'tagGroupList',
+                                [],
+                              );
+                            }
+                          }}
+                        />
+                        <FormLabel className="text-sm font-normal" htmlFor="all">
+                          ALL{' '}
+                          <span className="text-muted-foreground">{`(Select all ${primaryForFieldAndTagRelation === 'tag' ? 'field' : 'tag'})`}</span>
+                        </FormLabel>
+                      </FormItem>
+                      <Separator className="my-1" />
+                    </>
                   )}
-                  {selectedTagItem?.fieldAndUnitList.map((fieldItem, i) => {
-                    return (
-                      <FormField
-                        key={i}
-                        control={metricDefinitionForm.control}
-                        name="fieldNameList"
-                        render={({ field }) => {
-                          return (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(fieldItem.fieldName)}
-                                  onCheckedChange={(checked) => {
-                                    console.log(field);
-
-                                    return checked
-                                      ? field.onChange([
-                                          ...(field.value || []),
-                                          fieldItem.fieldName,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== fieldItem.fieldName,
-                                          ),
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal">
-                                {fieldItem.fieldName}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    );
-                  })}
+                  <div className="overflow-y-scroll flex flex-col gap-1 py-1">
+                    {propertyLegendList?.map((legendItem, i) => {
+                      return (
+                        <FormField
+                          key={i}
+                          control={metricDefinitionForm.control}
+                          name={
+                            primaryForFieldAndTagRelation === 'tag'
+                              ? 'fieldNameList'
+                              : 'tagGroupList'
+                          }
+                          render={({ field }) => {
+                            return (
+                              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                {/* <FormItem className="flex flex-row items-center space-x-3 space-y-0"> */}
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field?.value?.includes(legendItem?.name)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field?.onChange([
+                                            ...(field?.value || []),
+                                            legendItem?.name,
+                                          ])
+                                        : field?.onChange(
+                                            field?.value?.filter(
+                                              (value) => value !== legendItem?.name,
+                                            ),
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal w-auto break-all">
+                                  {legendItem?.name}
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
                   <FormDescription />
                   <FormMessage />
                 </div>

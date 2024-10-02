@@ -1,7 +1,10 @@
 import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { cn } from '../../lib/utils';
+import { toCssVariable } from '../../lib/charts';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const;
@@ -78,7 +81,7 @@ ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    return color ? `  --color-${toCssVariable(key)}: ${color};` : null;
   })
   .join('\n')}
 }
@@ -253,40 +256,58 @@ const ChartLegendContent = React.forwardRef<
   }
 
   return (
-    <div
-      ref={ref}
-      className={cn(
-        'flex items-center justify-center gap-4',
-        verticalAlign === 'top' ? 'pb-3' : 'pt-3',
-        className,
-      )}
-    >
-      {payload.map((item) => {
-        const key = `${nameKey || item.dataKey || 'value'}`;
-        const itemConfig = getPayloadConfigFromPayload(config, item, key);
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <div
+          ref={ref}
+          className={cn(
+            'flex items-center justify-center gap-4',
+            verticalAlign === 'top' ? 'pb-3' : 'pt-3',
+            className,
+          )}
+        >
+          {payload.map((item) => {
+            const key = `${nameKey || item.dataKey || 'value'}`;
+            const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
-        return (
-          <div
-            key={item.value}
-            className={cn(
-              'flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground',
-            )}
-          >
-            {itemConfig?.icon && !hideIcon ? (
-              <itemConfig.icon />
-            ) : (
-              <div
-                className="h-2 w-2 shrink-0 rounded-[2px]"
-                style={{
-                  backgroundColor: item.color,
-                }}
-              />
-            )}
-            {itemConfig?.label}
-          </div>
-        );
-      })}
-    </div>
+            return (
+              <React.Fragment key={item.value}>
+                <TooltipTrigger asChild>
+                  <div
+                    key={item.value}
+                    className={cn(
+                      'flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground',
+                      'justify-center',
+                    )}
+                  >
+                    <>
+                      {itemConfig?.icon && !hideIcon ? (
+                        <itemConfig.icon />
+                      ) : (
+                        <div
+                          className="h-2 w-2 shrink-0 rounded-[2px]"
+                          style={{
+                            backgroundColor: item.color || 'red',
+                          }}
+                        />
+                      )}
+                      <span className="text-ellipsis overflow-hidden whitespace-nowrap">
+                        {itemConfig?.label}
+                      </span>
+                    </>
+                  </div>
+                </TooltipTrigger>
+                <TooltipPrimitive.Portal>
+                  <TooltipContent>
+                    <p>{itemConfig?.label}</p>
+                  </TooltipContent>
+                </TooltipPrimitive.Portal>
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </Tooltip>
+    </TooltipProvider>
   );
 });
 ChartLegendContent.displayName = 'ChartLegend';

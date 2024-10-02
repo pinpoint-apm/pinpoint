@@ -23,13 +23,15 @@ export namespace OtlpMetricDefUserDefined {
     title: string;
     metricGroupName: string;
     metricName: string;
+    primaryForFieldAndTagRelation: 'tag' | 'field';
     fieldNameList: string[];
-    tags: string;
+    tagGroupList: string[];
     unit?: string;
     stack: boolean;
     chartType: string;
     layout: Layout;
     aggregationFunction: string;
+    schemaVersion?: number;
   }
 
   export interface Layout {

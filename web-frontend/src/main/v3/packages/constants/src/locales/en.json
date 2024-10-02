@@ -66,7 +66,8 @@
     "CREATE_METRIC_DESC": "Create a new metric",
     "SAVE_DASHBOARD": "Save Dashboard",
     "SAVE_DASHBOARD_SUCCESS": "The current dashboard status has been saved.",
-    "SAVE_DASHBOARD_FAIL": "Saving the current dashboard status failed."
+    "SAVE_DASHBOARD_FAIL": "Saving the current dashboard status failed.",
+    "FIELD_OR_TAG_SELECTBOX_DESC": "Field, tag have the relationships 1(field):N(tag), 1(tag):N(field).\nIf you first select the attribute that results in '1' in 1:N, the 'N' attribute is determined automatically."
   },
   "CONFIGURATION": {
     "GENERAL": {
