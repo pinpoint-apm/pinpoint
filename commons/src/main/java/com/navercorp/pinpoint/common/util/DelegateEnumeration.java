@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.util;
 
 import java.util.Enumeration;
+import java.util.function.Predicate;
 
 /**
  * @author emeroad
@@ -25,26 +26,17 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
     private static final Object NULL_OBJECT = new Object();
 
     private final Enumeration<E> delegate;
-    private final Filter<E> filter;
+    private final Predicate<E> filter;
 
     private boolean hasMoreElements;
     private E nextElement;
     private Exception nextException;
 
-
-    private static final Filter SKIP_FILTER = new Filter() {
-        @Override
-        public boolean filter(Object o) {
-            return false;
-        }
-    };
-
-    @SuppressWarnings("unchecked")
     public DelegateEnumeration(Enumeration<E> delegate) {
-        this(delegate, SKIP_FILTER);
+        this(delegate, Predicates.isFalse());
     }
 
-    public DelegateEnumeration(Enumeration<E> delegate, Filter<E> filter) {
+    public DelegateEnumeration(Enumeration<E> delegate, Predicate<E> filter) {
         this.delegate = delegate;
         this.filter = filter;
     }
@@ -109,7 +101,7 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
                 break;
             }
 
-            if (filter.filter(nextElement)) {
+            if (filter.test(nextElement)) {
                 continue;
             }
 
@@ -130,7 +122,4 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
         return nextException;
     }
 
-    public interface Filter<E> {
-        boolean filter(E e);
-    }
 }
