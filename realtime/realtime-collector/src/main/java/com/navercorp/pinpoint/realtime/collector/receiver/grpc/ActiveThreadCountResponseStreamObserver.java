@@ -31,7 +31,7 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public abstract class ActiveThreadCountResponseStreamObserver implements StreamObserver<PCmdActiveThreadCountRes> {
+public class ActiveThreadCountResponseStreamObserver implements StreamObserver<PCmdActiveThreadCountRes> {
 
     private static final Logger logger = LogManager.getLogger(ActiveThreadCountResponseStreamObserver.class);
 
@@ -116,8 +116,12 @@ public abstract class ActiveThreadCountResponseStreamObserver implements StreamO
         }
     }
 
-    protected abstract long extractSinkId(PCmdActiveThreadCountRes response);
+    private long extractSinkId(PCmdActiveThreadCountRes response) {
+        return response.getCommonStreamResponse().getResponseId();
+    }
 
-    protected abstract int extractSequence(PCmdActiveThreadCountRes response);
+    private int extractSequence(PCmdActiveThreadCountRes response) {
+        return response.getCommonStreamResponse().getSequenceId();
+    }
 
 }
