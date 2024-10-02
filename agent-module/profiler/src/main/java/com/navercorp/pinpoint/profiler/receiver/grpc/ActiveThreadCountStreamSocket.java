@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.receiver.grpc;
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
+import io.grpc.Metadata;
+import io.grpc.Status;
 import io.grpc.stub.ClientResponseObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -86,7 +88,9 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
 
     @Override
     public void disconnect(Throwable throwable) {
-        logger.info("disconnect. message:{}", throwable.getMessage(), throwable);
+        Status status = Status.fromThrowable(throwable);
+        Metadata metadata = Status.trailersFromThrowable(throwable);
+        logger.info("disconnect. {} {}", status, metadata);
         close0(throwable);
     }
 
