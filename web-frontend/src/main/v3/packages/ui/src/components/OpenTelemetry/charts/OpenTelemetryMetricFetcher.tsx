@@ -1,10 +1,11 @@
 import { format } from 'date-fns';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
-import { useGetOtlpMetricData } from '@pinpoint-fe/hooks';
+import { usePostOtlpMetricData } from '@pinpoint-fe/hooks';
 import { getFormat } from '@pinpoint-fe/utils';
 import { COLORS } from './constant';
 import { ChartDataConfig, OpenTelemetryChart } from './OpenTelemetryChart';
 import { getRandomColorInHSL } from '../../../lib/colors';
+import React from 'react';
 
 export interface OpenTelemetryMetricFetcherProps {
   metricDefinition: OtlpMetricDefUserDefined.Metric & {
@@ -17,7 +18,33 @@ export const OpenTelemetryMetricFetcher = ({
   metricDefinition,
   dashboardId,
 }: OpenTelemetryMetricFetcherProps) => {
-  const { data } = useGetOtlpMetricData(metricDefinition);
+  const { mutate, data } = usePostOtlpMetricData();
+
+  React.useEffect(() => {
+    const {
+      applicationName,
+      metricGroupName,
+      metricName,
+      tagGroupList,
+      chartType,
+      aggregationFunction,
+      fieldNameList,
+      primaryForFieldAndTagRelation,
+    } = metricDefinition;
+    mutate({
+      applicationName,
+      metricGroupName,
+      metricName,
+      tagGroupList,
+      chartType,
+      aggregationFunction,
+      fieldNameList,
+      primaryForFieldAndTagRelation,
+      from: 0,
+      to: 0,
+    });
+  }, [metricDefinition]);
+
   const { stack, showTotal = true } = metricDefinition;
 
   const dataSets =

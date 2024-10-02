@@ -1,5 +1,12 @@
 import * as SheetPrimitive from '@radix-ui/react-dialog';
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from '../../ui/sheet';
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '../../ui/sheet';
 import { Separator } from '../../ui/separator';
 import { MetricDefinitionForm } from './MetricDefinitionForm';
 import { cn } from '../../../lib';
@@ -37,6 +44,7 @@ export const MetricDefinitionSheet = ({
               <Cross2Icon className="w-4 h-4" />
             </SheetClose>
           </SheetTitle>
+          <SheetDescription />
         </SheetHeader>
         <Separator />
         <PreviewChart />

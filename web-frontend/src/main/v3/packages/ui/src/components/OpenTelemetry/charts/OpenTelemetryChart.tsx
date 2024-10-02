@@ -15,6 +15,7 @@ import {
   OpenTelemetryChartCommon,
   OpenTelemetryChartCommonProps,
 } from './OpenTelemetryChartCommon';
+import { toCssVariable } from '../../../lib/charts/util';
 
 const CHART_DEFINITION = {
   line: {
@@ -78,8 +79,8 @@ export const OpenTelemetryChart = ({
             key={key}
             dataKey={key}
             stackId={getStackId(key)}
-            fill={`var(--color-${key})`}
-            stroke={`var(--color-${key})`}
+            fill={`var(--color-${toCssVariable(key)})`}
+            stroke={`var(--color-${toCssVariable(key)})`}
             {...chartChildProps}
           />
         ))}
