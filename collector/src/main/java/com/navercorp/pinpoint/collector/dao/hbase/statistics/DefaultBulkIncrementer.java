@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-class DefaultBulkIncrementer implements BulkIncrementer {
+public class DefaultBulkIncrementer implements BulkIncrementer {
 
     private final RowKeyMerge rowKeyMerge;
 
     private final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
 
-    DefaultBulkIncrementer(RowKeyMerge rowKeyMerge) {
+    public DefaultBulkIncrementer(RowKeyMerge rowKeyMerge) {
         this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
     }
 
