@@ -75,7 +75,7 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
 
     @Override
     public void close(Throwable throwable) {
-        logger.warn("close. message:{}", throwable.getMessage(), throwable);
+        logger.warn("close", throwable);
         close0(throwable);
     }
 
