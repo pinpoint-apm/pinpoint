@@ -29,6 +29,8 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -69,7 +71,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     @Deprecated
     @Override
     public List<String> getTags(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName) {
-        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, null);
+        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, new ArrayList<>(0));
 
         List<String> tags = this.syncTemplate.selectList(NAMESPACE + "getTags", queryParam);
         return tags;
@@ -78,13 +80,13 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     @Deprecated
     @Override
     public List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag) {
-        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, tag);
+        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, Arrays.asList(tag));
         return this.syncTemplate.selectList(NAMESPACE + "getFields", queryParam);
     }
 
     @Override
-    public List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag, List<String> fieldNameList) {
-        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, fieldNameList, tag);
+    public List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> tagGroupList, List<String> fieldNameList) {
+        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, fieldNameList, tagGroupList);
         return this.syncTemplate.selectList(NAMESPACE + "getFields", queryParam);
     }
 

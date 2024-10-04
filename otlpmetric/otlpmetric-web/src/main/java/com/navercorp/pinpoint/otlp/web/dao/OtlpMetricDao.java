@@ -18,7 +18,7 @@ public interface OtlpMetricDao {
 
     List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag);
 
-    List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag, List<String> fieldNameList);
+    List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> tagGroupList, List<String> fieldNameList);
 
     CompletableFuture<List<OtlpMetricChartResult>> getChartPoints(OtlpMetricChartQueryParameter chartQueryParameter);
 

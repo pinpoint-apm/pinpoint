@@ -76,7 +76,12 @@
                 #{fieldName}
             </foreach>
         </if>
-            AND rawTags = #{rawTags}
+        <if test="tagGroupList != null and tagGroupList.size() > 0">
+            AND rawTags IN
+            <foreach collection="tagGroupList" item="rawTags" separator="," open="(" close=")">
+                #{rawTags}
+            </foreach>
+        </if>
     </select>
 
     <select id="getDoubleSummary" resultType="string" parameterType="OtlpMetricChartQueryParameter">

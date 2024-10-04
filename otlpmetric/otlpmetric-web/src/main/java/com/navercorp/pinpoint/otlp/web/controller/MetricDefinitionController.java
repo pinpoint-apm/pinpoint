@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.otlp.web.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
 import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinitionGroup;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinitionUtil;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricDefinitionProperty;
 import com.navercorp.pinpoint.otlp.web.service.AppMetricDefinitionService;
 import com.navercorp.pinpoint.otlp.web.service.MetricMetadataService;
@@ -32,9 +32,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * @author minwoo-jung
@@ -64,43 +61,10 @@ public class MetricDefinitionController {
     @PatchMapping(value = "/metricDef/userDefined")
     public Response updateUserDefinedMetric(@RequestBody AppMetricDefinitionGroup appMetricDefinitionGroup) {
         List<AppMetricDefinition> appMetricDefinitionList = appMetricDefinitionGroup.getAppMetricDefinitionList();
-        validate(appMetricDefinitionList);
-        generateAndSetUniqueId(appMetricDefinitionGroup.getAppMetricDefinitionList());
+        AppMetricDefinitionUtil.validate(appMetricDefinitionList);
+        AppMetricDefinitionUtil.generateAndSetUniqueId(appMetricDefinitionGroup.getAppMetricDefinitionList());
 
         appMetricDefinitionService.updateUserDefinedMetric(appMetricDefinitionGroup);
         return SimpleResponse.ok();
-    }
-
-    private void validate(List<AppMetricDefinition> appMetricDefinitionList) {
-        for (AppMetricDefinition appMetricDefinition : appMetricDefinitionList) {
-            List<String> tagGroupList = appMetricDefinition.getTagGroupList();
-            List<String> fieldNameList = appMetricDefinition.getFieldNameList();
-
-            if (tagGroupList.size() > 1 && fieldNameList.size() > 1) {
-                throw new IllegalArgumentException("N:N relationship between fields and tags is not allowed.");
-            }
-
-            if (tagGroupList.size() != 1 && fieldNameList.size() != 1) {
-                throw new IllegalArgumentException("Either tagGroupList or fieldNameList must have a size of exactly one.");
-            }
-        }
-    }
-
-    private void generateAndSetUniqueId(List<AppMetricDefinition> appMetricDefinitionList) {
-        Set<String> existingIds = appMetricDefinitionList.stream()
-                .map(AppMetricDefinition::getId)
-                .filter(StringUtils::hasLength)
-                .collect(Collectors.toSet());
-
-        appMetricDefinitionList.stream().filter(appMetricDefinition -> StringUtils.isEmpty(appMetricDefinition.getId()))
-                .forEach(definition -> {
-                    String newId;
-
-                    do {
-                        newId = UUID.randomUUID().toString().substring(0, 8);
-                    } while (!existingIds.add(newId));
-
-                    definition.setId(newId);
-                });
     }
 }

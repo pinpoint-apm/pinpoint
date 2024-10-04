@@ -37,6 +37,7 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
     private final String metricName;
     private final String fieldName;
     private final List<String> tags;
+    private final String rawTags;
     private final String version;
     private final AggregationFunction aggregationFunction;
     private final int dataType;
@@ -44,6 +45,18 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
 
     public DataType getDataType() {
         return DataType.forNumber(dataType);
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getRawTags() {
+        return rawTags;
+    }
+
+    public String getFieldName() {
+        return fieldName;
     }
 
     protected OtlpMetricDataQueryParameter(Builder builder) {
@@ -55,6 +68,7 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
         this.metricName = builder.metricName;
         this.fieldName = builder.fieldName;
         this.tags = List.of(builder.tags.split(","));
+        this.rawTags = builder.tags;
         this.aggregationFunction = builder.aggregationFunction;
         this.dataType = builder.dataType;
         this.version = builder.version;

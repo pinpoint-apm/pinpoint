@@ -11,29 +11,29 @@ public class OtlpMetricDetailsQueryParam {
     private final String metricGroupName;
     private final String metricName;
     private List<String> fieldNameList;
-    private String rawTags;
+    private List<String> tagGroupList;
 
     @Deprecated
-    public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String rawTags) {
+    public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> tagGroupList) {
         this.serviceId = serviceId;
         this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
         this.agentId = agentId;
         this.metricGroupName = Objects.requireNonNull(metricGroupName, "metricGroupName");
         this.metricName = Objects.requireNonNull(metricName, "metricName");
         this.fieldNameList = Collections.emptyList();
-        this.rawTags = rawTags;
+        this.tagGroupList = tagGroupList;
 
     }
 
     // TODO: check if this is needed
-    public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> fieldNameList, String rawTags) {
+    public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> fieldNameList, List<String> tagGroupList) {
         this.serviceId = serviceId;
         this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
         this.agentId = agentId;
         this.metricGroupName = Objects.requireNonNull(metricGroupName, "metricGroupName");
         this.metricName = Objects.requireNonNull(metricName, "metricName");
         this.fieldNameList = fieldNameList;
-        this.rawTags = rawTags;
+        this.tagGroupList = tagGroupList;
     }
 
     public List<String> getFieldNameList() {
@@ -60,7 +60,7 @@ public class OtlpMetricDetailsQueryParam {
         return metricName;
     }
 
-    public String getRawTags() {
-        return rawTags;
+    public List<String> getTagGroupList() {
+        return tagGroupList;
     }
 }

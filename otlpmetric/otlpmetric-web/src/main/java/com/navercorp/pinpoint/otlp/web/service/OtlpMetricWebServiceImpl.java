@@ -4,12 +4,12 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 import com.navercorp.pinpoint.otlp.common.util.DoubleUncollectedDataCreator;
 import com.navercorp.pinpoint.otlp.common.util.TimeSeriesBuilder;
+import com.navercorp.pinpoint.otlp.common.web.defined.PrimaryForFieldAndTagRelation;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.common.web.model.MetricValue;
@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,7 +66,6 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     public List<String> getTags(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName) {
         return otlpMetricDao.getTags(tenantId, serviceId, applicationId, agentId, metricGroupName, metricName);
     }
-
 
     @Deprecated
     @Override
@@ -120,9 +118,8 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
         return chartViewBuilder.legacyBuild();
     }
 
-    @Override
-    public MetricData getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, String tags, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow) {
-        List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationName, agentId, metricGroupName, metricName, tags, fieldNameList);
+    public MetricData getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation, List<String> tagGroupList, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow) {
+        List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationName, agentId, metricGroupName, metricName, tagGroupList, fieldNameList);
 
         OtlpMetricDataQueryParameter.Builder builder =
                 new OtlpMetricDataQueryParameter.Builder()
@@ -131,34 +128,45 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                         .setAgentId(agentId)
                         .setMetricGroupName(metricGroupName)
                         .setMetricName(metricName)
-                        .setTags(tags)
                         .setAggregationFunction(aggregationFunction)
                         .setTimeWindow(timeWindow);
-        List<QueryResult<CompletableFuture<List<MetricPoint>>, FieldAttribute>> queryResult = new ArrayList<>();
+        List<QueryResult<CompletableFuture<List<MetricPoint>>, OtlpMetricDataQueryParameter>> queryResult = new ArrayList<>();
 
-        for (FieldAttribute field : fields) {
-            OtlpMetricDataQueryParameter chartQueryParameter = setupQueryParameter(builder, field);
+        List<OtlpMetricDataQueryParameter> chartQueryParameterList = setupQueryParameterList(builder, fields, tagGroupList, primaryForFieldAndTagRelation);
+        for (OtlpMetricDataQueryParameter chartQueryParameter : chartQueryParameterList) {
             CompletableFuture<List<MetricPoint>> chartPoints = otlpMetricDao.getChartPoints(chartQueryParameter);
-            queryResult.add(new QueryResult<>(chartPoints, field));
+            queryResult.add(new QueryResult<>(chartPoints, chartQueryParameter));
         }
 
         List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
         // TODO: (minwoo) set unit data
         MetricData metricData = new MetricData(timeStampList, chartType, fields.get(0).unit());
 
-            for (QueryResult<CompletableFuture<List<MetricPoint>>, FieldAttribute> result : queryResult) {
+            for (QueryResult<CompletableFuture<List<MetricPoint>>, OtlpMetricDataQueryParameter> result : queryResult) {
                 CompletableFuture<List<MetricPoint>> future = result.future();
-                FieldAttribute fieldAttribute = result.key();
+                OtlpMetricDataQueryParameter chartQueryParameter = result.key();
                 try {
                     List<MetricPoint> meticDataList = future.get();
-                    addMetricValue(timeWindow, meticDataList, metricData, fieldAttribute.fieldName(), fieldAttribute.version());
+                    addMetricValue(timeWindow, meticDataList, metricData, getLegendName(chartQueryParameter, primaryForFieldAndTagRelation), chartQueryParameter.getVersion());
                 } catch(Exception e){
-                    logger.warn("Failed to get OTLP metric data for applicationID: {}, metricGroup: {}, metricName {}, FieldAttribute", applicationName, metricGroupName, metricName, fieldAttribute, e);
+                    logger.warn("Failed to get OTLP metric data for applicationID: {}, metricGroup: {}, metricName {}, chartQueryParameter {}", applicationName, metricGroupName, metricName, chartQueryParameter, e);
                 }
             }
 
         return metricData;
     }
+
+    private String getLegendName(OtlpMetricDataQueryParameter chartQueryParameter, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation) {
+        switch (primaryForFieldAndTagRelation) {
+            case FIELD:
+                return chartQueryParameter.getRawTags();
+            case TAG:
+                return chartQueryParameter.getFieldName();
+            default:
+                throw new IllegalArgumentException("Unknown primaryForFieldAndTagRelation: " + primaryForFieldAndTagRelation);
+        }
+    }
+
 
     private void addMetricValue(TimeWindow timeWindow, List<MetricPoint> meticDataList, MetricData metricData, String legendName, String version){
         TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(timeWindow, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
@@ -189,13 +197,47 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                 .build();
     }
 
-    private OtlpMetricDataQueryParameter setupQueryParameter(OtlpMetricDataQueryParameter.Builder builder, FieldAttribute field) {
-        return builder.setFieldName(field.fieldName())
-                .setDataType(field.dataType())
-                .setVersion(field.version())
-                .build();
+    private List<OtlpMetricDataQueryParameter> setupQueryParameterList(OtlpMetricDataQueryParameter.Builder builder, List<FieldAttribute> fields, List<String> tagGroupList, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation) {
+        switch (primaryForFieldAndTagRelation) {
+            case FIELD:
+                return setupQueryParameter(builder, fields.get(0), tagGroupList);
+            case TAG:
+                return setupQueryParameter(builder, fields, tagGroupList.get(0));
+            default:
+                throw new IllegalArgumentException("Unknown primaryForFieldAndTagRelation: " + primaryForFieldAndTagRelation);
+        }
+
     }
 
+    private List<OtlpMetricDataQueryParameter> setupQueryParameter(OtlpMetricDataQueryParameter.Builder builder, List<FieldAttribute> fields, String tagGroup) {
+        List<OtlpMetricDataQueryParameter> queryParameterList = new ArrayList<>();
+
+        for (FieldAttribute field : fields) {
+            OtlpMetricDataQueryParameter otlpMetricDataQueryParameter = builder.setFieldName(field.fieldName())
+                    .setDataType(field.dataType())
+                    .setVersion(field.version())
+                    .setTags(tagGroup)
+                    .build();
+            queryParameterList.add(otlpMetricDataQueryParameter);
+        }
+
+        return queryParameterList;
+    }
+
+    private List<OtlpMetricDataQueryParameter> setupQueryParameter(OtlpMetricDataQueryParameter.Builder builder, FieldAttribute field, List<String> tagGroupList) {
+        List<OtlpMetricDataQueryParameter> queryParameterList = new ArrayList<>();
+
+        for (String tagGroup : tagGroupList) {
+            OtlpMetricDataQueryParameter otlpMetricDataQueryParameter = builder.setFieldName(field.fieldName())
+                    .setDataType(field.dataType())
+                    .setVersion(field.version())
+                    .setTags(tagGroup)
+                    .build();
+            queryParameterList.add(otlpMetricDataQueryParameter);
+        }
+
+        return queryParameterList;
+    }
 
     @Deprecated
     // TODO: duplicate record

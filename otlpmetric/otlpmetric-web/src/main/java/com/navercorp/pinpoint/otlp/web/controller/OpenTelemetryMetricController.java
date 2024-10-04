@@ -21,21 +21,28 @@ import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinitionUtil;
+import com.navercorp.pinpoint.otlp.common.web.defined.PrimaryForFieldAndTagRelation;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.web.service.OtlpMetricWebService;
+import com.navercorp.pinpoint.otlp.web.view.MetricDataRequestParameter;
 import com.navercorp.pinpoint.otlp.web.view.MetricDataView;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartView;
 import com.navercorp.pinpoint.otlp.web.vo.MetricData;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,18 +101,58 @@ public class OpenTelemetryMetricController {
         return otlpMetricWebService.getMetricChartData(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName, metricName, tag, from, to);
     }
 
-    @GetMapping("/metricData")
+
+    @GetMapping("/metricData/tag")
     public MetricDataView getMetricChartDataV2(@RequestParam("applicationName") @NotBlank String applicationName,
                                                @RequestParam(value = "agentId", required = false) String agentId,
                                                @RequestParam("metricGroupName") @NotBlank String metricGroupName,
                                                @RequestParam("metricName") @NotBlank String metricName,
-                                               @RequestParam("tags") String tags,
+                                               @RequestParam("primaryForFieldAndTagRelation") String primaryName,
+                                               @RequestParam("tagGroup") String tagGroup,
                                                @RequestParam("fieldNameList") List<String> fieldNameList,
                                                @RequestParam("from") @PositiveOrZero long from,
                                                @RequestParam("to") @PositiveOrZero long to,
                                                @RequestParam("chartType") String chartTypeName,
                                                @RequestParam("aggregationFunction") String aggregationFunctionName) {
+        List<String> tagGroupList = Arrays.asList(tagGroup);
+        return getMetricChartDataV2(applicationName, agentId, metricGroupName, metricName, primaryName, tagGroupList, fieldNameList, from, to, chartTypeName, aggregationFunctionName);
+    }
+
+    @GetMapping("/metricData/field")
+    public MetricDataView getMetricChartDataV2(@RequestParam("applicationName") @NotBlank String applicationName,
+                                               @RequestParam(value = "agentId", required = false) String agentId,
+                                               @RequestParam("metricGroupName") @NotBlank String metricGroupName,
+                                               @RequestParam("metricName") @NotBlank String metricName,
+                                               @RequestParam("primaryForFieldAndTagRelation") String primaryName,
+                                               @RequestParam("tagGroupList") List<String> tagGroupList,
+                                               @RequestParam("fieldName") String fieldName,
+                                               @RequestParam("from") @PositiveOrZero long from,
+                                               @RequestParam("to") @PositiveOrZero long to,
+                                               @RequestParam("chartType") String chartTypeName,
+                                               @RequestParam("aggregationFunction") String aggregationFunctionName) {
+        List<String> fieldNameList = Arrays.asList(fieldName);
+        return getMetricChartDataV2(applicationName, agentId, metricGroupName, metricName, primaryName, tagGroupList, fieldNameList, from, to, chartTypeName, aggregationFunctionName);
+    }
+
+    @PostMapping("/metricData")
+    public MetricDataView getMetricChartDataV3(@Valid @RequestBody MetricDataRequestParameter parameter) {
+        return getMetricChartDataV2(parameter.getApplicationName(), parameter.getAgentId(), parameter.getMetricGroupName(), parameter.getMetricName(), parameter.getPrimaryForFieldAndTagRelation(), parameter.getTagGroupList(), parameter.getFieldNameList(), parameter.getFrom(), parameter.getTo(), parameter.getChartType(), parameter.getAggregationFunction());
+    }
+
+    public MetricDataView getMetricChartDataV2(@RequestParam("applicationName") @NotBlank String applicationName,
+                                               @RequestParam(value = "agentId", required = false) String agentId,
+                                               @RequestParam("metricGroupName") @NotBlank String metricGroupName,
+                                               @RequestParam("metricName") @NotBlank String metricName,
+                                               @RequestParam("primaryForFieldAndTagRelation") String primaryName,
+                                               @RequestParam("tagGroupList") List<String> tagGroupList,
+                                               @RequestParam("fieldNameList") List<String> fieldNameList,
+                                               @RequestParam("from") @PositiveOrZero long from,
+                                               @RequestParam("to") @PositiveOrZero long to,
+                                               @RequestParam("chartType") String chartTypeName,
+                                               @RequestParam("aggregationFunction") String aggregationFunctionName) {
+        AppMetricDefinitionUtil.validateCountOfTagAndField(tagGroupList, fieldNameList);
         ChartType chartType = ChartType.fromChartName(chartTypeName);
+        PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation = PrimaryForFieldAndTagRelation.fromName(primaryName);
         AggregationFunction aggregationFunction = AggregationFunction.fromAggregationFunctionName(aggregationFunctionName);
 
         Range range = Range.between(from, to);
@@ -113,7 +160,8 @@ public class OpenTelemetryMetricController {
         TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER_30M);
 
         //TODO : (minwoo) remove tenantId, serviceId
-        MetricData metricData = otlpMetricWebService.getMetricData(tenantId, DEFAULT_SERVICE_ID, applicationName, agentId, metricGroupName, metricName, tags, fieldNameList, chartType, aggregationFunction, timeWindow);
+        MetricData metricData = otlpMetricWebService.getMetricData(tenantId, DEFAULT_SERVICE_ID, applicationName, agentId, metricGroupName, metricName, primaryForFieldAndTagRelation, tagGroupList, fieldNameList, chartType, aggregationFunction, timeWindow);
         return new MetricDataView(metricData);
     }
+
 }
