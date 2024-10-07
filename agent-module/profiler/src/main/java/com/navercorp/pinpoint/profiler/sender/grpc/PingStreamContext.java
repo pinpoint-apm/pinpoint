@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PPing;
 import io.grpc.Metadata;
@@ -139,7 +140,7 @@ public class PingStreamContext {
 
     public void close() {
         logger.info("{} close()", streamId);
-        StreamUtils.close(this.requestObserver, this.logger);
+        StreamUtils.onCompleted(this.requestObserver, (th) -> this.logger.info("PingStreamContext.close", th));
     }
 
     @Override

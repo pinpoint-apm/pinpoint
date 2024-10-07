@@ -16,83 +16,115 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
  */
-public class GrpcStreamService {
+public class GrpcStreamService implements AutoCloseable {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Timer timer;
+    public static final long DEFAULT_FLUSH_DELAY = 1000;
+
+    private final ScheduledExecutorService scheduler;
     private final long flushDelay;
 
     private final Object lock = new Object();
 
-    private final AtomicReference<TimerTask> currentTaskReference = new AtomicReference<>();
+    private ScheduledFuture<?> jobHandle;
 
-    private final List<GrpcProfilerStreamSocket<?, ?>> grpcProfilerStreamSocketList = new CopyOnWriteArrayList<>();
+    private final List<ActiveThreadCountStreamSocket> grpcProfilerStreamSocketList = new CopyOnWriteArrayList<>();
 
-    public GrpcStreamService(String name, long flushDelay) {
+    private final ActiveTraceRepository activeTrace;
+
+    public GrpcStreamService(String name, long flushDelay, ActiveTraceRepository activeTrace) {
         Objects.requireNonNull(name, "name");
         Assert.isTrue(flushDelay > 0, "flushDelay must be >= 0");
-        this.timer = new Timer("Pinpoint-Grpc-" + name + "-Timer", true);
+
+        this.scheduler = newScheduledExecutorService(name);
+
         this.flushDelay = flushDelay;
+        this.activeTrace = Objects.requireNonNull(activeTrace, "ActiveTrace");
     }
 
-    public GrpcProfilerStreamSocket<?, ?>[] getStreamSocketList() {
-        return grpcProfilerStreamSocketList.toArray(new GrpcProfilerStreamSocket[0]);
+    private ScheduledExecutorService newScheduledExecutorService(String name) {
+        PinpointThreadFactory threadFactory = new PinpointThreadFactory("Pinpoint-" + name + "-Timer", true);
+        return Executors.newScheduledThreadPool(1, threadFactory);
     }
 
-    public boolean register(GrpcProfilerStreamSocket<?, ?> streamSocket, TimerTask timerTask) {
+    ActiveThreadCountStreamSocket[] getStreamSocketList() {
+        return grpcProfilerStreamSocketList.toArray(new ActiveThreadCountStreamSocket[0]);
+    }
+
+    public boolean register(ActiveThreadCountStreamSocket streamSocket) {
         synchronized (lock) {
             grpcProfilerStreamSocketList.add(streamSocket);
-            boolean turnOn = currentTaskReference.compareAndSet(null, timerTask);
-            if (turnOn) {
-                logger.info("turn on TimerTask.");
-                timer.scheduleAtFixedRate(timerTask, 0, flushDelay);
+
+            if (!isStarted()) {
+                logger.info("turn on ActiveThreadCountTask");
+                Runnable job = new ActiveThreadCountTimerTask();
+                this.jobHandle = scheduler.scheduleAtFixedRate(job, flushDelay, flushDelay, TimeUnit.MILLISECONDS);
                 return true;
             }
         }
         return false;
     }
 
-    public boolean unregister(GrpcProfilerStreamSocket<?, ?> streamSocket) {
+
+
+
+    void stopTask() {
+        if (jobHandle == null) {
+            return;
+        }
+        logger.info("turn off TimerTask");
+        jobHandle.cancel(false);
+        jobHandle = null;
+    }
+
+    boolean isStarted() {
+        return jobHandle != null;
+    }
+
+    public boolean unregister(ActiveThreadCountStreamSocket streamSocket) {
         synchronized (lock) {
             grpcProfilerStreamSocketList.remove(streamSocket);
             // turnoff
             if (grpcProfilerStreamSocketList.isEmpty()) {
-                TimerTask activeThreadCountTimerTask = currentTaskReference.get();
-                if (activeThreadCountTimerTask != null) {
-                    currentTaskReference.compareAndSet(activeThreadCountTimerTask, null);
-                    activeThreadCountTimerTask.cancel();
-
-                    logger.info("turn off TimerTask.");
-                }
+                stopTask();
                 return true;
             }
         }
         return false;
     }
 
+    @Override
     public void close() {
         synchronized (lock) {
-            if (timer != null) {
-                timer.cancel();
+            if (scheduler != null) {
+                ExecutorUtils.shutdownExecutorService("GrpcStreamService", scheduler);
             }
 
-            GrpcProfilerStreamSocket<?, ?>[] streamSockets = grpcProfilerStreamSocketList.toArray(new GrpcProfilerStreamSocket[0]);
-            for (GrpcProfilerStreamSocket<?, ?> streamSocket : streamSockets) {
+            ActiveThreadCountStreamSocket[] streamSockets = getStreamSocketList();
+            for (ActiveThreadCountStreamSocket streamSocket : streamSockets) {
                 if (streamSocket != null) {
                     streamSocket.close();
                 }
@@ -102,4 +134,49 @@ public class GrpcStreamService {
         }
     }
 
+
+    private PCmdActiveThreadCountRes.Builder builder() {
+        final long currentTime = System.currentTimeMillis();
+        final ActiveTraceHistogram histogram = activeTrace.getActiveTraceHistogram(currentTime);
+
+        PCmdActiveThreadCountRes.Builder responseBuilder = PCmdActiveThreadCountRes.newBuilder();
+        responseBuilder.setTimeStamp(currentTime);
+        responseBuilder.setHistogramSchemaType(histogram.getHistogramSchema().getTypeCode());
+
+        final List<Integer> activeTraceCountList = histogram.getCounter();
+        for (Integer activeTraceCount : activeTraceCountList) {
+            responseBuilder.addActiveThreadCount(activeTraceCount);
+        }
+
+        return responseBuilder;
+    }
+
+    private class ActiveThreadCountTimerTask implements Runnable {
+
+        @Override
+        public void run() {
+            ActiveThreadCountStreamSocket[] streamSocketList = getStreamSocketList();
+            if (logger.isDebugEnabled()) {
+                logger.debug("ActiveThreadCountTimerTask run. streamSocketList:{}", Arrays.toString(streamSocketList));
+            }
+
+            final PCmdActiveThreadCountRes.Builder builder = builder();
+            for (ActiveThreadCountStreamSocket streamSocket : streamSocketList) {
+                try {
+                    PCmdStreamResponse header = streamSocket.newHeader();
+                    builder.setCommonStreamResponse(header);
+                    PCmdActiveThreadCountRes activeThreadCount = builder.build();
+
+                    streamSocket.send(activeThreadCount);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("ActiveThreadCountStreamSocket. {}", streamSocket);
+                    }
+                } catch (Throwable e) {
+                    logger.warn("failed to execute ActiveThreadCountTimerTask.run method. streamSocket:{}, message:{}", streamSocket, e.getMessage(), e);
+                    streamSocket.close(e);
+                }
+            }
+        }
+
+    }
 }

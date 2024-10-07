@@ -16,41 +16,29 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.google.protobuf.Empty;
-import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
-import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
 import com.navercorp.pinpoint.grpc.trace.PCommandType;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import io.grpc.stub.ClientResponseObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Taejin Koo
  */
 public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService, Closeable {
 
-    private static final long DEFAULT_FLUSH_DELAY = 1000;
-
     private final Logger logger = LogManager.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private final AtomicInteger sequence = new AtomicInteger(0);
 
-    private final ActiveTraceRepository activeTraceRepository;
+    private final GrpcStreamService grpcStreamService ;
 
-    private final GrpcStreamService grpcStreamService = new GrpcStreamService("ActiveThreadCountService", DEFAULT_FLUSH_DELAY);
-
-    public GrpcActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
-        this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
+    public GrpcActiveThreadCountService(GrpcStreamService grpcStreamService) {
+        this.grpcStreamService = Objects.requireNonNull(grpcStreamService, "grpcStreamService");
     }
 
     @Override
@@ -59,66 +47,18 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
     }
 
     @Override
-    public void handle(PCmdRequest request, ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub) {
-        ActiveThreadCountStreamSocket activeThreadCountStreamSocket = new ActiveThreadCountStreamSocket(request.getRequestId(), grpcStreamService);
-        ClientResponseObserver<PCmdActiveThreadCountRes, Empty> responseObserver = activeThreadCountStreamSocket.getResponseObserver();
-        profilerCommandServiceStub.commandStreamActiveThreadCount(responseObserver);
+    public void handle(PCmdRequest request, ProfilerCommandServiceGrpc.ProfilerCommandServiceStub commandServiceStub) {
+        ActiveThreadCountStreamSocket socket = new ActiveThreadCountStreamSocket(sequence.getAndIncrement(), request.getRequestId(), grpcStreamService);
+        commandServiceStub.commandStreamActiveThreadCount(socket);
 
-        grpcStreamService.register(activeThreadCountStreamSocket, new ActiveThreadCountTimerTask());
+        grpcStreamService.register(socket);
     }
 
-    private PCmdActiveThreadCountRes.Builder getActiveThreadCountResponse() {
-        final long currentTime = System.currentTimeMillis();
-        final ActiveTraceHistogram histogram = activeTraceRepository.getActiveTraceHistogram(currentTime);
-
-        PCmdActiveThreadCountRes.Builder responseBuilder = PCmdActiveThreadCountRes.newBuilder();
-        responseBuilder.setTimeStamp(currentTime);
-        responseBuilder.setHistogramSchemaType(histogram.getHistogramSchema().getTypeCode());
-
-        final List<Integer> activeTraceCountList = histogram.getCounter();
-        for (Integer activeTraceCount : activeTraceCountList) {
-            responseBuilder.addActiveThreadCount(activeTraceCount);
-        }
-
-        return responseBuilder;
-    }
 
     @Override
     public void close() throws IOException {
         logger.info("close");
         grpcStreamService.close();
-    }
-
-    private class ActiveThreadCountTimerTask extends TimerTask {
-
-        @Override
-        public void run() {
-            if (isDebug) {
-                logger.debug("ActiveThreadCountTimerTask started. streamSocketList:{}", Arrays.toString(grpcStreamService.getStreamSocketList()));
-            }
-
-            PCmdActiveThreadCountRes.Builder activeThreadCountResponseBuilder = getActiveThreadCountResponse();
-            for (GrpcProfilerStreamSocket<?, ?> streamSocket : grpcStreamService.getStreamSocketList()) {
-                if (streamSocket instanceof ActiveThreadCountStreamSocket) {
-                    try {
-                        final ActiveThreadCountStreamSocket stream = (ActiveThreadCountStreamSocket) streamSocket;
-
-                        PCmdStreamResponse header = stream.newHeader();
-                        activeThreadCountResponseBuilder.setCommonStreamResponse(header);
-                        PCmdActiveThreadCountRes activeThreadCount = activeThreadCountResponseBuilder.build();
-
-                        stream.send(activeThreadCount);
-                        if (isDebug) {
-                            logger.debug("ActiveThreadCountStreamSocket. {}", stream);
-                        }
-                    } catch (Throwable e) {
-                        logger.warn("failed to execute ActiveThreadCountTimerTask.run method. streamSocket:{}, message:{}", streamSocket, e.getMessage(), e);
-                        streamSocket.close(e);
-                    }
-                }
-            }
-        }
-
     }
 
 }

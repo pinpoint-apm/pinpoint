@@ -1,36 +1,41 @@
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import io.grpc.stub.ClientCallStreamObserver;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class PinpointClientResponseObserverTest {
 
     @Test
     void isReady_true() {
-        GrpcProfilerStreamSocket<String, Empty> socket = mock(GrpcProfilerStreamSocket.class);
-        PinpointClientResponseObserver<String, Empty> responseObserver = new PinpointClientResponseObserver<>(socket);
+        GrpcStreamService service = mock(GrpcStreamService.class);
 
-        ClientCallStreamObserver<String> requestStream = mock(ClientCallStreamObserver.class);
+        ClientCallStreamObserver<PCmdActiveThreadCountRes> requestStream = mock(ClientCallStreamObserver.class);
         when(requestStream.isReady()).thenReturn(true);
-        responseObserver.beforeStart(requestStream);
 
-        Assertions.assertTrue(responseObserver.isReady());
+        ActiveThreadCountStreamSocket socket = new ActiveThreadCountStreamSocket(1, 2, service);
+        socket.beforeStart(requestStream);
+
+        socket.send(PCmdActiveThreadCountRes.getDefaultInstance());
+        verify(requestStream).onNext(PCmdActiveThreadCountRes.getDefaultInstance());
     }
 
     @Test
     void isReady_false() {
-        GrpcProfilerStreamSocket<String, Empty> socket = mock(GrpcProfilerStreamSocket.class);
-        PinpointClientResponseObserver<String, Empty> responseObserver = new PinpointClientResponseObserver<>(socket);
+        GrpcStreamService service = mock(GrpcStreamService.class);
 
-        Assertions.assertFalse(responseObserver.isReady());
+        ClientCallStreamObserver<PCmdActiveThreadCountRes> requestStream = mock(ClientCallStreamObserver.class);
+        when(requestStream.isReady()).thenReturn(false);
 
-        ClientCallStreamObserver<String> requestStream = mock(ClientCallStreamObserver.class);
-        responseObserver.beforeStart(requestStream);
-        Assertions.assertFalse(responseObserver.isReady());
+        ActiveThreadCountStreamSocket socket = new ActiveThreadCountStreamSocket(1, 2, service);
+        socket.beforeStart(requestStream);
+
+        socket.send(PCmdActiveThreadCountRes.getDefaultInstance());
+        verify(requestStream, never()).onNext(PCmdActiveThreadCountRes.getDefaultInstance());
     }
 }
