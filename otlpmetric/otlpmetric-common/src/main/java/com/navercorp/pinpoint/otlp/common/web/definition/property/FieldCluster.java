@@ -34,6 +34,14 @@ public class FieldCluster {
         this.tagGroupList = new ArrayList<>();
     }
 
+    public String getUnit() {
+        return unit;
+    }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
     public void addTagGroup(String tagGroup) {
         tagGroupList.add(tagGroup);
     }
