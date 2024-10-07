@@ -16,14 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.SupportCommandCodeClientInterceptor;
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
+import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.Reconnector;
-import com.navercorp.pinpoint.profiler.sender.grpc.StreamUtils;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -67,10 +69,11 @@ public class GrpcCommandService {
     }
 
     private void connect() {
-        logger.info("Attempt to connect to CommandServiceStream.");
         if (shutdown) {
+            logger.info("Already shutdown");
             return;
         }
+        logger.info("Attempt to connect to CommandServiceStream");
         ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub = newCommandServiceStub(commandServiceStubFactory, profilerCommandServiceLocator);
         GrpcCommandDispatcher commandDispatcher = new GrpcCommandDispatcher(profilerCommandServiceStub, profilerCommandServiceLocator);
 
@@ -93,34 +96,38 @@ public class GrpcCommandService {
 
     public void stop() {
         logger.info("stop() started");
-        if (!shutdown) {
-            // It's okay to be called multiple times.
-            this.shutdown = true;
+        if (shutdown) {
+            logger.info("Already shutdown");
+        }
 
-            final CommandServiceMainStreamObserver commandServiceMainStreamObserver = this.commandServiceMainStreamObserver;
-            if (commandServiceMainStreamObserver != null) {
-                commandServiceMainStreamObserver.stop();
-            }
+        // It's okay to be called multiple times.
+        this.shutdown = true;
+
+        final CommandServiceMainStreamObserver observer = this.commandServiceMainStreamObserver;
+        if (observer != null) {
+            observer.stop();
         }
     }
 
     private class CommandServiceMainStreamObserver implements ClientResponseObserver<PCmdMessage, PCmdRequest> {
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final GrpcCommandDispatcher commandDispatcher;
-        private ClientCallStreamObserver<PCmdMessage> requestStream;
+        private ClientCallStateStreamObserver<PCmdMessage> requestStream;
 
         public CommandServiceMainStreamObserver(GrpcCommandDispatcher commandDispatcher) {
             this.commandDispatcher = Objects.requireNonNull(commandDispatcher, "commandDispatcher");
         }
 
         @Override
-        public void beforeStart(final ClientCallStreamObserver<PCmdMessage> requestStream) {
-            this.requestStream = requestStream;
+        public void beforeStart(final ClientCallStreamObserver<PCmdMessage> stream) {
+
+            this.requestStream = ClientCallStateStreamObserver.clientCall(stream);
 
             requestStream.setOnReadyHandler(new Runnable() {
                 @Override
                 public void run() {
-                    logger.info("Connect to CommandServiceStream completed.");
+                    logger.info("Connect to CommandServiceStream completed");
                     reconnector.reset();
                 }
             });
@@ -130,7 +137,7 @@ public class GrpcCommandService {
         @Override
         public void onNext(PCmdRequest request) {
             if (isDebug) {
-                logger.debug("received request:{}", request);
+                logger.debug("received request:{}", MessageFormatUtils.debugLog(request));
             }
 
             if (request != null) {
@@ -144,8 +151,8 @@ public class GrpcCommandService {
             Metadata metadata = Status.trailersFromThrowable(t);
             logger.info("Failed to command stream, {} {}", status, metadata);
 
-            if (requestStream != null) {
-                requestStream.onError(t);
+            if (requestStream.isRun()) {
+                StreamUtils.onCompleted(requestStream, (th) -> logger.info("CommandService.onError", th));
             }
 
             reserveReconnect();
@@ -154,14 +161,16 @@ public class GrpcCommandService {
         @Override
         public void onCompleted() {
             logger.info("onCompleted");
-            StreamUtils.close(requestStream, GrpcCommandService.this.logger);
-            // TODO : needs to check whether needs new action
+
+            if (requestStream.isRun()) {
+                StreamUtils.onCompleted(requestStream, (th) -> logger.info("CommandService.onCompleted", th));
+            }
             reserveReconnect();
         }
 
         private void stop() {
             logger.info("stop");
-            StreamUtils.close(requestStream, GrpcCommandService.this.logger);
+            StreamUtils.onCompleted(requestStream, (th) -> logger.info("CommandService.stop"));
             commandDispatcher.close();
         }
 

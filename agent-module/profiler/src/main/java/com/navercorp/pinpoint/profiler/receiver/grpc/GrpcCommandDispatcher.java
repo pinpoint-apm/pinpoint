@@ -60,16 +60,23 @@ public class GrpcCommandDispatcher {
                 logger.warn("Failed to handle commandService. message:{}", e.getMessage(), e);
                 PCmdResponse failMessage = createFailMessage(commandRequest, e.getMessage());
                 if (streamObserver != null) {
-                    streamObserver.onNext(PCmdMessage.newBuilder().setFailMessage(failMessage).build());
+                    PCmdMessage cmd = failCmdMessage(failMessage);
+                    streamObserver.onNext(cmd);
                 }
             }
         } else {
             PCmdResponse failMessage = createFailMessage(commandRequest, RouteResult.NOT_SUPPORTED_REQUEST.name());
             if (streamObserver != null) {
-                streamObserver.onNext(PCmdMessage.newBuilder().setFailMessage(failMessage).build());
+                PCmdMessage failCmd = failCmdMessage(failMessage);
+                streamObserver.onNext(failCmd);
             }
         }
+    }
 
+    private PCmdMessage failCmdMessage(PCmdResponse failMessage) {
+        return PCmdMessage.newBuilder()
+                .setFailMessage(failMessage)
+                .build();
     }
 
     private PCmdResponse createFailMessage(PCmdRequest commandRequest, String message) {
