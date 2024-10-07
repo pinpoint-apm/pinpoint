@@ -347,6 +347,11 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                 // 4.7
                 constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "boolean", "boolean", "com.mongodb.ReadConcern", "org.bson.UuidRepresentation", "com.mongodb.AutoEncryptionSettings", "com.mongodb.client.internal.OperationExecutor");
             }
+            if (constructorMethod == null) {
+                // 5.2
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "boolean", "boolean", "com.mongodb.ReadConcern", "org.bson.UuidRepresentation", "com.mongodb.AutoEncryptionSettings", "com.mongodb.internal.TimeoutSettings", "com.mongodb.client.internal.OperationExecutor");
+            }
+
             if (constructorMethod != null) {
                 constructorMethod.addInterceptor(MongoCollectionImplConstructorInterceptor.class);
             }
@@ -424,6 +429,10 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             if (constructorMethod == null) {
                 // 4.7 or later
                 constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.ReadConcern", "com.mongodb.WriteConcern", "boolean", "boolean", "org.bson.UuidRepresentation", "com.mongodb.AutoEncryptionSettings", "com.mongodb.reactivestreams.client.internal.OperationExecutor");
+            }
+            if (constructorMethod == null) {
+                // 5.2 or later
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.ReadConcern", "com.mongodb.WriteConcern", "boolean", "boolean", "org.bson.UuidRepresentation", "com.mongodb.AutoEncryptionSettings", "com.mongodb.internal.TimeoutSettings", "com.mongodb.reactivestreams.client.internal.OperationExecutor");
             }
             if (constructorMethod != null) {
                 constructorMethod.addInterceptor(ReactiveMongoOperationPublisherConstructorInterceptor.class);
