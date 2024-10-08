@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
     private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
+    private static final DependencyVersionFilter DEPENDENCY_VERSION_FILTER = new DependencyVersionFilter();
     private final TaggedLogger logger = TestLogger.getLogger();
 
     private final ClassLoding classLoding;
@@ -158,7 +159,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
             }
         }
 
-        final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
+        final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(DEPENDENCY_VERSION_FILTER, dependencies);
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
             final String testId = dependencyCase.getKey();
             final List<String> libs = new ArrayList<>();
