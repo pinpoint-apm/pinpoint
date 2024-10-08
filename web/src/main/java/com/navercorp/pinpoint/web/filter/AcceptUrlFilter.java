@@ -42,11 +42,17 @@ public class AcceptUrlFilter implements URLPatternFilter {
 
     @Override
     public boolean accept(List<SpanBo> acceptSpanList) {
+        boolean debug = logger.isDebugEnabled();
         for (SpanBo spanBo : acceptSpanList) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("urlPattern:{} rpc:{}", urlPattern, spanBo.getRpc());
+            String rpc = spanBo.getRpc();
+            String requestPath = spanBo.getRequestPath();
+            if (debug) {
+                logger.debug("urlPattern:{} rpc:{} requestPath:{}", urlPattern, rpc, requestPath);
             }
-            if (matcher.match(urlPattern, spanBo.getRpc())) {
+            if (matcher.match(urlPattern, rpc)) {
+                return ACCEPT;
+            }
+            if (matcher.match(urlPattern, requestPath)) {
                 return ACCEPT;
             }
         }
