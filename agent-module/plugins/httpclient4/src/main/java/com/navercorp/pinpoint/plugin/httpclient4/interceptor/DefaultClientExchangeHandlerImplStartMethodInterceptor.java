@@ -28,11 +28,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
@@ -70,6 +72,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     private final EntityRecorder<HttpRequest> entityRecorder;
 
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
+    private final ApplicationInfoSender<HttpRequest> applicationInfoSender;
 
     public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
@@ -90,6 +93,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
 
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -98,12 +102,14 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             logger.beforeInterceptor(target, args);
         }
 
+        final HttpRequest httpRequest = getHttpRequest(target);
+        this.applicationInfoSender.sendCallerApplicationName(httpRequest);
+
         final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
-        final HttpRequest httpRequest = getHttpRequest(target);
         final NameIntValuePair<String> host = getHost(target);
         final boolean sampling = trace.canSampled();
         if (!sampling) {

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -97,6 +98,7 @@ public class HttpURLConnectionIT {
         verifier.verifyTraceCount(3);
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, destinationId,
                 annotation("http.url", httpUrl)));
+        assertCaller(connection);
     }
 
     @Test
@@ -131,4 +133,11 @@ public class HttpURLConnectionIT {
         verifier.printMethod();
         verifier.verifyTraceCount(2);
     }
+
+    private void assertCaller(HttpURLConnection connection) {
+        final String caller = connection.getHeaderField(WebServer.CALLER_RESPONSE_HEADER_NAME);
+        Assertions.assertNotNull(caller, "caller null");
+        Assertions.assertTrue("test".contentEquals(caller), "not caller test");
+    }
+
 }
