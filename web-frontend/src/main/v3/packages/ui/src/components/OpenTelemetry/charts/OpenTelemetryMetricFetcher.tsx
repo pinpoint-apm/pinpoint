@@ -64,7 +64,7 @@ export const OpenTelemetryMetricFetcher = ({
       const dataObj: { [key: string]: number } = { timestamp: t };
 
       for (const [key, dataArray] of Object.entries(dataSets)) {
-        dataObj[key] = dataArray[i];
+        dataObj[key] = (dataArray[i] === -1 ? null : dataArray[i]) as number;
       }
 
       return dataObj;
