@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"io.lettuce:lettuce-core:[5.0,]",
+@Dependency({"io.lettuce:lettuce-core:[5.0,6.4.0.RELEASE]",
         "org.latencyutils:LatencyUtils:[2.0.3]",
         PluginITConstants.VERSION})
 @SharedDependency({PluginITConstants.VERSION, TestcontainersOption.TEST_CONTAINER})
