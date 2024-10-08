@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,16 @@
  */
 package com.navercorp.pinpoint.it.plugin.log4j2;
 
-import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.StdoutRecorder;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmArgument;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
-@PluginForkedTest
-@PinpointAgent(AgentPath.PATH)
-@PinpointConfig("pinpoint-spring-bean-test.config")
-@JvmVersion(8)
-@Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,2.20)", PluginITConstants.VERSION})
-@JvmArgument("-DtestLoggerEnable=false")
-public class Log4j2PatternIT extends Log4j2TestBase {
+public class Log4j2PatternTestBase extends Log4j2TestBase {
 
     private String location;
-    @Test
-    public void patternUpdate() {
+
+    protected String checkPatternUpdate() {
         final String msg = "pattern";
 
         StdoutRecorder stdoutRecorder = new StdoutRecorder();
@@ -55,12 +40,13 @@ public class Log4j2PatternIT extends Log4j2TestBase {
         System.out.println(log);
         Assertions.assertNotNull(log, "log null");
         Assertions.assertTrue(log.contains(msg), "contains msg");
-        Assertions.assertTrue(log.contains("TxId"), "contains TxId");
+        Assertions.assertTrue(log.contains("build.test.0^1"), "contains TxId");
 
         Assertions.assertNotNull(location, "location null");
         System.out.println("Log4j2 jar location:" + location);
         final String testVersion = getTestVersion();
         Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
+        return log;
     }
 
 }

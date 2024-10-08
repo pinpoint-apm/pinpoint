@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,8 @@ package com.navercorp.pinpoint.it.plugin.log4j;
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
-import com.navercorp.pinpoint.test.plugin.TransformInclude;
+import com.navercorp.pinpoint.test.plugin.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @PluginForkedTest
@@ -31,7 +27,8 @@ import org.junit.jupiter.api.Test;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-log4j-plugin"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @TransformInclude("org.apache.log4j.")
-public class Log4jIT extends Log4jTestBase {
+@JvmArgument("-Dprofiler.log4j.logging.pattern.full_replace.with=Log4jIT TxId:%X{PtxId} %m")
+public class Log4jFullReplaceIT extends Log4jTestBase {
 
     @Test
     public void test() {
@@ -40,6 +37,8 @@ public class Log4jIT extends Log4jTestBase {
 
     @Test
     public void patternUpdate() {
-        checkPatternReplace();
+        String log = checkPatternReplace();
+        Assertions.assertTrue(log.contains("Log4jIT"), "contains full-replace string Log4jIT");
     }
+
 }

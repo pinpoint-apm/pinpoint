@@ -31,10 +31,13 @@ public class Log4jConfig {
     private static final String LOGGING_PATTERN_REPLACE_ENABLE = "profiler.log4j.logging.pattern.replace.enable";
     private static final String LOGGING_PATTERN_REPLACE_SEARCH = "profiler.log4j.logging.pattern.replace.search";
     private static final String LOGGING_PATTERN_REPLACE_WITH = "profiler.log4j.logging.pattern.replace.with";
+    private static final String LOGGING_PATTERN_FULL_REPLACE_WITH = "profiler.log4j.logging.pattern.full_replace.with";
 
     private final boolean patternReplaceEnable;
     private final List<String> patternReplaceSearchList;
     private final String patternReplaceWith;
+    private final String patternFullReplaceWith;
+    private final boolean patternFullReplace;
 
 
     public Log4jConfig(ProfilerConfig config) {
@@ -42,9 +45,11 @@ public class Log4jConfig {
 
         this.patternReplaceSearchList = config.readList(LOGGING_PATTERN_REPLACE_SEARCH);
         this.patternReplaceWith = config.readString(LOGGING_PATTERN_REPLACE_WITH, "");
+        this.patternFullReplaceWith = config.readString(LOGGING_PATTERN_FULL_REPLACE_WITH, "");
         boolean configEnabled = config.readBoolean(LOGGING_PATTERN_REPLACE_ENABLE, false);
-        boolean configOk = !CollectionUtils.isEmpty(patternReplaceSearchList) && StringUtils.hasText(patternReplaceWith);
+        boolean configOk = (!CollectionUtils.isEmpty(patternReplaceSearchList) && StringUtils.hasText(patternReplaceWith)) || StringUtils.hasText(patternFullReplaceWith);
         this.patternReplaceEnable = configEnabled && configOk;
+        this.patternFullReplace = configEnabled && StringUtils.hasText(patternFullReplaceWith);
     }
 
     public boolean isLog4jLoggingTransactionInfo() {
@@ -63,13 +68,23 @@ public class Log4jConfig {
         return patternReplaceWith;
     }
 
+    public String getPatternFullReplaceWith() {
+        return patternFullReplaceWith;
+    }
+
+    public boolean isPatternFullReplace() {
+        return patternFullReplace;
+    }
+
     @Override
     public String toString() {
         return "Log4jConfig{" +
                 "log4jLoggingTransactionInfo=" + log4jLoggingTransactionInfo +
                 ", patternReplaceEnable=" + patternReplaceEnable +
+                ", patternFullReplace='" + patternFullReplace + '\'' +
                 ", patternReplaceSearchList=" + patternReplaceSearchList +
                 ", patternReplaceWith='" + patternReplaceWith + '\'' +
+                ", patternFullReplaceWith='" + patternFullReplaceWith + '\'' +
                 '}';
     }
 

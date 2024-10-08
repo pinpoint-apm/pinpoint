@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,33 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.it.plugin.log4j;
+package com.navercorp.pinpoint.it.plugin.log4j2;
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
-import com.navercorp.pinpoint.test.plugin.TransformInclude;
 import org.junit.jupiter.api.Test;
 
 @PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"log4j:log4j:[1.2.16,)", PluginITConstants.VERSION})
-@ImportPlugin({"com.navercorp.pinpoint:pinpoint-log4j-plugin"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
-@TransformInclude("org.apache.log4j.")
-public class Log4jIT extends Log4jTestBase {
-
-    @Test
-    public void test() {
-        checkMDC();
-    }
+@JvmVersion(11)
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.20,2.22]", PluginITConstants.VERSION})
+@JvmArgument("-DtestLoggerEnable=false")
+public class Log4J2Pattern_2_20_ITTest extends Log4j2PatternTestBase {
 
     @Test
     public void patternUpdate() {
-        checkPatternReplace();
+        checkPatternUpdate();
     }
+
 }
