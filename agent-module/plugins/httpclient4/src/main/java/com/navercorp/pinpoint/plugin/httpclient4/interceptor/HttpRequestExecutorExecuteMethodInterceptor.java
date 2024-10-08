@@ -109,6 +109,9 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         final HttpRequest httpRequest = getHttpRequest(args);
         final NameIntValuePair<String> host = getHost();
         final boolean sampling = trace.canSampled();
+        if (httpRequest != null) {
+            this.requestTraceWriter.write(httpRequest, trace.getRequestId());
+        }
         if (!sampling) {
             if (httpRequest != null) {
                 this.requestTraceWriter.write(httpRequest);
