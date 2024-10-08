@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite {
     private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
     private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
+    private static final DependencyVersionFilter DEPENDENCY_VERSION_FILTER = new DependencyVersionFilter();
     private final TaggedLogger logger = TestLogger.getLogger();
 
     private final ClassLoding classLoding;
@@ -138,7 +139,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         final String sharedClassName = sharedClass == null ? null : sharedClass.getName();
         SharedProcessManager sharedProcessManager = new SharedProcessManager(context, sharedClassName, sharedLibs);
 
-        Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(dependencies);
+        Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(DEPENDENCY_VERSION_FILTER, dependencies);
         if (logger.isDebugEnabled()) {
             for (Map.Entry<String, List<Artifact>> entry : dependencyMap.entrySet()) {
                 logger.debug("{} {}", entry.getKey(), entry.getValue());

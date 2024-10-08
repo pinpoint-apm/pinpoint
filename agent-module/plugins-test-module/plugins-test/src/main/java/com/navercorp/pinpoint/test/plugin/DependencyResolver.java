@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.common.util.Filter;
 import com.navercorp.pinpoint.test.plugin.shared.ArtifactIdUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
@@ -226,14 +227,22 @@ public class DependencyResolver {
         this.repositories = repositories;
     }
 
-    public List<Version> getVersions(Artifact artifact) throws VersionRangeResolutionException {
+    public List<Version> getVersions(Artifact artifact, Filter<String> filter) throws VersionRangeResolutionException {
         VersionRangeRequest rangeRequest = new VersionRangeRequest();
         rangeRequest.setArtifact(artifact);
         rangeRequest.setRepositories(repositories);
 
         VersionRangeResult rangeResult = system.resolveVersionRange(session, rangeRequest);
-
-        List<Version> versions = new ArrayList<>(rangeResult.getVersions());
+        List<Version> versions = new ArrayList<>();
+        if (filter != null) {
+            for (Version version : rangeResult.getVersions()) {
+                if (Filter.NOT_FILTERED == filter.filter(version.toString())) {
+                    versions.add(version);
+                }
+            }
+        } else {
+            versions = new ArrayList<>(rangeResult.getVersions());
+        }
         versions.sort(Comparator.naturalOrder());
 
         return versions;
@@ -289,6 +298,10 @@ public class DependencyResolver {
     }
 
     public Map<String, List<Artifact>> resolveDependencySets(String... dependencies) {
+        return resolveDependencySets(null, dependencies);
+    }
+
+    public Map<String, List<Artifact>> resolveDependencySets(Filter<String> filter, String... dependencies) {
         List<List<Artifact>> companions = resolve(dependencies);
 
         List<List<List<Artifact>>> xxx = new ArrayList<>();
@@ -299,7 +312,7 @@ public class DependencyResolver {
             List<Version> versions;
 
             try {
-                versions = getVersions(representative);
+                versions = getVersions(representative, filter);
             } catch (VersionRangeResolutionException e) {
                 throw new IllegalArgumentException("Fail to resolve version of: " + representative);
             }
