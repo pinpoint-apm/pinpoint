@@ -508,7 +508,7 @@ export const MetricDefinitionFormFetcher = ({
                           }}
                         />
                         <FormLabel className="text-sm font-normal" htmlFor="all">
-                          ALL{' '}
+                          <span className="font-bold">ALL</span>
                           <span className="text-muted-foreground">{`(Select all ${primaryForFieldAndTagRelation === 'tag' ? 'field' : 'tag'})`}</span>
                         </FormLabel>
                       </FormItem>

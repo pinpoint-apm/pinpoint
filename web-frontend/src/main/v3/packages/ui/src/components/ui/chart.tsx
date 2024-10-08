@@ -261,8 +261,7 @@ const ChartLegendContent = React.forwardRef<
         <div
           ref={ref}
           className={cn(
-            'flex items-center justify-center gap-4',
-            verticalAlign === 'top' ? 'pb-3' : 'pt-3',
+            `flex justify-center gap-1 flex-wrap ${verticalAlign === 'top' ? 'pb-3' : 'pt-3'}`,
             className,
           )}
         >
@@ -273,13 +272,7 @@ const ChartLegendContent = React.forwardRef<
             return (
               <React.Fragment key={item.value}>
                 <TooltipTrigger asChild>
-                  <div
-                    key={item.value}
-                    className={cn(
-                      'flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground',
-                      'justify-center',
-                    )}
-                  >
+                  <div key={item.value} className={cn('inline-flex max-w-full items-center gap-1')}>
                     <>
                       {itemConfig?.icon && !hideIcon ? (
                         <itemConfig.icon />
@@ -291,9 +284,9 @@ const ChartLegendContent = React.forwardRef<
                           }}
                         />
                       )}
-                      <span className="text-ellipsis overflow-hidden whitespace-nowrap">
+                      <div className="text-ellipsis overflow-hidden whitespace-nowrap">
                         {itemConfig?.label}
-                      </span>
+                      </div>
                     </>
                   </div>
                 </TooltipTrigger>

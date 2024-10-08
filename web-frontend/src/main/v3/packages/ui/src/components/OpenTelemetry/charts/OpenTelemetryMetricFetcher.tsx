@@ -45,7 +45,7 @@ export const OpenTelemetryMetricFetcher = ({
     });
   }, [metricDefinition]);
 
-  const { stack, showTotal = true } = metricDefinition;
+  const { stack, showTotal = false } = metricDefinition;
 
   const dataSets =
     data?.metricValues.reduce(
@@ -101,7 +101,7 @@ export const OpenTelemetryMetricFetcher = ({
           },
         }}
         tooltipConfig={{
-          showTotal,
+          showTotal: showTotal || stack,
         }}
       />
     )
