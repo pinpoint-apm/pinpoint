@@ -1,0 +1,3 @@
+#!/bin/sh
+export JAVA_OPTS="-Xms4G -Xmx4G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xlog:gc:./logs/gc-pinot-broker.log"
+"${PINOT_HOME}/bin/pinot-admin.sh" StartBroker -zkAddress zk:2181
