@@ -53,7 +53,7 @@ export const OpenTelemetryChartCommon = ({
         }
         {...restTooltipConfig}
       />
-      <ChartLegend className="block overflow-hidden" content={<ChartLegendContent />} />
+      <ChartLegend content={<ChartLegendContent />} />
     </>
   );
 };
