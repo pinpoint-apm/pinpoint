@@ -47,6 +47,7 @@ export const OpenTelemetryChartCommon = ({
         content={
           <OpenTelemetryChartTooltipContent
             indicator="line"
+            labelFormatter={(label) => xAxisConfig?.tickFormatter?.(label, 0) || ''}
             formatter={yAxisConfig?.tickFormatter}
             showTotal={showTotal}
           />

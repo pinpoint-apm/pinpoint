@@ -1,11 +1,12 @@
-import { format } from 'date-fns';
+import { format, isThisYear, isToday } from 'date-fns';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
-import { usePostOtlpMetricData } from '@pinpoint-fe/hooks';
+import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/hooks';
 import { getFormat } from '@pinpoint-fe/utils';
 import { COLORS } from './constant';
 import { ChartDataConfig, OpenTelemetryChart } from './OpenTelemetryChart';
 import { getRandomColorInHSL } from '../../../lib/colors';
 import React from 'react';
+import { OpenTelemetryTick } from './OpenTelemetryTick';
 
 export interface OpenTelemetryMetricFetcherProps {
   metricDefinition: OtlpMetricDefUserDefined.Metric & {
@@ -19,6 +20,7 @@ export const OpenTelemetryMetricFetcher = ({
   dashboardId,
 }: OpenTelemetryMetricFetcherProps) => {
   const { mutate, data } = usePostOtlpMetricData();
+  const { dateRange } = useOpenTelemetrySearchParameters();
 
   React.useEffect(() => {
     const {
@@ -40,10 +42,10 @@ export const OpenTelemetryMetricFetcher = ({
       aggregationFunction,
       fieldNameList,
       primaryForFieldAndTagRelation,
-      from: 0,
-      to: 0,
+      from: dateRange?.from.getTime(),
+      to: dateRange?.to.getTime(),
     });
-  }, [metricDefinition]);
+  }, [dateRange, metricDefinition]);
 
   const { stack, showTotal = false } = metricDefinition;
 
@@ -89,7 +91,16 @@ export const OpenTelemetryMetricFetcher = ({
         chartDataConfig={chartConfig}
         xAxisConfig={{
           dataKey: 'timestamp',
-          tickFormatter: (value) => `${format(value, 'HH:mm')}`,
+          tick: OpenTelemetryTick,
+          tickFormatter: (value) => {
+            if (isToday(value)) {
+              return format(value, 'HH:mm');
+            }
+            if (isThisYear(value)) {
+              return `${format(value, 'MM.dd')}\n${format(value, 'HH:mm')}`;
+            }
+            return `${format(value, 'yyyy.MM.dd')}\n${format(value, 'HH:mm')}`;
+          },
         }}
         yAxisConfig={{
           tickFormatter: (value) => getFormat(data.unit)(value),
