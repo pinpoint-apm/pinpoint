@@ -16,23 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import io.grpc.stub.ClientResponseObserver;
-
 /**
  * @author Taejin Koo
  */
-public interface GrpcProfilerStreamSocket<Req, Res> {
+public interface GrpcProfilerStreamSocket<Req> {
 
-    void send(Req send);
+    boolean send(Req send);
 
     void close();
 
     void close(Throwable throwable);
 
-    void disconnect();
-
-    void disconnect(Throwable throwable);
-
-    ClientResponseObserver<Req, Res> getResponseObserver();
 
 }

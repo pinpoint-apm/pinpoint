@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadCountServic
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadDumpService;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadLightDumpService;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcEchoService;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcStreamService;
 import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.ClientInterceptor;
@@ -166,12 +167,16 @@ public class AgentGrpcDataSenderProvider implements Provider<AsyncDataSender<Met
 
         profilerCommandLocatorBuilder.addService(new GrpcEchoService());
         if (activeTraceRepository != null) {
-            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadCountService(activeTraceRepository));
+            GrpcActiveThreadCountService grpcActiveThreadCountService = newActiveThreadCountService(activeTraceRepository);
+            profilerCommandLocatorBuilder.addService(grpcActiveThreadCountService);
             profilerCommandLocatorBuilder.addService(new GrpcActiveThreadDumpService(activeTraceRepository, threadDumpMapper));
             profilerCommandLocatorBuilder.addService(new GrpcActiveThreadLightDumpService(activeTraceRepository, threadDumpMapper));
         }
+        return profilerCommandLocatorBuilder.build();
+    }
 
-        final ProfilerCommandServiceLocator commandServiceLocator = profilerCommandLocatorBuilder.build();
-        return commandServiceLocator;
+    private GrpcActiveThreadCountService newActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
+        GrpcStreamService grpcStreamService = new GrpcStreamService("ActiveThreadCountService", GrpcStreamService.DEFAULT_FLUSH_DELAY, activeTraceRepository);
+        return new GrpcActiveThreadCountService(grpcStreamService);
     }
 }

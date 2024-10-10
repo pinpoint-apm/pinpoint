@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.sender.grpc;
+package com.navercorp.pinpoint.grpc.stream;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
+
+import java.util.function.Consumer;
 
 
 /**
@@ -28,15 +29,36 @@ public final class StreamUtils {
     private StreamUtils() {
     }
 
-    public static void close(final StreamObserver<?> streamObserver, Logger logger) {
+    public static void onCompleted(final StreamObserver<?> streamObserver) {
+        onCompleted(streamObserver, null);
+    }
+
+    public static void onCompleted(final StreamObserver<?> streamObserver, Consumer<Throwable> consumer) {
         if (streamObserver != null) {
             try {
                 streamObserver.onCompleted();
             } catch (Throwable th) {
-                if (logger != null) {
-                    logger.info("StreamObserver.onCompleted error", th);
+                 if (consumer != null) {
+                    consumer.accept(th);
                 }
             }
+        }
+    }
+
+    public static void onError(final StreamObserver<?> streamObserver, Throwable t) {
+        onError(streamObserver, t, null);
+    }
+
+    public static void onError(final StreamObserver<?> streamObserver, Throwable t, Consumer<Throwable> consumer) {
+        if (streamObserver != null) {
+            try {
+                streamObserver.onError(t);
+            } catch (Throwable th) {
+                if (consumer != null) {
+                    consumer.accept(th);
+                }
+            }
+
         }
     }
 }
