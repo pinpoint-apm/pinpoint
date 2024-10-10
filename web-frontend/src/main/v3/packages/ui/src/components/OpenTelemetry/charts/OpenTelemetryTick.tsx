@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const OpenTelemetryTick = (props: any) => {
   const { payload, tickFormatter, x, y } = props;
   const tickString = tickFormatter?.(payload?.value) || '';

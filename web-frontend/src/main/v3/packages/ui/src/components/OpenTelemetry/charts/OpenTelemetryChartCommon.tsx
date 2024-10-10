@@ -19,13 +19,12 @@ export interface OpenTelemetryChartCommonProps {
   tooltipConfig?: TooltipProps<number, string> & { showTotal?: boolean };
 }
 
-export const OpenTelemetryChartCommon = ({
-  gridConfig,
-  xAxisConfig,
-  yAxisConfig,
-  tooltipConfig,
-}: OpenTelemetryChartCommonProps) => {
+export const OpenTelemetryChartCommon = (
+  { gridConfig, xAxisConfig, yAxisConfig, tooltipConfig }: OpenTelemetryChartCommonProps,
+  chartContainerRef: React.RefObject<HTMLDivElement>,
+) => {
   const { showTotal, ...restTooltipConfig } = tooltipConfig || {};
+  const chartWidth = chartContainerRef?.current?.offsetWidth || 392;
 
   return (
     <>
@@ -50,6 +49,7 @@ export const OpenTelemetryChartCommon = ({
             labelFormatter={(label) => xAxisConfig?.tickFormatter?.(label, 0) || ''}
             formatter={yAxisConfig?.tickFormatter}
             showTotal={showTotal}
+            chartWidth={chartWidth}
           />
         }
         {...restTooltipConfig}
