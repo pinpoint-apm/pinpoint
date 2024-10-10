@@ -23,7 +23,8 @@
     "baseUrl": "./src",
     "paths": {
       // "@/*": ["*"]
-    }
+    },
+    "sourceMap": true
   },
   "include": ["src"],
   "exclude": ["dist", "build", "node_modules", "**/*.stories.tsx"],
