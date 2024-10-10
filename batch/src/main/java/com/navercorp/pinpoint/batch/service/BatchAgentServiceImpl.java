@@ -29,14 +29,14 @@ import java.util.Objects;
 public class BatchAgentServiceImpl implements BatchAgentService {
 
     private final ApplicationIndexDao applicationIndexDao;
-    private final ActiveAgentValidator activeAgentService;
+    private final ActiveAgentValidator activeAgentValidator;
 
     public BatchAgentServiceImpl(
             ApplicationIndexDao applicationIndexDao,
-            ActiveAgentValidator activeAgentService
+            ActiveAgentValidator activeAgentValidator
     ) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.activeAgentService = Objects.requireNonNull(activeAgentService, "activeAgentService");
+        this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class BatchAgentServiceImpl implements BatchAgentService {
 
     @Override
     public boolean isActive(String agentId, Range range) {
-        return this.activeAgentService.isActiveAgent(agentId, range);
+        return this.activeAgentValidator.isActiveAgent(agentId, range);
     }
 
     @Override
