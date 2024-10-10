@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.vo.agent;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import java.util.Objects;
 
 /**
@@ -49,6 +51,10 @@ public class AgentInfoFilters {
             if (agentInfo == null) {
                 return false;
             }
+            if (agentInfo.getServiceType() == null || agentInfo.getServiceType() == ServiceType.UNKNOWN_GROUP) {
+                return true;
+            }
+
             if (serviceTypeCode != null) {
                 return agentInfo.getServiceType().getCode() == serviceTypeCode;
             }
