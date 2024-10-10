@@ -65,15 +65,21 @@ export const OpenTelemetryChart = ({
     return chartDataConfig[dataKey].stack ? uniqueId : undefined;
   };
 
+  const chartContainerRef = React.useRef<HTMLDivElement>(null);
+
   return (
-    <ChartContainer config={chartDataConfig} className="w-full h-full p-1.5 aspect-auto">
+    <ChartContainer
+      config={chartDataConfig}
+      className="w-full h-full p-1.5 aspect-auto"
+      ref={chartContainerRef}
+    >
       <ChartComponent
         accessibilityLayer
         data={chartData}
         margin={{ right: 12 }}
         syncId={dashboardId}
       >
-        {OpenTelemetryChartCommon(chartCommonProps)}
+        {OpenTelemetryChartCommon(chartCommonProps, chartContainerRef)}
         {dataKeys.map((key) => (
           <ChartChildComponent
             key={key}
