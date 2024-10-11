@@ -119,7 +119,11 @@ public class PingStreamContext {
                         @Override
                         public void run() {
                             PPing pPing = newPing();
-                            requestStream.onNext(pPing);
+                            if (requestStream.isReady()) {
+                                requestStream.onNext(pPing);
+                            } else {
+                                logger.debug("{} ping fail. client is not ready", streamId);
+                            }
                         }
                     };
 
