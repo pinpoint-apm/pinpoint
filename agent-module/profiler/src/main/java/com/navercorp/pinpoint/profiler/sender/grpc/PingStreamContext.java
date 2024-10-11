@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PPing;
@@ -24,7 +24,6 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
-import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,11 +42,12 @@ public class PingStreamContext {
     // for debug
     private final StreamId streamId;
 
-    private final StreamObserver<PPing> requestObserver;
+    private ClientCallStateStreamObserver<PPing> requestStream;
     private final PingClientResponseObserver responseObserver;
     private final Reconnector reconnector;
 
     private final ScheduledExecutorService retransmissionExecutor;
+    private volatile boolean closed = false;
 
     public PingStreamContext(AgentGrpc.AgentStub agentStub,
                              Reconnector reconnector,
@@ -60,12 +60,16 @@ public class PingStreamContext {
         this.retransmissionExecutor = Objects.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
         // WARNING
         this.responseObserver = new PingClientResponseObserver();
-        this.requestObserver = agentStub.pingSession(responseObserver);
+
+        agentStub.pingSession(responseObserver);
     }
 
     private PPing newPing() {
-        PPing.Builder builder = PPing.newBuilder();
-        return builder.build();
+        return PPing.getDefaultInstance();
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 
 
@@ -74,8 +78,7 @@ public class PingStreamContext {
 
         @Override
         public void onNext(PPing ping) {
-            logger.info("{} success:{}", streamId, MessageFormatUtils.debugLog(ping));
-
+            logger.info("Ping Response {}", streamId);
         }
 
 
@@ -84,16 +87,29 @@ public class PingStreamContext {
             final Status status = Status.fromThrowable(t);
             Metadata metadata = Status.trailersFromThrowable(t);
 
-            logger.info("Failed to ping stream, streamId={}, {} {}", streamId, status, metadata);
+            logger.info("onError PingResponse {}, {} {}", streamId, status, metadata);
 
-            cancelPingScheduler();
-            PingStreamContext.this.reconnector.reconnect();
+            dispose();
+
+            if (requestStream.isRun()) {
+                StreamUtils.onCompleted(requestStream, (th) -> logger.info("PingStreamContext.onError", th));
+            }
         }
 
 
         @Override
         public void onCompleted() {
-            logger.info("{} completed", streamId);
+            logger.info("onCompleted {}", streamId);
+
+            dispose();
+
+            if (requestStream.isRun()) {
+                StreamUtils.onCompleted(requestStream, (th) -> logger.info("PingStreamContext.onCompleted", th));
+            }
+        }
+
+        private void dispose() {
+            closed = true;
             cancelPingScheduler();
             PingStreamContext.this.reconnector.reconnect();
         }
@@ -107,12 +123,25 @@ public class PingStreamContext {
             }
         }
 
+        private void registerSchedulerFuture(ScheduledFuture<?> pingScheduler) {
+            synchronized (this) {
+                final ScheduledFuture<?> copy = this.pingScheduler;
+                if (copy != null) {
+                    logger.info("registerSchedulerFuture : Cancel pingScheduler {}", streamId);
+                    copy.cancel(false);
+                }
+                this.pingScheduler = pingScheduler;
+            }
+        }
+
         @Override
-        public void beforeStart(final ClientCallStreamObserver<PPing> requestStream) {
+        public void beforeStart(final ClientCallStreamObserver<PPing> steram) {
+            requestStream = ClientCallStateStreamObserver.clientCall(steram);
+
             requestStream.setOnReadyHandler(new Runnable() {
                 @Override
                 public void run() {
-                    logger.info("{} onReady", streamId);
+                    logger.info("onReadyHandler {}", streamId);
                     PingStreamContext.this.reconnector.reset();
 
                     final Runnable pingRunnable = new Runnable() {
@@ -120,14 +149,17 @@ public class PingStreamContext {
                         public void run() {
                             PPing pPing = newPing();
                             if (requestStream.isReady()) {
+                                if (logger.isTraceEnabled()) {
+                                    logger.trace("Send Ping {}", streamId);
+                                }
                                 requestStream.onNext(pPing);
                             } else {
-                                logger.debug("{} ping fail. client is not ready", streamId);
+                                logger.debug("Send Ping failed. isReady=false {}", streamId);
                             }
                         }
                     };
 
-                    PingClientResponseObserver.this.pingScheduler = schedule(pingRunnable);
+                    registerSchedulerFuture(schedule(pingRunnable));
                 }
             });
         }
@@ -135,7 +167,7 @@ public class PingStreamContext {
 
     private ScheduledFuture<?> schedule(Runnable command) {
         try {
-            return retransmissionExecutor.scheduleAtFixedRate(command, 0, 1,TimeUnit.MINUTES);
+            return retransmissionExecutor.scheduleAtFixedRate(command, 0, 1, TimeUnit.MINUTES);
         } catch (RejectedExecutionException e) {
             logger.info("Ping scheduling failed");
             return null;
@@ -143,8 +175,8 @@ public class PingStreamContext {
     }
 
     public void close() {
-        logger.info("{} close()", streamId);
-        StreamUtils.onCompleted(this.requestObserver, (th) -> this.logger.info("PingStreamContext.close", th));
+        logger.info("close() {}", streamId);
+        StreamUtils.onCompleted(this.requestStream, (th) -> this.logger.info("PingStreamContext.close", th));
     }
 
     @Override
