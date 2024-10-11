@@ -1,6 +1,7 @@
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import React from 'react';
+import { useBlocker } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
@@ -32,6 +33,8 @@ import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { DashBoard } from '../../Dashboard/DashBoard';
 import { MetricDefinitionSheet } from '../definition/MetricDefinitionSheet';
 import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
+import { OpenTelemetryAlertDialog } from './OpenTelemetryAlertDialog';
+import { isEqual, sortBy } from 'lodash';
 
 export interface OpenTelemetryDashboardFetcherProps {}
 
@@ -40,7 +43,10 @@ export const OpenTelemetryDashboardFetcher = () => {
   const applicationName = application?.applicationName || '';
   const { t } = useTranslation();
   const { data, refetch } = useGetOtlpMetricDefUserDefined();
-  const metrics = data?.appMetricDefinitionList;
+  const metrics = React.useMemo(
+    () => sortBy(data?.appMetricDefinitionList, ['layout.y', 'layout.x']),
+    [data],
+  );
   const { mutate: updateMetrics, isPending } = usePatchOtlpMetricDefUserDefined({
     onSuccess: (res) => {
       if (res.result === 'SUCCESS') {
@@ -58,8 +64,10 @@ export const OpenTelemetryDashboardFetcher = () => {
   const [state, setState] = React.useState<{
     layouts: ReactGridLayout.Layouts;
   }>({
-    layouts: { sm: [] },
+    layouts: { sm: [], xxs: [] },
   });
+  const prevLayouts = React.useRef<ReactGridLayout.Layouts>();
+  const [isChanged, setIsChanged] = React.useState(false);
 
   const updateMetricsWithToastMessage = (
     props: Parameters<typeof updateMetrics>[0],
@@ -82,29 +90,72 @@ export const OpenTelemetryDashboardFetcher = () => {
   };
 
   // grid-layout 변경 시 사용
-  const onLayoutChange = (layouts: ReactGridLayout.Layout[], layout: ReactGridLayout.Layouts) => {
-    console.log('layouts', layouts, layout);
+  const onLayoutChange = (
+    currentLayout: ReactGridLayout.Layout[],
+    allLayouts: ReactGridLayout.Layouts,
+  ) => {
+    console.log('layouts', currentLayout, allLayouts);
     setState((prev) => ({
       ...prev,
-      layouts: layout,
+      layouts: allLayouts,
     }));
   };
 
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isChanged && currentLocation.pathname !== nextLocation.pathname,
+  );
+
+  React.useEffect(() => {
+    const layoutForCompare = state?.layouts?.sm?.map((l) => {
+      return {
+        i: l?.i,
+        x: l?.x,
+        y: l?.y,
+        w: l?.w,
+        h: l?.h,
+      };
+    });
+    setIsChanged(!isEqual(layoutForCompare, prevLayouts.current?.sm));
+  }, [state]);
+
+  React.useEffect(() => {
+    const handleBeforeUnload = (event: Event) => {
+      event.preventDefault();
+      event.returnValue = false; // Chrome requires returnValue to be set.
+    };
+    const onPreventLeave = () => {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    };
+    const offPreventLeave = () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+    const fn = isChanged ? onPreventLeave : offPreventLeave;
+    fn();
+    return () => {
+      offPreventLeave();
+    };
+  }, [isChanged]);
+
   React.useEffect(() => {
     if (metrics && metrics?.length > 0) {
+      const newLayouts = {
+        sm: metrics?.map((metric) => {
+          const metricLayout = metric.layout;
+          return {
+            i: metric.id || '',
+            x: metricLayout.x,
+            y: metricLayout.y,
+            w: metricLayout.w,
+            h: metricLayout.h,
+          };
+        }),
+      };
+
+      prevLayouts.current = newLayouts;
+
       setState({
-        layouts: {
-          sm: metrics.map((metric) => {
-            const metricLayout = metric.layout;
-            return {
-              i: metric.id || '',
-              x: metricLayout.x,
-              y: metricLayout.y,
-              w: metricLayout.w,
-              h: metricLayout.h,
-            };
-          }),
-        },
+        layouts: newLayouts,
       });
     }
   }, [metrics]);
@@ -266,6 +317,11 @@ export const OpenTelemetryDashboardFetcher = () => {
         onCancel={() => {
           setCurrentEditingTarget(undefined);
         }}
+      />
+      <OpenTelemetryAlertDialog
+        open={isChanged && blocker?.state === 'blocked'}
+        onCancel={() => blocker?.reset?.()}
+        onContinue={() => blocker?.proceed?.()}
       />
     </div>
   );
