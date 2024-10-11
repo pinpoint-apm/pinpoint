@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.metric.common.dao.TableNameManager;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
@@ -30,6 +31,8 @@ import java.util.concurrent.TimeUnit;
  * @author minwoo-jung
  */
 public class OtlpMetricDataQueryParameter extends QueryParameter {
+
+    private final String tableName;
     private final String serviceId;
     private final String applicationId;
     private final String agentId;
@@ -61,6 +64,7 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
 
     protected OtlpMetricDataQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
+        this.tableName = builder.createTableName();
         this.serviceId = builder.serviceId;
         this.applicationId = builder.applicationId;
         this.agentId = builder.agentId;
@@ -87,6 +91,8 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
         private AggregationFunction aggregationFunction;
         private int dataType;
         private TimeWindow timeWindow;
+        private TableNameManager longTableNameManager;
+        private TableNameManager doubleTableNameManager;
 
         @Override
         protected Builder self() {
@@ -163,6 +169,24 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
             return self();
         }
 
+        public String createTableName() {
+            if (dataType == DataType.LONG.getNumber()) {
+                return longTableNameManager.getTableName(this.applicationId);
+            } else {
+                return doubleTableNameManager.getTableName(this.applicationId);
+            }
+        }
+
+        public Builder setDoubleTableNameManager(TableNameManager doubleTableNameManager) {
+            this.doubleTableNameManager = doubleTableNameManager;
+            return self();
+        }
+
+        public Builder setLongTableNameManager(TableNameManager longTableNameManager) {
+            this.longTableNameManager = longTableNameManager;
+            return self();
+        }
+
         @Override
         public OtlpMetricDataQueryParameter build() {
             if (timeWindow == null) {
@@ -176,13 +200,15 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
     @Override
     public String toString() {
         return "OtlpMetricDataQueryParameter{" +
-                "serviceId='" + serviceId + '\'' +
+                "tableName='" + tableName + '\'' +
+                ", serviceId='" + serviceId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", metricGroupName='" + metricGroupName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
                 ", tags=" + tags +
+                ", rawTags='" + rawTags + '\'' +
                 ", version='" + version + '\'' +
                 ", aggregationFunction=" + aggregationFunction +
                 ", dataType=" + dataType +

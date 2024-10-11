@@ -16,26 +16,24 @@
 
 package com.navercorp.pinpoint.otlp.collector;
 
+import com.navercorp.pinpoint.otlp.collector.config.OtlpMetricPropertySources;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @Import({
-        WebMvcConfig.class,
         PinotConfiguration.class,
-        OtlpMetricKafkaConfiguration.class})
+        OtlpMetricPropertySources.class})
 @ComponentScan({
+        "com.navercorp.pinpoint.otlp.collector.config",
         "com.navercorp.pinpoint.otlp.collector.controller",
         "com.navercorp.pinpoint.otlp.collector.dao",
         "com.navercorp.pinpoint.otlp.collector.service",
         "com.navercorp.pinpoint.otlp.collector.mapper",
 })
-@PropertySource({OtlpMetricCollectorConfig.KAFKA_TOPIC_PROPERTIES})
 @ConditionalOnProperty(name = "pinpoint.modules.collector.otlpmetric.enabled", havingValue = "true")
 public class OtlpMetricCollectorConfig {
-    public static final String KAFKA_TOPIC_PROPERTIES = "classpath:profiles/${pinpoint.profiles.active}/kafka-topic-otlpmetric.properties";
 }

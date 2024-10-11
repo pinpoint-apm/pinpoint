@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.dao.pinot;
+package com.navercorp.pinpoint.metric.common.dao;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,21 +23,21 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author minwoo-jung
  */
-class AgentStatTableNameManagerTest {
+class TableNameManagerTest {
 
     @Test
-    public void getAgentStatTableNameTest() {
+    public void getTableNameTest() {
         String topicPrefix = "inspectorStatAgent";
-        AgentStatTableNameManager agentStatTableNameManager = new AgentStatTableNameManager(topicPrefix, 2);
-        String agentStatTopicName = agentStatTableNameManager.getAgentStatTableName("testApplication", 16);
+        TableNameManager tableNameManager = new TableNameManager(topicPrefix, 2, 16);
+        String agentStatTopicName = tableNameManager.getTableName("testApplication");
         assertEquals(topicPrefix + "06", agentStatTopicName);
     }
 
     @Test
-    public void getAgentStatTableNameTest2() {
+    public void getTableNameTest2() {
         String topicPrefix = "inspectorStatAgent";
-        AgentStatTableNameManager agentStatTableNameManager = new AgentStatTableNameManager(topicPrefix, 3);
-        String agentStatTopicName = agentStatTableNameManager.getAgentStatTableName("testApplication", 16);
+        TableNameManager tableNameManager = new TableNameManager(topicPrefix, 3, 16);
+        String agentStatTopicName = tableNameManager.getTableName("testApplication");
         assertEquals(topicPrefix + "006", agentStatTopicName);
     }
 

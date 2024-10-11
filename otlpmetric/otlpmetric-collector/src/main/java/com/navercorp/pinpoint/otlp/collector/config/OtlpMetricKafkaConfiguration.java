@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.collector;
+package com.navercorp.pinpoint.otlp.collector.config;
 
-import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricDataRow;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricDoubleData;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricLongData;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricMetadata;

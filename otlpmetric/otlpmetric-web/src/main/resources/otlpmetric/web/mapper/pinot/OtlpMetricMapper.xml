@@ -247,7 +247,7 @@
         <if test="aggregationFunction.getCode() == 4">
             LASTWITHTIME(value, eventTime, 'long') as value
         </if>
-        FROM otlpMetricLong
+        FROM ${tableName}
         WHERE
         applicationId = #{applicationId}
         <if test="agentId != null">
@@ -284,7 +284,7 @@
         <if test="aggregationFunction.getCode() == 4">
             LASTWITHTIME(value, eventTime, 'double') as value
         </if>
-        FROM otlpMetricDouble
+        FROM ${tableName}
         WHERE
         applicationId = #{applicationId}
         <if test="agentId != null">

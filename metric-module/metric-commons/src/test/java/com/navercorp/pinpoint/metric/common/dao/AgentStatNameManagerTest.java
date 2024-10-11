@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.dao.pinot;
+package com.navercorp.pinpoint.metric.common.dao;
 
 import org.apache.kafka.clients.producer.internals.BuiltInPartitioner;
 import org.apache.kafka.common.serialization.StringSerializer;

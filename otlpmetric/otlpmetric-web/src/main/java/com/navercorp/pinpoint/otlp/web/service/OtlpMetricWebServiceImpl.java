@@ -4,15 +4,17 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.metric.common.dao.TableNameManager;
 import com.navercorp.pinpoint.metric.common.util.TimeUtils;
-import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
+import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import com.navercorp.pinpoint.otlp.common.util.DoubleUncollectedDataCreator;
 import com.navercorp.pinpoint.otlp.common.util.TimeSeriesBuilder;
 import com.navercorp.pinpoint.otlp.common.web.defined.PrimaryForFieldAndTagRelation;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.common.web.model.MetricValue;
+import com.navercorp.pinpoint.otlp.web.config.pinot.OtlpMetricPinotTableProperties;
 import com.navercorp.pinpoint.otlp.web.dao.OtlpMetricDao;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartFieldView;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartView;
@@ -43,10 +45,16 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
 
     @NotNull private final OtlpMetricDao otlpMetricDao;
+    @NotNull private final TableNameManager doubleTopicNameManager;
+    @NotNull private final TableNameManager longTopicNameManager;
 
 
-    public OtlpMetricWebServiceImpl(@Valid OtlpMetricDao otlpMetricDao) {
+    public OtlpMetricWebServiceImpl(@Valid OtlpMetricDao otlpMetricDao, OtlpMetricPinotTableProperties otlpMetricPinotTableProperties) {
         this.otlpMetricDao = Objects.requireNonNull(otlpMetricDao, "otlpMetricDao");
+
+        Objects.requireNonNull(otlpMetricPinotTableProperties, "otlpMetricWebProperties");
+        this.doubleTopicNameManager = new TableNameManager(otlpMetricPinotTableProperties.getDoubleTopicPrefix(), otlpMetricPinotTableProperties.getDoubleTopicPaddingLength(), otlpMetricPinotTableProperties.getDoubleTopicCount());
+        this.longTopicNameManager = new TableNameManager(otlpMetricPinotTableProperties.getLongTopicPrefix(), otlpMetricPinotTableProperties.getLongTopicPaddingLength(), otlpMetricPinotTableProperties.getLongTopicCount());
     }
 
     @Deprecated
@@ -118,6 +126,15 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
         return chartViewBuilder.legacyBuild();
     }
 
+    @Deprecated
+    private OtlpMetricChartQueryParameter setupQueryParameter(OtlpMetricChartQueryParameter.Builder builder, FieldAttribute field) {
+        return builder.setFieldName(field.fieldName())
+                .setAggregationFunction(field.aggregationFunction())
+                .setDataType(field.dataType())
+                .setVersion(field.version())
+                .build();
+    }
+
     public MetricData getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation, List<String> tagGroupList, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow) {
         List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationName, agentId, metricGroupName, metricName, tagGroupList, fieldNameList);
 
@@ -125,6 +142,8 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                 new OtlpMetricDataQueryParameter.Builder()
                         .setServiceId(serviceId)
                         .setApplicationId(applicationName)
+                        .setDoubleTableNameManager(doubleTopicNameManager)
+                        .setLongTableNameManager(longTopicNameManager)
                         .setAgentId(agentId)
                         .setMetricGroupName(metricGroupName)
                         .setMetricName(metricName)
@@ -185,16 +204,6 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
 //                        chartFieldView.setSummaryField(key.aggreFunc().name(), value);
 //                    }
 //                }
-    }
-
-
-    @Deprecated
-    private OtlpMetricChartQueryParameter setupQueryParameter(OtlpMetricChartQueryParameter.Builder builder, FieldAttribute field) {
-        return builder.setFieldName(field.fieldName())
-                .setAggregationFunction(field.aggregationFunction())
-                .setDataType(field.dataType())
-                .setVersion(field.version())
-                .build();
     }
 
     private List<OtlpMetricDataQueryParameter> setupQueryParameterList(OtlpMetricDataQueryParameter.Builder builder, List<FieldAttribute> fields, List<String> tagGroupList, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation) {

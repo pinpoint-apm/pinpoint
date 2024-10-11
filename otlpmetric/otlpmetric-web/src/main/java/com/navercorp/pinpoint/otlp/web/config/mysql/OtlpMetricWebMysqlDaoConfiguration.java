@@ -45,7 +45,7 @@ public class OtlpMetricWebMysqlDaoConfiguration {
     public FactoryBean<SqlSessionFactory> otlpMysqlSqlSessionFactory(
             @Qualifier("myBatisConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("dataSource") DataSource dataSource,
-            @Value("classpath*:otlp/web/mapper/mysql/*Mapper.xml") Resource[] mappers,
+            @Value("classpath*:otlpmetric/web/mapper/mysql/*Mapper.xml") Resource[] mappers,
             BindingLogPlugin bindingLogPlugin) {
 
         for (Resource mapper : mappers) {

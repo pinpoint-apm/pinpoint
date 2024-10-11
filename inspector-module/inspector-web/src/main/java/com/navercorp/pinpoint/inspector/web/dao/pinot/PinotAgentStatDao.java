@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.dao.pinot;
 
-import com.navercorp.pinpoint.common.dao.pinot.AgentStatTableNameManager;
+import com.navercorp.pinpoint.metric.common.dao.TableNameManager;
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;
@@ -45,15 +45,13 @@ public class PinotAgentStatDao implements AgentStatDao {
     private static final String NAMESPACE = PinotAgentStatDao.class.getName() + ".";
     private final PinotAsyncTemplate asyncTemplate;
     private final SqlSessionTemplate syncTemplate;
-    private final int agentStatTopicCount;
-    private final AgentStatTableNameManager agentStatTableNameManager;
+    private final TableNameManager tableNameManager;
 
     public PinotAgentStatDao(@Qualifier("inspectorPinotAsyncTemplate") PinotAsyncTemplate asyncTemplate, @Qualifier("inspectorPinotTemplate") SqlSessionTemplate syncTemplate, InspectorWebProperties inspectorWebProperties) {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
         this.syncTemplate = Objects.requireNonNull(syncTemplate, "syncTemplate");
         Objects.requireNonNull(inspectorWebProperties, "inspectorWebProperties");
-        this.agentStatTopicCount = inspectorWebProperties.getAgentStatTableCount();
-        this.agentStatTableNameManager = new AgentStatTableNameManager(inspectorWebProperties.getAgentStatTablePrefix(), inspectorWebProperties.getAgentStatTablePaddingLength());
+        this.tableNameManager = new TableNameManager(inspectorWebProperties.getAgentStatTablePrefix(), inspectorWebProperties.getAgentStatTablePaddingLength(), inspectorWebProperties.getAgentStatTableCount());
     }
 
     @Override
@@ -94,6 +92,6 @@ public class PinotAgentStatDao implements AgentStatDao {
     }
 
     private String getTableName(InspectorDataSearchKey inspectorDataSearchKey) {
-        return agentStatTableNameManager.getAgentStatTableName(inspectorDataSearchKey.getApplicationName(), agentStatTopicCount);
+        return tableNameManager.getTableName(inspectorDataSearchKey.getApplicationName());
     }
 }

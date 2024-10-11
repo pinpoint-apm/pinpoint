@@ -14,26 +14,38 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.dao.pinot;
+package com.navercorp.pinpoint.metric.common.dao;
+
+import org.apache.kafka.common.utils.Utils;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author minwoo-jung
  */
-public class AgentStatTopicNameManager extends AgentStatNameManager {
+public class TableNameManager {
 
-    private final String topicPrefix;
+    private final String tablePrefix;
     private final String numberFormat;
+    private final int count;
 
-    public AgentStatTopicNameManager(String topicPrefix, int paddingLength) {
-        this.topicPrefix = topicPrefix;
+    public TableNameManager(String tablePrefix, int paddingLength, int count) {
+        this.tablePrefix = tablePrefix;
         this.numberFormat = "%0" + String.valueOf(paddingLength) + "d";
+        this.count = count;
     }
 
-    public String getAgentStatTopicName(String applicationName, int agentStatTopicCount) {
-        int hashValue = getHashValue(applicationName, agentStatTopicCount);
+    public String getTableName(String applicationName) {
+        int hashValue = getHashValue(applicationName);
         String postfix = String.format(numberFormat, hashValue);
         StringBuilder sb = new StringBuilder();
-        sb.append(topicPrefix).append(postfix);
+        sb.append(tablePrefix).append(postfix);
         return sb.toString();
     }
+
+    protected int getHashValue(String applicationName) {
+        int hash = Utils.murmur2(applicationName.getBytes(StandardCharsets.UTF_8));
+        return Utils.toPositive(hash) % count;
+    }
+
 }
