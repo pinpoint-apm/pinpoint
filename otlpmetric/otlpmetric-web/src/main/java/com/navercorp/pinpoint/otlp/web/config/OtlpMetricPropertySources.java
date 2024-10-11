@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.dao.pinot;
+package com.navercorp.pinpoint.otlp.web.config;
 
-import org.apache.kafka.common.utils.Utils;
-
-import java.nio.charset.StandardCharsets;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 /**
  * @author minwoo-jung
  */
-public class AgentStatNameManager {
-    protected int getHashValue(String applicationName, int agentStatTopicCount) {
-        int hash = Utils.murmur2(applicationName.getBytes(StandardCharsets.UTF_8));
-        return Utils.toPositive(hash) % agentStatTopicCount;
-    }
+@PropertySources({
+        @PropertySource(name = "OtlpMetricPropertySources-WEB", value = { OtlpMetricPropertySources.WEB_CONFIG}),
+})
+public class OtlpMetricPropertySources {
+    public static final String WEB_CONFIG = "classpath:otlpmetric/web/profiles/${pinpoint.profiles.active:release}/otlpmetric-web.properties";
 }

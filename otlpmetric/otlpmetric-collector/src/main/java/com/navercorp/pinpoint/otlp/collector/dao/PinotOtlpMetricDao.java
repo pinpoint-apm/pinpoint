@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.otlp.collector.dao;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricDataRow;
+import com.navercorp.pinpoint.metric.common.dao.TopicNameManager;
+import com.navercorp.pinpoint.otlp.collector.config.OtlpMetricCollectorProperties;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricDoubleData;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricLongData;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricMetadata;
@@ -27,12 +28,10 @@ import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -46,8 +45,8 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     @NotNull private final KafkaTemplate<String, PinotOtlpMetricDoubleData> kafkaOtlpDoubleMetricTemplate;
 
     @NotBlank private final String metadataTopic;
-    @NotBlank private final String doubleTopic;
-    @NotBlank private final String longTopic;
+    private final TopicNameManager doubleTopicNameManager;
+    private final TopicNameManager longTopicNameManager;
 
     private final BiConsumer<SendResult<String, PinotOtlpMetricMetadata>, Throwable> metadataResultCallback
             = KafkaCallbacks.loggingCallback("Kafka(OtlpMetric-metadata)", logger);
@@ -59,15 +58,15 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     public PinotOtlpMetricDao(@Qualifier("kafkaOtlpMetadataTemplate") KafkaTemplate<String, PinotOtlpMetricMetadata> kafkaOtlpMetadataTemplate,
                               @Qualifier("kafkaOtlpLongMetricTemplate") KafkaTemplate<String, PinotOtlpMetricLongData> kafkaOtlpLongMetricTemplate,
                               @Qualifier("kafkaOtlpDoubleMetricTemplate") KafkaTemplate<String, PinotOtlpMetricDoubleData> kafkaOtlpDoubleMetricTemplate,
-                              @Value("${kafka.otlpmetric.topic.metadata}") String metadataTopic,
-                              @Value("${kafka.otlpmetric.topic.double}") String doubleTopic,
-                              @Value("${kafka.otlpmetric.topic.long}") String longTopic) {
+                              OtlpMetricCollectorProperties otlpMetricCollectorProperties) {
         this.kafkaOtlpMetadataTemplate = Objects.requireNonNull(kafkaOtlpMetadataTemplate, "kafkaOtlpMetadataTemplate");
         this.kafkaOtlpLongMetricTemplate = Objects.requireNonNull(kafkaOtlpLongMetricTemplate, "kafkaOtlpLongMetricTemplate");
         this.kafkaOtlpDoubleMetricTemplate = Objects.requireNonNull(kafkaOtlpDoubleMetricTemplate, "kafkaOtlpDoubleMetricTemplate");
-        this.metadataTopic = StringPrecondition.requireHasLength(metadataTopic, "metadataTopic");
-        this.doubleTopic = StringPrecondition.requireHasLength(doubleTopic, "doubleTopic");
-        this.longTopic = StringPrecondition.requireHasLength(longTopic, "longTopic");
+
+        Objects.requireNonNull(otlpMetricCollectorProperties, "otlpMetricCollectorProperties");
+        this.metadataTopic = StringPrecondition.requireHasLength(otlpMetricCollectorProperties.getMetadataTopicName(), "metadataTopic");
+        this.doubleTopicNameManager = new TopicNameManager(otlpMetricCollectorProperties.getDoubleTopicPrefix(), otlpMetricCollectorProperties.getDoubleTopicPaddingLength(), otlpMetricCollectorProperties.getDoubleTopicCount());
+        this.longTopicNameManager = new TopicNameManager(otlpMetricCollectorProperties.getLongTopicPrefix(), otlpMetricCollectorProperties.getLongTopicPaddingLength(), otlpMetricCollectorProperties.getLongTopicCount());
     }
 
     @Override
@@ -80,6 +79,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     @Override
     public void insertDouble(PinotOtlpMetricDoubleData data) {
         Objects.requireNonNull(data);
+        String doubleTopic = doubleTopicNameManager.getTopicName(data.getApplicationId());
         CompletableFuture<SendResult<String, PinotOtlpMetricDoubleData>> response = this.kafkaOtlpDoubleMetricTemplate.send(doubleTopic, data);
         response.whenComplete(doubleResultCallback);
     }
@@ -87,8 +87,8 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     @Override
     public void insertLong(PinotOtlpMetricLongData data) {
         Objects.requireNonNull(data);
+        String longTopic = longTopicNameManager.getTopicName(data.getApplicationId());
         CompletableFuture<SendResult<String, PinotOtlpMetricLongData>> response = this.kafkaOtlpLongMetricTemplate.send(longTopic, data);
         response.whenComplete(longResultCallback);
     }
-
 }

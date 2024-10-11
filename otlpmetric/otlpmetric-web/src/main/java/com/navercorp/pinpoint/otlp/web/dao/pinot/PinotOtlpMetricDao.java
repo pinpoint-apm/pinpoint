@@ -110,6 +110,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
         }
     }
 
+    @Deprecated
     @Override
     public String getSummary(OtlpMetricChartQueryParameter chartQueryParameter) {
         if (chartQueryParameter.getDataType() == DataType.LONG) {

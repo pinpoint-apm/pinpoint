@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.collector.dao.pinot;
 
-import com.navercorp.pinpoint.common.dao.pinot.AgentStatTopicNameManager;
+import com.navercorp.pinpoint.metric.common.dao.TopicNameManager;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorCollectorProperties;
@@ -48,10 +48,9 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     private final Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStatModelFunction;
     private final KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate;
     private final KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate;
-    private final int agentStatTopicCount;
     private final String applicationStatTopicName;
     private final TenantProvider tenantProvider;
-    private final AgentStatTopicNameManager agentStatTopicNameManager;
+    private final TopicNameManager topicNameManager;
 
     public DefaultAgentStatDao(Function<AgentStatBo,
                                List<T>> dataPointFunction,
@@ -67,9 +66,8 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
         this.convertToKafkaAgentStatModelFunction = Objects.requireNonNull(convertToKafkaAgentStatModelFunction, "convertToKafkaAgentStatModelFunction");
         this.convertToKafkaApplicationStatModelFunction = Objects.requireNonNull(convertToKafkaApplicationStatModelFunction, "convertToKafkaApplicationStatModelFunction");
         Objects.requireNonNull(inspectorCollectorProperties, "inspectorCollectorProperties");
-        this.agentStatTopicCount = inspectorCollectorProperties.getAgentStatTopicCount();
         this.applicationStatTopicName = inspectorCollectorProperties.getApplicationStatTopicName();
-        this.agentStatTopicNameManager = new AgentStatTopicNameManager(inspectorCollectorProperties.getAgentStatTopicPrefix(), inspectorCollectorProperties.getAgentStatTopicPaddingLength());
+        this.topicNameManager = new TopicNameManager(inspectorCollectorProperties.getAgentStatTopicPrefix(), inspectorCollectorProperties.getAgentStatTopicPaddingLength(), inspectorCollectorProperties.getAgentStatTopicCount());
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
@@ -80,7 +78,7 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
         };
 
         List<AgentStat> agentStatList = convertToKafkaAgentStatModel(agentStatData);
-        String topicName = agentStatTopicNameManager.getAgentStatTopicName(applicationName, agentStatTopicCount);
+        String topicName = topicNameManager.getTopicName(applicationName);
 
         for (AgentStat agentStat : agentStatList) {
             kafkaAgentStatTemplate.send(topicName, agentStat.getSortKey(), agentStat);

@@ -53,6 +53,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-otlpmetric-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-metric-commons</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
