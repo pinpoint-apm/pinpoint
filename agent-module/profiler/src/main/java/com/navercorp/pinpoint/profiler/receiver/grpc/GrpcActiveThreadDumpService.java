@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.grpc.trace.PActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadDumpCoreServ
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDump;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpRequest;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
+import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,8 +85,10 @@ public class GrpcActiveThreadDumpService implements ProfilerGrpcCommandService {
 
         List<PActiveThreadDump> activeThreadDumpList = getActiveThreadDumpList(commandActiveThreadDump);
         builder.addAllThreadDump(activeThreadDumpList);
+        PCmdActiveThreadDumpRes activeThreadDump = builder.build();
 
-        profilerCommandServiceStub.commandActiveThreadDump(builder.build(), EmptyStreamObserver.create());
+        StreamObserver<Empty> response = ResponseStreamObserver.responseStream("ActiveThreadDumpResponse");
+        profilerCommandServiceStub.commandActiveThreadDump(activeThreadDump, response);
     }
 
     private List<PActiveThreadDump> getActiveThreadDumpList(PCmdActiveThreadDump commandActiveThreadDump) {

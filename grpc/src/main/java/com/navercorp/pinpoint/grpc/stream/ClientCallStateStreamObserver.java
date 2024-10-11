@@ -2,6 +2,8 @@ package com.navercorp.pinpoint.grpc.stream;
 
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -12,6 +14,8 @@ public class ClientCallStateStreamObserver<ReqT> extends ClientCallStreamObserve
     @SuppressWarnings("rawtypes")
     private static final AtomicReferenceFieldUpdater<ClientCallStateStreamObserver, ObserverState> STATE
             = AtomicReferenceFieldUpdater.newUpdater(ClientCallStateStreamObserver.class, ObserverState.class, "state");
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ClientCallStreamObserver<ReqT> delegate;
 
@@ -29,58 +33,67 @@ public class ClientCallStateStreamObserver<ReqT> extends ClientCallStreamObserve
         this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
+    ClientCallStreamObserver<ReqT> delegate() {
+        return delegate;
+    }
+
     @Override
     public void cancel(@Nullable String message, @Nullable Throwable cause) {
-        delegate.cancel(message, cause);
+        delegate().cancel(message, cause);
     }
 
     @Override
     public void disableAutoRequestWithInitial(int request) {
-        delegate.disableAutoRequestWithInitial(request);
+        delegate().disableAutoRequestWithInitial(request);
     }
 
     @Override
     public boolean isReady() {
-        return delegate.isReady();
+        return delegate().isReady();
     }
 
     @Override
     public void setOnReadyHandler(Runnable onReadyHandler) {
-        delegate.setOnReadyHandler(onReadyHandler);
+        delegate().setOnReadyHandler(onReadyHandler);
     }
 
     @Override
     public void request(int count) {
-        delegate.request(count);
+        delegate().request(count);
     }
 
     @Override
     public void setMessageCompression(boolean enable) {
-        delegate.setMessageCompression(enable);
+        delegate().setMessageCompression(enable);
     }
 
     @Override
     public void disableAutoInboundFlowControl() {
-        delegate.disableAutoInboundFlowControl();
+        delegate().disableAutoInboundFlowControl();
     }
 
     @Override
     public void onNext(ReqT value) {
-        delegate.onNext(value);
+        delegate().onNext(value);
     }
 
     @Override
     public void onError(Throwable t) {
         if (ObserverState.changeError(STATE, this)) {
-            delegate.onError(t);
+            delegate().onError(t);
+        } else {
+            // for debugging
+            logger.warn("onError() WARNING. state already changed {}", state);
         }
-
     }
 
     @Override
     public void onCompleted() {
         if (ObserverState.changeComplete(STATE, this)) {
-            delegate.onCompleted();
+            delegate().onCompleted();
+        } else {
+            // for debugging
+            logger.warn("onComplete() WARNING. state already changed {}", state);
         }
     }
 
