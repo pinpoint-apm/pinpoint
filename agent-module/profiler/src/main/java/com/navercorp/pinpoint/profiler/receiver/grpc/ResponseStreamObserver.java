@@ -16,37 +16,48 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.google.protobuf.Empty;
+import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
-public class EmptyStreamObserver implements StreamObserver<Empty> {
+public class ResponseStreamObserver<ResT> implements StreamObserver<ResT> {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    private static final Logger LOGGER = LogManager.getLogger(ResponseStreamObserver.class);
+
+    private final String responseName;
+
+    public ResponseStreamObserver(String responseName) {
+        this.responseName = Objects.requireNonNull(responseName, "responseName");
+    }
 
     @Override
-    public void onNext(Empty value) {
-        logger.info("onNext. message:{}", value);
+    public void onNext(ResT value) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("{} onNext {}", responseName, value.getClass().getSimpleName());
+        }
     }
 
     @Override
     public void onError(Throwable t) {
         Status status = Status.fromThrowable(t);
-        logger.info("onError:{}", status);
+        Metadata metadata = Status.trailersFromThrowable(t);
+        LOGGER.info("{} onError {} {}", responseName, status, metadata);
     }
 
     @Override
     public void onCompleted() {
-        logger.info("onCompleted.");
+        LOGGER.info("{} onCompleted", responseName);
     }
 
-    static StreamObserver<Empty> create() {
-        return new EmptyStreamObserver();
+    public static <ResT> StreamObserver<ResT> responseStream(String responseName) {
+        return new ResponseStreamObserver<>(responseName);
     }
 
 }

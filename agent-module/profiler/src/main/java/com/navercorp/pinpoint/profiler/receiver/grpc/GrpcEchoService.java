@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.PCommandType;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
+import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,8 +45,10 @@ public class GrpcEchoService implements ProfilerGrpcCommandService {
 
         PCmdResponse commonResponse = PCmdResponse.newBuilder().setResponseId(request.getRequestId()).build();
         responseBuilder.setCommonResponse(commonResponse);
+        PCmdEchoResponse echoResponse = responseBuilder.build();
 
-        profilerCommandServiceStub.commandEcho(responseBuilder.build(), EmptyStreamObserver.create());
+        StreamObserver<Empty> response = ResponseStreamObserver.responseStream("EchoResponse");
+        profilerCommandServiceStub.commandEcho(echoResponse, response);
     }
 
     @Override

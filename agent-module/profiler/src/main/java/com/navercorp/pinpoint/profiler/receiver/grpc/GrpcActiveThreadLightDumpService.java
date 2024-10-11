@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.grpc.trace.PActiveThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapper;
 import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadDumpCoreService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDump;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpRequest;
+import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -81,8 +83,10 @@ public class GrpcActiveThreadLightDumpService implements ProfilerGrpcCommandServ
 
         List<PActiveThreadLightDump> activeThreadDumpList = getActiveThreadDumpList(commandActiveThreadLightDump);
         builder.addAllThreadDump(activeThreadDumpList);
+        PCmdActiveThreadLightDumpRes activeThreadLightDump = builder.build();
 
-        profilerCommandServiceStub.commandActiveThreadLightDump(builder.build(), EmptyStreamObserver.create());
+        StreamObserver<Empty> response = ResponseStreamObserver.responseStream("ActiveThreadLightDumpResponse");
+        profilerCommandServiceStub.commandActiveThreadLightDump(activeThreadLightDump, response);
     }
 
     private List<PActiveThreadLightDump> getActiveThreadDumpList(PCmdActiveThreadLightDump commandActiveThreadLightDump) {
