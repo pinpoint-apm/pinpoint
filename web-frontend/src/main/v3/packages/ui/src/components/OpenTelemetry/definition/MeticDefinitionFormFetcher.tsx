@@ -515,7 +515,7 @@ export const MetricDefinitionFormFetcher = ({
                       <Separator className="my-1" />
                     </>
                   )}
-                  <div className="overflow-y-scroll flex flex-col gap-1 py-1">
+                  <div className="flex flex-col gap-1 py-1 overflow-y-scroll">
                     {propertyLegendList?.map((legendItem, i) => {
                       return (
                         <FormField
@@ -547,7 +547,7 @@ export const MetricDefinitionFormFetcher = ({
                                     }}
                                   />
                                 </FormControl>
-                                <FormLabel className="text-sm font-normal w-auto break-all">
+                                <FormLabel className="w-auto text-sm font-normal break-all">
                                   {legendItem?.name}
                                 </FormLabel>
                               </FormItem>

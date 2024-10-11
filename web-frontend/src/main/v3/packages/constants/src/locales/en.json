@@ -36,7 +36,9 @@
     "SUBMIT_FAIL": "Failed to submit.",
     "REMOVE_SUCCESS": "Successfully removed.",
     "TARGET_REMOVE_SUCCESS": "\"{{target}}\" has been deleted.",
-    "REMOVE_FAIL": "Failed to remove."
+    "REMOVE_FAIL": "Failed to remove.",
+    "CONFIRM_LEAVE_PAGE": "Are you sure you want to leave this page?",
+    "CHANGE_NOT_SAVED": "Changes may not be saved if you leave this page."
   },
   "APP_SELECT": {
     "FAVORITE_APP_LIST": "Favorite List",
