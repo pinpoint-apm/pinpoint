@@ -91,6 +91,8 @@
         <module>ktor-plugin-testweb</module>
         <module>closed-module-testweb</module>
         <module>closed-module-testlib</module>
+        <module>spring-boot3-testweb</module>
+        <module>spring-boot3-webflux-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>

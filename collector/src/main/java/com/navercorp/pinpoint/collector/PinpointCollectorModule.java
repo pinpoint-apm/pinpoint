@@ -44,6 +44,7 @@ import org.springframework.context.annotation.Import;
         "com.navercorp.pinpoint.collector.mapper",
         "com.navercorp.pinpoint.collector.util",
         "com.navercorp.pinpoint.collector.service",
+        "com.navercorp.pinpoint.collector.applicationmap.service",
         "com.navercorp.pinpoint.collector.controller",
 })
 public class PinpointCollectorModule {
