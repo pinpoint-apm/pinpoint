@@ -186,7 +186,7 @@ public class BatchProperties {
         return collectorVersion;
     }
 
-    public int getAlarmAgentInspectorStatTableCount() {
+    public int getAgentInspectorStatTableCount() {
         return alarmAgentInspectorStatTableCount;
     }
 

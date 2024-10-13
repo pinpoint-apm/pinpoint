@@ -51,7 +51,7 @@ public class PinotAlarmDao implements AlarmDao {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
         this.syncTemplate = Objects.requireNonNull(syncTemplate, "syncTemplate");
         Objects.requireNonNull(batchProperties, "batchProperties");
-        this.tableNameManager = new TableNameManager(batchProperties.getAgentInspectorStatTablePrefix(), batchProperties.getAgentInspectorStatTablePaddingLength(), batchProperties.getAlarmAgentInspectorStatTableCount());
+        this.tableNameManager = new TableNameManager(batchProperties.getAgentInspectorStatTablePrefix(), batchProperties.getAgentInspectorStatTablePaddingLength(), batchProperties.getAgentInspectorStatTableCount());
     }
 
     @Override
