@@ -9,6 +9,6 @@ public abstract class NamedRunnable implements Runnable {
 
     @Override
     public String toString() {
-        return "name='" + name;
+        return name;
     }
 }

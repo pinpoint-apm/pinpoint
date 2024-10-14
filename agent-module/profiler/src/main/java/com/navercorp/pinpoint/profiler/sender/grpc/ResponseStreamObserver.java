@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
+import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -33,6 +35,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private ClientCallStateStreamObserver<ReqT> requestStream;
     private final StreamEventListener<ReqT> listener;
 
     public ResponseStreamObserver(StreamEventListener<ReqT> listener) {
@@ -40,9 +43,11 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
     }
 
     @Override
-    public void beforeStart(final ClientCallStreamObserver<ReqT> requestStream) {
+    public void beforeStart(final ClientCallStreamObserver<ReqT> stream) {
+        this.requestStream = ClientCallStateStreamObserver.clientCall(stream);
+
         logger.info("beforeStart {}", listener);
-        requestStream.setOnReadyHandler(new Runnable() {
+        this.requestStream.setOnReadyHandler(new Runnable() {
             private final AtomicLong isReadyCounter = new AtomicLong(0);
 
             @Override
@@ -54,6 +59,10 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
                 }
             }
         });
+    }
+
+    public ClientCallStateStreamObserver<ReqT> getRequestStream() {
+        return requestStream;
     }
 
     @Override
@@ -68,15 +77,23 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
         Status status = Status.fromThrowable(t);
         Metadata metadata = Status.trailersFromThrowable(t);
 
-        logger.info("Failed to stream, name={}, {} {}", listener, status, metadata);
+        logger.info("onError Failed to stream, name={}, {} {}", listener, status, metadata);
 
         listener.onError(t);
+
+        if (requestStream.isRun()) {
+            StreamUtils.onCompleted(requestStream, (th) -> logger.info("ResponseStreamObserver.onError", th));
+        }
     }
 
     @Override
     public void onCompleted() {
-        logger.info("{} onCompleted", listener);
+        logger.info("onCompleted {}", listener);
         listener.onCompleted();
+
+        if (requestStream.isRun()) {
+            StreamUtils.onCompleted(requestStream, (th) -> logger.info("ResponseStreamObserver.onCompleted", th));
+        }
     }
 
     @Override

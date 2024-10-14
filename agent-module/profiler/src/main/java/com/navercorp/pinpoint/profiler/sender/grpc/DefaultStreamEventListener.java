@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamJob;
-import io.grpc.stub.ClientCallStreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +21,7 @@ public class DefaultStreamEventListener<ReqT> implements StreamEventListener<Req
     }
 
     @Override
-    public void start(final ClientCallStreamObserver<ReqT> requestStream) {
+    public void start(final ClientCallStateStreamObserver<ReqT> requestStream) {
         this.handle = streamJob.start(requestStream);
         reconnector.reset();
     }
@@ -29,15 +29,15 @@ public class DefaultStreamEventListener<ReqT> implements StreamEventListener<Req
 
     @Override
     public void onError(Throwable t) {
-        final Future<?> handle = this.handle;
-        if (handle != null) {
-            handle.cancel(true);
-        }
-        reconnector.reconnect();
+        cancel();
     }
 
     @Override
     public void onCompleted() {
+        cancel();
+    }
+
+    private void cancel() {
         final Future<?> handle = this.handle;
         if (handle != null) {
             handle.cancel(true);

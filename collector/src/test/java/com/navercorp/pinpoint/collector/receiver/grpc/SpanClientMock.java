@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardClientInterceptor;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardEventListener;
 import com.navercorp.pinpoint.grpc.client.interceptor.LoggingDiscardEventListener;
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -44,7 +45,6 @@ import com.navercorp.pinpoint.profiler.sender.grpc.StreamEventListener;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamId;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
-import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -136,7 +136,7 @@ public class SpanClientMock {
         StreamEventListener<PSpanMessage> listener = new StreamEventListener<PSpanMessage>() {
 
             @Override
-            public void start(ClientCallStreamObserver<PSpanMessage> requestStream) {
+            public void start(ClientCallStateStreamObserver<PSpanMessage> requestStream) {
                 spanStreamReconnector.reset();
             }
 

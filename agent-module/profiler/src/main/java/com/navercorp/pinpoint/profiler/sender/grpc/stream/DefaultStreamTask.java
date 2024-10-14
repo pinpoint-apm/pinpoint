@@ -1,12 +1,13 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.stream;
 
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
+import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import com.navercorp.pinpoint.profiler.sender.grpc.ClientStreamingService;
 import com.navercorp.pinpoint.profiler.sender.grpc.MessageDispatcher;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamId;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamTask;
 import com.navercorp.pinpoint.profiler.util.NamedRunnable;
-import io.grpc.stub.ClientCallStreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +29,7 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
     private final MessageDispatcher<M, ReqT> dispatcher;
     private final StreamState failState;
 
-    private volatile ClientCallStreamObserver<ReqT> stream;
+    private volatile ClientCallStateStreamObserver<ReqT> stream;
     private volatile CountDownLatch latch;
     private volatile boolean stop = false;
 
@@ -49,7 +50,7 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
         this.latch = new CountDownLatch(1);
         StreamJob<ReqT> job = new StreamJob<ReqT>() {
             @Override
-            public Future<?> start(final ClientCallStreamObserver<ReqT> requestStream) {
+            public Future<?> start(final ClientCallStateStreamObserver<ReqT> requestStream) {
                 Runnable runnable = DefaultStreamTask.this.newRunnable(requestStream, latch);
                 StreamExecutor<ReqT> streamExecutor = streamExecutorFactory.newStreamExecutor();
                 return streamExecutor.execute(runnable);
@@ -70,14 +71,14 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
         ISREADY_ERROR
     }
 
-    public Runnable newRunnable(final ClientCallStreamObserver<ReqT> requestStream, final CountDownLatch latch) {
+    public Runnable newRunnable(final ClientCallStateStreamObserver<ReqT> requestStream, final CountDownLatch latch) {
         return new NamedRunnable(streamId.toString()) {
             @Override
             public void run() {
                 dispatch(requestStream);
             }
 
-            private void dispatch(ClientCallStreamObserver<ReqT> stream) {
+            private void dispatch(ClientCallStateStreamObserver<ReqT> stream) {
                 logger.info("dispatch start {}", this);
                 FinishStatus status = FinishStatus.UNKNOWN;
 
@@ -97,8 +98,7 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
                             failState.fail();
 
                             if (failState.isFailure()) {
-                                logger.info("isReadyState error, Trigger stream.cancel {}", this);
-                                stream.cancel("isReadyState error", new Exception("isReadyState error"));
+                                logger.info("isReadyState error {}", this);
                                 status = FinishStatus.ISREADY_ERROR;
                                 break;
                             }
@@ -110,7 +110,9 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
                     status = FinishStatus.INTERRUPTED;
                 } catch (Throwable th) {
                     logger.error("Unexpected DispatchThread error {}/{}", Thread.currentThread().getName(), this, th);
-                    stream.onError(th);
+                }
+                if (stream.isRun()) {
+                    StreamUtils.onCompleted(stream, (ex) -> logger.info("stream stop", ex));
                 }
 
                 logger.info("dispatch thread end status:{} {}", status, this);
@@ -120,17 +122,20 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
         };
     }
 
-
     @Override
     public void stop() {
         logger.info("stop start {}", this.streamId);
-
+        if (stop) {
+            logger.info("already stop {}", this.streamId);
+            return;
+        }
         this.stop = true;
 
-        final ClientCallStreamObserver<ReqT> copy = this.stream;
+        final ClientCallStateStreamObserver<ReqT> copy = this.stream;
         if (copy != null) {
-//            copy.cancel("stream stop", new Exception("stream stop"));
-            copy.onCompleted();
+            if (copy.isRun()) {
+                StreamUtils.onCompleted(copy, (th) -> logger.info("stream stop", th));
+            }
         }
         final CountDownLatch latch = this.latch;
         if (latch != null) {

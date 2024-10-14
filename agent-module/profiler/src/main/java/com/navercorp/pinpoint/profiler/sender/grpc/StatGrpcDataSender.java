@@ -21,6 +21,7 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
@@ -44,6 +45,7 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
     private static final String ID = "StatStream";
 
+    private final StatGrpc.StatStub statStub;
     private final ReconnectExecutor reconnectExecutor;
 
     private final Reconnector reconnector;
@@ -100,6 +102,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
                               ReconnectExecutor reconnectExecutor,
                               ChannelFactory channelFactory) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
+        this.statStub = StatGrpc.newStub(managedChannel);
 
         this.reconnectExecutor = Objects.requireNonNull(reconnectExecutor, "reconnectExecutor");
         final Runnable reconnectJob = new NamedRunnable(ID) {
@@ -114,10 +117,10 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
 
         ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
             @Override
-            public ClientCallStreamObserver<PStatMessage> newStream(ResponseStreamObserver<PStatMessage, Empty> response) {
+            public ClientCallStateStreamObserver<PStatMessage> newStream(ResponseStreamObserver<PStatMessage, Empty> response) {
                 logger.info("newStream {}", ID);
-                StatGrpc.StatStub statStub = StatGrpc.newStub(managedChannel);
-                return (ClientCallStreamObserver<PStatMessage>) statStub.sendAgentStat(response);
+                statStub.sendAgentStat(response);
+                return response.getRequestStream();
             }
         };
         this.clientStreamService = new ClientStreamingService<>(clientStreamProvider, reconnector);
