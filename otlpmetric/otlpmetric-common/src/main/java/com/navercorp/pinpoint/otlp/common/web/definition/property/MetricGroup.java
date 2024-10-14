@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.otlp.common.web.definition.property;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author minwoo-jung
@@ -30,7 +30,7 @@ public class MetricGroup {
 
     public MetricGroup(String metricGroupName) {
         this.metricGroupName = metricGroupName;
-        this.metricMap = new HashMap<>();
+        this.metricMap = new TreeMap<>();
     }
 
     public void addUniqueMetric(MetricDescriptor metricDescriptor) {

@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.otlp.common.web.definition.property;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author minwoo-jung
@@ -31,8 +31,8 @@ public class Metric {
 
     public Metric(String metricName) {
         this.metricName = metricName;
-        this.tagMap = new HashMap<>();
-        this.fieldMap = new HashMap<>();
+        this.tagMap = new TreeMap<>();
+        this.fieldMap = new TreeMap<>();
     }
 
     public void addTagAndField(String tag, String fieldName, String unit) {
