@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.common.web.definition.property;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -34,6 +35,7 @@ public class TagCluster {
     public void addFieldAndUnit(String fieldName, String unit) {
         FieldAndUnit fieldAndUnit = new FieldAndUnit(fieldName, unit);
         fieldAndUnitList.add(fieldAndUnit);
+        fieldAndUnitList.sort(Comparator.comparing(FieldAndUnit::fieldName));
     }
 
     public List<FieldAndUnit> getFieldAndUnitList() {

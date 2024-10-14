@@ -24,10 +24,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * @author minwoo-jung
@@ -46,7 +46,7 @@ public class PinotMetricMetaDataDao implements MetricDefinitionDao {
     public List<MetricGroup> getMetricGroupList(String applicationName) {
         List<MetricDescriptor> MetricDescriptorList = syncTemplate.selectList(NAMESPACE + "selectMetricDescriptorList", applicationName);
 
-        Map<String, MetricGroup> metricGroupMap = new HashMap<>();
+        Map<String, MetricGroup> metricGroupMap = new TreeMap<>();
 
         for (MetricDescriptor metricDescriptor : MetricDescriptorList) {
             MetricGroup metricGroup = metricGroupMap.computeIfAbsent(metricDescriptor.metricGroupName(), k -> new MetricGroup(metricDescriptor.metricGroupName()));
