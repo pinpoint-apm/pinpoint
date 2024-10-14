@@ -37,7 +37,6 @@ import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
 import { Switch } from '../../../components/ui/switch';
 import { HelpPopover } from '../../../components/HelpPopover';
-// import { Checkbox } from '../../../components/ui';
 
 const metricDefinitionFormSchemaFactory = (t: TFunction) => {
   return z
@@ -56,15 +55,15 @@ const metricDefinitionFormSchemaFactory = (t: TFunction) => {
       aggregationFunction: z.string({
         required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Aggregation function' }),
       }),
+      interval: z.string().optional(),
       chartType: z.string({
         required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Chart type' }),
       }),
-      // TODO:
-      // unit: z.string({
-      //   required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Y-axis unit' }),
-      // }),
       title: z.string().min(1, t('COMMON.REQUIRED', { requiredField: 'Metric title' })),
       stack: z.boolean().default(false).optional(),
+      stackInfo: z.object({
+        showTotal: z.boolean().default(false).optional(),
+      }),
     })
     .superRefine((data, ctx) => {
       if (data.primaryForFieldAndTagRelation === 'tag' && data?.tagGroupList?.length === 0) {
@@ -112,9 +111,13 @@ export const MetricDefinitionFormFetcher = ({
       tagGroupList: metric?.tagGroupList || [],
       fieldNameList: metric?.fieldNameList || [],
       aggregationFunction: metric?.aggregationFunction,
+      // interval: (metric as any)?.interval || '',
       chartType: metric?.chartType || 'line',
       title: metric?.title || '',
       stack: metric?.stack,
+      stackInfo: {
+        // showTotal: (metric as any)?.stackInfo?.showTotal,
+      },
     },
   });
   const { data: defPropertyData } = useGetOtlpMetricDefProperty();
@@ -128,6 +131,7 @@ export const MetricDefinitionFormFetcher = ({
     tagGroupList,
     fieldNameList,
     title,
+    stack,
   ] = metricDefinitionForm.watch([
     'metricGroupName',
     'metricName',
@@ -137,6 +141,7 @@ export const MetricDefinitionFormFetcher = ({
     'tagGroupList',
     'fieldNameList',
     'title',
+    'stack',
   ]);
 
   const selectedMetricGroupItem = defPropertyData?.metricGroupList.find((metricGroupItem) => {
@@ -598,6 +603,30 @@ export const MetricDefinitionFormFetcher = ({
               </FormItem>
             )}
           />
+          <FormField
+            name="interval"
+            control={metricDefinitionForm.control}
+            render={({ field, fieldState }) => (
+              <FormItem className="sm:grid sm:grid-cols-12">
+                <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
+                  Interval
+                </FormLabel>
+                <div className="sm:!mt-0 sm:col-span-8">
+                  <FormControl>
+                    <Input
+                      className={cn('focus-visible:ring-0 max-w-90', {
+                        'border-status-fail': fieldState.invalid,
+                      })}
+                      {...field}
+                      placeholder={'Input interval (ex. 30s)'}
+                    />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
         </div>
         <Separator className="mt-3" />
         <div className="p-4 space-y-4 md:p-6">
@@ -641,37 +670,6 @@ export const MetricDefinitionFormFetcher = ({
               </FormItem>
             )}
           />
-          {/* TODO temporally */}
-          {/* <FormField
-            name="unit"
-            control={metricDefinitionForm.control}
-            render={({ field, fieldState }) => (
-              <FormItem className="sm:grid sm:grid-cols-12">
-                <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
-                  Y-axis unit
-                </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn('focus-visible:ring-0 w-40', {
-                          'border-status-fail': fieldState.invalid,
-                        })}
-                      >
-                        <SelectValue placeholder="Select y-axis unit" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="z-[5001]">
-                      <SelectItem value="bytes">Byte</SelectItem>
-                      <SelectItem value="count">Count</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription />
-                  <FormMessage />
-                </div>
-              </FormItem>
-            )}
-          /> */}
           <FormField
             name="title"
             control={metricDefinitionForm.control}
@@ -714,6 +712,31 @@ export const MetricDefinitionFormFetcher = ({
               </FormItem>
             )}
           />
+          {stack && (
+            <FormField
+              name="stackInfo.showTotal"
+              control={metricDefinitionForm.control}
+              render={({ field }) => (
+                <>
+                  <FormItem className="sm:grid sm:grid-cols-12">
+                    <div className="content-center font-normal sm:col-span-4 text-muted-foreground"></div>
+                    <div className="sm:!mt-0 sm:col-span-8 flex flex-row gap-1">
+                      <FormControl>
+                        <Checkbox
+                          className="content-center"
+                          checked={field?.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
+                        Show total
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                </>
+              )}
+            />
+          )}
         </div>
       </form>
       <div className="flex justify-end gap-2 p-4 border-t">
