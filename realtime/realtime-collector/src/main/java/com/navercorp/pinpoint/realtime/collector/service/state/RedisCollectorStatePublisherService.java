@@ -61,8 +61,7 @@ class RedisCollectorStatePublisherService implements CollectorStatePublisherServ
 
     private void publishBytes(byte[] bytes) {
         String value = BytesUtils.toString(bytes);
-        this.redisTemplate.opsForValue().set(this.key, value);
-        this.redisTemplate.expire(this.key, this.ttl);
+        this.redisTemplate.opsForValue().set(this.key, value, this.ttl);
     }
 
 }

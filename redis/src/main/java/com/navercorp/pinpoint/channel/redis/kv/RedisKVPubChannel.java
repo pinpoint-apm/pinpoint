@@ -39,8 +39,7 @@ class RedisKVPubChannel implements PubChannel {
 
     @Override
     public void publish(byte[] content) {
-        this.template.opsForValue().set(this.key, BytesUtils.toString(content));
-        this.template.expire(this.key, expireMs, TimeUnit.MILLISECONDS);
+        this.template.opsForValue().set(this.key, BytesUtils.toString(content), expireMs, TimeUnit.MILLISECONDS);
     }
 
 }
