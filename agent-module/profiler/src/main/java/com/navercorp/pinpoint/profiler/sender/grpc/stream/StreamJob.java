@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.stream;
 
-import io.grpc.stub.ClientCallStreamObserver;
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 
 import java.util.concurrent.Future;
 
 public interface StreamJob<ReqT> {
 
-    Future<?> start(final ClientCallStreamObserver<ReqT> requestStream);
+    Future<?> start(final ClientCallStateStreamObserver<ReqT> requestStream);
 
 }

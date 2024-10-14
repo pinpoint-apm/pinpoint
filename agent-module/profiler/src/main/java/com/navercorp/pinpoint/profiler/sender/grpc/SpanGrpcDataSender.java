@@ -21,6 +21,7 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
+import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
@@ -47,6 +48,7 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  */
 public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
 
+    private final SpanGrpc.SpanStub spanStub;
     private final ReconnectExecutor reconnectExecutor;
 
     private final Reconnector reconnector;
@@ -95,6 +97,7 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
                               StreamState failState,
                               long maxRpcAgeMillis) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
+        this.spanStub = SpanGrpc.newStub(managedChannel);
 
         this.interval = newIntervalFunction(maxRpcAgeMillis);
         this.rpcExpiredAt = new AtomicLong(System.currentTimeMillis());
@@ -112,14 +115,15 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
 
         ClientStreamingProvider<PSpanMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PSpanMessage, Empty>() {
             @Override
-            public ClientCallStreamObserver<PSpanMessage> newStream(ResponseStreamObserver<PSpanMessage, Empty> response) {
+            public ClientCallStateStreamObserver<PSpanMessage> newStream(ResponseStreamObserver<PSpanMessage, Empty> response) {
                 final ManagedChannel managedChannel = SpanGrpcDataSender.this.managedChannel;
                 String authority = managedChannel.authority();
                 final ConnectivityState state = managedChannel.getState(false);
                 SpanGrpcDataSender.this.logger.info("newStream {}/{} state:{} isShutdown:{} isTerminated:{}", id, authority, state, managedChannel.isShutdown(), managedChannel.isTerminated());
 
-                SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
-                return (ClientCallStreamObserver<PSpanMessage>) spanStub.sendSpan(response);
+                spanStub.sendSpan(response);
+
+                return response.getRequestStream();
             }
 
         };
