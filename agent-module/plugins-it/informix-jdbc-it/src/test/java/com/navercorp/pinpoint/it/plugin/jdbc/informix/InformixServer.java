@@ -47,9 +47,7 @@ public class InformixServer implements SharedTestLifeCycle {
         container.withLogConsumer(new LogOutputStream(LOGGER::info));
         container.start();
 
-        Connection connection = null;
-        try {
-            connection = createConnection("localhost:" + container.getFirstMappedPort() + "/sysmaster", "informix", "in4mix");
+        try (Connection connection = createConnection("localhost:" + container.getFirstMappedPort() + "/sysmaster", "informix", "in4mix")) {
             Statement statement = connection.createStatement();
 
             List<String> tableQuery = createTableQuery();
@@ -59,19 +57,12 @@ public class InformixServer implements SharedTestLifeCycle {
             }
         } catch (Exception e) {
             LOGGER.error("Failed to start testcontainer", e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ignored) {
-                }
-            }
         }
 
         Integer port = container.getFirstMappedPort();
         Properties properties = new Properties();
         properties.setProperty("PORT", port.toString());
-        System.setProperty("PORT", port.toString());
+        System.getProperties().putAll(properties);
         return properties;
     }
 

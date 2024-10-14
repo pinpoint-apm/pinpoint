@@ -29,8 +29,7 @@ public class ESServer implements SharedTestLifeCycle {
 
         Integer port = elasticsearchContainer.getMappedPort(ESServerContainerFactory.DEFAULT_PORT);
         properties.setProperty("PORT", port.toString());
-        System.setProperty("PORT", port.toString());
-
+        System.getProperties().putAll(properties);
         return properties;
     }
 
