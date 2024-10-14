@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
-import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
 
 import java.util.concurrent.CompletableFuture;
@@ -58,8 +57,8 @@ public class AgentGrpcDataSender extends GrpcDataSender<MetaDataType> implements
         this.agentPingStub = newAgentPingStub();
 
         this.reconnectExecutor = reconnectExecutor;
-        CommandServiceStubFactory commandServiceStubFactory = new CommandServiceStubFactory(managedChannel);
-        this.grpcCommandService = new GrpcCommandService(commandServiceStubFactory, reconnectExecutor, profilerCommandServiceLocator);
+
+        this.grpcCommandService = new GrpcCommandService(managedChannel, reconnectExecutor, profilerCommandServiceLocator);
         {
             final Runnable reconnectJob = new Runnable() {
                 @Override
