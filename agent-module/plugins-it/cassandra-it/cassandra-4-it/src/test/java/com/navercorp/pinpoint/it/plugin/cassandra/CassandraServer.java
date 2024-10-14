@@ -32,7 +32,7 @@ public class CassandraServer implements SharedTestLifeCycle {
         final Integer port = cassandra.getMappedPort(CassandraContainer.CQL_PORT);
         Properties properties = new Properties();
         properties.setProperty("PORT", port.toString());
-        System.setProperty("PORT", port.toString());
+        System.getProperties().putAll(properties);
 
         return properties;
     }

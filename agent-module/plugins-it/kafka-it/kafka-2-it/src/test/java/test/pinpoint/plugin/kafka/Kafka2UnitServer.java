@@ -55,8 +55,7 @@ public class Kafka2UnitServer implements SharedTestLifeCycle {
         Properties properties = new Properties();
         properties.setProperty("PORT", String.valueOf(server.getBrokerPort()));
         properties.setProperty("OFFSET", String.valueOf(OFFSET_STORE.getOffset()));
-        System.setProperty("PORT", String.valueOf(server.getBrokerPort()));
-        System.setProperty("OFFSET", String.valueOf(OFFSET_STORE.getOffset()));
+        System.getProperties().putAll(properties);
         return properties;
     }
 

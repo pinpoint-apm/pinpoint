@@ -39,8 +39,7 @@ public class RedisServer implements SharedTestLifeCycle {
         Properties properties = new Properties();
         properties.setProperty("HOST", redisServer.getHost());
         properties.setProperty("PORT", String.valueOf(redisServer.getMappedPort(6379)));
-        System.setProperty("HOST", redisServer.getHost());
-        System.setProperty("PORT", String.valueOf(redisServer.getMappedPort(6379)));
+        System.getProperties().putAll(properties);
 
         return properties;
     }

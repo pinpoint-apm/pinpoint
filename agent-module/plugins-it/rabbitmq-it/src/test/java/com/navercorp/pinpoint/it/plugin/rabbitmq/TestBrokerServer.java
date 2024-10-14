@@ -21,7 +21,7 @@ public class TestBrokerServer implements SharedTestLifeCycle {
         int port = container.getFirstMappedPort();
         Properties properties = new Properties();
         properties.setProperty("PORT", String.valueOf(port));
-        System.setProperty("PORT", String.valueOf(port));
+        System.getProperties().putAll(properties);
         return properties;
     }
 
