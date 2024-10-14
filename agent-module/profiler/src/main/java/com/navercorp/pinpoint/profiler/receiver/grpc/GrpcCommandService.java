@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.Reconnector;
+import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -34,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -43,7 +45,9 @@ public class GrpcCommandService {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final CommandServiceStubFactory commandServiceStubFactory;
+    private final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub commandDispatchStub;
+    // Requires commandServiceCodes
+    private final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub commandChannelStub;
     private final ProfilerCommandServiceLocator profilerCommandServiceLocator;
 
     private final Reconnector reconnector;
@@ -52,10 +56,12 @@ public class GrpcCommandService {
 
     private volatile CommandServiceMainStreamObserver commandServiceMainStreamObserver;
 
-    public GrpcCommandService(CommandServiceStubFactory commandServiceStubFactory, ReconnectExecutor reconnectScheduler, ProfilerCommandServiceLocator profilerCommandServiceLocator) {
-        this.commandServiceStubFactory = Objects.requireNonNull(commandServiceStubFactory, "commandServiceStubFactory");
-        Objects.requireNonNull(reconnectScheduler, "reconnectScheduler");
+    public GrpcCommandService(ManagedChannel channel, ReconnectExecutor reconnectScheduler, ProfilerCommandServiceLocator profilerCommandServiceLocator) {
+        Objects.requireNonNull(channel, "channel");
+        this.commandDispatchStub = ProfilerCommandServiceGrpc.newStub(channel);
+        this.commandChannelStub = newCommandChannelStub(commandDispatchStub, profilerCommandServiceLocator);
 
+        Objects.requireNonNull(reconnectScheduler, "reconnectScheduler");
         this.profilerCommandServiceLocator = Objects.requireNonNull(profilerCommandServiceLocator, "profilerCommandServiceLocator");
 
         this.reconnector = reconnectScheduler.newReconnector(new Runnable() {
@@ -68,27 +74,28 @@ public class GrpcCommandService {
         connect();
     }
 
+    private ProfilerCommandServiceGrpc.ProfilerCommandServiceStub newCommandChannelStub(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub stub,
+                                                                                        ProfilerCommandServiceLocator profilerCommandServiceLocator) {
+        Set<Short> commandServiceCodes = profilerCommandServiceLocator.getCommandServiceCodes();
+        final SupportCommandCodeClientInterceptor interceptor = new SupportCommandCodeClientInterceptor(commandServiceCodes);
+        return stub.withInterceptors(interceptor);
+    }
+
     private void connect() {
         if (shutdown) {
             logger.info("Already shutdown");
             return;
         }
         logger.info("Attempt to connect to CommandServiceStream");
-        ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub = newCommandServiceStub(commandServiceStubFactory, profilerCommandServiceLocator);
-        GrpcCommandDispatcher commandDispatcher = new GrpcCommandDispatcher(profilerCommandServiceStub, profilerCommandServiceLocator);
+        GrpcCommandDispatcher commandDispatcher = new GrpcCommandDispatcher(commandDispatchStub, profilerCommandServiceLocator);
 
         CommandServiceMainStreamObserver commandServiceMainStreamObserver = new CommandServiceMainStreamObserver(commandDispatcher);
-        profilerCommandServiceStub.handleCommandV2(commandServiceMainStreamObserver);
+        // Requires commandServiceCodes
+        commandChannelStub.handleCommandV2(commandServiceMainStreamObserver);
 
         this.commandServiceMainStreamObserver = commandServiceMainStreamObserver;
     }
 
-    private ProfilerCommandServiceGrpc.ProfilerCommandServiceStub newCommandServiceStub(CommandServiceStubFactory commandServiceStubFactory, ProfilerCommandServiceLocator profilerCommandServiceLocator) {
-        final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub commandServiceStub = commandServiceStubFactory.newStub();
-
-        final SupportCommandCodeClientInterceptor supportCommandCodeClientInterceptor = new SupportCommandCodeClientInterceptor(profilerCommandServiceLocator.getCommandServiceCodes());
-        return commandServiceStub.withInterceptors(supportCommandCodeClientInterceptor);
-    }
 
     private void reserveReconnect() {
         reconnector.reconnect();
