@@ -48,6 +48,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommi
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.plugin.jdbc.mariadb.interceptor.PreparedStatementConstructorInterceptor;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -92,77 +94,59 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private void addConnectionTransformer() {
         transformTemplate.transform("org.mariadb.jdbc.MariaDbConnection", MariaDbConnectionTransform.class);
+        // 3.x
+        transformTemplate.transform("org.mariadb.jdbc.Connection", MariaDbConnectionTransform.class);
     }
 
     public static class MariaDbConnectionTransform implements TransformCallback {
 
         @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                throws InstrumentException {
-            MariaDBConfig config = new MariaDBConfig(instrumentor.getProfilerConfig());
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
             if (!target.isInterceptable()) {
                 return null;
             }
-
             target.addField(DatabaseInfoAccessor.class);
 
             // close
-            InstrumentUtils.findMethod(target, "close")
-                    .addScopedInterceptor(ConnectionCloseInterceptor.class, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "close").addScopedInterceptor(ConnectionCloseInterceptor.class, MARIADB_SCOPE);
 
             // createStatement
             final Class<? extends Interceptor> statementCreate = StatementCreateInterceptor.class;
-            InstrumentUtils.findMethod(target, "createStatement")
-                    .addScopedInterceptor(statementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "createStatement", "int", "int")
-                    .addScopedInterceptor(statementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
-                    .addScopedInterceptor(statementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "createStatement").addScopedInterceptor(statementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "createStatement", "int", "int").addScopedInterceptor(statementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "createStatement", "int", "int", "int").addScopedInterceptor(statementCreate, MARIADB_SCOPE);
 
             // preparedStatement
             final Class<? extends Interceptor> preparedStatementCreate = PreparedStatementCreateInterceptor.class;
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "int").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "int[]").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "java.lang.String[]").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "int", "int").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "int", "int", "int").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
 
             // preparecall
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String", "int", "int").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String", "int", "int", "int").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
 
+            MariaDBConfig config = new MariaDBConfig(instrumentor.getProfilerConfig());
             if (config.isProfileSetAutoCommit()) {
-                InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
-                        .addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, MARIADB_SCOPE);
+                InstrumentUtils.findMethodOrIgnore(target, "setAutoCommit", "boolean").addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, MARIADB_SCOPE);
             }
 
             if (config.isProfileCommit()) {
-                InstrumentUtils.findMethod(target, "commit")
-                        .addScopedInterceptor(TransactionCommitInterceptor.class, MARIADB_SCOPE);
+                InstrumentUtils.findMethodOrIgnore(target, "commit").addScopedInterceptor(TransactionCommitInterceptor.class, MARIADB_SCOPE);
             }
 
             if (config.isProfileRollback()) {
-                InstrumentUtils.findMethod(target, "rollback")
-                        .addScopedInterceptor(TransactionRollbackInterceptor.class, MARIADB_SCOPE);
+                InstrumentUtils.findMethodOrIgnore(target, "rollback").addScopedInterceptor(TransactionRollbackInterceptor.class, MARIADB_SCOPE);
             }
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addDriverTransformer() {
         transformTemplate.transform("org.mariadb.jdbc.Driver", DriverTransformer.class);
@@ -171,16 +155,12 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     public static class DriverTransformer implements TransformCallback {
 
         @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                    throws InstrumentException {
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
             target.addField(DatabaseInfoAccessor.class);
 
-            InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
-                    .addScopedInterceptor(DriverConnectInterceptorV2.class,
-                            va(MariaDBConstants.MARIADB, true), MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
+            InstrumentUtils.findMethodOrIgnore(target, "connect", "java.lang.String", "java.util.Properties").addScopedInterceptor(DriverConnectInterceptorV2.class, va(MariaDBConstants.MARIADB, true), MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
 
             return target.toBytecode();
         }
@@ -195,7 +175,9 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         // [1.8.0,2.0.0), [2.4.0,)
         transformTemplate.transform("org.mariadb.jdbc.ServerSidePreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("org.mariadb.jdbc.ClientSidePreparedStatement", PreparedStatementTransform.class);
-
+        // 3.x
+        transformTemplate.transform("org.mariadb.jdbc.ServerPreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("org.mariadb.jdbc.ClientPreparedStatement", PreparedStatementTransform.class);
     }
 
     public static class PreparedStatementTransform implements TransformCallback {
@@ -212,19 +194,23 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(ParsingResultAccessor.class);
             target.addField(BindValueAccessor.class);
 
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                final String[] parameterTypes = constructorMethod.getParameterTypes();
+                if (ArrayUtils.hasLength(parameterTypes)) {
+                    constructorMethod.addInterceptor(PreparedStatementConstructorInterceptor.class);
+                }
+            }
+
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> preparedStatementInterceptor = PreparedStatementExecuteQueryInterceptor.class;
-            InstrumentUtils.findMethod(target, "execute")
-                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "executeQuery")
-                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "executeUpdate")
-                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute").addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeQuery").addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate").addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), MARIADB_SCOPE);
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addPreparedStatementBindVariableTransformer() {
         transformTemplate.transform("org.mariadb.jdbc.AbstractMariaDbPrepareStatement", PreparedStatementBindVariableTransformer.class);
@@ -232,6 +218,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.mariadb.jdbc.AbstractPrepareStatement", PreparedStatementBindVariableTransformer.class);
         // 1.6.x
         transformTemplate.transform("org.mariadb.jdbc.BasePrepareStatement", PreparedStatementBindVariableTransformer.class);
+        // 3.x
+        transformTemplate.transform("org.mariadb.jdbc.BasePreparedStatement", PreparedStatementBindVariableTransformer.class);
     }
 
 
@@ -249,9 +237,7 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(BindValueAccessor.class);
 
             if (config.isTraceSqlBindValue()) {
-                final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter
-                        .excludes("setRowId", "setNClob", "setSQLXML");
-
+                final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
                 final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(excludes);
                 for (InstrumentMethod method : declaredMethods) {
                     method.addScopedInterceptor(PreparedStatementBindVariableInterceptor.class, MARIADB_SCOPE, ExecutionPolicy.BOUNDARY);
@@ -260,10 +246,12 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addStatementTransformer() {
         transformTemplate.transform("org.mariadb.jdbc.MariaDbStatement", MariaDbStatementTransform.class);
+        // 3.x
+        transformTemplate.transform("org.mariadb.jdbc.Statement", MariaDbStatementTransform.class);
     }
 
     public static class MariaDbStatementTransform implements TransformCallback {
@@ -281,22 +269,17 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(DatabaseInfoAccessor.class);
 
             final Class<? extends Interceptor> executeQueryInterceptor = StatementExecuteQueryInterceptor.class;
-            InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
-                    .addScopedInterceptor(executeQueryInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeQuery", "java.lang.String").addScopedInterceptor(executeQueryInterceptor, MARIADB_SCOPE);
 
             final Class<? extends Interceptor> executeUpdateInterceptor = StatementExecuteUpdateInterceptor.class;
-            InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
-                    .addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
-                    .addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
-                    .addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
-                    .addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate", "java.lang.String").addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate", "java.lang.String", "int").addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute", "java.lang.String").addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute", "java.lang.String", "int").addScopedInterceptor(executeUpdateInterceptor, MARIADB_SCOPE);
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addCallableStatementTransformer() {
         transformTemplate.transform("org.mariadb.jdbc.AbstractCallableProcedureStatement", CallableStatementTransformer.class);
@@ -304,13 +287,14 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         // 1.6.x
         transformTemplate.transform("org.mariadb.jdbc.CallableProcedureStatement", CallableStatementTransformer.class);
         transformTemplate.transform("org.mariadb.jdbc.CallableFunctionStatement", CallableStatementTransformer.class);
+        // 3.x
+        transformTemplate.transform("org.mariadb.jdbc.ProcedureStatement", CallableStatementTransformer.class);
+        transformTemplate.transform("org.mariadb.jdbc.FunctionStatement", CallableStatementTransformer.class);
     }
 
     public static class CallableStatementTransformer implements TransformCallback {
         @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                                    byte[] classfileBuffer) throws InstrumentException {
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);
@@ -318,26 +302,23 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(BindValueAccessor.class);
 
             final Class<? extends Interceptor> registerOutParameterInterceptor = CallableStatementRegisterOutParameterInterceptor.class;
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int").addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int", "int").addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int", "java.lang.String").addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void add_1_3_x_CallableStatementTransformer() {
         transformTemplate.transform("org.mariadb.jdbc.MariaDbCallableStatement", CallableStatement1_3_x_Transform.class);
+        // 3.x
+        transformTemplate.transform("org.mariadb.jdbc.BaseCallableStatement", CallableStatement1_3_x_Transform.class);
     }
 
     public static class CallableStatement1_3_x_Transform implements TransformCallback {
         @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-        byte[] classfileBuffer) throws InstrumentException {
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             MariaDBConfig config = new MariaDBConfig(instrumentor.getProfilerConfig());
 
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -349,21 +330,14 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> callableStatementExecuteQuery = CallableStatementExecuteQueryInterceptor.class;
-            InstrumentUtils.findMethod(target,"execute")
-                    .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "executeQuery")
-                    .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "executeUpdate")
-                    .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute").addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeQuery").addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate").addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MARIADB_SCOPE);
 
             final Class<? extends Interceptor> registerOutParameterInterceptor = CallableStatementRegisterOutParameterInterceptor.class;
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
-
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int").addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int", "int").addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int", "java.lang.String").addScopedInterceptor(registerOutParameterInterceptor, MARIADB_SCOPE);
 
             if (config.isTraceSqlBindValue()) {
                 final MethodFilter filter = new PreparedStatementBindingMethodFilter();

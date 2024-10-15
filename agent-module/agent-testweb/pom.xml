@@ -91,6 +91,7 @@
         <module>ktor-plugin-testweb</module>
         <module>closed-module-testweb</module>
         <module>closed-module-testlib</module>
+        <module>mariadb-jdbc-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>
