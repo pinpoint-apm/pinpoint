@@ -97,6 +97,32 @@ public class HttpClient5PluginController {
         return responseBody;
     }
 
+    @GetMapping("/client/notofound")
+    public String clientNotFound() throws Exception {
+        try {
+            final CloseableHttpClient httpClient = HttpClients.createDefault();
+            final HttpGet httpGet = new HttpGet("http://fjakfjlagjlkj");
+
+            final HttpClientResponseHandler<String> responseHandler = new HttpClientResponseHandler<String>() {
+                @Override
+                public String handleResponse(ClassicHttpResponse classicHttpResponse) throws HttpException, IOException {
+                    final int status = classicHttpResponse.getCode();
+                    if (status >= HttpStatus.SC_SUCCESS && status < HttpStatus.SC_REDIRECTION) {
+                        final HttpEntity entity = classicHttpResponse.getEntity();
+                        return entity != null ? EntityUtils.toString(entity) : null;
+                    }
+
+                    return null;
+                }
+            };
+
+            final String responseBody = httpClient.execute(httpGet, responseHandler);
+            return responseBody;
+        } catch (Exception ignored) {
+        }
+        return "OK";
+    }
+
     @GetMapping("/client/local")
     public String clientLocal() throws Exception {
         final CloseableHttpClient httpClient = HttpClients.createDefault();

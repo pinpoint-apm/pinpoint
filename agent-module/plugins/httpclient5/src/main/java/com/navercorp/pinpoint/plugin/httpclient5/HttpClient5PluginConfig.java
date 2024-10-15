@@ -24,44 +24,50 @@ public class HttpClient5PluginConfig {
     private boolean enable;
     private boolean param = true;
     private boolean statusCode = true;
-    private boolean io;
     private HttpDumpConfig httpDumpConfig;
+    private boolean markError;
+    private boolean traceFutureError;
+
+    public static boolean isParam(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient5.param", Boolean.TRUE);
+    }
+
+    public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
+        boolean cookie = config.readBoolean("profiler.apache.httpclient5.cookie", false);
+        DumpType cookieDumpType = config.readDumpType("profiler.apache.httpclient5.cookie.dumptype", DumpType.EXCEPTION);
+        int cookieSamplingRate = config.readInt("profiler.apache.httpclient5.cookie.sampling.rate", 1);
+        int cookieDumpSize = config.readInt("profiler.apache.httpclient5.cookie.dumpsize", 1024);
+        boolean entity = config.readBoolean("profiler.apache.httpclient5.entity", false);
+        DumpType entityDumpType = config.readDumpType("profiler.apache.httpclient5.entity.dumptype", DumpType.EXCEPTION);
+        int entitySamplingRate = config.readInt("profiler.apache.httpclient5.entity.sampling.rate", 1);
+        int entityDumpSize = config.readInt("profiler.apache.httpclient5.entity.dumpsize", 1024);
+
+        return HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);
+    }
+
+    public static boolean isStatusCode(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient5.entity.statuscode", Boolean.TRUE);
+    }
+
+    public static boolean isMarkError(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient5.mark.error", Boolean.FALSE);
+    }
+
+    public static boolean isTraceFutureError(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient5.trace.future.error", Boolean.FALSE);
+    }
 
     public HttpClient5PluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.apache.httpclient5.enable", true);
-        this.param = src.readBoolean("profiler.apache.httpclient5.param", true);
-
-        boolean cookie = src.readBoolean("profiler.apache.httpclient5.cookie", false);
-        DumpType cookieDumpType = src.readDumpType("profiler.apache.httpclient5.cookie.dumptype", DumpType.EXCEPTION);
-        int cookieSamplingRate = src.readInt("profiler.apache.httpclient5.cookie.sampling.rate", 1);
-        int cookieDumpSize = src.readInt("profiler.apache.httpclient5.cookie.dumpsize", 1024);
-        boolean entity = src.readBoolean("profiler.apache.httpclient5.entity", false);
-        DumpType entityDumpType = src.readDumpType("profiler.apache.httpclient5.entity.dumptype", DumpType.EXCEPTION);
-        int entitySamplingRate = src.readInt("profiler.apache.httpclient5.entity.sampling.rate", 1);
-        int entityDumpSize = src.readInt("profiler.apache.httpclient5.entity.dumpsize", 1024);
-        this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);
-
-        this.statusCode = src.readBoolean("profiler.apache.httpclient5.entity.statuscode", true);
+        this.param = isParam(src);
+        this.httpDumpConfig = getHttpDumpConfig(src);
+        this.statusCode = isStatusCode(src);
+        this.markError = isMarkError(src);
+        this.traceFutureError = isTraceFutureError(src);
     }
 
     public boolean isEnable() {
         return enable;
-    }
-
-    public boolean isParam() {
-        return param;
-    }
-
-    public boolean isStatusCode() {
-        return statusCode;
-    }
-
-    public boolean isIo() {
-        return io;
-    }
-
-    public HttpDumpConfig getHttpDumpConfig() {
-        return httpDumpConfig;
     }
 
     @Override
@@ -70,8 +76,9 @@ public class HttpClient5PluginConfig {
                 "enable=" + enable +
                 ", param=" + param +
                 ", statusCode=" + statusCode +
-                ", io=" + io +
                 ", httpDumpConfig=" + httpDumpConfig +
+                ", markError=" + markError +
+                ", traceFutureError=" + traceFutureError +
                 '}';
     }
 }

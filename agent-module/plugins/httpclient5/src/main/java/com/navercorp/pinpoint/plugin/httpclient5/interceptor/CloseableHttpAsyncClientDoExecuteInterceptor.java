@@ -64,14 +64,14 @@ public class CloseableHttpAsyncClientDoExecuteInterceptor implements AroundInter
     private final EntityRecorder<HttpRequest> entityRecorder;
 
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
+    private final boolean markError;
 
     public CloseableHttpAsyncClientDoExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
 
-        final HttpClient5PluginConfig config = new HttpClient5PluginConfig(traceContext.getProfilerConfig());
-        final boolean param = config.isParam();
-        final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
+        final boolean param = HttpClient5PluginConfig.isParam(traceContext.getProfilerConfig());
+        final HttpDumpConfig httpDumpConfig = HttpClient5PluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
         this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
@@ -84,6 +84,8 @@ public class CloseableHttpAsyncClientDoExecuteInterceptor implements AroundInter
 
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest5ClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+
+        this.markError = HttpClient5PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -155,7 +157,7 @@ public class CloseableHttpAsyncClientDoExecuteInterceptor implements AroundInter
             this.cookieRecorder.record(recorder, httpRequest, throwable);
             this.entityRecorder.record(recorder, httpRequest, throwable);
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
             if (result instanceof AsyncContextAccessor) {
                 // HttpContext
                 final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 4);

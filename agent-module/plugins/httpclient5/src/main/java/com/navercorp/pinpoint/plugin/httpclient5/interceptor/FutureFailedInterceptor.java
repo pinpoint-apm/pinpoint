@@ -23,10 +23,16 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5Constants;
+import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5PluginConfig;
 
 public class FutureFailedInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+    private final boolean markError;
+    private final boolean traceFutureError;
+
     public FutureFailedInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        this.markError = HttpClient5PluginConfig.isMarkError(traceContext.getProfilerConfig());
+        this.traceFutureError = HttpClient5PluginConfig.isTraceFutureError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -39,12 +45,12 @@ public class FutureFailedInterceptor extends AsyncContextSpanEventSimpleAroundIn
         recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
 
         final Exception exception = ArrayArgumentUtils.getArgument(args, 0, Exception.class);
-        if (exception != null) {
+        if (traceFutureError && exception != null) {
             // request exception
-            recorder.recordException(exception);
+            recorder.recordException(markError, exception);
         } else {
             // method internal exception
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
         }
     }
 }

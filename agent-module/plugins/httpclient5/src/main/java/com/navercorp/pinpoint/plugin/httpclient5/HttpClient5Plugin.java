@@ -59,7 +59,7 @@ public class HttpClient5Plugin implements ProfilerPlugin, MatchableTransformTemp
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("{} version range=(5.0 ~ 5.1, config:{}", this.getClass().getSimpleName(), config);
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // Sync(classic)
         // request
