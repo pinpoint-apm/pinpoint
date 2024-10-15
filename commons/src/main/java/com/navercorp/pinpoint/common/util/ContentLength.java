@@ -38,10 +38,9 @@ public class ContentLength {
         }
         for (LengthFunction function : functions) {
             long length = function.getLength(content);
-            if (length == SKIP) {
-                continue;
+            if (length != SKIP) {
+                return length;
             }
-            return length;
         }
         return NOT_EXIST;
     }
