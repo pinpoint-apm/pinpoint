@@ -41,8 +41,10 @@ public class AppMetricDefinition {
     private final String aggregationFunction;
     private final Layout layout;
     private final boolean stack;
+    private final StackDetails stackDetails;
+    private final int samplingInterval;
 
-    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, String primaryForFieldAndTagRelation, List<String> fieldNameList, List<String> tagGroupList, String unit, String chartType, Layout layout, boolean stack) {
+    public AppMetricDefinition(String applicationName, String id, String title, String metricGroupName, String metricName, String primaryForFieldAndTagRelation, List<String> fieldNameList, List<String> tagGroupList, String unit, String chartType, Layout layout, boolean stack, StackDetails stackDetails, int samplingInterval) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.id = id;
         this.title = StringPrecondition.requireHasLength(title, "title");
@@ -58,6 +60,8 @@ public class AppMetricDefinition {
         this.aggregationFunction = StringPrecondition.requireHasLength(chartType, "aggregationFunction");
         this.layout = Objects.requireNonNull(layout, "layout");
         this.stack = stack;
+        this.stackDetails = stackDetails;
+        this.samplingInterval = samplingInterval;
     }
 
     public String getApplicationName() {
@@ -104,7 +108,6 @@ public class AppMetricDefinition {
         return aggregationFunction;
     }
 
-
     public int getSchemaVersion() {
         return SCHEMA_VERSION;
     }
@@ -121,4 +124,11 @@ public class AppMetricDefinition {
         return primaryForFieldAndTagRelation;
     }
 
+    public StackDetails getStackDetails() {
+        return stackDetails;
+    }
+
+    public int getSamplingInterval() {
+        return samplingInterval;
+    }
 }

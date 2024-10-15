@@ -42,14 +42,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/api/otlp")
 public class OpenTelemetryMetricController {
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER_30M = new TimeWindowSlotCentricSampler(30000L, 200);
+    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER_30S = new TimeWindowSlotCentricSampler(30000L, 200);
     private final OtlpMetricWebService otlpMetricWebService;
     private static final String DEFAULT_SERVICE_ID = "00000000-0000-0000-0000-000000000001";
     @NotBlank
@@ -61,7 +60,6 @@ public class OpenTelemetryMetricController {
         this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
         Objects.requireNonNull(tenantProvider, "tenantProvider");
         tenantId = tenantProvider.getTenantId();
-
     }
 
     @Deprecated
@@ -112,7 +110,7 @@ public class OpenTelemetryMetricController {
 
         Range range = Range.between(parameter.getFrom(), parameter.getTo());
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
-        TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER_30M);
+        TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER_30S);
 
         MetricData metricData = otlpMetricWebService.getMetricData(tenantId, DEFAULT_SERVICE_ID, parameter.getApplicationName(), parameter.getAgentId(), parameter.getMetricGroupName(), parameter.getMetricName(), primaryForFieldAndTagRelation, tagGroupList, fieldNameList, chartType, aggregationFunction, timeWindow);
         return new MetricDataView(metricData);
