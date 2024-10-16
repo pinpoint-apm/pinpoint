@@ -29,11 +29,12 @@ import org.apache.hc.core5.http.HttpResponse;
 
 public class BasicClientExchangeHandlerConsumeResponseInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
     private final boolean statusCode;
+    private final boolean markError;
 
     public BasicClientExchangeHandlerConsumeResponseInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
-        final HttpClient5PluginConfig config = new HttpClient5PluginConfig(traceContext.getProfilerConfig());
-        this.statusCode = config.isStatusCode();
+        this.statusCode = HttpClient5PluginConfig.isStatusCode(traceContext.getProfilerConfig());
+        this.markError = HttpClient5PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -50,7 +51,7 @@ public class BasicClientExchangeHandlerConsumeResponseInterceptor extends AsyncC
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
         recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
     }
 }

@@ -62,28 +62,24 @@ public class InternalHttpClientDoExecuteInterceptor implements AroundInterceptor
     private final EntityRecorder<HttpRequest> entityRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
     private final boolean statusCode;
+    private final boolean markError;
 
     public InternalHttpClientDoExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
 
-        final HttpClient5PluginConfig config = new HttpClient5PluginConfig(traceContext.getProfilerConfig());
-        final boolean param = config.isParam();
-        final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
-
+        final boolean param = HttpClient5PluginConfig.isParam(traceContext.getProfilerConfig());
+        final HttpDumpConfig httpDumpConfig = HttpClient5PluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
         this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
-
         CookieExtractor<HttpRequest> cookieExtractor = HttpClient5CookieExtractor.INSTANCE;
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
-
         EntityExtractor<HttpRequest> entityExtractor = HttpClient5EntityExtractor.INSTANCE;
         this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
-
-        this.statusCode = config.isStatusCode();
-
+        this.statusCode = HttpClient5PluginConfig.isStatusCode(traceContext.getProfilerConfig());
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest5ClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.markError = HttpClient5PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -149,7 +145,7 @@ public class InternalHttpClientDoExecuteInterceptor implements AroundInterceptor
             this.cookieRecorder.record(recorder, httpRequest, throwable);
             this.entityRecorder.record(recorder, httpRequest, throwable);
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
 
             if (statusCode) {
                 final Integer statusCodeValue = getStatusCodeFromHttpResponse(result);

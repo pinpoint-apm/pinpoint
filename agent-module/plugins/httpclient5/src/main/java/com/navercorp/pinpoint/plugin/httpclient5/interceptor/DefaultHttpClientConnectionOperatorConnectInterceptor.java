@@ -23,11 +23,15 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5Constants;
+import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5PluginConfig;
 import org.apache.hc.core5.http.HttpHost;
 
 public class DefaultHttpClientConnectionOperatorConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
+
     public DefaultHttpClientConnectionOperatorConnectInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        this.markError = HttpClient5PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -41,7 +45,7 @@ public class DefaultHttpClientConnectionOperatorConnectInterceptor extends SpanE
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
         recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
     }
 }
