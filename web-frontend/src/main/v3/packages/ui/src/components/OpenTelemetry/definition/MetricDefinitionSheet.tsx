@@ -15,11 +15,13 @@ import { PreviewChart } from '../charts';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 
 export interface MetricDefinitionSheetProps extends SheetPrimitive.DialogProps {
+  layouts?: ReactGridLayout.Layouts;
   metric?: OtlpMetricDefUserDefined.Metric;
   onCancel?: () => void;
 }
 
 export const MetricDefinitionSheet = ({
+  layouts,
   metric,
   onCancel,
   ...props
@@ -50,6 +52,7 @@ export const MetricDefinitionSheet = ({
         <PreviewChart />
         <Separator />
         <MetricDefinitionForm
+          layouts={layouts}
           metric={metric}
           onComplete={() => {
             onCancel?.();
