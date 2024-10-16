@@ -24,8 +24,8 @@ import {
   useOpenTelemetrySearchParameters,
   usePatchOtlpMetricDefUserDefined,
 } from '@pinpoint-fe/hooks';
+import { BiSolidSave } from 'react-icons/bi';
 import { RxPlusCircled } from 'react-icons/rx';
-import { PiFloppyDisk } from 'react-icons/pi';
 import { toast } from '../../../components/Toast';
 import { LoadingButton } from '../../../components/Button';
 import { Widget } from '../../Dashboard/Widget';
@@ -35,6 +35,7 @@ import { MetricDefinitionSheet } from '../definition/MetricDefinitionSheet';
 import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
 import { OpenTelemetryAlertDialog } from './OpenTelemetryAlertDialog';
 import { isEqual, sortBy } from 'lodash';
+import { cn } from '../../../lib/utils';
 
 export interface OpenTelemetryDashboardFetcherProps {}
 
@@ -212,8 +213,14 @@ export const OpenTelemetryDashboardFetcher = () => {
                   className="gap-2 px-2 py-1 bg-white h-7"
                   onClick={handleClickSaveMetric}
                 >
-                  <PiFloppyDisk />{' '}
-                  <span className="text-xs">{t('OPEN_TELEMETRY.SAVE_DASHBOARD')}</span>
+                  <div
+                    className={cn({
+                      'animate-blink': isChanged,
+                    })}
+                  >
+                    <BiSolidSave />{' '}
+                    <span className="text-xs">{t('OPEN_TELEMETRY.SAVE_DASHBOARD')}</span>
+                  </div>
                 </LoadingButton>
               </div>
             </div>
