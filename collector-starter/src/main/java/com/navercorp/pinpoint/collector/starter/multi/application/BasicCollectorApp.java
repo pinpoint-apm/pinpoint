@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.collector.PinpointCollectorModule;
 import com.navercorp.pinpoint.collector.event.config.CollectorEventConfiguration;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.export.otlp.OtlpMetricsExportAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
@@ -22,7 +23,8 @@ import org.springframework.context.annotation.Import;
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class,
         RedisReactiveAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class
+        DataSourceTransactionManagerAutoConfiguration.class,
+        OtlpMetricsExportAutoConfiguration.class
 })
 @Import({
         PinpointCollectorModule.class,
