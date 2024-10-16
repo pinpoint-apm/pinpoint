@@ -87,12 +87,14 @@ const metricDefinitionFormSchemaFactory = (t: TFunction) => {
 };
 
 export interface MetricDefinitionFormFetcherProps {
+  layouts?: ReactGridLayout.Layouts;
   metric?: OtlpMetricDefUserDefined.Metric;
   onComplete?: () => void;
   onClickCancel?: () => void;
 }
 
 export const MetricDefinitionFormFetcher = ({
+  layouts,
   metric,
   onComplete,
   onClickCancel,
@@ -250,35 +252,50 @@ export const MetricDefinitionFormFetcher = ({
   };
 
   const handleSubmit = async (data: z.infer<typeof metricDefinitionFormSchema>) => {
-    if (metric?.id) {
-      // 수정
-      updateMetrics({
-        applicationName,
-        appMetricDefinitionList: [
-          ...(metrics || []).filter((m) => m.id !== metric?.id),
-          {
+    const appMetricDefinitionList = [
+      ...(metrics || []).map((m) => {
+        const layoutByMetric = layouts?.sm?.find((layout) => layout?.i === m?.id);
+
+        const layout = layoutByMetric
+          ? {
+              w: layoutByMetric?.w,
+              h: layoutByMetric?.h,
+              x: layoutByMetric?.x,
+              y: layoutByMetric?.y,
+            }
+          : m?.layout;
+
+        if (m?.id === metric?.id) {
+          return {
             ...data,
             id: metric?.id,
             applicationName,
             stack: !!data.stack,
             stackDetails: data?.stack ? data?.stackDetails : undefined,
-            layout: {
-              w: metric?.layout.w,
-              h: metric?.layout.h,
-              x: metric?.layout.x,
-              y: metric?.layout.y,
-            },
-            // TODO:
             unit: 'byte',
-          },
-        ],
+            layout,
+          };
+        } else {
+          return {
+            ...m,
+            layout,
+          };
+        }
+      }),
+    ];
+
+    if (metric?.id) {
+      // 수정
+      updateMetrics({
+        applicationName,
+        appMetricDefinitionList,
       });
     } else {
       // 신규
       updateMetrics({
         applicationName,
         appMetricDefinitionList: [
-          ...(metrics || []),
+          ...(appMetricDefinitionList || []),
           {
             ...data,
             applicationName,
@@ -287,7 +304,6 @@ export const MetricDefinitionFormFetcher = ({
             layout: {
               ...getNewWidgetLayout(metrics || []),
             },
-            // TODO:
             unit: 'byte',
           },
         ],

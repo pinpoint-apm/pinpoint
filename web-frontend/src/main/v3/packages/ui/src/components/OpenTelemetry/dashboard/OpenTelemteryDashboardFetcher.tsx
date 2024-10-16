@@ -292,9 +292,25 @@ export const OpenTelemetryDashboardFetcher = () => {
               buttonVariant={{ variant: 'destructive' }}
               onClick={() => {
                 if (currentDeletingTarget && metrics) {
-                  const targetExceptedMetrics = metrics.filter(
-                    (m) => m.id !== currentDeletingTarget.id,
-                  );
+                  const targetExceptedMetrics = metrics
+                    .filter((m) => m.id !== currentDeletingTarget.id)
+                    ?.map((m) => {
+                      const layoutByMetric = state?.layouts?.sm?.find(
+                        (layout) => layout?.i === m?.id,
+                      );
+
+                      return {
+                        ...m,
+                        layout: layoutByMetric
+                          ? {
+                              w: layoutByMetric?.w,
+                              h: layoutByMetric?.h,
+                              x: layoutByMetric?.x,
+                              y: layoutByMetric?.y,
+                            }
+                          : m?.layout,
+                      };
+                    });
                   updateMetricsWithToastMessage(
                     {
                       applicationName,
@@ -316,6 +332,7 @@ export const OpenTelemetryDashboardFetcher = () => {
         </AlertDialogContent>
       </AlertDialog>
       <MetricDefinitionSheet
+        layouts={state?.layouts}
         metric={currentEditingTarget}
         open={!!currentEditingTarget}
         onOpenChange={(open) => {
