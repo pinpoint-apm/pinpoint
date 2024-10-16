@@ -18,11 +18,17 @@ package com.navercorp.pinpoint.grpc.server;
 
 import io.grpc.Attributes;
 import io.grpc.ServerTransportFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ConnectionCountServerTransportFilter extends ServerTransportFilter {
 
+    private static final Attributes.Key<AtomicInteger> TERMINATED = Attributes.Key.create("TransportTerminated");
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final AtomicLong currentConnection = new AtomicLong();
 
     public ConnectionCountServerTransportFilter() {
@@ -31,13 +37,25 @@ public class ConnectionCountServerTransportFilter extends ServerTransportFilter 
 
     @Override
     public Attributes transportReady(Attributes transportAttrs) {
+        Attributes.Builder builder = transportAttrs.toBuilder();
+        builder.set(TERMINATED, new AtomicInteger());
+        Attributes attributes = builder.build();
+
         currentConnection.incrementAndGet();
-        return transportAttrs;
+        return attributes;
     }
 
     @Override
     public void transportTerminated(Attributes transportAttrs) {
-        currentConnection.decrementAndGet();
+        final AtomicInteger terminated = transportAttrs.get(TERMINATED);
+        if (terminated == null) {
+            return;
+        }
+        if (terminated.getAndIncrement() == 0) {
+            currentConnection.decrementAndGet();
+        } else {
+            logger.info("transportTerminated() already terminated attribute:{}", transportAttrs);
+        }
     }
 
     public long getCurrentConnection() {
