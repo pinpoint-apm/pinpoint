@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.actuate.autoconfigure.metrics.export.otlp.OtlpMetricsExportAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
@@ -42,6 +43,7 @@ import java.util.Arrays;
         RedisRepositoriesAutoConfiguration.class,
         RedisReactiveAutoConfiguration.class,
         ApplicationRunnerAutoConfiguration.class,
+        OtlpMetricsExportAutoConfiguration.class
 })
 public class PinpointCollectorStarter {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(PinpointCollectorStarter.class);
