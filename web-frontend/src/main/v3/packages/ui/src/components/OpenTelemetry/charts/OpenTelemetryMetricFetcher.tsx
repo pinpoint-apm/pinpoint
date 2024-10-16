@@ -9,9 +9,7 @@ import React from 'react';
 import { OpenTelemetryTick } from './OpenTelemetryTick';
 
 export interface OpenTelemetryMetricFetcherProps {
-  metricDefinition: OtlpMetricDefUserDefined.Metric & {
-    showTotal?: boolean; // will be added in the form
-  };
+  metricDefinition: OtlpMetricDefUserDefined.Metric;
   dashboardId?: string;
 }
 
@@ -47,7 +45,7 @@ export const OpenTelemetryMetricFetcher = ({
     });
   }, [dateRange, metricDefinition]);
 
-  const { stack, showTotal = false } = metricDefinition;
+  const { stack, stackDetails } = metricDefinition;
 
   const dataSets =
     data?.metricValues.reduce(
@@ -112,7 +110,7 @@ export const OpenTelemetryMetricFetcher = ({
           },
         }}
         tooltipConfig={{
-          showTotal: showTotal || stack,
+          showTotal: stack && stackDetails?.showTotal,
         }}
       />
     )

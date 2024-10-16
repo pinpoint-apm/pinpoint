@@ -28,6 +28,10 @@ export namespace OtlpMetricDefUserDefined {
     tagGroupList: string[];
     unit?: string;
     stack: boolean;
+    stackDetails?: {
+      showTotal?: boolean;
+    };
+    samplingInterval: number;
     chartType: string;
     layout: Layout;
     aggregationFunction: string;

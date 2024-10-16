@@ -55,15 +55,17 @@ const metricDefinitionFormSchemaFactory = (t: TFunction) => {
       aggregationFunction: z.string({
         required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Aggregation function' }),
       }),
-      interval: z.string().optional(),
+      samplingInterval: z.coerce.number().nonnegative().min(1),
       chartType: z.string({
         required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Chart type' }),
       }),
       title: z.string().min(1, t('COMMON.REQUIRED', { requiredField: 'Metric title' })),
       stack: z.boolean().default(false).optional(),
-      stackInfo: z.object({
-        showTotal: z.boolean().default(false).optional(),
-      }),
+      stackDetails: z
+        .object({
+          showTotal: z.boolean().default(false).optional(),
+        })
+        .optional(),
     })
     .superRefine((data, ctx) => {
       if (data.primaryForFieldAndTagRelation === 'tag' && data?.tagGroupList?.length === 0) {
@@ -111,13 +113,15 @@ export const MetricDefinitionFormFetcher = ({
       tagGroupList: metric?.tagGroupList || [],
       fieldNameList: metric?.fieldNameList || [],
       aggregationFunction: metric?.aggregationFunction,
-      // interval: (metric as any)?.interval || '',
+      samplingInterval: metric?.samplingInterval || 30,
       chartType: metric?.chartType || 'line',
       title: metric?.title || '',
-      stack: metric?.stack,
-      stackInfo: {
-        // showTotal: (metric as any)?.stackInfo?.showTotal,
-      },
+      stack: metric?.stack ?? false,
+      stackDetails: metric?.stack
+        ? {
+            showTotal: metric?.stackDetails?.showTotal ?? false,
+          }
+        : undefined,
     },
   });
   const { data: defPropertyData } = useGetOtlpMetricDefProperty();
@@ -257,6 +261,7 @@ export const MetricDefinitionFormFetcher = ({
             id: metric?.id,
             applicationName,
             stack: !!data.stack,
+            stackDetails: data?.stack ? data?.stackDetails : undefined,
             layout: {
               w: metric?.layout.w,
               h: metric?.layout.h,
@@ -278,6 +283,7 @@ export const MetricDefinitionFormFetcher = ({
             ...data,
             applicationName,
             stack: !!data.stack,
+            stackDetails: data?.stack ? data?.stackDetails : undefined,
             layout: {
               ...getNewWidgetLayout(metrics || []),
             },
@@ -604,7 +610,7 @@ export const MetricDefinitionFormFetcher = ({
             )}
           />
           <FormField
-            name="interval"
+            name="samplingInterval"
             control={metricDefinitionForm.control}
             render={({ field, fieldState }) => (
               <FormItem className="sm:grid sm:grid-cols-12">
@@ -612,15 +618,28 @@ export const MetricDefinitionFormFetcher = ({
                   Interval
                 </FormLabel>
                 <div className="sm:!mt-0 sm:col-span-8">
-                  <FormControl>
-                    <Input
-                      className={cn('focus-visible:ring-0 max-w-90', {
+                  <div
+                    className={cn(
+                      'flex items-center justify-center w-full gap-2 px-3 py-1 text-sm transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-w-90',
+                      {
                         'border-status-fail': fieldState.invalid,
-                      })}
-                      {...field}
-                      placeholder={'Input interval (ex. 30s)'}
-                    />
-                  </FormControl>
+                      },
+                    )}
+                  >
+                    <FormControl>
+                      <>
+                        <Input
+                          type="number"
+                          min={1}
+                          className={`text-right flex h-full w-full rounded-md bg-transparent py-2 pr-0 text-sm placeholder:text-muted-foreground shadow-none outline-none border-none
+                            focus-visible:ring-0 focus-visible:outline-none focus-visible:border-none focus-visible:shadow-none`}
+                          {...field}
+                          placeholder={'Input interval (ex. 30)'}
+                        />
+                      </>
+                    </FormControl>
+                    <div className={cn('text-muted-foreground')}>s</div>
+                  </div>
                   <FormDescription />
                   <FormMessage />
                 </div>
@@ -714,23 +733,23 @@ export const MetricDefinitionFormFetcher = ({
           />
           {stack && (
             <FormField
-              name="stackInfo.showTotal"
+              name="stackDetails.showTotal"
               control={metricDefinitionForm.control}
               render={({ field }) => (
                 <>
                   <FormItem className="sm:grid sm:grid-cols-12">
                     <div className="content-center font-normal sm:col-span-4 text-muted-foreground"></div>
-                    <div className="sm:!mt-0 sm:col-span-8 flex flex-row gap-1">
-                      <FormControl>
-                        <Checkbox
-                          className="content-center"
-                          checked={field?.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
+                    <div className="sm:!mt-0 sm:col-span-8 sm:grid sm:grid-cols-12">
                       <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                         Show total
                       </FormLabel>
+                      <div className="sm:!mt-0 sm:col-span-8">
+                        <FormControl>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </div>
                     </div>
                   </FormItem>
                 </>
