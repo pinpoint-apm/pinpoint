@@ -7,6 +7,7 @@ import { ChartDataConfig, OpenTelemetryChart } from './OpenTelemetryChart';
 import { getRandomColorInHSL } from '../../../lib/colors';
 import React from 'react';
 import { OpenTelemetryTick } from './OpenTelemetryTick';
+import { assign } from 'lodash';
 
 export interface OpenTelemetryMetricFetcherProps {
   metricDefinition: OtlpMetricDefUserDefined.Metric;
@@ -18,7 +19,7 @@ export const OpenTelemetryMetricFetcher = ({
   dashboardId,
 }: OpenTelemetryMetricFetcherProps) => {
   const { mutate, data } = usePostOtlpMetricData();
-  const { dateRange } = useOpenTelemetrySearchParameters();
+  const { dateRange, agentId } = useOpenTelemetrySearchParameters();
 
   React.useEffect(() => {
     const {
@@ -31,19 +32,24 @@ export const OpenTelemetryMetricFetcher = ({
       fieldNameList,
       primaryForFieldAndTagRelation,
     } = metricDefinition;
-    mutate({
-      applicationName,
-      metricGroupName,
-      metricName,
-      tagGroupList,
-      chartType,
-      aggregationFunction,
-      fieldNameList,
-      primaryForFieldAndTagRelation,
-      from: dateRange?.from.getTime(),
-      to: dateRange?.to.getTime(),
-    });
-  }, [dateRange, metricDefinition]);
+    mutate(
+      assign(
+        {
+          applicationName,
+          metricGroupName,
+          metricName,
+          tagGroupList,
+          chartType,
+          aggregationFunction,
+          fieldNameList,
+          primaryForFieldAndTagRelation,
+          from: dateRange?.from.getTime(),
+          to: dateRange?.to.getTime(),
+        },
+        agentId ? { agentId } : {},
+      ),
+    );
+  }, [dateRange, agentId, metricDefinition]);
 
   const { stack, stackDetails } = metricDefinition;
 
