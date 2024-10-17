@@ -92,6 +92,7 @@
         <module>closed-module-testweb</module>
         <module>closed-module-testlib</module>
         <module>mariadb-jdbc-plugin-testweb</module>
+        <module>arcus-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>

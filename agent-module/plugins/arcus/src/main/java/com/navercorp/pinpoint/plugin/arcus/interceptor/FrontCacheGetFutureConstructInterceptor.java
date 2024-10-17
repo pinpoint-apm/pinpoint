@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.arcus.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.arcus.CacheKeyAccessor;
 import com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor;
 import net.sf.ehcache.Element;
@@ -25,7 +26,6 @@ import net.sf.ehcache.Element;
  * @author harebox
  */
 public class FrontCacheGetFutureConstructInterceptor implements AroundInterceptor {
-
     // TODO This should be extracted from FrontCacheMemcachedClient.
     private static final String DEFAULT_FRONTCACHE_NAME = "front";
 
@@ -44,6 +44,20 @@ public class FrontCacheGetFutureConstructInterceptor implements AroundIntercepto
         }
 
         try {
+            // 1.13.4
+            CacheNameAccessor cacheNameAccessor = ArrayArgumentUtils.getArgument(args, 0, CacheNameAccessor.class);
+            if (cacheNameAccessor != null) {
+                final String name = cacheNameAccessor._$PINPOINT$_getCacheName();
+                if (target instanceof CacheNameAccessor) {
+                    ((CacheNameAccessor) target)._$PINPOINT$_setCacheName(name);
+                }
+                final String key = ArrayArgumentUtils.getArgument(args, 1, String.class);
+                if (target instanceof CacheKeyAccessor) {
+                    ((CacheKeyAccessor) target)._$PINPOINT$_setCacheKey(key);
+                }
+                return;
+            }
+
             if (target instanceof CacheNameAccessor) {
                 ((CacheNameAccessor) target)._$PINPOINT$_setCacheName(DEFAULT_FRONTCACHE_NAME);
             }
@@ -56,7 +70,7 @@ public class FrontCacheGetFutureConstructInterceptor implements AroundIntercepto
                 }
             }
         } catch (Exception e) {
-            logger.error("failed to add metadata: {}", e);
+            logger.warn("failed to add metadata: {}", e);
         }
     }
 }
