@@ -1,0 +1,19 @@
+[Unit]
+Description=Apache Pinot controller
+Documentation=https://docs.pinot.apache.org/
+After=network-online.target
+PartOf=pinot.service
+ 
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/pinot
+User=pinot
+Group=pinot
+WorkingDirectory=/opt/pinot
+ExecStart=/opt/pinot/sbin/run-pinot-controller
+StandardOutput=file:///var/log/pinot/controller-output.log
+StandardError=file:///var/log/pinot/controller-error.log
+SuccessExitStatus=0 143
+ 
+[Install]
+WantedBy=multi-user.target
