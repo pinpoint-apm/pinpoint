@@ -1,3 +1,5 @@
+import { Chart } from './common/Chart';
+
 export namespace ErrorAnalysisGroupedErrorList {
   export interface Parameters {
     applicationName: string;
@@ -15,6 +17,22 @@ export namespace ErrorAnalysisGroupedErrorList {
     firstOccurred: number;
     lastOccurred: number;
     fieldName: FieldName;
+    chart: Chart;
+    groupedFieldName: {
+      errorClassName: string;
+    };
+    groupFilterParams: {
+      errorClassName: string;
+    };
+    firstLineOfClassName: string;
+    firstLineOfMethodName: string;
+    lastTransactionSearchParams: {
+      applicationName: string;
+      agentId: string;
+      transactionId: string;
+      spanId: string;
+      exceptionId: string;
+    };
   }
 
   export interface FieldName {

@@ -3,6 +3,7 @@ import { RxCross2 } from 'react-icons/rx';
 import { Badge } from '../../ui';
 import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/constants';
 import { addCommas, format } from '@pinpoint-fe/utils';
+import { ErrorGroupedTableVolumneChart } from './ErrorGroupedTableVolumneChart';
 // import { cn } from '../../../lib';
 
 interface ErrorGroupedTableColumnProps {
@@ -81,6 +82,14 @@ export const errorGroupedTableColumns = ({
     },
     meta: {
       headerClassName: 'w-32',
+    },
+  },
+  {
+    accessorKey: 'chart',
+    header: 'Volume',
+    cell: (props) => {
+      const chart = props.getValue() as ErrorAnalysisGroupedErrorList.ErrorData['chart'];
+      return <ErrorGroupedTableVolumneChart chart={chart} />;
     },
   },
   {
