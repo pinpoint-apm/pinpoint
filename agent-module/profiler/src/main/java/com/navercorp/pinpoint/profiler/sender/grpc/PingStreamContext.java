@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.stream.ClientCallContext;
 import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
@@ -48,6 +49,8 @@ public class PingStreamContext {
 
     private final ScheduledExecutorService retransmissionExecutor;
     private volatile boolean closed = false;
+    private final ClientCallContext callContext = new ClientCallContext();
+
 
     public PingStreamContext(AgentGrpc.AgentStub agentStub,
                              Reconnector reconnector,
@@ -84,6 +87,8 @@ public class PingStreamContext {
 
         @Override
         public void onError(Throwable t) {
+            callContext.response().onErrorState();
+
             final Status status = Status.fromThrowable(t);
             Metadata metadata = Status.trailersFromThrowable(t);
 
@@ -99,6 +104,7 @@ public class PingStreamContext {
 
         @Override
         public void onCompleted() {
+            callContext.response().onCompleteState();
             logger.info("onCompleted {}", streamId);
 
             dispose();
@@ -136,7 +142,7 @@ public class PingStreamContext {
 
         @Override
         public void beforeStart(final ClientCallStreamObserver<PPing> steram) {
-            requestStream = ClientCallStateStreamObserver.clientCall(steram);
+            requestStream = ClientCallStateStreamObserver.clientCall(steram, callContext);
 
             requestStream.setOnReadyHandler(new Runnable() {
                 @Override

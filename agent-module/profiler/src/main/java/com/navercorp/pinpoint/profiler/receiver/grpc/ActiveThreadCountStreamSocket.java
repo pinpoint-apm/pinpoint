@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
 import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.grpc.stream.ClientCallContext;
 import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
@@ -47,6 +48,7 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
 
     private int sequenceId = 0;
 
+    private final ClientCallContext context = new ClientCallContext();
     private ClientCallStateStreamObserver<PCmdActiveThreadCountRes> requestStream;
     private volatile boolean closed = false;
 
@@ -59,7 +61,7 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
 
     @Override
     public void beforeStart(ClientCallStreamObserver<PCmdActiveThreadCountRes> requestStream) {
-        this.requestStream = ClientCallStateStreamObserver.clientCall(requestStream);
+        this.requestStream = ClientCallStateStreamObserver.clientCall(requestStream, context);
     }
 
     public PCmdStreamResponse newHeader() {
@@ -122,11 +124,14 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
 
     @Override
     public void onError(Throwable throwable) {
+        this.context.response().onErrorState();
+
         Status status = Status.fromThrowable(throwable);
         Metadata metadata = Status.trailersFromThrowable(throwable);
         logger.info("onError {}. {} {}", this, status, metadata);
 
         this.dispose();
+
         if (requestStream.isRun()) {
             StreamUtils.onCompleted(requestStream, (th) -> logger.info("onError", th));
         }
@@ -134,9 +139,12 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
 
     @Override
     public void onCompleted() {
+        this.context.response().onCompleteState();
+
         logger.info("onCompleted {}", this);
 
         this.dispose();
+
         if (requestStream.isRun()) {
             StreamUtils.onCompleted(requestStream, (th) -> logger.info("onCompleted", th));
         }
