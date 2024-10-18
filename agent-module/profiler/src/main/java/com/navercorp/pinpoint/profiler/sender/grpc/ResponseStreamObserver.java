@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.google.common.base.Suppliers;
 import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import io.grpc.Metadata;
@@ -26,7 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -46,17 +47,18 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
     public void beforeStart(final ClientCallStreamObserver<ReqT> stream) {
         this.requestStream = ClientCallStateStreamObserver.clientCall(stream);
 
+        final Supplier<Void> startStream = Suppliers.memoize(() -> {
+            logger.info("onReadyHandler startStream:{}", listener);
+            listener.start(requestStream);
+            return null;
+        });
+
         logger.info("beforeStart {}", listener);
         this.requestStream.setOnReadyHandler(new Runnable() {
-            private final AtomicLong isReadyCounter = new AtomicLong(0);
-
             @Override
             public void run() {
-                final long isReadyCount = isReadyCounter.incrementAndGet();
-                logger.info("onReadyHandler {} isReadyCount:{}", listener, isReadyCount);
-                if (isReadyCount == 1) {
-                    listener.start(requestStream);
-                }
+                logger.debug("onReadyHandler.run() {}", listener);
+                startStream.get();
             }
         });
     }
