@@ -23,9 +23,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
@@ -63,6 +65,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     private final EntityRecorder<Request> entityRecorder;
 
     private final RequestTraceWriter<Request> requestTraceWriter;
+    private final ApplicationInfoSender<Request> applicationInfoSender;
 
     // for 1.8.x and 1.9.x
     public ExecuteRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
@@ -81,6 +84,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
 
         ClientHeaderAdaptor<Request> clientHeaderAdaptor = new RequestHeaderAdaptorV1();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -89,14 +93,16 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+        Request httpRequest = getHttpRequest(args);
+        if (httpRequest == null) {
             return;
         }
 
         try {
-            Request httpRequest = getHttpReqeust(args);
-            if (httpRequest == null) {
+            applicationInfoSender.sendCallerApplicationName(httpRequest);
+
+            final Trace trace = traceContext.currentRawTraceObject();
+            if (trace == null) {
                 return;
             }
 
@@ -133,7 +139,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         }
 
         try {
-            Request httpReqeust = getHttpReqeust(args);
+            Request httpReqeust = getHttpRequest(args);
             if (httpReqeust == null) {
                 return;
             }
@@ -154,7 +160,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         }
     }
 
-    private Request getHttpReqeust(final Object[] args) {
+    private Request getHttpRequest(final Object[] args) {
         final Request request = ArrayArgumentUtils.getArgument(args, 0, Request.class);
         if (request == null) {
             if (isDebug) {
