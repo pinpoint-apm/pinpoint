@@ -7,30 +7,26 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 public class ClientCallStateStreamObserver<ReqT> extends ClientCallStreamObserver<ReqT>{
-
-    @SuppressWarnings("rawtypes")
-    private static final AtomicReferenceFieldUpdater<ClientCallStateStreamObserver, ObserverState> STATE
-            = AtomicReferenceFieldUpdater.newUpdater(ClientCallStateStreamObserver.class, ObserverState.class, "state");
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ClientCallStreamObserver<ReqT> delegate;
 
-    private volatile ObserverState state = ObserverState.RUN;
+    private final ClientCallContext context;
 
-    public static <ReqT> ClientCallStateStreamObserver<ReqT> clientCall(StreamObserver<ReqT> delegate) {
+    public static <ReqT> ClientCallStateStreamObserver<ReqT> clientCall(StreamObserver<ReqT> delegate, ClientCallContext context) {
         if (delegate instanceof ClientCallStreamObserver) {
             ClientCallStreamObserver<ReqT> clientCall = (ClientCallStreamObserver<ReqT>) delegate;
-            return new ClientCallStateStreamObserver<>(clientCall);
+            return new ClientCallStateStreamObserver<>(clientCall, context);
         }
         throw new IllegalArgumentException("delegate is not instance of ClientCallStreamObserver");
     }
 
-    public ClientCallStateStreamObserver(ClientCallStreamObserver<ReqT> delegate) {
+    public ClientCallStateStreamObserver(ClientCallStreamObserver<ReqT> delegate, ClientCallContext context) {
         this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.context = Objects.requireNonNull(context, "context");
     }
 
     ClientCallStreamObserver<ReqT> delegate() {
@@ -79,41 +75,45 @@ public class ClientCallStateStreamObserver<ReqT> extends ClientCallStreamObserve
 
     @Override
     public void onError(Throwable t) {
-        if (ObserverState.changeError(STATE, this)) {
+        if (requestState().onErrorState()) {
             delegate().onError(t);
         } else {
             // for debugging
-            logger.warn("onError() WARNING. state already changed {}", state);
+            logger.warn("onError() WARNING. state already changed {}", state());
         }
     }
 
     @Override
     public void onCompleted() {
-        if (ObserverState.changeComplete(STATE, this)) {
+        if (requestState().onCompleteState()) {
             delegate().onCompleted();
         } else {
             // for debugging
-            logger.warn("onComplete() WARNING. state already changed {}", state);
+            logger.warn("onComplete() WARNING. state already changed {}", state());
         }
     }
 
     public boolean isRun() {
-        return state.isRun();
+        return requestState().isRun();
     }
 
     public boolean isClosed() {
-        return state.isClosed();
+        return requestState().isClosed();
     }
 
-    public ObserverState state() {
-        return state;
+    public StreamState state() {
+        return requestState();
+    }
+
+    private StreamState requestState() {
+        return context.request();
     }
 
     @Override
     public String toString() {
         return "ClientCallStateStreamObserver{" +
                 "delegate=" + delegate +
-                ", state=" + state +
+                ", " + context +
                 '}';
     }
 }

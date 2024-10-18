@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.google.common.base.Suppliers;
+import com.navercorp.pinpoint.grpc.stream.ClientCallContext;
 import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import io.grpc.Metadata;
@@ -26,7 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,6 +37,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final ClientCallContext context = new ClientCallContext();
     private ClientCallStateStreamObserver<ReqT> requestStream;
     private final StreamEventListener<ReqT> listener;
 
@@ -44,19 +47,20 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void beforeStart(final ClientCallStreamObserver<ReqT> stream) {
-        this.requestStream = ClientCallStateStreamObserver.clientCall(stream);
+        this.requestStream = ClientCallStateStreamObserver.clientCall(stream, context);
+
+        final Supplier<Void> startStream = Suppliers.memoize(() -> {
+            logger.info("onReadyHandler startStream:{}", listener);
+            listener.start(requestStream);
+            return null;
+        });
 
         logger.info("beforeStart {}", listener);
         this.requestStream.setOnReadyHandler(new Runnable() {
-            private final AtomicLong isReadyCounter = new AtomicLong(0);
-
             @Override
             public void run() {
-                final long isReadyCount = isReadyCounter.incrementAndGet();
-                logger.info("onReadyHandler {} isReadyCount:{}", listener, isReadyCount);
-                if (isReadyCount == 1) {
-                    listener.start(requestStream);
-                }
+                logger.debug("onReadyHandler.run() {}", listener);
+                startStream.get();
             }
         });
     }
@@ -74,6 +78,8 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void onError(Throwable t) {
+        this.context.response().onErrorState();
+
         Status status = Status.fromThrowable(t);
         Metadata metadata = Status.trailersFromThrowable(t);
 
@@ -88,6 +94,8 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void onCompleted() {
+        this.context.response().onCompleteState();
+
         logger.info("onCompleted {}", listener);
         listener.onCompleted();
 
