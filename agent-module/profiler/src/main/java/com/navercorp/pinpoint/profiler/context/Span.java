@@ -189,6 +189,8 @@ public class Span extends DefaultFrameAttachment implements SpanType {
             Annotation<Integer> annotation = Annotations.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), shared.getStatusCode());
             this.addAnnotation(annotation);
         }
+        Annotation<String> annotationPath = Annotations.of(AnnotationKey.HTTP_REQUEST_PATH.getCode(), shared.getRpcName());
+        this.addAnnotation(annotationPath);
     }
 
     public void clear() {
