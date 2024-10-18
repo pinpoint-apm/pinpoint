@@ -1,0 +1,20 @@
+[Unit]
+Description=Apache Pinot broker
+Documentation=https://docs.pinot.apache.org/
+After=network-online.target 
+Requires=pinot-controller.service
+PartOf=pinot.service
+ 
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/pinot
+User=pinot
+Group=pinot
+WorkingDirectory=/opt/pinot
+ExecStart=/opt/pinot/sbin/run-pinot-broker
+StandardOutput=file:///var/log/pinot/broker-output.log
+StandardError=file:///var/log/pinot/broker-error.log
+SuccessExitStatus=0 143
+ 
+[Install]
+WantedBy=multi-user.target
