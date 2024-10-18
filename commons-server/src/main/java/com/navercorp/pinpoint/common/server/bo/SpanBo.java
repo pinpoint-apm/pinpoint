@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -172,6 +174,13 @@ public class SpanBo implements Event, BasicSpan {
 
     public void setRpc(String rpc) {
         this.rpc = rpc;
+    }
+
+    public String getRequestPath() {
+        List<AnnotationBo> annotationBoList = this.getAnnotationBoList();
+        return annotationBoList == null ? StringUtils.EMPTY_STRING :
+                annotationBoList.stream().filter(b -> b.getKey() == AnnotationKey.HTTP_REQUEST_PATH.getCode())
+                        .findFirst().map(AnnotationBo::getValue).map(Object::toString).orElse(StringUtils.EMPTY_STRING);
     }
 
     @Override
