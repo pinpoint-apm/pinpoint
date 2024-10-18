@@ -28,11 +28,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
@@ -74,6 +76,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     private final ServerResponseHeaderRecorder<HttpResponse> responseHeaderRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
+    private final ApplicationInfoSender<HttpRequest> applicationInfoSender;
 
     public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -92,6 +95,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         this.io = profilerConfig.isIo();
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
 
         this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new HttpResponse4ClientHeaderAdaptor());
     }
@@ -101,12 +105,15 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
+
+        final HttpRequest httpRequest = getHttpRequest(args);
+        applicationInfoSender.sendCallerApplicationName(httpRequest);
+
         final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
-        final HttpRequest httpRequest = getHttpRequest(args);
         final NameIntValuePair<String> host = getHost();
         final boolean sampling = trace.canSampled();
         if (!sampling) {

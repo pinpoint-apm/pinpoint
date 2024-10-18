@@ -55,7 +55,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-okhttp-plugin")
 @Dependency({"com.squareup.okhttp:okhttp:[2.0.0,3.0.0)", WebServer.VERSION, PluginITConstants.VERSION})
-public class OkHttpClient_2_x_IT {
+public class OkHttpClient_2_x_IT extends OkHttpClient_2_BaseIT {
 
     static final String ASYNC = "ASYNC";
     static final String OK_HTTP_CLIENT = "OK_HTTP_CLIENT";
@@ -106,6 +106,8 @@ public class OkHttpClient_2_x_IT {
         );
 
         verifier.verifyTraceCount(0);
+
+        assertCaller(response);
     }
 
     @Test
@@ -164,6 +166,8 @@ public class OkHttpClient_2_x_IT {
         );
 
         verifier.verifyTraceCount(0);
+
+        assertCaller(response);
     }
 
     private Method getConnectMethod() {

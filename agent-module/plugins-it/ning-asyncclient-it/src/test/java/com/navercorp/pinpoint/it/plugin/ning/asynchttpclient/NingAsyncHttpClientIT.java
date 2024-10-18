@@ -30,6 +30,7 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Request;
 import com.ning.http.client.Response;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -67,6 +68,7 @@ public class NingAsyncHttpClientIT {
         try {
             Future<Response> f = client.preparePost(webServer.getCallHttpUrl()).addParameter("param1", "value1").execute();
             Response response = f.get();
+            assertCaller(response);
         } finally {
             client.close();
         }
@@ -80,4 +82,10 @@ public class NingAsyncHttpClientIT {
                 annotation("http.url", httpUrl)));
         verifier.verifyTraceCount(0);
    }
+
+    private void assertCaller(Response response) {
+        final String caller = response.getHeader(WebServer.CALLER_RESPONSE_HEADER_NAME);
+        Assertions.assertNotNull(caller, "caller null");
+        Assertions.assertTrue("mockApplicationName".contentEquals(caller), "not caller mockApplicationName");
+    }
 }
