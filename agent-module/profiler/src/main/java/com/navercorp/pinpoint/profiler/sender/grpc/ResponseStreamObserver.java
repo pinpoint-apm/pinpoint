@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.common.base.Suppliers;
+import com.navercorp.pinpoint.grpc.stream.ClientCallContext;
 import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import io.grpc.Metadata;
@@ -36,6 +37,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final ClientCallContext context = new ClientCallContext();
     private ClientCallStateStreamObserver<ReqT> requestStream;
     private final StreamEventListener<ReqT> listener;
 
@@ -45,7 +47,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void beforeStart(final ClientCallStreamObserver<ReqT> stream) {
-        this.requestStream = ClientCallStateStreamObserver.clientCall(stream);
+        this.requestStream = ClientCallStateStreamObserver.clientCall(stream, context);
 
         final Supplier<Void> startStream = Suppliers.memoize(() -> {
             logger.info("onReadyHandler startStream:{}", listener);
@@ -76,6 +78,8 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void onError(Throwable t) {
+        this.context.response().onErrorState();
+
         Status status = Status.fromThrowable(t);
         Metadata metadata = Status.trailersFromThrowable(t);
 
@@ -90,6 +94,8 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void onCompleted() {
+        this.context.response().onCompleteState();
+
         logger.info("onCompleted {}", listener);
         listener.onCompleted();
 

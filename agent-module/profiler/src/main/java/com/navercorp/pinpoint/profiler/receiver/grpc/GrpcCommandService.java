@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.receiver.grpc;
 
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.SupportCommandCodeClientInterceptor;
+import com.navercorp.pinpoint.grpc.stream.ClientCallContext;
 import com.navercorp.pinpoint.grpc.stream.ClientCallStateStreamObserver;
 import com.navercorp.pinpoint.grpc.stream.StreamUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
@@ -120,6 +121,8 @@ public class GrpcCommandService {
         private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final GrpcCommandDispatcher commandDispatcher;
+
+        private final ClientCallContext context = new ClientCallContext();
         private ClientCallStateStreamObserver<PCmdMessage> requestStream;
 
         public CommandServiceMainStreamObserver(GrpcCommandDispatcher commandDispatcher) {
@@ -129,7 +132,7 @@ public class GrpcCommandService {
         @Override
         public void beforeStart(final ClientCallStreamObserver<PCmdMessage> stream) {
 
-            this.requestStream = ClientCallStateStreamObserver.clientCall(stream);
+            this.requestStream = ClientCallStateStreamObserver.clientCall(stream, context);
 
             requestStream.setOnReadyHandler(new Runnable() {
                 @Override
@@ -154,6 +157,8 @@ public class GrpcCommandService {
 
         @Override
         public void onError(Throwable t) {
+            this.context.response().onErrorState();
+
             Status status = Status.fromThrowable(t);
             Metadata metadata = Status.trailersFromThrowable(t);
             logger.info("Failed to command stream, {} {}", status, metadata);
@@ -167,6 +172,8 @@ public class GrpcCommandService {
 
         @Override
         public void onCompleted() {
+            this.context.response().onCompleteState();
+
             logger.info("onCompleted");
 
             if (requestStream.isRun()) {

@@ -12,8 +12,9 @@ class ClientCallStateStreamObserverTest {
 
     @Test
     void state() {
+        ClientCallContext context = new ClientCallContext();
         ClientCallStreamObserver<String> clientCall = mock(ClientCallStreamObserver.class);
-        ClientCallStateStreamObserver<String> adaptor = ClientCallStateStreamObserver.clientCall(clientCall);
+        ClientCallStateStreamObserver<String> adaptor = ClientCallStateStreamObserver.clientCall(clientCall, context);
         Assertions.assertTrue(adaptor.state().isRun());
 
         adaptor.onCompleted();
@@ -22,8 +23,9 @@ class ClientCallStateStreamObserverTest {
 
     @Test
     void onError() {
+        ClientCallContext context = new ClientCallContext();
         ClientCallStreamObserver<String> clientCall = mock(ClientCallStreamObserver.class);
-        ClientCallStateStreamObserver<String> adaptor = ClientCallStateStreamObserver.clientCall(clientCall);
+        ClientCallStateStreamObserver<String> adaptor = ClientCallStateStreamObserver.clientCall(clientCall, context);
 
         adaptor.onError(new RuntimeException("test"));
         adaptor.onError(new RuntimeException("test"));
@@ -35,8 +37,9 @@ class ClientCallStateStreamObserverTest {
 
     @Test
     void onCompleted() {
+        ClientCallContext context = new ClientCallContext();
         ClientCallStreamObserver<String> clientCall = mock(ClientCallStreamObserver.class);
-        ClientCallStateStreamObserver<String> adaptor = ClientCallStateStreamObserver.clientCall(clientCall);
+        ClientCallStateStreamObserver<String> adaptor = ClientCallStateStreamObserver.clientCall(clientCall, context);
 
         adaptor.onCompleted();
         adaptor.onCompleted();
