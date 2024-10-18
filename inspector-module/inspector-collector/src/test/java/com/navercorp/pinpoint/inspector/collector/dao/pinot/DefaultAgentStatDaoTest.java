@@ -117,7 +117,7 @@ class DefaultAgentStatDaoTest {
         int numPartitions = 128;
         Long longValue = -4545381519295174261L;
         MurmurPartitionFunction murmurPartitionFunction = new MurmurPartitionFunction(numPartitions);
-        int partition = murmurPartitionFunction.getPartition(longValue);
+        int partition = murmurPartitionFunction.getPartition(longValue.toString());
         assertEquals(105, partition);
     }
 
@@ -126,7 +126,7 @@ class DefaultAgentStatDaoTest {
         int numPartitions = 128;
         Long longValue = 5522573437844253163L;
         MurmurPartitionFunction murmurPartitionFunction = new MurmurPartitionFunction(numPartitions);
-        int pinotPartition = murmurPartitionFunction.getPartition(longValue);
+        int pinotPartition = murmurPartitionFunction.getPartition(longValue.toString());
         assertEquals(1, pinotPartition);
 
         LongSerializer keySerializer = new LongSerializer();
