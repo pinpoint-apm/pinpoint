@@ -40,6 +40,7 @@ import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
 import { cn } from '../../lib/utils';
 import { configurationAtom } from '@pinpoint-fe/atoms';
 import { useAtomValue } from 'jotai';
+import { HelpPopover, renderHelpPopoverContent } from '../../components/HelpPopover';
 
 export interface AlarmDetailProps {
   data?: Partial<AlarmRule.AlarmRuleData>;
@@ -219,7 +220,10 @@ export const AlarmDetail = ({
               render={({ field, fieldState }) => {
                 return (
                   <FormItem>
-                    <FormLabel>{t('CONFIGURATION.COMMON.CHECKER')}</FormLabel>
+                    <FormLabel className="flex items-center gap-1">
+                      {t('CONFIGURATION.COMMON.CHECKER')}
+                      <HelpPopover {...renderHelpPopoverContent('HELP_VIEWER.ALARM')} />
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}

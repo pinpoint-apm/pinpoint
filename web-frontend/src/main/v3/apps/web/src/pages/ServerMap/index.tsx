@@ -50,6 +50,8 @@ import {
   ApplicationCombinedList,
   withInitialFetch,
   ServerChartsBoard,
+  HelpPopover,
+  renderHelpPopoverContent,
 } from '@pinpoint-fe/ui';
 import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
 import { Edge, Node } from '@pinpoint-fe/server-map';
@@ -186,6 +188,7 @@ export const ServerMapPage = ({}: ServermapPageProps) => {
         title={
           <div className="flex items-center gap-2">
             <PiTreeStructureDuotone /> Servermap
+            <HelpPopover {...renderHelpPopoverContent('HELP_VIEWER.SERVER_MAP')} />
           </div>
         }
       >

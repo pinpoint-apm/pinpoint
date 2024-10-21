@@ -68,8 +68,7 @@
     "CREATE_METRIC_DESC": "Create a new metric",
     "SAVE_DASHBOARD": "Save Dashboard",
     "SAVE_DASHBOARD_SUCCESS": "The current dashboard status has been saved.",
-    "SAVE_DASHBOARD_FAIL": "Saving the current dashboard status failed.",
-    "FIELD_OR_TAG_SELECTBOX_DESC": "Field, tag have the relationships 1(field):N(tag), 1(tag):N(field).\nIf you first select the attribute that results in '1' in 1:N, the 'N' attribute is determined automatically."
+    "SAVE_DASHBOARD_FAIL": "Saving the current dashboard status failed."
   },
   "CONFIGURATION": {
     "GENERAL": {
@@ -156,6 +155,1067 @@
       "EDIT": "Edit Webhook",
       "DETAIL": "Webhook Detail",
       "ALIAS": "Alias"
+    }
+  },
+  "HELP_VIEWER": {
+    "SERVER_MAP": {
+      "TITLE": "Server Map",
+      "DESC": "Displays a topological view of the distributed server map.",
+      "CATEGORY": [
+        {
+          "TITLE": "Node",
+          "ITEMS": [
+            {
+              "DESC": "Each node is a logical unit of application."
+            },
+            {
+              "DESC": "The integer value inside of the node represents the number of server instances assigned to that application. (Not shown when there is only one such instance.)"
+            },
+            {
+              "DESC": "An alarm icon will be displayed inside of the node if an error/exception is detected in one of the server instances."
+            },
+            {
+              "DESC": "When the node is selected, the transaction information flowing into the application is displayed on the right side of the screen."
+            }
+          ]
+        },
+        {
+          "TITLE": "Arrow",
+          "ITEMS": [
+            {
+              "DESC": "Each arrow represents a transaction flow."
+            },
+            {
+              "DESC": "The number shows the transaction count. Displayed in red for error counts that exceeds the threshold."
+            },
+            {
+              "DESC": "When the arrow is selected, the transaction information that passes through the selected section is displayed on the right side of the screen."
+            },
+            {
+              "DESC": "Right-clicking on an arrow displays the context menu for filtering."
+            },
+            {
+              "DESC": "The Filter in the Context menu shows only the transactions that pass through the selected section."
+            },
+            {
+              "DESC": "Filter wizard allows you to configure more detailed filters."
+            }
+          ]
+        },
+        {
+          "TITLE": "Server Map Configuration",
+          "ITEMS": [
+            {
+              "DESC": "Right-clicking on any blank area displays a server map configuration menu."
+            },
+            {
+              "DESC": "Merge: Groups all mergeable nodes and displays it as a single node."
+            },
+            {
+              "DESC": "Refresh: Initialize the viewport and the zoom level of the server map."
+            }
+          ]
+        }
+      ]
+    },
+    "SCATTER": {
+      "TITLE": "Response Time Scatter Chart",
+      "DESC": "",
+      "CATEGORY": [
+        {
+          "TITLE": "Legend",
+          "ITEMS": [
+            {
+              "NAME": "<FaCircle color=\"#2EB089\" size=\"15\"/>",
+              "DESC": "Successful Transaction"
+            },
+            {
+              "NAME": "<FaCircle color=\"#E64A4F\" size=\"15\"/>",
+              "DESC": "Failed Transaction"
+            },
+            {
+              "NAME": "X-Axis",
+              "DESC": "Transaction Timestamp"
+            },
+            {
+              "NAME": "Y-Axis",
+              "DESC": "Response Time"
+            }
+          ]
+        },
+        {
+          "TITLE": "Usage",
+          "ITEMS": [
+            {
+              "NAME": "<FaPlus/>",
+              "DESC": "Drag on the scatter chart to show detailed information on selected transactions."
+            },
+            {
+              "NAME": "<BsGearFill/>",
+              "DESC": "Set the min/max value of the Y-axis (Response Time)."
+            },
+            {
+              "NAME": "<FaDownload/>",
+              "DESC": "Download the chart as an image file."
+            },
+            {
+              "NAME": "<FaExpandArrowsAlt/>",
+              "DESC": "Open the chart in a new window."
+            }
+          ]
+        }
+      ]
+    },
+    "RESPONSE_SUMMARY": {
+      "TITLE": "Response Summary Chart",
+      "DESC": "",
+      "CATEGORY": [
+        {
+          "TITLE": "Legend",
+          "ITEMS": [
+            {
+              "NAME": "<FaCircle size=\"11\"/> X-Axis",
+              "DESC": "Response Time"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\"/> Y-Axis",
+              "DESC": "Transaction Count"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#34b994\"/> 1s",
+              "DESC": "No. of Successful transactions (less than 1 second)"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#51afdf\"/> 3s",
+              "DESC": "No. of Successful transactions (1 ~ 3 seconds)"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#ffba00\"/> 5s",
+              "DESC": "No. of Successful transactions (3 ~ 5 seconds)"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#e67f22\"/> Slow",
+              "DESC": "No. of Successful transactions (greater than 5 seconds)"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#e95459\"/> Error",
+              "DESC": "No. of Failed transactions regardless of response time"
+            }
+          ]
+        }
+      ]
+    },
+    "LOAD": {
+      "TITLE": "Load Chart",
+      "DESC": "",
+      "CATEGORY": [
+        {
+          "TITLE": "Legend",
+          "ITEMS": [
+            {
+              "NAME": "<FaCircle size=\"11\"/> X-Axis",
+              "DESC": "Response Time"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\"/> Y-Axis",
+              "DESC": "Transaction Count"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#34b994\"/> 1s",
+              "DESC": "No. of Successful transactions (less than 1 second)"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#51afdf\"/> 3s",
+              "DESC": "No. of Successful transactions (1 ~ 3 seconds)"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#ffba00\"/> 5s",
+              "DESC": "No. of Successful transactions (3 ~ 5 seconds)"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#e67f22\"/> Slow",
+              "DESC": "No. of Successful transactions (greater than 5 seconds)"
+            },
+            {
+              "NAME": "<FaCircle size=\"11\" color=\"#e95459\"/> Error",
+              "DESC": "No. of Failed transactions regardless of response time"
+            }
+          ]
+        },
+        {
+          "TITLE": "Usage",
+          "ITEMS": [
+            {
+              "DESC": "Clicking on a legend item shows/hides all transactions within the selected group."
+            },
+            {
+              "DESC": "Dragging on the chart zooms in to the dragged area."
+            }
+          ]
+        }
+      ]
+    },
+    "INSPECTOR": {
+      "AGENT_LIST": {
+        "TITLE": "Agent List",
+        "DESC": "List of agents registered under the current Application Name",
+        "CATEGORY": [
+          {
+            "TITLE": "Legend",
+            "ITEMS": [
+              {
+                "NAME": "<BiSolidServer size=\"15\"/>",
+                "DESC": "Hostname of the agent's machine"
+              },
+              {
+                "NAME": "<PiHardDriveFill size=\"15\"/>",
+                "DESC": "Agent running at the time of query."
+              },
+              {
+                "NAME": "<FaArrowAltCircleDown size=\"15\" color=\"#ef4444\"/>",
+                "DESC": "Agent was shutdown at the time of query"
+              },
+              {
+                "NAME": "<FaTimesCircle size=\"15\" color=\"#ef4444\"/>",
+                "DESC": "Agent was disconnected at the time of query"
+              },
+              {
+                "NAME": "<FaExclamationCircle size=\"15\" color=\"#ef4444\"/>",
+                "DESC": "Agent status was unknown at the time of query"
+              }
+            ]
+          }
+        ]
+      },
+      "AGENT_CHART": {
+        "HEAP": {
+          "TITLE": "Heap",
+          "DESC": "JVM's heap information and major garbage collection time required",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Max",
+                  "DESC": "Maximum heap size"
+                },
+                {
+                  "NAME": "Used",
+                  "DESC": "Heap size currently in use"
+                },
+                {
+                  "NAME": "Major GC",
+                  "DESC": "Time required for major garbage collection (number of Major GCs in parenthesis if it occurred more than once)"
+                }
+              ]
+            }
+          ]
+        },
+        "NON_HEAP": {
+          "TITLE": "Non-Heap",
+          "DESC": "JVM's non-heap information and major garbage collection time required",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Max",
+                  "DESC": "Maximum non-heap size"
+                },
+                {
+                  "NAME": "Used",
+                  "DESC": "Non-heap size currently in use"
+                },
+                {
+                  "NAME": "Major ",
+                  "DESC": "Time required for major garbage collection (number of Major GCs in parenthesis if it occurred more than once)"
+                }
+              ]
+            }
+          ]
+        },
+        "CPU_USAGE": {
+          "TITLE": "Cpu Usage",
+          "DESC": "JVM/System's CPU Usage - For multi-core CPUs, displays the average CPU usage of all the cores.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Java 1.6",
+                  "DESC": "Only JVM's CPU usage is collected."
+                },
+                {
+                  "NAME": "Java 1.7+",
+                  "DESC": "Both JVM's and system's CPU usage are collected."
+                }
+              ]
+            }
+          ]
+        },
+        "APDEX_SCORE": {
+          "TITLE": "Apdex Score",
+          "DESC": "Shows status of the agent's Apdex Score",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Apdex Score",
+                  "DESC": "Agent's Apdex Score"
+                }
+              ]
+            }
+          ]
+        },
+        "TPS": {
+          "TITLE": "Transactions Per Second",
+          "DESC": "Transactions received by the server per second",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Sampled Continuation (S.C)",
+                  "DESC": "Profiled transactions that started from another agent"
+                },
+                {
+                  "NAME": "Sampled New (S.N)",
+                  "DESC": "Profiled transactions that started from the selected agent"
+                },
+                {
+                  "NAME": "Unsampled Continuation (U.C)",
+                  "DESC": "Unprofiled transactions that started from another agent"
+                },
+                {
+                  "NAME": "Unsampled New (U.N)",
+                  "DESC": "Unprofiled transactions that started from the selected agent"
+                },
+                {
+                  "NAME": "Skipped New (S.S.N)",
+                  "DESC": "Unprofiled transactions that started from the selected agent because of processing limit"
+                },
+                {
+                  "NAME": "Skipped Continuation (S.S.C)",
+                  "DESC": "Unprofiled transactions that started from another agent because of processing limit"
+                },
+                {
+                  "NAME": "Total",
+                  "DESC": "All transactions"
+                }
+              ]
+            }
+          ]
+        },
+        "ACTIVE_REQUEST": {
+          "TITLE": "Active Request",
+          "DESC": "Snapshots of the agent's active request status, categorized by how long they have been active for serving a request.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Fast (1s)",
+                  "DESC": "Number of requests that have been active for less than or equal to 1s"
+                },
+                {
+                  "NAME": "Normal (3s)",
+                  "DESC": "Number of requests that have been active for less than or equal to 3s but longer than 1s"
+                },
+                {
+                  "NAME": "Slow (5s)",
+                  "DESC": "Number of requests that have been active for less than or equal to 5s but longer than 3s"
+                },
+                {
+                  "NAME": "Very Slow (slow)",
+                  "DESC": "Number of requests that have been active for longer than 5s"
+                }
+              ]
+            }
+          ]
+        },
+        "RESPONSE_TIME": {
+          "TITLE": "Response Time",
+          "DESC": "Shows the status of agent's response time.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average Response Time (unit : milliseconds)"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Maximum Response Time (unit : milliseconds)"
+                }
+              ]
+            }
+          ]
+        },
+        "DATA_SOURCE": {
+          "TITLE": "Data Source",
+          "DESC": "Shows the status of agent's data source.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Active Avg",
+                  "DESC": "Average number of active connections"
+                },
+                {
+                  "NAME": "Active Max",
+                  "DESC": "Maximum number of active connections"
+                },
+                {
+                  "NAME": "Total Max",
+                  "DESC": "The maximum number of connections that can be allocated at the same time"
+                },
+                {
+                  "NAME": "Type",
+                  "DESC": "Type of DB Connection Pool"
+                }
+              ]
+            }
+          ]
+        },
+        "OPEN_FILE_DESCRIPTOR": {
+          "TITLE": "File Descriptor",
+          "DESC": "Shows the status of agent's file descriptors.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Open File Descriptor",
+                  "DESC": "Number of open file descriptor currently used"
+                }
+              ]
+            }
+          ]
+        },
+        "DIRECT_BUFFER_COUNT": {
+          "TITLE": "Direct Buffer",
+          "DESC": "Shows the status of agent's direct buffer.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Direct Buffer Count",
+                  "DESC": "Number of direct buffer"
+                }
+              ]
+            }
+          ]
+        },
+        "DIRECT_BUFFER_MEMORY": {
+          "TITLE": "Direct Buffer Memory",
+          "DESC": "Shows the status of agent's used direct buffer memory.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Direct Buffer Memory Used",
+                  "DESC": "Currently used direct buffer memory"
+                }
+              ]
+            }
+          ]
+        },
+        "MAPPED_BUFFER_COUNT": {
+          "TITLE": "Mapped Buffer",
+          "DESC": "Shows the status of agent's mapped buffer.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Mapped Buffer Count",
+                  "DESC": "Number of Mapped buffer"
+                }
+              ]
+            }
+          ]
+        },
+        "MAPPED_BUFFER_MEMORY": {
+          "TITLE": "Mapped Buffer Memory",
+          "DESC": "Shows the status of agent's used mapped buffer memory.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Mapped Buffer Memory Used",
+                  "DESC": "Currently used Mapped buffer memory"
+                }
+              ]
+            }
+          ]
+        },
+        "TOTAL_THREAD": {
+          "TITLE": "Total Thread",
+          "DESC": "Shows the agent's total thread count",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Total Thread Count",
+                  "DESC": "Number of total thread"
+                }
+              ]
+            }
+          ]
+        },
+        "LOADED_CLASS_COUNT": {
+          "TITLE": "Loaded Class Count",
+          "DESC": "Shows the agent's loaded class count",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Loaded Class Count",
+                  "DESC": "Number of loaded class"
+                }
+              ]
+            }
+          ]
+        },
+        "UNLOADED_CLASS_COUNT": {
+          "TITLE": "Unloaded Class Count",
+          "DESC": "Shows the agent's unloaded class count",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Unloaded Class Count",
+                  "DESC": "Number of unloaded class"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "APPLICATION_CHART": {
+        "HEAP": {
+          "TITLE": "Heap",
+          "DESC": "Heap size used by the agent JVMs",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Smallest Heap size used by an agent JVM"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average Heap size used by the agent JVMs"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Largest Heap size used by an agent JVM"
+                }
+              ]
+            }
+          ]
+        },
+        "NON_HEAP": {
+          "TITLE": "Non-Heap",
+          "DESC": "Non-heap size used by the agent JVMs",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Smallest Non-Heap size used by an agent JVM"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average Non-Heap size used by the agent JVMs"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Largest Non-Heap size used by an agent JVM"
+                }
+              ]
+            }
+          ]
+        },
+        "JVM_CPU_USAGE": {
+          "TITLE": "JVM CPU Usage",
+          "DESC": "CPU used by agent JVM processes - For multi-core CPUs, displays the average CPU usage of all the cores.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Smallest CPU usage of agent JVM processes"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average CPU usage of agent JVM processes"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Largest CPU usage of agent JVM processes"
+                }
+              ]
+            }
+          ]
+        },
+        "SYSTEM_CPU_USAGE": {
+          "TITLE": "System CPU Usage",
+          "DESC": "CPU usage of every agent's system - For multi-core CPUs, displays the average CPU usage of all cores.",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Smallest system CPU usage of agents"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average system CPU usage of agents"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Largest system CPU usage of agents"
+                }
+              ]
+            }
+          ]
+        },
+        "APDEX_SCORE": {
+          "TITLE": "Apdex Score",
+          "DESC": "Apdex Score of the agents and the application",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Min Apdex Score among the agents"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Apdex Score of the application"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Max Apdex Score among the agents"
+                }
+              ]
+            }
+          ]
+        },
+        "TPS": {
+          "TITLE": "Transactions Per Second",
+          "DESC": "Number of transactions received by the agents per second",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Lowest TPS of the agents"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average TPS of the agents"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Highest TPS of the agents"
+                }
+              ]
+            }
+          ]
+        },
+        "ACTIVE_REQUEST": {
+          "TITLE": "Active Request",
+          "DESC": "Number of active requests serving user requests",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Lowest active request count of the agents serving user requests"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average active request count of the agents serving user requests"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Highest active request count of the agents serving user requests"
+                }
+              ]
+            }
+          ]
+        },
+        "RESPONSE_TIME": {
+          "TITLE": "Response Time",
+          "DESC": "Average response times served by the agents",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Lowest value of agents' average response time"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average value of agents' average response time"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Highest value of agents' average response time"
+                }
+              ]
+            }
+          ]
+        },
+        "DATA_SOURCE": {
+          "TITLE": "Data Source",
+          "DESC": "Status of the agents' data source",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Smallest data source connection count of the agents"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average data source connection count of the agents"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Largest data source connection count of the agents"
+                }
+              ]
+            }
+          ]
+        },
+        "OPEN_FILE_DESCRIPTOR": {
+          "TITLE": "File Descriptor",
+          "DESC": "Number of file descriptors used by agents",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Min number of open file descriptors"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average open file descriptors"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Max number of open file descriptors"
+                }
+              ]
+            }
+          ]
+        },
+        "DIRECT_BUFFER_COUNT": {
+          "TITLE": "Direct Buffer",
+          "DESC": "Number of direct buffer used by agents",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Min number of direct buffer"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average number of direct buffer"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Max number of direct buffer"
+                }
+              ]
+            }
+          ]
+        },
+        "DIRECT_BUFFER_MEMORY": {
+          "TITLE": "Direct Buffer Memory",
+          "DESC": "Number of Direct buffer used by agents",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Min memory used by direct buffer"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average memory used by direct buffer"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Max memory used by direct buffer"
+                }
+              ]
+            }
+          ]
+        },
+        "MAPPED_BUFFER_COUNT": {
+          "TITLE": "Mapped Buffer",
+          "DESC": "Number of Mapped Buffer used by agents",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Min number of Mapped Buffer"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average number of Mapped Buffer"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Max number of Mapped Buffer"
+                }
+              ]
+            }
+          ]
+        },
+        "MAPPED_BUFFER_MEMORY": {
+          "TITLE": "Mapped Buffer Memory",
+          "DESC": "Number of Mapped Buffer Memory used by agents",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Min memory used by mapped buffer"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average memory used by mapped buffer"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Max memory used by mapped buffer"
+                }
+              ]
+            }
+          ]
+        },
+        "TOTAL_THREAD": {
+          "TITLE": "Total Thread",
+          "DESC": "Number of total thread used by each agent",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Minimum of total thread count by each agent"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average of total thread count by each agent"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Maximum of total thread count by each agent"
+                }
+              ]
+            }
+          ]
+        },
+        "LOADED_CLASS_COUNT": {
+          "TITLE": "Loaded Class Count",
+          "DESC": "Number of loaded class by each agent",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Minimum of loaded class count by each agent"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average of loaded class count by each agent"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Maximum of loaded class count by each agent"
+                }
+              ]
+            }
+          ]
+        },
+        "UNLOADED_CLASS_COUNT": {
+          "TITLE": "Unloaded Class Count",
+          "DESC": "Number of unloaded class by each agent",
+          "CATEGORY": [
+            {
+              "TITLE": "Legend",
+              "ITEMS": [
+                {
+                  "NAME": "Min",
+                  "DESC": "Minimum of unloaded class count by each agent"
+                },
+                {
+                  "NAME": "Avg",
+                  "DESC": "Average of unloaded class count by each agent"
+                },
+                {
+                  "NAME": "Max",
+                  "DESC": "Maximum of unloaded class count by each agent"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "ALARM": {
+      "TITLE": "Types of Alarm Rule",
+      "DESC": "The following types of alarm rules are supported by Pinpoint.",
+      "CATEGORY": [
+        {
+          "TITLE": "Type",
+          "ITEMS": [
+            {
+              "NAME": "SLOW COUNT",
+              "DESC": "Triggered when the number of slow requests sent to the application exceeds the configured threshold."
+            },
+            {
+              "NAME": "SLOW RATE",
+              "DESC": "Triggered when the percentage(%) of slow requests sent to the application exceeds the configured threshold."
+            },
+            {
+              "NAME": "ERROR COUNT",
+              "DESC": "Triggered when the number of failed requests sent to the application exceeds the configured threshold."
+            },
+            {
+              "NAME": "ERROR RATE",
+              "DESC": "Triggered when the percentage(%) of failed requests sent to the application exceeds the configured threshold."
+            },
+            {
+              "NAME": "TOTAL COUNT",
+              "DESC": "Triggered when the number of all requests sent to the application exceeds the configured threshold."
+            },
+            {
+              "NAME": "SLOW COUNT TO CALLEE",
+              "DESC": "Triggered when the number of slow requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+            },
+            {
+              "NAME": "SLOW RATE TO CALLEE",
+              "DESC": "Triggered when the percentage(%) of slow requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+            },
+            {
+              "NAME": "ERROR COUNT TO CALLEE",
+              "DESC": "Triggered when the number of failed requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+            },
+            {
+              "NAME": "ERROR RATE TO CALLEE",
+              "DESC": "Triggered when the percentage(%) of failed requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+            },
+            {
+              "NAME": "TOTAL COUNT TO CALLEE",
+              "DESC": "Triggered when the number of all requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+            },
+            {
+              "NAME": "HEAP USAGE RATE",
+              "DESC": "Triggered when the application's heap usage(%) exceeds the configured threshold."
+            },
+            {
+              "NAME": "JVM CPU USAGE RATE",
+              "DESC": "Triggered when the application's CPU usage(%) exceeds the configured threshold."
+            },
+            {
+              "NAME": "SYSTEM CPU USAGE RATE",
+              "DESC": "Sends an alarm when the application's CPU usage(%) exceeds the configured threshold."
+            },
+            {
+              "NAME": "DATASOURCE CONNECTION USAGE RATE",
+              "DESC": "Triggered when the application's DataSource connection usage(%) exceeds the configured threshold."
+            },
+            {
+              "NAME": "DEADLOCK OCCURRENCE",
+              "DESC": "Sends an alarm when deadlock condition is detected in application."
+            },
+            {
+              "NAME": "FILE DESCRIPTOR COUNT",
+              "DESC": "Sends an alarm when the number of open file descriptors exceeds the configured threshold."
+            }
+          ]
+        }
+      ]
+    },
+    "APDEX_SCORE": {
+      "TITLE": "Apdex Score",
+      "CATEGORY": [
+        {
+          "TITLE": "Score",
+          "ITEMS": [
+            {
+              "NAME": "0.94 ~ 1.00",
+              "DESC": "<FaSmileBeam size=\"15\" color=\"#41c464\"/> Execellent"
+            },
+            {
+              "NAME": "0.85 ~ 0.94",
+              "DESC": "<FaSmile size=\"15\" color=\"#469ae4\"/> Good"
+            },
+            {
+              "NAME": "0.7 ~ 0.85",
+              "DESC": "<FaMeh size=\"15\"/>  Fair"
+            },
+            {
+              "NAME": "0.5 ~ 0.7",
+              "DESC": "<FaFrown size=\"15\" color=\"#ff8c00\"/> Poor"
+            },
+            {
+              "NAME": "<Lt/> 0.5",
+              "DESC": "<FaAngry size=\"15\" color=\"#eb4747\"/> Unacceptable"
+            }
+          ]
+        }
+      ]
+    },
+    "OPEN_TELEMETRY_TAG_FIELD": {
+      "TITLE": "Tag/Field",
+      "DESC": "",
+      "CATEGORY": [
+        {
+          "TITLE": "",
+          "ITEMS": [
+            {
+              "DESC": "Field, tag have the relationships 1(field):N(tag), 1(tag):N(field)."
+            },
+            {
+              "DESC": "If you first select the attribute that results in '1' in 1:N, the 'N' attribute is determined automatically."
+            }
+          ]
+        }
+      ]
     }
   }
 }
