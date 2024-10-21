@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class OtlpMetricMapper {
@@ -60,11 +61,21 @@ public class OtlpMetricMapper {
             return null;
         }
 
+        Map<String, String> filteredTags = removeTagsByKeyword(commonTags);
+
         builder.setTenantId(tenantId);
         builder.setUnit(metric.getUnit());
 
-        this.map(builder, metric, commonTags);
+        this.map(builder, metric, filteredTags);
         return builder.build();
+    }
+
+    private Map<String, String> removeTagsByKeyword(Map<String, String> commonTags) {
+        Map<String, String> filteredTags = commonTags.entrySet().stream()
+                .filter(entry -> !entry.getKey().contains(OtlpResourceAttributes.KEY_PINPOINT_AGENTID))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return filteredTags;
     }
 
     private void map(OtlpMetricData.Builder builder, Metric metric, Map<String, String> commonTags) {
@@ -85,11 +96,11 @@ public class OtlpMetricMapper {
             throw new OtlpMappingException("Resource attribute `pinpoint.agentId` is required to save OTLP metrics to Pinpoint");
         }
 
+        builder.setAgentId(agentId);
+
         String version = commonTags.get(OtlpResourceAttributes.KEY_PINPOINT_METRIC_VERSION);
         if (version != null) {
             builder.setVersion(version);
         }
-
-        builder.setAgentId(agentId);
     }
 }
