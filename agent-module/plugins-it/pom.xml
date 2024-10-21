@@ -53,6 +53,7 @@
         <module>log4j-it</module>
         <module>logback-it</module>
         <module>mariadb-jdbc-it</module>
+        <module>dameng-jdbc-it</module>
         <module>mongodb-it</module>
         <module>mssql-jdbc-it</module>
         <module>mybatis-it</module>

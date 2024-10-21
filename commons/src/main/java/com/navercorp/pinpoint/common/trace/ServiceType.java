@@ -124,6 +124,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
  * <tr><td>2302</td><td>R2DBC_ORACLE</td></tr>
  * <tr><td>2303</td><td>R2DBC_ORACLE_EXECUTE_QUERY</td></tr>
+ * <tr><td>2340</td><td>DAMENG</td></tr>
+ * <tr><td>2341</td><td>DAMENG_EXECUTE_QUERY</td></tr>
  * <tr><td>2400</td><td>CUBRID</td></tr>
  * <tr><td>2401</td><td>CUBRID_EXECUTE_QUERY</td></tr>
  * <tr><td>2410</td><td>NBASET</td></tr>
