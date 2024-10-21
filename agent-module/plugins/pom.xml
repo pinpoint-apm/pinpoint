@@ -49,6 +49,7 @@
         <module>mariadb-jdbc</module>
         <module>mssql-jdbc</module>
         <module>postgresql-jdbc</module>
+        <module>dameng-jdbc</module>
         <module>jtds</module>
         <module>dbcp</module>
         <module>dbcp2</module>
