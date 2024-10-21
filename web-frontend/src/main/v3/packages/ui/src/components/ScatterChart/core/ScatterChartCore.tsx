@@ -9,9 +9,9 @@ import {
 } from '@pinpoint-fe/scatter-chart';
 import { getDefaultOption } from './defaultOption';
 import { BsGearFill } from 'react-icons/bs';
-import { FaDownload, FaExpandArrowsAlt, FaQuestionCircle } from 'react-icons/fa';
+import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
-import { toast } from '../..';
+import { toast, HelpPopover, renderHelpPopoverContent } from '../..';
 import { cn } from '../../../lib';
 import { ScatterSetting, ScatterSettingProps } from './ScatterSetting';
 
@@ -309,8 +309,6 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
       toolbarOption?.expand?.onClick?.();
     };
 
-    const handleClickHelp = () => {};
-
     return (
       <div className={cn('relative h-full', className)}>
         {toolbarOption?.hide === true ? null : (
@@ -339,12 +337,7 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
               >
                 <FaExpandArrowsAlt />
               </button>
-              <button
-                className={cn({ hidden: toolbarOption?.help?.hide || true })}
-                onClick={handleClickHelp}
-              >
-                <FaQuestionCircle />
-              </button>
+              <HelpPopover {...renderHelpPopoverContent('HELP_VIEWER.SCATTER')} />
             </div>
             {/* overlay */}
             <div
@@ -380,7 +373,12 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
           </>
         )}
         {/* ScatterChart */}
-        <div className="relative h-full" ref={wrapperRef}></div>
+        <div
+          className={cn('relative h-full', {
+            'cursor-crosshair': !!onDragEnd,
+          })}
+          ref={wrapperRef}
+        ></div>
       </div>
     );
   },

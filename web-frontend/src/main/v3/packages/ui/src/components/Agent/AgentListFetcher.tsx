@@ -7,6 +7,10 @@ import { SearchApplication } from '@pinpoint-fe/constants';
 import { cn } from '../../lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
+import { colors } from '../../constant';
+import { FaArrowAltCircleDown, FaExclamationCircle, FaTimesCircle } from 'react-icons/fa';
+import { BiSolidServer } from 'react-icons/bi';
+import { PiHardDriveFill } from 'react-icons/pi';
 
 export interface AgentListFetcherProps extends Pick<React.HTMLAttributes<HTMLDivElement>, 'style'> {
   className?: string;
@@ -59,6 +63,20 @@ export const AgentListFetcher = ({
     }
   }, [filteredList, isCollapsible]);
 
+  function renderIcon(state: number) {
+    if (state === 200 || state === 201) {
+      return <FaArrowAltCircleDown color={colors?.error} size={16} />;
+    }
+    if (state === 300) {
+      return <FaTimesCircle color={colors?.error} size={16} />;
+    }
+    if (state === -1) {
+      return <FaExclamationCircle color={colors?.error} size={16} />;
+    }
+
+    return <PiHardDriveFill size={16} />;
+  }
+
   return (
     <div className={className} style={style}>
       {filteredList && filteredList.length > 0 ? (
@@ -92,7 +110,10 @@ export const AgentListFetcher = ({
                   <Tooltip>
                     <TooltipTrigger className="w-full" asChild>
                       <div className="flex items-center">
-                        <div className="truncate">{group.groupName}</div>
+                        <div className="truncate">
+                          <BiSolidServer size={16} className="mr-1 align-middle" />
+                          {group.groupName}
+                        </div>
                         {isCollapsible && (
                           <div className="ml-auto">
                             {isOpen ? <LuChevronDown /> : <LuChevronRight />}
@@ -123,7 +144,12 @@ export const AgentListFetcher = ({
                             <TooltipTrigger asChild>
                               <div className="grid grid-cols-[1rem_auto] items-center">
                                 {selectedAgentId === instance.agentId ? <RxCheck /> : <span />}
-                                <div className="truncate">{instance.agentId}</div>
+                                <div className="truncate">
+                                  <span className="mr-1 align-bottom">
+                                    {renderIcon(instance?.status?.state?.code)}
+                                  </span>
+                                  {instance.agentId}
+                                </div>
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>{instance.agentId}</TooltipContent>

@@ -7,6 +7,7 @@ import { AgentListSortBySelector } from './AgentListSortBySelector';
 import { Badge } from '../../components/ui/badge';
 import { RxCross2 } from 'react-icons/rx';
 import { useHeightToBottom } from '@pinpoint-fe/hooks';
+import { HelpPopover, renderHelpPopoverContent } from '../../components/HelpPopover';
 
 export interface AgentSearchListProps {
   className?: string;
@@ -26,7 +27,11 @@ export const AgentSearchList = ({
   return (
     <div className={cn('p-5 text-sm space-y-2', className)}>
       <div className="flex items-center">
-        <span className="font-semibold">Agent List</span>
+        <span className="inline-flex gap-1 font-semibold">
+          Agent List
+          <HelpPopover {...renderHelpPopoverContent('HELP_VIEWER.INSPECTOR.AGENT_LIST')} />
+        </span>
+
         <AgentListSortBySelector
           align="end"
           triggerClassName="w-auto h-8 px-2 py-1 ml-auto text-xs border-none shadow-none hover:bg-accent hover:text-accent-foreground justify-start"

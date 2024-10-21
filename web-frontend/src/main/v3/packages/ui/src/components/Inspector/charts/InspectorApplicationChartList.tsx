@@ -2,7 +2,7 @@ import React from 'react';
 import { ErrorBoundary } from '../../Error';
 import { ChartSkeleton } from '../../Chart';
 import { ApplicationChartFetcher, APPLICATION_CHART_ID_LIST, ApplicationDataSourceChart } from '.';
-import { InspectorChart } from './InspectorChart';
+import { HELP_VIEWER_KEY, InspectorChart } from './InspectorChart';
 
 export interface InspectorApplicationChartListProps {
   emptyMessage?: string;
@@ -24,7 +24,15 @@ export const InspectorApplicationChartList = ({
               }
             >
               <ApplicationChartFetcher chartId={chartId} emptyMessage={emptyMessage}>
-                {(props) => <InspectorChart {...props} />}
+                {(props) => (
+                  <InspectorChart
+                    {...props}
+                    helpViewerKey={
+                      HELP_VIEWER_KEY[chartId] &&
+                      `HELP_VIEWER.INSPECTOR.APPLICATION_CHART.${HELP_VIEWER_KEY[chartId]}`
+                    }
+                  />
+                )}
               </ApplicationChartFetcher>
             </React.Suspense>
           </ErrorBoundary>
