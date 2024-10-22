@@ -16,13 +16,12 @@ export namespace ErrorAnalysisGroupedErrorList {
     count: number;
     firstOccurred: number;
     lastOccurred: number;
-    fieldName: FieldName;
     chart: Chart;
-    groupedFieldName: {
-      errorClassName: string;
-    };
+    groupedFieldName: GroupedFieldName;
     groupFilterParams: {
-      errorClassName: string;
+      errorClassName?: string;
+      errorMessage_logType?: string;
+      errorStackTraceHash?: string;
     };
     firstLineOfClassName: string;
     firstLineOfMethodName: string;
@@ -35,7 +34,7 @@ export namespace ErrorAnalysisGroupedErrorList {
     };
   }
 
-  export interface FieldName {
+  export interface GroupedFieldName {
     stackTraceHash?: string;
     uriTemplate?: string;
     errorMessage?: string;
