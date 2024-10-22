@@ -14,14 +14,6 @@
     "sortedColumn": ["applicationId"],
     "bloomFilterColumns": ["serviceId", "applicationId", "agentId", "metricGroupName", "metricName", "fieldName"],
     "noDictionaryColumns": ["value", "eventTime"],
-    "segmentPartitionConfig": {
-      "columnPartitionMap": {
-        "sortKey": {
-          "functionName": "Murmur",
-          "numPartitions": 32
-        }
-      }
-    },
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
@@ -52,8 +44,7 @@
   },
   "routing": {
     "segmentPrunerTypes": [
-      "time",
-      "partition"
+      "time"
     ]
   }
 }

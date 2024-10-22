@@ -72,7 +72,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     @Override
     public void updateMetadata(PinotOtlpMetricMetadata metadata) {
         Objects.requireNonNull(metadata);
-        CompletableFuture<SendResult<String, PinotOtlpMetricMetadata>> response = this.kafkaOtlpMetadataTemplate.send(metadataTopic, metadata);
+        CompletableFuture<SendResult<String, PinotOtlpMetricMetadata>> response = this.kafkaOtlpMetadataTemplate.send(metadataTopic, metadata.applicationId(), metadata);
         response.whenComplete(metadataResultCallback);
     }
 
@@ -80,7 +80,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     public void insertDouble(PinotOtlpMetricDoubleData data) {
         Objects.requireNonNull(data);
         String doubleTopic = doubleTopicNameManager.getTopicName(data.getApplicationId());
-        CompletableFuture<SendResult<String, PinotOtlpMetricDoubleData>> response = this.kafkaOtlpDoubleMetricTemplate.send(doubleTopic, data);
+        CompletableFuture<SendResult<String, PinotOtlpMetricDoubleData>> response = this.kafkaOtlpDoubleMetricTemplate.send(doubleTopic, data.getSortKey(), data);
         response.whenComplete(doubleResultCallback);
     }
 
@@ -88,7 +88,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     public void insertLong(PinotOtlpMetricLongData data) {
         Objects.requireNonNull(data);
         String longTopic = longTopicNameManager.getTopicName(data.getApplicationId());
-        CompletableFuture<SendResult<String, PinotOtlpMetricLongData>> response = this.kafkaOtlpLongMetricTemplate.send(longTopic, data);
+        CompletableFuture<SendResult<String, PinotOtlpMetricLongData>> response = this.kafkaOtlpLongMetricTemplate.send(longTopic, data.getSortKey(), data);
         response.whenComplete(longResultCallback);
     }
 }

@@ -23,6 +23,7 @@ import java.util.List;
 public class PinotOtlpMetricDataRow {
 
     protected final String  serviceId;
+    protected final String sortKey;
     @NotBlank
     protected final String applicationId;
     @NotBlank
@@ -37,11 +38,12 @@ public class PinotOtlpMetricDataRow {
     protected final Long eventTime;
     protected final Long startTime;
 
-    public PinotOtlpMetricDataRow(String serviceId, String applicationName,
+    public PinotOtlpMetricDataRow(String serviceId, String sortKey, String applicationName,
                                   String agentId, String metricGroupName, String metricName, String fieldName,int flag,
                                   List<String> tags, String version,
                                   Long eventTime, Long startTime) {
         this.serviceId = serviceId;
+        this.sortKey = sortKey;
         this.applicationId = applicationName;
         this.agentId = agentId;
         this.metricGroupName = metricGroupName;
@@ -97,19 +99,25 @@ public class PinotOtlpMetricDataRow {
         return agentId;
     }
 
+    public String getSortKey() {
+        return sortKey;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PinotOtlpMetricDataRow{");
-        sb.append("serviceNamespace=").append(serviceId.toString());
-        sb.append(", serviceName=").append(applicationId.toString());
-        sb.append(", agentId=").append(agentId);
-        sb.append(", metricGroupName=").append(metricGroupName);
-        sb.append(", metricName=").append(metricName);
-        sb.append(", fieldName=").append(fieldName);
-        sb.append(", flag=").append(flag);
-        sb.append(", tags=").append(tags);
-        sb.append(", eventTime=").append(eventTime);
-        sb.append('}');
-        return sb.toString();
+        return "PinotOtlpMetricDataRow{" +
+                "serviceId='" + serviceId + '\'' +
+                ", sortKey='" + sortKey + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", metricGroupName='" + metricGroupName + '\'' +
+                ", metricName='" + metricName + '\'' +
+                ", fieldName='" + fieldName + '\'' +
+                ", flag=" + flag +
+                ", tags=" + tags +
+                ", version='" + version + '\'' +
+                ", eventTime=" + eventTime +
+                ", startTime=" + startTime +
+                '}';
     }
 }
