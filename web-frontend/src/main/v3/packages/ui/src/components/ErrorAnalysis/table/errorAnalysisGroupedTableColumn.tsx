@@ -39,7 +39,7 @@ export const errorGroupedTableColumns = ({
     },
     cell: (props) => {
       const original = props.row.original;
-      const fieldName = original?.fieldName;
+      const fieldName = original?.groupedFieldName;
 
       return (
         <>
