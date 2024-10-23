@@ -94,8 +94,6 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addConnectionTransformer(final MySqlConfig config) {
-
-
         transformTemplate.transform("com.mysql.jdbc.Connection", ConnectionTransform.class);
         transformTemplate.transform("com.mysql.jdbc.ConnectionImpl", ConnectionTransform.class);
         // 6.x+
@@ -114,7 +112,7 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             target.addField(DatabaseInfoAccessor.class);
 
-            InstrumentMethod constructor = target.getConstructor("java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String");
+            final InstrumentMethod constructor = target.getConstructor("java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String");
             if (constructor != null) {
                 constructor.addInterceptor(MySQLConnectionCreateInterceptor.class);
             }
@@ -136,63 +134,44 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
 
             // close
-            InstrumentUtils.findMethod(target, "close")
-                    .addScopedInterceptor(ConnectionCloseInterceptor.class, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "close").addScopedInterceptor(ConnectionCloseInterceptor.class, MYSQL_SCOPE);
 
             // createStatement
             final Class<? extends Interceptor> statementCreate = StatementCreateInterceptor.class;
-            InstrumentUtils.findMethod(target, "createStatement")
-                    .addScopedInterceptor(statementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "createStatement", "int", "int")
-                    .addScopedInterceptor(statementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
-                    .addScopedInterceptor(statementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "createStatement").addScopedInterceptor(statementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "createStatement", "int", "int").addScopedInterceptor(statementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "createStatement", "int", "int", "int").addScopedInterceptor(statementCreate, MYSQL_SCOPE);
 
             // preparedStatement
             final Class<? extends Interceptor> preparedStatementCreate = PreparedStatementCreateInterceptor.class;
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "int").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "int[]").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "java.lang.String[]").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "int", "int").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareStatement", "java.lang.String", "int", "int", "int").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
 
             // preparecall
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
-                    .addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String", "int", "int").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String", "int", "int", "int").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
 
             MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
             if (config.isProfileSetAutoCommit()) {
-                InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
-                        .addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, MYSQL_SCOPE);
+                InstrumentUtils.findMethodOrIgnore(target, "setAutoCommit", "boolean").addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, MYSQL_SCOPE);
             }
-
             if (config.isProfileCommit()) {
-                InstrumentUtils.findMethod(target, "commit")
-                        .addScopedInterceptor(TransactionCommitInterceptor.class, MYSQL_SCOPE);
+                InstrumentUtils.findMethodOrIgnore(target, "commit").addScopedInterceptor(TransactionCommitInterceptor.class, MYSQL_SCOPE);
             }
-
             if (config.isProfileRollback()) {
-                InstrumentUtils.findMethod(target, "rollback")
-                        .addScopedInterceptor(TransactionRollbackInterceptor.class, MYSQL_SCOPE);
+                InstrumentUtils.findMethodOrIgnore(target, "rollback").addScopedInterceptor(TransactionRollbackInterceptor.class, MYSQL_SCOPE);
             }
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addDriverTransformer() {
-
         transformTemplate.transform("com.mysql.jdbc.NonRegisteringDriver", DriverTransform.class);
         // 6.x+
         transformTemplate.transform("com.mysql.cj.jdbc.NonRegisteringDriver", DriverTransform.class);
@@ -204,12 +183,11 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
-                    .addScopedInterceptor(DriverConnectInterceptorV2.class, va(MySqlConstants.MYSQL, false), MYSQL_SCOPE, ExecutionPolicy.ALWAYS);
+            InstrumentUtils.findMethodOrIgnore(target, "connect", "java.lang.String", "java.util.Properties").addScopedInterceptor(DriverConnectInterceptorV2.class, va(MySqlConstants.MYSQL, false), MYSQL_SCOPE, ExecutionPolicy.ALWAYS);
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addPreparedStatementTransformer(final MySqlConfig config) {
         transformTemplate.transform("com.mysql.jdbc.PreparedStatement", PreparedStatementTransform.class);
@@ -258,10 +236,9 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addCallableStatementTransformer(final MySqlConfig config) {
-
         transformTemplate.transform("com.mysql.jdbc.CallableStatement", CallableStatementTransform.class);
         // 6.x+
         transformTemplate.transform("com.mysql.cj.jdbc.CallableStatement", CallableStatementTransform.class);
@@ -281,20 +258,14 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> callableStatementExecuteQuery = CallableStatementExecuteQueryInterceptor.class;
-            InstrumentUtils.findMethod(target,"execute")
-                    .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "executeQuery")
-                    .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "executeUpdate")
-                    .addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute").addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeQuery").addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate").addScopedInterceptor(callableStatementExecuteQuery, va(maxBindValueSize), MYSQL_SCOPE);
 
             final Class<? extends Interceptor> registerOutParameterInterceptor = CallableStatementRegisterOutParameterInterceptor.class;
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
-                    .addScopedInterceptor(registerOutParameterInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int").addScopedInterceptor(registerOutParameterInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int", "int").addScopedInterceptor(registerOutParameterInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "registerOutParameter", "int", "int", "java.lang.String").addScopedInterceptor(registerOutParameterInterceptor, MYSQL_SCOPE);
 
             if (config.isTraceSqlBindValue()) {
                 final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
@@ -306,7 +277,7 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addJDBC4PreparedStatementTransformer(final MySqlConfig config) {
         transformTemplate.transform("com.mysql.jdbc.JDBC4PreparedStatement", JDBC4PreparedStatementTransform.class);
@@ -314,21 +285,22 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public static class JDBC4PreparedStatementTransform implements TransformCallback {
 
-    @Override
-    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-        InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-        MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
-        if (config.isTraceSqlBindValue()) {
-            final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
-            final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(includes);
-            for (InstrumentMethod method : declaredMethods) {
-                method.addScopedInterceptor(PreparedStatementBindVariableInterceptor.class, MYSQL_SCOPE, ExecutionPolicy.BOUNDARY);
-            }
-        }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-        return target.toBytecode();
+            MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
+            if (config.isTraceSqlBindValue()) {
+                final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
+                final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(includes);
+                for (InstrumentMethod method : declaredMethods) {
+                    method.addScopedInterceptor(PreparedStatementBindVariableInterceptor.class, MYSQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                }
+            }
+
+            return target.toBytecode();
+        }
     }
-}
 
     private void addJDBC4CallableStatementTransformer(final MySqlConfig config) {
         transformTemplate.transform("com.mysql.jdbc.JDBC4CallableStatement", JDBC4CallableStatement.class);
@@ -336,30 +308,28 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public static class JDBC4CallableStatement implements TransformCallback {
 
-    @Override
-    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-        InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-        MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
-        if (config.isTraceSqlBindValue()) {
-            final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
-            final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(includes);
-            for (InstrumentMethod method : declaredMethods) {
-                method.addScopedInterceptor(CallableStatementBindVariableInterceptor.class, MYSQL_SCOPE, ExecutionPolicy.BOUNDARY);
-            }
-        }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-        return target.toBytecode();
+            MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
+            if (config.isTraceSqlBindValue()) {
+                final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
+                final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(includes);
+                for (InstrumentMethod method : declaredMethods) {
+                    method.addScopedInterceptor(CallableStatementBindVariableInterceptor.class, MYSQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                }
+            }
+
+            return target.toBytecode();
+        }
     }
-}
 
     private void addStatementTransformer() {
-
-
         transformTemplate.transform("com.mysql.jdbc.Statement", StatementTransformer.class);
         transformTemplate.transform("com.mysql.jdbc.StatementImpl", StatementTransformer.class);
         // 6.x+
         transformTemplate.transform("com.mysql.cj.jdbc.StatementImpl", StatementTransformer.class);
-
     }
 
     public static class StatementTransformer implements TransformCallback {
@@ -375,22 +345,21 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(DatabaseInfoAccessor.class);
 
             final Class<? extends Interceptor> executeQueryInterceptor = StatementExecuteQueryInterceptor.class;
-            InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
-                    .addScopedInterceptor(executeQueryInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeQuery", "java.lang.String").addScopedInterceptor(executeQueryInterceptor, MYSQL_SCOPE);
 
             final Class<? extends Interceptor> executeUpdateInterceptor = StatementExecuteUpdateInterceptor.class;
-            InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
-                    .addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
-                    .addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
-                    .addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
-            InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
-                    .addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate", "java.lang.String").addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate", "java.lang.String", "int").addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate", "java.lang.String", "int[]").addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "executeUpdate", "java.lang.String", "java.lang.String[]").addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute", "java.lang.String").addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute", "java.lang.String", "int").addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute", "java.lang.String", "int[]").addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
+            InstrumentUtils.findMethodOrIgnore(target, "execute", "java.lang.String", "String[]").addScopedInterceptor(executeUpdateInterceptor, MYSQL_SCOPE);
 
             return target.toBytecode();
         }
-    };
+    }
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

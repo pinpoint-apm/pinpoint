@@ -39,6 +39,11 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-mysql-jdbc-driver-plugin</artifactId>
             <version>${project.version}</version>
