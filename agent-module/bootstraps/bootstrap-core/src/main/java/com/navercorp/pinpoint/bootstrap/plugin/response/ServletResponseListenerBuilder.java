@@ -30,7 +30,7 @@ public class ServletResponseListenerBuilder<RESP> {
     private final TraceContext traceContext;
     private final ResponseAdaptor<RESP> responseAdaptor;
 
-    private List<String> recordResponseHeaders;
+    private final List<String> recordResponseHeaders;
 
     public ServletResponseListenerBuilder(final TraceContext traceContext,
                                           final ResponseAdaptor<RESP> responseAdaptor) {
@@ -38,12 +38,11 @@ public class ServletResponseListenerBuilder<RESP> {
         this.responseAdaptor = Objects.requireNonNull(responseAdaptor, "responseAdaptor");
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        final List<String> recordResponseHeaders = profilerConfig.readList(ServerResponseHeaderRecorder.CONFIG_KEY_RECORD_RESP_HEADERS);
-        this.recordResponseHeaders = recordResponseHeaders;
+        this.recordResponseHeaders = profilerConfig.readList(ServerResponseHeaderRecorder.CONFIG_KEY_RECORD_RESP_HEADERS);
     }
 
     public ServletResponseListener<RESP> build() {
-        return new ServletResponseListener<>(traceContext, newServerResponseHeaderRecorder());
+        return new ServletResponseListener<>(traceContext, newServerResponseHeaderRecorder(), responseAdaptor);
     }
 
     private ServerResponseHeaderRecorder<RESP> newServerResponseHeaderRecorder() {
