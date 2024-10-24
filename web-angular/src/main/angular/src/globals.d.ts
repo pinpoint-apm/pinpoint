@@ -249,6 +249,7 @@ interface ITransactionMetaData {
     agentId: string;
     agentName?: string;
     application: string;
+    requestPath?: string;
     collectorAcceptTime: number;
     elapsed: number;
     endpoint: string;
