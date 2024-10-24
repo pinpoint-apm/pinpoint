@@ -32,12 +32,15 @@ public class Log4j2Config {
     private static final String LOGGING_PATTERN_REPLACE_ENABLE = "profiler.log4j2.logging.pattern.replace.enable";
     private static final String LOGGING_PATTERN_REPLACE_SEARCH = "profiler.log4j2.logging.pattern.replace.search";
     private static final String LOGGING_PATTERN_REPLACE_WITH = "profiler.log4j2.logging.pattern.replace.with";
+    private static final String LOGGING_PATTERN_FULL_REPLACE_WITH = "profiler.log4j2.logging.pattern.full_replace.with";
 
     private final boolean log4j2LoggingTransactionInfo;
 
     private final boolean patternReplaceEnable;
+    private final boolean patternFullReplace;
     private final List<String> patternReplaceSearchList;
     private final String patternReplaceWith;
+    private final String patternFullReplaceWith;
 
 
     public Log4j2Config(ProfilerConfig config) {
@@ -45,9 +48,11 @@ public class Log4j2Config {
 
         this.patternReplaceSearchList = config.readList(LOGGING_PATTERN_REPLACE_SEARCH);
         this.patternReplaceWith = config.readString(LOGGING_PATTERN_REPLACE_WITH, "");
+        this.patternFullReplaceWith = config.readString(LOGGING_PATTERN_FULL_REPLACE_WITH, "");
         boolean configEnabled = config.readBoolean(LOGGING_PATTERN_REPLACE_ENABLE, false);
-        boolean configOk = !CollectionUtils.isEmpty(patternReplaceSearchList) && StringUtils.hasText(patternReplaceWith);
+        boolean configOk = (!CollectionUtils.isEmpty(patternReplaceSearchList) && StringUtils.hasText(patternReplaceWith)) || StringUtils.hasText(patternFullReplaceWith);
         this.patternReplaceEnable = configEnabled && configOk;
+        this.patternFullReplace = configEnabled && StringUtils.hasText(patternFullReplaceWith);
     }
 
     public boolean isLog4j2LoggingTransactionInfo() {
@@ -58,6 +63,10 @@ public class Log4j2Config {
         return patternReplaceEnable;
     }
 
+    public boolean isPatternFullReplace() {
+        return patternFullReplace;
+    }
+
     public List<String> getPatternReplaceSearchList() {
         return patternReplaceSearchList;
     }
@@ -66,13 +75,19 @@ public class Log4j2Config {
         return patternReplaceWith;
     }
 
+    public String getPatternFullReplaceWith() {
+        return patternFullReplaceWith;
+    }
+
     @Override
     public String toString() {
         return "Log4j2Config{" +
                 "log4j2LoggingTransactionInfo=" + log4j2LoggingTransactionInfo +
                 ", patternReplaceEnable=" + patternReplaceEnable +
+                ", patternFullReplace='" + patternFullReplace + '\'' +
                 ", patternReplaceSearchList=" + patternReplaceSearchList +
                 ", patternReplaceWith='" + patternReplaceWith + '\'' +
+                ", patternFullReplaceWith='" + patternFullReplaceWith + '\'' +
                 '}';
     }
 

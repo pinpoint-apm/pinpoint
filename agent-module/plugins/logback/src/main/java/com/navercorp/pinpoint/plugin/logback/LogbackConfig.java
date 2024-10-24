@@ -31,12 +31,15 @@ public class LogbackConfig {
     private static final String LOGBACK_LOGGING_PATTERN_REPLACE_ENABLE = "profiler.logback.logging.pattern.replace.enable";
     private static final String LOGBACK_LOGGING_PATTERN_REPLACE_SEARCH = "profiler.logback.logging.pattern.replace.search";
     private static final String LOGBACK_LOGGING_PATTERN_REPLACE_WITH = "profiler.logback.logging.pattern.replace.with";
+    private static final String LOGBACK_LOGGING_PATTERN_FULL_REPLACE_WITH = "profiler.logback.logging.pattern.full_replace.with";
 
     private final boolean logbackLoggingTransactionInfo;
 
     private final boolean patternReplaceEnable;
+    private final boolean patternFullReplace;
     private final List<String> patternReplaceSearchList;
     private final String patternReplaceWith;
+    private final String patternFullReplaceWith;
 
 
     public LogbackConfig(ProfilerConfig config) {
@@ -44,9 +47,11 @@ public class LogbackConfig {
 
         this.patternReplaceSearchList = config.readList(LOGBACK_LOGGING_PATTERN_REPLACE_SEARCH);
         this.patternReplaceWith = config.readString(LOGBACK_LOGGING_PATTERN_REPLACE_WITH, "");
+        this.patternFullReplaceWith = config.readString(LOGBACK_LOGGING_PATTERN_FULL_REPLACE_WITH, "");
         boolean configEnabled = config.readBoolean(LOGBACK_LOGGING_PATTERN_REPLACE_ENABLE, false);
-        boolean configOk = !CollectionUtils.isEmpty(patternReplaceSearchList) && StringUtils.hasText(patternReplaceWith);
+        boolean configOk = (!CollectionUtils.isEmpty(patternReplaceSearchList) && StringUtils.hasText(patternReplaceWith)) || StringUtils.hasText(patternFullReplaceWith);
         this.patternReplaceEnable = configEnabled && configOk;
+        this.patternFullReplace = configEnabled && StringUtils.hasText(patternFullReplaceWith);
     }
     
     public boolean isLogbackLoggingTransactionInfo() {
@@ -57,6 +62,10 @@ public class LogbackConfig {
         return patternReplaceEnable;
     }
 
+    public boolean isPatternFullReplace() {
+        return patternFullReplace;
+    }
+
     public List<String> getPatternReplaceSearchList() {
         return patternReplaceSearchList;
     }
@@ -65,13 +74,19 @@ public class LogbackConfig {
         return patternReplaceWith;
     }
 
+    public String getPatternFullReplaceWith() {
+        return patternFullReplaceWith;
+    }
+
     @Override
     public String toString() {
         return "LogbackConfig{" +
                 "logbackLoggingTransactionInfo=" + logbackLoggingTransactionInfo +
                 ", patternReplaceEnable=" + patternReplaceEnable +
+                ", patternFullReplace='" + patternFullReplace + '\'' +
                 ", patternReplaceSearchList=" + patternReplaceSearchList +
                 ", patternReplaceWith='" + patternReplaceWith + '\'' +
+                ", patternFullReplaceWith='" + patternFullReplaceWith + '\'' +
                 '}';
     }
 }
