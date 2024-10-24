@@ -35,6 +35,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -59,6 +60,8 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
         CloseableHttpAsyncClient httpClient = HttpAsyncClients.custom().useSystemProperties().build();
         httpClient.start();
 
+
+        String caller=null;
         try {
             HttpPost httpRequest = new HttpPost(getAddress());
 
@@ -72,6 +75,7 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
             if ((response != null) && (response.getEntity() != null)) {
                 EntityUtils.consume(response.getEntity());
             }
+            caller = getCallerApp(response);
         } finally {
             httpClient.close();
         }
@@ -93,5 +97,7 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", BasicFuture.class.getMethod("get")));
 
         verifier.verifyTraceCount(0);
+        Assertions.assertNotNull(caller, "caller null");
+        Assertions.assertTrue("mockApplicationName".contentEquals(caller),"not caller mockApplicationName");
     }
 }
