@@ -128,10 +128,10 @@ Flink compatibility table:
 <!-- </compatibilityFlink.md> -->
 Pinot compatibility table:
 <!-- <compatibilityPinot.md> -->
-| Pinpoint Version | Pinot 0.11.0 | Pinot 0.12.0 | Pinot 1.0.0 | [Pinot 1.2.0]((https://github.com/pinpoint-apm/pinpoint/issues/11613)) |
-|------------------|--------------|--------------|-------------|------------------------------------------------------------------------|
-| 2.5.x            | yes          | yes          | yes         | no                                                                     |
-| 3.0.x            | no           | no           | yes         | no                                                                     |
+| Pinpoint Version | Pinot 0.11.0 | Pinot 0.12.0 | Pinot 1.0.0 | [Pinot 1.2.0](https://github.com/pinpoint-apm/pinpoint/issues/11613) |
+|------------------|--------------|--------------|-------------|----------------------------------------------------------------------|
+| 2.5.x            | yes          | yes          | yes         | yes                                                                  |
+| 3.0.x            | no           | no           | yes         | yes                                                                  |
 | 3.1.x            | no           | no           | no          | yes                                                                  |
 <!-- </compatibilityPinot.md> -->
 
