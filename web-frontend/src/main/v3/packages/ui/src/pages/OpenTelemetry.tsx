@@ -43,7 +43,11 @@ export const OpenTelemetryPage = ({
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <PiChartBarHorizontalDuotone /> Open Telemetry
+            <PiChartBarHorizontalDuotone />
+            <span className="relative">
+              Open Telemetry{' '}
+              <span className="relative text-xs italic text-primary -top-2">Beta</span>
+            </span>
           </div>
         }
       >

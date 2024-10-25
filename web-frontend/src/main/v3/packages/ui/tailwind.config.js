@@ -96,11 +96,19 @@ export default {
           '0%, 100%': { opacity: 1 },
           '50%': { opacity: 0 },
         },
+        blinkWithBgColor: {
+          '0%, 100%': { opacity: 1 },
+          '50%': {
+            backgroundColor: 'hsl(var(--ui-primary))',
+            color: 'hsl(var(--ui-primary-foreground))',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         blink: 'blink 1s infinite',
+        blinkWithBgColor: 'blinkWithBgColor 1s infinite',
       },
     },
   },
