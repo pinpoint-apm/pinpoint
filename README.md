@@ -85,61 +85,54 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 Java version required to run Pinpoint:
 <!-- <compatibilityJava.md> -->
-| Pinpoint Version | Agent | Collector | Web | Flink |
-|------------------|-------|-----------|-----|-------|
-| 2.0.x            | 6-13  | 8         | 8   | 8     |
-| 2.1.x            | 6-14  | 8         | 8   | 8     |
-| 2.2.x            | 7-14  | 8         | 8   | 8     |
-| 2.3.x            | 7-17  | 8         | 8   | 8     |
-| 2.4.x            | 7-18  | 11        | 11  | 11    |
-| 2.5.x            | 8-19  | 11        | 11  | 11    |
-| 3.0.x            | 8-21  | 17        | 17  | 17    |
+| Pinpoint Version | Agent | Collector | Web | Batch | Flink |
+|------------------|-------|-----------|-----|-------|-------|
+| 2.0.x            | 6-13  | 8         | 8   | 8     | 8     |
+| 2.1.x            | 6-14  | 8         | 8   | 8     | 8     |
+| 2.2.x            | 7-14  | 8         | 8   | 8     | 8     |
+| 2.3.x            | 7-17  | 8         | 8   | 8     | 8     |
+| 2.4.x            | 7-18  | 11        | 11  | 11    | 11    |
+| 2.5.x            | 8-19  | 11        | 11  | 11    | 11    |
+| 3.0.x            | 8-21  | 17        | 17  | 17    | 17    |
+| 3.1.x            | 8-21  | 17        | 17  | 17    | 17    |
 
 <!-- </compatibilityJava.md> -->
 HBase compatibility table:
 <!-- <compatibilityHbase.md> -->
 | Pinpoint Version | HBase 1.x | HBase 2.x                                                                                                             |
 |------------------|-----------|-----------------------------------------------------------------------------------------------------------------------|
-| 2.0.x            | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
-| 2.1.x            | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
-| 2.2.x            | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
-| 2.3.x            | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.3.x/hbase2-module)                                    |
-| 2.4.x            | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.4.x/hbase2-module)                                    |
-| 2.5.x            | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.5.x/hbase2-module)                                    |
-| 3.0.x            | no         | yes                                    |
+| 2.0.x - 2.2.x    | yes       | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint) |
+| 2.3.x - 2.5.x    | yes       | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/2.3.x/hbase2-module)                                    |
+| 3.0.x            | no        | yes                                                                                                                   |
+| 3.1.x            | no        | yes                                                                                                                   |
 
 <!-- </compatibilityHbase.md> -->
 Agent - Collector compatibility table:
 <!-- <compatibilityPinpoint.md> -->
-| Agent Version | Collector 2.0.x | Collector 2.1.x | Collector 2.2.x | Collector 2.3.x | Collector 2.4.x | Collector 2.5.x | Collector 3.0.x |
-|---------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|
-| 2.0.x         | yes             | yes             | yes             | yes             | yes             | yes             | yes             |
-| 2.1.x         | no              | yes             | yes             | yes             | yes             | yes             | yes             |
-| 2.2.x         | no              | no              | yes             | yes             | yes             | yes             | yes             |
-| 2.3.x         | no              | no              | no              | yes             | yes             | yes             | yes             |
-| 2.4.x         | no              | no              | no              | no              | yes             | yes             | yes             |
-| 2.5.x         | no              | no              | no              | no              | no              | yes             | yes             |
-| 3.0.x         | no              | no              | no              | no              | no              | no              | yes             |
+
+| Agent Version | Collector 2.x.x | Collector 3.0.x | Collector 3.1.x |
+|---------------|-----------------|-----------------|-----------------|
+| 2.x.x         | yes             | yes             | yes             |
+| 3.0.x         | no              | yes             | yes             |
+| 3.1.x         | no              | no              | yes             |
 
 <!-- </compatibilityPinpoint.md> -->
 Flink compatibility table:
 <!-- <compatibilityFlink.md> -->
-| Pinpoint Version | Flink 1.3.X | Flink 1.4.X | Flink 1.5.X | Flink 1.6.X | Flink 1.7.X | Flink 1.14.X | Flink 1.18.X |
-|------------------|-------------|-------------|-------------|-------------|-------------|--------------|--------------|
-| 2.0.x            | yes         | yes         | yes         | yes         | yes         | no           |no            |
-| 2.1.x            | yes         | yes         | yes         | yes         | yes         | no           |no            |
-| 2.2.x            | yes         | yes         | yes         | yes         | yes         | no           |no            |
-| 2.3.x            | yes         | yes         | yes         | yes         | yes         | no           |no            |
-| 2.4.x            | yes         | yes         | yes         | yes         | yes         | yes          |no            |
-| 2.5.x            | yes         | yes         | yes         | yes         | yes         | yes          |no            |
-| 3.0.x            | no          | no          | no          | no          | no          | no           |yes           |
+| Pinpoint Version | Flink 1.3.X - 1.7.X | Flink 1.14.X | Flink 1.18.X    |
+|------------------|---------------------|--------------|-----------------|
+| 2.0.x - 2.3.x    | yes                 | no           | no              |
+| 2.4.x - 2.5.x    | yes                 | yes          | no              |
+| 3.0.x            | no                  | no           | yes(deprecated) |
+| 3.1.x            | no                  | no           | yes(deprecated) |
 <!-- </compatibilityFlink.md> -->
 Pinot compatibility table:
 <!-- <compatibilityPinot.md> -->
-| Pinpoint Version | Pinot 0.11.0 | Pinot 0.12.0 | Pinot 1.0.0    |
-|------------------|--------------|--------------|----------------|
-| 2.5.x            | yes          | yes          | yes            |
-| 3.0.x            | no           | no           | yes            | 
+| Pinpoint Version | Pinot 0.11.0 | Pinot 0.12.0 | Pinot 1.0.0 | [Pinot 1.2.0]((https://github.com/pinpoint-apm/pinpoint/issues/11613)) |
+|------------------|--------------|--------------|-------------|------------------------------------------------------------------------|
+| 2.5.x            | yes          | yes          | yes         | no                                                                     |
+| 3.0.x            | no           | no           | yes         | no                                                                     |
+| 3.1.x            | no           | no           | no          | yes                                                                  |
 <!-- </compatibilityPinot.md> -->
 
 ## Community
