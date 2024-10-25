@@ -82,7 +82,16 @@ const components = {
 export function renderHelpPopoverContent(key: string) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { t } = useTranslation();
-  const helpContent: HelpContent = t(key, { returnObjects: true });
+
+  let helpContent: HelpContent;
+  try {
+    helpContent = t(key, { returnObjects: true }) as HelpContent;
+  } catch (err) {
+    return {
+      title: '',
+      content: '',
+    };
+  }
 
   return {
     title: helpContent?.TITLE && <Trans i18nKey={`${key}.TITLE`} />,
