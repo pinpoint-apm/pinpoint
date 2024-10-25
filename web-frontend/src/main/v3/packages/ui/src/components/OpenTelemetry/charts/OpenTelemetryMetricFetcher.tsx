@@ -31,6 +31,7 @@ export const OpenTelemetryMetricFetcher = ({
       aggregationFunction,
       fieldNameList,
       primaryForFieldAndTagRelation,
+      samplingInterval,
     } = metricDefinition;
     mutate(
       assign(
@@ -43,6 +44,7 @@ export const OpenTelemetryMetricFetcher = ({
           aggregationFunction,
           fieldNameList,
           primaryForFieldAndTagRelation,
+          samplingInterval,
           from: dateRange?.from.getTime(),
           to: dateRange?.to.getTime(),
         },

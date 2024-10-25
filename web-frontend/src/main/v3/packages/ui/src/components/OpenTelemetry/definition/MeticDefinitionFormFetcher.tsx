@@ -159,10 +159,16 @@ export const MetricDefinitionFormFetcher = ({
 
   const propertyList = React.useMemo(() => {
     if (primaryForFieldAndTagRelation === 'tag') {
-      return selectedMetricItem?.tagClusterList?.map((tagCluster) => tagCluster?.tagGroup) || [];
+      return (
+        selectedMetricItem?.tagClusterList
+          ?.filter((tagCluster) => !!tagCluster?.tagGroup) // Prevents error when tagGroup is empty string
+          ?.map((tagCluster) => tagCluster?.tagGroup) || []
+      );
     }
     return (
-      selectedMetricItem?.fieldClusterList?.map((fieldCluster) => fieldCluster?.fieldName) || []
+      selectedMetricItem?.fieldClusterList
+        ?.filter((fieldCluster) => !!fieldCluster?.fieldName) // Sometimes fieldName is empty string
+        ?.map((fieldCluster) => fieldCluster?.fieldName) || []
     );
   }, [primaryForFieldAndTagRelation, selectedMetricItem]);
 
@@ -173,7 +179,8 @@ export const MetricDefinitionFormFetcher = ({
           ?.find((tagCluster) => {
             return tagCluster.tagGroup === tagGroupList?.[0];
           })
-          ?.fieldAndUnitList?.map((fieldItem) => {
+          ?.fieldAndUnitList?.filter((fieldItem) => !!fieldItem?.fieldName) // Sometimes fieldName is empty string
+          ?.map((fieldItem) => {
             return {
               name: fieldItem?.fieldName,
               unit: fieldItem?.unit,
@@ -181,7 +188,6 @@ export const MetricDefinitionFormFetcher = ({
           }) || []
       );
     }
-
     const fieldCluster = selectedMetricItem?.fieldClusterList?.find((fieldCluster) => {
       return fieldCluster.fieldName === fieldNameList?.[0];
     });

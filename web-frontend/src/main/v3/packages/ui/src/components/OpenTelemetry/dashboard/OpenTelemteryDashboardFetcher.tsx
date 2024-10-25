@@ -210,14 +210,12 @@ export const OpenTelemetryDashboardFetcher = () => {
                 <LoadingButton
                   pending={isPending}
                   variant={'outline'}
-                  className="gap-2 px-2 py-1 bg-white h-7"
+                  className={cn('gap-2 px-2 py-1 bg-white h-7', {
+                    'animate-blinkWithBgColor': isChanged,
+                  })}
                   onClick={handleClickSaveMetric}
                 >
-                  <div
-                    className={cn({
-                      'animate-blink': isChanged,
-                    })}
-                  >
+                  <div>
                     <BiSolidSave />{' '}
                     <span className="text-xs">{t('OPEN_TELEMETRY.SAVE_DASHBOARD')}</span>
                   </div>

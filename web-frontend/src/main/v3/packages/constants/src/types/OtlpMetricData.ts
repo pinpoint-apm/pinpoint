@@ -24,6 +24,7 @@ export namespace OtlpMetricData {
     aggregationFunction?: string;
     fieldNameList?: string;
     agentId?: string;
+    samplingInterval?: number;
   }
 
   export interface Response {

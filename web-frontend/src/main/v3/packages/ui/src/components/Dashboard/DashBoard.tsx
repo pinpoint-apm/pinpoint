@@ -12,7 +12,7 @@ export interface DashBoardProps extends ReactGridLayout.ResponsiveProps {}
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-export const DASH_BOARD_WIDTH = 12;
+export const DASH_BOARD_WIDTH = 24;
 
 export const DashBoard = ({ children, ...props }: DashBoardProps) => {
   const screenSizeMap = Object.keys(screens).reduce(
