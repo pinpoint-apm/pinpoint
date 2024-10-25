@@ -49,7 +49,7 @@ export const HelpPopover = ({
 };
 
 export type HelpContent = {
-  TITLE: string;
+  TITLE?: string;
   DESC?: string;
   CATEGORY?: {
     TITLE?: string;
