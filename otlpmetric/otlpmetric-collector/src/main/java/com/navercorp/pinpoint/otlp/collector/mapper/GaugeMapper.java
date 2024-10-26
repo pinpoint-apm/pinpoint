@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.otlp.collector.mapper;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricDataPoint;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
+import com.navercorp.pinpoint.otlp.common.model.MetricName;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import io.opentelemetry.proto.metrics.v1.DataPointFlags;
 import io.opentelemetry.proto.metrics.v1.Metric;
@@ -68,21 +70,30 @@ public class GaugeMapper extends OtlpMetricDataMapper {
 
     @Override
     protected String setMetricName(OtlpMetricData.Builder builder, String metricName) {
+        builder.setMetricGroupName(MetricName.EMPTY_METRIC_GROUP_NAME);
+        builder.setMetricName(MetricName.EMPTY_METRIC_NAME);
+
         List<String> names = new LinkedList<>(Arrays.asList(metricName.split("\\.")));
         int length = names.size();
 
-        if ( length == 1 ) {
-            builder.setMetricName(names.get(length - 1));
-            return "";
+        if ( length == 0 ) {
+            return MetricName.EMPTY_FIELD_NAME;
+        } else if ( length == 1 ) {
+            builder.setMetricGroupName(getName(names.get(length - 1), MetricName.EMPTY_METRIC_GROUP_NAME));
+            return MetricName.EMPTY_FIELD_NAME;
         } else if ( length == 2 ) {
-            builder.setMetricName(names.get(length - 1));
-            builder.setMetricGroupName(names.get(length - 2));
-            return "";
+            builder.setMetricName(getName(names.get(length - 1), MetricName.EMPTY_METRIC_NAME));
+            builder.setMetricGroupName(getName(names.get(length - 2), MetricName.EMPTY_METRIC_GROUP_NAME));
+            return MetricName.EMPTY_FIELD_NAME;
         } else {
-            String fieldName = names.remove(length - 1);
-            builder.setMetricName(names.remove(length - 2));
-            builder.setMetricGroupName(String.join(".", names));
+            String fieldName = getName(names.remove(length - 1), MetricName.EMPTY_FIELD_NAME);
+            builder.setMetricName(getName(names.remove(length - 2), MetricName.EMPTY_METRIC_NAME));
+            builder.setMetricGroupName(getName(String.join(".", names), MetricName.EMPTY_METRIC_GROUP_NAME));
             return fieldName;
         }
+    }
+
+    private String getName(String name, String defaultValue) {
+        return StringUtils.isEmpty(name) ? defaultValue : name;
     }
 }

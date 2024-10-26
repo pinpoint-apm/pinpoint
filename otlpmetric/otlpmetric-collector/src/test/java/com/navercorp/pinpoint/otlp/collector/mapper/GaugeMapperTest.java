@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.collector.mapper;
 
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
+import com.navercorp.pinpoint.otlp.common.model.MetricName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,20 +31,23 @@ class GaugeMapperTest {
     public void setMetricNameTest() {
         GaugeMapper gaugeMapper = new GaugeMapper();
         OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
-        gaugeMapper.setMetricName(builder, "metricGroupName.metricName");
+        String fieldName = gaugeMapper.setMetricName(builder, "metricGroupName.metricName");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals("metricName", otlpMetricData.getMetricName());
         assertEquals("metricGroupName", otlpMetricData.getMetricGroupName());
+        assertEquals(MetricName.EMPTY_FIELD_NAME, fieldName);
     }
 
     @Test
     public void setMetricNameTest2() {
         GaugeMapper gaugeMapper = new GaugeMapper();
         OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
-        gaugeMapper.setMetricName(builder, "metric");
+        String fieldName = gaugeMapper.setMetricName(builder, "metricGroupName");
         OtlpMetricData otlpMetricData = builder.build();
-        assertEquals("", otlpMetricData.getMetricGroupName());
-        assertEquals("metric", otlpMetricData.getMetricName());
+        assertEquals("metricGroupName", otlpMetricData.getMetricGroupName());
+        assertEquals(MetricName.EMPTY_METRIC_NAME, otlpMetricData.getMetricName());
+        assertEquals(MetricName.EMPTY_FIELD_NAME, fieldName);
+
     }
 
     @Test
@@ -55,5 +59,49 @@ class GaugeMapperTest {
         assertEquals("metricGroupName", otlpMetricData.getMetricGroupName());
         assertEquals("metricName", otlpMetricData.getMetricName());
         assertEquals("fieldName", fieldName);
+    }
+
+    @Test
+    public void setMetricNameTest4() {
+        GaugeMapper gaugeMapper = new GaugeMapper();
+        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        String fieldName = gaugeMapper.setMetricName(builder, "");
+        OtlpMetricData otlpMetricData = builder.build();
+        assertEquals(MetricName.EMPTY_METRIC_GROUP_NAME, otlpMetricData.getMetricGroupName());
+        assertEquals(MetricName.EMPTY_METRIC_NAME, otlpMetricData.getMetricName());
+        assertEquals(MetricName.EMPTY_FIELD_NAME, fieldName);
+    }
+
+    @Test
+    public void setMetricNameTest5() {
+        GaugeMapper gaugeMapper = new GaugeMapper();
+        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        String fieldName = gaugeMapper.setMetricName(builder, "...");
+        OtlpMetricData otlpMetricData = builder.build();
+        assertEquals(MetricName.EMPTY_METRIC_GROUP_NAME, otlpMetricData.getMetricGroupName());
+        assertEquals(MetricName.EMPTY_METRIC_NAME, otlpMetricData.getMetricName());
+        assertEquals(MetricName.EMPTY_FIELD_NAME, fieldName);
+    }
+
+    @Test
+    public void setMetricNameTest6() {
+        GaugeMapper gaugeMapper = new GaugeMapper();
+        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        String fieldName = gaugeMapper.setMetricName(builder, "...metric");
+        OtlpMetricData otlpMetricData = builder.build();
+        assertEquals(".", otlpMetricData.getMetricGroupName());
+        assertEquals(MetricName.EMPTY_METRIC_NAME, otlpMetricData.getMetricName());
+        assertEquals("metric", fieldName);
+    }
+
+    @Test
+    public void setMetricNameTest7() {
+        GaugeMapper gaugeMapper = new GaugeMapper();
+        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        String fieldName = gaugeMapper.setMetricName(builder, "process.info.cpu.jvm");
+        OtlpMetricData otlpMetricData = builder.build();
+        assertEquals("process.info", otlpMetricData.getMetricGroupName());
+        assertEquals("cpu", otlpMetricData.getMetricName());
+        assertEquals("jvm", fieldName);
     }
 }
