@@ -44,11 +44,11 @@ public class PinotMetricMetaDataDao implements MetricDefinitionDao {
 
     @Override
     public List<MetricGroup> getMetricGroupList(String applicationName) {
-        List<MetricDescriptor> MetricDescriptorList = syncTemplate.selectList(NAMESPACE + "selectMetricDescriptorList", applicationName);
+        List<MetricDescriptor> metricDescriptorList = syncTemplate.selectList(NAMESPACE + "selectMetricDescriptorList", applicationName);
 
         Map<String, MetricGroup> metricGroupMap = new TreeMap<>();
 
-        for (MetricDescriptor metricDescriptor : MetricDescriptorList) {
+        for (MetricDescriptor metricDescriptor : metricDescriptorList) {
             MetricGroup metricGroup = metricGroupMap.computeIfAbsent(metricDescriptor.metricGroupName(), k -> new MetricGroup(metricDescriptor.metricGroupName()));
             metricGroup.addUniqueMetric(metricDescriptor);
         }
