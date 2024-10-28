@@ -182,8 +182,6 @@
 <!--        <spring.security.version>5.8.1</spring.security.version>-->
         <spring.security.version>6.1.8</spring.security.version>
         <spring-boot2.version>2.7.17</spring-boot2.version>
-        <spring.kafka.version>3.0.13</spring.kafka.version>
-        <kafka.client.version>3.3.2</kafka.client.version>
 
         <spring.version>${spring6.version}</spring.version>
         <spring-boot.version>${spring-boot3.version}</spring-boot.version>
@@ -200,6 +198,11 @@
         <spring-data2.version>2.7.18</spring-data2.version>
         <spring-data3.version>3.3.5</spring-data3.version>
         <spring-data.version>${spring-data3.version}</spring-data.version>
+
+        <spring.kafka.version>3.2.4</spring.kafka.version>
+        <kafka.client2.version>2.8.2</kafka.client2.version>
+        <kafka.client3.version>3.7.1</kafka.client3.version>
+        <kafka.client.version>${kafka.client3.version}</kafka.client.version>
 
         <jakarta.servlet5.version>5.0.0</jakarta.servlet5.version>
         <jakarta.servlet6.version>6.0.0</jakarta.servlet6.version>

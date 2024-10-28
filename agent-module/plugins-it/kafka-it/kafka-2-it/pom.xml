@@ -16,12 +16,15 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+
+        <kafka.client.version>${kafka.client2.version}</kafka.client.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_2.12</artifactId>
+            <!-- KafkaServerStartable KafkaServerStartable issue -->
             <version>2.6.0</version>
         </dependency>
         <dependency>
