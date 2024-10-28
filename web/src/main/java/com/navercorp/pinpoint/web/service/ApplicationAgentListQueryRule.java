@@ -4,7 +4,9 @@ public enum ApplicationAgentListQueryRule {
 
     ALL,
     ACTIVE_STATUS,
-    ACTIVE_RESPONSE;
+    ACTIVE_STATISTICS,
+    ACTIVE_ALL,
+    ;
 
     public static ApplicationAgentListQueryRule getByValue(String value, ApplicationAgentListQueryRule defaultValue) {
         try {

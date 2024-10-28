@@ -36,10 +36,9 @@ public class ApplicationAgentListServiceImplTest {
 
     private final String testApplicationName = "testApplicationName";
     private final String testAgentId = "testAgentId";
-    private final Application testTestApplication = new Application(testApplicationName, ServiceType.TEST);
+    private final ServiceType testApplicationServiceType = ServiceType.TEST;
 
     private Application testApplication;
-    private Application testApplicationWithoutServiceType;
     private AgentInfo testAgentInfo;
     private AgentStatus testAgentStatus;
     private ResponseTime testResponseTime;
@@ -60,7 +59,6 @@ public class ApplicationAgentListServiceImplTest {
     @BeforeEach
     public void setup() {
         testApplication = new Application(testApplicationName, ServiceType.TEST);
-        testApplicationWithoutServiceType = new Application(testApplicationName, ServiceType.UNDEFINED);
 
         testAgentInfo = new AgentInfo();
         testAgentInfo.setApplicationName("testApplicationName");
@@ -96,7 +94,7 @@ public class ApplicationAgentListServiceImplTest {
         when(applicationIndexDao.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testTestApplication, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, testApplicationServiceType, range, AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -110,7 +108,7 @@ public class ApplicationAgentListServiceImplTest {
         when(applicationIndexDao.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationWithoutServiceType, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, null, range, AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -125,7 +123,7 @@ public class ApplicationAgentListServiceImplTest {
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
         when(agentLifeCycleDao.getAgentStatus(ArgumentMatchers.any())).thenReturn(List.of(Optional.of(testAgentStatus)));
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatusAgentList(testTestApplication, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatusAgentList(testApplicationName, testApplicationServiceType, range, AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -141,7 +139,7 @@ public class ApplicationAgentListServiceImplTest {
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
         when(agentLifeCycleDao.getAgentStatus(ArgumentMatchers.any())).thenReturn(List.of(Optional.of(testAgentStatus)));
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatusAgentList(testApplicationWithoutServiceType, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatusAgentList(testApplicationName, null, range, AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -156,7 +154,7 @@ public class ApplicationAgentListServiceImplTest {
         when(mapResponseDao.selectResponseTime(testApplication, range)).thenReturn(List.of(testResponseTime));
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeResponseAgentList(testTestApplication, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatisticsAgentList(testApplicationName, testApplicationServiceType, range, AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -171,7 +169,7 @@ public class ApplicationAgentListServiceImplTest {
         when(mapResponseDao.selectResponseTime(testApplication, range)).thenReturn(List.of(testResponseTime));
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeResponseAgentList(testApplicationWithoutServiceType, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatisticsAgentList(testApplicationName, null, range, AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -188,7 +186,7 @@ public class ApplicationAgentListServiceImplTest {
         nullAgentInfoList.add(null);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testTestApplication, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, testApplicationServiceType, range, AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -207,7 +205,7 @@ public class ApplicationAgentListServiceImplTest {
         nullAgentInfoList.add(null);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeResponseAgentList(testTestApplication, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatisticsAgentList(testApplicationName, testApplicationServiceType, range, AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);

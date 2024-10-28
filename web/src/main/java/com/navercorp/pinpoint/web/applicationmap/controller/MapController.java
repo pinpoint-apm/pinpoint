@@ -220,7 +220,7 @@ public class MapController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestBody ApplicationPairs applicationPairs,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
             boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat
@@ -259,7 +259,7 @@ public class MapController {
             List<String> toApplicationNames,
             @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false)
             List<Short> toServiceTypeCodes,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
             boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat

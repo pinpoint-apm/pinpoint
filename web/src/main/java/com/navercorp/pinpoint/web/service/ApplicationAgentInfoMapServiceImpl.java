@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
@@ -61,11 +62,14 @@ public class ApplicationAgentInfoMapServiceImpl implements ApplicationAgentInfoM
     private List<AgentAndStatus> getActivateAgentInfoList(Application application,
                                                           Range range,
                                                           ApplicationAgentListQueryRule applicationAgentListQueryRule,
-                                                          AgentInfoFilter agentInfoPredicate) {
+                                                          AgentInfoFilter agentInfoFilter) {
+        final String applicationName = application.getName();
+        final ServiceType serviceType = application.getServiceType();
         return switch (applicationAgentListQueryRule) {
-            case ACTIVE_STATUS -> applicationAgentListService.activeStatusAgentList(application, range, agentInfoPredicate);
-            case ACTIVE_RESPONSE -> applicationAgentListService.activeResponseAgentList(application, range, agentInfoPredicate);
-            default -> applicationAgentListService.allAgentList(application, range, agentInfoPredicate);
+            case ACTIVE_STATUS -> applicationAgentListService.activeStatusAgentList(applicationName, serviceType, range, agentInfoFilter);
+            case ACTIVE_STATISTICS -> applicationAgentListService.activeStatisticsAgentList(applicationName, serviceType, range, agentInfoFilter);
+            case ACTIVE_ALL -> applicationAgentListService.activeAllAgentList(applicationName, serviceType, range, agentInfoFilter);
+            default -> applicationAgentListService.allAgentList(applicationName, serviceType, range, agentInfoFilter);
         };
     }
 }
