@@ -158,6 +158,63 @@
     }
   },
   "HELP_VIEWER": {
+    "NAVBAR": {
+      "TITLE": "NAVBAR",
+      "CATEGORY": [
+        {
+          "TITLE": "응용프로그램<br/> 목록",
+          "DESC": "핀포인트가 설치된 응용프로그램 목록입니다.",
+          "ITEMS": [
+            {
+              "NAME": "아이콘",
+              "DESC": "응용프로그램의 종류"
+            },
+            {
+              "NAME": "텍스트",
+              "DESC": "응용프로그램의 이름입니다. Pinpoint agent 설정에서 applicationName에 지정한 값입니다."
+            }
+          ]
+        },
+        {
+          "TITLE": "Inbound, Outbound",
+          "DESC": "핀포인트가 설치된 응용프로그램 목록입니다.",
+          "ITEMS": [
+            {
+              "NAME": "Inbound",
+              "DESC": "선택된 노드를 기준으로 들어오는 탐색 깊이"
+            },
+            {
+              "NAME": "Outbound",
+              "DESC": "선택된 노드를 기준으로 나가는 탐색 깊이"
+            }
+          ]
+        },
+        {
+          "TITLE": "조회 시간 설정",
+          "DESC": "데이터 조회 시간을 선택합니다.",
+          "ITEMS": [
+            {
+              "NAME": "<FaClock />",
+              "DESC": "현재 시간을 기준으로 선택한 시간 이전부터 현재시간 사이에 수집된 데이터를 조회합니다. 최근 5m, 10m, 3h 조회는 자동 새로고침 기능을 지원합니다."
+            },
+            {
+              "NAME": "<FaCalendarAlt />",
+              "DESC": "지정된 시간 사이에 수집된 데이터를 조회합니다. 조회 시간은 분단위로 최대 48시간을 지정할 수 있습니다."
+            }
+          ]
+        },
+        {
+          "TITLE": "Bidirectional Search",
+          "DESC": "서버맵의 탐색 방법을 설정합니다.",
+          "ITEMS": [
+            {
+              "NAME": "Bidirectional",
+              "DESC": "모든 노드들에 대해 양방향 탐색을 하여 선택된 노드와 직접적인 연관이 없는 노드들도 탐색됩니다. 주의 : 이 옵션을 선택하시면 필요 이상으로 복잡한 서버맵이 조회될 수 있습니다."
+            }
+          ]
+        }
+      ]
+    },
     "SERVER_MAP": {
       "TITLE": "서버맵",
       "DESC": "분산된 서버를 도식화 한 지도입니다.",
@@ -1195,6 +1252,76 @@
             {
               "NAME": "<Lt/> 0.5",
               "DESC": "<FaAngry size=\"15\" color=\"#eb4747\"/> Unacceptable"
+            }
+          ]
+        }
+      ]
+    },
+    "REAL_TIME": {
+      "TITLE": "Active Request",
+      "DESC": "각 Agent의 Active Request 개수를 실시간으로 보여줍니다.",
+      "CATEGORY": [
+        {
+          "TITLE": "에러 메시지 설명",
+          "ITEMS": [
+            {
+              "NAME": "UNSUPPORTED VERSION",
+              "DESC": "해당 에이전트의 버전에서는 지원하지 않는 기능입니다. (1.5.0 이상 버전으로 업그레이드하세요.)"
+            },
+            {
+              "NAME": "CLUSTER OPTION NOTSET",
+              "DESC": "해당 에이전트의 설정에서 기능이 비활성화되어 있습니다. (pinpoint 설정 파일에서 profiler.pinpoint.activethread 항목을 true로 변경하세요.)"
+            },
+            {
+              "NAME": "TIMEOUT",
+              "DESC": "해당 에이전트에서 일시적으로 활성화 된 리퀘스트 개수를 받지 못하였습니다.(오래 지속될 경우 담당자에게 문의하세요.)"
+            },
+            {
+              "NAME": "NOT FOUND",
+              "DESC": "해당 에이전트를 찾을 수 없습니다.(에이전트가 활성화 되어 있는 경우에 해당 메시지가 발생한다면 pinpoint 설정 파일에서 profiler.tcpdatasender.command.accept.enable 항목을 true로 변경하세요.)"
+            },
+            {
+              "NAME": "CLUSTER CHANNEL CLOSED",
+              "DESC": "해당 에이전트와의 세션이 종료되었습니다."
+            },
+            {
+              "NAME": "PINPOINT INTERNAL ERROR",
+              "DESC": "핀포인트 내부 에러가 발생하였습니다.(담당자에게 문의하세요.)"
+            },
+            {
+              "NAME": "No Active Thread",
+              "DESC": "현재 해당 에이전트는 활성화된 리퀘스트가 존재하지 않습니다."
+            },
+            {
+              "NAME": "No Response",
+              "DESC": "핀포인트 웹 서버로부터의 응답을 받지 못하였습니다.(담당자에게 문의하세요.)"
+            }
+          ]
+        }
+      ]
+    },
+    "CALL_TREE": {
+      "TITLE": "Call Tree",
+      "DESC": "Call Tree의 컬럼명을 설명합니다.",
+      "CATEGORY": [
+        {
+          "TITLE": "컬럼",
+          "ITEMS": [
+            {
+              "NAME": "Gap",
+              "DESC": "이전 메소드가 시작된 후 현재 메소드를 실행하기 까지의 지연 시간"
+            },
+            {
+              "NAME": "Exec",
+              "DESC": "메소드 시작부터 종료까지의 시간"
+            },
+            {
+              "NAME": "Exec(%)",
+              "DESC": "<FaCircle color=\"#5bc0de\"/> 트랜잭션 전체 실행 시간 대비 Exec 시간의 비율<br/><FaCircle color=\"#4343C8\"/> 시간 비율"
+            },
+            {
+              "NAME": "Self",
+              "DESC": "메소드 자체의 시작부터 종료까지의 시간으로 하위의 메소드가 실행된 시간을 제외한 값"
             }
           ]
         }

@@ -158,6 +158,63 @@
     }
   },
   "HELP_VIEWER": {
+    "NAVBAR": {
+      "TITLE": "NAVBAR",
+      "CATEGORY": [
+        {
+          "TITLE": "Application List",
+          "DESC": "Shows the list of applications with Pinpoint installed.",
+          "ITEMS": [
+            {
+              "NAME": "Icon",
+              "DESC": "Type of the Application"
+            },
+            {
+              "NAME": "Text",
+              "DESC": "Name of the Application. The value of -Dpinpoint.applicationName in Pinpoint agent configuration."
+            }
+          ]
+        },
+        {
+          "TITLE": "Inbound, Outbound",
+          "DESC": "Search-depth of server map.",
+          "ITEMS": [
+            {
+              "NAME": "Inbound",
+              "DESC": "Number of depth to render for requests coming into the selected node."
+            },
+            {
+              "NAME": "Outbound",
+              "DESC": "Number of depth to render for requests going out from the selected node"
+            }
+          ]
+        },
+        {
+          "TITLE": "Period Selector",
+          "DESC": "Selects the time range for search data.",
+          "ITEMS": [
+            {
+              "NAME": "<FaClock />",
+              "DESC": "Query for data traced during the most recent selected time-period.<br/>Auto-refresh is supported for 5m, 10m, 3h time-period."
+            },
+            {
+              "NAME": "<FaCalendarAlt />",
+              "DESC": "Query for traced data between two selected times with the maximum of 48 hours."
+            }
+          ]
+        },
+        {
+          "TITLE": "Bidirectional Search",
+          "DESC": "Search-method of server map.",
+          "ITEMS": [
+            {
+              "NAME": "Bidirectional",
+              "DESC": "Renders inbound/outbound nodes for each and every node (within limit) even if they are not directly related to the selected node.<br>Note that checking this option may lead to overly complex server maps."
+            }
+          ]
+        }
+      ]
+    },
     "SERVER_MAP": {
       "TITLE": "Server Map",
       "DESC": "Displays a topological view of the distributed server map.",
@@ -1195,6 +1252,76 @@
             {
               "NAME": "<Lt/> 0.5",
               "DESC": "<FaAngry size=\"15\" color=\"#eb4747\"/> Unacceptable"
+            }
+          ]
+        }
+      ]
+    },
+    "REAL_TIME": {
+      "TITLE": "Active Request",
+      "DESC": "Shows the active request count of each agent in realtime.",
+      "CATEGORY": [
+        {
+          "TITLE": "Error Messages",
+          "ITEMS": [
+            {
+              "NAME": "UNSUPPORTED VERSION",
+              "DESC": "Agent version too old. (Please upgrade the agent to 1.5.0+)"
+            },
+            {
+              "NAME": "CLUSTER OPTION NOTSET",
+              "DESC": "Option disabled by agent. (Please set profiler.pinpoint.activethread to true in profiler.config)"
+            },
+            {
+              "NAME": "TIMEOUT",
+              "DESC": "Agent connection timed out receiving active request count. Please contact the administrator if problem persists."
+            },
+            {
+              "NAME": "NOT FOUND",
+              "DESC": "Agent not found. (If you get this message while the agent is running, please set profiler.tcpdatasender.command.accept.enable to true in profiler.config)"
+            },
+            {
+              "NAME": "CLUSTER CHANNEL CLOSED",
+              "DESC": "Agent session expired."
+            },
+            {
+              "NAME": "PINPOINT INTERNAL ERROR",
+              "DESC": "Pinpoint internal error. Please contact the administrator."
+            },
+            {
+              "NAME": "No Active Thread",
+              "DESC": "The agent has no requests that are currently active."
+            },
+            {
+              "NAME": "No Response",
+              "DESC": "No response from Pinpoint Web. Please contact the administrator."
+            }
+          ]
+        }
+      ]
+    },
+    "CALL_TREE": {
+      "TITLE": "Call Tree",
+      "DESC": "",
+      "CATEGORY": [
+        {
+          "TITLE": "Column",
+          "ITEMS": [
+            {
+              "NAME": "Gap",
+              "DESC": "Elapsed time between the start of the previous method and the entry of this method"
+            },
+            {
+              "NAME": "Exec",
+              "DESC": "Duration of the method call from entry to exit"
+            },
+            {
+              "NAME": "Exec(%)",
+              "DESC": "<FaCircle color=\"#5bc0de\"/> The execution time of the method call as a percentage of the total execution time of the transaction<br/><FaCircle color=\"#4343C8\"/> A percentage of the self execution time"
+            },
+            {
+              "NAME": "Self",
+              "DESC": "Duration of the method call from entry to exit, excluding time consumed in nested methods call"
             }
           ]
         }

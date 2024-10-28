@@ -14,6 +14,8 @@ import {
   FaMeh,
   FaSmile,
   FaSmileBeam,
+  FaCalendarAlt,
+  FaClock,
 } from 'react-icons/fa';
 import { BsGearFill } from 'react-icons/bs';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
@@ -27,6 +29,7 @@ export type HelpContent = {
   DESC?: string;
   CATEGORY?: {
     TITLE?: string;
+    DESC?: string;
     ITEMS?: {
       NAME?: string;
       DESC?: string;
@@ -50,6 +53,8 @@ const components = {
   FaMeh: <FaMeh />,
   FaFrown: <FaFrown />,
   FaAngry: <FaAngry />,
+  FaClock: <FaClock />,
+  FaCalendarAlt: <FaCalendarAlt />,
   Lt: <>{'<'}</>,
 };
 
@@ -80,9 +85,16 @@ export const HelpPopover = ({
             return (
               <div key={i}>
                 <Separator className="my-3" />
-                <h4 className="w-1/5 mb-2 text-sm font-semibold text-center min-w-20">
-                  <Trans i18nKey={`${helpKey}.CATEGORY.${i}.TITLE`} />
-                </h4>
+                <div className="flex items-baseline mt-1 text-[13px] gap-2.5">
+                  <h4 className="w-1/5 mb-2 text-sm font-semibold text-center min-w-20">
+                    <Trans i18nKey={`${helpKey}.CATEGORY.${i}.TITLE`} />
+                  </h4>
+                  {helpContent?.CATEGORY?.[i]?.DESC && (
+                    <div className="w-4/5 text-xs">
+                      <Trans i18nKey={`${helpKey}.CATEGORY.${i}.DESC`} />
+                    </div>
+                  )}
+                </div>
                 <div className="flex flex-col gap-3">
                   {category?.ITEMS?.map((item, j) => {
                     return (
@@ -116,9 +128,10 @@ export const HelpPopover = ({
       </>
     );
   }
+
   return (
     <Popover modal={true}>
-      <PopoverTrigger>
+      <PopoverTrigger className="flex items-center">
         <MdHelp className="fill-primary" />
       </PopoverTrigger>
       <PopoverPrimitive.Portal>

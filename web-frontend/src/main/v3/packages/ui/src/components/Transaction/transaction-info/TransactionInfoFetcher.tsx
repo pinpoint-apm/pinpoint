@@ -5,7 +5,15 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { Button, ServerMapCore, Tabs, TabsContent, TabsList, TabsTrigger } from '../..';
+import {
+  Button,
+  HelpPopover,
+  ServerMapCore,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../..';
 import { CallTree } from '..';
 import {
   getBaseNodeId,
@@ -103,6 +111,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
             >
               <RxExternalLink />
             </Button>
+            <HelpPopover helpKey="HELP_VIEWER.CALL_TREE" />
           </div>
         )}
 

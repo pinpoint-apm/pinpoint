@@ -186,8 +186,11 @@ export const ServerMapPage = ({}: ServermapPageProps) => {
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <PiTreeStructureDuotone /> Servermap
-            <HelpPopover helpKey="HELP_VIEWER.SERVER_MAP" />
+            <PiTreeStructureDuotone />
+            <div className="flex items-center gap-1">
+              Servermap
+              <HelpPopover helpKey="HELP_VIEWER.SERVER_MAP" />
+            </div>
           </div>
         }
       >
@@ -196,21 +199,20 @@ export const ServerMapPage = ({}: ServermapPageProps) => {
           selectedApplication={application}
           onClickApplication={(application) => navigate(getServerMapPath(application))}
         />
-        <div className="ml-auto">
-          {application && (
-            <>
-              <DatetimePicker
-                enableRealtimeButton
-                from={searchParameters.from}
-                to={searchParameters.to}
-                onChange={handleChangeDateRagePicker}
-                outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                  maxSearchPeriod: 2,
-                })}
-              />
-            </>
-          )}
-        </div>
+        {application && (
+          <div className="flex gap-1 ml-auto">
+            <DatetimePicker
+              enableRealtimeButton
+              from={searchParameters.from}
+              to={searchParameters.to}
+              onChange={handleChangeDateRagePicker}
+              outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
+                maxSearchPeriod: 2,
+              })}
+            />
+            <HelpPopover helpKey="HELP_VIEWER.NAVBAR" />
+          </div>
+        )}
       </MainHeader>
       {application && (
         <div
