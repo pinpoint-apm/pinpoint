@@ -50,8 +50,8 @@ public class PropertiesVerificationTest {
         String pinpointZKAddress = properties.getProperty("pinpoint.zookeeper.address");
         Assertions.assertEquals(LOCAL_HOST, pinpointZKAddress);
 
-        String zookeeperAddress = properties.getProperty("cluster.zookeeper.address");
-        Assertions.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
+        String zookeeperAddress = properties.getProperty("config.sendUsage");
+        Assertions.assertEquals("true", zookeeperAddress);
 
         String connectAddress = properties.getProperty("cluster.connect.address");
         assertThat(connectAddress).isNullOrEmpty();
