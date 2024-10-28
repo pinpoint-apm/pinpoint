@@ -5,7 +5,7 @@ import bb, { bar, ChartOptions, DataItem } from 'billboard.js';
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
 import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/utils';
-import { HelpPopover, renderHelpPopoverContent } from '../../../components/HelpPopover';
+import { HelpPopover } from '../../../components/HelpPopover';
 
 export interface ResponseSummaryChartProps {
   /**
@@ -105,7 +105,7 @@ export const ResponseSummaryChart = ({
     <div className="w-full h-full" ref={containerRef}>
       <div className="flex gap-1">
         {title}
-        <HelpPopover {...renderHelpPopoverContent('HELP_VIEWER.RESPONSE_SUMMARY')} />
+        <HelpPopover helpKey="HELP_VIEWER.RESPONSE_SUMMARY" />
       </div>
       <BillboardJS
         bb={bb}

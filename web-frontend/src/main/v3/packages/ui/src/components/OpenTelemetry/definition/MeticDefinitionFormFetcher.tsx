@@ -36,7 +36,7 @@ import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
 import { Switch } from '../../../components/ui/switch';
-import { HelpPopover, renderHelpPopoverContent } from '../../../components/HelpPopover';
+import { HelpPopover } from '../../../components/HelpPopover';
 
 const metricDefinitionFormSchemaFactory = (t: TFunction) => {
   return z
@@ -441,9 +441,7 @@ export const MetricDefinitionFormFetcher = ({
                           <SelectItem value="field">Field</SelectItem>
                         </SelectContent>
                       </Select>
-                      <HelpPopover
-                        {...renderHelpPopoverContent('HELP_VIEWER.OPEN_TELEMETRY_TAG_FIELD')}
-                      />
+                      <HelpPopover helpKey="HELP_VIEWER.OPEN_TELEMETRY_TAG_FIELD" />
                     </div>
                     <FormDescription />
                     <FormMessage />

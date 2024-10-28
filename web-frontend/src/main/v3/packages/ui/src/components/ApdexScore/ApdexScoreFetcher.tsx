@@ -1,6 +1,6 @@
 import { Separator } from '../ui/separator';
 import { useGetApdexScore, UseGetApdexScoreProps } from '@pinpoint-fe/hooks';
-import { HelpPopover, renderHelpPopoverContent } from '..';
+import { HelpPopover } from '..';
 
 export interface ApdexScoreFetcherProps extends UseGetApdexScoreProps {}
 
@@ -37,8 +37,6 @@ export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
   };
   const rank = data?.apdexScore ? getRank() : RANK.EXCELLENT;
 
-  const helpPopover = renderHelpPopoverContent('HELP_VIEWER.APDEX_SCORE');
-
   return (
     <div className="flex h-full gap-1">
       Apdex
@@ -47,8 +45,8 @@ export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
       </div>
       <div className="mt-[-2px]">
         <HelpPopover
-          title={helpPopover?.title}
-          content={
+          helpKey="HELP_VIEWER.APDEX_SCORE"
+          prevContent={
             <>
               <div className="flex flex-col gap-3 p-4 pt-2.5 text-xs">
                 <div className="text-center">
@@ -62,7 +60,6 @@ export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
                 <Separator />
                 <div className="text-center">{data?.apdexFormula.totalSamples}</div>
               </div>
-              {helpPopover?.content}
             </>
           }
         />
