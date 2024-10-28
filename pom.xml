@@ -197,7 +197,7 @@
         <spring-cloud.version>${spring-cloud4.version}</spring-cloud.version>
 
         <spring-data2.version>2.7.18</spring-data2.version>
-        <spring-data3.version>3.2.4</spring-data3.version>
+        <spring-data3.version>3.3.5</spring-data3.version>
         <spring-data.version>${spring-data3.version}</spring-data.version>
 
         <jakarta.servlet5.version>5.0.0</jakarta.servlet5.version>
