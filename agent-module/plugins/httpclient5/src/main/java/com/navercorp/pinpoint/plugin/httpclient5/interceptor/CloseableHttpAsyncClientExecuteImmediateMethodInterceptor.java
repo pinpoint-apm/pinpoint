@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.httpclient5.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -26,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5Constants;
 import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5PluginConfig;
+import org.apache.hc.client5.http.async.AsyncExecChain;
 
 public class CloseableHttpAsyncClientExecuteImmediateMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     private final boolean markError;
@@ -42,9 +44,25 @@ public class CloseableHttpAsyncClientExecuteImmediateMethodInterceptor extends S
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
-        final AsyncContextAccessor asyncContextAccessor = ArrayArgumentUtils.getArgument(args, 3, AsyncContextAccessor.class);
+        // AsyncExecChain.Scope
+        AsyncContext asyncContext = null;
+        final AsyncExecChain.Scope scope = ArrayArgumentUtils.getArgument(args, 2, AsyncExecChain.Scope.class);
+        if (scope != null) {
+            asyncContext = AsyncContextAccessorUtils.getAsyncContext(scope.clientContext);
+            if (asyncContext == null) {
+                asyncContext = recorder.recordNextAsyncContext();
+                AsyncContextAccessorUtils.setAsyncContext(asyncContext, scope.clientContext);
+            }
+        }
+
+        AsyncContextAccessor asyncContextAccessor = ArrayArgumentUtils.getArgument(args, 3, AsyncContextAccessor.class);
+        if (asyncContextAccessor == null) {
+            asyncContextAccessor = ArrayArgumentUtils.getArgument(args, 4, AsyncContextAccessor.class);
+        }
         if (asyncContextAccessor != null) {
-            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            if (asyncContext == null) {
+                asyncContext = recorder.recordNextAsyncContext();
+            }
             asyncContextAccessor._$PINPOINT$_setAsyncContext(asyncContext);
         }
     }

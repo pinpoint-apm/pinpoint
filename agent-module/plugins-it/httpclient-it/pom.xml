@@ -37,6 +37,7 @@
     <modules>
         <module>httpclient-3-it</module>
         <module>httpclient-4-it</module>
+        <module>httpclient-5-it</module>
     </modules>
 
 </project>
