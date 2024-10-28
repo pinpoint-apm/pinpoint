@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.shell.boot.ApplicationRunnerAutoConfiguration;
@@ -42,6 +43,7 @@ import java.util.Arrays;
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class,
         RedisReactiveAutoConfiguration.class,
+        KafkaAutoConfiguration.class,
         ApplicationRunnerAutoConfiguration.class,
         OtlpMetricsExportAutoConfiguration.class
 })
