@@ -126,6 +126,7 @@
         <module>exceptiontrace</module>
         <module>web-angular</module>
         <module>otlpmetric</module>
+        <module>redis-timeseries</module>
 
     </modules>
 
