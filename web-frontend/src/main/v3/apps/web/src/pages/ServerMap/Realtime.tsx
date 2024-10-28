@@ -8,6 +8,7 @@ import {
   ApplicationCombinedList,
   DatetimePicker,
   DatetimePickerChangeHandler,
+  HelpPopover,
   MainHeader,
   Realtime,
   withInitialFetch,
@@ -62,7 +63,11 @@ export const RealtimePage = ({}: RealtimePageProps) => {
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <PiTreeStructureDuotone /> Servermap
+            <PiTreeStructureDuotone />
+            <div className="flex items-center gap-1">
+              Servermap
+              <HelpPopover helpKey="HELP_VIEWER.SERVER_MAP" />
+            </div>
           </div>
         }
       >

@@ -38,12 +38,12 @@ export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
   const rank = data?.apdexScore ? getRank() : RANK.EXCELLENT;
 
   return (
-    <div className="flex h-full gap-1">
+    <div className="flex items-center h-full gap-1">
       Apdex
       <div className={`font-bold ${RankColorClassNameMap[rank]}`}>
         {(Math.floor(score * 100) / 100).toFixed(2)}
       </div>
-      <div className="mt-[-2px]">
+      <div>
         <HelpPopover
           helpKey="HELP_VIEWER.APDEX_SCORE"
           prevContent={
