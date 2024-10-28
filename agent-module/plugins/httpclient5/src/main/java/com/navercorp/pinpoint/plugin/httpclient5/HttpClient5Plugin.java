@@ -132,9 +132,19 @@ public class HttpClient5Plugin implements ProfilerPlugin, MatchableTransformTemp
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            final InstrumentMethod connectMethod = target.getDeclaredMethod("connect", "org.apache.hc.client5.http.io.ManagedHttpClientConnection", "org.apache.hc.core5.http.HttpHost", "java.net.InetSocketAddress", "org.apache.hc.core5.util.TimeValue", "org.apache.hc.core5.http.io.SocketConfig", "org.apache.hc.core5.http.protocol.HttpContext");
-            if (connectMethod != null) {
-                connectMethod.addInterceptor(DefaultHttpClientConnectionOperatorConnectInterceptor.class);
+            final InstrumentMethod connectMethod1 = target.getDeclaredMethod("connect", "org.apache.hc.client5.http.io.ManagedHttpClientConnection", "org.apache.hc.core5.http.HttpHost", "java.net.InetSocketAddress", "org.apache.hc.core5.util.TimeValue", "org.apache.hc.core5.http.io.SocketConfig", "org.apache.hc.core5.http.protocol.HttpContext");
+            if (connectMethod1 != null) {
+                connectMethod1.addScopedInterceptor(DefaultHttpClientConnectionOperatorConnectInterceptor.class, "DefaultHttpClientConnectionOperator_CONNECT");
+            }
+            // 5.2
+            final InstrumentMethod connectMethod2 = target.getDeclaredMethod("connect", "org.apache.hc.client5.http.io.ManagedHttpClientConnection", "org.apache.hc.core5.http.HttpHost", "java.net.InetSocketAddress", "org.apache.hc.core5.util.Timeout", "org.apache.hc.core5.http.io.SocketConfig", "java.lang.Object", "org.apache.hc.core5.http.protocol.HttpContext");
+            if (connectMethod2 != null) {
+                connectMethod2.addScopedInterceptor(DefaultHttpClientConnectionOperatorConnectInterceptor.class, "DefaultHttpClientConnectionOperator_CONNECT");
+            }
+            // 5.4
+            final InstrumentMethod connectMethod3 = target.getDeclaredMethod("connect", "org.apache.hc.client5.http.io.ManagedHttpClientConnection", "org.apache.hc.core5.http.HttpHost", "org.apache.hc.core5.net.NamedEndpoint", "java.net.InetSocketAddress", "org.apache.hc.core5.util.Timeout", "org.apache.hc.core5.http.io.SocketConfig", "java.lang.Object", "org.apache.hc.core5.http.protocol.HttpContext");
+            if (connectMethod3 != null) {
+                connectMethod3.addScopedInterceptor(DefaultHttpClientConnectionOperatorConnectInterceptor.class, "DefaultHttpClientConnectionOperator_CONNECT");
             }
 
             return target.toBytecode();
@@ -151,9 +161,13 @@ public class HttpClient5Plugin implements ProfilerPlugin, MatchableTransformTemp
             if (doEexecuteMethod != null) {
                 doEexecuteMethod.addInterceptor(CloseableHttpAsyncClientDoExecuteInterceptor.class);
             }
-            final InstrumentMethod executeImmediateMethod = target.getDeclaredMethod("executeImmediate", "org.apache.hc.core5.http.HttpRequest", "org.apache.hc.core5.http.nio.AsyncEntityProducer", "org.apache.hc.client5.http.async.AsyncExecChain$Scope", "org.apache.hc.client5.http.async.AsyncExecCallback");
-            if (executeImmediateMethod != null) {
-                executeImmediateMethod.addInterceptor(CloseableHttpAsyncClientExecuteImmediateMethodInterceptor.class);
+            final InstrumentMethod executeImmediateMethod1 = target.getDeclaredMethod("executeImmediate", "org.apache.hc.core5.http.HttpRequest", "org.apache.hc.core5.http.nio.AsyncEntityProducer", "org.apache.hc.client5.http.async.AsyncExecChain$Scope", "org.apache.hc.client5.http.async.AsyncExecCallback");
+            if (executeImmediateMethod1 != null) {
+                executeImmediateMethod1.addScopedInterceptor(CloseableHttpAsyncClientExecuteImmediateMethodInterceptor.class, "CloseableHttpAsyncClient_EXECUTE_IMMEDIATE");
+            }
+            final InstrumentMethod executeImmediateMethod2 = target.getDeclaredMethod("executeImmediate", "org.apache.hc.core5.http.HttpRequest", "org.apache.hc.core5.http.nio.AsyncEntityProducer", "org.apache.hc.client5.http.async.AsyncExecChain$Scope", "org.apache.hc.client5.http.async.AsyncExecChain", "org.apache.hc.client5.http.async.AsyncExecCallback");
+            if (executeImmediateMethod2 != null) {
+                executeImmediateMethod2.addScopedInterceptor(CloseableHttpAsyncClientExecuteImmediateMethodInterceptor.class, "CloseableHttpAsyncClient_EXECUTE_IMMEDIATE");
             }
 
             return target.toBytecode();
@@ -236,9 +250,13 @@ public class HttpClient5Plugin implements ProfilerPlugin, MatchableTransformTemp
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            final InstrumentMethod connectMethod = target.getDeclaredMethod("connect", "org.apache.hc.core5.reactor.ConnectionInitiator", "org.apache.hc.core5.http.HttpHost", "java.net.SocketAddress", "org.apache.hc.core5.util.Timeout", "java.lang.Object", "org.apache.hc.core5.concurrent.FutureCallback");
-            if (connectMethod != null) {
-                connectMethod.addInterceptor(DefaultAsyncClientConnectionOperatorConnectInterceptor.class);
+            final InstrumentMethod connectMethod1 = target.getDeclaredMethod("connect", "org.apache.hc.core5.reactor.ConnectionInitiator", "org.apache.hc.core5.http.HttpHost", "java.net.SocketAddress", "org.apache.hc.core5.util.Timeout", "java.lang.Object", "org.apache.hc.core5.concurrent.FutureCallback");
+            if (connectMethod1 != null) {
+                connectMethod1.addScopedInterceptor(DefaultAsyncClientConnectionOperatorConnectInterceptor.class, "DefaultAsyncClientConnectionOperator_CONNECT");
+            }
+            final InstrumentMethod connectMethod2 = target.getDeclaredMethod("connect", "org.apache.hc.core5.reactor.ConnectionInitiator", "org.apache.hc.core5.http.HttpHost", "org.apache.hc.core5.net.NamedEndpoint", "java.net.SocketAddress", "org.apache.hc.core5.util.Timeout", "java.lang.Object", "org.apache.hc.core5.http.protocol.HttpContext", "org.apache.hc.core5.concurrent.FutureCallback");
+            if (connectMethod2 != null) {
+                connectMethod2.addScopedInterceptor(DefaultAsyncClientConnectionOperatorConnectInterceptor.class, "DefaultAsyncClientConnectionOperator_CONNECT");
             }
 
             return target.toBytecode();
