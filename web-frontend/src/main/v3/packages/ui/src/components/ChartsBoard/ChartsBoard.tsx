@@ -2,7 +2,7 @@ import React from 'react';
 import { GetServerMap } from '@pinpoint-fe/constants';
 import { ResponseSummaryChart, ResponseAvgMaxChart, LoadChart, LoadChartProps } from '../Chart';
 import { cn } from '../../lib';
-import { HelpPopover, renderHelpPopoverContent, Separator } from '..';
+import { HelpPopover, Separator } from '..';
 import { colors } from '../../constant/theme';
 
 export interface ChartsBoardProps {
@@ -95,7 +95,7 @@ export const ChartsBoard = ({
                 title={
                   <div className="flex items-center h-12 gap-1 font-semibold">
                     Load
-                    <HelpPopover {...renderHelpPopoverContent('HELP_VIEWER.LOAD')} />
+                    <HelpPopover helpKey="HELP_VIEWER.LOAD" />
                   </div>
                 }
                 datas={(chartColors: LoadChartProps['chartColors']) => {

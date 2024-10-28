@@ -1,4 +1,4 @@
-import { HelpPopover, renderHelpPopoverContent } from '../../HelpPopover';
+import { HelpPopover } from '../../HelpPopover';
 import { Card, CardHeader, CardTitle, CardContent, Separator } from '../../ui';
 import { ChartCore } from './ChartCore';
 import { ChartCoreProps } from './ChartCore';
@@ -39,7 +39,7 @@ export const InspectorChart = ({
       <CardHeader className="px-4 py-3 text-sm">
         <CardTitle className="flex gap-1">
           {data?.title}
-          {helpViewerKey && <HelpPopover {...renderHelpPopoverContent(helpViewerKey)} />}
+          {helpViewerKey && <HelpPopover helpKey={helpViewerKey} />}
         </CardTitle>
       </CardHeader>
       <Separator />
