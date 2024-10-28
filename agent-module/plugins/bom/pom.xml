@@ -340,13 +340,13 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>3.1.0</version>
+                <version>${kafka.client.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
-                <version>3.1.0</version>
+                <version>${kafka.client.version}</version>
             </dependency>
 
             <dependency>
