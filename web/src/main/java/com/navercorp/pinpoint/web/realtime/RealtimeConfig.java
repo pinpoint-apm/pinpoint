@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.web.realtime.echo.RedisEchoService;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.service.EchoService;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketTimerTaskDecoratorFactory;
@@ -68,8 +68,8 @@ public class RealtimeConfig {
         Duration agentRecentness;
 
         @Bean
-        AgentLookupService agentLookupService(AgentInfoService agentInfoService) {
-            return new AgentLookupServiceImpl(agentInfoService, agentRecentness);
+        AgentLookupService agentLookupService(ApplicationAgentListService applicationAgentListService) {
+            return new AgentLookupServiceImpl(applicationAgentListService, agentRecentness);
         }
 
         @Bean

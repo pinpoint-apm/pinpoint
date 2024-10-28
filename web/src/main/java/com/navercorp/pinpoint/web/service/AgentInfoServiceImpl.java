@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
-import com.navercorp.pinpoint.web.service.component.LegacyAgentCompatibility;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -37,7 +36,6 @@ import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
@@ -71,6 +69,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.navercorp.pinpoint.web.service.ApplicationAgentListService.ACTUAL_AGENT_INFO_PREDICATE;
+
 /**
  * @author netspider
  * @author HyunGil Jeong
@@ -82,6 +82,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentEventService agentEventService;
 
+    private final ApplicationAgentListService applicationAgentListService;
+
     private final AgentWarningStatService agentWarningStatService;
 
     private final ApplicationIndexDao applicationIndexDao;
@@ -92,24 +94,22 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final HyperLinkFactory hyperLinkFactory;
     private final ActiveAgentValidator activeAgentValidator;
-    private final LegacyAgentCompatibility legacyAgentCompatibility;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
-                                AgentWarningStatService agentWarningStatService,
+                                ApplicationAgentListService applicationAgentListService, AgentWarningStatService agentWarningStatService,
                                 ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao,
                                 ActiveAgentValidator activeAgentValidator,
-                                HyperLinkFactory hyperLinkFactory,
-                                LegacyAgentCompatibility legacyAgentCompatibility) {
+                                HyperLinkFactory hyperLinkFactory) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
+        this.applicationAgentListService = Objects.requireNonNull(applicationAgentListService, "applicationAgentListService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
-        this.legacyAgentCompatibility = Objects.requireNonNull(legacyAgentCompatibility, "legacyAgentCompatibility");
     }
 
     @Override
@@ -246,12 +246,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationHours, List<Application> applicationList, AgentInfoFilter agentInfoFilter) {
+    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationHours, List<Application> applicationList, Predicate<AgentInfo> agentInfoFilter) {
         List<String> applicationNameList = getApplicationNameList(applicationList);
         return getApplicationAgentHostList2(offset, limit, durationHours, applicationNameList, agentInfoFilter);
     }
 
-    private ApplicationAgentHostList getApplicationAgentHostList2(int offset, int limit, int durationHours, List<String> applicationNameList, AgentInfoFilter agentInfoFilter) {
+    private ApplicationAgentHostList getApplicationAgentHostList2(int offset, int limit, int durationHours, List<String> applicationNameList, Predicate<AgentInfo> agentInfoFilter) {
         if (offset > applicationNameList.size()) {
             ApplicationAgentHostList.Builder builder = newBuilder(offset, offset, applicationNameList.size());
             return builder.build();
@@ -270,36 +270,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         return builder.build();
     }
 
-    private List<AgentInfo> getAgentInfoList(String applicationName, long timestamp, int durationHours, AgentInfoFilter agentInfoFilter) {
-        List<AgentInfo> filteredAgentInfoList = getAgentsByApplicationNameWithoutStatus(applicationName, timestamp).stream()
-                .filter(agentInfoFilter)
-                .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(filteredAgentInfoList)) {
-            return Collections.emptyList();
-        }
-        if (durationHours <= 0) {
-            return filteredAgentInfoList;
-        }
-
+    private List<AgentInfo> getAgentInfoList(String applicationName, long timestamp, int durationHours, Predicate<AgentInfo> agentInfoFilter) {
         Range range = Range.between(timestamp - TimeUnit.HOURS.toMillis(durationHours), timestamp);
-        List<AgentAndStatus> agentAndStatusList = getAgentAndStatuses(filteredAgentInfoList, timestamp);
-        List<AgentInfo> filteredActiveAgentInfoList = agentAndStatusList.stream()
-                .filter(agentAndStatus -> isActiveAgentSimplePredicate(agentAndStatus, AgentStatusFilters.recentStatus(range.getFrom()), range))
+        if (durationHours <= 0) {
+            return applicationAgentListService.allAgentList(applicationName, null, range, agentInfoFilter.and(ACTUAL_AGENT_INFO_PREDICATE)).stream()
+                    .map(AgentAndStatus::getAgentInfo)
+                    .collect(Collectors.toList());
+        }
+        List<AgentInfo> result = applicationAgentListService.activeStatusAgentList(applicationName, null, range, agentInfoFilter).stream()
                 .map(AgentAndStatus::getAgentInfo)
                 .collect(Collectors.toList());
-        return filteredActiveAgentInfoList;
-    }
-
-    private boolean isActiveAgentSimplePredicate(AgentAndStatus agentAndStatus, AgentStatusFilter agentStatusFilter, Range range) {
-        if (agentStatusFilter.test(agentAndStatus.getStatus())) {
-            return true;
-        }
-        AgentInfo agentInfo = agentAndStatus.getAgentInfo();
-        if (legacyAgentCompatibility.isLegacyAgent(agentInfo.getServiceTypeCode(), agentInfo.getAgentVersion())) {
-            return legacyAgentCompatibility.isActiveAgent(agentInfo.getAgentId(), range);
-        }
-
-        return false;
+        return result;
     }
 
     private ApplicationAgentHostList.Builder newBuilder(int offset, int endIndex, int totalApplications) {

@@ -56,7 +56,7 @@ public interface AgentInfoService {
     @Deprecated
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, Period durationDays);
 
-    ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays, List<Application> applicationList, AgentInfoFilter agentInfoFilter);
+    ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays, List<Application> applicationList, Predicate<AgentInfo> agentInfoFilter);
 
     Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp);
 

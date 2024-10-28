@@ -147,6 +147,7 @@ public class AgentListController {
         return treeView(list);
     }
 
+    //use only for server map list
     @GetMapping(value = "/search-application", params = {"application", "from", "to", "applicationPairs"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsListWithVirtualNodes(
             @RequestParam("application") @NotBlank String applicationName,
@@ -155,12 +156,14 @@ public class AgentListController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy,
+            @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "applicationPairs", required = false) ApplicationPairs applicationPairs
     ) {
         ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         if (serviceType.isWas()) {
+            final ApplicationAgentListQueryRule serverMapAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ACTIVE_STATISTICS);
             return getAgentsList(
-                    applicationName, serviceTypeCode, serviceTypeName, from, to, sortBy, null
+                    applicationName, serviceTypeCode, serviceTypeName, from, to, sortBy, String.valueOf(serverMapAgentListQueryRule)
             );
         }
 
