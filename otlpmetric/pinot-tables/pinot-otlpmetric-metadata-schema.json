@@ -2,11 +2,11 @@
   "schemaName": "otlpMetricMetadata",
   "dimensionFieldSpecs": [
     {
-      "name": "serviceId",
+      "name": "serviceName",
       "dataType": "STRING"
     },
     {
-      "name": "applicationId",
+      "name": "applicationName",
       "dataType": "STRING"
     },
     {
@@ -73,6 +73,6 @@
     }
   ],
   "primaryKeyColumns": [
-    "serviceId", "applicationId", "agentId", "metricGroupName", "metricName", "fieldName", "rawTags", "version"
+    "serviceName", "applicationName", "agentId", "metricGroupName", "metricName", "fieldName", "rawTags", "version"
   ]
 }
