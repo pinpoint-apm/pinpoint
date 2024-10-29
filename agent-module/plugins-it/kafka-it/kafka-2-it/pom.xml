@@ -22,12 +22,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_2.12</artifactId>
-            <!-- KafkaServerStartable KafkaServerStartable issue -->
-            <version>2.6.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugin-it-utils</artifactId>
             <version>${project.version}</version>
@@ -41,9 +35,14 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
         </dependency>
     </dependencies>
 

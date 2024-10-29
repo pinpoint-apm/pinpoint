@@ -42,7 +42,8 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
  */
 public class TestConsumer {
 
-    private static final Logger logger = LogManager.getLogger(KafkaUnitServer.class);
+    private final Logger logger = LogManager.getLogger(getClass());
+
     private final Thread consumerThread;
     private final Poller poller;
 
@@ -65,6 +66,8 @@ public class TestConsumer {
     }
 
     private static class Poller implements Runnable {
+
+        private final Logger logger = LogManager.getLogger(getClass());
 
         private final KafkaConsumer<String, String> consumer;
         private final OffsetStore offsetStore;
