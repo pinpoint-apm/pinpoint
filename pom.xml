@@ -1048,6 +1048,12 @@
                 <artifactId>log4j</artifactId>
                 <version>${log4j1.version}</version>
             </dependency>
+            <dependency>
+                <groupId>ch.qos.reload4j</groupId>
+                <artifactId>reload4j</artifactId>
+                <version>1.2.25</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>com.zaxxer</groupId>
