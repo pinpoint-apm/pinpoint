@@ -11,7 +11,7 @@
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["applicationId"],
+    "sortedColumn": ["applicationName"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {

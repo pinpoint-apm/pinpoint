@@ -11,8 +11,8 @@
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["applicationId"],
-    "bloomFilterColumns": ["serviceId", "applicationId", "agentId", "metricGroupName", "metricName", "fieldName"],
+    "sortedColumn": ["applicationName"],
+    "bloomFilterColumns": ["serviceName", "applicationName", "agentId", "metricGroupName", "metricName", "fieldName"],
     "noDictionaryColumns": ["value", "eventTime"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,

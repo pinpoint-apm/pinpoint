@@ -2,11 +2,11 @@
   "schemaName": "otlpMetricLong",
   "dimensionFieldSpecs": [
     {
-      "name": "serviceId",
+      "name": "serviceName",
       "dataType": "STRING"
     },
     {
-      "name": "applicationId",
+      "name": "applicationName",
       "dataType": "STRING"
     },
     {
