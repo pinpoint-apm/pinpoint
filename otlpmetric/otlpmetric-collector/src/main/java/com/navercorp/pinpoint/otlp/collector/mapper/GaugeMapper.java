@@ -40,7 +40,7 @@ public class GaugeMapper extends OtlpMetricDataMapper {
     public void map(OtlpMetricData.Builder builder, Metric metric, Map<String, String> commonTags) {
         if (metric.hasGauge()) {
             builder.setMetricType(MetricType.GAUGE);
-            String fieldName = setMetricName(builder, metric.getName());
+            String fieldName = setMetricNameAndGetField(builder, metric.getName());
 
             final List<NumberDataPoint> dataPoints = metric.getGauge().getDataPointsList();
             for (NumberDataPoint data : dataPoints) {
@@ -66,34 +66,5 @@ public class GaugeMapper extends OtlpMetricDataMapper {
                 builder.addValue(dataPointBuilder.build());
             }
         }
-    }
-
-    @Override
-    protected String setMetricName(OtlpMetricData.Builder builder, String metricName) {
-        builder.setMetricGroupName(MetricName.EMPTY_METRIC_GROUP_NAME);
-        builder.setMetricName(MetricName.EMPTY_METRIC_NAME);
-
-        List<String> names = new LinkedList<>(Arrays.asList(metricName.split("\\.")));
-        int length = names.size();
-
-        if ( length == 0 ) {
-            return MetricName.EMPTY_FIELD_NAME;
-        } else if ( length == 1 ) {
-            builder.setMetricGroupName(getName(names.get(length - 1), MetricName.EMPTY_METRIC_GROUP_NAME));
-            return MetricName.EMPTY_FIELD_NAME;
-        } else if ( length == 2 ) {
-            builder.setMetricName(getName(names.get(length - 1), MetricName.EMPTY_METRIC_NAME));
-            builder.setMetricGroupName(getName(names.get(length - 2), MetricName.EMPTY_METRIC_GROUP_NAME));
-            return MetricName.EMPTY_FIELD_NAME;
-        } else {
-            String fieldName = getName(names.remove(length - 1), MetricName.EMPTY_FIELD_NAME);
-            builder.setMetricName(getName(names.remove(length - 2), MetricName.EMPTY_METRIC_NAME));
-            builder.setMetricGroupName(getName(String.join(".", names), MetricName.EMPTY_METRIC_GROUP_NAME));
-            return fieldName;
-        }
-    }
-
-    private String getName(String name, String defaultValue) {
-        return StringUtils.isEmpty(name) ? defaultValue : name;
     }
 }

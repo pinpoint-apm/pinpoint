@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.otlp.collector.mapper;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricDataPoint;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
+import com.navercorp.pinpoint.otlp.common.model.MetricName;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Metric;
@@ -35,18 +37,49 @@ public abstract class OtlpMetricDataMapper {
 
     abstract void map(OtlpMetricData.Builder builder, Metric metric, Map<String, String> commonTags);
 
-    protected String setMetricName(OtlpMetricData.Builder builder, String metricName) {
+    protected void setMetricName(OtlpMetricData.Builder builder, String metricName) {
+        builder.setMetricGroupName(MetricName.EMPTY_METRIC_GROUP_NAME);
+        builder.setMetricName(MetricName.EMPTY_METRIC_NAME);
+
         List<String> names = new LinkedList<>(Arrays.asList(metricName.split("\\.")));
         int length = names.size();
 
-        if ( length == 1 ) {
-            builder.setMetricName(names.get(length - 1));
+        if ( length == 0 ) {
+            return;
+        } else if ( length == 1 ) {
+            builder.setMetricGroupName(getName(names.get(0), MetricName.EMPTY_METRIC_GROUP_NAME));
         } else {
-            builder.setMetricName(names.remove(length - 1));
-            builder.setMetricGroupName(String.join(".", names));
+            builder.setMetricName(getName(names.get(length - 1), MetricName.EMPTY_METRIC_NAME));
+            builder.setMetricGroupName(getName(String.join(".", names.subList(0, length - 1)), MetricName.EMPTY_METRIC_GROUP_NAME));
         }
+    }
 
-        return "";
+    protected String setMetricNameAndGetField(OtlpMetricData.Builder builder, String metricName) {
+        builder.setMetricGroupName(MetricName.EMPTY_METRIC_GROUP_NAME);
+        builder.setMetricName(MetricName.EMPTY_METRIC_NAME);
+
+        List<String> names = new LinkedList<>(Arrays.asList(metricName.split("\\.")));
+        int length = names.size();
+
+        if ( length == 0 ) {
+            return MetricName.EMPTY_FIELD_NAME;
+        } else if ( length == 1 ) {
+            builder.setMetricGroupName(getName(names.get(0), MetricName.EMPTY_METRIC_GROUP_NAME));
+            return MetricName.EMPTY_FIELD_NAME;
+        } else if ( length == 2 ) {
+            builder.setMetricName(getName(names.get(1), MetricName.EMPTY_METRIC_NAME));
+            builder.setMetricGroupName(getName(names.get(0), MetricName.EMPTY_METRIC_GROUP_NAME));
+            return MetricName.EMPTY_FIELD_NAME;
+        } else {
+            String fieldName = getName(names.get(length - 1), MetricName.EMPTY_FIELD_NAME);
+            builder.setMetricName(getName(names.get(length - 2), MetricName.EMPTY_METRIC_NAME));
+            builder.setMetricGroupName(getName(String.join(".", names.subList(0, length - 2)), MetricName.EMPTY_METRIC_GROUP_NAME));
+            return fieldName;
+        }
+    }
+
+    private String getName(String name, String defaultValue) {
+        return StringUtils.isEmpty(name) ? defaultValue : name;
     }
 
     protected String resolveTagValue(AnyValue value) {
