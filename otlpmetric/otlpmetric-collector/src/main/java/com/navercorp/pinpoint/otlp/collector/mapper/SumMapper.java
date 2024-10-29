@@ -39,7 +39,7 @@ public class SumMapper extends OtlpMetricDataMapper {
     public void map(OtlpMetricData.Builder builder, Metric metric, Map<String, String> commonTags) {
         if (metric.hasSum()) {
             builder.setMetricType(MetricType.SUM);
-            String fieldName = setMetricName(builder, metric.getName());
+            String fieldName = setMetricNameAndGetField(builder, metric.getName());
 
             final Sum sum = metric.getSum();
             builder.setAggreTemporality(sum.getAggregationTemporality());
@@ -67,26 +67,6 @@ public class SumMapper extends OtlpMetricDataMapper {
                 }
                 builder.addValue(dataPointBuilder.build());
             }
-        }
-    }
-
-    @Override
-    protected String setMetricName(OtlpMetricData.Builder builder, String metricName) {
-        List<String> names = new LinkedList<>(Arrays.asList(metricName.split("\\.")));
-        int length = names.size();
-
-        if ( length == 1 ) {
-            builder.setMetricName(names.get(length - 1));
-            return "";
-        } else if ( length == 2 ) {
-            builder.setMetricName(names.get(length - 1));
-            builder.setMetricGroupName(names.get(length - 2));
-            return "";
-        } else {
-            String fieldName = names.remove(length - 1);
-            builder.setMetricName(names.remove(length - 2));
-            builder.setMetricGroupName(String.join(".", names));
-            return fieldName;
         }
     }
 }
