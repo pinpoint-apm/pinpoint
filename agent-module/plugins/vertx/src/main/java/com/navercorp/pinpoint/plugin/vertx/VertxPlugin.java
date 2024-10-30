@@ -77,9 +77,6 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-
-        // 3.3 <= x <= 3.5
-        logger.info("Enable VertxPlugin. version range=[3.3, 4.5.0]");
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // for vertx.io 3.3.x, 3.4.x
@@ -92,8 +89,6 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                 }
             }
         }
-
-        logger.info("Adding Vertx transformers");
 
         final List<String> basePackageNames = filterBasePackageNames(config.getHandlerBasePackageNames());
         if (!basePackageNames.isEmpty()) {
