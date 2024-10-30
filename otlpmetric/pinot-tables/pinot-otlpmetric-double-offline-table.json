@@ -1,9 +1,9 @@
 {
-  "tableName": "otlpMetricDouble",
+  "tableName": "otlpMetricDouble00",
   "tableType": "OFFLINE",
   "segmentsConfig": {
     "timeType": "MILLISECONDS",
-    "schemaName": "otlpMetricDouble",
+    "schemaName": "otlpMetricDouble00",
     "retentionTimeUnit": "DAYS",
     "retentionTimeValue": "56",
     "replication": "3",
