@@ -23,11 +23,14 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientConstants;
+import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientPluginConfig;
 
 public class HttpClientInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
 
     public HttpClientInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+        this.markError = JdkHttpClientPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -37,7 +40,7 @@ public class HttpClientInterceptor extends SpanEventSimpleAroundInterceptorForPl
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
         recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT_INTERNAL);
 
         if (isAsynchronousInvocation(result, throwable)) {

@@ -53,15 +53,14 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final OkHttpPluginConfig config = new OkHttpPluginConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("{} 2.x disabled", this.getClass().getSimpleName());
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
-
-        logger.info("Setup OkHttpPlugin 2.x");
         addCall();
         addDispatcher();
-        if (config.isAsync()) {
+        boolean async = OkHttpPluginConfig.isAsync(context.getConfig());
+        if (async) {
             addAsyncCall();
         }
         addHttpEngine(config);
@@ -167,10 +166,9 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
             }
 
-            final OkHttpPluginConfig config = new OkHttpPluginConfig(instrumentor.getProfilerConfig());
             final InstrumentMethod readResponseMethod = target.getDeclaredMethod("readResponse");
             if (readResponseMethod != null) {
-                readResponseMethod.addInterceptor(com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.HttpEngineReadResponseMethodInterceptor.class, va(config.isStatusCode()));
+                readResponseMethod.addInterceptor(com.navercorp.pinpoint.plugin.okhttp.v2.interceptor.HttpEngineReadResponseMethodInterceptor.class);
             }
 
             return target.toBytecode();

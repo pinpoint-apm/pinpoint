@@ -28,12 +28,15 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.HttpRequestImplClientRequestAdaptor;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.HttpRequestImplGetter;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientConstants;
+import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientPluginConfig;
 import jdk.internal.net.http.HttpRequestImpl;
 
 public class MultiExchangeResponseAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
 
     public MultiExchangeResponseAsyncInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+        this.markError = JdkHttpClientPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -72,7 +75,7 @@ public class MultiExchangeResponseAsyncInterceptor extends SpanEventSimpleAround
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT_INTERNAL);
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
 
         final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
         if (asyncContext != null) {

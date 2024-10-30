@@ -78,15 +78,15 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final CookieRecorder<HttpMethod> cookieRecorder;
     private final EntityRecorder<HttpMethod> entityRecorder;
     private final ServerResponseHeaderRecorder<HttpMethod> responseHeaderRecorder;
+    private final boolean markError;
 
     public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope interceptorScope) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
         this.interceptorScope = Objects.requireNonNull(interceptorScope, "interceptorScope");
 
-        final HttpClient3PluginConfig config = new HttpClient3PluginConfig(traceContext.getProfilerConfig());
-        final boolean param = config.isParam();
-        final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
+        final boolean param = HttpClient3PluginConfig.isParam(traceContext.getProfilerConfig());
+        final HttpDumpConfig httpDumpConfig = HttpClient3PluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
         this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
@@ -102,7 +102,8 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         ClientHeaderAdaptor<HttpMethod> clientHeaderAdaptor = new HttpMethodClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
 
-        this.io = config.isIo();
+        this.io = HttpClient3PluginConfig.isIo(traceContext.getProfilerConfig());
+        this.markError = HttpClient3PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -180,11 +181,11 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
             if (target instanceof HttpMethod) {
                 final HttpMethod httpMethod = (HttpMethod) target;
                 final HttpConnection httpConnection = getHttpConnection(args);
-                final ClientRequestWrapper requestWrapper =  new HttpClient3RequestWrapper(httpMethod, httpConnection);
+                final ClientRequestWrapper requestWrapper = new HttpClient3RequestWrapper(httpMethod, httpConnection);
                 this.clientRequestRecorder.record(recorder, requestWrapper, throwable);
                 this.cookieRecorder.record(recorder, httpMethod, throwable);
                 this.entityRecorder.record(recorder, httpMethod, throwable);

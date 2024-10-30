@@ -70,8 +70,8 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
             if (execute != null) {
                 execute.addInterceptor(HttpRequestExecuteMethodInterceptor.class);
             }
-            final HttpClientPluginConfig config = new HttpClientPluginConfig(instrumentor.getProfilerConfig());
-            if (config.isAsync()) {
+            boolean async = HttpClientPluginConfig.isAsync(instrumentor.getProfilerConfig());
+            if (async) {
                 InstrumentMethod executeAsync = target.getDeclaredMethod("executeAsync", "java.util.concurrent.Executor");
                 if (executeAsync != null) {
                     executeAsync.addScopedInterceptor(HttpRequestExecuteAsyncMethodInterceptor.class, HttpClientConstants.EXECUTE_ASYNC_SCOPE, ExecutionPolicy.ALWAYS);

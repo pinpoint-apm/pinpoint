@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient3.HostNameGetter;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
 import com.navercorp.pinpoint.plugin.httpclient3.PortNumberGetter;
 import com.navercorp.pinpoint.plugin.httpclient3.ProxyHostNameGetter;
 import com.navercorp.pinpoint.plugin.httpclient3.ProxyPortNumberGetter;
@@ -32,9 +33,11 @@ import com.navercorp.pinpoint.plugin.httpclient3.ProxyPortNumberGetter;
  * @author jaehong.kim
  */
 public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
 
     public HttpConnectionOpenMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        this.markError = HttpClient3PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -49,7 +52,7 @@ public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundIn
     }
 
     private String getHostAndPort(Object target) {
-        if (((ProxyHostNameGetter)target)._$PINPOINT$_getProxyHostName() != null) {
+        if (((ProxyHostNameGetter) target)._$PINPOINT$_getProxyHostName() != null) {
             final String host = ((ProxyHostNameGetter) target)._$PINPOINT$_getProxyHostName();
             final int port = ((ProxyPortNumberGetter) target)._$PINPOINT$_getProxyPortNumber();
             return HostAndPort.toHostAndPortString(host, port);
@@ -62,7 +65,7 @@ public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundIn
 
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordException(throwable);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordException(markError, throwable);
     }
 }

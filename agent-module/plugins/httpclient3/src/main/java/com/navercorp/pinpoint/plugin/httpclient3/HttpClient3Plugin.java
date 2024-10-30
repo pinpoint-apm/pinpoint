@@ -40,7 +40,6 @@ import java.security.ProtectionDomain;
  * @author emeroad
  * @author minwoo.jung
  * @author jaehong.kim
- *
  */
 public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -50,7 +49,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(context.getConfig());
-        if(Boolean.FALSE == config.isEnable()) {
+        if (Boolean.FALSE == config.isEnable()) {
             logger.info("{} disabled '{}'", this.getClass().getSimpleName(), "profiler.apache.httpclient3.enable=false");
             return;
         }
@@ -93,7 +92,6 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
     }
 
 
-    
     private void addDefaultHttpMethodRetryHandlerClass() {
         transformTemplate.transform("org.apache.commons.httpclient.DefaultHttpMethodRetryHandler", DefaultHttpMethodRetryHandlerTransform.class);
     }
@@ -113,7 +111,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
             return target.toBytecode();
         }
     }
-    
+
     private void addHttpConnectionClass() {
         transformTemplate.transform("org.apache.commons.httpclient.HttpConnection", HttpConnectionTransform.class);
     }
@@ -138,7 +136,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
             return target.toBytecode();
         }
     }
-    
+
     private void addHttpMethodBaseClass(final HttpClient3PluginConfig config) {
         transformTemplate.transform("org.apache.commons.httpclient.HttpMethodBase", HttpMethodBaseTransform.class);
     }
@@ -154,8 +152,8 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
                 execute.addScopedInterceptor(HttpMethodBaseExecuteMethodInterceptor.class, HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, ExecutionPolicy.ALWAYS);
             }
 
-            final HttpClient3PluginConfig config = new HttpClient3PluginConfig(instrumentor.getProfilerConfig());
-            if (config.isIo()) {
+            final boolean io = HttpClient3PluginConfig.isIo(instrumentor.getProfilerConfig());
+            if (io) {
                 final InstrumentMethod writeRequest = target.getDeclaredMethod("writeRequest", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
                 if (writeRequest != null) {
                     writeRequest.addScopedInterceptor(HttpMethodBaseRequestAndResponseMethodInterceptor.class, HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, ExecutionPolicy.ALWAYS);

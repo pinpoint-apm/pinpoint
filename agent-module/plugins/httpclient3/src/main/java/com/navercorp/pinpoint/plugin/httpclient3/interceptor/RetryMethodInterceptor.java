@@ -23,15 +23,18 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
 
 /**
  * @author Minwoo Jung
  * @author jaehong.kim
  */
 public class RetryMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
 
     public RetryMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
         super(context, methodDescriptor);
+        this.markError = HttpClient3PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -42,7 +45,7 @@ public class RetryMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
 
         final String retryMessage = getRetryMessage(args);
         recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, retryMessage);

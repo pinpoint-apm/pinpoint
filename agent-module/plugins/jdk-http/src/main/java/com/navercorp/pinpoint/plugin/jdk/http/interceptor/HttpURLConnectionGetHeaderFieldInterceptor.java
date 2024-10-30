@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientResponseAdaptor;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
+import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
 
 import java.net.HttpURLConnection;
 
@@ -39,11 +40,13 @@ public class HttpURLConnectionGetHeaderFieldInterceptor implements AroundInterce
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
     private final ServerResponseHeaderRecorder<HttpURLConnection> responseHeaderRecorder;
+    private final boolean markError;
 
     public HttpURLConnectionGetHeaderFieldInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new JdkHttpClientResponseAdaptor());
+        this.markError = JdkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -90,7 +93,7 @@ public class HttpURLConnectionGetHeaderFieldInterceptor implements AroundInterce
             final HttpURLConnection request = (HttpURLConnection) target;
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
 
             if (result instanceof String) {
                 final String response = (String) result;

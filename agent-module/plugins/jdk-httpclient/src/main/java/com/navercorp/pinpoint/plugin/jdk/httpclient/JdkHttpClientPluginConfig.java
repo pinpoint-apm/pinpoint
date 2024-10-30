@@ -25,41 +25,47 @@ public class JdkHttpClientPluginConfig {
     private final boolean enable;
     private final boolean param;
     private final HttpDumpConfig httpDumpConfig;
+    private final boolean markError;
+
+    public static boolean isParam(ProfilerConfig config) {
+        return config.readBoolean("profiler.jdk.httpclient.param", true);
+    }
+
+    public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
+        boolean cookie = config.readBoolean("profiler.jdk.httpclient.cookie", false);
+        DumpType cookieDumpType = config.readDumpType("profiler.jdk.httpclient.cookie.dumptype", DumpType.EXCEPTION);
+        int cookieSamplingRate = config.readInt("profiler.jdk.httpclient.cookie.sampling.rate", 1);
+        int cookieDumpSize = config.readInt("profiler.jdk.httpclient.cookie.dumpsize", 1024);
+        boolean entity = config.readBoolean("profiler.jdk.httpclient.entity", false);
+        DumpType entityDumpType = config.readDumpType("profiler.jdk.httpclient.entity.dumptype", DumpType.EXCEPTION);
+        int entitySamplingRate = config.readInt("profiler.jdk.httpclient.entity.sampling.rate", 1);
+        int entityDumpSize = config.readInt("profiler.jdk.httpclient.entity.dumpsize", 1024);
+        return HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);
+    }
+
+    public static boolean isMarkError(ProfilerConfig config) {
+        return config.readBoolean("profiler.jdk.httpclient.mark.error", true);
+    }
 
     public JdkHttpClientPluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.jdk.httpclient.enable", true);
-        this.param = src.readBoolean("profiler.jdk.httpclient.param", true);
 
-        boolean cookie = src.readBoolean("profiler.jdk.httpclient.cookie", false);
-        DumpType cookieDumpType = src.readDumpType("profiler.jdk.httpclient.cookie.dumptype", DumpType.EXCEPTION);
-        int cookieSamplingRate = src.readInt("profiler.jdk.httpclient.cookie.sampling.rate", 1);
-        int cookieDumpSize = src.readInt("profiler.jdk.httpclient.cookie.dumpsize", 1024);
-
-        boolean entity = src.readBoolean("profiler.jdk.httpclient.entity", false);
-        DumpType entityDumpType = src.readDumpType("profiler.jdk.httpclient.entity.dumptype", DumpType.EXCEPTION);
-        int entitySamplingRate = src.readInt("profiler.jdk.httpclient.entity.sampling.rate", 1);
-        int entityDumpSize = src.readInt("profiler.jdk.httpclient.entity.dumpsize", 1024);
-        this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);
+        this.param = isParam(src);
+        this.httpDumpConfig = getHttpDumpConfig(src);
+        this.markError = isMarkError(src);
     }
 
     public boolean isEnable() {
         return enable;
     }
 
-    public boolean isParam() {
-        return param;
-    }
-
-    public HttpDumpConfig getHttpDumpConfig() {
-        return httpDumpConfig;
-    }
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("JdkHttpClientPluginConfig{");
-        sb.append("param=").append(param);
-        sb.append(", httpDumpConfig=").append(httpDumpConfig);
-        sb.append('}');
-        return sb.toString();
+        return "JdkHttpClientPluginConfig{" +
+                "enable=" + enable +
+                ", param=" + param +
+                ", httpDumpConfig=" + httpDumpConfig +
+                ", markError=" + markError +
+                '}';
     }
 }

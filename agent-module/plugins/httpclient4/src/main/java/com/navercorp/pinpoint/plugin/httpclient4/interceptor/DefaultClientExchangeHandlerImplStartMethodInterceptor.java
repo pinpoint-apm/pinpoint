@@ -70,14 +70,14 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     private final EntityRecorder<HttpRequest> entityRecorder;
 
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
+    private final boolean markError;
 
     public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
 
-        final HttpClient4PluginConfig config = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
-        final boolean param = config.isParam();
-        final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
+        final boolean param = HttpClient4PluginConfig.isParam(traceContext.getProfilerConfig());
+        final HttpDumpConfig httpDumpConfig = HttpClient4PluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
         this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
@@ -90,6 +90,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
 
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.markError = HttpClient4PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -213,7 +214,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
                 this.entityRecorder.record(recorder, httpRequest, throwable);
             }
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
         } finally {
             trace.traceBlockEnd();
         }

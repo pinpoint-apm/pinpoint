@@ -55,16 +55,18 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
     private final ClientRequestRecorder<HttpURLConnection> clientRequestRecorder;
     private final RequestTraceWriter<HttpURLConnection> requestTraceWriter;
     private final ClientRequestAdaptor<HttpURLConnection> clientRequestAdaptor = new JdkHttpClientRequestAdaptor();
+    private final boolean markError;
 
     public AbstractHttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.scope = scope;
 
-        final JdkHttpPluginConfig config = new JdkHttpPluginConfig(traceContext.getProfilerConfig());
-        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
+        boolean param = JdkHttpPluginConfig.isParam(traceContext.getProfilerConfig());
+        this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
         final ClientHeaderAdaptor<HttpURLConnection> clientHeaderAdaptor = new HttpURLConnectionClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.markError = JdkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -88,7 +90,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
                     this.requestTraceWriter.write(request, nextId, host);
                 } catch (Exception e) {
                     // It happens if it is already connected or connected.
-                    if(isDebug) {
+                    if (isDebug) {
                         logger.debug("Failed to requestTraceWriter, already connected or connected");
                     }
                     return;
@@ -102,7 +104,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
                     this.requestTraceWriter.write(request);
                 } catch (Exception ignored) {
                     // It happens if it is already connected or connected.
-                    if(isDebug) {
+                    if (isDebug) {
                         logger.debug("Failed to requestTraceWriter, already connected or connected");
                     }
                 }
@@ -135,7 +137,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
             final HttpURLConnection request = (HttpURLConnection) target;
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
             this.clientRequestRecorder.record(recorder, request, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {

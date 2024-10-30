@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseHeaderRecorderFa
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServerResponseHeaderRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
+import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpResponseAdaptor;
 import com.navercorp.pinpoint.plugin.okhttp.v3.UserRequestGetter;
 import com.navercorp.pinpoint.plugin.okhttp.v3.UserResponseGetter;
@@ -43,12 +44,14 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
     private final MethodDescriptor methodDescriptor;
     private final boolean statusCode;
     private final ServerResponseHeaderRecorder<Response> responseHeaderRecorder;
+    private final boolean markError;
 
-    public HttpEngineReadResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, boolean statusCode) {
+    public HttpEngineReadResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.statusCode = statusCode;
+        this.statusCode = OkHttpPluginConfig.isStatusCode(traceContext.getProfilerConfig());
         this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new OkHttpResponseAdaptor());
+        this.markError = OkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -106,7 +109,7 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
 
             if (statusCode) {
                 // type check validate();

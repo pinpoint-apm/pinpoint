@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
+import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 
 /**
  * @author jaehong.kim
@@ -37,10 +38,12 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
+    private final boolean markError;
 
     public DispatcherEnqueueMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
+        this.markError = OkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -105,7 +108,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             if (trace.canSampled()) {
                 recorder.recordApi(methodDescriptor);
                 recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
-                recorder.recordException(throwable);
+                recorder.recordException(markError, throwable);
             }
         } finally {
             trace.traceBlockEnd();

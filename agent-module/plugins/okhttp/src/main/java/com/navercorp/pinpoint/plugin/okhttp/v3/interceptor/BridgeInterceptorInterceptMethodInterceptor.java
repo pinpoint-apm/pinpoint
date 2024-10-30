@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.okhttp.v3.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -59,20 +60,23 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
     private final ClientRequestRecorder<Request> clientRequestRecorder;
     private final CookieRecorder<Request> cookieRecorder;
     private final ServerResponseHeaderRecorder<Response> responseHeaderRecorder;
+    private final boolean markError;
 
     public BridgeInterceptorInterceptMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
-        final OkHttpPluginConfig config = new OkHttpPluginConfig(traceContext.getProfilerConfig());
+        boolean param = OkHttpPluginConfig.isParam(traceContext.getProfilerConfig());
+        HttpDumpConfig httpDumpConfig = OkHttpPluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<Request> clientRequestAdaptor = new OkHttpClientRequestAdaptor();
-        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
 
         CookieExtractor<Request> cookieExtractor = new OkHttpClientCookieExtractor();
-        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
         this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new OkHttpResponseAdaptor());
+        this.markError = OkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -128,7 +132,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
 
             // clear attachment.
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();

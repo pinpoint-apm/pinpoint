@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -74,26 +75,29 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     private final ServerResponseHeaderRecorder<HttpResponse> responseHeaderRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
+    private final boolean markError;
 
     public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
-        final HttpClient4PluginConfig profilerConfig = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
+        boolean param = HttpClient4PluginConfig.isParam(traceContext.getProfilerConfig());
+        HttpDumpConfig httpDumpConfig = HttpClient4PluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
-        this.clientRequestRecorder = new ClientRequestRecorder<>(profilerConfig.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
 
         CookieExtractor<HttpRequest> cookieExtractor = HttpClient4CookieExtractor.INSTANCE;
-        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(profilerConfig.getHttpDumpConfig(), cookieExtractor);
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
 
-        this.statusCode = profilerConfig.isStatusCode();
-        this.io = profilerConfig.isIo();
+        this.statusCode = HttpClient4PluginConfig.isStatusCode(traceContext.getProfilerConfig());
+        this.io = HttpClient4PluginConfig.isIo(traceContext.getProfilerConfig());
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
 
         this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new HttpResponse4ClientHeaderAdaptor());
+        this.markError = HttpClient4PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -182,7 +186,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             }
 
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             final Object attachment = getAttachment(invocation);

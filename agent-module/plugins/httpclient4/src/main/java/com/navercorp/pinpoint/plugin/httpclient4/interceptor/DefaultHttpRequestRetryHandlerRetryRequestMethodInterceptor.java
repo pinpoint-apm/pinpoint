@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 
 /**
  * @author Minwoo Jung
@@ -32,20 +33,22 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final ServiceType serviceType = HttpClient4Constants.HTTP_CLIENT_4_INTERNAL;
+    private final boolean markError;
 
     public DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
         super(context, methodDescriptor);
+        this.markError = HttpClient4PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(serviceType);
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
 
         final String retryMessage = getRetryMessage(args);
         recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, retryMessage);

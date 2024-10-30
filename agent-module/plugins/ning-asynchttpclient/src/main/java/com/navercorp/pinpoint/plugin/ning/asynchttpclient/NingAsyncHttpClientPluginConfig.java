@@ -26,40 +26,47 @@ public class NingAsyncHttpClientPluginConfig {
     private final boolean enable;
     private final boolean param;
     private final HttpDumpConfig httpDumpConfig;
+    private final boolean markError;
+
+    public static boolean isParam(ProfilerConfig config) {
+        return config.readBoolean("profiler.ning.asynchttpclient.param", false);
+    }
+
+    public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
+        boolean profileCookie = config.readBoolean("profiler.ning.asynchttpclient.cookie", false);
+        DumpType cookieDumpType = config.readDumpType("profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
+        int cookieDumpSize = config.readInt("profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
+        int cookieSamplingRate = config.readInt("profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
+        boolean profileEntity = config.readBoolean("profiler.ning.asynchttpclient.entity", false);
+        DumpType entityDumpType = config.readDumpType("profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
+        int entityDumpSize = config.readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
+        int entitySamplingRate = config.readInt("profiler.ning.asynchttpclient.entity.sampling.rate", 1);
+        return HttpDumpConfig.get(profileCookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, profileEntity, entityDumpType, entitySamplingRate, entityDumpSize);
+    }
+
+    public static boolean isMarkError(ProfilerConfig config) {
+        return config.readBoolean("profiler.ning.asynchttpclient.mark.error", Boolean.TRUE);
+    }
 
     public NingAsyncHttpClientPluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.ning.asynchttpclient", true);
-        this.param = src.readBoolean("profiler.ning.asynchttpclient.param", false);
-        boolean profileCookie = src.readBoolean("profiler.ning.asynchttpclient.cookie", false);
-        DumpType cookieDumpType = src.readDumpType("profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
-        int cookieDumpSize = src.readInt("profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
-        int cookieSamplingRate = src.readInt("profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
-        boolean profileEntity = src.readBoolean("profiler.ning.asynchttpclient.entity", false);
-        DumpType entityDumpType = src.readDumpType("profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
-        int entityDumpSize = src.readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
-        int entitySamplingRate = src.readInt("profiler.ning.asynchttpclient.entity.sampling.rate", 1);
-        this.httpDumpConfig = HttpDumpConfig.get(profileCookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, profileEntity, entityDumpType, entitySamplingRate, entityDumpSize);
+
+        this.param = isParam(src);
+        this.httpDumpConfig = getHttpDumpConfig(src);
+        this.markError = isMarkError(src);
     }
 
     public boolean isEnable() {
         return enable;
     }
 
-    public boolean isParam() {
-        return param;
-    }
-
-    public HttpDumpConfig getHttpDumpConfig() {
-        return httpDumpConfig;
-    }
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("NingAsyncHttpClientPluginConfig{");
-        sb.append("enable=").append(enable);
-        sb.append(", param=").append(param);
-        sb.append(", httpDumpConfig=").append(httpDumpConfig);
-        sb.append('}');
-        return sb.toString();
+        return "NingAsyncHttpClientPluginConfig{" +
+                "enable=" + enable +
+                ", param=" + param +
+                ", httpDumpConfig=" + httpDumpConfig +
+                ", markError=" + markError +
+                '}';
     }
 }

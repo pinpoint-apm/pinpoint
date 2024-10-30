@@ -29,43 +29,54 @@ public class HttpClient4PluginConfig {
     private boolean statusCode = true;
     private boolean io;
     private HttpDumpConfig httpDumpConfig;
+    private boolean markError;
+    private boolean traceFutureError;
+
+    public static boolean isParam(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient4.param", true);
+    }
+
+    public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
+        boolean cookie = config.readBoolean("profiler.apache.httpclient4.cookie", false);
+        DumpType cookieDumpType = config.readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
+        int cookieSamplingRate = config.readInt("profiler.apache.httpclient4.cookie.sampling.rate", 1);
+        int cookieDumpSize = config.readInt("profiler.apache.httpclient4.cookie.dumpsize", 1024);
+        boolean entity = config.readBoolean("profiler.apache.httpclient4.entity", false);
+        DumpType entityDumpType = config.readDumpType("profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
+        int entitySamplingRate = config.readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
+        int entityDumpSize = config.readInt("profiler.apache.httpclient4.entity.dumpsize", 1024);
+        return HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);
+    }
+
+    public static boolean isStatusCode(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
+    }
+
+    public static boolean isIo(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient4.io", true);
+    }
+
+    public static boolean isMarkError(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient4.mark.error", Boolean.TRUE);
+    }
+
+    public static boolean isTraceFutureError(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient4.trace.future.error", Boolean.TRUE);
+    }
 
     public HttpClient4PluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.apache.httpclient4.enable", true);
-        this.param = src.readBoolean("profiler.apache.httpclient4.param", true);
 
-        boolean cookie = src.readBoolean("profiler.apache.httpclient4.cookie", false);
-        DumpType cookieDumpType = src.readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
-        int cookieSamplingRate = src.readInt("profiler.apache.httpclient4.cookie.sampling.rate", 1);
-        int cookieDumpSize = src.readInt("profiler.apache.httpclient4.cookie.dumpsize", 1024);
-        boolean entity = src.readBoolean("profiler.apache.httpclient4.entity", false);
-        DumpType entityDumpType = src.readDumpType("profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
-        int entitySamplingRate = src.readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
-        int entityDumpSize = src.readInt("profiler.apache.httpclient4.entity.dumpsize", 1024);
-        this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);
-
-        this.statusCode = src.readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
-        this.io = src.readBoolean("profiler.apache.httpclient4.io", true);
+        this.param = isParam(src);
+        this.httpDumpConfig = getHttpDumpConfig(src);
+        this.statusCode = isStatusCode(src);
+        this.io = isIo(src);
+        this.markError = isMarkError(src);
+        this.traceFutureError = isTraceFutureError(src);
     }
 
     public boolean isEnable() {
         return enable;
-    }
-
-    public boolean isParam() {
-        return param;
-    }
-
-    public boolean isStatusCode() {
-        return statusCode;
-    }
-
-    public boolean isIo() {
-        return io;
-    }
-
-    public HttpDumpConfig getHttpDumpConfig() {
-        return httpDumpConfig;
     }
 
     @Override
@@ -76,6 +87,8 @@ public class HttpClient4PluginConfig {
                 ", statusCode=" + statusCode +
                 ", io=" + io +
                 ", httpDumpConfig=" + httpDumpConfig +
+                ", markError=" + markError +
+                ", traceFutureError=" + traceFutureError +
                 '}';
     }
 }

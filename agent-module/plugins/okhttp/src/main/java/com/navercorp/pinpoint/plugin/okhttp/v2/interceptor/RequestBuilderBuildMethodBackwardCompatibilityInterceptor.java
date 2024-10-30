@@ -52,8 +52,5 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor extends A
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
     }
 }
