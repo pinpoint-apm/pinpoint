@@ -1,5 +1,5 @@
 {
-  "schemaName": "otlpMetricDouble",
+  "schemaName": "otlpMetricDouble00",
   "dimensionFieldSpecs": [
     {
       "name": "serviceName",
