@@ -27,11 +27,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
@@ -73,6 +75,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final InterceptorScope interceptorScope;
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpMethod> requestTraceWriter;
+    private final ApplicationInfoSender<HttpMethod> applicationInfoSender;
 
     private final boolean io;
     private final CookieRecorder<HttpMethod> cookieRecorder;
@@ -101,6 +104,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
 
         ClientHeaderAdaptor<HttpMethod> clientHeaderAdaptor = new HttpMethodClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
 
         this.io = config.isIo();
     }
@@ -111,14 +115,16 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             logger.beforeInterceptor(target, args);
         }
 
+        final HttpMethod httpMethod = getHttpMethod(target);
+        applicationInfoSender.sendCallerApplicationName(httpMethod);
+
         final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
         if (!trace.canSampled()) {
-            if (target instanceof HttpMethod) {
-                final HttpMethod httpMethod = (HttpMethod) target;
+            if (httpMethod != null) {
                 this.requestTraceWriter.write(httpMethod);
             }
             return;
@@ -130,8 +136,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3);
         // set http header for trace.
-        if (target instanceof HttpMethod) {
-            final HttpMethod httpMethod = (HttpMethod) target;
+        if (httpMethod != null) {
             final HttpConnection httpConnection = getHttpConnection(args);
             final String host = getHost(httpMethod, httpConnection);
             this.requestTraceWriter.write(httpMethod, nextId, host);
@@ -141,6 +146,9 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         initAttachment();
     }
 
+    private HttpMethod getHttpMethod(Object target) {
+        return target instanceof HttpMethod ? (HttpMethod) target : null;
+    }
 
     private String getHost(HttpMethod httpMethod, HttpConnection httpConnection) {
         try {

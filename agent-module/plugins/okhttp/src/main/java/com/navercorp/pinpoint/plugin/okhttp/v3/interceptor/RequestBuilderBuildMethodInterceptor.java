@@ -24,7 +24,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
@@ -44,7 +46,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final InterceptorScope interceptorScope;
     private final RequestTraceWriter<Request.Builder> requestTraceWriter;
-    ;
+    private final ApplicationInfoSender<Request.Builder> applicationInfoSender;
 
     public RequestBuilderBuildMethodInterceptor(TraceContext traceContext, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -52,6 +54,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
 
         ClientHeaderAdaptor<Request.Builder> clientHeaderAdaptor = new RequestBuilder3ClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -60,16 +63,18 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+        if (!(target instanceof Request.Builder)) {
             return;
         }
 
         try {
-            if (!(target instanceof Request.Builder)) {
+            final Request.Builder builder = ((Request.Builder) target);
+            applicationInfoSender.sendCallerApplicationName(builder);
+
+            final Trace trace = traceContext.currentRawTraceObject();
+            if (trace == null) {
                 return;
             }
-            final Request.Builder builder = ((Request.Builder) target);
             if (trace.canSampled()) {
                 final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
                 final Object attachment = getAttachment(invocation);
