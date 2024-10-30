@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
+import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 import com.navercorp.pinpoint.plugin.okhttp.v2.UserRequestGetter;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
@@ -31,9 +32,11 @@ import com.squareup.okhttp.Request;
  * @author HyunGil Jeong
  */
 public class HttpEngineConnectMethodFromUserRequestInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
 
     public HttpEngineConnectMethodFromUserRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+        this.markError = OkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -44,10 +47,10 @@ public class HttpEngineConnectMethodFromUserRequestInterceptor extends SpanEvent
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
 
         if (target instanceof UserRequestGetter) {
-            final Request request = ((UserRequestGetter)target)._$PINPOINT$_getUserRequest();
+            final Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null && request.httpUrl() != null) {
                 final HttpUrl httpUrl = request.httpUrl();
                 final String hostAndPort = HostAndPort.toHostAndPortString(httpUrl.host(), httpUrl.port());

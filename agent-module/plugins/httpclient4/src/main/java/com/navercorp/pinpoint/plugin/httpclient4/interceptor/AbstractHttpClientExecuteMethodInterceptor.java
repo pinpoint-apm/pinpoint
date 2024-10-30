@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 import org.apache.http.HttpRequest;
 
 /**
@@ -40,12 +41,12 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
     protected final boolean isDebug;
 
     private final boolean isHasCallbackParam;
+    private final boolean markError;
     protected final TraceContext traceContext;
     protected final MethodDescriptor descriptor;
     protected final InterceptorScope interceptorScope;
 
-    public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz,
-                                                      boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
+    public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz, boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.logger = PluginLogManager.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
 
@@ -53,6 +54,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
         this.descriptor = methodDescriptor;
         this.isHasCallbackParam = isHasCallbackParam;
         this.interceptorScope = interceptorScope;
+        this.markError = HttpClient4PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     abstract NameIntValuePair<String> getHost(Object[] args);
@@ -96,7 +98,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null) {

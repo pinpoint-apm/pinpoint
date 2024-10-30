@@ -54,15 +54,14 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final OkHttpPluginConfig config = new OkHttpPluginConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("{} 3.x disabled", this.getClass().getSimpleName());
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
-
-        logger.info("Setup OkHttpPlugin 3.x");
         addRealCall();
         addDispatcher();
-        if (config.isAsync()) {
+        boolean async = OkHttpPluginConfig.isAsync(context.getConfig());
+        if (async) {
             addAsyncCall();
         }
         addBridegInterceptor();
@@ -159,7 +158,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             final InstrumentMethod readResponseMethod = target.getDeclaredMethod("readResponse");
             if (readResponseMethod != null) {
-                readResponseMethod.addInterceptor(com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.HttpEngineReadResponseMethodInterceptor.class, va(config.isStatusCode()));
+                readResponseMethod.addInterceptor(com.navercorp.pinpoint.plugin.okhttp.v3.interceptor.HttpEngineReadResponseMethodInterceptor.class);
             }
 
             return target.toBytecode();

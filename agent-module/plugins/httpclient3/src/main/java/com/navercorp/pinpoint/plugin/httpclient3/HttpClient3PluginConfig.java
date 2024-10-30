@@ -28,39 +28,43 @@ public class HttpClient3PluginConfig {
     private final boolean param;
     private final boolean io;
     private final HttpDumpConfig httpDumpConfig;
+    private boolean markError;
+
+    public static boolean isParam(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient3.param", true);
+    }
+
+    public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
+        boolean cookie = config.readBoolean("profiler.apache.httpclient3.cookie", false);
+        DumpType cookieDumpType = config.readDumpType("profiler.apache.httpclient3.cookie.dumptype", DumpType.EXCEPTION);
+        int cookieSamplingRate = config.readInt("profiler.apache.httpclient3.cookie.sampling.rate", 1);
+        int cookieDumpSize = config.readInt("profiler.apache.httpclient3.cookie.dumpsize", 1024);
+        boolean entity = config.readBoolean("profiler.apache.httpclient3.entity", false);
+        DumpType entityDumpType = config.readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
+        int entitySamplingRate = config.readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
+        int entityDumpSize = config.readInt("profiler.apache.httpclient3.entity.dumpsize", 1024);
+        return HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);
+    }
+
+    public static boolean isIo(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient3.io", true);
+    }
+
+    public static boolean isMarkError(ProfilerConfig config) {
+        return config.readBoolean("profiler.apache.httpclient3.mark.error", Boolean.TRUE);
+    }
 
     public HttpClient3PluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.apache.httpclient3.enable", true);
-        this.param = src.readBoolean("profiler.apache.httpclient3.param", true);
 
-        boolean cookie = src.readBoolean("profiler.apache.httpclient3.cookie", false);
-        DumpType cookieDumpType = src.readDumpType("profiler.apache.httpclient3.cookie.dumptype", DumpType.EXCEPTION);
-        int cookieSamplingRate = src.readInt("profiler.apache.httpclient3.cookie.sampling.rate", 1);
-        int cookieDumpSize = src.readInt("profiler.apache.httpclient3.cookie.dumpsize", 1024);
-
-        boolean entity = src.readBoolean("profiler.apache.httpclient3.entity", false);
-        DumpType entityDumpType = src.readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
-        int entitySamplingRate = src.readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
-        int entityDumpSize = src.readInt("profiler.apache.httpclient3.entity.dumpsize", 1024);
-        this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);
-
-        this.io = src.readBoolean("profiler.apache.httpclient3.io", true);
+        this.param = isParam(src);
+        this.httpDumpConfig = getHttpDumpConfig(src);
+        this.io = isParam(src);
+        this.markError = isMarkError(src);
     }
 
     public boolean isEnable() {
         return enable;
-    }
-
-    public boolean isParam() {
-        return param;
-    }
-
-    public HttpDumpConfig getHttpDumpConfig() {
-        return httpDumpConfig;
-    }
-
-    public boolean isIo() {
-        return io;
     }
 
     @Override
@@ -70,6 +74,7 @@ public class HttpClient3PluginConfig {
                 ", param=" + param +
                 ", io=" + io +
                 ", httpDumpConfig=" + httpDumpConfig +
+                ", markError=" + markError +
                 '}';
     }
 }

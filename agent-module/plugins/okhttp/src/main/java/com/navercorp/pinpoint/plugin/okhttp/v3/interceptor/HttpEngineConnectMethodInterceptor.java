@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
+import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 import com.navercorp.pinpoint.plugin.okhttp.v3.UserRequestGetter;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -31,23 +32,25 @@ import okhttp3.Request;
  * @author jaehong.kim
  */
 public class HttpEngineConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
 
     public HttpEngineConnectMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        this.markError = OkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
 
         if (target instanceof UserRequestGetter) {
-            final Request request = ((UserRequestGetter)target)._$PINPOINT$_getUserRequest();
+            final Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null && request.url() != null) {
                 final HttpUrl httpUrl = request.url();
                 final String hostAndPort = HostAndPort.toHostAndPortString(httpUrl.host(), httpUrl.port());

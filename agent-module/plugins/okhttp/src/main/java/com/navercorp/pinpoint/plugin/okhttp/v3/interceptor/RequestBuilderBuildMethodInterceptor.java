@@ -44,7 +44,6 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final InterceptorScope interceptorScope;
     private final RequestTraceWriter<Request.Builder> requestTraceWriter;
-    ;
 
     public RequestBuilderBuildMethodInterceptor(TraceContext traceContext, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;

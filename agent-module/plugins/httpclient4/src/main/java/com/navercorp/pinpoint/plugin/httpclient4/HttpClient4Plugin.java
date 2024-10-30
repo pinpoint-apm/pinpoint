@@ -64,21 +64,18 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         addHttpRequestExecutorClass();
         addDefaultHttpRequestRetryHandlerClass();
 
-        logger.debug("Add HttpClient4(4.0 ~ 4.2");
         // Apache httpclient4 (version 4.0 ~ 4.2)
         addAbstractHttpClient4Class();
         addAbstractPooledConnAdapterClass();
         addManagedClientConnectionImplClass();
 
         // Apache httpclient4 (version 4.3 ~ 4.4)
-        logger.debug("Add CloseableHttpClient4(4.3 ~ ");
         addCloseableHttpClientClass();
         addBasicHttpClientConnectionManagerClass();
         addPoolingHttpClientConnectionManagerClass();
 
         // Apache httpAsyncClient4 (version 4.0)
         // unsupported AbstractHttpAsyncClient because of deprecated.
-        logger.debug("Add CloseableHttpAsyncClient4(4.0 ~ ");
         addClosableHttpAsyncClientClass();
         addDefaultClientExchangeHandlerImplClass();
         addBasicFutureClass();

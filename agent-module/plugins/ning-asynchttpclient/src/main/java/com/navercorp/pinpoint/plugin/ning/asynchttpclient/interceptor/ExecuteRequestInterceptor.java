@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -63,24 +64,27 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     private final EntityRecorder<Request> entityRecorder;
 
     private final RequestTraceWriter<Request> requestTraceWriter;
+    private final boolean markError;
 
     // for 1.8.x and 1.9.x
     public ExecuteRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
-        final NingAsyncHttpClientPluginConfig config = new NingAsyncHttpClientPluginConfig(traceContext.getProfilerConfig());
 
+        boolean param = NingAsyncHttpClientPluginConfig.isParam(traceContext.getProfilerConfig());
+        HttpDumpConfig httpDumpConfig = NingAsyncHttpClientPluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
         ClientRequestAdaptor<Request> clientRequestAdaptor = new NingAsyncHttpClientRequestAdaptorV1();
-        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
 
         CookieExtractor<Request> cookieExtractor = NingCookieExtractorV1.INSTANCE;
-        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
 
         EntityExtractor<Request> entityExtractor = NingEntityExtractorV1.INSTANCE;
-        this.entityRecorder = EntityRecorderFactory.newEntityRecorder(config.getHttpDumpConfig(), entityExtractor);
+        this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
 
         ClientHeaderAdaptor<Request> clientHeaderAdaptor = new RequestHeaderAdaptorV1();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.markError = NingAsyncHttpClientPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -147,7 +151,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
                 this.entityRecorder.record(recorder, httpRequest, throwable);
 
                 recorder.recordApi(descriptor);
-                recorder.recordException(throwable);
+                recorder.recordException(markError, throwable);
             }
         } finally {
             trace.traceBlockEnd();

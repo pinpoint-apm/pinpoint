@@ -24,15 +24,18 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpClientRequestAdaptor;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
+import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
 
 import java.net.HttpURLConnection;
 
 public class HttpURLConnectionPlainConnect0Interceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final ClientRequestAdaptor<HttpURLConnection> clientRequestAdaptor = new JdkHttpClientRequestAdaptor();
+    private final boolean markError;
 
     public HttpURLConnectionPlainConnect0Interceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+        this.markError = JdkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -48,6 +51,6 @@ public class HttpURLConnectionPlainConnect0Interceptor extends SpanEventSimpleAr
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
     }
 }

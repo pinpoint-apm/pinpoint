@@ -21,32 +21,40 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 
 /**
- * 
  * @author netspider
  * @author jaehong.kim
- * 
  */
 public class BasicFutureFailedMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+    private final boolean markError;
+    private final boolean traceFutureError;
 
     public BasicFutureFailedMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        this.markError = HttpClient4PluginConfig.isMarkError(traceContext.getProfilerConfig());
+        this.traceFutureError = HttpClient4PluginConfig.isTraceFutureError(traceContext.getProfilerConfig());
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4_INTERNAL);
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        if (throwable != null) {
-            recorder.recordException(throwable);
-        } else if (args.length == 1 && args[0] instanceof Exception) {
-            recorder.recordException((Exception) args[0]);
+
+        final Exception exception = ArrayArgumentUtils.getArgument(args, 0, Exception.class);
+        if (traceFutureError && exception != null) {
+            // request exception
+            recorder.recordException(markError, exception);
+        } else {
+            // method internal exception
+            recorder.recordException(markError, throwable);
         }
     }
 }

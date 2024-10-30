@@ -23,23 +23,24 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
+import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientPluginConfig;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class HttpRequestExecuteAsyncMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final InterceptorScope interceptorScope;
+    private final boolean markError;
 
     public HttpRequestExecuteAsyncMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         super(traceContext, methodDescriptor);
         this.interceptorScope = interceptorScope;
+        this.markError = HttpClientPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         // set asynchronous trace
         final AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
@@ -53,10 +54,10 @@ public class HttpRequestExecuteAsyncMethodInterceptor extends SpanEventSimpleAro
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(HttpClientConstants.HTTP_CLIENT_INTERNAL);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
 
         // remove async id.
         InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();

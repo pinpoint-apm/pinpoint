@@ -24,19 +24,22 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.EndPointUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 import org.apache.http.conn.routing.HttpRoute;
 
 /**
  * @author jaehong.kim
  */
 public class HttpClientConnectionManagerConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
 
     public HttpClientConnectionManagerConnectMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        this.markError = HttpClient4PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         final HttpRoute route = ArrayArgumentUtils.getArgument(args, 1, HttpRoute.class);
         if (route != null) {
             final String hostAndPort = EndPointUtils.getHostAndPort(route);
@@ -47,7 +50,7 @@ public class HttpClientConnectionManagerConnectMethodInterceptor extends SpanEve
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordException(throwable);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordException(markError, throwable);
     }
 }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
+import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 import com.navercorp.pinpoint.plugin.okhttp.v3.RouteGetter;
 import okhttp3.Address;
 import okhttp3.Route;
@@ -31,19 +32,22 @@ import okhttp3.Route;
  * @author jaehong.kim
  */
 public class RealConnectionConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final boolean markError;
+
     public RealConnectionConnectMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+        this.markError = OkHttpPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
 
         if (target instanceof RouteGetter) {
             final Route route = ((RouteGetter) target)._$PINPOINT$_getRoute();

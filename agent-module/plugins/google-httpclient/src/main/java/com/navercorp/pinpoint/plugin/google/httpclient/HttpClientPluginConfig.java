@@ -24,18 +24,25 @@ public class HttpClientPluginConfig {
 
     private final boolean enable;
     private final boolean async;
+    private final boolean markError;
+
+    public static boolean isAsync(final ProfilerConfig config) {
+        return config.readBoolean("profiler.google.httpclient.async", true);
+    }
+
+    public static boolean isMarkError(final ProfilerConfig config) {
+        return config.readBoolean("profiler.google.httpclient.mark.error", true);
+    }
 
     public HttpClientPluginConfig(ProfilerConfig src) {
         enable = src.readBoolean("profiler.google.httpclient.enable", true);
-        async = src.readBoolean("profiler.google.httpclient.async", true);
+
+        this.async = isAsync(src);
+        this.markError = isMarkError(src);
     }
 
     public boolean isEnable() {
         return enable;
-    }
-
-    public boolean isAsync() {
-        return async;
     }
 
     @Override
@@ -43,6 +50,7 @@ public class HttpClientPluginConfig {
         return "HttpClientPluginConfig{" +
                 "enable=" + enable +
                 ", async=" + async +
+                ", markError=" + markError +
                 '}';
     }
 }

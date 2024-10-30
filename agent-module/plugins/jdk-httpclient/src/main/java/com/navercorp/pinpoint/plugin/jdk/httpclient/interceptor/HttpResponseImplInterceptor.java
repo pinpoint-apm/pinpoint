@@ -24,11 +24,15 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientConstants;
+import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientPluginConfig;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.ResponseCodeGetter;
 
 public class HttpResponseImplInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+    private final boolean markError;
+
     public HttpResponseImplInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        this.markError = JdkHttpClientPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -49,7 +53,7 @@ public class HttpResponseImplInterceptor extends AsyncContextSpanEventSimpleArou
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT_INTERNAL);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
 
         if (target instanceof ResponseCodeGetter) {
             int responseCode = ((ResponseCodeGetter) target)._$PINPOINT$_getResponseCode();

@@ -52,15 +52,18 @@ public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanE
     private final RequestTraceWriter<HttpRequestImpl> requestTraceWriter;
     private final CookieRecorder<HttpRequestImpl> cookieRecorder;
     private final EntityRecorder<HttpRequestImpl> entityRecorder;
+    private final boolean markError;
 
     public MultiExchangeResponseAsyncImplInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
 
         final JdkHttpClientPluginConfig config = new JdkHttpClientPluginConfig(traceContext.getProfilerConfig());
-        final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
+
+        boolean param = JdkHttpClientPluginConfig.isParam(traceContext.getProfilerConfig());
+        HttpDumpConfig httpDumpConfig = JdkHttpClientPluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
 
         final ClientRequestAdaptor<HttpRequestImpl> clientRequestAdaptor = new HttpRequestImplClientRequestAdaptor();
-        this.clientRequestRecorder = new ClientRequestRecorder<HttpRequestImpl>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<HttpRequestImpl>(param, clientRequestAdaptor);
 
         final ClientHeaderAdaptor<HttpRequestImpl> clientHeaderAdaptor = new HttpRequestImplClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<HttpRequestImpl>(clientHeaderAdaptor, traceContext);
@@ -70,6 +73,7 @@ public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanE
 
         final EntityExtractor<HttpRequestImpl> entityExtractor = JdkHttpClientEntityExtractor.INSTANCE;
         this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
+        this.markError = JdkHttpClientPluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -140,6 +144,6 @@ public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanE
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT);
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
     }
 }

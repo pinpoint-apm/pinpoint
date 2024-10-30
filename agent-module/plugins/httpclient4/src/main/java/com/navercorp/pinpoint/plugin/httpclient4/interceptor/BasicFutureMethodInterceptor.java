@@ -22,17 +22,18 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 
 /**
- * 
  * @author netspider
  * @author jaehong.kim
- * 
  */
 public class BasicFutureMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+    private final boolean markError;
 
     public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+        this.markError = HttpClient4PluginConfig.isMarkError(traceContext.getProfilerConfig());
     }
 
     @Override
@@ -43,6 +44,6 @@ public class BasicFutureMethodInterceptor extends AsyncContextSpanEventSimpleAro
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+        recorder.recordException(markError, throwable);
     }
 }
