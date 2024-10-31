@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class OtlpMetricDetailsQueryParam {
-    private final String serviceId;
-    private final String applicationId;
+    private final String serviceName;
+    private final String applicationName;
     private final String agentId;
     private final String metricGroupName;
     private final String metricName;
@@ -14,9 +14,9 @@ public class OtlpMetricDetailsQueryParam {
     private List<String> tagGroupList;
 
     @Deprecated
-    public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> tagGroupList) {
-        this.serviceId = serviceId;
-        this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
+    public OtlpMetricDetailsQueryParam(String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, List<String> tagGroupList) {
+        this.serviceName = serviceName;
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = agentId;
         this.metricGroupName = Objects.requireNonNull(metricGroupName, "metricGroupName");
         this.metricName = Objects.requireNonNull(metricName, "metricName");
@@ -26,9 +26,9 @@ public class OtlpMetricDetailsQueryParam {
     }
 
     // TODO: check if this is needed
-    public OtlpMetricDetailsQueryParam(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> fieldNameList, List<String> tagGroupList) {
-        this.serviceId = serviceId;
-        this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
+    public OtlpMetricDetailsQueryParam(String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, List<String> fieldNameList, List<String> tagGroupList) {
+        this.serviceName = serviceName;
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = agentId;
         this.metricGroupName = Objects.requireNonNull(metricGroupName, "metricGroupName");
         this.metricName = Objects.requireNonNull(metricName, "metricName");
@@ -40,12 +40,12 @@ public class OtlpMetricDetailsQueryParam {
         return fieldNameList;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getApplicationName() {
+        return applicationName;
     }
 
     public String getAgentId() {

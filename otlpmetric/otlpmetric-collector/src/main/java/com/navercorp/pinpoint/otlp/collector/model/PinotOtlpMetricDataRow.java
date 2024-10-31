@@ -22,10 +22,10 @@ import java.util.List;
 
 public class PinotOtlpMetricDataRow {
 
-    protected final String  serviceId;
+    protected final String serviceName;
     protected final String sortKey;
     @NotBlank
-    protected final String applicationId;
+    protected final String applicationName;
     @NotBlank
     protected final String agentId;
     protected final String metricGroupName;
@@ -38,13 +38,13 @@ public class PinotOtlpMetricDataRow {
     protected final Long eventTime;
     protected final Long startTime;
 
-    public PinotOtlpMetricDataRow(String serviceId, String sortKey, String applicationName,
-                                  String agentId, String metricGroupName, String metricName, String fieldName,int flag,
+    public PinotOtlpMetricDataRow(String serviceName, String sortKey, String applicationName,
+                                  String agentId, String metricGroupName, String metricName, String fieldName, int flag,
                                   List<String> tags, String version,
                                   Long eventTime, Long startTime) {
-        this.serviceId = serviceId;
+        this.serviceName = serviceName;
         this.sortKey = sortKey;
-        this.applicationId = applicationName;
+        this.applicationName = applicationName;
         this.agentId = agentId;
         this.metricGroupName = metricGroupName;
         this.metricName = metricName;
@@ -56,12 +56,12 @@ public class PinotOtlpMetricDataRow {
         this.tags = tags;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getApplicationName() {
+        return applicationName;
     }
 
     public String getMetricGroupName() {
@@ -106,9 +106,9 @@ public class PinotOtlpMetricDataRow {
     @Override
     public String toString() {
         return "PinotOtlpMetricDataRow{" +
-                "serviceId='" + serviceId + '\'' +
+                "serviceName='" + serviceName + '\'' +
                 ", sortKey='" + sortKey + '\'' +
-                ", applicationId='" + applicationId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", metricGroupName='" + metricGroupName + '\'' +
                 ", metricName='" + metricName + '\'' +

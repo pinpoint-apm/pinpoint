@@ -59,26 +59,26 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
 
     @Deprecated
     @Override
-    public List<String> getMetricGroupList(String tenantId, String serviceId, String applicationName, String agentId) {
-        return otlpMetricDao.getMetricGroups(tenantId, serviceId, applicationName, agentId);
+    public List<String> getMetricGroupList(String tenantId, String serviceName, String applicationName, String agentId) {
+        return otlpMetricDao.getMetricGroups(tenantId, serviceName, applicationName, agentId);
     }
 
     @Deprecated
     @Override
-    public List<String> getMetricList(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName) {
-        return otlpMetricDao.getMetrics(tenantId, serviceId, applicationName, agentId, metricGroupName);
+    public List<String> getMetricList(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName) {
+        return otlpMetricDao.getMetrics(tenantId, serviceName, applicationName, agentId, metricGroupName);
     }
 
     @Deprecated
     @Override
-    public List<String> getTags(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName) {
-        return otlpMetricDao.getTags(tenantId, serviceId, applicationId, agentId, metricGroupName, metricName);
+    public List<String> getTags(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName) {
+        return otlpMetricDao.getTags(tenantId, serviceName, applicationName, agentId, metricGroupName, metricName);
     }
 
     @Deprecated
     @Override
-    public OtlpChartView getMetricChartData(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag, long from, long to) {
-        List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationId, agentId, metricGroupName, metricName, tag);
+    public OtlpChartView getMetricChartData(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, String tag, long from, long to) {
+        List<FieldAttribute> fields = otlpMetricDao.getFields(serviceName, applicationName, agentId, metricGroupName, metricName, tag);
         if (fields.size() == 0) {
             return EMPTY_CHART;
         }
@@ -90,8 +90,8 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
 
         OtlpMetricChartQueryParameter.Builder builder =
                 new OtlpMetricChartQueryParameter.Builder()
-                        .setServiceId(serviceId)
-                        .setApplicationId(applicationId)
+                        .setServiceName(serviceName)
+                        .setApplicationName(applicationName)
                         .setAgentId(agentId)
                         .setMetricGroupName(metricGroupName)
                         .setMetricName(metricName)
@@ -120,7 +120,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                     }
                 }
             } catch (Exception e) {
-                logger.warn("Failed to get OTLP metric data for applicationID: {}, metric: {}.{}.{}", applicationId, metricGroupName, metricName, key.fieldName());
+                logger.warn("Failed to get OTLP metric data for applicationName: {}, metric: {}.{}.{}", applicationName, metricGroupName, metricName, key.fieldName());
             }
         }
         return chartViewBuilder.legacyBuild();
@@ -135,13 +135,13 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                 .build();
     }
 
-    public MetricData getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation, List<String> tagGroupList, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow) {
-        List<FieldAttribute> fields = otlpMetricDao.getFields(serviceId, applicationName, agentId, metricGroupName, metricName, tagGroupList, fieldNameList);
+    public MetricData getMetricData(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation, List<String> tagGroupList, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow) {
+        List<FieldAttribute> fields = otlpMetricDao.getFields(serviceName, applicationName, agentId, metricGroupName, metricName, tagGroupList, fieldNameList);
 
         OtlpMetricDataQueryParameter.Builder builder =
                 new OtlpMetricDataQueryParameter.Builder()
-                        .setServiceId(serviceId)
-                        .setApplicationId(applicationName)
+                        .setServiceName(serviceName)
+                        .setApplicationName(applicationName)
                         .setDoubleTableNameManager(doubleTopicNameManager)
                         .setLongTableNameManager(longTopicNameManager)
                         .setAgentId(agentId)
@@ -168,7 +168,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                     List<MetricPoint> meticDataList = future.get();
                     addMetricValue(timeWindow, meticDataList, metricData, getLegendName(chartQueryParameter, primaryForFieldAndTagRelation), chartQueryParameter.getVersion());
                 } catch(Exception e){
-                    logger.warn("Failed to get OTLP metric data for applicationID: {}, metricGroup: {}, metricName {}, chartQueryParameter {}", applicationName, metricGroupName, metricName, chartQueryParameter, e);
+                    logger.warn("Failed to get OTLP metric data for applicationName: {}, metricGroup: {}, metricName {}, chartQueryParameter {}", applicationName, metricGroupName, metricName, chartQueryParameter, e);
                 }
             }
 

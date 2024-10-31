@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 @Deprecated
 public class OtlpMetricChartQueryParameter extends QueryParameter {
-    private final String serviceId;
-    private final String applicationId;
+    private final String serviceName;
+    private final String applicationName;
     private final String agentId;
     private final String metricGroupName;
     private final String metricName;
@@ -31,8 +31,8 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
 
     protected OtlpMetricChartQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
-        this.serviceId = builder.serviceId;
-        this.applicationId = builder.applicationId;
+        this.serviceName = builder.serviceName;
+        this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.metricGroupName = builder.metricGroupName;
         this.metricName = builder.metricName;
@@ -45,8 +45,8 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
-        private String serviceId;
-        private String applicationId;
+        private String serviceName;
+        private String applicationName;
         private String agentId;
         private String metricGroupName;
         private String metricName;
@@ -62,12 +62,12 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
             return this;
         }
 
-        public Builder setServiceId(String serviceId) {
-            this.serviceId = serviceId;
+        public Builder setServiceName(String serviceName) {
+            this.serviceName = serviceName;
             return self();
         }
-        public Builder setApplicationId(String applicationId) {
-            this.applicationId = applicationId;
+        public Builder setApplicationName(String applicationName) {
+            this.applicationName = applicationName;
             return self();
         }
         public Builder setAgentId(String agentId) {
@@ -140,8 +140,8 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
     @Override
     public String toString() {
         return "OtlpMetricChartQueryParameter{" +
-                "serviceId='" + serviceId + '\'' +
-                ", applicationId='" + applicationId + '\'' +
+                "serviceName='" + serviceName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", metricGroupName='" + metricGroupName + '\'' +
                 ", metricName='" + metricName + '\'' +

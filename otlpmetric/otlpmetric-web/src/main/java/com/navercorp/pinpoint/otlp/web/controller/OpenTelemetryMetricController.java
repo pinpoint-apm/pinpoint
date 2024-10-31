@@ -50,7 +50,7 @@ import java.util.Objects;
 public class OpenTelemetryMetricController {
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER_30S = new TimeWindowSlotCentricSampler(30000L, 200);
     private final OtlpMetricWebService otlpMetricWebService;
-    private static final String DEFAULT_SERVICE_ID = "00000000-0000-0000-0000-000000000001";
+    private static final String DEFAULT_SERVICE_NAME = "";
     @NotBlank
     private final String tenantId;
     private final RangeValidator rangeValidator;
@@ -64,38 +64,38 @@ public class OpenTelemetryMetricController {
 
     @Deprecated
     @GetMapping("/metricGroups")
-    public List<String> getMetricGroups(@RequestParam("applicationId") @NotBlank String applicationId,
+    public List<String> getMetricGroups(@RequestParam("applicationName") @NotBlank String applicationName,
                                         @RequestParam(value = "agentId", required = false) String agentId) {
-        return otlpMetricWebService.getMetricGroupList(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId);
+        return otlpMetricWebService.getMetricGroupList(tenantId, DEFAULT_SERVICE_NAME, applicationName, agentId);
     }
 
     @Deprecated
     @GetMapping("/metrics")
-    public List<String> getMetricGroups(@RequestParam("applicationId") @NotBlank String applicationId,
+    public List<String> getMetricGroups(@RequestParam("applicationName") @NotBlank String applicationName,
                                         @RequestParam(value = "agentId", required = false) String agentId,
                                         @RequestParam("metricGroupName") @NotBlank String metricGroupName) {
-        return otlpMetricWebService.getMetricList(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName);
+        return otlpMetricWebService.getMetricList(tenantId, DEFAULT_SERVICE_NAME, applicationName, agentId, metricGroupName);
     }
 
     @Deprecated
     @GetMapping("/tags")
-    public List<String> getTags(@RequestParam("applicationId") @NotBlank String applicationId,
+    public List<String> getTags(@RequestParam("applicationName") @NotBlank String applicationName,
                                 @RequestParam(value = "agentId", required = false) String agentId,
                                 @RequestParam("metricGroupName") @NotBlank String metricGroupName,
                                 @RequestParam("metricName") @NotBlank String metricName) {
-        return otlpMetricWebService.getTags(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName, metricName);
+        return otlpMetricWebService.getTags(tenantId, DEFAULT_SERVICE_NAME, applicationName, agentId, metricGroupName, metricName);
     }
 
     @Deprecated
     @GetMapping("/chart")
-    public OtlpChartView getMetricChartData(@RequestParam("applicationId") @NotBlank String applicationId,
+    public OtlpChartView getMetricChartData(@RequestParam("applicationName") @NotBlank String applicationName,
                                        @RequestParam(value = "agentId", required = false) String agentId,
                                        @RequestParam("metricGroupName") @NotBlank String metricGroupName,
                                        @RequestParam("metricName") @NotBlank String metricName,
                                        @RequestParam("tag") String tag,
                                        @RequestParam("from") @PositiveOrZero long from,
                                        @RequestParam("to") @PositiveOrZero long to) {
-        return otlpMetricWebService.getMetricChartData(tenantId, DEFAULT_SERVICE_ID, applicationId, agentId, metricGroupName, metricName, tag, from, to);
+        return otlpMetricWebService.getMetricChartData(tenantId, DEFAULT_SERVICE_NAME, applicationName, agentId, metricGroupName, metricName, tag, from, to);
     }
 
     @PostMapping("/metricData")
@@ -112,7 +112,7 @@ public class OpenTelemetryMetricController {
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
         TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER_30S);
 
-        MetricData metricData = otlpMetricWebService.getMetricData(tenantId, DEFAULT_SERVICE_ID, parameter.getApplicationName(), parameter.getAgentId(), parameter.getMetricGroupName(), parameter.getMetricName(), primaryForFieldAndTagRelation, tagGroupList, fieldNameList, chartType, aggregationFunction, timeWindow);
+        MetricData metricData = otlpMetricWebService.getMetricData(tenantId, DEFAULT_SERVICE_NAME, parameter.getApplicationName(), parameter.getAgentId(), parameter.getMetricGroupName(), parameter.getMetricName(), primaryForFieldAndTagRelation, tagGroupList, fieldNameList, chartType, aggregationFunction, timeWindow);
         return new MetricDataView(metricData);
     }
 }

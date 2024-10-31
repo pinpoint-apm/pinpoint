@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface OtlpMetricDao {
-    List<String> getMetricGroups(String tenantId, String serviceId, String applicationId, String agentId);
+    List<String> getMetricGroups(String tenantId, String serviceName, String applicationName, String agentId);
 
-    List<String> getMetrics(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName);
+    List<String> getMetrics(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName);
 
-    List<String> getTags(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName);
+    List<String> getTags(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName);
 
-    List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag);
+    List<FieldAttribute> getFields(String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, String tag);
 
-    List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> tagGroupList, List<String> fieldNameList);
+    List<FieldAttribute> getFields(String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, List<String> tagGroupList, List<String> fieldNameList);
 
     CompletableFuture<List<OtlpMetricChartResult>> getChartPoints(OtlpMetricChartQueryParameter chartQueryParameter);
 

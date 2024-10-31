@@ -32,8 +32,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorService {
+
     private final Logger logger = LogManager.getLogger(this.getClass());
-    @NotNull private final OtlpMetricDao otlpMetricDao;
+    private final String DEFAULT_SERVICE_NAME = "";
+
+    @NotNull
+    private final OtlpMetricDao otlpMetricDao;
 
     public PinotOtlpMetricCollectorService(@Valid OtlpMetricDao otlpMetricDao) {
         this.otlpMetricDao = Objects.requireNonNull(otlpMetricDao, "otlpMetricDao");
@@ -70,7 +74,7 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
             }).collect(Collectors.toList());
 
             String rawTags = String.join(",", tagList);
-            PinotOtlpMetricMetadata metadata = new PinotOtlpMetricMetadata("", applicationName, agentId,
+            PinotOtlpMetricMetadata metadata = new PinotOtlpMetricMetadata(DEFAULT_SERVICE_NAME, applicationName, agentId,
                     metricGroupName, metricName, dataPoint.getFieldName(), unit, dataPoint.getDescription(), metricType,
                     dataType.getNumber(), dataPoint.getAggreFunc(), aggreTemporality, rawTags, dataPoint.getStartTime(), saveTime, version);
             otlpMetricDao.updateMetadata(metadata);
@@ -78,13 +82,13 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
             String sortKey = SortKeyUtils.generateKey(applicationName, metricGroupName, metricName);
             if (dataType == DataType.LONG) {
                 long longValue = dataPoint.getValue().longValue();
-                PinotOtlpMetricLongData row = new PinotOtlpMetricLongData("", sortKey, applicationName, agentId, metricGroupName, metricName, dataPoint.getFieldName(),
+                PinotOtlpMetricLongData row = new PinotOtlpMetricLongData(DEFAULT_SERVICE_NAME, sortKey, applicationName, agentId, metricGroupName, metricName, dataPoint.getFieldName(),
                         dataPoint.getFlag(), tagList, version, longValue, dataPoint.getEventTime(), dataPoint.getStartTime());
                 otlpMetricDao.insertLong(row);
 
             } else {
                 double doubleValue = dataPoint.getValue().doubleValue();
-                PinotOtlpMetricDoubleData row = new PinotOtlpMetricDoubleData("", sortKey, applicationName, agentId, metricGroupName, metricName, dataPoint.getFieldName(),
+                PinotOtlpMetricDoubleData row = new PinotOtlpMetricDoubleData(DEFAULT_SERVICE_NAME, sortKey, applicationName, agentId, metricGroupName, metricName, dataPoint.getFieldName(),
                         dataPoint.getFlag(), tagList, version, doubleValue, dataPoint.getEventTime(), dataPoint.getStartTime());
                 otlpMetricDao.insertDouble(row);
             }

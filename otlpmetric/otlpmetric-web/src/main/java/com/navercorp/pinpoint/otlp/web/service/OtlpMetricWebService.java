@@ -10,13 +10,13 @@ import com.navercorp.pinpoint.otlp.web.vo.MetricData;
 import java.util.List;
 
 public interface OtlpMetricWebService {
-    List<String> getMetricGroupList(String tenantId, String serviceId, String applicationName, String agentId);
+    List<String> getMetricGroupList(String tenantId, String serviceName, String applicationName, String agentId);
 
-    List<String> getMetricList(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName);
+    List<String> getMetricList(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName);
 
-    List<String> getTags(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName);
+    List<String> getTags(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName);
 
-    OtlpChartView getMetricChartData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, String tag, long from, long to);
+    OtlpChartView getMetricChartData(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, String tag, long from, long to);
 
-    MetricData getMetricData(String tenantId, String serviceId, String applicationName, String agentId, String metricGroupName, String metricName, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation, List<String> tagGroupList, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow);
+    MetricData getMetricData(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation, List<String> tagGroupList, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow);
 }

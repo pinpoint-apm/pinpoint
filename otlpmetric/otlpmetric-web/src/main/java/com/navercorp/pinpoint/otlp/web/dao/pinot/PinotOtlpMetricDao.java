@@ -51,27 +51,27 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
 
     @Deprecated
     @Override
-    public List<String> getMetricGroups(String tenantId, String serviceId, String applicationId, String agentId) {
+    public List<String> getMetricGroups(String tenantId, String serviceName, String applicationName, String agentId) {
         List<String> metricGroups = this.syncTemplate.selectList(NAMESPACE + "getMetricGroups",
-                new OtlpMetricGroupsQueryParam(serviceId, applicationId, agentId));
+                new OtlpMetricGroupsQueryParam(serviceName, applicationName, agentId));
         return metricGroups;
     }
 
     @Deprecated
     @Override
-    public List<String> getMetrics(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName) {
+    public List<String> getMetrics(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName) {
         // TODO:
         // 1. Check mysql if metrics to be displayed are specified
         // 2. if no data in mysql, query pinot to get all metric names
         List<String> metrics = this.syncTemplate.selectList(NAMESPACE + "getMetricNames",
-                new OtlpMetricNamesQueryParam(serviceId, applicationId, agentId, metricGroupName));
+                new OtlpMetricNamesQueryParam(serviceName, applicationName, agentId, metricGroupName));
         return metrics;
     }
 
     @Deprecated
     @Override
-    public List<String> getTags(String tenantId, String serviceId, String applicationId, String agentId, String metricGroupName, String metricName) {
-        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, new ArrayList<>(0));
+    public List<String> getTags(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName) {
+        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceName, applicationName, agentId, metricGroupName, metricName, new ArrayList<>(0));
 
         List<String> tags = this.syncTemplate.selectList(NAMESPACE + "getTags", queryParam);
         return tags;
@@ -79,14 +79,14 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
 
     @Deprecated
     @Override
-    public List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, String tag) {
-        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, Arrays.asList(tag));
+    public List<FieldAttribute> getFields(String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, String tag) {
+        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceName, applicationName, agentId, metricGroupName, metricName, Arrays.asList(tag));
         return this.syncTemplate.selectList(NAMESPACE + "getFields", queryParam);
     }
 
     @Override
-    public List<FieldAttribute> getFields(String serviceId, String applicationId, String agentId, String metricGroupName, String metricName, List<String> tagGroupList, List<String> fieldNameList) {
-        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceId, applicationId, agentId, metricGroupName, metricName, fieldNameList, tagGroupList);
+    public List<FieldAttribute> getFields(String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, List<String> tagGroupList, List<String> fieldNameList) {
+        OtlpMetricDetailsQueryParam queryParam = new OtlpMetricDetailsQueryParam(serviceName, applicationName, agentId, metricGroupName, metricName, fieldNameList, tagGroupList);
         return this.syncTemplate.selectList(NAMESPACE + "getFields", queryParam);
     }
 
