@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.otlp.collector.model;
 import java.util.Objects;
 
 public record PinotOtlpMetricMetadata(
-    String serviceId,
-    String applicationId,
+    String serviceName,
+    String applicationName,
     String agentId,
     String metricGroupName,
     String metricName,
@@ -21,7 +21,7 @@ public record PinotOtlpMetricMetadata(
     String version
 ) {
     public PinotOtlpMetricMetadata {
-        Objects.requireNonNull(applicationId, "applicationId");
+        Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(metricGroupName, "metricGroupName");
         Objects.requireNonNull(metricName, "metricName");

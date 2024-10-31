@@ -6,7 +6,7 @@
     <select id="selectMetricDescriptorList" resultType="MetricDescriptor" parameterType="string">
         SELECT metricGroupName, metricName, rawTags, fieldName, unit
         FROM otlpMetricMetadata
-        WHERE applicationId= #{applicationName}
+        WHERE applicationName= #{applicationName}
         GROUP BY metricGroupName, metricName, rawTags, fieldName, unit
     </select>
 </mapper>

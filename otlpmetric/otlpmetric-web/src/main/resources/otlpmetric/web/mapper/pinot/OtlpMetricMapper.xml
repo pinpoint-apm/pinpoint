@@ -21,8 +21,8 @@
         SELECT
             DISTINCT (metricGroupName)
         FROM otlpMetricMetadata
-        WHERE serviceId= #{serviceId}
-          AND applicationId= #{applicationId}
+        WHERE serviceName= #{serviceName}
+          AND applicationName= #{applicationName}
           <if test="agentId != null">
           AND agentId = #{agentId}
           </if>
@@ -32,8 +32,8 @@
         SELECT
             DISTINCT (metricName)
         FROM otlpMetricMetadata
-        WHERE serviceId = #{serviceId}
-            AND applicationId = #{applicationId}
+        WHERE serviceName = #{serviceName}
+            AND applicationName = #{applicationName}
             <if test="agentId != null">
             AND agentId = #{agentId}
             </if>
@@ -44,8 +44,8 @@
         SELECT
             DISTINCT (rawTags)
         FROM otlpMetricMetadata
-        WHERE serviceId = #{serviceId}
-            AND applicationId = #{applicationId}
+        WHERE serviceName = #{serviceName}
+            AND applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
@@ -64,7 +64,7 @@
             unit,
             version
         FROM otlpMetricMetadata
-        WHERE applicationId = #{applicationId}
+        WHERE applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
@@ -102,8 +102,8 @@
             LASTWITHTIME(value, eventTime, 'long') as value
         </if>
         FROM otlpMetricDouble
-        WHERE serviceId = #{serviceId}
-        AND applicationId = #{applicationId}
+        WHERE serviceName = #{serviceName}
+        AND applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
@@ -137,8 +137,8 @@
         LASTWITHTIME(value, eventTime, 'long') as value
         </if>
         FROM otlpMetricLong
-        WHERE serviceId = #{serviceId}
-        AND applicationId = #{applicationId}
+        WHERE serviceName = #{serviceName}
+        AND applicationName = #{applicationName}
         <if test="agentId != null">
         AND agentId = #{agentId}
         </if>
@@ -174,7 +174,7 @@
         </if>
         FROM otlpMetricLong
         WHERE
-            applicationId = #{applicationId}
+            applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
@@ -212,7 +212,7 @@
         </if>
         FROM otlpMetricDouble
         WHERE
-            applicationId = #{applicationId}
+            applicationName = #{applicationName}
             <if test="agentId != null">
             AND agentId = #{agentId}
             </if>
@@ -249,7 +249,7 @@
         </if>
         FROM ${tableName}
         WHERE
-        applicationId = #{applicationId}
+        applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
@@ -286,7 +286,7 @@
         </if>
         FROM ${tableName}
         WHERE
-        applicationId = #{applicationId}
+        applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>

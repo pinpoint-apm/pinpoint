@@ -33,8 +33,8 @@ import java.util.concurrent.TimeUnit;
 public class OtlpMetricDataQueryParameter extends QueryParameter {
 
     private final String tableName;
-    private final String serviceId;
-    private final String applicationId;
+    private final String serviceName;
+    private final String applicationName;
     private final String agentId;
     private final String metricGroupName;
     private final String metricName;
@@ -65,8 +65,8 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
     protected OtlpMetricDataQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
         this.tableName = builder.createTableName();
-        this.serviceId = builder.serviceId;
-        this.applicationId = builder.applicationId;
+        this.serviceName = builder.serviceName;
+        this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.metricGroupName = builder.metricGroupName;
         this.metricName = builder.metricName;
@@ -80,8 +80,8 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
-        private String serviceId;
-        private String applicationId;
+        private String serviceName;
+        private String applicationName;
         private String agentId;
         private String metricGroupName;
         private String metricName;
@@ -99,13 +99,13 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
             return this;
         }
 
-        public Builder setServiceId(String serviceId) {
-            this.serviceId = serviceId;
+        public Builder setServiceName(String serviceName) {
+            this.serviceName = serviceName;
             return self();
         }
 
-        public Builder setApplicationId(String applicationId) {
-            this.applicationId = applicationId;
+        public Builder setApplicationName(String applicationName) {
+            this.applicationName = applicationName;
             return self();
         }
 
@@ -171,9 +171,9 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
 
         public String createTableName() {
             if (dataType == DataType.LONG.getNumber()) {
-                return longTableNameManager.getTableName(this.applicationId);
+                return longTableNameManager.getTableName(this.applicationName);
             } else {
-                return doubleTableNameManager.getTableName(this.applicationId);
+                return doubleTableNameManager.getTableName(this.applicationName);
             }
         }
 
@@ -201,8 +201,8 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
     public String toString() {
         return "OtlpMetricDataQueryParameter{" +
                 "tableName='" + tableName + '\'' +
-                ", serviceId='" + serviceId + '\'' +
-                ", applicationId='" + applicationId + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", metricGroupName='" + metricGroupName + '\'' +
                 ", metricName='" + metricName + '\'' +
