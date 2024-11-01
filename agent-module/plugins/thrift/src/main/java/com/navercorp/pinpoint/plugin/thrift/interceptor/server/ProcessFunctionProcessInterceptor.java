@@ -65,11 +65,7 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
         if (ArrayUtils.getLength(args) != 4) {
             return;
         }
-        String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
-        if (target instanceof ProcessFunction) {
-            final ProcessFunction<?, ?> processFunction = (ProcessFunction<?, ?>) target;
-            methodName = processFunction.getMethodName();
-        }
+        final String methodName = getMethodName(target);
         final InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
         final Object attachment = currentTransaction.getOrCreateAttachment(ThriftClientCallContextAttachmentFactory.INSTANCE);
         if (attachment instanceof ThriftClientCallContext) {
@@ -86,6 +82,17 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
         if (validateInputProtocol(rootInputProtocol)) {
             ((ServerMarkerFlagFieldAccessor) rootInputProtocol)._$PINPOINT$_setServerMarkerFlag(true);
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private String getMethodName(Object target) {
+        if (target instanceof ProcessFunction) {
+            // https://github.com/apache/thrift/blob/v0.21.0/lib/java/src/main/java/org/apache/thrift/ProcessFunction.java
+            // API changes in 0.21.0
+            final ProcessFunction processFunction = (ProcessFunction) target;
+            return processFunction.getMethodName();
+        }
+        return ThriftConstants.UNKNOWN_METHOD_NAME;
     }
 
     @Override
