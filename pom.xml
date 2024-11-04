@@ -243,7 +243,7 @@
 
         <guava.version>33.3.1-jre</guava.version>
         <guice.version>7.0.0</guice.version>
-        <gson.version>2.10.1</gson.version>
+        <gson.version>2.11.0</gson.version>
 
         <mybatis.spring.version>3.0.3</mybatis.spring.version>
         <mybatis.version>3.5.16</mybatis.version>
