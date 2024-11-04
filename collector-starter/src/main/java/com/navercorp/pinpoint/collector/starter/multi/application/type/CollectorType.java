@@ -23,6 +23,7 @@ public enum CollectorType {
     ALL,
     BASIC,
     METRIC,
+    LEGACY, // added type to change metric port temporarily.
     LOG,
     BASIC_WITH_INSPECTOR;
 
