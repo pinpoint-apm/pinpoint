@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.navercorp.pinpoint.redis.timeseries.model.TimestampValuePair;
 import com.navercorp.pinpoint.redis.timeseries.protocol.TS;
 import io.lettuce.core.CompositeArgument;
+import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.codec.RedisCodec;
@@ -14,16 +15,19 @@ import io.lettuce.core.protocol.CommandArgs;
 import java.util.List;
 import java.util.Objects;
 
-public class RedisTimeseriesCommandsImpl implements RedisTimeseriesCommands, AutoCloseable {
+public class RedisTimeseriesCommandsImpl implements RedisTimeseriesCommands {
 
     private final RedisCodec<String, String> commandCodec = StringCodec.ASCII;
 
     private final RedisCodec<String, String> outputCodec = StringCodec.UTF8;
 
+    private final TimeseriesCommandBuilder<String, String> command = new TimeseriesCommandBuilder(commandCodec);
+
     private final StatefulRedisConnection<String, String> connection;
 
-    public RedisTimeseriesCommandsImpl(StatefulRedisConnection<String, String> connection) {
-        this.connection = Objects.requireNonNull(connection, "connect");
+    public RedisTimeseriesCommandsImpl(RedisClient client) {
+        Objects.requireNonNull(client, "client");
+        this.connection = client.connect();
     }
 
     @Override
@@ -40,7 +44,6 @@ public class RedisTimeseriesCommandsImpl implements RedisTimeseriesCommands, Aut
                 .addKey(key)
                 .add(fromTimestamp)
                 .add(toTimestamp);
-
 
         RedisCommands<String, String> commands = connection.sync();
         return commands.dispatch(TS.DEL, new IntegerOutput<>(outputCodec), args);
@@ -61,7 +64,7 @@ public class RedisTimeseriesCommandsImpl implements RedisTimeseriesCommands, Aut
         return commands.dispatch(TS.ADD, new IntegerOutput<>(outputCodec), args);
     }
 
-    private void applyOptions(CommandArgs<String, String> args, CompositeArgument options) {
+    private <K, V> void applyOptions(CommandArgs<K, V> args, CompositeArgument options) {
         if (options != null) {
             options.build(args);
         }
@@ -74,11 +77,8 @@ public class RedisTimeseriesCommandsImpl implements RedisTimeseriesCommands, Aut
 
     @Override
     public TimestampValuePair tsGet(String key) {
-
         CommandArgs<String, String> args = new CommandArgs<>(commandCodec)
                 .addKey(key);
-
-
         RedisCommands<String, String> commands = connection.sync();
         return commands.dispatch(TS.GET, new MetricOutput<>(outputCodec), args);
     }
@@ -102,8 +102,4 @@ public class RedisTimeseriesCommandsImpl implements RedisTimeseriesCommands, Aut
     }
 
 
-    @Override
-    public void close() {
-        connection.close();
-    }
 }

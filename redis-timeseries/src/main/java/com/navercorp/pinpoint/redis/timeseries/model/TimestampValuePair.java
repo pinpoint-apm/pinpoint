@@ -43,7 +43,7 @@ public record TimestampValuePair(long timestamp, double value) {
 
     @Override
     public String toString() {
-        return "TimestampValuePair{" +
+        return "TimestampValue{" +
                 timestamp +
                 '=' + value +
                 '}';

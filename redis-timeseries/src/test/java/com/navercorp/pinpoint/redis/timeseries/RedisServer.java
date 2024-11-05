@@ -7,7 +7,7 @@ public class RedisServer {
 
     @SuppressWarnings("resource")
     public static RedisContainer newRedisServer() {
-        return new RedisContainer(DockerImageName.parse("redis:8.0-M01"))
-                .withExposedPorts(6379);
+        RedisContainer container = new RedisContainer(DockerImageName.parse("redis:8.0-M02"));
+        return container.withExposedPorts(6379);
     }
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.channel.redis.pubsub;
 import com.navercorp.pinpoint.channel.PubChannel;
 import com.navercorp.pinpoint.channel.PubChannelProvider;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
@@ -34,6 +35,8 @@ class RedisPubChannelProvider implements PubChannelProvider {
 
     @Override
     public PubChannel getPubChannel(String key) {
+        Mono<Long> mono = this.template.opsForList().leftPush(key, "init");
+        mono.block();
         return new RedisPubChannel(this.template, key);
     }
 
