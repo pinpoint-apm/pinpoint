@@ -26,7 +26,7 @@
             <AppenderRef ref="console"/>
         </Logger>
 
-        <Root level="DEBUG">
+        <Root level="INFO">
             <AppenderRef ref="console"/>
         </Root>
     </Loggers>

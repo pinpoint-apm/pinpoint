@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.redis.timeseries.model.TimestampValuePair;
 
 import java.util.List;
 
-public interface RedisTimeseriesCommands extends AutoCloseable {
+public interface RedisTimeseriesCommands {
 
 
     long tsAdd(String key, long timestamp, double value);
@@ -26,6 +26,4 @@ public interface RedisTimeseriesCommands extends AutoCloseable {
     TimestampValuePair tsGet(String key);
 
     List<TimestampValuePair> tsRevrange(String key, long fromTimestamp, long toTimestamp);
-
-    void close();
 }

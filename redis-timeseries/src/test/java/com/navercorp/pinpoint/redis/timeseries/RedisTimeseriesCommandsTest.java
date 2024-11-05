@@ -16,17 +16,20 @@ import io.lettuce.core.protocol.CommandArgs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.DockerClientFactory;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class RedisTimeseriesCommandsTest {
 
-    private static RedisContainer server = RedisServer.newRedisServer();
+    @AutoClose
+    private static RedisContainer server;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -36,8 +39,9 @@ public class RedisTimeseriesCommandsTest {
 
     @BeforeAll
     static void beforeAll() {
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+        server = RedisServer.newRedisServer();
         server.start();
-
         RedisURI redisURI = RedisURI.create(server.getRedisURI());
         client = RedisClient.create(redisURI);
     }
@@ -47,27 +51,41 @@ public class RedisTimeseriesCommandsTest {
         if (client != null) {
             client.shutdown();
         }
-        server.stop();
     }
 
     @BeforeEach
     void setUp() {
         if (client != null) {
-            commands = new RedisTimeseriesCommandsImpl(client.connect());
+            commands = new RedisTimeseriesCommandsImpl(client);
         }
     }
 
-    @AfterEach
-    void tearDown() {
-        if (commands != null) {
-            commands.close();
-        }
-    }
+
 
     @Test
     public void ts_add() {
 
-        RedisTimeseriesCommands commands = new RedisTimeseriesCommandsImpl(client.connect());
+
+        TsAddArgs options = new TsAddArgs()
+                .onDuplicate(OnDuplicate.last())
+                .retention(Retention.of(3, TimeUnit.SECONDS));
+
+        commands.tsAdd("test1", 1000, 1, options);
+        commands.tsAdd("test1", 2000, 2, options);
+        commands.tsAdd("test1", 1000, 4, options);
+        TimestampValuePair tsGet = commands.tsGet("test1");
+        logger.debug("tsGet:{}", tsGet);
+
+        List<TimestampValuePair> revResult = commands.tsRevrange("test1", 0, 3000);
+        logger.debug("rev:{}", revResult);
+    }
+
+    @Test
+    public void ts_add2() {
+
+//        RedisTimeseriesCommands commands = new RedisTimeseriesCommandsImpl(client.connect());
+//        connection.execute("TS.ADD", null, "test1", "1000", "1", "RETENTION", ");
+//                connection.getNativeConnection();
 
         TsAddArgs options = new TsAddArgs()
                 .onDuplicate(OnDuplicate.last())
