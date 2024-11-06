@@ -40,17 +40,14 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
     private final ProfilerConfig profilerConfig;
     private final MonitorConfig monitorConfig;
     private final EnhancedDataSender<MetaDataType> enhancedDataSender;
-    private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
     public SqlMetadataServiceProvider(ProfilerConfig profilerConfig,
                                       MonitorConfig monitorConfig,
-                                      @MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender,
-                                      SimpleCacheFactory simpleCacheFactory) {
+                                      @MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.monitorConfig = Objects.requireNonNull(monitorConfig, "monitorConfig");
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
-        this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
 
     @Override
@@ -65,7 +62,7 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
             SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
             return new SqlUidMetaDataService(sqlCacheService);
         } else {
-            final SimpleCache<String, Integer> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
+            final SimpleCache<String, Integer> stringCache = SimpleCache.newIdCache(jdbcSqlCacheSize);
             SimpleCachingSqlNormalizer simpleCachingSqlNormalizer = new SimpleCachingSqlNormalizer(stringCache);
             SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
             return new DefaultSqlMetaDataService(sqlCacheService);

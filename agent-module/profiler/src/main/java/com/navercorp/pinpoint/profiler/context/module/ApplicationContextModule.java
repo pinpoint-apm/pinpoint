@@ -92,8 +92,6 @@ import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
 import com.navercorp.pinpoint.profiler.context.provider.metadata.ApiMetaDataServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.metadata.SimpleCacheFactory;
-import com.navercorp.pinpoint.profiler.context.provider.metadata.SimpleCacheFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.metadata.SqlMetadataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.metadata.StringMetadataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.metric.CustomMetricRegistryServiceProvider;
@@ -237,7 +235,6 @@ public class ApplicationContextModule extends AbstractModule {
 
 
     private void bindServiceComponent() {
-        bind(SimpleCacheFactory.class).toProvider(SimpleCacheFactoryProvider.class).in(Scopes.SINGLETON);
         bind(StringMetaDataService.class).toProvider(StringMetadataServiceProvider.class).in(Scopes.SINGLETON);
         bind(ApiMetaDataService.class).toProvider(ApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
         bind(SqlMetaDataService.class).toProvider(SqlMetadataServiceProvider.class).in(Scopes.SINGLETON);

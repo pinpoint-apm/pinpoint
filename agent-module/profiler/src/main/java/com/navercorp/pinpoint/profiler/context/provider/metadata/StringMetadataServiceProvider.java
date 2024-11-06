@@ -32,19 +32,16 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class StringMetadataServiceProvider implements Provider<StringMetaDataService> {
-
     private final EnhancedDataSender<MetaDataType> enhancedDataSender;
-    private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
-    public StringMetadataServiceProvider(@MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCacheFactory simpleCacheFactory) {
+    public StringMetadataServiceProvider(@MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
-        this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
 
     @Override
     public StringMetaDataService get() {
-        final SimpleCache<String, Integer> stringCache = simpleCacheFactory.newSimpleCache();
+        final SimpleCache<String, Integer> stringCache = SimpleCache.newIdCache();
         return new DefaultStringMetaDataService(enhancedDataSender, stringCache);
     }
 }

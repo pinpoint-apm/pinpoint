@@ -31,21 +31,17 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> {
-
     private final Provider<EnhancedDataSender<MetaDataType>> enhancedDataSenderProvider;
-    private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
-    public ApiMetaDataServiceProvider(@MetadataDataSender Provider<EnhancedDataSender<MetaDataType>> enhancedDataSenderProvider, SimpleCacheFactory simpleCacheFactory) {
+    public ApiMetaDataServiceProvider(@MetadataDataSender Provider<EnhancedDataSender<MetaDataType>> enhancedDataSenderProvider) {
         this.enhancedDataSenderProvider = Objects.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider");
-        this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
-
     }
 
     @Override
     public ApiMetaDataService get() {
         final EnhancedDataSender<MetaDataType> enhancedDataSender = this.enhancedDataSenderProvider.get();
-        final SimpleCache<String, Integer> simpleCache = simpleCacheFactory.newSimpleCache();
+        final SimpleCache<String, Integer> simpleCache = SimpleCache.newIdCache();
         return new DefaultApiMetaDataService(enhancedDataSender, simpleCache);
     }
 }
