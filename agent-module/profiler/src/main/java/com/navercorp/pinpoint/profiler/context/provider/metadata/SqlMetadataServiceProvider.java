@@ -21,15 +21,14 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
+import com.navercorp.pinpoint.profiler.cache.UidCache;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
-import com.navercorp.pinpoint.profiler.metadata.SimpleCachingSqlNormalizer;
 import com.navercorp.pinpoint.profiler.metadata.SqlCacheService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlUidMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.UidCachingSqlNormalizer;
 
 import java.util.Objects;
 
@@ -61,13 +60,12 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
         if (monitorConfig.isSqlStatEnable()) {
             final int maxSqlCacheLength = profilerConfig.getMaxSqlCacheLength();
 
-            UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(jdbcSqlCacheSize, maxSqlCacheLength);
-            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
+            UidCache sqlCache = new UidCache(jdbcSqlCacheSize, maxSqlCacheLength);
+            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, sqlCache, maxSqlLength);
             return new SqlUidMetaDataService(sqlCacheService);
         } else {
-            final SimpleCache<String, Integer> stringCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
-            SimpleCachingSqlNormalizer simpleCachingSqlNormalizer = new SimpleCachingSqlNormalizer(stringCache);
-            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
+            SimpleCache<String, Integer> sqlCache = simpleCacheFactory.newSimpleCache(jdbcSqlCacheSize);
+            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, sqlCache, maxSqlLength);
             return new DefaultSqlMetaDataService(sqlCacheService);
         }
     }

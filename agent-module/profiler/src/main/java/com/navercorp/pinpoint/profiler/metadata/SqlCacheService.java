@@ -2,6 +2,8 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.profiler.cache.Cache;
+import com.navercorp.pinpoint.profiler.cache.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,12 +20,11 @@ public class SqlCacheService<ID> {
 
     private final int trimSqlLength;
 
-    public SqlCacheService(EnhancedDataSender<MetaDataType> enhancedDataSender, CachingSqlNormalizer<ParsingResultInternal<ID>> cachingSqlNormalizer, int trimSqlLength) {
+    public SqlCacheService(EnhancedDataSender<MetaDataType> enhancedDataSender, Cache<String, Result<ID>> sqlCache, int trimSqlLength) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
-        this.cachingSqlNormalizer = Objects.requireNonNull(cachingSqlNormalizer, "cachingSqlNormalizer");
+        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(sqlCache);
         this.trimSqlLength = trimSqlLength;
     }
-
 
     public boolean cacheSql(ParsingResultInternal<ID> parsingResult, Function<ParsingResultInternal<ID>, MetaDataType> converter) {
         if (parsingResult == null) {
@@ -55,6 +56,4 @@ public class SqlCacheService<ID> {
         }
         return isNewValue;
     }
-
-
 }
