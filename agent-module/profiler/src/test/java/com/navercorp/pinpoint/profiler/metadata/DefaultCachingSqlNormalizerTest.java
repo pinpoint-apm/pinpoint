@@ -18,17 +18,23 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
  */
-public class SimpleCachingSqlNormalizerTest {
+public class DefaultCachingSqlNormalizerTest {
+    DefaultCachingSqlNormalizer<Integer> normalizer;
+
+    @BeforeEach
+    void setUp() {
+        SimpleCache<String, Integer> sqlCache = SimpleCache.newIdCache(1);
+        normalizer = new DefaultCachingSqlNormalizer<>(sqlCache);
+    }
 
     @Test
     public void testNormalizedSql() {
-        SimpleCache<String, Integer> cache = newCache(1);
-        SimpleCachingSqlNormalizer normalizer = new SimpleCachingSqlNormalizer(cache);
         ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult("select * from dual");
 
         boolean newCache = normalizer.normalizedSql(parsingResult);
@@ -45,8 +51,6 @@ public class SimpleCachingSqlNormalizerTest {
 
     @Test
     public void testNormalizedSql_cache_expire() {
-        SimpleCache<String, Integer> cache = newCache(1);
-        SimpleCachingSqlNormalizer normalizer = new SimpleCachingSqlNormalizer(cache);
         ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult("select * from table1");
         boolean newCache = normalizer.normalizedSql(parsingResult);
         Assertions.assertTrue(newCache, "newCacheState");
@@ -59,9 +63,5 @@ public class SimpleCachingSqlNormalizerTest {
         ParsingResultInternal<Integer> parsingResult1_recached = new DefaultParsingResult("select * from table3");
         boolean newCache_parsingResult1_recached = normalizer.normalizedSql(parsingResult1_recached);
         Assertions.assertTrue(newCache_parsingResult1_recached);
-    }
-
-    private SimpleCache<String, Integer> newCache(int cacheSize) {
-        return SimpleCache.newIdCache(cacheSize);
     }
 }

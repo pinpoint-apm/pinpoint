@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.cache.UidCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +29,8 @@ class SqlUidMetaDataServiceTest {
 
     @BeforeEach
     void setUp() {
-        UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(100, LENGTH_LIMIT);
-        sqlCacheService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer, 1000);
+        UidCache sqlCache = new UidCache(100, LENGTH_LIMIT);
+        sqlCacheService = new SqlCacheService<>(dataSender, sqlCache, 1000);
         sut = new SqlUidMetaDataService(sqlCacheService);
     }
 
