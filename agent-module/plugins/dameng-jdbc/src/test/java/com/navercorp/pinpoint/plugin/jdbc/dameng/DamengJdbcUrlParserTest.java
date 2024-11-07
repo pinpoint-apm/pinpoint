@@ -131,6 +131,18 @@ public class DamengJdbcUrlParserTest {
     }
 
     @Test
+    public void propNoValue() {
+        String prop = String.join("&amp;", "compatibleMode=mysql", "connectTimeout=3000", "enableSth", "");
+        DatabaseInfo dbInfo = jdbcUrlParser.parse(CONNECTION_STRING + "?" + prop);
+        Assertions.assertTrue(dbInfo.isParsingComplete());
+
+        Assertions.assertEquals(dbInfo.getType(), SERVICE_TYPE);
+        Assertions.assertEquals(dbInfo.getHost().get(0), (IP_PORT));
+        Assertions.assertEquals(dbInfo.getDatabaseId(), IP_PORT);
+        Assertions.assertEquals(dbInfo.getUrl(), CONNECTION_STRING);
+    }
+
+    @Test
     public void groupSingleHost() {
         String jdbc = PREFIX + GRP;
         String ipPort = IP_PORT;
