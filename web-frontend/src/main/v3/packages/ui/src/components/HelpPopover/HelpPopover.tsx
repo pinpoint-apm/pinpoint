@@ -1,6 +1,6 @@
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
-import { MdHelp, MdOutlineInfo } from 'react-icons/md';
+import { PiQuestionFill, PiInfo } from 'react-icons/pi';
 import {
   FaCircle,
   FaPlus,
@@ -108,7 +108,7 @@ export const HelpPopover = ({
                               size={12}
                             />
                           ) : (
-                            <MdOutlineInfo />
+                            <PiInfo />
                           )}
                         </div>
                         <div className="w-4/5 text-xs">
@@ -132,10 +132,10 @@ export const HelpPopover = ({
   return (
     <Popover modal={true}>
       <PopoverTrigger className="flex items-center">
-        <MdHelp className="fill-primary" />
+        <PiQuestionFill className="fill-gray-400" fontSize={'large'} />
       </PopoverTrigger>
       <PopoverPrimitive.Portal>
-        <PopoverContent className="z-[9999] w-auto overflow-scroll max-h-[80vh]">
+        <PopoverContent className="z-[9999] w-auto overflow-auto max-h-[80vh]">
           {helpContent?.TITLE && (
             <h2 className="mb-1 text-base font-semibold text-primary">
               <Trans i18nKey={`${helpKey}.TITLE`} />
