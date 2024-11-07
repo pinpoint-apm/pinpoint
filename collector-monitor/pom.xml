@@ -54,6 +54,11 @@
             <groupId>io.grpc</groupId>
             <artifactId>grpc-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.6.5</version>
+        </dependency>
     </dependencies>
 
     <profiles>

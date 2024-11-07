@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFacto
 import com.navercorp.pinpoint.collector.monitor.micrometer.BulkOperationMetrics;
 import com.navercorp.pinpoint.collector.monitor.micrometer.HBaseAsyncOperationMetrics;
 import com.navercorp.pinpoint.collector.monitor.micrometer.MicrometerThreadPoolExecutorFactoryProvider;
+import com.navercorp.pinpoint.collector.monitor.micrometer.binder.NetworkMetricsBinder;
 import com.navercorp.pinpoint.common.hbase.counter.HBaseBatchPerformance;
 import io.grpc.ServerInterceptor;
 import io.micrometer.core.instrument.Counter;
@@ -58,6 +59,13 @@ public class MicrometerConfiguration {
     @ConditionalOnMissingBean(MeterRegistry.class)
     public MeterRegistry simpleMeterRegistry() {
         return new SimpleMeterRegistry();
+    }
+
+    @Bean
+    public NetworkMetricsBinder socketMetricsBinder(MeterRegistry meterRegistry) {
+        NetworkMetricsBinder networkMetricsBinder = new NetworkMetricsBinder();
+        networkMetricsBinder.bindTo(meterRegistry);
+        return networkMetricsBinder;
     }
 
     @Bean
