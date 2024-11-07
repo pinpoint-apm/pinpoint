@@ -4,25 +4,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+
+import { ConfigUsers } from '@pinpoint-fe/constants';
+import { PhoneInput } from 'react-international-phone';
+
+import 'react-international-phone/style.css';
+import { PhoneNumberUtil } from 'google-libphonenumber';
+import { extractStringAfterSubstring } from '@pinpoint-fe/utils';
 import {
-  Button,
-  Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
+  Optional,
+  Button,
   Input,
-} from '../../ui';
-import { toast } from '../../Toast';
-import { ConfigUsers } from '@pinpoint-fe/constants';
-import { PhoneInput } from 'react-international-phone';
+  Form,
+} from '../../../components';
 import { cn } from '../../../lib';
-import 'react-international-phone/style.css';
-import { usePostConfigUsers, usePutConfigUsers } from '@pinpoint-fe/hooks';
-import { PhoneNumberUtil } from 'google-libphonenumber';
-import { extractStringAfterSubstring } from '@pinpoint-fe/utils';
-import { Optional } from '../../../components/Form/Optional';
 
 type userFormSchemaKey = 'userId' | 'userName' | 'department' | 'phoneNumber' | 'email';
 const userFormSchemaFactory = (
@@ -73,23 +73,21 @@ const userFormSchemaFactory = (
   });
 
 export interface UserFormProps {
-  className?: string;
   userInfo?: ConfigUsers.User;
   enableUserEdit?: boolean;
+  onSubmit?: (arg: ConfigUsers.User) => void;
   onClickCancel?: () => void;
-  onCompleteSubmit?: () => void;
 }
 
 export const UserForm = ({
-  className,
   userInfo,
   enableUserEdit = false,
   onClickCancel,
-  onCompleteSubmit,
+  onSubmit,
 }: UserFormProps) => {
   const defaultValues = {
-    userId: userInfo?.userId,
-    userName: userInfo?.name,
+    userId: userInfo?.userId || '',
+    userName: userInfo?.name || '',
     department: userInfo?.department || '',
     phoneNumber: userInfo ? `${userInfo?.phoneCountryCode}${userInfo?.phoneNumber}` : '',
     email: userInfo?.email || '',
@@ -115,21 +113,6 @@ export const UserForm = ({
     resolver: zodResolver(userFormSchema),
     defaultValues,
   });
-  const useMutateConfigUsers = userInfo ? usePutConfigUsers : usePostConfigUsers;
-  const { isMutating, onSubmit } = useMutateConfigUsers({
-    onCompleteSubmit: () => {
-      toast.success(t('COMMON.SUBMIT_SUCCESS'), {
-        autoClose: 2000,
-      });
-
-      onCompleteSubmit?.();
-    },
-    onError: () => {
-      toast.error(t('COMMON.SUBMIT_FAIL'), {
-        autoClose: 2000,
-      });
-    },
-  });
 
   const handleSubmit = (userData: z.infer<typeof userFormSchema>) => {
     const userPhoneNumber = extractStringAfterSubstring(
@@ -137,7 +120,7 @@ export const UserForm = ({
       `+${userCountryDialCode.current}`,
     );
 
-    onSubmit({
+    onSubmit?.({
       ...userData,
       name: userData.userName,
       phoneCountryCode: userPhoneNumber === '' ? '' : userCountryDialCode.current,
@@ -150,7 +133,7 @@ export const UserForm = ({
   };
 
   return (
-    <div className={cn('px-5 py-3', className)}>
+    <div className={cn('px-5 py-3')}>
       <Form {...userForm}>
         <form onSubmit={userForm.handleSubmit(handleSubmit)} className="space-y-6">
           <FormField
@@ -279,7 +262,7 @@ export const UserForm = ({
             <Button
               variant={enableUserEdit ? 'default' : 'secondary'}
               type="submit"
-              disabled={!enableUserEdit || isMutating}
+              disabled={!enableUserEdit}
             >
               {t('COMMON.SUBMIT')}
             </Button>
