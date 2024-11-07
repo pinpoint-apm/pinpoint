@@ -119,8 +119,15 @@ public class DamengJdbcUrlParser implements JdbcUrlParserV2 {
         String[] list = propString.replace("&amp;", "&").split("&");
         Map<String, String> map = new HashMap<>(list.length);
         for (String v : list) {
+            if (!StringUtils.hasText(v)) {
+                continue;
+            }
             String[] kv = v.split("=", 2);
-            map.put(kv[0], kv[1]);
+            if (kv.length > 1) {
+                map.put(kv[0], kv[1]);
+            } else {
+                map.put(kv[0], StringUtils.EMPTY_STRING);
+            }
         }
         return map;
     }
