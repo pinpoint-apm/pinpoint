@@ -1,121 +1,128 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useGetConfigUsers } from '@pinpoint-fe/hooks';
-import { DataTable } from '../../DataTable';
-import { getUsersTableColumns } from './usersTableColumns';
-import { cn } from '../../../lib';
-import { UsersTableToolbar } from './UsersTableToolbar';
-import { Button, Separator, Sheet, SheetContent, SheetHeader, SheetTitle } from '../../ui';
-import { ConfigUsers } from '@pinpoint-fe/constants';
-import { IoMdClose } from 'react-icons/io';
+import {
+  useGetConfigUsers,
+  usePostConfigUser,
+  usePutConfigUser,
+  useDeleteConfigUser,
+} from '@pinpoint-fe/hooks';
+import { Configuration, ConfigUsers } from '@pinpoint-fe/constants';
+import { UsersTable } from './UsersTable';
+import { FaRegTrashCan } from 'react-icons/fa6';
 import { UserForm } from './UserForm';
+import { UsersSheet } from './UsersSheet';
+import { UserRemovePopup } from './UserRemovePopup';
+import { toast, Button } from '../../../components';
 
 export interface UsersTableFetcherProps {
-  className?: string;
-  department?: string;
-  actionRenderer?: (user: ConfigUsers.User) => React.ReactNode;
-  hideAddButton?: boolean;
-  enableUserClick?: boolean;
-  enableUserEdit?: boolean;
-  autoResize?: boolean;
+  configuration?: Configuration;
 }
 
 export interface UsersTableAction {
   refresh: () => void;
 }
 
-export const UsersTableFetcher = React.forwardRef<UsersTableAction, UsersTableFetcherProps>(
-  (
-    {
-      className,
-      department = '',
-      actionRenderer,
-      enableUserClick,
-      autoResize,
-      ...props
-    }: UsersTableFetcherProps,
-    ref,
-  ) => {
-    const { t } = useTranslation();
-    const [query, setQuery] = React.useState(department);
-    const [openUserInfo, setOpenUserInfo] = React.useState(false);
-    const [selectedUserInfo, setSelectedUserInfo] = React.useState<ConfigUsers.User | undefined>();
-    const { data, mutate } = useGetConfigUsers(query ? { searchKey: query } : undefined);
-    const columns = getUsersTableColumns({
-      label: {
-        userName: t('CONFIGURATION.USERS.LABEL.USER_NAME'),
-        userDepartment: t('CONFIGURATION.USERS.LABEL.USER_DEPARTMENT'),
-        actions: t('CONFIGURATION.COMMON.LABEL.ACTIONS'),
-      },
-      actionRenderer,
+export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => {
+  const { t } = useTranslation();
+  const enableUserEdit = configuration?.editUserInfo;
+  const [query, setQuery] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+  const [selectedUser, setSelectedUser] = React.useState<ConfigUsers.User>();
+
+  const { data, refetch } = useGetConfigUsers(query ? { searchKey: query } : undefined);
+
+  const onError = React.useCallback((message: string) => {
+    toast.success(message, {
+      autoClose: 2000,
     });
+  }, []);
 
-    const handleOnClickAdd = () => {
-      setSelectedUserInfo(undefined);
-      setOpenUserInfo(true);
-    };
+  const onSuccess = React.useCallback((message: string) => {
+    toast.success(message, {
+      autoClose: 2000,
+    });
+    refetch();
+  }, []);
 
-    const handleOnCompleteSubmit = () => {
-      mutate();
-      setOpenUserInfo(false);
-    };
+  const { mutate: postMutate } = usePostConfigUser({
+    onSuccess: () => onSuccess(t('COMMON.CREATE_SUCCESS')),
+    onError: () => onError(t('COMMON.CREATE_FAILED')),
+  });
 
-    const handleOnClickRow = (userId: string) => {
-      setSelectedUserInfo(data?.find((user) => user.userId === userId));
-      setOpenUserInfo(true);
-    };
+  const { mutate: putMutate } = usePutConfigUser({
+    onSuccess: () => onSuccess(t('COMMON.UPDATE_SUCCESS')),
+    onError: () => onError(t('COMMON.UPDATE_FAIL')),
+  });
 
-    React.useImperativeHandle(ref, () => {
-      return {
-        refresh: () => {
-          mutate();
-        },
-      };
-    }, []);
+  const { mutate: deleteMutate } = useDeleteConfigUser({
+    onSuccess: () => onSuccess(t('COMMON.REMOVE_SUCCESS')),
+    onError: () => onError(t('COMMON.REMOVE_FAIL')),
+  });
 
+  function handleRemove(userId: string) {
+    deleteMutate(userId);
+  }
+
+  function handleOnClickAdd() {
+    setSelectedUser(undefined);
+    setOpen(true);
+  }
+
+  function handleSubmit(data: ConfigUsers.User) {
+    if (selectedUser) {
+      putMutate(data);
+      setSelectedUser(undefined);
+    } else {
+      postMutate(data);
+    }
+    setOpen(false);
+  }
+
+  function handleClickRow(clickedUser: ConfigUsers.User) {
+    setOpen(true);
+    setSelectedUser(clickedUser);
+  }
+
+  function actionRenderer(user: ConfigUsers.User) {
     return (
-      <div className="space-y-2">
-        <UsersTableToolbar onClickSearch={setQuery} onClickAdd={handleOnClickAdd} {...props} />
-        <div className={cn('border rounded-md', className)}>
-          <DataTable
-            autoResize={autoResize}
-            columns={columns}
-            data={data || []}
-            onClickRow={
-              enableUserClick ? (rowData) => handleOnClickRow(rowData.original.userId) : undefined
-            }
-          />
-        </div>
-        <Sheet open={openUserInfo} onOpenChange={setOpenUserInfo}>
-          <SheetContent
-            className="flex flex-col gap-0 w-[500px] sm:max-w-[500px] z-[5000] px-0 py-4"
-            hideClose={true}
+      <UserRemovePopup
+        popupTrigger={
+          <Button
+            variant="ghost"
+            className="px-3"
+            disabled={!enableUserEdit}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
-            <SheetHeader className="px-5 pb-4 bg-secondary/50">
-              <SheetTitle className="flex items-center">
-                {selectedUserInfo
-                  ? t('CONFIGURATION.USERS.USER_INFO_TITLE')
-                  : t('CONFIGURATION.USERS.USER_ADD_TITLE')}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="ml-auto border-none shadow-none"
-                  onClick={() => setOpenUserInfo(false)}
-                >
-                  <IoMdClose className="w-5 h-5" />
-                </Button>
-              </SheetTitle>
-            </SheetHeader>
-            <Separator />
-            <UserForm
-              userInfo={selectedUserInfo}
-              onClickCancel={() => setOpenUserInfo(false)}
-              onCompleteSubmit={handleOnCompleteSubmit}
-              {...props}
-            />
-          </SheetContent>
-        </Sheet>
-      </div>
+            <FaRegTrashCan />
+          </Button>
+        }
+        removeUser={user}
+        onClickRemove={() => handleRemove(user?.userId)}
+      />
     );
-  },
-);
+  }
+
+  return (
+    <div className="space-y-2">
+      <UsersTable
+        data={data || []}
+        hideAddButton={false}
+        enableUserEdit={enableUserEdit}
+        actionRenderer={actionRenderer}
+        onClickSearch={setQuery}
+        onClickRow={handleClickRow}
+        onClickAdd={handleOnClickAdd}
+      />
+      <UsersSheet open={open} onOpenChange={() => setOpen(false)}>
+        <UserForm
+          userInfo={selectedUser}
+          enableUserEdit={true}
+          onSubmit={handleSubmit}
+          onClickCancel={() => setOpen(false)}
+        />
+      </UsersSheet>
+    </div>
+  );
+};

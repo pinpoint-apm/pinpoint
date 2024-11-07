@@ -1,5 +1,7 @@
 import { Configuration } from '@pinpoint-fe/constants';
-import { Users } from '../../components/Config';
+import { DataTableSkeleton, ErrorBoundary } from '../../components';
+import { UsersTableFetcher } from '../../components/Config/users/UsersTableFetcher';
+import React from 'react';
 
 export interface UsersPageProps {
   configuration?: Configuration;
@@ -16,7 +18,11 @@ export const UsersPage = (props: UsersPageProps) => {
         role="none"
         className="shrink-0 bg-border h-[1px] w-full"
       ></div>
-      <Users {...props} />
+      <ErrorBoundary>
+        <React.Suspense fallback={<DataTableSkeleton hideRowBox={true} />}>
+          <UsersTableFetcher {...props} />
+        </React.Suspense>
+      </ErrorBoundary>
     </div>
   );
 };

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button, Popover, PopoverContent, PopoverTrigger } from '../../../ui';
-import { ConfigGroupMember } from '@pinpoint-fe/constants';
-import { UsersTable } from '../../users';
+import { ConfigGroupMember, ConfigUsers } from '@pinpoint-fe/constants';
 import { MdOutlineAddCircleOutline } from 'react-icons/md';
 import { toast } from '../../../Toast';
 import { useTranslation } from 'react-i18next';
-import { usePostConfigGroupMember } from '@pinpoint-fe/hooks';
+import { useGetConfigUsers, usePostConfigGroupMember } from '@pinpoint-fe/hooks';
+import { UsersTable } from '../../users/UsersTable';
 
 export interface GroupMemberAddPopupProps {
   popupTrigger: React.ReactNode;
@@ -24,6 +24,13 @@ export const GroupMemberAddPopup = ({
 }: GroupMemberAddPopupProps) => {
   const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState(userDepartment);
+  const { data } = useGetConfigUsers(query ? { searchKey: query } : undefined);
+
+  React.useEffect(() => {
+    setQuery(userDepartment);
+  }, [open, userDepartment]);
+
   const { isMutating, onSubmit } = usePostConfigGroupMember({
     onCompleteSubmit: () => {
       toast.success(t('COMMON.SUBMIT_SUCCESS'), {
@@ -45,27 +52,29 @@ export const GroupMemberAddPopup = ({
     onSubmit({ memberId: userId, userGroupId });
   };
 
+  function actionRenderer(user: ConfigUsers.User) {
+    return (
+      <Button
+        variant="ghost"
+        className="px-3"
+        disabled={shouldDisable(user.userId)}
+        onClick={() => handleOnAdd(user.userId)}
+      >
+        <MdOutlineAddCircleOutline />
+      </Button>
+    );
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{popupTrigger}</PopoverTrigger>
       <PopoverContent align="start" className="w-[650px]">
         <UsersTable
-          autoResize={false}
-          department={userDepartment}
-          className="overflow-y-auto max-h-80"
-          actionRenderer={(user) => {
-            return (
-              <Button
-                variant="ghost"
-                className="px-3"
-                disabled={shouldDisable(user.userId)}
-                onClick={() => handleOnAdd(user.userId)}
-              >
-                <MdOutlineAddCircleOutline />
-              </Button>
-            );
-          }}
+          data={data || []}
           hideAddButton={true}
+          enableUserEdit={false}
+          actionRenderer={actionRenderer}
+          onClickSearch={setQuery}
         />
       </PopoverContent>
     </Popover>
