@@ -261,6 +261,7 @@
         <bytebuddy.version>1.12.23</bytebuddy.version>
 
         <testcontainers.version>1.19.7</testcontainers.version>
+        <junit-jupiter.version>5.11.3</junit-jupiter.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.11.0</plugin.compiler.version>
@@ -1437,7 +1438,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.10.2</version>
+                <version>${junit-jupiter.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
