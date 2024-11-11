@@ -16,10 +16,10 @@
 
 package com.pinpoint.test.plugin.cassandra;
 
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.CassandraContainer;
 
@@ -27,9 +27,9 @@ public class CassandraTest {
 
     private static CassandraContainer<?> container;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
         container = new CassandraContainer<>("cassandra:3.11.6");
         container.start();
@@ -43,7 +43,7 @@ public class CassandraTest {
         System.out.println("##password=" + container.getPassword());
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         if (container != null) {
             container.stop();

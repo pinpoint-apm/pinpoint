@@ -1,9 +1,10 @@
 package com.pinpoint.test.plugin.kafka;
 
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -11,9 +12,9 @@ import org.testcontainers.utility.DockerImageName;
 public class KafkaTest {
     private static KafkaContainer container;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
         container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"));
 
@@ -22,7 +23,7 @@ public class KafkaTest {
         final int port = container.getFirstMappedPort();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         if (container != null) {
             container.stop();

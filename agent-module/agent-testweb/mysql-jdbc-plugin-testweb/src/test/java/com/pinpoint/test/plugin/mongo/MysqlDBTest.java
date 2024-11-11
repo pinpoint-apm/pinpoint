@@ -17,16 +17,17 @@
 package com.pinpoint.test.plugin.mongo;
 
 
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-@Ignore
+@Disabled
 public class MysqlDBTest {
     public static final String DATABASE_NAME = "test";
     public static final String USERNAME = "root";
@@ -34,9 +35,10 @@ public class MysqlDBTest {
 
     private static MySQLContainer<?> container;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+
         container = new MySQLContainer<>("mysql:8.0.36");
         container.waitingFor(Wait.forListeningPort());
         container.withDatabaseName(DATABASE_NAME);
@@ -52,7 +54,7 @@ public class MysqlDBTest {
         System.out.println("##port=" + container.getFirstMappedPort());
     }
 
-    @AfterClass
+    @AfterAll
     public static void select() {
         if (container != null) {
             container.stop();

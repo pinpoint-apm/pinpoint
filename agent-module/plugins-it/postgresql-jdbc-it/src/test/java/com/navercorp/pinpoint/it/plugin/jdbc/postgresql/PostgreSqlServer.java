@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContai
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -17,7 +17,7 @@ public class PostgreSqlServer implements SharedTestLifeCycle {
 
     @Override
     public Properties beforeAll() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
         postgreSql = PostgreSQLContainerFactory.newContainer(logger.getName());
 
