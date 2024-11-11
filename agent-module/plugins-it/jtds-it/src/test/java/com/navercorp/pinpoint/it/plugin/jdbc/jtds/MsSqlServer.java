@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.it.plugin.jdbc.jtds;
 import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.DockerClientFactory;
@@ -17,7 +17,8 @@ public class MsSqlServer implements SharedTestLifeCycle {
     private MSSQLServerContainer<?> mssqlserver;
     @Override
     public Properties beforeAll() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+
 
         mssqlserver = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         mssqlserver.acceptLicense();

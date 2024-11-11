@@ -17,19 +17,22 @@
 package com.pinpoint.test.plugin.mongo;
 
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MongoDBContainer;
 
-@Ignore
+@Disabled
 public class MongodbTest {
     private static MongoDBContainer container;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
-//        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+
         container = new MongoDBContainer("mongo:4.4.29");
         container.start();
 
@@ -37,7 +40,7 @@ public class MongodbTest {
         System.out.println("##port=" + container.getFirstMappedPort());
     }
 
-    @AfterClass
+    @AfterAll
     public static void select() {
         if (container != null) {
             container.stop();

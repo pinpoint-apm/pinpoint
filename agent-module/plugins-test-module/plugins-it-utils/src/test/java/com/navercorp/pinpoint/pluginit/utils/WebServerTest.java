@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.pluginit.utils;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.it.plugin.utils.WebServer;
 import fi.iki.elonen.NanoHTTPD;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,12 +40,12 @@ public class WebServerTest {
 
     private static WebServer webServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void newTestWebServer() throws Exception {
         webServer = WebServer.newTestWebServer();
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanup() {
         WebServer.cleanup(webServer);
     }

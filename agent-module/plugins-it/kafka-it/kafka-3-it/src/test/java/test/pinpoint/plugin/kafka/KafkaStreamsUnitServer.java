@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.streams.errors.StreamsException;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -45,7 +45,8 @@ public class KafkaStreamsUnitServer implements SharedTestLifeCycle {
 
     @Override
     public Properties beforeAll() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
+
         container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"));
 
         container.start();
