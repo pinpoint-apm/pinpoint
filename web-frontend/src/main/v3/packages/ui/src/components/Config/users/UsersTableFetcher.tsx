@@ -32,7 +32,7 @@ export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => 
   const { data, refetch } = useGetConfigUsers(query ? { searchKey: query } : undefined);
 
   const onError = React.useCallback((message: string) => {
-    toast.success(message, {
+    toast.error(message, {
       autoClose: 2000,
     });
   }, []);

@@ -75,6 +75,7 @@ const userFormSchemaFactory = (
 export interface UserFormProps {
   userInfo?: ConfigUsers.User;
   enableUserEdit?: boolean;
+  hideCancelButton?: boolean;
   onSubmit?: (arg: ConfigUsers.User) => void;
   onClickCancel?: () => void;
 }
@@ -82,16 +83,19 @@ export interface UserFormProps {
 export const UserForm = ({
   userInfo,
   enableUserEdit = false,
+  hideCancelButton = false,
   onClickCancel,
   onSubmit,
 }: UserFormProps) => {
-  const defaultValues = {
-    userId: userInfo?.userId || '',
-    userName: userInfo?.name || '',
-    department: userInfo?.department || '',
-    phoneNumber: userInfo ? `${userInfo?.phoneCountryCode}${userInfo?.phoneNumber}` : '',
-    email: userInfo?.email || '',
-  };
+  const defaultValues = React.useMemo(() => {
+    return {
+      userId: userInfo?.userId || '',
+      userName: userInfo?.name || '',
+      department: userInfo?.department || '',
+      phoneNumber: userInfo ? `${userInfo?.phoneCountryCode}${userInfo?.phoneNumber}` : '',
+      email: userInfo?.email || '',
+    };
+  }, [userInfo]);
   const { t } = useTranslation();
   const userCountryDialCode = React.useRef<string>();
   const phoneUtil = React.useMemo(() => PhoneNumberUtil.getInstance(), []);
@@ -113,6 +117,9 @@ export const UserForm = ({
     resolver: zodResolver(userFormSchema),
     defaultValues,
   });
+  React.useEffect(() => {
+    userForm.reset(defaultValues);
+  }, [defaultValues, userForm]);
 
   const handleSubmit = (userData: z.infer<typeof userFormSchema>) => {
     const userPhoneNumber = extractStringAfterSubstring(
@@ -256,9 +263,11 @@ export const UserForm = ({
             )}
           />
           <div className="flex justify-end gap-2">
-            <Button variant="outline" type="button" onClick={handleCancel}>
-              {t('COMMON.CANCEL')}
-            </Button>
+            {!hideCancelButton && (
+              <Button variant="outline" type="button" onClick={handleCancel}>
+                {t('COMMON.CANCEL')}
+              </Button>
+            )}
             <Button
               variant={enableUserEdit ? 'default' : 'secondary'}
               type="submit"

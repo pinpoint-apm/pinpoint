@@ -22,13 +22,13 @@ export const LayoutWithConfiguration = ({ children, configMenu }: LayoutWithConf
   const { pathname } = useLocation();
   const navigate = useNavigate();
   return (
-    <div className="h-full p-10">
+    <div className="flex flex-col h-full p-10">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">{configMenu?.title}</h2>
         <p className="text-muted-foreground">{configMenu?.desc}</p>
       </div>
       <Separator className="my-6" />
-      <div className="flex flex-row space-x-12">
+      <div className="flex flex-row space-x-12 h-[calc(100%-6rem)]">
         <aside className="-mx-4 lg:w-1/5">
           {configMenu?.menus.map((item, i) => {
             return (
@@ -52,7 +52,7 @@ export const LayoutWithConfiguration = ({ children, configMenu }: LayoutWithConf
             );
           })}
         </aside>
-        <div className="flex-1 max-w-6xl">{children}</div>
+        <div className="flex-1 max-w-6xl overflow-auto">{children}</div>
       </div>
     </div>
   );
