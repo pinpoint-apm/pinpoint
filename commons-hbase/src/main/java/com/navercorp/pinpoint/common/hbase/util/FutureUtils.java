@@ -41,14 +41,31 @@ public final class FutureUtils {
         return error;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> List<T> allOf(List<CompletableFuture<T>> futures) {
         Objects.requireNonNull(futures, "futures");
 
-        List<T> result = new ArrayList<>(futures.size());
+        CompletableFuture<T>[] futuresArray = (CompletableFuture<T>[]) futures.toArray(new CompletableFuture<?>[0]);
+        return allOf(futuresArray);
+    }
+
+    public static <T> List<T> allOf(CompletableFuture<T>[] futures) {
+        Objects.requireNonNull(futures, "futures");
+
+        final List<T> result = new ArrayList<>(futures.length);
         for (CompletableFuture<T> future : futures) {
             result.add(future.join());
         }
         return result;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> CompletableFuture<List<T>> allOfAsync(List<CompletableFuture<T>> futures) {
+        Objects.requireNonNull(futures, "futures");
+
+        final CompletableFuture<T>[] futuresArray = (CompletableFuture<T>[]) futures.toArray(new CompletableFuture<?>[0]);
+
+        return CompletableFuture.allOf(futuresArray)
+                .thenApply(v -> allOf(futuresArray));
+    }
 }
