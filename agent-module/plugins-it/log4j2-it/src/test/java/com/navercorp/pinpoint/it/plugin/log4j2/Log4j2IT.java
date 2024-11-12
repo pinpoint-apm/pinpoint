@@ -35,16 +35,13 @@ import org.junit.jupiter.api.Test;
 @JvmVersion(8)
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,2.20)", PluginITConstants.VERSION})
 @JvmArgument("-DtestLoggerEnable=false")
-public class Log4j2IT extends Log4j2TestBase {
+public class Log4j2IT {
 
     @Test
     public void test() {
         Logger logger = LogManager.getLogger();
 
-        final String location = getLoggerJarLocation(logger);
-        System.out.println("Log4j2 jar location:" + location);
-        final String testVersion = getTestVersion();
-        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
+        Log4jTestUtils.checkVersion(logger, this);
 
         logger.error("for log4j2 plugin test");
         Assertions.assertNotNull(ThreadContext.get("PtxId"), "txId");

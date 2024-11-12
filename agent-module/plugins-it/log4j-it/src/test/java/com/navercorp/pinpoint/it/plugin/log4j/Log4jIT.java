@@ -44,7 +44,7 @@ public class Log4jIT {
         Logger logger = Logger.getLogger(getClass());
         logger.error("maru");
 
-        checkVersion(logger);
+        Log4jTestUtils.checkVersion(logger, this);
 
         Assertions.assertNotNull(MDC.get("PtxId"), "txId");
         Assertions.assertNotNull(MDC.get("PspanId"), "spanId");
@@ -70,28 +70,9 @@ public class Log4jIT {
         Assertions.assertTrue(log.contains("TxId"), "contains TxId");
 
         Assertions.assertNotNull(logger, "logger null");
-        checkVersion(logger);
+        Log4jTestUtils.checkVersion(logger, this);
     }
 
-    private void checkVersion(Logger logger) {
-        final String location = getLoggerJarLocation(logger);
-        Assertions.assertNotNull(location, "location null");
-        System.out.println("Log4j jar location:" + location);
 
-        final String testVersion = getTestVersion();
-        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
-    }
-
-    private String getTestVersion() {
-        final String[] threadInfo = Thread.currentThread().getName()
-                .replace(getClass().getName(), "")
-                .replace(" Thread", "")
-                .replace(" ", "").replace("log4j-", "").split(":");
-        return threadInfo[0];
-    }
-
-    private String getLoggerJarLocation(Object object) {
-        return object.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
-    }
 
 }

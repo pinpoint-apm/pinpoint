@@ -35,9 +35,10 @@ import org.junit.jupiter.api.Test;
 @JvmVersion(8)
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,2.20)", PluginITConstants.VERSION})
 @JvmArgument("-DtestLoggerEnable=false")
-public class Log4j2PatternIT extends Log4j2TestBase {
+public class Log4j2PatternIT {
 
-    private String location;
+    Logger logger;
+
     @Test
     public void patternUpdate() {
         final String msg = "pattern";
@@ -46,9 +47,8 @@ public class Log4j2PatternIT extends Log4j2TestBase {
         String log = stdoutRecorder.record(new Runnable() {
             @Override
             public void run() {
-                Logger logger = LogManager.getLogger("patternUpdateLog4j2Jvm7");
+                logger = LogManager.getLogger("patternUpdateLog4j2Jvm7");
                 logger.error(msg);
-                location = getLoggerJarLocation(logger);
             }
         });
 
@@ -57,10 +57,7 @@ public class Log4j2PatternIT extends Log4j2TestBase {
         Assertions.assertTrue(log.contains(msg), "contains msg");
         Assertions.assertTrue(log.contains("TxId"), "contains TxId");
 
-        Assertions.assertNotNull(location, "location null");
-        System.out.println("Log4j2 jar location:" + location);
-        final String testVersion = getTestVersion();
-        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
+        Log4jTestUtils.checkVersion(logger, this);
     }
 
 }
