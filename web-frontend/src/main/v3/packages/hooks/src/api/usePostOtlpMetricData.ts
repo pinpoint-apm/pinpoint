@@ -8,7 +8,6 @@ export const usePostOtlpMetricData = (
   options?: UseMutationOptions<OtlpMetricData.Response, unknown, OtlpMetricData.Body, unknown>,
 ) => {
   const postData = async (bodyData: OtlpMetricData.Body) => {
-    console.log('bodyData', bodyData);
     try {
       const response = await fetch(`${END_POINTS.OTLP_METRIC_DATA}`, {
         method: 'POST',
