@@ -73,9 +73,12 @@ public class ConfigProperties {
     @Value("${config.show.sqlStat:false}")
     private boolean showSqlStat;
 
+    @Value("${config.show.otlpMetric:false}")
+    private boolean showOtlpMetric;
+
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
-    
+
     @Value("${pinpoint.modules.web.webhook:false}")
     private boolean webhookEnable;
 
@@ -123,6 +126,10 @@ public class ConfigProperties {
         return showSystemMetric;
     }
 
+    public boolean isShowOtlpMetric() {
+        return showOtlpMetric;
+    }
+
     public boolean isShowUrlStat() {
         return showUrlStat;
     }
@@ -164,6 +171,7 @@ public class ConfigProperties {
         sb.append(", showApplicationStat=").append(showApplicationStat);
         sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
+        sb.append(", showOtlpMetric=").append(showOtlpMetric);
         sb.append('}');
         return sb.toString();
     }
