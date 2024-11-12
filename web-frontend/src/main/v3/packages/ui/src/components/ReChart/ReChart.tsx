@@ -13,11 +13,14 @@ export interface ReChartProps {
   chartData: Chart;
   unit?: string;
   tooltipConfig?: TooltipProps<number, string> & { showTotal?: boolean };
+  xAxisTickFormatter?: (value: number) => string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  yAxisTickFormatter?: (value: any) => string;
 }
 
 function defaultTickFormatter(value: number) {
   if (isToday(value)) {
-    return format(value, 'HH:mm:ss');
+    return format(value, 'HH:mm');
   }
   if (isThisYear(value)) {
     return `${format(value, 'MM.dd')}\n${format(value, 'HH:mm')}`;
@@ -25,7 +28,13 @@ function defaultTickFormatter(value: number) {
   return `${format(value, 'yyyy.MM.dd')}\n${format(value, 'HH:mm')}`;
 }
 
-export const ReChart = ({ syncId, chartData, unit = '' }: ReChartProps) => {
+export const ReChart = ({
+  syncId,
+  chartData,
+  unit = '',
+  xAxisTickFormatter,
+  yAxisTickFormatter: customYAxisTickFormatter,
+}: ReChartProps) => {
   const { data, chartConfig, renderChartChildComponents } = useRechart(chartData);
   const chartContainerRef = React.useRef<HTMLDivElement>(null);
   const [hoverKey, setHoverKey] = React.useState<Payload['dataKey'] | undefined>();
@@ -40,7 +49,9 @@ export const ReChart = ({ syncId, chartData, unit = '' }: ReChartProps) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function yAxisTickFormatter(value: any) {
-    return getFormat(unit || '')(value);
+    return customYAxisTickFormatter
+      ? customYAxisTickFormatter(value)
+      : getFormat(unit || '')(value);
   }
 
   return (
@@ -55,7 +66,10 @@ export const ReChart = ({ syncId, chartData, unit = '' }: ReChartProps) => {
           bottom: 5,
         }}
       >
-        <XAxis dataKey="timestamp" tick={XAxisTick} />
+        <XAxis
+          dataKey="timestamp"
+          tick={(props) => <XAxisTick {...props} tickFormatter={xAxisTickFormatter} />}
+        />
         <YAxis
           tickFormatter={yAxisTickFormatter}
           label={{

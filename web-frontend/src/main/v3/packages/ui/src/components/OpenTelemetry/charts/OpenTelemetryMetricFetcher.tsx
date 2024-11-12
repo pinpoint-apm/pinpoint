@@ -1,4 +1,4 @@
-// import { format, isThisYear, isToday } from 'date-fns';
+import { format, isThisYear, isToday, differenceInMinutes } from 'date-fns';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/hooks';
 // import { getFormat } from '@pinpoint-fe/utils';
@@ -56,6 +56,11 @@ export const OpenTelemetryMetricFetcher = ({
 
   const { stack, stackDetails } = metricDefinition;
 
+  const isWithinFiveMinutes = React.useMemo(() => {
+    const diff = Math.abs(differenceInMinutes(dateRange?.from, dateRange?.to));
+    return diff <= 5;
+  }, [dateRange]);
+
   // const dataSets =
   //   data?.metricValues.reduce(
   //     (acc, metricValue) => {
@@ -112,6 +117,16 @@ export const OpenTelemetryMetricFetcher = ({
       unit={data?.unit}
       tooltipConfig={{
         showTotal: stack && stackDetails?.showTotal,
+      }}
+      xAxisTickFormatter={(value) => {
+        const timeFormat = isWithinFiveMinutes ? 'HH:mm:ss' : 'HH:mm';
+        if (isToday(value)) {
+          return format(value, timeFormat);
+        }
+        if (isThisYear(value)) {
+          return `${format(value, 'MM.dd')}\n${format(value, timeFormat)}`;
+        }
+        return `${format(value, 'yyyy.MM.dd')}\n${format(value, timeFormat)}`;
       }}
     />
   );
