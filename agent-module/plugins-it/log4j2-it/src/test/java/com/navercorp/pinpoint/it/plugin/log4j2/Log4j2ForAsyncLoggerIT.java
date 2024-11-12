@@ -35,16 +35,13 @@ import org.junit.jupiter.api.Test;
 @JvmVersion(8)
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,2.20)", "com.lmax:disruptor:[3.4.4]"})
 @JvmArgument({"-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector", "-DtestLoggerEnable=false"})
-public class Log4j2ForAsyncLoggerIT extends Log4j2TestBase {
+public class Log4j2ForAsyncLoggerIT {
 
     @Test
     public void test() {
         Logger logger = LogManager.getLogger();
 
-        final String location = getLoggerJarLocation(logger);
-        final String testVersion = getTestVersion();
-        System.out.println("Log4j2 jar location:" + location);
-        Assertions.assertTrue(location.contains("/" + testVersion + "/"), "test version is not " + getTestVersion());
+        Log4jTestUtils.checkVersion(logger, this);
 
         logger.error("for log4j2 plugin async logger test");
         Assertions.assertNotNull(ThreadContext.get("PtxId"), "txId");
