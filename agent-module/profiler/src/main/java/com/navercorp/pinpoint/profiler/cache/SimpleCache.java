@@ -28,7 +28,7 @@ import java.util.function.Function;
 public class SimpleCache<K, V> implements Cache<K, Result<V>> {
     // zero means not exist.
     private final ConcurrentMap<K, V> cache;
-    private final Function<K, V> idFunction;
+    protected final Function<K, V> idFunction;
 
     public static <K> SimpleCache<K, Integer> newIdCache() {
         return newIdCache(1024);

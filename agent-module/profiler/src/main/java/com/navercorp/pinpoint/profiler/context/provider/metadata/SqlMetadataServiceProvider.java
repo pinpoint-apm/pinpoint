@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.cache.UidCache;
+import com.navercorp.pinpoint.profiler.cache.UidGenerator;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
@@ -60,7 +61,7 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
         if (monitorConfig.isSqlStatEnable()) {
             final int maxSqlCacheLength = profilerConfig.getMaxSqlCacheLength();
 
-            UidCache sqlCache = new UidCache(jdbcSqlCacheSize, maxSqlCacheLength);
+            UidCache sqlCache = new UidCache(jdbcSqlCacheSize, new UidGenerator.Murmur(), maxSqlCacheLength);
             SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, sqlCache, maxSqlLength);
             return new SqlUidMetaDataService(sqlCacheService);
         } else {
