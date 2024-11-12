@@ -1,23 +1,31 @@
 import React from 'react';
 import { format, isThisYear, isToday } from 'date-fns';
-import { XAxis, YAxis, ComposedChart } from 'recharts';
+import { XAxis, YAxis, ComposedChart, TooltipProps } from 'recharts';
 import { useRechart } from './useRechart';
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '../ui';
+import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip } from '../ui';
 import { Payload } from 'recharts/types/component/DefaultLegendContent';
 import { Chart } from '@pinpoint-fe/constants';
+import { getFormat } from '@pinpoint-fe/utils';
+import { CustomChartTooltipContent } from './ChartTooltipContent';
 
 export interface ReChartProps {
+  syncId?: string | number;
   chartData: Chart;
   unit?: string;
+  tooltipConfig?: TooltipProps<number, string> & { showTotal?: boolean };
 }
 
-export const ReChart = ({ chartData, unit = '' }: ReChartProps) => {
+function defaultTickFormatter(value: number) {
+  if (isToday(value)) {
+    return format(value, 'HH:mm:ss');
+  }
+  if (isThisYear(value)) {
+    return `${format(value, 'MM.dd')}\n${format(value, 'HH:mm')}`;
+  }
+  return `${format(value, 'yyyy.MM.dd')}\n${format(value, 'HH:mm')}`;
+}
+
+export const ReChart = ({ syncId, chartData, unit = '' }: ReChartProps) => {
   const { data, chartConfig, renderChartChildComponents } = useRechart(chartData);
   const chartContainerRef = React.useRef<HTMLDivElement>(null);
   const [hoverKey, setHoverKey] = React.useState<Payload['dataKey'] | undefined>();
@@ -30,9 +38,15 @@ export const ReChart = ({ chartData, unit = '' }: ReChartProps) => {
     setHoverKey(undefined);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function yAxisTickFormatter(value: any) {
+    return getFormat(unit || '')(value);
+  }
+
   return (
     <ChartContainer config={chartConfig} className="w-full h-full" ref={chartContainerRef}>
       <ComposedChart
+        syncId={syncId}
         data={data}
         margin={{
           top: 5,
@@ -43,7 +57,7 @@ export const ReChart = ({ chartData, unit = '' }: ReChartProps) => {
       >
         <XAxis dataKey="timestamp" tick={XAxisTick} />
         <YAxis
-          tickFormatter={(value) => `${value}${unit}`}
+          tickFormatter={yAxisTickFormatter}
           label={{
             value: unit,
             position: 'insideLeft',
@@ -51,7 +65,14 @@ export const ReChart = ({ chartData, unit = '' }: ReChartProps) => {
             style: { fontSize: '0.75rem' },
           }}
         />
-        <ChartTooltip content={<ChartTooltipContent hideLabel={true} />} />
+        <ChartTooltip
+          content={
+            <CustomChartTooltipContent
+              formatter={yAxisTickFormatter}
+              labelFormatter={defaultTickFormatter}
+            />
+          }
+        />
         <ChartLegend
           content={
             <ChartLegendContent
@@ -77,16 +98,6 @@ export const ReChart = ({ chartData, unit = '' }: ReChartProps) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const XAxisTick = (props: any) => {
   const { payload, tickFormatter, x, y } = props;
-
-  function defaultTickFormatter(value: number) {
-    if (isToday(value)) {
-      return format(value, 'HH:mm');
-    }
-    if (isThisYear(value)) {
-      return `${format(value, 'MM.dd')}\n${format(value, 'HH:mm')}`;
-    }
-    return `${format(value, 'yyyy.MM.dd')}\n${format(value, 'HH:mm')}`;
-  }
 
   const tickString = tickFormatter?.(payload?.value) || defaultTickFormatter(payload?.value);
   return (
