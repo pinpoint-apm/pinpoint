@@ -18,24 +18,29 @@ package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SimpleCacheFactoryProvider implements Provider<SimpleCacheFactory> {
+    private final ProfilerConfig profilerConfig;
 
     @Inject
-    public SimpleCacheFactoryProvider(TransportModule transportModule) {
+    public SimpleCacheFactoryProvider(TransportModule transportModule, ProfilerConfig profilerConfig) {
         if (TransportModule.GRPC == transportModule) {
             // do nothing
         } else {
             throw new IllegalStateException("Unsupported transportModule:" + transportModule);
         }
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override
     public SimpleCacheFactory get() {
-        return new SimpleCacheFactory();
+        return new SimpleCacheFactory(profilerConfig);
     }
 }
