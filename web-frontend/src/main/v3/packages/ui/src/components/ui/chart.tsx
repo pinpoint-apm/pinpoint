@@ -5,6 +5,7 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { cn } from '../../lib/utils';
 import { toCssVariable } from '../../lib/charts';
+import { Payload } from 'recharts/types/component/DefaultLegendContent';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const;
@@ -247,32 +248,56 @@ const ChartLegendContent = React.forwardRef<
     Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
       hideIcon?: boolean;
       nameKey?: string;
+      mouseHoverDataKey?: Payload['dataKey'] | undefined;
+      onLegendMouseOver?: (item: Payload) => void;
     }
->(({ className, hideIcon = false, payload, verticalAlign = 'bottom', nameKey }, ref) => {
-  const { config } = useChart();
+>(
+  (
+    {
+      className,
+      hideIcon = false,
+      payload,
+      verticalAlign = 'bottom',
+      nameKey,
+      mouseHoverDataKey,
+      onMouseLeave,
+      onLegendMouseOver,
+    },
+    ref,
+  ) => {
+    const { config } = useChart();
 
-  if (!payload?.length) {
-    return null;
-  }
-
-  return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
+    if (!payload?.length) {
+      return null;
+    }
+    return (
+      <TooltipProvider delayDuration={0}>
         <div
           ref={ref}
           className={cn(
             `flex justify-center gap-1 flex-wrap ${verticalAlign === 'top' ? 'pb-3' : 'pt-3'}`,
             className,
           )}
+          onMouseLeave={(e) => {
+            onMouseLeave?.(e);
+          }}
         >
           {payload.map((item) => {
             const key = `${nameKey || item.dataKey || 'value'}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
             return (
-              <React.Fragment key={item.value}>
+              <Tooltip key={item.value}>
                 <TooltipTrigger asChild>
-                  <div key={item.value} className={cn('inline-flex max-w-full items-center gap-1')}>
+                  <div
+                    key={item.value}
+                    className={cn('inline-flex max-w-full items-center gap-1', {
+                      'opacity-30': !!mouseHoverDataKey && item?.dataKey !== mouseHoverDataKey,
+                    })}
+                    onMouseOver={() => {
+                      onLegendMouseOver?.(item);
+                    }}
+                  >
                     <>
                       {itemConfig?.icon && !hideIcon ? (
                         <itemConfig.icon />
@@ -284,7 +309,7 @@ const ChartLegendContent = React.forwardRef<
                           }}
                         />
                       )}
-                      <div className="text-ellipsis overflow-hidden whitespace-nowrap">
+                      <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                         {itemConfig?.label}
                       </div>
                     </>
@@ -295,14 +320,14 @@ const ChartLegendContent = React.forwardRef<
                     <p>{itemConfig?.label}</p>
                   </TooltipContent>
                 </TooltipPrimitive.Portal>
-              </React.Fragment>
+              </Tooltip>
             );
           })}
         </div>
-      </Tooltip>
-    </TooltipProvider>
-  );
-});
+      </TooltipProvider>
+    );
+  },
+);
 ChartLegendContent.displayName = 'ChartLegend';
 
 // Helper to extract item config from a payload.

@@ -1,6 +1,6 @@
 import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/constants';
 import { ComposedChart, ReferenceLine } from 'recharts';
-import { useRechart } from '../../../hooks/useRechart';
+import { useRechart } from '../../ReChart/useRechart';
 
 export interface ErrorGroupedTableVolumneChart {
   chart: ErrorAnalysisGroupedErrorList.ErrorData['chart'];

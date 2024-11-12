@@ -1,4 +1,3 @@
-import { Chart } from '@pinpoint-fe/constants';
 import {
   BarChart,
   Bar,
@@ -10,11 +9,12 @@ import {
   BarProps,
   AreaProps,
 } from 'recharts';
-import { colors } from '../constant/theme';
-import { type ChartConfig } from '../components/ui/chart';
+import { Chart } from '@pinpoint-fe/constants';
 import { isNil } from 'lodash';
-import { getRandomColorInHSL } from '../lib/colors';
 import { useState, useEffect } from 'react';
+import { ChartConfig } from '../../components/ui';
+import { colors } from '../../constant';
+import { getRandomColorInHSL } from '../../lib/colors';
 
 export const COLORS = [
   colors.blue[600],
@@ -95,6 +95,7 @@ export function useRechart(chart: Chart) {
           }
           dataObj[fieldName] = value;
           tempChartConfig[fieldName] = {
+            label: fieldName,
             chartType: mvg?.chartType,
             color: COLORS[mvi] ?? getRandomColorInHSL(),
           };
@@ -108,9 +109,10 @@ export function useRechart(chart: Chart) {
     setMaxValue(tempMaxValue);
   }, [chart]);
 
-  function renderChartChildComponents() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function renderChartChildComponents(customChartChildProps?: (config: any) => any) {
     return Object.keys(chartConfig)?.map((configKey) => {
-      const config = chartConfig[configKey];
+      const config = chartConfig?.[configKey];
       const { ChartChildComponent, chartChildProps } =
         CHART_DEFINITION[config?.chartType as keyof typeof CHART_DEFINITION] ||
         CHART_DEFINITION['line'];
@@ -119,9 +121,10 @@ export function useRechart(chart: Chart) {
         <ChartChildComponent
           key={configKey}
           dataKey={configKey}
-          fill={chartConfig?.[configKey]?.color}
-          stroke={chartConfig?.[configKey]?.color}
+          fill={config?.color}
+          stroke={config?.color}
           {...chartChildProps}
+          {...customChartChildProps?.(config)}
         />
       );
     });
