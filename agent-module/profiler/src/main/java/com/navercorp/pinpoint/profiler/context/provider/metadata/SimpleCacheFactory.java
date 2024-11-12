@@ -16,22 +16,33 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
+import com.navercorp.pinpoint.profiler.cache.UidCache;
+import com.navercorp.pinpoint.profiler.cache.UidGenerator;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SimpleCacheFactory {
+    private final int sqlCacheSize;
+    private final int sqlCacheBypassLength;
 
-    public SimpleCacheFactory() {
+    public SimpleCacheFactory(ProfilerConfig profilerConfig) {
+        this.sqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
+        this.sqlCacheBypassLength = profilerConfig.getMaxSqlCacheLength();
     }
 
     public <T> SimpleCache<T, Integer> newSimpleCache() {
         return SimpleCache.newIdCache();
     }
 
-    public <T> SimpleCache<T, Integer> newSimpleCache(int cacheSize) {
-        return SimpleCache.newIdCache(cacheSize);
+    public SimpleCache<String, Integer> newSqlCache() {
+        return SimpleCache.newIdCache(sqlCacheSize);
+    }
+
+    public SimpleCache<String, byte[]> newSqlUidCache() {
+        return new UidCache(sqlCacheSize, new UidGenerator.Murmur(), sqlCacheBypassLength);
     }
 }
 
