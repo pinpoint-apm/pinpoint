@@ -21,7 +21,11 @@ import com.navercorp.pinpoint.test.plugin.PluginForkedTestInstance;
 import com.navercorp.pinpoint.test.plugin.junit5.engine.support.PluginTestReport;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
+import org.junit.jupiter.engine.descriptor.ExtensionContextFactory;
+import org.junit.jupiter.engine.descriptor.JupiterEngineDescriptor;
+import org.junit.jupiter.engine.execution.DefaultExecutableInvoker;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
+import org.junit.jupiter.engine.extension.MutableExtensionRegistry;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.ClassSource;
@@ -44,14 +48,9 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
     private final Class<?> testClass;
     private final List<PluginForkedTestInstance> testInstanceList;
 
-    static String generateDisplayNameForClass(Class<?> testClass) {
-        String name = testClass.getName();
-        int lastDot = name.lastIndexOf('.');
-        return name.substring(lastDot + 1);
-    }
 
     public PluginForkedTestUnitTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, List<PluginForkedTestInstance> testInstanceList) {
-        super(uniqueId, generateDisplayNameForClass(testClass), ClassSource.from(testClass), configuration);
+        super(uniqueId, DescriptorUtils.generateDisplayNameForClass(testClass), ClassSource.from(testClass), configuration);
         this.testClass = testClass;
         this.testInstanceList = testInstanceList;
     }
@@ -69,10 +68,17 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
     @Override
     public JupiterEngineExecutionContext prepare(JupiterEngineExecutionContext context) {
         ThrowableCollector throwableCollector = createThrowableCollector();
+        MutableExtensionRegistry extensionRegistry = context.getExtensionRegistry();
+
+        JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(this.getUniqueId(), configuration);
+        ExtensionContext classExtensionContext = ExtensionContextFactory.jupiterEngineContext(
+                context.getExecutionListener(), engineDescriptor,
+                context.getConfiguration(), ec -> new DefaultExecutableInvoker(ec, extensionRegistry));
 
         // @formatter:off
         return context.extend()
                 .withThrowableCollector(throwableCollector)
+                .withExtensionContext(classExtensionContext)
                 .build();
         // @formatter:on
     }

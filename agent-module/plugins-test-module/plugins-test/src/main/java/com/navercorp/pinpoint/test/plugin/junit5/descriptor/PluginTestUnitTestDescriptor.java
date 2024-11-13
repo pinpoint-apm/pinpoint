@@ -29,14 +29,9 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
     private final Class<?> testClass;
     private final PluginSharedInstance sharedInstance;
 
-    static String generateDisplayNameForClass(Class<?> testClass) {
-        String name = testClass.getName();
-        int lastDot = name.lastIndexOf('.');
-        return name.substring(lastDot + 1);
-    }
 
     public PluginTestUnitTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, PluginSharedInstance sharedInstance) {
-        super(uniqueId, generateDisplayNameForClass(testClass), ClassSource.from(testClass), configuration);
+        super(uniqueId, DescriptorUtils.generateDisplayNameForClass(testClass), ClassSource.from(testClass), configuration);
         this.testClass = testClass;
         this.sharedInstance = sharedInstance;
     }
