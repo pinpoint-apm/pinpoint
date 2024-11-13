@@ -1,8 +1,5 @@
 package com.navercorp.pinpoint.test.plugin.util;
 
-import java.util.Collection;
-import java.util.StringJoiner;
-
 public final class StringUtils {
     private StringUtils() {
     }
@@ -12,7 +9,7 @@ public final class StringUtils {
     }
 
     public static boolean hasLength(final String string) {
-        return string != null && string.length() > 0;
+        return string != null && !string.isEmpty();
     }
 
     public static boolean hasText(String string) {
@@ -36,11 +33,4 @@ public final class StringUtils {
         return string.length();
     }
 
-    public static String join(Collection<String> stringList, String separator) {
-        StringJoiner joiner = new StringJoiner(separator);
-        for (String str : stringList) {
-            joiner.add(str);
-        }
-        return joiner.toString();
-    }
 }

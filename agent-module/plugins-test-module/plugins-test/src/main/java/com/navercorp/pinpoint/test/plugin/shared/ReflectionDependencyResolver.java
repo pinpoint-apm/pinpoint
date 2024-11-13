@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
 
 import java.io.File;
@@ -41,7 +40,7 @@ public class ReflectionDependencyResolver {
     }
 
     public List<File> lookup(final List<String> classpathList) throws Exception {
-        String paths = StringUtils.join(classpathList, ArtifactIdUtils.ARTIFACT_SEPARATOR);
+        String paths = String.join(ArtifactIdUtils.ARTIFACT_SEPARATOR, classpathList);
         return lookup(paths);
     }
 
