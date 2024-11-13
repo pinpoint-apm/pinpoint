@@ -10,6 +10,7 @@ export interface Configuration {
   showSystemMetric: boolean;
   showUrlStat: boolean;
   showExceptionTrace: boolean;
+  showOtlpMetric: boolean;
   openSource: boolean;
   version: string;
   'experimental.enableServerMapRealTime.value': boolean;

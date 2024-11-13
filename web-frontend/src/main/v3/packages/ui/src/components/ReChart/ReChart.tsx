@@ -20,18 +20,19 @@ export interface ReChartProps {
 
 function defaultTickFormatter(value: number) {
   if (isToday(value)) {
-    return format(value, 'HH:mm');
+    return format(value, 'HH:mm:ss');
   }
   if (isThisYear(value)) {
-    return `${format(value, 'MM.dd')}\n${format(value, 'HH:mm')}`;
+    return `${format(value, 'MM.dd')}\n${format(value, 'HH:mm:ss')}`;
   }
-  return `${format(value, 'yyyy.MM.dd')}\n${format(value, 'HH:mm')}`;
+  return `${format(value, 'yyyy.MM.dd')}\n${format(value, 'HH:mm:ss')}`;
 }
 
 export const ReChart = ({
   syncId,
   chartData,
   unit = '',
+  tooltipConfig,
   xAxisTickFormatter,
   yAxisTickFormatter: customYAxisTickFormatter,
 }: ReChartProps) => {
@@ -84,6 +85,8 @@ export const ReChart = ({
             <CustomChartTooltipContent
               formatter={yAxisTickFormatter}
               labelFormatter={defaultTickFormatter}
+              showTotal={tooltipConfig?.showTotal}
+              chartWidth={chartContainerRef?.current?.offsetWidth || 392}
             />
           }
         />
