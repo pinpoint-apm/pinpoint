@@ -29,7 +29,7 @@ import static org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory.
 
 public class PluginForkedTestDependencyTestDescriptor extends PluginTestDescriptor {
 
-    private Class<?> testClass;
+    private final Class<?> testClass;
     private PluginTestReport testReport;
 
     public PluginForkedTestDependencyTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, String displayName) {

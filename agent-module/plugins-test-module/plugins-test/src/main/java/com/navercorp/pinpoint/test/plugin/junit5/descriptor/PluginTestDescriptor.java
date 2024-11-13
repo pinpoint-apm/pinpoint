@@ -17,13 +17,9 @@
 package com.navercorp.pinpoint.test.plugin.junit5.descriptor;
 
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
-import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
-import org.junit.jupiter.engine.descriptor.JupiterTestDescriptor;
 import org.junit.jupiter.engine.execution.ConditionEvaluator;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
-import org.junit.platform.commons.logging.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
 import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
@@ -32,8 +28,6 @@ import org.junit.platform.engine.support.hierarchical.Node;
 public abstract class PluginTestDescriptor extends AbstractTestDescriptor implements Node<JupiterEngineExecutionContext> {
 
     public static final String ENGINE_ID = "pinpoint-plugin";
-
-    private static final Logger logger = LoggerFactory.getLogger(JupiterTestDescriptor.class);
 
     private static final ConditionEvaluator conditionEvaluator = new ConditionEvaluator();
 
@@ -78,18 +72,5 @@ public abstract class PluginTestDescriptor extends AbstractTestDescriptor implem
     @Override
     public void cleanUp(JupiterEngineExecutionContext context) throws Exception {
         context.close();
-    }
-
-    /**
-     * @since 5.5
-     */
-    @FunctionalInterface
-    interface ExceptionHandlerInvoker<E extends Extension> {
-
-        /**
-         * Invoke the supplied {@code exceptionHandler} with the supplied {@code throwable}.
-         */
-        void invoke(E exceptionHandler, Throwable throwable) throws Throwable;
-
     }
 }
