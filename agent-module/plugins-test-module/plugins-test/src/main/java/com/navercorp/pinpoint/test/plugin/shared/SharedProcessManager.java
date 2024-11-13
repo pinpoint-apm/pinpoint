@@ -218,7 +218,7 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String join(List<String> mavenDependencyLibraries) {
-        return StringUtils.join(mavenDependencyLibraries, PATH_SEPARATOR);
+        return String.join(PATH_SEPARATOR, mavenDependencyLibraries);
     }
 
     private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
@@ -243,7 +243,7 @@ public class SharedProcessManager implements ProcessManager {
 
         final List<String> importPluginIds = context.getImportPluginIds();
         if (CollectionUtils.hasLength(importPluginIds)) {
-            String enablePluginIds = StringUtils.join(importPluginIds, ArtifactIdUtils.ARTIFACT_SEPARATOR);
+            String enablePluginIds = String.join(ArtifactIdUtils.ARTIFACT_SEPARATOR, importPluginIds);
             agentArgumentMap.put(PluginTestConstants.AGENT_PARAMETER_IMPORT_PLUGIN, enablePluginIds);
         }
         return join(agentArgumentMap);
