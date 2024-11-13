@@ -59,10 +59,10 @@ export const useMenuItems = () => {
     },
     {
       icon: <PiChartBarHorizontal />,
-      name: 'Open Telemetry',
+      name: 'OpenTelemetry Metric',
       path: APP_PATH.OPEN_TELEMETRY,
       href: getOpenTelemetryPath(application, searchParameters),
-      hide: true, // TODO: Bind with Open Telemetry config
+      hide: !configuration?.showOtlpMetric,
     },
   ];
 
