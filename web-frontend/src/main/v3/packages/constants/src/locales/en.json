@@ -102,6 +102,15 @@
       },
       "VALIDATION": "Enter only numbers, alphabets, and '-', '_' characters.(4~30)"
     },
+    "AGENT_MANAGEMENT": {
+      "REMOVE_APPLICATION_TITLE": "Remove application",
+      "REMOVE_APPLICATION_DESC": "Remove the following application.",
+      "REMOVE_AGENT_TITLE": "Remove agent",
+      "REMOVE_AGENT_DESC": "Remove the following agent.",
+      "LABEL": {
+        "REMOVE_APPLICATION": "Remove application"
+      }
+    },
     "USERS": {
       "USER_ADD_TITLE": "Add user",
       "USER_INFO_TITLE": "User info",

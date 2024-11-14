@@ -6,3 +6,4 @@ export * from './Installation';
 export * from './UserGroup';
 export * from './Users';
 export * from './Webhook';
+export * from './AgentManagement';

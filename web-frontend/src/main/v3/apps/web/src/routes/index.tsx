@@ -35,6 +35,7 @@ import UserGroup from '@/pages/config/UserGroup';
 import Users from '@/pages/config/Users';
 import Alarm from '@/pages/config/Alarm';
 import Webhook from '@/pages/config/Webhook';
+import AgentManagement from '@/pages/config/AgentManagement';
 import { threadDumpRouteLoader } from './loader/threadDump';
 import { openTelemetryRouteLoader } from './loader/openTelemetry';
 import { handleV2RouteLoader } from './loader/handleV2';
@@ -163,6 +164,10 @@ const router = createBrowserRouter(
     {
       path: `${APP_PATH.CONFIG_USERS}`,
       element: <Users />,
+    },
+    {
+      path: `${APP_PATH.CONFIG_AGENT_MANAGEMENT}`,
+      element: <AgentManagement />,
     },
     {
       path: '*',

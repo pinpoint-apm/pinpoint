@@ -102,6 +102,15 @@
       },
       "VALIDATION": "영문자와 숫자, '-', '_'를 입력할 수 있습니다.(4~30)"
     },
+    "AGENT_MANAGEMENT": {
+      "REMOVE_APPLICATION_TITLE": "Application 삭제",
+      "REMOVE_APPLICATION_DESC": "다음 Application을 삭제합니다.",
+      "REMOVE_AGENT_TITLE": "Agent 삭제",
+      "REMOVE_AGENT_DESC": "다음 Agent를 삭제합니다.",
+      "LABEL": {
+        "REMOVE_APPLICATION": "Application 삭제"
+      }
+    },
     "USERS": {
       "USER_ADD_TITLE": "사용자 등록",
       "USER_INFO_TITLE": "사용자 정보",
