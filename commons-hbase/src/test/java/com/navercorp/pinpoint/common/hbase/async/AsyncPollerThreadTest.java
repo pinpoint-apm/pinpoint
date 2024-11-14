@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.hbase.async;
 
-import com.navercorp.pinpoint.common.hbase.util.FutureUtils;
+import com.navercorp.pinpoint.common.util.concurrent.FutureUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;

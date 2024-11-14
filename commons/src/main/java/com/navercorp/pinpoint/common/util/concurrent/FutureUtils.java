@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.common.hbase.util;
+package com.navercorp.pinpoint.common.util.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +52,7 @@ public final class FutureUtils {
     public static <T> List<T> allOf(CompletableFuture<T>[] futures) {
         Objects.requireNonNull(futures, "futures");
 
+        CompletableFuture.allOf(futures).join();
         final List<T> result = new ArrayList<>(futures.length);
         for (CompletableFuture<T> future : futures) {
             result.add(future.join());
@@ -64,8 +65,13 @@ public final class FutureUtils {
         Objects.requireNonNull(futures, "futures");
 
         final CompletableFuture<T>[] futuresArray = (CompletableFuture<T>[]) futures.toArray(new CompletableFuture<?>[0]);
+        return allOfAsync(futuresArray);
+    }
 
-        return CompletableFuture.allOf(futuresArray)
-                .thenApply(v -> allOf(futuresArray));
+    public static <T> CompletableFuture<List<T>> allOfAsync(CompletableFuture<T>[] futures) {
+        Objects.requireNonNull(futures, "futures");
+
+        return CompletableFuture.allOf(futures)
+                .thenApply(v -> allOf(futures));
     }
 }

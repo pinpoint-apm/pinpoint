@@ -100,10 +100,9 @@ public class LinkDataDuplexMap {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LinkDataDuplexMap{");
-        sb.append("sourceLinkDataMap=").append(sourceLinkDataMap);
-        sb.append(", targetLinkDataMap=").append(targetLinkDataMap);
-        sb.append('}');
-        return sb.toString();
+        return "LinkDataDuplexMap{" +
+                "sourceLinkDataMap=" + sourceLinkDataMap +
+                ", targetLinkDataMap=" + targetLinkDataMap +
+                '}';
     }
 }

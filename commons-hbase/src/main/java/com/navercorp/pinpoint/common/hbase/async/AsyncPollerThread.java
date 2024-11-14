@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.common.hbase.async;
 
 import com.navercorp.pinpoint.common.hbase.RequestNotPermittedException;
-import com.navercorp.pinpoint.common.hbase.util.FutureUtils;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.util.concurrent.FutureUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
