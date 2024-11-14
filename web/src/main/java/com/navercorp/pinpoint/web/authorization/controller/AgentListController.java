@@ -61,7 +61,6 @@ public class AgentListController {
     private final ApplicationAgentInfoMapServiceImpl applicationAgentInfoService;
 
     private final SortByAgentInfo.Rules DEFAULT_SORT_BY = SortByAgentInfo.Rules.AGENT_ID_ASC;
-    private final ApplicationAgentListQueryRule DEFAULT_APPLICATION_AGENT_LIST_RULES = ApplicationAgentListQueryRule.ACTIVE_STATUS;
 
     public AgentListController(
             AgentInfoService agentInfoService,
@@ -112,7 +111,7 @@ public class AgentListController {
             @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy,
             @RequestParam(value = "query", required = false) String query) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
-        final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, DEFAULT_APPLICATION_AGENT_LIST_RULES);
+        final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ALL);
         final long timestamp = System.currentTimeMillis();
         final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
         final AgentsMapByHost list = this.applicationAgentInfoService.getAgentsListByApplicationName(
@@ -135,7 +134,7 @@ public class AgentListController {
             @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy,
             @RequestParam(value = "query", required = false) String query) {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
-        final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, DEFAULT_APPLICATION_AGENT_LIST_RULES);
+        final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ACTIVE_STATUS);
         final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
         final AgentsMapByHost list = this.applicationAgentInfoService.getAgentsListByApplicationName(
                 application,
