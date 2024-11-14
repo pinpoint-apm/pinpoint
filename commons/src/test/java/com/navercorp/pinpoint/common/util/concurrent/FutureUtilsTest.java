@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.common.hbase.util;
+package com.navercorp.pinpoint.common.util.concurrent;
 
 import org.junit.jupiter.api.Test;
 
