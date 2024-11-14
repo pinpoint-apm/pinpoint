@@ -6,9 +6,9 @@ export namespace SearchApplication {
     serviceTypeName?: string;
     serviceTypeCode?: number;
     applicationPairs?: string;
-    from: number;
-    to: number;
-    sortBy: string;
+    from?: number;
+    to?: number;
+    sortBy?: string;
   }
 
   export interface Application {

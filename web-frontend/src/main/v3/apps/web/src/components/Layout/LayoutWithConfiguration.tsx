@@ -46,6 +46,11 @@ export const CONFIG_MENU_MAP = {
         path: APP_PATH.CONFIG_USERS,
         href: APP_PATH.CONFIG_USERS,
       },
+      {
+        name: 'Agent management',
+        path: APP_PATH.CONFIG_AGENT_MANAGEMENT,
+        href: APP_PATH.CONFIG_AGENT_MANAGEMENT,
+      },
     ],
   },
   PERSONAL_SETTINGS: {

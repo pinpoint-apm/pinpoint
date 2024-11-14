@@ -29,7 +29,7 @@ export const useGetAgentList = ({ sortBy = AGENT_LIST_SORT.ID }: UseGetAgentList
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
   const applicationName = application?.applicationName;
-  const serviceTypeName = application?.serviceType
+  const serviceTypeName = application?.serviceType;
 
   const queryString = getQueryString({
     from,

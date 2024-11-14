@@ -44,9 +44,11 @@ export const RemovePopup = ({
               {t('COMMON.CANCEL')}
             </Button>
           </DialogClose>
-          <Button variant="destructive" size="sm" onClick={onClickRemove}>
-            {t('COMMON.REMOVE')}
-          </Button>
+          <DialogClose asChild>
+            <Button variant="destructive" size="sm" onClick={onClickRemove}>
+              {t('COMMON.REMOVE')}
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
