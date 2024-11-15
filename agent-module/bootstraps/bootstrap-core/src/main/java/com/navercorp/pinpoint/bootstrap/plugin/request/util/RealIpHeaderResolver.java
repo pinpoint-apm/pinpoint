@@ -21,12 +21,17 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class RealIpHeaderResolver<T> implements RemoteAddressResolver<T> {
+
+    private static final String FORWARDED_HEADER_NAME = "Forwarded";
+    private static final Pattern FORWARDED_FOR_PATTERN = Pattern.compile("(?i:for)=\"?([^;,\"]+)\"?");
 
     private final String realIpHeaderName;
     private final String realIpHeaderEmptyValue;
@@ -38,21 +43,41 @@ public class RealIpHeaderResolver<T> implements RemoteAddressResolver<T> {
 
     @Override
     public String resolve(RequestAdaptor<T> requestAdaptor, T request) {
-        final String realIp = requestAdaptor.getHeader(request, realIpHeaderName);
-        if (StringUtils.isEmpty(realIp)) {
+        final String realIpHeaderValue = requestAdaptor.getHeader(request, realIpHeaderName);
+        if (StringUtils.isEmpty(realIpHeaderValue)) {
             return null;
         }
 
-        if (realIpHeaderEmptyValue != null && realIpHeaderEmptyValue.equalsIgnoreCase(realIp)) {
+        if (realIpHeaderEmptyValue != null && realIpHeaderEmptyValue.equalsIgnoreCase(realIpHeaderValue)) {
             return null;
         }
 
+        String firstRealIpHeaderValue = getFirstRealIpHeaderValue(realIpHeaderValue);
+
+        if ("Forwarded".equalsIgnoreCase(realIpHeaderName)) {
+            Matcher matcher = FORWARDED_FOR_PATTERN.matcher(firstRealIpHeaderValue);
+            if (matcher.find()) {
+                String ip = matcher.group(1).trim();
+                int portSeparatorIdx = ip.lastIndexOf(':');
+                int squareBracketIdx = ip.lastIndexOf(']');
+                if (portSeparatorIdx > squareBracketIdx) {
+                    return ip.substring(0, portSeparatorIdx);
+                }
+
+                return ip;
+            }
+        }
+
+        return firstRealIpHeaderValue;
+    }
+
+    private static String getFirstRealIpHeaderValue(String realIp) {
         final int firstIndex = realIp.indexOf(',');
+
         if (firstIndex == -1) {
             return realIp;
         } else {
             return realIp.substring(0, firstIndex);
         }
     }
-
 }
