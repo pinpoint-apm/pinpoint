@@ -36,6 +36,7 @@ public class MetricDataRequestParameter {
     @NotBlank
     private String metricName;
 
+    @NotBlank
     private String primaryForFieldAndTagRelation;
 
     private List<String> tagGroupList;
@@ -48,9 +49,14 @@ public class MetricDataRequestParameter {
     @PositiveOrZero
     private long to;
 
+    @NotBlank
     private String chartType;
 
+    @NotBlank
     private String aggregationFunction;
+
+    @PositiveOrZero
+    private int samplingInterval;
 
     // Getters and setters
     public String getApplicationName() {
@@ -139,6 +145,14 @@ public class MetricDataRequestParameter {
 
     public void setAggregationFunction(String aggregationFunction) {
         this.aggregationFunction = aggregationFunction;
+    }
+
+    public int getSamplingInterval() {
+        return samplingInterval;
+    }
+
+    public void setSamplingInterval(@PositiveOrZero int samplingInterval) {
+        this.samplingInterval = samplingInterval;
     }
 
 }
