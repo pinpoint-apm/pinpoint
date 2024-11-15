@@ -221,7 +221,7 @@ public class ApplicationMapBuilderTest {
     }
 
     @Test
-    public void testEmptyCallDataSimplfied() {
+    public void testEmptyCallDataSimplified() {
         Range range = Range.between(0, 1000);
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 

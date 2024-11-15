@@ -16,25 +16,26 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.concurrent.FutureUtils;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
+import com.navercorp.pinpoint.web.applicationmap.util.CancellableHistogramFactory;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /**
@@ -43,12 +44,13 @@ import java.util.function.Supplier;
  */
 public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
 
-    private final NodeHistogramFactory nodeHistogramFactory;
+    private final CancellableHistogramFactory nodeHistogramFactory;
 
     private final Executor executor;
 
     public DefaultNodeHistogramAppender(NodeHistogramFactory nodeHistogramFactory, Executor executor) {
-        this.nodeHistogramFactory = Objects.requireNonNull(nodeHistogramFactory, "nodeHistogramFactory");
+        Objects.requireNonNull(nodeHistogramFactory, "nodeHistogramFactory");
+        this.nodeHistogramFactory = new CancellableHistogramFactory(nodeHistogramFactory);
         this.executor = Objects.requireNonNull(executor, "executor");
     }
 
@@ -61,61 +63,75 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
         if (CollectionUtils.isEmpty(nodes)) {
             return;
         }
-        final AtomicBoolean stopSign = new AtomicBoolean();
-        final CompletableFuture[] futures = getNodeHistogramFutures(range, nodes, linkList, stopSign);
-        if (-1 == timeoutMillis) {
-            // Returns the result value when complete
-            CompletableFuture.allOf(futures).join();
-        } else {
-            try {
-                CompletableFuture.allOf(futures).get(timeoutMillis, TimeUnit.MILLISECONDS);
-            } catch (Exception e) { // InterruptedException, ExecutionException, TimeoutException
-                stopSign.set(Boolean.TRUE);
-                String cause = "an error occurred while adding node histogram";
-                if (e instanceof TimeoutException) {
-                    cause += " build timed out. timeout=" + timeoutMillis + "ms";
-                }
-                throw new RuntimeException(cause, e);
+        final Node[] nodeArray = nodes.toArray(new Node[0]);
+        final CompletableFuture<List<NodeHistogram>> future = getNodeHistogramList(range, nodeArray, linkList);
+        List<NodeHistogram> result = allOf(future, timeoutMillis, nodeHistogramFactory::cancel);
+        bindHistogramToNode(nodeArray, result);
+    }
+
+    private void bindHistogramToNode(Node[] nodes, List<NodeHistogram> histogramList) {
+        for (int i = 0; i < nodes.length; i++) {
+            final Node node = nodes[i];
+            NodeHistogram nodeHistogram = histogramList.get(i);
+            node.setNodeHistogram(nodeHistogram);
+        }
+    }
+
+    private <T> T allOf(Future<T> future, long timeoutMillis, Runnable stopAction) {
+        Objects.requireNonNull(future, "future");
+        Objects.requireNonNull(stopAction, "stopAction");
+
+        boolean success = false;
+        try {
+            T t = future.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            success = true;
+            return t;
+        } catch (ExecutionException e) {
+            throw new RuntimeException("NodeHistogram create error", e.getCause());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("NodeHistogram interrupt error", e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("NodeHistogram timeout error timeout:" + timeoutMillis, e);
+        } finally {
+            if (!success) {
+                stopAction.run();
             }
         }
     }
 
-    private CompletableFuture[] getNodeHistogramFutures(Range range, Collection<Node> nodes, LinkList linkList, AtomicBoolean stopSign) {
-        List<CompletableFuture<Void>> nodeHistogramFutures = new ArrayList<>();
-        for (Node node : nodes) {
-            CompletableFuture<Void> nodeHistogramFuture = getNodeHistogramFuture(range, node, linkList, stopSign);
-            nodeHistogramFutures.add(nodeHistogramFuture);
+    private CompletableFuture<List<NodeHistogram>> getNodeHistogramList(Range range, Node[] nodes, LinkList linkList) {
+        @SuppressWarnings("unchecked")
+        CompletableFuture<NodeHistogram>[] futures = new CompletableFuture[nodes.length];
+        for (int i = 0; i < nodes.length; i++) {
+            final Node node = nodes[i];
+            futures[i] = asyncNodeHistogram(range, node, linkList);
         }
-        return nodeHistogramFutures.toArray(new CompletableFuture[0]);
+        return FutureUtils.allOfAsync(futures);
     }
 
-    private CompletableFuture<Void> getNodeHistogramFuture(Range range, Node node, LinkList linkList, AtomicBoolean stopSign) {
-        CompletableFuture<NodeHistogram> nodeHistogramFuture;
+    private CompletableFuture<NodeHistogram> asyncNodeHistogram(Range range, Node node, LinkList linkList) {
         final Application application = node.getApplication();
         final ServiceType serviceType = application.getServiceType();
-
         if (serviceType.isWas()) {
             // for WAS nodes, set their own response time histogram
             final Application wasNode = node.getApplication();
-            nodeHistogramFuture = CompletableFuture.supplyAsync(new Supplier<NodeHistogram>() {
+            return CompletableFuture.supplyAsync(new Supplier<NodeHistogram>() {
                 @Override
                 public NodeHistogram get() {
-                    if (Boolean.TRUE == stopSign.get()) { // Stop
-                        return nodeHistogramFactory.createEmptyNodeHistogram(application, range);
-                    }
                     return nodeHistogramFactory.createWasNodeHistogram(wasNode, range);
                 }
             }, executor);
         } else if (serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isAlias()) {
-            nodeHistogramFuture = CompletableFuture.completedFuture(nodeHistogramFactory.createTerminalNodeHistogram(application, range, linkList));
+            return CompletableFuture.completedFuture(nodeHistogramFactory.createTerminalNodeHistogram(application, range, linkList));
         } else if (serviceType.isQueue()) {
             // Virtual queue node - queues with agent installed will be handled above as a WAS node
-            nodeHistogramFuture = CompletableFuture.completedFuture(nodeHistogramFactory.createQueueNodeHistogram(application, range, linkList));
+            return CompletableFuture.completedFuture(nodeHistogramFactory.createQueueNodeHistogram(application, range, linkList));
         } else if (serviceType.isUser()) {
-            nodeHistogramFuture = CompletableFuture.completedFuture(nodeHistogramFactory.createUserNodeHistogram(application, range, linkList));
-        } else {
-            nodeHistogramFuture = CompletableFuture.completedFuture(nodeHistogramFactory.createEmptyNodeHistogram(application, range));
+            return CompletableFuture.completedFuture(nodeHistogramFactory.createUserNodeHistogram(application, range, linkList));
         }
-        return nodeHistogramFuture.thenAccept(node::setNodeHistogram);
+
+        return CompletableFuture.completedFuture(nodeHistogramFactory.createEmptyNodeHistogram(application, range));
     }
+
 }

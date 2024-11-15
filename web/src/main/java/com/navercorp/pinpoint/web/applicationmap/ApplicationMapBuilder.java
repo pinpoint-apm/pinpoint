@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.applicationmap.util.TimeoutWatcher;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -125,30 +126,4 @@ public class ApplicationMapBuilder {
         return DefaultApplicationMap.build(nodeList, linkList, range);
     }
 
-    private static class TimeoutWatcher {
-        private static final int INFINITY_TIME = -1;
-        private final long timeoutMillis;
-        private final long startTimeMillis;
-
-        public TimeoutWatcher(long timeoutMillis) {
-            if (timeoutMillis <= 0) {
-                this.timeoutMillis = INFINITY_TIME;
-            } else {
-                this.timeoutMillis = timeoutMillis;
-            }
-            this.startTimeMillis = System.currentTimeMillis();
-        }
-
-        public long remainingTimeMillis() {
-            if (timeoutMillis == INFINITY_TIME) {
-                return INFINITY_TIME;
-            }
-
-            long elapsedTimeMillis = System.currentTimeMillis() - this.startTimeMillis;
-            if (this.timeoutMillis <= elapsedTimeMillis) {
-                return 0;
-            }
-            return this.timeoutMillis - elapsedTimeMillis;
-        }
-    }
 }
