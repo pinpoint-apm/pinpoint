@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.plugin.sdk.AgentSdkAsyncConstants;
 
 
 public class CommandInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
-//    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     public CommandInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

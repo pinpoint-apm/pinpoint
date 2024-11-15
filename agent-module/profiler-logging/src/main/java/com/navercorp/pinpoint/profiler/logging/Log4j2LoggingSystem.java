@@ -54,7 +54,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
         logger.info("LoggerContextFactory:{} LoggerContext:{}", LogManager.getFactory().getClass().getName(), loggerContext.getClass().getName());
 
         this.binder = new Log4j2Binder(loggerContext);
-        bindPLoggerFactory(this.binder);
+        bindPluginLogFactory(this.binder);
 
         this.setupGrpcLogger(loggerContext);
     }
@@ -84,8 +84,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
 
     private Logger getLoggerContextLogger() {
-        Logger logger = loggerContext.getLogger(getClass().getName());
-        return logger;
+        return loggerContext.getLogger(getClass().getName());
     }
 
 
@@ -155,11 +154,11 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     }
 
 
-    private void bindPLoggerFactory(PluginLoggerBinder binder) {
+    private void bindPluginLogFactory(PluginLoggerBinder binder) {
         final String binderClassName = binder.getClass().getName();
         PluginLogger pluginLogger = binder.getLogger(binder.getClass().getName());
-        pluginLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
-        // Set binder to static LoggerFactory
+        pluginLogger.info("PluginLogManager.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
+        // Set binder to static PluginLogManager
         // Should we unset binder at shutdown hook or stop()?
         PluginLogManager.initialize(binder);
     }
