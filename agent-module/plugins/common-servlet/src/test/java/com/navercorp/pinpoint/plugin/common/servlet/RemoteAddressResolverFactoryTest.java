@@ -31,13 +31,14 @@ import static org.mockito.Mockito.when;
  * @author Woonduk Kang(emeroad)
  */
 public class RemoteAddressResolverFactoryTest {
+    public static final String FORWARDED = "forwarded";
     public static final String X_FORWARDED_FOR = "x-forwarded-for";
     public static final String UNKNOWN = "unknown";
 
     @Test
     public void getRemoteAddress0() throws Exception {
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
-        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, "x-forwarded-for", "unknown");
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, X_FORWARDED_FOR, UNKNOWN);
         final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         when(httpServletRequest.getHeader(X_FORWARDED_FOR)).thenReturn("127.0.0.1");
 
@@ -49,7 +50,7 @@ public class RemoteAddressResolverFactoryTest {
     @Test
     public void getRemoteAddress1() throws Exception {
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
-        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, "x-forwarded-for", "unknown");
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, X_FORWARDED_FOR, UNKNOWN);
         final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         when(httpServletRequest.getHeader(X_FORWARDED_FOR)).thenReturn("127.0.0.1, proxy1, proxy2");
 
@@ -61,11 +62,76 @@ public class RemoteAddressResolverFactoryTest {
     @Test
     public void getRemoteAddress2() throws Exception {
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
-        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, "x-forwarded-for", "unknown");
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, X_FORWARDED_FOR, UNKNOWN);
         final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
         when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.2");
 
         assertEquals("127.0.0.2", requestAdaptor.getRemoteAddress(httpServletRequest));
+    }
+
+    @Test
+    public void getRemoteAddress3() throws Exception {
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, FORWARDED, UNKNOWN);
+        final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader(FORWARDED)).thenReturn("for=\"_gazonk\"");
+
+        when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.2");
+
+        assertEquals("_gazonk", requestAdaptor.getRemoteAddress(httpServletRequest));
+    }
+
+    @Test
+    public void getRemoteAddress4() throws Exception {
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, FORWARDED, UNKNOWN);
+        final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader(FORWARDED)).thenReturn("For=\"[2001:db8:cafe::17]:4711\"");
+
+        when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.2");
+
+        assertEquals("[2001:db8:cafe::17]", requestAdaptor.getRemoteAddress(httpServletRequest));
+    }
+
+    @Test
+    public void getRemoteAddress5() throws Exception {
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, FORWARDED, UNKNOWN);
+        final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader(FORWARDED)).thenReturn("for=192.0.2.60;proto=http;by=203.0.113.43");
+
+        when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.2");
+
+        assertEquals("192.0.2.60", requestAdaptor.getRemoteAddress(httpServletRequest));
+    }
+
+    @Test
+    public void getRemoteAddress6() throws Exception {
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, FORWARDED, UNKNOWN);
+        final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader(FORWARDED)).thenReturn("for=192.0.2.43, for=198.51.100.17");
+
+        when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.2");
+
+        assertEquals("192.0.2.43", requestAdaptor.getRemoteAddress(httpServletRequest));
+    }
+
+    @Test
+    public void getRemoteAddress7() throws Exception {
+        RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, FORWARDED, UNKNOWN);
+        final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader(FORWARDED)).thenReturn("for=192.0.2.43,for=198.51.100.17");
+
+        when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.2");
+
+        assertEquals("192.0.2.43", requestAdaptor.getRemoteAddress(httpServletRequest));
     }
 }
