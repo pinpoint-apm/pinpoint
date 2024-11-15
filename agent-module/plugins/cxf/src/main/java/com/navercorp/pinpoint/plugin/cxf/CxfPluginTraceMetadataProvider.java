@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  */
 public class CxfPluginTraceMetadataProvider implements TraceMetadataProvider {
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(CxfPluginConstants.CXF_CLIENT_SERVICE_TYPE);

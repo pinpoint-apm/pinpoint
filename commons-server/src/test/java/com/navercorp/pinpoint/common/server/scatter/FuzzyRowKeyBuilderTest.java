@@ -106,7 +106,7 @@ public class FuzzyRowKeyBuilderTest {
 
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
-        Filter.ReturnCode returnCode = build.filterKeyValue(keyValue);
+        Filter.ReturnCode returnCode = build.filterCell(keyValue);
         Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
     }
 

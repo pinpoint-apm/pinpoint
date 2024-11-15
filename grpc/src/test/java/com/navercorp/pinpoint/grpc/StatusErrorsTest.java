@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author jaehong.kim
  */
+@SuppressWarnings("deprecation")
 public class StatusErrorsTest {
     private final Logger logger = LogManager.getLogger(getClass());
 

@@ -22,8 +22,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.streams.errors.StreamsException;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.kafka.KafkaContainer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,21 +46,19 @@ public class KafkaStreamsUnitServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"));
+        container = new KafkaContainer("apache/kafka:3.8.1");
 
         container.start();
-        int port = container.getFirstMappedPort();
 
-        String brokerUrl = "localhost:" + port;
+        String brokerUrl = container.getBootstrapServers();
 
         createTopics(brokerUrl);
 
         TEST_STREAM = new TestStream(brokerUrl);
         TEST_STREAM.start();
-        System.out.println();
 
         Properties properties = new Properties();
-        properties.setProperty("PORT", String.valueOf(port));
+        properties.setProperty("BROKER_URL", brokerUrl);
         System.getProperties().putAll(properties);
         return properties;
     }
@@ -74,7 +71,9 @@ public class KafkaStreamsUnitServer implements SharedTestLifeCycle {
         Map<String, Object> config = new HashMap<>();
         config.put("bootstrap.servers", brokerUrl);
 
-        AdminClient.create(config).createTopics(toCreate);
+        try (AdminClient adminClient = AdminClient.create(config)) {
+            adminClient.createTopics(toCreate);
+        }
     }
 
     @Override
@@ -82,7 +81,7 @@ public class KafkaStreamsUnitServer implements SharedTestLifeCycle {
         if (TEST_STREAM != null) {
             try {
                 TEST_STREAM.shutdown();
-            } catch (StreamsException e) {
+            } catch (StreamsException ignore) {
             }
         }
 

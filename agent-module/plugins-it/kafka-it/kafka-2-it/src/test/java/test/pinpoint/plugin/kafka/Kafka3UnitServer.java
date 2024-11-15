@@ -21,8 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.kafka.KafkaContainer;
 
 import java.util.Properties;
 
@@ -41,17 +40,16 @@ public class Kafka3UnitServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"));
+        container = new KafkaContainer("apache/kafka:3.8.1");
 
         container.start();
-        int port = container.getFirstMappedPort();
 
-        String brokerUrl = "localhost:" + port;
+        String brokerUrl = container.getBootstrapServers();
         TEST_CONSUMER = new TestConsumer(OFFSET_STORE, brokerUrl);
         TEST_CONSUMER.start();
 
         Properties properties = new Properties();
-        properties.setProperty("PORT", String.valueOf(port));
+        properties.setProperty("BROKER_URL", brokerUrl);
         properties.setProperty("OFFSET", String.valueOf(OFFSET_STORE.getOffset()));
         System.getProperties().putAll(properties);
         return properties;

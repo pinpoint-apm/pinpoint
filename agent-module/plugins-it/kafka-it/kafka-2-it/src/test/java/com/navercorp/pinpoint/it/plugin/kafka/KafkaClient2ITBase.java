@@ -27,7 +27,6 @@ public abstract class KafkaClient2ITBase {
     protected static final Logger logger = LogManager.getLogger(KafkaClient2ITBase.class);
 
     static String brokerUrl;
-    static int PORT;
     static long offset;
 
     @SharedTestBeforeAllResult
@@ -36,13 +35,8 @@ public abstract class KafkaClient2ITBase {
 
     @BeforeAll
     public static void beforeAll() {
-        PORT = Integer.parseInt(System.getProperty("PORT"));
-        brokerUrl = "localhost:" + PORT;
+        brokerUrl = System.getProperty("BROKER_URL");
         offset = Long.parseLong(System.getProperty("OFFSET"));
-    }
-
-    public static int getPort() {
-        return PORT;
     }
 
     public static long getOffset() {

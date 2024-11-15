@@ -89,6 +89,7 @@ public class TestConsumer {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void run() {
             consumer.subscribe(Collections.singleton(TOPIC));
             consumer.poll(0);
@@ -98,7 +99,7 @@ public class TestConsumer {
             try {
                 while (true) {
                     ConsumerRecords<String, String> records = consumer.poll(1000L);
-                    if(records != null && records.count() > 0) {
+                    if (records != null && records.count() > 0) {
                         Iterator<ConsumerRecord<String, String>> iterator = records.iterator();
                         if (!iterator.hasNext()) {
                             continue;
@@ -109,7 +110,7 @@ public class TestConsumer {
                             entryPoint.consumeRecord(records);
                         } else if (traceType.equals(TRACE_TYPE_RECORD)) {
                             offsetStore.setOffset(firstRecord.offset());
-                            records.forEach(record -> entryPoint.consumeRecord(record));
+                            records.forEach(entryPoint::consumeRecord);
                         }
                     }
                 }

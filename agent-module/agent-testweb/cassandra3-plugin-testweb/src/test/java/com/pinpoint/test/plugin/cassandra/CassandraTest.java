@@ -21,23 +21,26 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.cassandra.CassandraContainer;
+
+import java.net.InetSocketAddress;
 
 public class CassandraTest {
 
-    private static CassandraContainer<?> container;
+    private static CassandraContainer container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new CassandraContainer<>("cassandra:3.11.6");
+        container = new CassandraContainer("cassandra:3.11.6");
         container.start();
 
         container.getLocalDatacenter();
-        final Integer port = container.getMappedPort(CassandraContainer.CQL_PORT);
+        InetSocketAddress contactPoint = container.getContactPoint();
+        final int port = contactPoint.getPort();
         System.out.println("##host=" + container.getHost());
-        System.out.println("##port=" + port.toString());
+        System.out.println("##port=" + port);
         System.out.println("##LocalDatacenter=" + container.getLocalDatacenter());
         System.out.println("##user=" + container.getUsername());
         System.out.println("##password=" + container.getPassword());

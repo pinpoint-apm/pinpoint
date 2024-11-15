@@ -24,7 +24,6 @@ import java.util.Properties;
 public abstract class KafkaClient3ITBase {
 
     static String brokerUrl;
-    static int PORT;
     static long offset;
 
     @SharedTestBeforeAllResult
@@ -33,13 +32,8 @@ public abstract class KafkaClient3ITBase {
 
     @BeforeAll
     public static void beforeAll() {
-        PORT = Integer.parseInt(System.getProperty("PORT"));
-        brokerUrl = "localhost:" + PORT;
+        brokerUrl = System.getProperty("BROKER_URL");
         offset = Long.parseLong(System.getProperty("OFFSET"));
-    }
-
-    public static int getPort() {
-        return PORT;
     }
 
     public static long getOffset() {

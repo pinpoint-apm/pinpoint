@@ -12,8 +12,6 @@ public abstract class KafkaStreamsIT {
     protected static final Logger logger = LogManager.getLogger(KafkaStreamsIT.class);
 
     static String brokerUrl;
-    static int PORT;
-
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
@@ -21,12 +19,7 @@ public abstract class KafkaStreamsIT {
 
     @BeforeAll
     public static void beforeAll() {
-        PORT = Integer.parseInt(System.getProperty("PORT"));
-        brokerUrl = "localhost:" + PORT;
-    }
-
-    public static int getPort() {
-        return PORT;
+        brokerUrl = System.getProperty("BROKER_URL");
     }
 
 }

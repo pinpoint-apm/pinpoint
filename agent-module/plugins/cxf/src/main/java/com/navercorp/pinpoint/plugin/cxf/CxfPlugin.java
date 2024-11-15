@@ -42,6 +42,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @version 1.8.1
  * @since 2017/10/03
  */
+@SuppressWarnings("deprecation")
 public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
