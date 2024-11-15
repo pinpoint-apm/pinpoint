@@ -275,6 +275,7 @@
         <plugin.antrun.version>3.0.0</plugin.antrun.version>
         <plugin.build-helper.version>3.4.0</plugin.build-helper.version>
         <plugin.javadoc.version>3.6.3</plugin.javadoc.version>
+        <plugin.protobuf.version>0.6.1</plugin.protobuf.version>
 
         <plugin.spotbugs.version>4.7.3.6</plugin.spotbugs.version>
         <plugin.pmd.version>3.21.2</plugin.pmd.version>
