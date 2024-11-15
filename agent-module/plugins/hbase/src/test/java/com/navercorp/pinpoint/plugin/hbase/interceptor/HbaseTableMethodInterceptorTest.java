@@ -107,6 +107,7 @@ public class HbaseTableMethodInterceptorTest {
         Assertions.assertEquals("Unknown", unknownString);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void doTestHBaseCalcSize() throws Exception {
         doReturn(new Configuration()).when(connection).getConfiguration();

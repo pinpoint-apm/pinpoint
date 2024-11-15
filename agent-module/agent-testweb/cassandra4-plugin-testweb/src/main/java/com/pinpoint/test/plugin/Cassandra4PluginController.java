@@ -21,7 +21,6 @@ import com.datastax.oss.driver.api.core.cql.BoundStatement;
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
-import com.datastax.oss.driver.api.core.cql.Statement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,7 +64,7 @@ public class Cassandra4PluginController {
         CqlSession session = CqlSession.builder().addContactPoint(new InetSocketAddress(HOST, PORT)).withLocalDatacenter(LOCAL_DATACENTER).withKeyspace(Cassandra4PluginTestConstants.TEST_KEYSPACE).build();
 
         // SimpleStatement
-        Statement statement = SimpleStatement.builder(CQL_INSERT).addPositionalValue("simple").addPositionalValue("statement").build();
+        SimpleStatement statement = SimpleStatement.builder(CQL_INSERT).addPositionalValue("simple").addPositionalValue("statement").build();
         session.execute(statement);
 
         // PreparedStatement
@@ -93,8 +92,7 @@ public class Cassandra4PluginController {
     }
 
     private CqlSession getSession() {
-        CqlSession session = CqlSession.builder().addContactPoint(new InetSocketAddress(HOST, PORT)).withLocalDatacenter(LOCAL_DATACENTER).build();
-        return session;
+        return CqlSession.builder().addContactPoint(new InetSocketAddress(HOST, PORT)).withLocalDatacenter(LOCAL_DATACENTER).build();
     }
 
     private void closeSession(CqlSession session) {

@@ -5,8 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.cassandra.CassandraContainer;
 
+import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -15,7 +16,7 @@ public class CassandraServer implements SharedTestLifeCycle {
 
     private final String dockerImageVersion;
 
-    public CassandraContainer<?> cassandra;
+    public CassandraContainer cassandra;
 
     public CassandraServer(String dockerImageVersion) {
         this.dockerImageVersion = Objects.requireNonNull(dockerImageVersion, "dockerImageVersion");
@@ -25,13 +26,14 @@ public class CassandraServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        cassandra = new CassandraContainer<>(dockerImageVersion);
+        cassandra = new CassandraContainer(dockerImageVersion);
         cassandra.withInitScript("cassandra-init.sql");
         cassandra.start();
 
-        final Integer port = cassandra.getMappedPort(CassandraContainer.CQL_PORT);
+        InetSocketAddress contactPoint = cassandra.getContactPoint();
         Properties properties = new Properties();
-        properties.setProperty("PORT", port.toString());
+        properties.setProperty("PORT", String.valueOf(contactPoint.getPort()));
+
         System.getProperties().putAll(properties);
 
         return properties;

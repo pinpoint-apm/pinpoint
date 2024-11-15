@@ -1,37 +1,27 @@
 package com.pinpoint.test.plugin.kafka;
 
-
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.kafka.KafkaContainer;
 
 public class KafkaTest {
+    @AutoClose
     private static KafkaContainer container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"));
-
+        container = new KafkaContainer("apache/kafka:3.8.1");
         container.start();
-        final String bootstrapServers = container.getBootstrapServers();
-        final int port = container.getFirstMappedPort();
-    }
-
-    @AfterAll
-    public static void afterClass() {
-        if (container != null) {
-            container.stop();
-        }
     }
 
     @Test
     public void test() throws Exception {
-        System.out.println("TEST");
+        String bootstrapServers = container.getBootstrapServers();
+        System.out.println("Kafka bootstrapServers:" + bootstrapServers);
     }
 }

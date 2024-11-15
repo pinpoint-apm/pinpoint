@@ -33,6 +33,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author barney
  */
+@SuppressWarnings("deprecation")
 @ExtendWith(MockitoExtension.class)
 public class CxfClientInvokeSyncMethodInterceptorTest {
 
