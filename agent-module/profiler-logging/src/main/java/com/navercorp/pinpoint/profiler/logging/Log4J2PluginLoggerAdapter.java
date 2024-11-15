@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.logging;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 
@@ -25,8 +25,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-@SuppressWarnings("deprecation")
-public class Log4J2PluginLoggerAdapter extends AbstractLoggerAdapter implements PLogger {
+public class Log4J2PluginLoggerAdapter extends AbstractLoggerAdapter implements PluginLogger {
 
     private final Logger logger;
     private final boolean isDebug;

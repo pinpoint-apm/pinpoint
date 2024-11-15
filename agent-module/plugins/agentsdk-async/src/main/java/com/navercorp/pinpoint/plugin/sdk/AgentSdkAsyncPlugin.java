@@ -122,7 +122,6 @@ public class AgentSdkAsyncPlugin implements ProfilerPlugin, TransformTemplateAwa
     }
 
     public static class ExecutorExecuteTransformCallback implements TransformCallback {
-//        private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
