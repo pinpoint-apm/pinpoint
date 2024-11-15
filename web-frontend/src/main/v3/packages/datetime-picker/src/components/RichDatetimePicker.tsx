@@ -157,7 +157,6 @@ export const RichDatetimePicker = ({
         }),
         dateInput,
       );
-      setDisplayInput(dateInput);
       setOpen(false);
     }
   };

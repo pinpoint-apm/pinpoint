@@ -7,7 +7,7 @@ import { RichDatetimePicker, RichDatetimePickerProps } from '@pinpoint-fe/dateti
 import Marquee from 'react-fast-marquee';
 
 import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
-import { getParsedDateRange, isValidDateRange } from '@pinpoint-fe/utils';
+import { getFormattedDateRange, getParsedDateRange, isValidDateRange } from '@pinpoint-fe/utils';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 import { toast } from '../Toast';
@@ -129,7 +129,21 @@ export const DatetimePicker = React.memo(
               displayedInput={input}
               onChange={(dateRange, text = '') => {
                 if (dateRange[0] && dateRange[1]) {
-                  handleChange?.(genDateState(dateRange[0], dateRange[1]), text);
+                  const isWithinMaxRange = isValidDateRange(maxDateRangeDays)({
+                    from: dateRange[0],
+                    to: dateRange[1],
+                  });
+                  if (isWithinMaxRange) {
+                    handleChange?.(genDateState(dateRange[0], dateRange[1]), text);
+                  } else {
+                    toast.warn(outOfDateRangeMessage);
+                    const prarsedPrevDate = getParsedDateRange({ from, to }, () => true);
+                    const formattedDateRange = getFormattedDateRange({
+                      from: prarsedPrevDate.from,
+                      to: prarsedPrevDate.to,
+                    });
+                    setInput(`${formattedDateRange.from} ~ ${formattedDateRange.to}`);
+                  }
                 }
               }}
               customTimes={{
