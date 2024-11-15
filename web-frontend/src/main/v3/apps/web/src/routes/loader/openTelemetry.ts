@@ -11,7 +11,7 @@ export const openTelemetryRouteLoader = ({ params, request }: LoaderFunctionArgs
   const application = getApplicationTypeAndName(params.application!);
 
   if (application?.applicationName && application.serviceType) {
-    const basePath = `${APP_PATH.OPEN_TELEMETRY}/${params.application}`;
+    const basePath = `${APP_PATH.OPEN_TELEMETRY_METRIC}/${params.application}`;
     const queryParam = Object.fromEntries(new URL(request.url).searchParams);
     const conditions = Object.keys(queryParam);
 
