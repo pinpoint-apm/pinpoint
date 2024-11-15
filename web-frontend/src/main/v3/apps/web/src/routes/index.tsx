@@ -128,7 +128,7 @@ const router = createBrowserRouter(
       loader: threadDumpRouteLoader,
     },
     {
-      path: `${APP_PATH.OPEN_TELEMETRY}/:application?`,
+      path: `${APP_PATH.OPEN_TELEMETRY_METRIC}/:application?`,
       element: <OpenTelemetry />,
       loader: openTelemetryRouteLoader,
     },
