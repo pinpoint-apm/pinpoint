@@ -11,6 +11,7 @@ export const APP_PATH = {
   CONFIG_USERS: '/config/users',
   CONFIG_WEBHOOK: '/config/webhook',
   CONFIG_AGENT_MANAGEMENT: '/config/agentManagement',
+  CONFIG_AGENT_STATISTIC: '/config/agentStatistic',
   CONFIG: '/config',
   ERROR_ANALYSIS: '/errorAnalysis',
   FILTERED_MAP: '/filteredMap',

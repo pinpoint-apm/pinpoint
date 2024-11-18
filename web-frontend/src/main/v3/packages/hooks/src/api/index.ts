@@ -4,6 +4,7 @@ export * from './useAdmin';
 export * from './useAlarmRuleMutation';
 export * from './useAlarmRuleQuery';
 export * from './useAgentsSearchApplication';
+export * from './useAgentsStatistics';
 export * from './useConfigUsers';
 export * from './useDeleteConfigGroupMember';
 export * from './useDeleteConfigUserGroup';
