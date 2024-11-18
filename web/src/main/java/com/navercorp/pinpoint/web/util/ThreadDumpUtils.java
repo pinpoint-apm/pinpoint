@@ -41,7 +41,8 @@ public final class ThreadDumpUtils {
         TThreadState threadState = getThreadState(threadDump.getThreadState());
 
         // set threadName
-        StringBuilder message = new StringBuilder("\"" + threadDump.getThreadName() + "\"");
+        StringBuilder message = new StringBuilder(64);
+        message.append("\"").append(threadDump.getThreadName()).append("\"");
 
         // set threadId
         String hexStringThreadId = Long.toHexString(threadDump.getThreadId());
@@ -69,17 +70,17 @@ public final class ThreadDumpUtils {
         // set StackTrace
         for (int i = 0; i < threadDump.getStackTraceSize(); i++) {
             String stackTrace = threadDump.getStackTrace().get(i);
-            message.append(TAB_SEPARATOR + "at ").append(stackTrace);
+            message.append(TAB_SEPARATOR).append("at ").append(stackTrace);
             message.append(LINE_SEPARATOR);
 
             if (i == 0 && !StringUtils.isBlank(threadDump.getLockName())) {
                 switch (threadState) {
                     case BLOCKED -> {
-                        message.append(TAB_SEPARATOR + "-  blocked on ").append(threadDump.getLockName());
+                        message.append(TAB_SEPARATOR).append("-  blocked on ").append(threadDump.getLockName());
                         message.append(LINE_SEPARATOR);
                     }
                     case WAITING, TIMED_WAITING -> {
-                        message.append(TAB_SEPARATOR + "-  waiting on ").append(threadDump.getLockName());
+                        message.append(TAB_SEPARATOR).append("-  waiting on ").append(threadDump.getLockName());
                         message.append(LINE_SEPARATOR);
                     }
                 }
@@ -88,7 +89,7 @@ public final class ThreadDumpUtils {
             if (threadDump.getLockedMonitors() != null) {
                 for (TMonitorInfo lockedMonitor : threadDump.getLockedMonitors()) {
                     if (lockedMonitor.getStackDepth() == i) {
-                        message.append(TAB_SEPARATOR + "-  locked ").append(lockedMonitor.getStackFrame());
+                        message.append(TAB_SEPARATOR).append("-  locked ").append(lockedMonitor.getStackFrame());
                         message.append(LINE_SEPARATOR);
                     }
                 }
@@ -101,7 +102,7 @@ public final class ThreadDumpUtils {
             message.append(LINE_SEPARATOR).append(TAB_SEPARATOR).append("Number of locked synchronizers = ").append(lockedSynchronizers.size());
             message.append(LINE_SEPARATOR);
             for (String lockedSynchronizer : lockedSynchronizers) {
-                message.append(TAB_SEPARATOR + "- ").append(lockedSynchronizer);
+                message.append(TAB_SEPARATOR).append("- ").append(lockedSynchronizer);
                 message.append(LINE_SEPARATOR);
             }
         }
@@ -114,7 +115,8 @@ public final class ThreadDumpUtils {
         ThreadState threadState = getThreadState(threadDump.getThreadState());
 
         // set threadName
-        StringBuilder message = new StringBuilder("\"" + threadDump.getThreadName() + "\"");
+        StringBuilder message = new StringBuilder(64);
+        message.append("\"").append(threadDump.getThreadName()).append("\"");
 
         // set threadId
         String hexStringThreadId = Long.toHexString(threadDump.getThreadId());
@@ -140,19 +142,20 @@ public final class ThreadDumpUtils {
         message.append(LINE_SEPARATOR);
 
         // set StackTrace
-        for (int i = 0; i < threadDump.getStackTraceList().size(); i++) {
-            String stackTrace = threadDump.getStackTraceList().get(i);
-            message.append(TAB_SEPARATOR + "at ").append(stackTrace);
+        final List<String> stackTraceList = threadDump.getStackTraceList();
+        for (int i = 0; i < stackTraceList.size(); i++) {
+            String stackTrace = stackTraceList.get(i);
+            message.append(TAB_SEPARATOR).append("at ").append(stackTrace);
             message.append(LINE_SEPARATOR);
 
             if (i == 0 && !StringUtils.isBlank(threadDump.getLockName())) {
                 switch (threadState) {
                     case BLOCKED -> {
-                        message.append(TAB_SEPARATOR + "-  blocked on ").append(threadDump.getLockName());
+                        message.append(TAB_SEPARATOR).append("-  blocked on ").append(threadDump.getLockName());
                         message.append(LINE_SEPARATOR);
                     }
                     case WAITING, TIMED_WAITING -> {
-                        message.append(TAB_SEPARATOR + "-  waiting on ").append(threadDump.getLockName());
+                        message.append(TAB_SEPARATOR).append("-  waiting on ").append(threadDump.getLockName());
                         message.append(LINE_SEPARATOR);
                     }
                     default -> {
@@ -162,7 +165,7 @@ public final class ThreadDumpUtils {
 
             for (MonitorInfoBo lockedMonitor : threadDump.getLockedMonitorInfoList()) {
                 if (lockedMonitor.getStackDepth() == i) {
-                    message.append(TAB_SEPARATOR + "-  locked ").append(lockedMonitor.getStackFrame());
+                    message.append(TAB_SEPARATOR).append("-  locked ").append(lockedMonitor.getStackFrame());
                     message.append(LINE_SEPARATOR);
                 }
             }
@@ -174,7 +177,7 @@ public final class ThreadDumpUtils {
             message.append(LINE_SEPARATOR).append(TAB_SEPARATOR).append("Number of locked synchronizers = ").append(lockedSynchronizers.size());
             message.append(LINE_SEPARATOR);
             for (String lockedSynchronizer : lockedSynchronizers) {
-                message.append(TAB_SEPARATOR + "- ").append(lockedSynchronizer);
+                message.append(TAB_SEPARATOR).append("- ").append(lockedSynchronizer);
                 message.append(LINE_SEPARATOR);
             }
         }

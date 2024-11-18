@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.web.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -54,18 +53,22 @@ public class AgentEventSerializer extends JsonSerializer<AgentEvent> {
         final Object eventMessage = agentEvent.getEventMessage();
         if (eventMessage != null) {
             if (eventMessage instanceof DeadlockBo deadlock) {
-                final StringBuilder message = new StringBuilder();
-                final List<ThreadDumpBo> threadDumpBoList = deadlock.getThreadDumpBoList();
-                for (ThreadDumpBo threadDump : threadDumpBoList) {
-                    message.append(ThreadDumpUtils.createDumpMessage(threadDump));
-                }
-                jgen.writeObjectField("eventMessage", message.toString());
+                final String deadLockEvent = deadLockEvent(deadlock);
+                jgen.writeObjectField("eventMessage", deadLockEvent);
             } else {
                 jgen.writeObjectField("eventMessage", eventMessage);
             }
         }
 
         jgen.writeEndObject();
+    }
+
+    private String deadLockEvent(DeadlockBo deadlock) {
+        final StringBuilder message = new StringBuilder(128);
+        for (ThreadDumpBo threadDump : deadlock.getThreadDumpBoList()) {
+            message.append(ThreadDumpUtils.createDumpMessage(threadDump));
+        }
+        return message.toString();
     }
 
 }
