@@ -28,8 +28,8 @@ public class CLPMapper {
     public final static char DICTIONARY_VARIABLE_VALUE = '\u0011';
     public final static char NON_DICTIONARY_VALUE = '\u0012';
 
-    public final static String DICTIONARY_REPLACEMENT = "▨▨▨";
-    public final static String NON_DICTIONARY_REPLACEMENT = "▧▧▧";
+    public final static String DICTIONARY_REPLACEMENT = "<replaced>";
+    public final static String NON_DICTIONARY_REPLACEMENT = "<replaced>";
 
     static String makeReadableString(String encodedLogType) {
         byte[] encodedLogTypeBytes = encodedLogType.getBytes(StandardCharsets.ISO_8859_1);
