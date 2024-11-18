@@ -21,8 +21,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import com.navercorp.pinpoint.web.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 
@@ -53,20 +51,9 @@ public class AgentEventSerializer extends JsonSerializer<AgentEvent> {
 
         jgen.writeBooleanField("hasEventMessage", agentEvent.hasEventMessage());
 
-        if (agentEvent.getEventMessage() != null) {
-            Object eventMessage = agentEvent.getEventMessage();
-
-            if (eventMessage instanceof TDeadlock deadlock) {
-                StringBuilder message = new StringBuilder();
-
-                List<TThreadDump> deadlockedThreadList = deadlock.getDeadlockedThreadList();
-
-                for (TThreadDump threadDump : deadlockedThreadList) {
-                    message.append(ThreadDumpUtils.createDumpMessage(threadDump));
-                }
-
-                jgen.writeObjectField("eventMessage", message.toString());
-            } else if (eventMessage instanceof DeadlockBo deadlock) {
+        final Object eventMessage = agentEvent.getEventMessage();
+        if (eventMessage != null) {
+            if (eventMessage instanceof DeadlockBo deadlock) {
                 final StringBuilder message = new StringBuilder();
                 final List<ThreadDumpBo> threadDumpBoList = deadlock.getThreadDumpBoList();
                 for (ThreadDumpBo threadDump : threadDumpBoList) {

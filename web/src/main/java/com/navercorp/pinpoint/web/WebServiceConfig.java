@@ -16,8 +16,6 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
-import com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
@@ -29,8 +27,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-
-import java.util.List;
 
 /**
  * @author youngjin.kim2
@@ -64,11 +60,5 @@ public class WebServiceConfig {
             return CommandHeaderTBaseDeserializerFactory.getDefaultInstance();
         }
 
-        @Bean
-        public AgentEventMessageDeserializer agentEventMessageDeserializer() {
-            DeserializerFactory<HeaderTBaseDeserializer> factory1 = commandHeaderTBaseDeserializerFactory();
-            DeserializerFactory<HeaderTBaseDeserializer> factory2 = new AgentEventHeaderTBaseDeserializerFactory();
-            return new AgentEventMessageDeserializer(List.of(factory1, factory2));
-        }
     }
 }

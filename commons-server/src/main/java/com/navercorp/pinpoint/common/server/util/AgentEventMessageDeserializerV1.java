@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.server.bo.event.MonitorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 import com.navercorp.pinpoint.common.server.bo.event.ThreadState;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class AgentEventMessageDeserializerV1 {
             return null;
         }
 
-        if (TDeadlock.class.isAssignableFrom(eventMessageType)) {
+        if (DeadlockBo.class.isAssignableFrom(eventMessageType)) {
             return deserializeDeadlockBo(eventBody);
         } else if (String.class.isAssignableFrom(eventMessageType)) {
             return BytesUtils.toString(eventBody);

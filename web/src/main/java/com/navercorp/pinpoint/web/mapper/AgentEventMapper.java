@@ -39,6 +39,7 @@ import java.util.List;
 public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<AgentEventBo> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
@@ -57,7 +58,7 @@ public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
 
             final int version = buffer.readInt();
             switch (version) {
-                case 0, 1 -> {
+                case AgentEventBo.LEGACY_VERSION, AgentEventBo.CURRENT_VERSION -> {
                     final String agentId = buffer.readPrefixedString();
                     final long startTimestamp = buffer.readLong();
                     final long eventTimestamp = buffer.readLong();
