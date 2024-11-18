@@ -27,6 +27,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Properties;
@@ -89,16 +90,15 @@ public class TestConsumer {
         }
 
         @Override
-        @SuppressWarnings("deprecation")
         public void run() {
             consumer.subscribe(Collections.singleton(TOPIC));
-            consumer.poll(0);
+            consumer.poll(Duration.ZERO);
             consumer.seekToBeginning(Collections.singleton(new TopicPartition(TOPIC, PARTITION)));
             TestConsumerRecordEntryPoint entryPoint = new TestConsumerRecordEntryPoint();
 
             try {
                 while (true) {
-                    ConsumerRecords<String, String> records = consumer.poll(1000L);
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
                     if (records != null && records.count() > 0) {
                         Iterator<ConsumerRecord<String, String>> iterator = records.iterator();
                         if (!iterator.hasNext()) {

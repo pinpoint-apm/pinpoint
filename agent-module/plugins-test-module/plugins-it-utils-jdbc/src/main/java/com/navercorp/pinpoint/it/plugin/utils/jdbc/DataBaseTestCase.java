@@ -84,7 +84,7 @@ public abstract class DataBaseTestCase {
 
         try {
             JDBCDriverClass jdbcDriverClass = getJDBCDriverClass();
-            Driver driver = jdbcDriverClass.getDriver().newInstance();
+            Driver driver = jdbcDriverClass.getDriver().getConstructor().newInstance();
             DriverManager.registerDriver(driver);
         } catch (Exception e) {
             throw new RuntimeException("driver register error", e);

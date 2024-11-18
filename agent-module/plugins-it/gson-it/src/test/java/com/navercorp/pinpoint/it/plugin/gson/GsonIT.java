@@ -208,6 +208,6 @@ public class GsonIT {
     }
 
     private JsonElement getParseElements() {
-        return new JsonParser().parse(json);
+        return JsonParser.parseString(json);
     }
 }

@@ -44,7 +44,12 @@ public class VertxHttpClientRequestWrapper implements ClientRequestWrapper {
 
     @Override
     public String getUrl() {
-        return getHttpUrl(this.host, this.httpRequest.uri());
+        return getHttpUrl(this.host, getUri());
+    }
+
+    @SuppressWarnings("deprecation")
+    private String getUri() {
+        return this.httpRequest.getUri();
     }
 
     private static String getHttpUrl(final String host, final String uri) {

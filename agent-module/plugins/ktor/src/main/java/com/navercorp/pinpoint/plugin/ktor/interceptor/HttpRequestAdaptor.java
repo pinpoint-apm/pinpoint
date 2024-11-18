@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -59,11 +60,7 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpRequestAndContext>
             if (CollectionUtils.isEmpty(headerNames)) {
                 return Collections.emptyList();
             }
-            Set<String> values = new HashSet<>(headerNames.size());
-            for (String headerName : headerNames) {
-                values.add(headerName);
-            }
-            return values;
+            return new HashSet<>(headerNames);
         } catch (Exception ignored) {
         }
         return Collections.emptyList();
@@ -72,7 +69,9 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpRequestAndContext>
     @Override
     public String getRpcName(HttpRequestAndContext httpRequestAndContext) {
         try {
-            return UriUtils.path(httpRequestAndContext.getHttpRequest().uri());
+            @SuppressWarnings("deprecation")
+            String uri = httpRequestAndContext.getHttpRequest().getUri();
+            return UriUtils.path(uri);
         } catch (Exception ignored) {
         }
         return null;
@@ -81,7 +80,9 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpRequestAndContext>
     @Override
     public String getMethodName(HttpRequestAndContext httpRequestAndContext) {
         try {
-            return httpRequestAndContext.getHttpRequest().method().name();
+            @SuppressWarnings("deprecation")
+            HttpMethod method = httpRequestAndContext.getHttpRequest().getMethod();
+            return method.name();
         } catch (Exception ignored) {
         }
         return null;

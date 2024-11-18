@@ -16,8 +16,8 @@
 
 package com.pinpoint.test.plugin.cassandra;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
@@ -27,6 +27,7 @@ import java.net.InetSocketAddress;
 
 public class CassandraTest {
 
+    @AutoClose
     private static CassandraContainer container;
 
     @BeforeAll
@@ -38,23 +39,15 @@ public class CassandraTest {
 
         container.getLocalDatacenter();
         InetSocketAddress contactPoint = container.getContactPoint();
-        final int port = contactPoint.getPort();
-        System.out.println("##host=" + container.getHost());
-        System.out.println("##port=" + port);
+        System.out.println("##contactPoint=" + contactPoint);
         System.out.println("##LocalDatacenter=" + container.getLocalDatacenter());
         System.out.println("##user=" + container.getUsername());
         System.out.println("##password=" + container.getPassword());
     }
 
-    @AfterAll
-    public static void afterClass() {
-        if (container != null) {
-            container.stop();
-        }
-    }
 
     @Test
-    public void test() throws Exception {
-        System.out.println("TEST");
+    public void test() {
+        System.out.println("TEST " + container.getContactPoint());
     }
 }

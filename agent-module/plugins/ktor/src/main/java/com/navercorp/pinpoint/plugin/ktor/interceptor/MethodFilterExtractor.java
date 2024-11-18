@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.ktor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterExtractor;
+import io.netty.handler.codec.http.HttpMethod;
 
 public class MethodFilterExtractor implements ParameterExtractor<HttpRequestAndContext> {
 
@@ -32,7 +33,9 @@ public class MethodFilterExtractor implements ParameterExtractor<HttpRequestAndC
 
     @Override
     public String extractParameter(HttpRequestAndContext httpRequestAndContext) {
-        if (excludeProfileMethodFilter.filter(httpRequestAndContext.getHttpRequest().method().name())) {
+        @SuppressWarnings("deprecation")
+        HttpMethod method = httpRequestAndContext.getHttpRequest().getMethod();
+        if (excludeProfileMethodFilter.filter(method.name())) {
             return null;
         }
         return delegate.extractParameter(httpRequestAndContext);

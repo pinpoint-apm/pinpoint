@@ -21,12 +21,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
 import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -49,7 +50,7 @@ public class HttpClient3EntityExtractor implements EntityExtractor<HttpMethod> {
                 try {
                     String entityValue;
                     String charSet = entityEnclosingMethod.getRequestCharSet();
-                    charSet = StringUtils.defaultIfEmpty(charSet, HttpConstants.DEFAULT_CONTENT_CHARSET);
+                    charSet = StringUtils.defaultIfEmpty(charSet, StandardCharsets.ISO_8859_1.name());
 
                     if (entity instanceof ByteArrayRequestEntity || entity instanceof StringRequestEntity) {
                         entityValue = entityUtilsToString(entity, charSet);
@@ -72,12 +73,10 @@ public class HttpClient3EntityExtractor implements EntityExtractor<HttpMethod> {
         entity.writeRequest(outStream);
         final String entityValue = outStream.toString(charSet);
         if (entity.getContentLength() > MAX_READ_SIZE) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(entityValue);
-            sb.append(" (HTTP entity is large. length: ");
-            sb.append(entity.getContentLength());
-            sb.append(" )");
-            return sb.toString();
+            return entityValue +
+                    " (HTTP entity is large. length: " +
+                    entity.getContentLength() +
+                    " )";
         }
 
         return entityValue;
