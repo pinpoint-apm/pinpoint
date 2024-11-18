@@ -117,7 +117,7 @@ public abstract class ActiveMQClientITBase {
         verifyConsumerConsumeEvent(verifier, testQueue, consumerSession);
 
         // Separate transaction for the consumer's request to receive the message
-        verifier.verifyTrace(root(STAND_ALONE, "Entry Point Process", null, null, null, null));
+        verifier.verifyTrace(root(STAND_ALONE, "Entry Point Process", null, null, null));
         Method receiveMessageMethod = MessageReceiver.class.getDeclaredMethod("receiveMessage", long.class);
         verifier.verifyTrace(event(INTERNAL_METHOD, receiveMessageMethod));
         Method receiveMethod = ActiveMQMessageConsumer.class.getDeclaredMethod("receive", long.class);
@@ -293,7 +293,7 @@ public abstract class ActiveMQClientITBase {
         Method printMessageMethod = MessagePrinter.class.getDeclaredMethod("printMessage", Message.class);
         for (int i = 0; i < 2; ++i) {
             verifier.verifyDiscreteTrace(
-                    root(STAND_ALONE, "Entry Point Process", null, null, null, null),
+                    root(STAND_ALONE, "Entry Point Process", null, null, null),
                     event(INTERNAL_METHOD, receiveMessageMethod),
                     event(ACTIVEMQ_CLIENT_INTERNAL, receiveMethod, annotation("activemq.message", getMessageAsString(expectedTextMessage))),
                     event(INTERNAL_METHOD, printMessageMethod));

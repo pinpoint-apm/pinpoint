@@ -99,7 +99,7 @@ public class NettyIT {
 //            verifier.verifyTrace(event("NETTY_HTTP", "io.netty.handler.codec.http.HttpObjectEncoder.encode(io.netty.channel.ChannelHandlerContext, java.lang.Object, java.util.List)", annotation("http.url", "/")));
         } finally {
             channel.close().sync();
-            workerGroup.shutdown();
+            workerGroup.shutdownGracefully().sync();
         }
     }
 
@@ -148,7 +148,7 @@ public class NettyIT {
 //            verifier.verifyTrace(event("NETTY_HTTP", "io.netty.handler.codec.http.HttpObjectEncoder.encode(io.netty.channel.ChannelHandlerContext, java.lang.Object, java.util.List)", annotation("http.url", "/")));
         } finally {
             channel.close().sync();
-            workerGroup.shutdown();
+            workerGroup.shutdownGracefully().sync();
         }
     }
 

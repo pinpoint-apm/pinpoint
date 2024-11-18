@@ -32,7 +32,7 @@ public class CassandraServer implements SharedTestLifeCycle {
         cassandra.start();
 
         InetSocketAddress contactPoint = cassandra.getContactPoint();
-        try (Cluster cluster = newCluster("127.0.0.1", contactPoint.getPort())) {
+        try (Cluster cluster = newCluster(contactPoint.getHostName(), contactPoint.getPort())) {
             init(cluster);
         }
 

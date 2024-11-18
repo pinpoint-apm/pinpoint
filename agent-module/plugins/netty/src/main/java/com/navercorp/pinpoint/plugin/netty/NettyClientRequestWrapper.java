@@ -49,6 +49,7 @@ public class NettyClientRequestWrapper implements ClientRequestWrapper {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public String getUrl() {
         if (this.httpMessage instanceof HttpRequest) {
             return ((HttpRequest) httpMessage).getUri();

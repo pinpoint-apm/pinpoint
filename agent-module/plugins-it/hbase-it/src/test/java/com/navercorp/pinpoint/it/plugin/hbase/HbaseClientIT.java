@@ -69,6 +69,7 @@ public class HbaseClientIT {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testAdmin() throws Exception {
 
         doReturn(new Configuration()).when(connection).getConfiguration();
@@ -92,6 +93,7 @@ public class HbaseClientIT {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testTable() throws Exception {
 
         Configuration configuration = new Configuration();

@@ -17,44 +17,40 @@
 package com.pinpoint.test.plugin.cassandra;
 
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.cassandra.CassandraContainer;
+
+import java.net.InetSocketAddress;
 
 
 public class CassandraTest {
 
-    private static CassandraContainer<?> container;
+    @AutoClose
+    private static CassandraContainer container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
 
-        container = new CassandraContainer<>("cassandra:3.11.6");
+        container = new CassandraContainer("cassandra:3.11.6");
         container.start();
 
         container.getLocalDatacenter();
-        final Integer port = container.getMappedPort(CassandraContainer.CQL_PORT);
-        System.out.println("##host=" + container.getHost());
-        System.out.println("##port=" + port.toString());
+        InetSocketAddress contactPoint = container.getContactPoint();
+        System.out.println("##contactPoint=" + contactPoint);
         System.out.println("##LocalDatacenter=" + container.getLocalDatacenter());
         System.out.println("##user=" + container.getUsername());
         System.out.println("##password=" + container.getPassword());
     }
 
-    @AfterAll
-    public static void afterClass() {
-        if (container != null) {
-            container.stop();
-        }
-    }
 
     @Test
-    public void test() throws Exception {
-        System.out.println("TEST");
+    public void test() {
+        System.out.println("TEST " + container.getContactPoint());
     }
 }

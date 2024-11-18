@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
-import org.apache.hc.client5.http.async.methods.SimpleHttpRequests;
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -47,7 +47,7 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
         httpClient.start();
 
         try {
-            SimpleHttpRequest request = SimpleHttpRequests.get(getAddress());
+            SimpleHttpRequest request = SimpleRequestBuilder.get().setUri(getAddress()).build();
             Future<SimpleHttpResponse> future = httpClient.execute(request, new FutureCallback<SimpleHttpResponse>() {
                 @Override
                 public void completed(SimpleHttpResponse simpleHttpResponse) {

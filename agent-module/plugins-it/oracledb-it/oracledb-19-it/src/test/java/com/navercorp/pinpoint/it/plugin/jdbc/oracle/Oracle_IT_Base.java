@@ -60,7 +60,7 @@ public abstract class Oracle_IT_Base {
 
     @BeforeEach
     public void registerDriver() throws Exception {
-        Driver driver = driverClass.getDriver().newInstance();
+        Driver driver = driverClass.getDriver().getConstructor().newInstance();
         DriverManager.registerDriver(driver);
     }
 
