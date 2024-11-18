@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
@@ -50,15 +49,11 @@ public class AgentEventServiceImpl implements AgentEventService {
 
     private final AgentEventDao agentEventDao;
 
-    private final AgentEventMessageDeserializer agentEventMessageDeserializer;
-
     private final AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1;
 
     public AgentEventServiceImpl(AgentEventDao agentEventDao,
-                                 AgentEventMessageDeserializer agentEventMessageDeserializer,
                                  AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1) {
         this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
-        this.agentEventMessageDeserializer = Objects.requireNonNull(agentEventMessageDeserializer, "agentEventMessageDeserializer");
         this.agentEventMessageDeserializerV1 = Objects.requireNonNull(agentEventMessageDeserializerV1, "agentEventMessageDeserializerV1");
     }
 
@@ -141,15 +136,17 @@ public class AgentEventServiceImpl implements AgentEventService {
         return new DurationalAgentEvent(agentEventBo);
     }
 
+    @SuppressWarnings("deprecation")
     private Object deserializeEventMessage(AgentEventBo agentEventBo) {
         try {
-            if (agentEventBo.getVersion() == 0) {
-                return this.agentEventMessageDeserializer.deserialize(agentEventBo.getEventType(), agentEventBo.getEventBody());
-            } else if (agentEventBo.getVersion() == AgentEventBo.CURRENT_VERSION) {
-                return this.agentEventMessageDeserializerV1.deserialize(agentEventBo.getEventType(), agentEventBo.getEventBody());
-            } else {
-                throw new UnsupportedEncodingException("invalid version " + agentEventBo.getVersion());
-            }
+            final int version = agentEventBo.getVersion();
+            return switch (agentEventBo.getVersion()) {
+                case AgentEventBo.LEGACY_VERSION ->
+                        throw new UnsupportedEncodingException("invalid legacy version " + version);
+                case AgentEventBo.CURRENT_VERSION ->
+                        this.agentEventMessageDeserializerV1.deserialize(agentEventBo.getEventType(), agentEventBo.getEventBody());
+                default -> throw new UnsupportedEncodingException("invalid version " + version);
+            };
         } catch (UnsupportedEncodingException e) {
             logger.warn("error deserializing event message", e);
             return null;

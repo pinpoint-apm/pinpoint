@@ -27,7 +27,8 @@ import java.util.Arrays;
  * @author jaehong.kim - Update version & Remove hashcode, equals
  */
 public class AgentEventBo {
-
+    @Deprecated
+    public static final int LEGACY_VERSION = 0;
     public static final int CURRENT_VERSION = 1;
 
     private final byte version;
