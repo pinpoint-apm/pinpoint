@@ -43,7 +43,7 @@ export const InspectorChart = ({
         </CardTitle>
       </CardHeader>
       <Separator />
-      <CardContent className="p-0 pb-1">
+      <CardContent className="p-0 pb-2">
         <ChartCore data={data} className="aspect-video" {...props} />
         {children}
       </CardContent>

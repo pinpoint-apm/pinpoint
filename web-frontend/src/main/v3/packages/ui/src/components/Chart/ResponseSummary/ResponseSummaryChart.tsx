@@ -66,6 +66,7 @@ export const ResponseSummaryChart = ({
         type: bar(),
       },
       padding: {
+        mode: 'fit',
         top: 20,
       },
       legend: {

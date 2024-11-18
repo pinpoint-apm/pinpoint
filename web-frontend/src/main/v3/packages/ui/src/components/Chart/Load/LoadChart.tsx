@@ -91,6 +91,7 @@ export const LoadChart = ({
         x: 'dates',
       },
       padding: {
+        mode: 'fit',
         top: 20,
         bottom: 10,
         right: 25,

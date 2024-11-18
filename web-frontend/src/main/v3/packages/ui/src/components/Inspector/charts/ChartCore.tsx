@@ -37,9 +37,11 @@ export const ChartCore = ({
       },
     },
     padding: {
+      mode: 'fit',
       top: DEFAULT_CHART_CONFIG.PADDING_TOP,
       bottom: DEFAULT_CHART_CONFIG.PADDING_BOTTOM,
       right: DEFAULT_CHART_CONFIG.PADDING_RIGHT,
+      left: DEFAULT_CHART_CONFIG.PADDING_LEFT,
     },
     axis: {
       x: {
