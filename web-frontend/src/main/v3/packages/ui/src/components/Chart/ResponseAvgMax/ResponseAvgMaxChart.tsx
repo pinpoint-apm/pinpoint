@@ -63,6 +63,7 @@ export const ResponseAvgMaxChart = ({
         },
       },
       padding: {
+        mode: 'fit',
         top: 20,
         right: 20, // (or 25)
       },

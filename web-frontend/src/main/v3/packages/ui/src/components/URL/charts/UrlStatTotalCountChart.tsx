@@ -56,6 +56,7 @@ export const UrlStatTotalCountChart = ({
       order: null,
     },
     padding: {
+      mode: 'fit',
       top: 20,
       bottom: 10,
       right: 25,

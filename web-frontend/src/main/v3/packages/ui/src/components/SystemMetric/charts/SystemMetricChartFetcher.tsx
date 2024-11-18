@@ -61,9 +61,11 @@ export const SystemMetricChartFetcher = ({
       type: line(),
     },
     padding: {
+      mode: 'fit',
       top: 20,
       bottom: 10,
       right: 25,
+      left: 15,
     },
     axis: {
       x: {

@@ -9,7 +9,8 @@ import { useChartType } from './useChartType';
 export const DEFAULT_CHART_CONFIG = {
   PADDING_TOP: 20,
   PADDING_BOTTOM: 10,
-  PADDING_RIGHT: 25,
+  PADDING_RIGHT: 30,
+  PADDING_LEFT: 15,
   EXTRA_AXIS_PADDING_RIGHT: 40,
   DEFAULT_MAX: 10,
   X_AXIS_TICK_COUNT: 4,

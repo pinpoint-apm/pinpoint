@@ -43,7 +43,7 @@
     "react-router-dom": "^6.10.0"
   },
   "dependencies": {
-    "@billboard.js/react": "^1.1.0",
+    "@billboard.js/react": "^1.1.1",
     "@hookform/resolvers": "^3.3.2",
     "@pinpoint-fe/constants": "*",
     "@pinpoint-fe/datetime-picker": "*",
@@ -76,7 +76,7 @@
     "@tanstack/react-table": "^8.10.7",
     "@tanstack/react-virtual": "^3.0.1",
     "@types/react-text-truncate": "^0.14.3",
-    "billboard.js": "3.9.4",
+    "billboard.js": "3.14.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^1.0.0",
