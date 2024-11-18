@@ -51,6 +51,11 @@ export const CONFIG_MENU_MAP = {
         path: APP_PATH.CONFIG_AGENT_MANAGEMENT,
         href: APP_PATH.CONFIG_AGENT_MANAGEMENT,
       },
+      {
+        name: 'Agent statistic',
+        path: APP_PATH.CONFIG_AGENT_STATISTIC,
+        href: APP_PATH.CONFIG_AGENT_STATISTIC,
+      },
     ],
   },
   PERSONAL_SETTINGS: {

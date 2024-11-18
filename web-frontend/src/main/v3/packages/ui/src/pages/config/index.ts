@@ -7,3 +7,4 @@ export * from './UserGroup';
 export * from './Users';
 export * from './Webhook';
 export * from './AgentManagement';
+export * from './AgentStatistic';

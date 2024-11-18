@@ -111,6 +111,12 @@
         "REMOVE_APPLICATION": "Remove application"
       }
     },
+    "AGENT_STATISTIC": {
+      "ZOOM_GUIDE": "You can zoom in/out the chart through the mouse.",
+      "LOAD_GUIDE": "It takes a long time to load the agent's statistical data.",
+      "LOADING": "Load",
+      "RELOAD": "Reload"
+    },
     "USERS": {
       "USER_ADD_TITLE": "Add user",
       "USER_INFO_TITLE": "User info",
