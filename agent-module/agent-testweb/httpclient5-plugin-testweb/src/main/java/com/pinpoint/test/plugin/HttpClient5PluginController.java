@@ -17,6 +17,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -93,8 +94,7 @@ public class HttpClient5PluginController {
             }
         };
 
-        final String responseBody = httpClient.execute(httpGet, responseHandler);
-        return responseBody;
+        return httpClient.execute(httpGet, responseHandler);
     }
 
     @GetMapping("/client/notofound")
@@ -116,8 +116,7 @@ public class HttpClient5PluginController {
                 }
             };
 
-            final String responseBody = httpClient.execute(httpGet, responseHandler);
-            return responseBody;
+            return httpClient.execute(httpGet, responseHandler);
         } catch (Exception ignored) {
         }
         return "OK";
@@ -141,8 +140,7 @@ public class HttpClient5PluginController {
             }
         };
 
-        final String responseBody = httpClient.execute(httpGet, responseHandler);
-        return responseBody;
+        return httpClient.execute(httpGet, responseHandler);
     }
 
     @GetMapping("/client/thread")
@@ -152,18 +150,19 @@ public class HttpClient5PluginController {
 
         CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
         final String[] urisToGet = {"http://hc.apache.org", "http://hc.apache.org/httpcomponents-core-ga/", "http://hc.apache.org/httpcomponents-client-ga/"};
-        final GetThread[] threads = new GetThread[urisToGet.length];
+        final List<Thread> threads = new ArrayList<>(urisToGet.length);
 
-        for (int i = 0; i < threads.length; i++) {
-            final HttpGet httpGet = new HttpGet(urisToGet[i]);
-            threads[i] = new GetThread(httpClient, httpGet, i + 1);
+        int i = 0;
+        for (String uri : urisToGet) {
+            final HttpGet httpGet = new HttpGet(uri);
+            threads.add((new Thread(new HttpRequest(httpClient, httpGet, i++))));
         }
 
-        for (final GetThread thread : threads) {
+        for (Thread thread : threads) {
             thread.start();
         }
 
-        for (final GetThread thread : threads) {
+        for (Thread thread : threads) {
             thread.join();
         }
 
@@ -177,7 +176,6 @@ public class HttpClient5PluginController {
         client.start();
 
         final HttpHost target = new HttpHost("httpbin.org");
-        final String[] requestUris = new String[]{"/", "/ip", "/user-agent", "/headers"};
 
         final SimpleHttpRequest request = SimpleRequestBuilder.get().setHttpHost(target).setPath("/").build();
         final Future<SimpleHttpResponse> future = client.execute(SimpleRequestProducer.create(request), SimpleResponseConsumer.create(), new FutureCallback<SimpleHttpResponse>() {
@@ -227,8 +225,6 @@ public class HttpClient5PluginController {
             @Override
             protected void data(CharBuffer src, boolean endOfStream) throws IOException {
                 while (src.hasRemaining()) {
-                }
-                if (endOfStream) {
                 }
             }
 
@@ -288,9 +284,7 @@ public class HttpClient5PluginController {
             }
         };
 
-        final String responseBody = httpClient.execute(httpGet, responseHandler);
-
-        return responseBody;
+        return httpClient.execute(httpGet, responseHandler);
     }
 
     @GetMapping("/client/entity")
@@ -311,22 +305,21 @@ public class HttpClient5PluginController {
             }
         };
 
-        final String responseBody = httpClient.execute(httpPost, responseHandler);
-        return responseBody;
+        return httpClient.execute(httpPost, responseHandler);
     }
 
 
-    static class GetThread extends Thread {
+    static class HttpRequest implements Runnable {
 
         private final CloseableHttpClient httpClient;
         private final HttpContext context;
-        private final HttpGet httpget;
+        private final ClassicHttpRequest httpRequest;
         private final int id;
 
-        public GetThread(final CloseableHttpClient httpClient, final HttpGet httpget, final int id) {
+        public HttpRequest(final CloseableHttpClient httpClient, final ClassicHttpRequest httpRequest, final int id) {
             this.httpClient = httpClient;
             this.context = new BasicHttpContext();
-            this.httpget = httpget;
+            this.httpRequest = httpRequest;
             this.id = id;
         }
 
@@ -336,14 +329,14 @@ public class HttpClient5PluginController {
         @Override
         public void run() {
             try {
-                try (CloseableHttpResponse response = httpClient.execute(httpget, context)) {
+                try (CloseableHttpResponse response = httpClient.execute(httpRequest, context)) {
                     // get the response body as an array of bytes
                     final HttpEntity entity = response.getEntity();
                     if (entity != null) {
                         final byte[] bytes = EntityUtils.toByteArray(entity);
                     }
                 }
-            } catch (final Exception e) {
+            } catch (final Exception ignore) {
             }
         }
     }

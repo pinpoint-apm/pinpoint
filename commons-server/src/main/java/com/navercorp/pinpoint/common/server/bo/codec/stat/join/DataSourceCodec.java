@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,11 +60,10 @@ public class DataSourceCodec implements ApplicationStatCodec<JoinDataSourceListB
     }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinDataSourceListBo> JoinStatBoList) {
-        if (CollectionUtils.isEmpty(JoinStatBoList)) {
-            throw new IllegalArgumentException("joinDataSourceListBoList must not be empty");
-        }
-        final List<JoinDataSourceListBo> joinDataSourceListBoList = castJoinDataSourceListBoList(JoinStatBoList);
+    public void encodeValues(Buffer valueBuffer, List<JoinDataSourceListBo> joinStatBoList) {
+        Assert.notEmpty(joinStatBoList, "joinStatBoList");
+
+        final List<JoinDataSourceListBo> joinDataSourceListBoList = castJoinDataSourceListBoList(joinStatBoList);
         valueBuffer.putVInt(joinDataSourceListBoList.size());
         encodeTimestamps(valueBuffer, joinDataSourceListBoList);
         encodeJoinDataSourceListBo(valueBuffer, joinDataSourceListBoList);

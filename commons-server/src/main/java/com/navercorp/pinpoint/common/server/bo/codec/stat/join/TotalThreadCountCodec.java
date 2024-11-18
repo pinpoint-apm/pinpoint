@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +50,8 @@ public class TotalThreadCountCodec implements ApplicationStatCodec<JoinTotalThre
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinTotalThreadCountBo> joinTotalThreadCountBoList) {
-        if (CollectionUtils.isEmpty(joinTotalThreadCountBoList)) {
-            throw new IllegalArgumentException("joinTotalThreadCountBoList must not be empty");
-        }
+        Assert.notEmpty(joinTotalThreadCountBoList, "joinTotalThreadCountBoList");
+
         final int numValues = joinTotalThreadCountBoList.size();
         valueBuffer.putVInt(numValues);
         List<Long> timestamps = new ArrayList<>(numValues);

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.grpc.server.ConnectionCountServerTransportFilter;
@@ -44,6 +43,7 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.NestedExceptionUtils;
+import org.springframework.util.Assert;
 
 import java.io.Closeable;
 import java.net.BindException;
@@ -96,7 +96,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Objects.requireNonNull(this.beanName, "beanName");
         Objects.requireNonNull(this.bindAddress, "bindAddress");
         Objects.requireNonNull(this.addressFilter, "addressFilter");
-        Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
+        Assert.notEmpty(this.serviceList, "serviceList");
         Objects.requireNonNull(this.serverOption, "serverOption");
 
         if (sslContext != null) {

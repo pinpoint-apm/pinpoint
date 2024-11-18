@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -50,10 +51,7 @@ public class ScanTask implements Runnable {
 
     public ScanTask(ScanTaskConfig scanTaskConfig, Scan... scans) {
         Objects.requireNonNull(scanTaskConfig, "scanTaskConfig");
-        Objects.requireNonNull(scans, "scans");
-        if (scans.length == 0) {
-            throw new IllegalArgumentException("scans must not be empty");
-        }
+        Assert.notEmpty(scans, "scans");
         this.tableName = scanTaskConfig.getTableName();
         this.tableFactory = scanTaskConfig.getTableFactory();
         this.rowKeyDistributor = scanTaskConfig.getRowKeyDistributor();
