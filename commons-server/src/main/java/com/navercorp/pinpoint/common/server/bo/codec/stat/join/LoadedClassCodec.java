@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +52,7 @@ public class LoadedClassCodec implements ApplicationStatCodec<JoinLoadedClassBo>
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinLoadedClassBo> joinStatBoList) {
-        if (CollectionUtils.isEmpty(joinStatBoList)) {
-            throw new IllegalArgumentException("directBufferBoList must not be empty");
-        }
+        Assert.notEmpty(joinStatBoList, "joinStatBoList");
 
         final int numValues = joinStatBoList.size();
         valueBuffer.putVInt(numValues);

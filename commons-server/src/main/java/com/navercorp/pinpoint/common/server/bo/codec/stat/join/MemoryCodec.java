@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,9 +53,7 @@ public class MemoryCodec implements ApplicationStatCodec<JoinMemoryBo> {
     }
 
     public void encodeValues(Buffer valueBuffer, List<JoinMemoryBo> joinMemoryBoList) {
-        if (CollectionUtils.isEmpty(joinMemoryBoList)) {
-            throw new IllegalArgumentException("MemoryBoList must not be empty");
-        }
+        Assert.notEmpty(joinMemoryBoList, "joinMemoryBoList");
 
         final int numValues = joinMemoryBoList.size();
         valueBuffer.putVInt(numValues);

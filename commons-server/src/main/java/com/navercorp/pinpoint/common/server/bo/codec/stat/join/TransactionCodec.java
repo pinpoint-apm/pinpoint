@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +52,7 @@ public class TransactionCodec implements ApplicationStatCodec<JoinTransactionBo>
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinTransactionBo> joinTransactionBoList) {
-        if (CollectionUtils.isEmpty(joinTransactionBoList)) {
-            throw new IllegalArgumentException("joinTransactionBoList must not be empty");
-        }
+        Assert.notEmpty(joinTransactionBoList, "joinTransactionBoList");
 
         final int numValues = joinTransactionBoList.size();
         valueBuffer.putVInt(numValues);

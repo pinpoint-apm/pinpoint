@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +55,7 @@ public class CpuLoadCodec implements ApplicationStatCodec<JoinCpuLoadBo> {
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinCpuLoadBo> joinCpuLoadBoList) {
-        if (CollectionUtils.isEmpty(joinCpuLoadBoList)) {
-            throw new IllegalArgumentException("cpuLoadBoList must not be empty");
-        }
+        Assert.notEmpty(joinCpuLoadBoList, "joinCpuLoadBoList");
 
         final int numValues = joinCpuLoadBoList.size();
         valueBuffer.putVInt(numValues);

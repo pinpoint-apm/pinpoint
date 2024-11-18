@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.hbase.schema.reader.core.ColumnFamilyChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ColumnFamilyConfiguration;
 import com.navercorp.pinpoint.hbase.schema.reader.core.CreateColumnFamilyChange;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -31,11 +33,11 @@ public class ColumnFamilyChangeMapper {
     private final ColumnFamilyConfigurationMapper columnFamilyConfigurationMapper = new ColumnFamilyConfigurationMapper();
 
     public ColumnFamilyChange mapCreate(Table.CreateColumnFamily createColumnFamily) {
-        String name = createColumnFamily.getName();
-        if (StringUtils.isEmpty(name)) {
+        Objects.requireNonNull(createColumnFamily, "createColumnFamily");
+        if (StringUtils.isEmpty(createColumnFamily.getName())) {
             throw new InvalidHbaseSchemaException("ColumnFamily name must not be empty");
         }
-
+        String name = createColumnFamily.getName();
         ColumnFamilyConfiguration columnFamilyConfiguration = columnFamilyConfigurationMapper.mapConfiguration(createColumnFamily.getConfiguration());
 
         return new CreateColumnFamilyChange(name, columnFamilyConfiguration);

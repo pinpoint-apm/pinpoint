@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +55,7 @@ public class ResponseTimeCodec implements ApplicationStatCodec<JoinResponseTimeB
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinResponseTimeBo> joinResponseTimeBoList) {
-        if (CollectionUtils.isEmpty(joinResponseTimeBoList)) {
-            throw new IllegalArgumentException("joinResponseTimeBoList must not be empty");
-        }
+        Assert.notEmpty(joinResponseTimeBoList, "joinResponseTimeBoList");
 
         final int numValues = joinResponseTimeBoList.size();
         valueBuffer.putVInt(numValues);

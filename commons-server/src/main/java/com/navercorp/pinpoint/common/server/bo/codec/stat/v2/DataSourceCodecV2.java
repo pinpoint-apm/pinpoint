@@ -32,8 +32,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,9 +60,8 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<DataSourceListBo> dataSourceListBos) {
-        if (CollectionUtils.isEmpty(dataSourceListBos)) {
-            throw new IllegalArgumentException("dataSourceListBos must not be empty");
-        }
+        Assert.notEmpty(dataSourceListBos, "dataSourceListBos");
+
         final int numValues = dataSourceListBos.size();
         valueBuffer.putVInt(numValues);
 

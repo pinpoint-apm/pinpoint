@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +55,7 @@ public class FileDescriptorCodec implements ApplicationStatCodec<JoinFileDescrip
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
-        if (CollectionUtils.isEmpty(joinFileDescriptorBoList)) {
-            throw new IllegalArgumentException("fileDescriptorBoList must not be empty");
-        }
+        Assert.notEmpty(joinFileDescriptorBoList, "joinFileDescriptorBoList");
 
         final int numValues = joinFileDescriptorBoList.size();
         valueBuffer.putVInt(numValues);

@@ -90,9 +90,8 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
     // TODO May be a good idea to compare the actual tables against each of the change sets in the future.
     @Override
     public HbaseSchemaStatus getSchemaStatus(String namespace, List<ChangeSet> changeSets) {
-        if (CollectionUtils.isEmpty(changeSets)) {
-            throw new IllegalArgumentException("changeSets must not be empty");
-        }
+        Assert.notEmpty(changeSets, "changeSets");
+
         if (!schemaChangeLogService.isAvailable(namespace)) {
             return HbaseSchemaStatus.NONE;
         }

@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +55,7 @@ public class DirectBufferCodec implements ApplicationStatCodec<JoinDirectBufferB
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinDirectBufferBo> joinDirectBufferBoList) {
-        if (CollectionUtils.isEmpty(joinDirectBufferBoList)) {
-            throw new IllegalArgumentException("directBufferBoList must not be empty");
-        }
+        Assert.notEmpty(joinDirectBufferBoList, "joinDirectBufferBoList");
 
         final int numValues = joinDirectBufferBoList.size();
         valueBuffer.putVInt(numValues);

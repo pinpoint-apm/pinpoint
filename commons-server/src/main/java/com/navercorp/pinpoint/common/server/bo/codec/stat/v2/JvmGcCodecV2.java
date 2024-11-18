@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongE
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +57,8 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JvmGcBo> jvmGcBos) {
-        if (CollectionUtils.isEmpty(jvmGcBos)) {
-            throw new IllegalArgumentException("jvmGcBos must not be empty");
-        }
+        Assert.notEmpty(jvmGcBos, "jvmGcBos");
+
         final int gcTypeCode = jvmGcBos.get(0).getGcType().getTypeCode();
         valueBuffer.putVInt(gcTypeCode);
         final int numValues = jvmGcBos.size();
