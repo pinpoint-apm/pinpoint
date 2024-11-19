@@ -32,16 +32,26 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
  */
 public class TestProducer {
 
-    public void sendMessage(String brokerUrl, int messageCount) {
-        sendMessage(brokerUrl, messageCount, TRACE_TYPE_RECORD);
+    private final Properties props;
+
+    public TestProducer(String brokerUrl) {
+        this.props = getProducerConfig(brokerUrl);
     }
 
-    public void sendMessage(String brokerUrl, int messageCount, String traceType) {
+    private Properties getProducerConfig(String brokerUrl) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        return props;
+    }
+
+    public void sendMessage(int messageCount) {
+        sendMessage(messageCount, TRACE_TYPE_RECORD);
+    }
+
+    public void sendMessage(int messageCount, String traceType) {
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
         for (int i = 0; i < messageCount; i++) {
             ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC, traceType, MESSAGE);
@@ -50,7 +60,4 @@ public class TestProducer {
         producer.flush();
         producer.close();
     }
-
-
-
 }
