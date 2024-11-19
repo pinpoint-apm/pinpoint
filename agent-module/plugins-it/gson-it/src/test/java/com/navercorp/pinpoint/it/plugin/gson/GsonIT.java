@@ -46,27 +46,27 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.google.code.gson:gson:[1.1],[1.4],[1.5],[1.6],[1.7.2],[2.0],[2.1],[2.2.4],[2.3.1,)"})
 public class GsonIT {
-    private static final boolean v1_2;
-    private static final boolean v1_6;
-    
-    static {
-        Method m = null;
+    private static final boolean v1_2 = gsonV1_2();
+    private static final boolean v1_6 = gsonV1_6();
+
+    private static boolean gsonV1_6() {
         try {
-            m = Gson.class.getMethod("fromJson", Reader.class, Class.class);
-        } catch (NoSuchMethodException ignored) {
-        }
-        
-        v1_2 = m != null;
-        
-        Class<?> c = null;
-        try {
-            c = Class.forName("com.google.gson.stream.JsonReader");
+            Class.forName("com.google.gson.stream.JsonReader");
+            return true;
         } catch (ClassNotFoundException ignored) {
+            return false;
         }
-        
-        v1_6 = c != null;
     }
-    
+
+    private static boolean gsonV1_2() {
+        try {
+            Gson.class.getMethod("fromJson", Reader.class, Class.class);
+            return true;
+        } catch (NoSuchMethodException ignored) {
+            return false;
+        }
+    }
+
     private static final String java = "Pinpoint";
     private static final String json = new Gson().toJson(java);
     private static final String serviceType = "GSON";
@@ -207,7 +207,8 @@ public class GsonIT {
         verifier.verifyTraceCount(0);
     }
 
+    @SuppressWarnings("deprecation")
     private JsonElement getParseElements() {
-        return JsonParser.parseString(json);
+        return new JsonParser().parse(json);
     }
 }
