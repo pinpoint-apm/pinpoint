@@ -52,7 +52,7 @@ public class PluginJunitTestMethodTestDescriptor extends TestMethodTestDescripto
 
         beginTracing();
         try {
-            executor.execute(() -> {
+            executor.run(() -> {
                 super.execute(context, dynamicTestExecutor);
             });
         } finally {

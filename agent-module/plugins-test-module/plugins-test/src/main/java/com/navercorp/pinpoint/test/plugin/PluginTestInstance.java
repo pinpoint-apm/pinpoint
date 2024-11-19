@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import java.util.concurrent.Callable;
+import com.navercorp.pinpoint.test.plugin.util.CallExecutable;
+import com.navercorp.pinpoint.test.plugin.util.RunExecutable;
 
 public interface PluginTestInstance {
     String getTestId();
@@ -25,7 +26,9 @@ public interface PluginTestInstance {
 
     Class<?> getTestClass();
 
-    <T> T execute(final Callable<T> callable, boolean verify);
+    <T> T call(final CallExecutable<T> callable, boolean verify);
+
+    void run(final RunExecutable runnable, boolean verify);
 
     void clear();
 }

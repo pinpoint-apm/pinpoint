@@ -40,14 +40,14 @@ public class PluginTestMethodTestDescriptor extends TestMethodTestDescriptor {
 
     @Override
     public JupiterEngineExecutionContext prepare(JupiterEngineExecutionContext context) {
-        return this.pluginTestInstance.execute(() -> {
+        return this.pluginTestInstance.call(() -> {
             return super.prepare(context);
         }, false);
     }
 
     @Override
     public JupiterEngineExecutionContext execute(JupiterEngineExecutionContext context, DynamicTestExecutor dynamicTestExecutor) {
-        return this.pluginTestInstance.execute(() -> {
+        return this.pluginTestInstance.call(() -> {
             return super.execute(context, dynamicTestExecutor);
         }, true);
     }

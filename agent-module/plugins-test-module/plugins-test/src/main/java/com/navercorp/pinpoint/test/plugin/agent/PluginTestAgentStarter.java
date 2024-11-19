@@ -33,10 +33,10 @@ public class PluginTestAgentStarter {
 
     private DefaultApplicationContext applicationContext;
 
-    public PluginTestAgentStarter(String configFile, ClassLoader classLoader) {
+    public PluginTestAgentStarter(String configFile) {
         final com.navercorp.pinpoint.profiler.test.MockApplicationContextFactory factory = new MockApplicationContextFactory();
         this.applicationContext = factory.build(configFile);
-        this.mockInstrumentor = new MockInstrumentor(classLoader, applicationContext.getClassFileTransformer());
+        this.mockInstrumentor = new MockInstrumentor(applicationContext.getClassFileTransformer());
         this.interceptorRegistryBinder = applicationContext.getInterceptorRegistryBinder();
         this.pluginTestVerifier = new PluginVerifierExternalAdaptor(applicationContext);
     }

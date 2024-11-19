@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.shared.ThreadFactory;
+import com.navercorp.pinpoint.test.plugin.util.CallExecutable;
+import com.navercorp.pinpoint.test.plugin.util.RunExecutable;
+import org.junit.platform.commons.JUnitException;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -29,12 +32,12 @@ import java.util.concurrent.TimeoutException;
 
 public class DefaultPluginTestInstance implements PluginTestInstance {
 
-    private String id;
+    private final String id;
     private PluginTestClassLoader classLoader;
-    private Class<?> testClass;
-    private boolean manageTraceObject;
+    private final Class<?> testClass;
+    private final boolean manageTraceObject;
     private PluginTestInstanceCallback callback;
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
 
     public DefaultPluginTestInstance(String id, PluginTestClassLoader classLoader, Class<?> testClass, boolean manageTraceObject, PluginTestInstanceCallback callback) {
         this.id = id;
@@ -63,10 +66,10 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
         return this.testClass;
     }
 
-    public <T> T execute(final Callable<T> callable, boolean verify) {
+    public <T> T call(final CallExecutable<T> callable, boolean verify) {
         Callable<T> task = new Callable<T>() {
             @Override
-            public T call() throws Exception {
+            public T call() {
                 try {
                     callback.before(verify, manageTraceObject);
                     return callable.call();
@@ -77,17 +80,38 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
         };
 
         Future<T> future = this.executorService.submit(task);
+        return await(future);
+    }
+
+    public void run(final RunExecutable runnable, boolean verify) {
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    callback.before(verify, manageTraceObject);
+                    runnable.run();
+                } finally {
+                    callback.after(verify, manageTraceObject);
+                }
+            }
+        };
+
+        Future<?> future = this.executorService.submit(task);
+        await(future);
+    }
+
+    private <T> T await(Future<T> future) {
         try {
-            return future.get(30l, TimeUnit.SECONDS);
+            return future.get(30L, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw new JUnitException(this.id + " failed", e);
         } catch (ExecutionException e) {
-            throw new RuntimeException(e);
+            throw new JUnitException(this.id + " failed", e);
         } catch (TimeoutException e) {
             // testcase interrupt
             future.cancel(true);
-            throw new RuntimeException(e);
+            throw new JUnitException(this.id + " failed", e);
         }
     }
 
@@ -102,10 +126,11 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
             this.classLoader = null;
         }
         if (this.executorService != null) {
-            this.executorService.shutdownNow();
+            this.executorService.shutdown();
             try {
-                if (!this.executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                if (!this.executorService.awaitTermination(10L, TimeUnit.SECONDS)) {
                     System.err.println("ExecutorService did not terminate in the specified time");
+                    this.executorService.shutdownNow();
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

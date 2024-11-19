@@ -23,9 +23,6 @@ import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestMetho
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestClassTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestMethodTestDescriptor;
-import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithJunitAgent;
-import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithPluginForkedTest;
-import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.predicates.IsTestClassWithPluginTest;
 import org.junit.platform.engine.FilterResult;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestSource;
@@ -33,21 +30,36 @@ import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.PostDiscoveryFilter;
 
+import java.util.Optional;
+
 public class PluginPostDiscoveryFilter implements PostDiscoveryFilter {
-    private static final IsTestClassWithPluginTest isTestClassWithPluginTest = new IsTestClassWithPluginTest();
-    private static final IsTestClassWithPluginForkedTest isTestClassWithPluginForkedTest = new IsTestClassWithPluginForkedTest();
-    private static final IsTestClassWithJunitAgent isTestClassWithJunitAgent = new IsTestClassWithJunitAgent();
+
+    private static final TestDescriptorRegistry registry = new TestDescriptorRegistry();
+
+    @SuppressWarnings("unchecked")
+    private static final Class<TestDescriptor>[] registryClass = new Class[] {
+        PluginTestDescriptor.class,
+        PluginTestClassTestDescriptor.class,
+        PluginTestMethodTestDescriptor.class,
+        PluginForkedTestClassTestDescriptor.class,
+        PluginForkedTestMethodTestDescriptor.class,
+        PluginJunitTestClassTestDescriptor.class,
+        PluginJunitTestMethodTestDescriptor.class
+    };
 
     @Override
     public FilterResult apply(TestDescriptor testDescriptor) {
-        if (testDescriptor.getUniqueId().getEngineId().get().equals(PluginTestDescriptor.ENGINE_ID)) {
-            if (testDescriptor.isRoot()) {
-                return FilterResult.included("include pinpoint plugin test");
+        final Optional<String> engineId = testDescriptor.getUniqueId().getEngineId();
+        if (engineId.isPresent()) {
+            if (engineId.get().equals(PluginTestDescriptor.ENGINE_ID)) {
+                if (testDescriptor.isRoot()) {
+                    return FilterResult.included("include pinpoint plugin test");
+                }
+                if (isPluginTestDescriptor(testDescriptor)) {
+                    return FilterResult.included("include pinpoint plugin test");
+                }
+                return FilterResult.excluded("exclude junit test");
             }
-            if (isPluginTestDescriptor(testDescriptor)) {
-                return FilterResult.included("include pinpoint plugin test");
-            }
-            return FilterResult.excluded("exclude junit test");
         }
 
         if (testDescriptor.getSource().isPresent()) {
@@ -59,44 +71,30 @@ public class PluginPostDiscoveryFilter implements PostDiscoveryFilter {
     }
 
     boolean isPluginTestDescriptor(TestDescriptor testDescriptor) {
-        if (testDescriptor instanceof PluginTestDescriptor) {
-            return true;
-        }
-        if (testDescriptor instanceof PluginTestClassTestDescriptor) {
-            return true;
-        }
-        if (testDescriptor instanceof PluginTestMethodTestDescriptor) {
-            return true;
-        }
-        if (testDescriptor instanceof PluginForkedTestClassTestDescriptor) {
-            return true;
-        }
-        if (testDescriptor instanceof PluginForkedTestMethodTestDescriptor) {
-            return true;
-        }
-        if (testDescriptor instanceof PluginJunitTestClassTestDescriptor) {
-            return true;
-        }
-        if (testDescriptor instanceof PluginJunitTestMethodTestDescriptor) {
-            return true;
+        for (Class<TestDescriptor> testDescriptorClass : registryClass) {
+            if (testDescriptorClass.isInstance(testDescriptor)) {
+                return true;
+            }
         }
         return false;
     }
 
     boolean hasPinpointAgent(TestDescriptor testDescriptor) {
-        TestSource testSource = testDescriptor.getSource().get();
-        if (testSource instanceof ClassSource) {
-            Class<?> javaClass = ((ClassSource) testSource).getJavaClass();
-            return hasPinpointAgent(javaClass);
-        } else if (testSource instanceof MethodSource) {
-            Class<?> javaClass = ((MethodSource) testSource).getJavaClass();
-            return hasPinpointAgent(javaClass);
+        final Optional<TestSource> source = testDescriptor.getSource();
+        if (source.isPresent()) {
+            TestSource testSource = source.get();
+            if (testSource instanceof ClassSource) {
+                Class<?> javaClass = ((ClassSource) testSource).getJavaClass();
+                return hasPinpointAgent(javaClass);
+            } else if (testSource instanceof MethodSource) {
+                Class<?> javaClass = ((MethodSource) testSource).getJavaClass();
+                return hasPinpointAgent(javaClass);
+            }
         }
-
         return false;
     }
 
     boolean hasPinpointAgent(Class<?> javaClass) {
-        return isTestClassWithPluginTest.test(javaClass) || isTestClassWithPluginForkedTest.test(javaClass) || isTestClassWithJunitAgent.test(javaClass);
+        return registry.getDescriptor(javaClass) != null;
     }
 }

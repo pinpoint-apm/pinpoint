@@ -43,7 +43,7 @@ public class PluginJunitTestClassTestDescriptor extends ClassTestDescriptor {
 
     @Override
     public void after(JupiterEngineExecutionContext context) {
-        this.executor.execute(() -> {
+        this.executor.run(() -> {
             super.after(context);
         });
     }

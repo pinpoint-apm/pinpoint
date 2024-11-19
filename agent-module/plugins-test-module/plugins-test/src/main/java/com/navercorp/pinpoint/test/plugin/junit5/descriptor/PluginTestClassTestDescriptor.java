@@ -22,38 +22,37 @@ import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.UniqueId;
 
+import java.util.Objects;
+
 public class PluginTestClassTestDescriptor extends ClassTestDescriptor {
 
     private final Class<?> testClass;
-    final PluginTestInstance pluginTestInstance;
+    private final PluginTestInstance pluginTestInstance;
 
     public PluginTestClassTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, PluginTestInstance pluginTestInstance) {
         super(uniqueId, testClass, configuration);
         this.testClass = testClass;
-        this.pluginTestInstance = pluginTestInstance;
+        this.pluginTestInstance = Objects.requireNonNull(pluginTestInstance, "pluginTestInstance");
     }
 
 
     @Override
     public JupiterEngineExecutionContext before(JupiterEngineExecutionContext context) {
-        return this.pluginTestInstance.execute(() -> {
+        return this.pluginTestInstance.call(() -> {
             return super.before(context);
         }, false);
     }
 
     @Override
     public void after(JupiterEngineExecutionContext context) {
-        this.pluginTestInstance.execute(() -> {
+        this.pluginTestInstance.run(() -> {
             super.after(context);
-            return null;
         }, false);
     }
 
     @Override
     public void cleanUp(JupiterEngineExecutionContext context) throws Exception {
         super.cleanUp(context);
-        if (this.pluginTestInstance != null) {
-            this.pluginTestInstance.clear();
-        }
+        this.pluginTestInstance.clear();
     }
 }
