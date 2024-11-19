@@ -16,13 +16,10 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.OsType;
-import com.navercorp.pinpoint.common.util.OsUtils;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
+import com.navercorp.pinpoint.test.plugin.util.OsUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.TestPluginVersion;
@@ -222,20 +219,14 @@ public abstract class AbstractPluginTestSuite {
     }
 
     private static List<String> extractLibrariesFromSystemClassLoader() {
-        final String classPath = SystemProperty.INSTANCE.getProperty("java.class.path");
+        final String classPath = System.getProperty("java.class.path");
         if (StringUtils.isEmpty(classPath)) {
             return Collections.emptyList();
         }
-        if (OsUtils.getType() == OsType.WINDOW) {
-            final String[] paths = classPath.split(";");
-            return normalizePaths(paths);
-        }
-
-        final String[] paths = classPath.split(":");
+        final String[] paths = classPath.split(OsUtils.getClassPathSeparator());
         return normalizePaths(paths);
     }
 
-    @VisibleForTesting
     static String normalizePath(String classPath) {
         return Paths.get(classPath).toAbsolutePath().normalize().toString();
     }

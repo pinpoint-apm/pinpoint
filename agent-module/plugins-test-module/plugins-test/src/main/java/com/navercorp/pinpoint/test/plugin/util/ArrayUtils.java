@@ -26,4 +26,8 @@ public final class ArrayUtils {
     public static <T> boolean isEmpty(final T[] array) {
         return array == null || array.length == 0;
     }
+
+    public static <T> boolean hasLength(final T[] array) {
+        return array != null && array.length != 0;
+    }
 }

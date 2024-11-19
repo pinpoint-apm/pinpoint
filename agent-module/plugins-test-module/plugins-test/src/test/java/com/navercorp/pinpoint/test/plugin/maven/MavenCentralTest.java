@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.test.plugin.maven;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public final class MavenCentral {
-    public static final String MAVEN_CENTRAL_SECURE = "https://repo.maven.apache.org/maven2";
+public class MavenCentralTest {
 
-    private MavenCentral() {
-    }
-
-    public static String getAddress() {
-        return MAVEN_CENTRAL_SECURE;
+    @Test
+    public void getAddress() {
+        Assertions.assertEquals(MavenCentral.MAVEN_CENTRAL_SECURE, MavenCentral.getAddress());
     }
 }

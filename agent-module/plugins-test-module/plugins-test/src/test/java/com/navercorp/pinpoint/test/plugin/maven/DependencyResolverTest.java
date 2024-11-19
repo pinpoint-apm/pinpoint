@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.test.plugin.maven;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -70,7 +70,7 @@ public class ReflectionDependencyResolver {
     }
 
     private void initialize() throws ReflectiveOperationException {
-        Class<?> factory = classLoader.loadClass("com.navercorp.pinpoint.test.plugin.DependencyResolverFactory");
+        Class<?> factory = classLoader.loadClass("com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory");
         Object factoryObject = factory.newInstance();
         Method resolverGet = factory.getMethod("get", String[].class);
 

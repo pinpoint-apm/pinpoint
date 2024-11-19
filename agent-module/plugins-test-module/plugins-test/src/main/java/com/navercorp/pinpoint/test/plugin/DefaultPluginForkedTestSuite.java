@@ -15,6 +15,9 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyVersionFilter;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
@@ -22,7 +25,6 @@ import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
 
@@ -115,11 +117,11 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     }
 
     @Override
-    protected List<PluginForkedTestInstance> createTestCases(PluginForkedTestContext context) throws Exception {
+    protected List<PluginForkedTestInstance> createTestCases(PluginForkedTestContext context) {
         return createSharedCasesWithDependencies(context);
     }
 
-    private List<PluginForkedTestInstance> createSharedCasesWithDependencies(PluginForkedTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
+    private List<PluginForkedTestInstance> createSharedCasesWithDependencies(PluginForkedTestContext context) {
         DependencyResolver resolver = getDependencyResolver(this.repositories);
         List<String> sharedLibs = new ArrayList<>();
         sharedLibs.add(context.getTestClassLocation());
@@ -131,8 +133,8 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
                 final List<Artifact> artifacts = artifactEntry.getValue();
                 try {
                     sharedLibs.addAll(resolveArtifactsAndDependencies(resolver, artifacts));
-                } catch (DependencyResolutionException ignored) {
-                    logger.warn(ignored, "resolveArtifactsAndDependencies failed testId={}", testId);
+                } catch (DependencyResolutionException ex) {
+                    logger.warn(ex, "resolveArtifactsAndDependencies failed testId={}", testId);
                 }
             }
         }

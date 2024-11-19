@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -54,7 +54,7 @@ public final class PluginClassLoading {
     }
 
     private static final String[] CLASS_PATHS_TO_CHECK_AS_GLOB_MATCHES = new String[]{
-            "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command
+            "**" + File.separator + "pinpoint-*-plugin-" + VersionUtils.VERSION + ".jar", // required when executing test via mvn command
     };
 
     public static String[] getGlobMatchesCheckClassPath() {
@@ -103,8 +103,8 @@ public final class PluginClassLoading {
     }
 
     public static final String[] PLUGIN_GLOB_MATCHES = new String[]{
-            "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command
-            "**" + File.separator + "naver-pinpoint-*-plugin-" + Version.VERSION + ".jar" // required when executing test via mvn command
+            "**" + File.separator + "pinpoint-*-plugin-" + VersionUtils.VERSION + ".jar", // required when executing test via mvn command
+            "**" + File.separator + "naver-pinpoint-*-plugin-" + VersionUtils.VERSION + ".jar" // required when executing test via mvn command
     };
 
     public static final String[] PLUGIN_CONTAINS_MATCHES = new String[]{

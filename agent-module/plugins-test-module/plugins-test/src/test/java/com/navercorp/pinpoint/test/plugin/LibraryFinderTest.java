@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class LibraryFinderTest {
+
+    private static final String VERSION = VersionUtils.VERSION;
 
     @Test
     public void filter() throws MalformedURLException {
@@ -42,18 +44,18 @@ public class LibraryFinderTest {
     public void globTest() throws MalformedURLException {
         String jarPath = File.separator + "home"
                 + File.separator + "pinpoint-mssql-jdbc-driver-plugin"
-                + File.separator + Version.VERSION
-                + File.separator + "pinpoint-mssql-jdbc-driver-plugin-" + Version.VERSION + ".jar";
+                + File.separator + VERSION
+                + File.separator + "pinpoint-mssql-jdbc-driver-plugin-" + VERSION + ".jar";
 
-        String matchPath = "pinpoint-*-plugin-" + Version.VERSION + ".jar";
+        String matchPath = "pinpoint-*-plugin-" + VERSION + ".jar";
         Path result = globMatches(jarPath, matchPath);
         Assertions.assertNull(result);
 
-        matchPath = "*" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar";
+        matchPath = "*" + File.separator + "pinpoint-*-plugin-" + VERSION + ".jar";
         result = globMatches(jarPath, matchPath);
         Assertions.assertNull(result);
 
-        matchPath = "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar";
+        matchPath = "**" + File.separator + "pinpoint-*-plugin-" + VERSION + ".jar";
         result = globMatches(jarPath, matchPath);
         Assertions.assertEquals(Paths.get(jarPath), result);
     }

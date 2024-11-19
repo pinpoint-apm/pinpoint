@@ -15,17 +15,20 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyVersionFilter;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstanceFactory;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
+import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
 import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -145,7 +148,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
         final DependencyResolver resolver = getDependencyResolver(repositories);
 
-        final String pluginsTest = "com.navercorp.pinpoint:pinpoint-plugins-test:" + Version.VERSION;
+        final String pluginsTest = "com.navercorp.pinpoint:pinpoint-plugins-test:" + VersionUtils.VERSION;
         final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets(pluginsTest);
         final List<String> agentLibs = new ArrayList<>(context.getAgentLibList());
 
