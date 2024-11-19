@@ -38,17 +38,18 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
-                <version>2.1.1</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>templating-maven-plugin</artifactId>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
-                        <phase>generate-sources</phase>
+                        <id>filter-src</id>
                         <goals>
-                            <goal>execute</goal>
+                            <goal>filter-sources</goal>
                         </goals>
                         <configuration>
-                            <source>${project.basedir}/VersionScript.groovy</source>
+                            <sourceDirectory>${basedir}/src/main/java-templates</sourceDirectory>
+                            <outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
