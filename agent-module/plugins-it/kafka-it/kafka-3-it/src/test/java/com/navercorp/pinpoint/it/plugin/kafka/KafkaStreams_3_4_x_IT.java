@@ -50,17 +50,17 @@ public class KafkaStreams_3_4_x_IT extends KafkaStreamsIT {
     @Disabled
     public void streamsProducerSendTest() throws NoSuchMethodException {
         int messageCount = random.nextInt(5) + 1;
-        final TestProducer producer = new TestProducer();
+        final TestProducer producer = new TestProducer(brokerUrl);
 
-        producer.sendMessageForStream(brokerUrl, messageCount, TRACE_TYPE_RECORD);
+        producer.sendMessageForStream(messageCount, TRACE_TYPE_RECORD);
         KafkaStreamsITBase.verifyProducerSend(brokerUrl, messageCount);
     }
 
     @Test
     @Disabled
     public void streamsConsumeTest() throws NoSuchMethodException {
-        final TestProducer producer = new TestProducer();
-        producer.sendMessageForStream(brokerUrl, 1, TRACE_TYPE_MULTI_RECORDS);
+        final TestProducer producer = new TestProducer(brokerUrl);
+        producer.sendMessageForStream(1, TRACE_TYPE_MULTI_RECORDS);
         KafkaStreamsITBase.verifyMultiConsumerEntryPoint(brokerUrl);
     }
 }

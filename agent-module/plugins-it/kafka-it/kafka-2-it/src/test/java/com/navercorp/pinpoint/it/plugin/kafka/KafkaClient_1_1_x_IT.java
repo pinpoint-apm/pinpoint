@@ -53,23 +53,23 @@ public class KafkaClient_1_1_x_IT extends KafkaClient2ITBase {
     @Test
     public void producerSendTest() throws NoSuchMethodException {
         int messageCount = random.nextInt(5) + 1;
-        final TestProducer producer = new TestProducer();
-        producer.sendMessage(brokerUrl, messageCount);
+        final TestProducer producer = new TestProducer(brokerUrl);
+        producer.sendMessage(messageCount);
         KafkaClientITBase.verifyProducerSend(brokerUrl, messageCount);
     }
 
     @Disabled
     @Test
     public void recordEntryPointTest() throws NoSuchMethodException {
-        final TestProducer producer = new TestProducer();
-        producer.sendMessage(brokerUrl, 1, TRACE_TYPE_RECORD);
+        final TestProducer producer = new TestProducer(brokerUrl);
+        producer.sendMessage(1, TRACE_TYPE_RECORD);
         KafkaClientITBase.verifySingleConsumerEntryPoint(brokerUrl, offset);
     }
 
     @Test
     public void recordMultiEntryPointTest() throws NoSuchMethodException {
-        final TestProducer producer = new TestProducer();
-        producer.sendMessage(brokerUrl, 1, TRACE_TYPE_MULTI_RECORDS);
+        final TestProducer producer = new TestProducer(brokerUrl);
+        producer.sendMessage(1, TRACE_TYPE_MULTI_RECORDS);
         KafkaClientITBase.verifyMultiConsumerEntryPoint(brokerUrl);
     }
 

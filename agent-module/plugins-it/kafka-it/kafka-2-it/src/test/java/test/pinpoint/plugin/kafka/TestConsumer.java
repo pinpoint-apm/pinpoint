@@ -45,6 +45,7 @@ public class TestConsumer {
 
     private final Logger logger = LogManager.getLogger(getClass());
 
+    private final Properties props;
     private final Thread consumerThread;
     private final Poller poller;
 
@@ -52,9 +53,21 @@ public class TestConsumer {
         String testClassName = System.getProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME);
         String testSimpleClassName = testClassName != null ? testClassName.substring(testClassName.lastIndexOf(".") + 1) : "UNKNOWN";
         String threadName = testSimpleClassName + "-test-poller";
-        poller = new Poller(offsetStore, brokerUrl);
+        this.props = getConsumerConfig(brokerUrl);
+        poller = new Poller(offsetStore, props);
         consumerThread = new Thread(poller, threadName);
         consumerThread.setDaemon(true);
+    }
+
+    private Properties getConsumerConfig(String brokerUrl) {
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "10000");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(true));
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+        return props;
     }
 
     public void shutdown() throws InterruptedException {
@@ -73,14 +86,7 @@ public class TestConsumer {
         private final KafkaConsumer<String, String> consumer;
         private final OffsetStore offsetStore;
 
-        private Poller(OffsetStore offsetStore, String brokerUrl) {
-            Properties props = new Properties();
-            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
-            props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "10000");
-            props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-            props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-            props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(true));
-            props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+        private Poller(OffsetStore offsetStore, Properties props) {
             consumer = new KafkaConsumer<>(props);
             this.offsetStore = offsetStore;
         }
