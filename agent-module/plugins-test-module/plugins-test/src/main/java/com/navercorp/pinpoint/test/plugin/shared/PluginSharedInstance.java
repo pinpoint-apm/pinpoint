@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.ThreadContextExecutor;
+import org.junit.platform.commons.JUnitException;
 
 public class PluginSharedInstance {
 
@@ -45,26 +46,26 @@ public class PluginSharedInstance {
         }
 
 
-        this.executor.execute(() -> {
+        this.executor.run(() -> {
             try {
                 this.object = sharedClass.newInstance();
                 if (object instanceof SharedTestLifeCycle) {
                     ((SharedTestLifeCycle) object).beforeAll();
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new JUnitException(className + " test fail", e);
             }
         });
     }
 
     public void after() {
-        executor.execute(() -> {
+        executor.run(() -> {
             try {
                 if (object instanceof SharedTestLifeCycle) {
                     ((SharedTestLifeCycle) object).afterAll();
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new JUnitException(className + " test fail", e);
             }
         });
     }

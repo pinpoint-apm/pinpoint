@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.test.plugin.agent.PluginTestAgentStarter;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestJunitTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
+import org.junit.platform.commons.JUnitException;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -70,11 +71,11 @@ public class PluginTestInstanceFactory {
     PluginTestInstanceCallback startAgent(String configFile, ClassLoader classLoader) {
         try {
             Class<?> testClass = classLoader.loadClass(PluginTestAgentStarter.class.getName());
-            Constructor<?> constructor = testClass.getConstructor(String.class, ClassLoader.class);
+            Constructor<?> constructor = testClass.getConstructor(String.class);
             Method method = testClass.getDeclaredMethod("getCallback");
-            return (PluginTestInstanceCallback) method.invoke(constructor.newInstance(configFile, classLoader));
+            return (PluginTestInstanceCallback) method.invoke(constructor.newInstance(configFile));
         } catch (Exception e) {
-            throw new RuntimeException("agent configFile=" + configFile + ", classLoader=" + classLoader, e);
+            throw new JUnitException("agent configFile=" + configFile + ", classLoader=" + classLoader, e);
         }
     }
 }

@@ -15,21 +15,21 @@ public class ThreadContextExecutor {
         return context;
     }
 
-    public void execute(Executable executable) {
+    public void run(RunExecutable executable) {
         Objects.requireNonNull(executable, "executable");
 
         final Thread thread = Thread.currentThread();
         final ClassLoader before = thread.getContextClassLoader();
         thread.setContextClassLoader(context);
         try {
-            executable.execute();
+            executable.run();
         } finally {
             thread.setContextClassLoader(before);
         }
     }
 
 
-    public <V> V call(Callable<V> callable) {
+    public <V> V call(CallExecutable<V> callable) {
         Objects.requireNonNull(callable, "callable");
 
         final Thread thread = Thread.currentThread();
@@ -42,13 +42,4 @@ public class ThreadContextExecutor {
         }
     }
 
-    @FunctionalInterface
-    public interface Executable {
-        void execute();
-    }
-
-    @FunctionalInterface
-    public interface Callable<V> {
-        V call();
-    }
 }

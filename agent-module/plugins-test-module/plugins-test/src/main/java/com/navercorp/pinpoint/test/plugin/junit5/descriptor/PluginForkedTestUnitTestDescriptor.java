@@ -71,14 +71,14 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
         MutableExtensionRegistry extensionRegistry = context.getExtensionRegistry();
 
         JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(this.getUniqueId(), configuration);
-        ExtensionContext classExtensionContext = ExtensionContextFactory.jupiterEngineContext(
+        ExtensionContext jupiterExtensionContext = ExtensionContextFactory.jupiterEngineContext(
                 context.getExecutionListener(), engineDescriptor,
                 context.getConfiguration(), ec -> new DefaultExecutableInvoker(ec, extensionRegistry));
 
         // @formatter:off
         return context.extend()
                 .withThrowableCollector(throwableCollector)
-                .withExtensionContext(classExtensionContext)
+                .withExtensionContext(jupiterExtensionContext)
                 .build();
         // @formatter:on
     }

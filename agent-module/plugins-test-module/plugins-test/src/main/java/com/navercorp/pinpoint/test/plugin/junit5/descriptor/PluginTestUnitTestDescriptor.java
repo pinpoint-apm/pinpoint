@@ -62,9 +62,7 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
     public JupiterEngineExecutionContext before(JupiterEngineExecutionContext context) {
         ThrowableCollector throwableCollector = context.getThrowableCollector();
         if (sharedInstance != null) {
-            throwableCollector.execute(() -> {
-                sharedInstance.before();
-            });
+            throwableCollector.execute(sharedInstance::before);
         }
 
         if (throwableCollector.isNotEmpty()) {
@@ -82,9 +80,7 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
         Throwable previousThrowable = throwableCollector.getThrowable();
 
         if (sharedInstance != null) {
-            throwableCollector.execute(() -> {
-                sharedInstance.after();
-            });
+            throwableCollector.execute(sharedInstance::after);
         }
 
         // If the previous Throwable was not null when this method was called,

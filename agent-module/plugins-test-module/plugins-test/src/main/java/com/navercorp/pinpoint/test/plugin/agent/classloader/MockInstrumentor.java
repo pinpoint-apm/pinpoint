@@ -29,11 +29,9 @@ import java.util.Objects;
  */
 public class MockInstrumentor {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ClassLoader loader;
     private final ClassFileTransformer dispatcher;
 
-    public MockInstrumentor(ClassLoader loader, ClassFileTransformer defaultTransformer) {
-        this.loader = loader;
+    public MockInstrumentor(ClassFileTransformer defaultTransformer) {
         this.dispatcher = Objects.requireNonNull(defaultTransformer, "defaultTransformer");
     }
 
