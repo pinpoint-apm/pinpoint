@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.common.server.task.TimerTaskDecoratorFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;

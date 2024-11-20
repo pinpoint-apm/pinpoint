@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.realtime;
 
-import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.common.server.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
