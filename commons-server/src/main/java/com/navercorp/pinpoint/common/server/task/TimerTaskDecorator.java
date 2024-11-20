@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.task;
+package com.navercorp.pinpoint.common.server.task;
+
+import java.util.TimerTask;
 
 /**
  * @author HyunGil Jeong
  */
-public interface TimerTaskDecoratorFactory {
+public interface TimerTaskDecorator {
 
-    TimerTaskDecorator createTimerTaskDecorator();
+    TimerTask decorate(TimerTask timerTask);
 }

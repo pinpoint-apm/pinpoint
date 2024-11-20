@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.task.TimerTaskDecorator;
-import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.common.server.task.TimerTaskDecorator;
+import com.navercorp.pinpoint.common.server.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.util.SecurityContextUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;

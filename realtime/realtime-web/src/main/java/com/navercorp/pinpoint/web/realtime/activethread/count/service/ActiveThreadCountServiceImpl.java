@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.web.realtime.activethread.count.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.common.task.TimerTaskDecorator;
-import com.navercorp.pinpoint.common.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.common.server.task.TimerTaskDecorator;
+import com.navercorp.pinpoint.common.server.task.TimerTaskDecoratorFactory;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
