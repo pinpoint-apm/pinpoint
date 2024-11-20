@@ -40,14 +40,13 @@ import java.util.function.Function;
 public class DefaultExceptionRecorderTest {
 
     private final static Logger logger = LogManager.getLogger(DefaultExceptionRecorderTest.class);
+    private final static long START_TIME = 1;
 
     ExceptionChainSampler exceptionChainSampler = new ExceptionChainSampler(1000);
     ExceptionWrapperFactory exceptionWrapperFactory = new ExceptionWrapperFactory(10, 1048);
 
-    long START_TIME = 1;
 
-
-    class TestExceptionStorage implements ExceptionStorage {
+    static class TestExceptionStorage implements ExceptionStorage {
 
         List<ExceptionWrapper> wrappers;
         public List<ExceptionWrapper> outputStream;
@@ -59,7 +58,7 @@ public class DefaultExceptionRecorderTest {
 
         @Override
         public void store(List<ExceptionWrapper> wrappers) {
-            logger.error(wrappers);
+            logger.info(wrappers);
             this.wrappers.addAll(wrappers);
         }
 
@@ -85,7 +84,7 @@ public class DefaultExceptionRecorderTest {
         }
     }
 
-    private Function<Throwable, Throwable> getThrowableFunction(
+    private static Function<Throwable, Throwable> getThrowableFunction(
             DefaultExceptionRecorder recorder,
             List<Throwable> throwable
     ) {
@@ -112,11 +111,11 @@ public class DefaultExceptionRecorderTest {
         DefaultExceptionRecorder exceptionRecorder = new DefaultExceptionRecorder(
                 exceptionChainSampler, exceptionWrapperFactory, context
         );
-        Function<Throwable, Throwable> throwableFunction = getThrowableFunction(
+        Function<Throwable, Throwable> recordThrowable = getThrowableFunction(
                 exceptionRecorder, exceptions
         );
 
-        exceptionRecorder.recordException(null, 0);
+        recordThrowable.apply(null);
         exceptionRecorder.close();
 
         List<ExceptionWrapper> expected = new ArrayList<>();
@@ -133,7 +132,7 @@ public class DefaultExceptionRecorderTest {
         DefaultExceptionRecorder exceptionRecorder = new DefaultExceptionRecorder(
                 exceptionChainSampler, exceptionWrapperFactory, context
         );
-        Function<Throwable, Throwable> throwableFunction = getThrowableFunction(
+        Function<Throwable, Throwable> recordThrowable = getThrowableFunction(
                 exceptionRecorder, exceptions
         );
 
@@ -141,10 +140,10 @@ public class DefaultExceptionRecorderTest {
         List<ExceptionWrapper> actual = null;
 
         try {
-            level3Error(throwableFunction);
+            level3Error(recordThrowable);
         } catch (Throwable e) {
             expected = newExceptionWrappers(e, START_TIME, 1);
-            exceptionRecorder.recordException(e, START_TIME);
+            recordThrowable.apply(e);
             actual = exceptionStorage.getWrappers();
             Assertions.assertTrue(actual.isEmpty());
         }
@@ -161,7 +160,7 @@ public class DefaultExceptionRecorderTest {
         DefaultExceptionRecorder exceptionRecorder = new DefaultExceptionRecorder(
                 exceptionChainSampler, exceptionWrapperFactory, context
         );
-        Function<Throwable, Throwable> throwableFunction = getThrowableFunction(
+        Function<Throwable, Throwable> recordThrowable = getThrowableFunction(
                 exceptionRecorder, exceptions
         );
 
@@ -173,10 +172,9 @@ public class DefaultExceptionRecorderTest {
         Throwable throwable = null;
 
         try {
-            notChainedException(throwableFunction);
+            notChainedException(recordThrowable);
         } catch (Throwable e) {
             expected1 = newExceptionWrappers(exceptions.get(exceptions.size() - 2), START_TIME, 1);
-            exceptionRecorder.recordException(e, START_TIME);
             logger.warn(exceptionStorage.getWrappers());
             actual1 = new ArrayList<>(exceptionStorage.getWrappers());
             throwable = e;
@@ -204,7 +202,7 @@ public class DefaultExceptionRecorderTest {
         DefaultExceptionRecorder exceptionRecorder = new DefaultExceptionRecorder(
                 exceptionChainSampler, exceptionWrapperFactory, context
         );
-        Function<Throwable, Throwable> throwableFunction = getThrowableFunction(
+        Function<Throwable, Throwable> recordThrowable = getThrowableFunction(
                 exceptionRecorder, exceptions
         );
 
@@ -212,10 +210,9 @@ public class DefaultExceptionRecorderTest {
         List<ExceptionWrapper> actual = null;
 
         try {
-            rethrowGivenException(throwableFunction);
+            rethrowGivenException(recordThrowable);
         } catch (Throwable e) {
             expected = newExceptionWrappers(e, START_TIME, 1);
-            exceptionRecorder.recordException(e, START_TIME);
             actual = exceptionStorage.getWrappers();
             Assertions.assertTrue(actual.isEmpty());
         }
