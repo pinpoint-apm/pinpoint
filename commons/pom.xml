@@ -40,19 +40,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>templating-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>filter-src</id>
-                        <goals>
-                            <goal>filter-sources</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirectory>${basedir}/src/main/java-templates</sourceDirectory>
-                            <outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
