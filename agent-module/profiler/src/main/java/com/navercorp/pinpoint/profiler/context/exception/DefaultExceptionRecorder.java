@@ -45,7 +45,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder {
         this.exceptionContext = Objects.requireNonNull(exceptionContext, "exceptionContext");
     }
 
-    public void recordException(Throwable current, long startTime) {
+    public void recordThrowable(Throwable current, long startTime) {
         final ExceptionContext context = this.exceptionContext;
         ExceptionRecordingState state = context.stateOf(current);
         ExceptionChainSampler.SamplingState samplingState = getSamplingState(state, context);
@@ -75,7 +75,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder {
             SpanEvent spanEvent,
             Throwable throwable
     ) {
-        this.recordException(
+        this.recordThrowable(
                 throwable,
                 spanEvent.getStartTime()
         );
