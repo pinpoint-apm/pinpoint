@@ -67,11 +67,6 @@ public class BufferedExceptionStorage implements ExceptionStorage {
         }
     }
 
-    @Override
-    public void close() {
-    }
-
-
     private void sendExceptionMetaData(List<ExceptionWrapper> exceptionWrappers) {
         final ExceptionMetaData exceptionMetaData = this.factory.newExceptionMetaData(exceptionWrappers);
 
@@ -84,6 +79,11 @@ public class BufferedExceptionStorage implements ExceptionStorage {
             logger.debug("send fail");
         }
     }
+
+    @Override
+    public void close() {
+    }
+
 
     @Override
     public String toString() {

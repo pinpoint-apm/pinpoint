@@ -24,8 +24,6 @@ import java.util.List;
  */
 public interface ExceptionStorage {
     void store(List<ExceptionWrapper> wrappers);
-
     void flush();
-
     void close();
 }
