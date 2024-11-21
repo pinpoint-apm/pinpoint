@@ -26,10 +26,11 @@ import java.util.Objects;
  */
 public class ChainedTaskDecorator implements TaskDecorator {
 
-    private final List<TaskDecorator> taskDecorators;
+    private final TaskDecorator[] taskDecorators;
 
     public ChainedTaskDecorator(List<TaskDecorator> taskDecorators) {
-        this.taskDecorators = Objects.requireNonNull(taskDecorators, "taskDecorators");
+        Objects.requireNonNull(taskDecorators, "taskDecorators");
+        this.taskDecorators = taskDecorators.toArray(new TaskDecorator[0]);
     }
 
     @Override
