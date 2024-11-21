@@ -90,7 +90,7 @@ public class ClickHouseITBase {
         this.jdbcApi = jdbcApi;
 
         try {
-            Driver driver = jdbcDriverClass.getDriver().getConstructor().newInstance();
+            Driver driver = jdbcDriverClass.newDriver();
             DriverManager.registerDriver(driver);
         } catch (Exception e) {
             throw new RuntimeException("driver register error", e);

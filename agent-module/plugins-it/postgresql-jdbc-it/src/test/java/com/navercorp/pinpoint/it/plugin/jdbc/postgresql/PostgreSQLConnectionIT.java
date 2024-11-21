@@ -79,7 +79,7 @@ public class PostgreSQLConnectionIT {
 
     @BeforeEach
     public void before() throws Exception {
-        Driver driver = driverClass.getDriver().newInstance();
+        Driver driver = driverClass.newDriver();
         DriverManager.registerDriver(driver);
     }
 

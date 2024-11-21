@@ -50,7 +50,7 @@ public abstract class PostgreSqlBase {
 
     @BeforeEach
     public void registerDriver() throws Exception {
-        Driver driver = getJDBCDriverClass().getDriver().newInstance();
+        Driver driver = getJDBCDriverClass().newDriver();
         DriverManager.registerDriver(driver);
     }
 

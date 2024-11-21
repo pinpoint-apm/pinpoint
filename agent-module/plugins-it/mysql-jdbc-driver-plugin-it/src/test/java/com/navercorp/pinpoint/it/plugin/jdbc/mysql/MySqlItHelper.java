@@ -79,7 +79,7 @@ public class MySqlItHelper {
 
     void testStatements(JDBCApi jdbcApi) throws Exception {
 
-        Class<Driver> driverClass = jdbcApi.getJDBCDriverClass().getDriver();
+        Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         final Connection conn = connect(driverClass);
 
         conn.setAutoCommit(false);
@@ -138,7 +138,7 @@ public class MySqlItHelper {
         verifier.verifyTrace(event(MYSQL, commit, null, databaseAddress, databaseName));
     }
 
-    private Connection connect(Class<Driver> driverClass) throws Exception {
+    private Connection connect(Driver driverClass) throws Exception {
         return DriverManager.getConnection(jdbcUrl, databaseId, databasePassword);
     }
 
@@ -151,7 +151,7 @@ public class MySqlItHelper {
         final String param2 = "b";
         final String storedProcedureQuery = "{ call concatCharacters(?, ?, ?) }";
 
-        final Class<Driver> driverClass = jdbcApi.getJDBCDriverClass().getDriver();
+        final Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         final Connection conn = connect(driverClass);
 
         CallableStatement cs = conn.prepareCall(storedProcedureQuery);
@@ -202,7 +202,7 @@ public class MySqlItHelper {
         final int param2 = 2;
         final String storedProcedureQuery = "{ call swapAndGetSum(?, ?) }";
 
-        final Class<Driver> driverClass = jdbcApi.getJDBCDriverClass().getDriver();
+        final Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         final Connection conn = connect(driverClass);
 
         CallableStatement cs = conn.prepareCall(storedProcedureQuery);

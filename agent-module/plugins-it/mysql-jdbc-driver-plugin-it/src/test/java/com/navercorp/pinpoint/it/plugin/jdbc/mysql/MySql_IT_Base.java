@@ -53,7 +53,7 @@ public abstract class MySql_IT_Base {
     @BeforeEach
     public void before() throws Exception {
         JDBCDriverClass driverClass = getJDBCDriverClass();
-        Driver driver = driverClass.getDriver().newInstance();
+        Driver driver = driverClass.newDriver();
         DriverManager.registerDriver(driver);
     }
 

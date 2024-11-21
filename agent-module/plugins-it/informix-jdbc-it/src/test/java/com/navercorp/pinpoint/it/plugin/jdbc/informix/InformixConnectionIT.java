@@ -51,8 +51,10 @@ import java.util.List;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.apache.ibatis:ibatis-sqlmap:[2.3.4.726]","com.ibm.informix:jdbc:[4.10.10.0]", PluginITConstants.VERSION, JDBCTestConstants.VERSION})
-@SharedDependency({"com.ibm.informix:jdbc:4.10.10.0", TestcontainersOption.TEST_CONTAINER, PluginITConstants.VERSION, JDBCTestConstants.VERSION})
+@Dependency({"org.apache.ibatis:ibatis-sqlmap:[2.3.4.726]", "com.ibm.informix:jdbc:[4.10.10.0]",
+        PluginITConstants.VERSION, JDBCTestConstants.VERSION})
+@SharedDependency({"com.ibm.informix:jdbc:4.10.10.0", TestcontainersOption.TEST_CONTAINER,
+        PluginITConstants.VERSION, JDBCTestConstants.VERSION})
 @SharedTestLifeCycleClass(InformixServer.class)
 @PinpointConfig("pinpoint-informix.config")
 public class InformixConnectionIT {
@@ -70,7 +72,7 @@ public class InformixConnectionIT {
 
     @BeforeEach
     public void before() throws Exception {
-        Driver driver = driverClass.getDriver().newInstance();
+        Driver driver = driverClass.newDriver();
         DriverManager.registerDriver(driver);
     }
 

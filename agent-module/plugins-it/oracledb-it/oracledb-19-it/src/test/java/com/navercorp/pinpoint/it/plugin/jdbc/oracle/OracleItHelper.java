@@ -67,13 +67,13 @@ public class OracleItHelper {
         DB_PASSWORD = driverProperties.getPassword();
     }
 
-    private Connection connect(Class<Driver> driverClass) throws SQLException {
+    private Connection connect(Driver driverClass) throws SQLException {
         logger.info("Connecting to Oracle Database url: {}, id: {}, pw: {}", JDBC_URL, DB_ID, DB_PASSWORD);
         return DriverManager.getConnection(JDBC_URL, DB_ID, DB_PASSWORD);
     }
 
     public void testStatement(JDBCApi jdbcApi, String insertQuery, String selectQuery, String deleteQuery) throws Exception {
-        Class<Driver> driverClass = jdbcApi.getJDBCDriverClass().getDriver();
+        Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         final Connection conn = connect(driverClass);
 
         conn.setAutoCommit(false);
@@ -172,7 +172,7 @@ public class OracleItHelper {
         END concatCharacters;
      */
     public void testStoredProcedure_with_IN_OUT_parameters(JDBCApi jdbcApi, String param1, String param2, String storedProcedureQuery) throws Exception {
-        Class<Driver> driverClass = jdbcApi.getJDBCDriverClass().getDriver();
+        Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         final Connection conn = connect(driverClass);
 
         CallableStatement cs = conn.prepareCall(storedProcedureQuery);
@@ -254,7 +254,7 @@ public class OracleItHelper {
         END swapAndGetSum;
     */
     public void testStoredProcedure_with_INOUT_parameters(JDBCApi jdbcApi, int param1, int param2, String storedProcedureQuery) throws Exception {
-        Class<Driver> driverClass = jdbcApi.getJDBCDriverClass().getDriver();
+        Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         final Connection conn = connect(driverClass);
 
         CallableStatement cs = conn.prepareCall(storedProcedureQuery);
