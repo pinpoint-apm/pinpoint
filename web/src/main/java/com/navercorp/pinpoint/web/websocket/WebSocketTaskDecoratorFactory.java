@@ -16,30 +16,28 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.server.task.TimerTaskDecorator;
-import com.navercorp.pinpoint.common.server.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.common.server.task.TaskDecoratorFactory;
 import com.navercorp.pinpoint.web.util.SecurityContextUtils;
+import org.springframework.core.task.TaskDecorator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.TimerTask;
-
 /**
  * @author HyunGil Jeong
  */
-public class PinpointWebSocketTimerTaskDecoratorFactory implements TimerTaskDecoratorFactory {
+public class WebSocketTaskDecoratorFactory implements TaskDecoratorFactory {
 
     @Override
-    public TimerTaskDecorator createTimerTaskDecorator() {
-        return new SecurityContextPreservingTimerTaskDecorator();
+    public TaskDecorator createDecorator() {
+        return new SecurityContextPreservingTaskDecorator();
     }
 
-    private static class SecurityContextPreservingTimerTaskDecorator implements TimerTaskDecorator {
+    private static class SecurityContextPreservingTaskDecorator implements TaskDecorator {
 
         private final SecurityContext securityContext;
 
-        private SecurityContextPreservingTimerTaskDecorator() {
+        private SecurityContextPreservingTaskDecorator() {
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             final Authentication authentication = SecurityContextUtils.getAuthentication();
             if (authentication != null) {
@@ -49,14 +47,14 @@ public class PinpointWebSocketTimerTaskDecoratorFactory implements TimerTaskDeco
         }
 
         @Override
-        public TimerTask decorate(TimerTask timerTask) {
-            return new TimerTask() {
+        public Runnable decorate(Runnable task) {
+            return new Runnable() {
                 @Override
                 public void run() {
                     SecurityContext previousSecurityContext = SecurityContextHolder.getContext();
                     try {
                         SecurityContextHolder.setContext(securityContext);
-                        timerTask.run();
+                        task.run();
                     } finally {
                         SecurityContextHolder.setContext(previousSecurityContext);
                     }

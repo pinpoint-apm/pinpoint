@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.task;
 
+import org.springframework.core.task.TaskDecorator;
+
 /**
  * @author HyunGil Jeong
  */
-public interface TimerTaskDecoratorFactory {
+public interface TaskDecoratorFactory {
 
-    TimerTaskDecorator createTimerTaskDecorator();
+    TaskDecorator createDecorator();
 }
