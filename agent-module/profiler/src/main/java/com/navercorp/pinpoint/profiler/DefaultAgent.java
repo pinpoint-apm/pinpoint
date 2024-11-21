@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.banner.Banner;
+import com.navercorp.pinpoint.banner.Mode;
+import com.navercorp.pinpoint.banner.PinpointBanner;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -37,6 +40,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -158,8 +162,18 @@ public class DefaultAgent implements Agent {
                 return;
             }
         }
+
         logger.info("Starting {} Agent.", ProductInfo.NAME);
         this.applicationContext.start();
+        printBanner();
+    }
+
+    private void printBanner() {
+        List<String> dumpKeys = profilerConfig.readList("pinpoint.banner.configs");
+        Mode mode = Mode.valueOf(profilerConfig.readString("pinpoint.banner.mode", "CONSOLE").toUpperCase());
+        Properties properties = profilerConfig.getProperties();
+        final Banner banner = new PinpointBanner(mode, dumpKeys, properties::getProperty, logger::info);
+        banner.printBanner();
     }
 
     @Override
