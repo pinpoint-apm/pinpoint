@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.test.plugin.util.StringUtils;
+import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -8,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class PluginClassLoading {
+
+    private static final String VERSION = VersionUtils.VERSION;
 
     private static final String[] CLASS_PATHS_TO_CHECK_AS_CONTAINS = new String[]{
             "junit", // JUnit
@@ -54,7 +57,7 @@ public final class PluginClassLoading {
     }
 
     private static final String[] CLASS_PATHS_TO_CHECK_AS_GLOB_MATCHES = new String[]{
-            "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command
+            Paths.get("**", "pinpoint-*-plugin-" + VERSION + ".jar").toString()
     };
 
     public static String[] getGlobMatchesCheckClassPath() {
@@ -84,7 +87,7 @@ public final class PluginClassLoading {
             "slf4j-tinylog"
     };
 
-    private static final String LOG4J2_VERSION = Log4j2VersionTemplate.VERSION;
+    private static final String LOG4J2_VERSION = PluginEngineTemplate.LOG4J_VERSION;
     private static final String[] LOGGER_DEPENDENCY_ID = new String[]{
             "org.apache.logging.log4j:log4j-api:%s",
             "org.apache.logging.log4j:log4j-core:%s",
@@ -103,13 +106,13 @@ public final class PluginClassLoading {
     }
 
     public static final String[] PLUGIN_GLOB_MATCHES = new String[]{
-            "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command
-            "**" + File.separator + "naver-pinpoint-*-plugin-" + Version.VERSION + ".jar" // required when executing test via mvn command
+            Paths.get("**", "pinpoint-*-plugin-" + VERSION + ".jar").toString(), // required when executing test via mvn command
+            Paths.get("**", "naver-pinpoint-*-plugin-" + VERSION + ".jar").toString() // required when executing test via mvn command
     };
 
     public static final String[] PLUGIN_CONTAINS_MATCHES = new String[]{
-            File.separator + "pinpoint" + File.separator + "agent-module" + File.separator + "plugins" + File.separator,
-            File.separator + "pinpoint-naver" + File.separator + "agent-module" + File.separator + "naver-plugins" + File.separator
+            StringUtils.wrap(Paths.get("pinpoint", "agent-module", "plugins").toString(), File.separator),
+            StringUtils.wrap(Paths.get("pinpoint-naver", "agent-module", "naver-plugins").toString(), File.separator)
     };
 
     public static final String[] PLUGIN_IT_UTILS_CONTAINS_MATCHES = new String[]{

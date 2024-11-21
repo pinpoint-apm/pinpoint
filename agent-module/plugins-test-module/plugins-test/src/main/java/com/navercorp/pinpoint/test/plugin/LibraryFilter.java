@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import java.io.File;
-import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 class LibraryFilter {
@@ -39,10 +38,6 @@ class LibraryFilter {
             }
         }
         return false;
-    }
-
-    public boolean filter(URL url) {
-        return filter(url.getFile());
     }
 
     interface LibraryMatcher {
@@ -97,9 +92,7 @@ class LibraryFilter {
 
         @Override
         public boolean include(String filePath) {
-            Path path = new File(filePath).toPath();
-
-
+            Path path = Paths.get(filePath);
             for (PathMatcher pathMatcher : pathMatchers) {
                 if (pathMatcher.matches(path)) {
                     return true;

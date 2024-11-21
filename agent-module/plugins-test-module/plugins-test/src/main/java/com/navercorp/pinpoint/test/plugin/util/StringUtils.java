@@ -33,4 +33,11 @@ public final class StringUtils {
         return string.length();
     }
 
+    public static String wrap(final String str, final String wrapToken) {
+        if (isEmpty(str)) {
+            return str;
+        }
+        return wrapToken + str + wrapToken;
+    }
+
 }
