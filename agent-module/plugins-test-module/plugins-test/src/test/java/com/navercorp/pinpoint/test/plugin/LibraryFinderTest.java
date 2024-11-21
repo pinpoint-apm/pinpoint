@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +17,8 @@ import java.util.List;
 
 public class LibraryFinderTest {
 
+    private static final String VERSION = VersionUtils.VERSION;
+
     @Test
     public void filter() throws MalformedURLException {
         LibraryFilter.LibraryMatcher matcher = LibraryFilter.createContainsMatcher(new String[]{"abc", "123"});
@@ -29,10 +31,11 @@ public class LibraryFinderTest {
         List<URL> list = Arrays.asList(url1, url2, url3, url4, url5);
         Collections.shuffle(list);
 
-        Collection<Path> result = new ArrayDeque<>();
+        Collection<String> result = new ArrayDeque<>();
         for (URL url : list) {
-            if (libraryFinder.filter(url)) {
-                result.add(Paths.get(url.getPath()));
+            String path = url.getPath();
+            if (libraryFinder.filter(path)) {
+                result.add(path);
             }
         }
         Assertions.assertEquals(2, result.size());
@@ -40,31 +43,30 @@ public class LibraryFinderTest {
 
     @Test
     public void globTest() throws MalformedURLException {
-        String jarPath = File.separator + "home"
-                + File.separator + "pinpoint-mssql-jdbc-driver-plugin"
-                + File.separator + Version.VERSION
-                + File.separator + "pinpoint-mssql-jdbc-driver-plugin-" + Version.VERSION + ".jar";
+        String jarPath = File.separator + Paths.get("home",
+                "pinpoint-mssql-jdbc-driver-plugin",
+                VERSION,
+                "pinpoint-mssql-jdbc-driver-plugin-" + VERSION + ".jar"
+        );
 
-        String matchPath = "pinpoint-*-plugin-" + Version.VERSION + ".jar";
+        String matchPath = "pinpoint-*-plugin-" + VERSION + ".jar";
         Path result = globMatches(jarPath, matchPath);
         Assertions.assertNull(result);
 
-        matchPath = "*" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar";
-        result = globMatches(jarPath, matchPath);
-        Assertions.assertNull(result);
+        String matchPath2 = Paths.get("*", "pinpoint-*-plugin-" + VERSION + ".jar").toString();
+        Path result2 = globMatches(jarPath, matchPath2);
+        Assertions.assertNull(result2);
 
-        matchPath = "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar";
-        result = globMatches(jarPath, matchPath);
-        Assertions.assertEquals(Paths.get(jarPath), result);
+        String matchPath3 = Paths.get("**", "pinpoint-*-plugin-" + VERSION + ".jar").toString();
+        Path result3 = globMatches(jarPath, matchPath3);
+        Assertions.assertEquals(Paths.get(jarPath), result3);
     }
 
     private Path globMatches(String jarPath, String matchPath) throws MalformedURLException {
         LibraryFilter.LibraryMatcher matcher = LibraryFilter.createGlobMatcher(new String[]{matchPath});
         LibraryFilter libraryFinder = new LibraryFilter(matcher);
 
-        File file = new File(jarPath);
-        URL url = file.toURI().toURL();
-        if (libraryFinder.filter(url)) {
+        if (libraryFinder.filter(jarPath)) {
             return Paths.get(jarPath);
         }
         return null;
