@@ -16,12 +16,12 @@
 package com.navercorp.pinpoint.web.realtime.activethread.count.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.common.server.task.TimerTaskDecorator;
-import com.navercorp.pinpoint.common.server.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.common.server.task.TaskDecoratorFactory;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
+import org.springframework.core.task.TaskDecorator;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,7 +32,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +46,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
 
     private final ActiveThreadCountDao atcDao;
     private final AgentLookupService agentLookupService;
-    private final TimerTaskDecoratorFactory timerTaskDecoratorFactory;
+    private final TaskDecoratorFactory taskDecoratorFactory;
     private final Scheduler scheduler;
     private final Duration emitPeriod;
     private final Duration updatePeriod;
@@ -55,14 +54,14 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
     public ActiveThreadCountServiceImpl(
             ActiveThreadCountDao atcDao,
             AgentLookupService agentLookupService,
-            TimerTaskDecoratorFactory timerTaskDecoratorFactory,
+            TaskDecoratorFactory taskDecoratorFactory,
             ScheduledExecutorService scheduledExecutor,
             Duration emitPeriod,
             Duration updatePeriod
     ) {
         this.atcDao = Objects.requireNonNull(atcDao, "atcDao");
         this.agentLookupService = Objects.requireNonNull(agentLookupService, "agentLookupService");
-        this.timerTaskDecoratorFactory = Objects.requireNonNull(timerTaskDecoratorFactory, "timerTaskDecoratorFactory");
+        this.taskDecoratorFactory = Objects.requireNonNull(taskDecoratorFactory, "taskDecoratorFactory");
         this.scheduler = Schedulers.fromExecutorService(Objects.requireNonNull(scheduledExecutor, "scheduledExecutor"));
         this.emitPeriod = Objects.requireNonNull(emitPeriod, "emitPeriod");
         this.updatePeriod = Objects.requireNonNull(updatePeriod, "updatePeriod");
@@ -70,7 +69,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
 
     @Override
     public Flux<ActiveThreadCountResponse> getResponses(String applicationName) {
-        TimerTaskDecorator taskDecorator = timerTaskDecoratorFactory.createTimerTaskDecorator();
+        TaskDecorator taskDecorator = taskDecoratorFactory.createDecorator();
         SupplyCollector collector = new SupplyCollector(applicationName, emitPeriod.toMillis() * 2);
 
         Map<ClusterKey, Disposable> disposableMap = new ConcurrentHashMap<>();
@@ -105,9 +104,9 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         return new ClusterKey(supply.getApplicationName(), supply.getAgentId(), supply.getStartTimestamp());
     }
 
-    private Mono<List<ClusterKey>> getAgents(TimerTaskDecorator taskDecorator, String applicationName) {
+    private Mono<List<ClusterKey>> getAgents(TaskDecorator taskDecorator, String applicationName) {
         return Mono.create(sink -> {
-            taskDecorator.decorate(new TimerTask() {
+            taskDecorator.decorate(new Runnable() {
                 @Override
                 public void run() {
                     sink.success(agentLookupService.getRecentAgents(applicationName));

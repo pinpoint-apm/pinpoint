@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.server.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.common.server.task.TaskDecoratorFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -33,19 +33,14 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author HyunGil Jeong
  */
-public class PinpointWebSocketTimerTaskDecoratorTest {
+public class WebSocketTaskDecoratorFactoryTest {
 
-    private final TimerTaskDecoratorFactory timerTaskDecoratorFactory = new PinpointWebSocketTimerTaskDecoratorFactory();
+    private final TaskDecoratorFactory taskDecoratorFactory = new WebSocketTaskDecoratorFactory();
 
     @Test
     public void testAuthenticationPropagation() {
         final int numThreads = 3;
-        final Authentication[] authentications = new Authentication[numThreads];
-        for (int i = 0; i < authentications.length; i++) {
-            final String principal = "principal" + i;
-            final String credential = "credential" + i;
-            authentications[i] = new TestingAuthenticationToken(principal, credential);
-        }
+        final List<Authentication> authentications = sampleAuthentications(numThreads);
         List<CompletableFuture<Authentication>> result = new ArrayList<>();
         for (Authentication authentication : authentications) {
             CompletableFuture<Authentication> future = CompletableFuture.supplyAsync(() -> {
@@ -53,18 +48,28 @@ public class PinpointWebSocketTimerTaskDecoratorTest {
                 securityContext.setAuthentication(authentication);
                 SecurityContextHolder.setContext(securityContext);
                 TestTimerTask run = new TestTimerTask();
-                TimerTask timerTask = timerTaskDecoratorFactory.createTimerTaskDecorator().decorate(run);
-                timerTask.run();
+                Runnable task = taskDecoratorFactory.createDecorator().decorate(run);
+                task.run();
                 return run.result();
             });
             result.add(future);
         }
 
-        for (int i = 0; i < authentications.length; i++) {
-            Authentication expected = authentications[i];
-            Authentication actual = result.get(i).join();
-            Assertions.assertEquals(expected, actual);
+        int i = 0;
+        for (Authentication authentication : authentications) {
+            Authentication actual = result.get(i++).join();
+            Assertions.assertEquals(authentication, actual);
         }
+    }
+
+    private List<Authentication> sampleAuthentications(int numThreads) {
+        final List<Authentication> result = new ArrayList<>(numThreads);
+        for (int i = 0; i < numThreads; i++) {
+            final String principal = "principal" + i;
+            final String credential = "credential" + i;
+            result.add(new TestingAuthenticationToken(principal, credential));
+        }
+        return result;
     }
 
     private static class TestTimerTask extends TimerTask {
