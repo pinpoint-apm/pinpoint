@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.json.JsonField;
@@ -54,8 +53,8 @@ import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,14 +63,13 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,8 +91,8 @@ public class FilteredMapServiceImplTest {
 
     private static final Random RANDOM = new Random();
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(8);
-
+    @AutoClose("shutdown")
+    private static final Executor executor = Executors.newFixedThreadPool(8);
 
     @Mock
     private TraceDao traceDao;
@@ -149,11 +147,6 @@ public class FilteredMapServiceImplTest {
         filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexDao,
                 registry, applicationFactory, serverInstanceDatasourceService, Optional.empty(), applicationMapBuilderFactory);
 
-    }
-
-    @AfterEach
-    public void cleanUp() {
-        MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
     }
 
     /**

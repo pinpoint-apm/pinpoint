@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.task;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -31,13 +32,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author HyunGil Jeong
  */
 public class ChainedTaskDecoratorTest {
-
+    @AutoClose
     private SimpleAsyncTaskExecutor executor;
 
     @BeforeEach
     public void setup() {
         executor = new SimpleAsyncTaskExecutor("Test-Worker-");
     }
+
 
     @Test
     public void chainedDecoratorsShouldBeCalled() throws InterruptedException {
@@ -54,7 +56,7 @@ public class ChainedTaskDecoratorTest {
         for (int i = 0; i < testCount; i++) {
             executor.execute(new TestWorker(completeLatch));
         }
-        completeLatch.await(5L, TimeUnit.SECONDS);
+        Assertions.assertTrue(completeLatch.await(5L, TimeUnit.SECONDS));
         // Then
         Assertions.assertEquals(testCount, decorator1.getCount());
         Assertions.assertEquals(testCount, decorator2.getCount());

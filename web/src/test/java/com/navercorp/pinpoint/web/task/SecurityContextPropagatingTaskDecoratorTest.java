@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.task;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,13 +38,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SecurityContextPropagatingTaskDecoratorTest {
 
     private final SecurityContextPropagatingTaskDecorator decorator = new SecurityContextPropagatingTaskDecorator();
-    private final SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("Test-Worker-");
+    @AutoClose
+    private SimpleAsyncTaskExecutor executor;
 
     @Mock
     private SecurityContext securityContext;
 
     @BeforeEach
     public void setup() {
+        executor = new SimpleAsyncTaskExecutor("Test-Worker-");
         executor.setTaskDecorator(decorator);
     }
 
@@ -71,7 +74,7 @@ public class SecurityContextPropagatingTaskDecoratorTest {
         for (int i = 0; i < testCount; i++) {
             executor.execute(new TestWorker(completeLatch, workerCallback));
         }
-        completeLatch.await(5, TimeUnit.SECONDS);
+        Assertions.assertTrue(completeLatch.await(5, TimeUnit.SECONDS));
         // Then
         boolean testVerified = verifiedFlag.get();
         Assertions.assertTrue(testVerified, "SecurityContext has not been propagated");

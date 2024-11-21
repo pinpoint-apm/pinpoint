@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,11 +41,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class DefaultServerMetaDataRegistryServiceTest {
 
-    private static final int THREAD_COUNT = 500;
+    private static final int THREAD_COUNT = 32;
 
     private static final String SERVER_INFO = "testContainerInfo";
     private static final List<String> VM_ARGS = Collections.singletonList("testVmArgs");
 
+    @AutoClose("shutdown")
     private ExecutorService executorService;
 
     @BeforeEach
@@ -53,10 +54,6 @@ public class DefaultServerMetaDataRegistryServiceTest {
         this.executorService = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
-    @AfterEach
-    public void cleanUp() {
-        this.executorService.shutdown();
-    }
 
     @Test
     public void testRaceConditionWhenAddingConnectors() throws InterruptedException {
