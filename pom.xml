@@ -90,6 +90,7 @@
         <module>collector</module>
         <module>collector-monitor</module>
         <module>collector-starter</module>
+        <module>banner</module>
         <module>commons</module>
         <module>commons-buffer</module>
         <module>commons-config</module>
@@ -325,6 +326,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-annotations</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-banner</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
