@@ -81,7 +81,7 @@ public class MSSSqlConnectionIT {
 
     @BeforeEach
     public void registerDriver() throws Exception {
-        Driver driver = driverClass.getDriver().newInstance();
+        Driver driver = driverClass.newDriver();
         DriverManager.registerDriver(driver);
     }
 

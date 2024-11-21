@@ -20,6 +20,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
@@ -27,6 +28,15 @@ import java.sql.Statement;
  */
 public interface JDBCDriverClass {
     Class<Driver> getDriver();
+
+    default Driver newDriver() throws SQLException {
+        final Class<Driver> driver = getDriver();
+        try {
+            return driver.getDeclaredConstructor().newInstance();
+        } catch (Throwable th) {
+            throw new SQLException(driver.getName() + " Driver create failed", th);
+        }
+    }
 
     Class<Connection> getConnection();
 

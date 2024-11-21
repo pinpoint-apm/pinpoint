@@ -78,7 +78,7 @@ public abstract class Dameng_IT_Base {
     public void registerDriver() throws Exception {
         driverProperties = DatabaseContainers.readSystemProperties();
         JDBCDriverClass driverClass = getJDBCDriverClass();
-        Driver driver = driverClass.getDriver().newInstance();
+        Driver driver = driverClass.newDriver();
         DriverManager.registerDriver(driver);
     }
 
