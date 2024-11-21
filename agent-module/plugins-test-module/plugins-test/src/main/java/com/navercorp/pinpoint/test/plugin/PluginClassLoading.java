@@ -84,7 +84,7 @@ public final class PluginClassLoading {
             "slf4j-tinylog"
     };
 
-    private static final String LOG4J2_VERSION = "2.12.1";
+    private static final String LOG4J2_VERSION = Log4j2VersionTemplate.VERSION;
     private static final String[] LOGGER_DEPENDENCY_ID = new String[]{
             "org.apache.logging.log4j:log4j-api:%s",
             "org.apache.logging.log4j:log4j-core:%s",

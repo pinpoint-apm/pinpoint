@@ -201,6 +201,11 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>templating-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 </project>
