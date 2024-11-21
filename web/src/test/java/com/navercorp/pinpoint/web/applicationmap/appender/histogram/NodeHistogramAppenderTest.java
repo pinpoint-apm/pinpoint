@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -34,16 +33,15 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -61,9 +59,8 @@ public class NodeHistogramAppenderTest {
 
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(4);
-
-    private final NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory(executor);
+    @AutoClose("shutdown")
+    private static final Executor executor = Executors.newFixedThreadPool(4);
 
     private WasNodeHistogramDataSource wasNodeHistogramDataSource;
 
@@ -75,12 +72,8 @@ public class NodeHistogramAppenderTest {
     public void setUp() {
         wasNodeHistogramDataSource = mock(WasNodeHistogramDataSource.class);
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
-        nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
-    }
-
-    @AfterEach
-    public void cleanUp() {
-        MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
+        NodeHistogramAppenderFactory factory = new NodeHistogramAppenderFactory(executor);
+        nodeHistogramAppender = factory.create(nodeHistogramFactory);
     }
 
     @Test

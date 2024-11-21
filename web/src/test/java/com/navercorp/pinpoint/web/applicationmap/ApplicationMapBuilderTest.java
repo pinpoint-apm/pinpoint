@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -41,18 +40,17 @@ import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,9 +66,11 @@ import static org.mockito.Mockito.when;
  */
 public class ApplicationMapBuilderTest {
 
-    private final ExecutorService serialExecutor = Executors.newSingleThreadExecutor();
+    @AutoClose("shutdown")
+    private static final Executor serialExecutor = Executors.newSingleThreadExecutor();
 
-    private final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
+    @AutoClose("shutdown")
+    private static final Executor parallelExecutor = Executors.newFixedThreadPool(8);
 
     private MapResponseNodeHistogramDataSource mapResponseNodeHistogramDataSource;
 
@@ -150,18 +150,6 @@ public class ApplicationMapBuilderTest {
                 return result;
             }
         }).when(agentInfoService).getAgentStatus(any());
-    }
-
-    @AfterEach
-    public void cleanUp() {
-        shutdownExecutor(serialExecutor);
-        shutdownExecutor(parallelExecutor);
-    }
-
-    private void shutdownExecutor(ExecutorService executor) {
-        if (executor != null) {
-            MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
-        }
     }
 
     @Test
