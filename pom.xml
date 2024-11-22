@@ -138,7 +138,6 @@
         <jdk.version>1.8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
-        <maven.compiler.compilerVersion>${jdk.version}</maven.compiler.compilerVersion>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <maven.compiler.executable>${jdk.home}/bin/javac</maven.compiler.executable>
         <test.jdk.home>${jdk.home}</test.jdk.home>
@@ -265,7 +264,7 @@
         <junit-jupiter.version>5.11.3</junit-jupiter.version>
 
         <!-- maven-plugin -->
-        <plugin.compiler.version>3.11.0</plugin.compiler.version>
+        <plugin.compiler.version>3.13.0</plugin.compiler.version>
         <plugin.source.version>3.3.1</plugin.source.version>
         <plugin.resources.version>3.3.1</plugin.resources.version>
         <plugin.surefire.version>3.5.2</plugin.surefire.version>
