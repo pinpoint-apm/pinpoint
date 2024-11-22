@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.util.PathUtils;
 import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
 
-import java.io.File;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -110,8 +110,8 @@ public final class PluginClassLoading {
     };
 
     public static final String[] PLUGIN_CONTAINS_MATCHES = new String[]{
-            File.separator + "pinpoint" + File.separator + "agent-module" + File.separator + "plugins" + File.separator,
-            File.separator + "pinpoint-naver" + File.separator + "agent-module" + File.separator + "naver-plugins" + File.separator
+            PathUtils.wrap("pinpoint", "agent-module", "plugins"),
+            PathUtils.wrap("pinpoint-naver", "agent-module", "naver-plugins")
     };
 
     public static final String[] PLUGIN_IT_UTILS_CONTAINS_MATCHES = new String[]{

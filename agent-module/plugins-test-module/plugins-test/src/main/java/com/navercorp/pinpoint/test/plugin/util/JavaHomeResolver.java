@@ -16,8 +16,8 @@ public class JavaHomeResolver {
 
     private final List<JavaHome> javaHomes;
 
-    public JavaHomeResolver() {
-        this(System.getenv());
+    public static JavaHomeResolver ofSystemEnv() {
+        return new JavaHomeResolver(System.getenv());
     }
 
     public JavaHomeResolver(Map<String, String> env) {

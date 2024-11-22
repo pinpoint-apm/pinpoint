@@ -99,18 +99,18 @@ public abstract class AbstractPluginTestSuite {
         List<String> libs = collectLibs(getClass().getClassLoader());
 
         final LibraryFilter agentLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.PLUGIN_CONTAINS_MATCHES),
-                LibraryFilter.createGlobMatcher(PluginClassLoading.PLUGIN_GLOB_MATCHES));
+                LibraryFilter.containsMatcher(PluginClassLoading.PLUGIN_CONTAINS_MATCHES),
+                LibraryFilter.globMatcher(PluginClassLoading.PLUGIN_GLOB_MATCHES));
         this.agentLibList = filterLibs(libs, agentLibraryFilter);
 
         final LibraryFilter sharedLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.TEST_MATCHES),
-                LibraryFilter.createContainsMatcher(PluginClassLoading.PLUGIN_IT_UTILS_CONTAINS_MATCHES));
+                LibraryFilter.containsMatcher(PluginClassLoading.TEST_MATCHES),
+                LibraryFilter.containsMatcher(PluginClassLoading.PLUGIN_IT_UTILS_CONTAINS_MATCHES));
         this.sharedLibList = filterLibs(libs, sharedLibraryFilter);
 
         final LibraryFilter junitLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.JUNIT_CONTAINS_MATCHES),
-                LibraryFilter.createContainsMatcher(PluginClassLoading.PLUGIN_IT_UTILS_CONTAINS_MATCHES));
+                LibraryFilter.containsMatcher(PluginClassLoading.JUNIT_CONTAINS_MATCHES),
+                LibraryFilter.containsMatcher(PluginClassLoading.PLUGIN_IT_UTILS_CONTAINS_MATCHES));
         this.junitLibList = filterLibs(libs, junitLibraryFilter);
 
         this.testClassLocation = resolveTestClassLocation(testClass);

@@ -43,7 +43,7 @@ public abstract class AbstractPluginForkedTestSuite {
     private static final List<String> EMPTY_REPOSITORY_URLS = new ArrayList<>();
     public static final String DEFAULT_CONFIG_PATH = "pinpoint.config";
 
-    private static final JavaHomeResolver javaHomeResolver = new JavaHomeResolver();
+    private static final JavaHomeResolver javaHomeResolver = JavaHomeResolver.ofSystemEnv();
 
     private final List<String> requiredLibraries;
     private final List<String> mavenDependencyLibraries;
@@ -92,8 +92,8 @@ public abstract class AbstractPluginForkedTestSuite {
         List<String> libs = collectLibs(getClass().getClassLoader());
 
         final LibraryFilter requiredLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.getContainsCheckClassPath()),
-                LibraryFilter.createGlobMatcher(PluginClassLoading.getGlobMatchesCheckClassPath()));
+                LibraryFilter.containsMatcher(PluginClassLoading.getContainsCheckClassPath()),
+                LibraryFilter.globMatcher(PluginClassLoading.getGlobMatchesCheckClassPath()));
 
         this.requiredLibraries = filterLibs(libs, requiredLibraryFilter);
         if (logger.isDebugEnabled()) {
@@ -103,7 +103,7 @@ public abstract class AbstractPluginForkedTestSuite {
         }
 
         final LibraryFilter mavenDependencyLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.MAVEN_DEPENDENCY_CLASS_PATHS));
+                LibraryFilter.containsMatcher(PluginClassLoading.MAVEN_DEPENDENCY_CLASS_PATHS));
 
         this.mavenDependencyLibraries = filterLibs(libs, mavenDependencyLibraryFilter);
         if (logger.isDebugEnabled()) {
@@ -112,7 +112,7 @@ public abstract class AbstractPluginForkedTestSuite {
             }
         }
         final LibraryFilter sharedLibraryFilter = new LibraryFilter(
-                LibraryFilter.createContainsMatcher(PluginClassLoading.getContainsCheckSharedClassPath()));
+                LibraryFilter.containsMatcher(PluginClassLoading.getContainsCheckSharedClassPath()));
         this.sharedLibList = filterLibs(libs, sharedLibraryFilter);
         this.testClassLocation = resolveTestClassLocation(testClass);
         this.debug = isDebugMode();
