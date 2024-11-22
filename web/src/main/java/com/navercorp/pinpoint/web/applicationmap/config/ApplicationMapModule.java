@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProces
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
-import com.navercorp.pinpoint.web.task.ChainedTaskDecorator;
 import com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator;
 import com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator;
 import org.apache.logging.log4j.LogManager;
@@ -43,6 +42,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.task.TaskDecorator;
+import org.springframework.core.task.support.CompositeTaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.validation.annotation.Validated;
 
@@ -154,7 +154,7 @@ public class ApplicationMapModule {
     public TaskDecorator contextPropagatingTaskDecorator() {
         TaskDecorator requestDecorator = new RequestContextPropagatingTaskDecorator();
         TaskDecorator securityDecorator = new SecurityContextPropagatingTaskDecorator();
-        return new ChainedTaskDecorator(List.of(requestDecorator, securityDecorator));
+        return new CompositeTaskDecorator(List.of(requestDecorator, securityDecorator));
     }
 
     @Bean
