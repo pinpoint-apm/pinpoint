@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.test.plugin.maven;
 
-import com.navercorp.pinpoint.common.util.Filter;
 
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public class DependencyVersionFilter implements Filter<String> {
+public class DependencyVersionFilter implements Predicate<String> {
+    public static boolean FILTERED = true;
+    public static boolean NOT_FILTERED = false;
 
     private static final Pattern RC_PATTERN = Pattern.compile(".*[Rr][Cc]-?\\.?\\d*$");
     private static final Pattern M_PATTERN = Pattern.compile(".*[Mm]-?\\.?\\d*$");
@@ -35,7 +37,7 @@ public class DependencyVersionFilter implements Filter<String> {
 
 
     @Override
-    public boolean filter(String value) {
+    public boolean test(String value) {
         for (Pattern pattern : PATTERNS) {
             if (pattern.matcher(value).matches()) {
                 return FILTERED;

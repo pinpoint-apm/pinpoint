@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.util.JvmUtils;
 
 import java.util.function.Predicate;
 
@@ -50,7 +49,7 @@ public class IsJdkPackage implements Predicate<String> {
 
     private final PackageFilter frameworkFilter = new PackageFilter(FRAMEWORK_PACKAGE);
 
-    private final boolean isJava9 = JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9);
+    private final boolean isJava9 = JvmUtils.isJava9();
     private final PackageFilter java9Filter = new PackageFilter(JAVA9_PACKAGE);
 
     public IsJdkPackage() {

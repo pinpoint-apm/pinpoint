@@ -18,8 +18,6 @@
 package com.navercorp.pinpoint.test.plugin.agent.classloader;
 
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.Objects;
@@ -28,7 +26,6 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class MockInstrumentor {
-    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ClassFileTransformer dispatcher;
 
     public MockInstrumentor(ClassFileTransformer defaultTransformer) {
