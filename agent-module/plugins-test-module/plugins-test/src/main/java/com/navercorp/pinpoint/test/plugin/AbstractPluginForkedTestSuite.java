@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test.plugin;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.ClassPath;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
+import com.navercorp.pinpoint.test.plugin.util.JavaHomeResolver;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.TestPluginVersion;
@@ -39,9 +40,11 @@ import java.util.Set;
 
 public abstract class AbstractPluginForkedTestSuite {
     private final TaggedLogger logger = TestLogger.getLogger();
-    private static final int NO_JVM_VERSION = -1;
     private static final List<String> EMPTY_REPOSITORY_URLS = new ArrayList<>();
     public static final String DEFAULT_CONFIG_PATH = "pinpoint.config";
+
+    private static final JavaHomeResolver javaHomeResolver = new JavaHomeResolver();
+
     private final List<String> requiredLibraries;
     private final List<String> mavenDependencyLibraries;
     private final List<String> repositoryUrls;
@@ -78,7 +81,7 @@ public abstract class AbstractPluginForkedTestSuite {
         this.jvmArguments = getJvmArguments(jvmArgument);
 
         JvmVersion jvmVersion = testClass.getAnnotation(JvmVersion.class);
-        this.jvmVersions = jvmVersion == null ? new int[]{NO_JVM_VERSION} : jvmVersion.value();
+        this.jvmVersions = jvmVersion == null ? new int[]{JavaHomeResolver.NO_JVM_VERSION} : jvmVersion.value();
 
         ImportPlugin importPlugin = testClass.getAnnotation(ImportPlugin.class);
         this.importPluginIds = getImportPlugin(importPlugin);
@@ -141,31 +144,7 @@ public abstract class AbstractPluginForkedTestSuite {
     }
 
     protected String getJavaExecutable(int version) {
-        StringBuilder builder = new StringBuilder();
-
-        String javaHome;
-        if (version == NO_JVM_VERSION) {
-            javaHome = System.getProperty("java.home");
-        } else {
-            String envName = "JAVA_" + version + "_HOME";
-            javaHome = System.getenv(envName);
-        }
-
-        if (javaHome == null) {
-            return null;
-        }
-
-        builder.append(javaHome);
-        builder.append(File.separatorChar);
-        builder.append("bin");
-        builder.append(File.separatorChar);
-        builder.append("java");
-
-        if (System.getProperty("os.name").contains("indows")) {
-            builder.append(".exe");
-        }
-
-        return builder.toString();
+        return javaHomeResolver.buildJavaExecutable(version);
     }
 
     private String resolveTestClassLocation(Class<?> testClass) {
@@ -364,10 +343,7 @@ public abstract class AbstractPluginForkedTestSuite {
 
         try {
             for (int ver : jvmVersions) {
-                String javaExe = getJavaExecutable(ver);
-
-                // TODO for now, java 17 is not mandatory to build pinpoint.
-                // so failing to find java installation should not cause build failure.
+                final String javaExe = getJavaExecutable(ver);
                 if (javaExe == null) {
                     logger.error("Cannot find Java version {}. Skip test with Java {}", ver, ver);
                     continue;
