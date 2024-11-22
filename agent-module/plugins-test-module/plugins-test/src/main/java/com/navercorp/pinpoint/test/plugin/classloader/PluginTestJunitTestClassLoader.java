@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader;
 
-import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.test.plugin.TranslatorAdaptor;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointBootstrapPluginTestPackage;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointPackage;
+import com.navercorp.pinpoint.test.plugin.util.IOUtils;
 
 import java.io.IOException;
 import java.net.JarURLConnection;
@@ -79,7 +79,8 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
         final URL url = getResource(classInternalName);
         if (url != null) {
             try {
-                byte[] classfile = translator.transform(this, name, IOUtils.toByteArray(url.openStream()));
+                byte[] classfileBuffer = IOUtils.toByteArray(url);
+                byte[] classfile = translator.transform(this, name, classfileBuffer);
                 if (classfile != null) {
                     CodeSigner[] signers = null;
                     URLConnection urlConnection = url.openConnection();

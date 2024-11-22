@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.test.plugin.maven;
 
-import com.navercorp.pinpoint.common.util.MapUtils;
+import com.navercorp.pinpoint.test.plugin.util.MapUtils;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;

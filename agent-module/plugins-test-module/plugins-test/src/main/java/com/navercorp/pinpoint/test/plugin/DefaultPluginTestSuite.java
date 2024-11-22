@@ -15,12 +15,15 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyVersionFilter;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstanceFactory;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;

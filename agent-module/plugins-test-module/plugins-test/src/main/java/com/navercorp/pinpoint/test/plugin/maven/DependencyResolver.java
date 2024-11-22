@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.test.plugin.maven;
 
-import com.navercorp.pinpoint.common.util.Filter;
 import com.navercorp.pinpoint.test.plugin.shared.ArtifactIdUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
@@ -64,6 +63,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 /**
  * @author Jongho Moon
@@ -227,7 +227,7 @@ public class DependencyResolver {
         this.repositories = repositories;
     }
 
-    public List<Version> getVersions(Artifact artifact, Filter<String> filter) throws VersionRangeResolutionException {
+    public List<Version> getVersions(Artifact artifact, Predicate<String> filter) throws VersionRangeResolutionException {
         VersionRangeRequest rangeRequest = new VersionRangeRequest();
         rangeRequest.setArtifact(artifact);
         rangeRequest.setRepositories(repositories);
@@ -236,7 +236,7 @@ public class DependencyResolver {
         List<Version> versions = new ArrayList<>();
         if (filter != null) {
             for (Version version : rangeResult.getVersions()) {
-                if (Filter.NOT_FILTERED == filter.filter(version.toString())) {
+                if (DependencyVersionFilter.NOT_FILTERED == filter.test(version.toString())) {
                     versions.add(version);
                 }
             }
@@ -301,7 +301,7 @@ public class DependencyResolver {
         return resolveDependencySets(null, dependencies);
     }
 
-    public Map<String, List<Artifact>> resolveDependencySets(Filter<String> filter, String... dependencies) {
+    public Map<String, List<Artifact>> resolveDependencySets(Predicate<String> filter, String... dependencies) {
         List<List<Artifact>> companions = resolve(dependencies);
 
         List<List<List<Artifact>>> xxx = new ArrayList<>();
@@ -337,9 +337,7 @@ public class DependencyResolver {
             xxx.add(companionVersions);
         }
 
-        Map<String, List<Artifact>> result = combination(xxx);
-
-        return result;
+        return combination(xxx);
     }
 
     private List<List<Artifact>> resolve(String[] dependencies) {
