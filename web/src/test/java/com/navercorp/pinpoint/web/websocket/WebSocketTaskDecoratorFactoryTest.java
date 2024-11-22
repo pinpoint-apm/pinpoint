@@ -27,7 +27,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -47,7 +46,7 @@ public class WebSocketTaskDecoratorFactoryTest {
                 SecurityContext securityContext = new SecurityContextImpl();
                 securityContext.setAuthentication(authentication);
                 SecurityContextHolder.setContext(securityContext);
-                TestTimerTask run = new TestTimerTask();
+                TestTask run = new TestTask();
                 Runnable task = taskDecoratorFactory.createDecorator().decorate(run);
                 task.run();
                 return run.result();
@@ -72,11 +71,11 @@ public class WebSocketTaskDecoratorFactoryTest {
         return result;
     }
 
-    private static class TestTimerTask extends TimerTask {
+    private static class TestTask implements Runnable {
 
         private Authentication result;
 
-        private TestTimerTask() {
+        private TestTask() {
         }
 
         @Override
