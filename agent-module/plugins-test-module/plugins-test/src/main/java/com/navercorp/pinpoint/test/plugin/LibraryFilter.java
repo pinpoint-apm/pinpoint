@@ -44,11 +44,11 @@ class LibraryFilter {
         boolean include(String filePath);
     }
 
-    static LibraryMatcher createContainsMatcher(String[] paths) {
+    static LibraryMatcher containsMatcher(String[] paths) {
         return new ContainsMatcher(paths);
     }
 
-    static LibraryMatcher createGlobMatcher(String[] paths) {
+    static LibraryMatcher globMatcher(String[] paths) {
         return new GlobMatcher(paths);
     }
 

@@ -9,7 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +21,7 @@ public class LibraryFinderTest {
 
     @Test
     public void filter() throws MalformedURLException {
-        LibraryFilter.LibraryMatcher matcher = LibraryFilter.createContainsMatcher(new String[]{"abc", "123"});
+        LibraryFilter.LibraryMatcher matcher = LibraryFilter.containsMatcher(new String[]{"abc", "123"});
         LibraryFilter libraryFinder = new LibraryFilter(matcher);
         URL url1 = new URL("file:C:\\abc");
         URL url2 = new URL("file:C:\\edf");
@@ -31,7 +31,7 @@ public class LibraryFinderTest {
         List<URL> list = Arrays.asList(url1, url2, url3, url4, url5);
         Collections.shuffle(list);
 
-        Collection<String> result = new ArrayDeque<>();
+        Collection<String> result = new ArrayList<>();
         for (URL url : list) {
             String path = url.getPath();
             if (libraryFinder.filter(path)) {
@@ -42,12 +42,12 @@ public class LibraryFinderTest {
     }
 
     @Test
-    public void globTest() throws MalformedURLException {
-        String jarPath = File.separator + Paths.get("home",
+    public void globTest() {
+        String jarPath = Paths.get(File.separator, "home",
                 "pinpoint-mssql-jdbc-driver-plugin",
                 VERSION,
                 "pinpoint-mssql-jdbc-driver-plugin-" + VERSION + ".jar"
-        );
+        ).toString();
 
         String matchPath = "pinpoint-*-plugin-" + VERSION + ".jar";
         Path result = globMatches(jarPath, matchPath);
@@ -62,8 +62,8 @@ public class LibraryFinderTest {
         Assertions.assertEquals(Paths.get(jarPath), result3);
     }
 
-    private Path globMatches(String jarPath, String matchPath) throws MalformedURLException {
-        LibraryFilter.LibraryMatcher matcher = LibraryFilter.createGlobMatcher(new String[]{matchPath});
+    private Path globMatches(String jarPath, String matchPath) {
+        LibraryFilter.LibraryMatcher matcher = LibraryFilter.globMatcher(new String[]{matchPath});
         LibraryFilter libraryFinder = new LibraryFilter(matcher);
 
         if (libraryFinder.filter(jarPath)) {
