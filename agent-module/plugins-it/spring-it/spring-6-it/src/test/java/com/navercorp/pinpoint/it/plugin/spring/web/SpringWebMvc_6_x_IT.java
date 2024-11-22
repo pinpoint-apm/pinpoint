@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 
 @PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(15)
+@JvmVersion(17)
 @Dependency({"org.springframework:spring-webmvc:[6.0.0.RELEASE,)", "org.springframework:spring-test", "jakarta.servlet:jakarta.servlet-api:6.0.0"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 @Disabled
