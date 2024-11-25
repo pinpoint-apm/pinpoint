@@ -248,7 +248,7 @@ export const OpenTelemetryDashboardFetcher = () => {
         ) : (
           <Card className="rounded-sm w-96">
             <CardHeader>
-              <CardTitle>Open Telemetry</CardTitle>
+              <CardTitle>OpenTelemetry</CardTitle>
               {/* <CardDescription>Card Description</CardDescription> */}
             </CardHeader>
             <CardContent>
