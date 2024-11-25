@@ -13,7 +13,7 @@ import {
 } from '../components';
 import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/utils';
 import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/hooks';
-import { PiChartBarHorizontalDuotone } from 'react-icons/pi';
+import { SiOpentelemetry } from 'react-icons/si';
 
 export interface OpenTelemetryPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
@@ -43,9 +43,9 @@ export const OpenTelemetryPage = ({
       <MainHeader
         title={
           <div className="flex items-center gap-2">
-            <PiChartBarHorizontalDuotone />
+            <SiOpentelemetry />
             <span className="relative">
-              Open Telemetry{' '}
+              OpenTelemetry{' '}
               <span className="relative text-xs italic text-primary -top-2">Beta</span>
             </span>
           </div>
