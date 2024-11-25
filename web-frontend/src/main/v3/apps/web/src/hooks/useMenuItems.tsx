@@ -4,11 +4,11 @@ import { configurationAtom } from '@pinpoint-fe/atoms';
 import {
   PiBugBeetle,
   PiChartBar,
-  PiChartBarHorizontal,
   PiChartLine,
   PiHardDrives,
   PiTreeStructure,
 } from 'react-icons/pi';
+import { SiOpentelemetry } from 'react-icons/si';
 import { useSearchParameters } from '@pinpoint-fe/hooks';
 import {
   getServerMapPath,
@@ -58,7 +58,7 @@ export const useMenuItems = () => {
       hide: !configuration?.showExceptionTrace,
     },
     {
-      icon: <PiChartBarHorizontal />,
+      icon: <SiOpentelemetry />,
       name: 'OpenTelemetry Metric',
       path: APP_PATH.OPEN_TELEMETRY_METRIC,
       href: getOpenTelemetryPath(application, searchParameters),
