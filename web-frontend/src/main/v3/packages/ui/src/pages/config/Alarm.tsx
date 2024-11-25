@@ -105,7 +105,7 @@ export const AlarmPage = ({
             onClickApplication={(app) => setSelectedApplication(app)}
           />
           <Button
-            disabled={!selectedApplication}
+            disabled={!selectedApplication || !permissionContext.create}
             onClick={() => {
               setEditable(true);
               setCurrentTargetAlarmData({
