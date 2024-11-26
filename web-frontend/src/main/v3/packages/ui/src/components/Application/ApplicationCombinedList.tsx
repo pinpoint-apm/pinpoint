@@ -41,7 +41,10 @@ export const ApplicationCombinedList = ({
 
   const isFavoriteApplication = (application: ApplicationType) => {
     return favoriteList.find((favoriteApp: ApplicationType) => {
-      return favoriteApp.applicationName === application.applicationName;
+      return (
+        favoriteApp.applicationName === application.applicationName &&
+        favoriteApp?.code === application?.code
+      );
     });
   };
 
