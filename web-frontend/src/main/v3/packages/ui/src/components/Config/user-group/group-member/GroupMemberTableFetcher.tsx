@@ -2,7 +2,7 @@ import React from 'react';
 import { useDeleteConfigGroupMember, useGetConfigGroupMember } from '@pinpoint-fe/hooks';
 import { useTranslation } from 'react-i18next';
 import { DataTable, RowFilterInfo } from '../../../DataTable';
-import { toast } from '../../../Toast';
+import { useReactToastifyToast } from '../../../Toast';
 import { getGroupMemberTableColumns } from './groupMemberTableColumns';
 import { GroupMemberTableToolbar } from './GroupMemberTableToolbar';
 
@@ -26,6 +26,7 @@ export const GroupMemberTableFetcher = ({
   ...props
 }: GroupMemberTableFetcherProps) => {
   const { t } = useTranslation();
+  const toast = useReactToastifyToast();
   const { data, mutate } = useGetConfigGroupMember({ userGroupId });
   const isMyGroup = data?.some(({ memberId }) => memberId === userId);
   const enableGroupMemberAdd = enableAllGroupMemberAdd || (enableOnlyMyGroupMemberAdd && isMyGroup);

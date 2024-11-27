@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Configuration, ApplicationType, SearchApplication } from '@pinpoint-fe/constants';
 import { ApplicationCombinedList } from '../../../components/Application';
-import { Button, ScrollArea, Separator, toast } from '../../../components';
+import { Button, ScrollArea, Separator, useReactToastifyToast } from '../../../components';
 import { AgentManagementTable } from './AgentManagementTable';
 import {
   useDeleteAgent,
@@ -18,6 +18,7 @@ export interface AgentManagementFetcherProps {
 
 export const AgentManagementFetcher = ({ configuration }: AgentManagementFetcherProps) => {
   void configuration; // Not use configuration
+  const toast = useReactToastifyToast();
 
   const { t } = useTranslation();
   const [application, setApplication] = React.useState<ApplicationType>();

@@ -1,5 +1,5 @@
 import { useQuery, UseMutationOptions, useMutation } from '@tanstack/react-query';
-import { ConfigUsers, END_POINTS } from '@pinpoint-fe/constants';
+import { ConfigUsers, END_POINTS, ErrorResponse } from '@pinpoint-fe/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/utils';
 import { queryFn } from './reactQueryHelper';
 
@@ -22,7 +22,7 @@ export const useGetConfigUsers = (params?: ConfigUsers.Parameters) => {
 };
 
 export const usePostConfigUser = (
-  options?: UseMutationOptions<ConfigUsers.Response, unknown, ConfigUsers.User, unknown>,
+  options?: UseMutationOptions<ConfigUsers.Response, ErrorResponse, ConfigUsers.User, unknown>,
 ) => {
   const postData = async (formData: ConfigUsers.User) => {
     try {
@@ -52,7 +52,7 @@ export const usePostConfigUser = (
 };
 
 export const usePutConfigUser = (
-  options?: UseMutationOptions<ConfigUsers.Response, unknown, ConfigUsers.User, unknown>,
+  options?: UseMutationOptions<ConfigUsers.Response, ErrorResponse, ConfigUsers.User, unknown>,
 ) => {
   const puttData = async (formData: ConfigUsers.User) => {
     try {
@@ -82,7 +82,7 @@ export const usePutConfigUser = (
 };
 
 export const useDeleteConfigUser = (
-  options?: UseMutationOptions<ConfigUsers.Response, unknown, string, unknown>,
+  options?: UseMutationOptions<ConfigUsers.Response, ErrorResponse, string, unknown>,
 ) => {
   const deleteData = async (userId: string) => {
     try {

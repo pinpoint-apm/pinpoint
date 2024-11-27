@@ -31,7 +31,7 @@ import {
   // useOpenTelemetrySearchParameters,
   usePatchOtlpMetricDefUserDefined,
 } from '@pinpoint-fe/hooks';
-import { toast } from '../../../components/Toast';
+import { useReactToastifyToast } from '../../../components/Toast';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
@@ -99,6 +99,7 @@ export const MetricDefinitionFormFetcher = ({
   onComplete,
   onClickCancel,
 }: MetricDefinitionFormFetcherProps) => {
+  const toast = useReactToastifyToast();
   const formId = '__metric_definition__';
   const { application } = useOpenTelemetrySearchParameters();
   const applicationName = application?.applicationName || '';

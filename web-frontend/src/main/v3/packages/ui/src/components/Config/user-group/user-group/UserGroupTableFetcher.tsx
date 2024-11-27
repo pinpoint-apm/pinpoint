@@ -2,7 +2,7 @@ import React from 'react';
 import { useDeleteConfigUserGroup, useGetConfigUserGroup } from '@pinpoint-fe/hooks';
 import { useTranslation } from 'react-i18next';
 import { DataTable } from '../../../DataTable';
-import { toast } from '../../../Toast';
+import { useReactToastifyToast } from '../../../Toast';
 import { getUserGroupTableColumns } from './userGroupTableColumns';
 import { useNavigate } from 'react-router-dom';
 import { APP_PATH, ConfigUserGroup } from '@pinpoint-fe/constants';
@@ -23,6 +23,7 @@ export const UserGroupTableFetcher = ({
   ...props
 }: UserGroupTableFetcherProps) => {
   const navigate = useNavigate();
+  const toast = useReactToastifyToast();
   const { t } = useTranslation();
   const [query, setQuery] = React.useState('');
   const queryParams = query ? { userGroupId: query } : userId ? { userId } : {};

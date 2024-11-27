@@ -11,7 +11,7 @@ import { getDefaultOption } from './defaultOption';
 import { BsGearFill } from 'react-icons/bs';
 import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
-import { toast, HelpPopover } from '../..';
+import { useReactToastifyToast, HelpPopover } from '../..';
 import { cn } from '../../../lib';
 import { ScatterSetting, ScatterSettingProps } from './ScatterSetting';
 
@@ -81,6 +81,7 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
     }: ScatterChartCoreProps,
     ref,
   ) => {
+    const toast = useReactToastifyToast();
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const scatterRef = React.useRef<InstanceType<typeof SC>>();
     const resizeObserverRef = React.useRef<ResizeObserver>();

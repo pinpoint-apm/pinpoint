@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from '../../components/ui/form';
 import { Input, Button } from '../../components';
-import { toast } from '../../components/Toast';
+import { useReactToastifyToast } from '../../components/Toast';
 import { Optional } from '../../components/Form/Optional';
 import { useWebhookMutation } from '@pinpoint-fe/hooks';
 import { ErrorToast } from '../../components/Error/ErrorToast';
@@ -46,6 +46,7 @@ export const WebhookDetail = ({
   onClickCancel,
   onCompleteMutation,
 }: WebhookDetailProps) => {
+  const toast = useReactToastifyToast();
   const { t } = useTranslation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

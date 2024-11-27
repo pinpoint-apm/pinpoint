@@ -4,7 +4,7 @@ import { FaRegCopy } from 'react-icons/fa';
 import { MdOutlineDone } from 'react-icons/md';
 import { Button } from '../ui';
 import { cn } from '../../lib';
-import { toast } from '../Toast';
+import { useReactToastifyToast } from '../Toast';
 
 export interface ClipboardCopyButtonProps {
   copyValue: string;
@@ -23,6 +23,7 @@ export const ClipboardCopyButton = ({
   hoverable,
   children,
 }: ClipboardCopyButtonProps) => {
+  const toast = useReactToastifyToast();
   const [, copy] = useCopyToClipboard();
   const [hover, setHover] = React.useState(false);
   const [copied, setCopied] = React.useState(false);

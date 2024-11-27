@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { Provider as JotaiProvider } from 'jotai';
 import { IconContext } from 'react-icons';
-import { ToastContainer, defaultToastContainerProps } from '@pinpoint-fe/ui';
+import { ReactToastContainer } from '@pinpoint-fe/ui';
 import router from './routes';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
@@ -17,7 +17,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <JotaiProvider>
           <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
             <RouterProvider router={router} />
-            <ToastContainer className="text-sm" {...defaultToastContainerProps} />
+            <ReactToastContainer />
           </IconContext.Provider>
         </JotaiProvider>
       </QueryClientProvider>

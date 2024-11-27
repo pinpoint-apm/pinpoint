@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Popover, PopoverContent, PopoverTrigger } from '../../../ui';
 import { ConfigGroupMember, ConfigUsers } from '@pinpoint-fe/constants';
 import { MdOutlineAddCircleOutline } from 'react-icons/md';
-import { toast } from '../../../Toast';
+import { useReactToastifyToast } from '../../../Toast';
 import { useTranslation } from 'react-i18next';
 import { useGetConfigUsers, usePostConfigGroupMember } from '@pinpoint-fe/hooks';
 import { UsersTable } from '../../users/UsersTable';
@@ -23,6 +23,7 @@ export const GroupMemberAddPopup = ({
   groupMember,
 }: GroupMemberAddPopupProps) => {
   const { t } = useTranslation();
+  const toast = useReactToastifyToast();
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState(userDepartment);
   const { data } = useGetConfigUsers(query ? { searchKey: query } : undefined);
