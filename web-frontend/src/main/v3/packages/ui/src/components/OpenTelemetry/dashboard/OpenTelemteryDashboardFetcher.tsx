@@ -26,7 +26,7 @@ import {
 } from '@pinpoint-fe/hooks';
 import { BiSolidSave } from 'react-icons/bi';
 import { RxPlusCircled } from 'react-icons/rx';
-import { toast } from '../../../components/Toast';
+import { useReactToastifyToast } from '../../../components/Toast';
 import { LoadingButton } from '../../../components/Button';
 import { Widget } from '../../Dashboard/Widget';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
@@ -40,6 +40,7 @@ import { cn } from '../../../lib/utils';
 export interface OpenTelemetryDashboardFetcherProps {}
 
 export const OpenTelemetryDashboardFetcher = () => {
+  const toast = useReactToastifyToast();
   const { application } = useOpenTelemetrySearchParameters();
   const applicationName = application?.applicationName || '';
   const { t } = useTranslation();

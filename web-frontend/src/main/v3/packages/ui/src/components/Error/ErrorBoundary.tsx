@@ -5,7 +5,7 @@ import {
   ErrorBoundaryProps as ErrorBoundaryPropsWithRender,
 } from 'react-error-boundary';
 import { ErrorDetailDialog } from './ErrorDetailDialog';
-import { toast } from '../Toast';
+import { useReactToastifyToast } from '../Toast';
 import { ErrorResponse } from '@pinpoint-fe/constants';
 import { ErrorToast } from './ErrorToast';
 import { useSearchParameters } from '@pinpoint-fe/hooks';
@@ -22,6 +22,7 @@ export const ErrorBoundary = ({
 }: ErrorBoundaryProps) => {
   const { t } = useTranslation();
   const { search } = useSearchParameters();
+  const toast = useReactToastifyToast();
 
   return (
     <ErrorBoundaryComponent

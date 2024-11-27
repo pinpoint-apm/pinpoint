@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
 import { Button } from '../../components/ui/button';
-import { toast } from '../../components/Toast';
+import { useReactToastifyToast } from '../../components/Toast';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { ScrollArea } from '../../components/ui/scroll-area';
 import { useAlarmRuleMutation, useAlarmRuleQuery, useLocalStorage } from '@pinpoint-fe/hooks';
@@ -53,6 +53,7 @@ export const AlarmPage = ({
   configuration,
   onChangeApplication,
 }: AlarmPageProps) => {
+  const toast = useReactToastifyToast();
   const setConfigurationAtom = useSetAtom(configurationAtom);
   const { t } = useTranslation();
   const [selectedApplication, setSelectedApplication] = useLocalStorage<

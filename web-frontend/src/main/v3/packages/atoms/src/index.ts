@@ -5,5 +5,6 @@ export * from './installationInfo';
 export * from './openTelemetry';
 export * from './scatter';
 export * from './serverMap';
+export * from './toast';
 export * from './transaction';
 export * from './url';

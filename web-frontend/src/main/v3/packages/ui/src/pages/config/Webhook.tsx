@@ -6,7 +6,7 @@ import {
   ApplicationCombinedListProps,
   Button,
   Separator,
-  toast,
+  useReactToastifyToast,
 } from '../../components';
 import { APP_SETTING_KEYS, ApplicationType, Webhook } from '@pinpoint-fe/constants';
 import { cn } from '../../lib/utils';
@@ -40,6 +40,7 @@ export interface WebhookPageProps {
 }
 
 export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: WebhookPageProps) => {
+  const toast = useReactToastifyToast();
   const { t } = useTranslation();
   const [selectedApplication, setSelectedApplication] = useLocalStorage<
     ApplicationType | undefined

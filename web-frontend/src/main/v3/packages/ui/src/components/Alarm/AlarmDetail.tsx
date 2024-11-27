@@ -33,7 +33,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { Optional } from '../../components/Form/Optional';
 import { WebhookCheckedList } from '../../components/Webhook/WebhookCheckedList';
 import { Button } from '../../components/ui/button';
-import { toast } from '../../components/Toast';
+import { useReactToastifyToast } from '../../components/Toast';
 import { ErrorToast } from '../../components/Error/ErrorToast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
@@ -135,6 +135,7 @@ export const AlarmDetail = ({
   onClickCancel,
   onCompleteMutation,
 }: AlarmDetailProps) => {
+  const toast = useReactToastifyToast();
   const { t } = useTranslation();
   const configuration = useAtomValue(configurationAtom);
   const [openWebhookDialog, setOpenWebhookDialog] = React.useState(false);

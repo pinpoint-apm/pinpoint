@@ -6,13 +6,13 @@ import {
   usePutConfigUser,
   useDeleteConfigUser,
 } from '@pinpoint-fe/hooks';
-import { Configuration, ConfigUsers } from '@pinpoint-fe/constants';
+import { Configuration, ConfigUsers, ErrorResponse } from '@pinpoint-fe/constants';
 import { UsersTable } from './UsersTable';
 import { FaRegTrashCan } from 'react-icons/fa6';
 import { UserForm } from './UserForm';
 import { UsersSheet } from './UsersSheet';
 import { UserRemovePopup } from './UserRemovePopup';
-import { toast, Button } from '../../../components';
+import { useReactToastifyToast, Button, ErrorToast } from '../../../components';
 
 export interface UsersTableFetcherProps {
   configuration?: Configuration;
@@ -24,6 +24,7 @@ export interface UsersTableAction {
 
 export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => {
   const { t } = useTranslation();
+  const toast = useReactToastifyToast();
   const enableUserEdit = configuration?.editUserInfo;
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
@@ -31,11 +32,13 @@ export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => 
 
   const { data, refetch } = useGetConfigUsers(query ? { searchKey: query } : undefined);
 
-  const onError = React.useCallback((message: string) => {
-    toast.error(message, {
-      autoClose: 2000,
+  const handleMutationError = (error: ErrorResponse) => {
+    toast.error(<ErrorToast error={error} />, {
+      className: 'pointer-events-auto',
+      bodyClassName: '!items-start',
+      autoClose: false,
     });
-  }, []);
+  };
 
   const onSuccess = React.useCallback((message: string) => {
     toast.success(message, {
@@ -46,17 +49,17 @@ export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => 
 
   const { mutate: postMutate } = usePostConfigUser({
     onSuccess: () => onSuccess(t('COMMON.CREATE_SUCCESS')),
-    onError: () => onError(t('COMMON.CREATE_FAILED')),
+    onError: handleMutationError,
   });
 
   const { mutate: putMutate } = usePutConfigUser({
     onSuccess: () => onSuccess(t('COMMON.UPDATE_SUCCESS')),
-    onError: () => onError(t('COMMON.UPDATE_FAIL')),
+    onError: handleMutationError,
   });
 
   const { mutate: deleteMutate } = useDeleteConfigUser({
     onSuccess: () => onSuccess(t('COMMON.REMOVE_SUCCESS')),
-    onError: () => onError(t('COMMON.REMOVE_FAIL')),
+    onError: handleMutationError,
   });
 
   function handleRemove(userId: string) {

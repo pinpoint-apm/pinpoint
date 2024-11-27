@@ -10,7 +10,7 @@ import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
 import { getFormattedDateRange, getParsedDateRange, isValidDateRange } from '@pinpoint-fe/utils';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
-import { toast } from '../Toast';
+import { useReactToastifyToast } from '../Toast';
 import { useDateFormat, useLanguage, useSearchParameters } from '@pinpoint-fe/hooks';
 
 export type DateState = {
@@ -66,6 +66,7 @@ export const DatetimePicker = React.memo(
     onChange,
     ...props
   }: DatetimePickerProps) => {
+    const toast = useReactToastifyToast();
     const { application } = useSearchParameters();
     const [language] = useLanguage();
     const [dateFormat] = useDateFormat();

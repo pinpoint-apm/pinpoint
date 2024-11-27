@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../ui';
-import { toast } from '../../../Toast';
+import { useReactToastifyToast } from '../../../Toast';
 import { usePostConfigUserGroup } from '@pinpoint-fe/hooks';
 import { TFunction } from 'i18next';
 import { cn } from '../../../../lib';
@@ -44,6 +44,7 @@ export const UserGroupAddPopup = ({
   onCompleteAdd,
   userId,
 }: UserGroupAddPopupProps) => {
+  const toast = useReactToastifyToast();
   const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const userGroupFormSchema = React.useMemo(() => userGroupFormSchemaFactory(t), [t]);
