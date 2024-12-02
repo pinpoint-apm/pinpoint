@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.install.dao;
 
+import com.navercorp.pinpoint.common.util.AgentVersionPostfix;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.install.model.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.install.model.GithubAgentDownloadInfo;
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -42,7 +41,6 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
 
     private static final String GITHUB_API_URL = "https://api.github.com/repos/naver/pinpoint/releases";
 
-    private static final Pattern STABLE_VERSION_PATTERN = Pattern.compile(IdValidateUtils.STABLE_VERSION_PATTERN_VALUE);
     private static final ParameterizedTypeReference<List<GithubAgentDownloadInfo>> responseType
             = new ParameterizedTypeReference<>() {};
 
@@ -64,7 +62,7 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
             agentDownloadInfoList = cleanup(agentDownloadInfoList);
 
             for (GithubAgentDownloadInfo agentDownloadInfo : agentDownloadInfoList) {
-                if (STABLE_VERSION_PATTERN.matcher(agentDownloadInfo.getVersion()).matches()) {
+                if (AgentVersionPostfix.isStableVersion(agentDownloadInfo.getVersion())) {
                     result.add(agentDownloadInfo);
                 }
             }
