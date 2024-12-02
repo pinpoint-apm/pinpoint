@@ -11,4 +11,5 @@ jobs:
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           commands: it
+          permission: admin
           repository: pinpoint-apm/pinpoint
