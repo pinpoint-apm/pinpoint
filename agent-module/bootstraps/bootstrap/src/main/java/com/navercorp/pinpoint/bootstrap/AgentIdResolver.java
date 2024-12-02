@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.common.util.AgentUuidUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -27,28 +29,17 @@ import java.util.UUID;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentIdResolver {
-    public static final String APPLICATION_NAME = "applicationName";
-    public static final String AGENT_ID = "agentId";
-    public static final String AGENT_NAME = "agentName";
-
-    public static final String SYSTEM_PROPERTY_PREFIX = "pinpoint.";
-    public static final String APPLICATION_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "applicationName";
-    public static final String AGENT_ID_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentId";
-    public static final String AGENT_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentName";
-
-    public static final String ENV_PROPERTY_PREFIX = "PINPOINT_";
-    public static final String APPLICATION_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "APPLICATION_NAME";
-    public static final String AGENT_ID_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_ID";
-    public static final String AGENT_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_NAME";
-
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
-    private final List<AgentProperties> agentPropertyList;
+    private final List<AgentProperties> reverseList;
 
     private final IdValidator idValidator = new IdValidator();
 
     public AgentIdResolver(List<AgentProperties> agentPropertyList) {
-        this.agentPropertyList = Objects.requireNonNull(agentPropertyList, "agentPropertyList");
+        Objects.requireNonNull(agentPropertyList, "agentPropertyList");
+
+        this.reverseList = new ArrayList<>(agentPropertyList);
+        Collections.reverse(reverseList);
     }
 
     public AgentIds resolve() {
@@ -79,45 +70,42 @@ public class AgentIdResolver {
     }
 
     private String getAgentId() {
-        String source = null;
-        for (AgentProperties agentProperty : agentPropertyList) {
+        for (AgentProperties agentProperty : reverseList) {
             final String agentId = agentProperty.getAgentId();
             if (StringUtils.isEmpty(agentId)) {
                 continue;
             }
             if (idValidator.validateAgentId(agentProperty.getType(), agentId)) {
-                logger.info(agentProperty.getType() + " " + agentProperty.getAgentIdKey() + "=" + agentId);
-                source = agentId;
+                logger.info(agentProperty.getType().getDesc() + " " + agentProperty.getAgentIdKey() + "=" + agentId);
+                return agentId;
             }
         }
-        return source;
+        return "";
     }
 
     private String getAgentName() {
-        String source = "";
-        for (AgentProperties agentProperty : agentPropertyList) {
+        for (AgentProperties agentProperty : reverseList) {
             final String agentName = agentProperty.getAgentName();
             if (idValidator.validateAgentName(agentProperty.getType(), agentName)) {
-                logger.info(agentProperty.getType() + " " + agentProperty.getAgentNameKey() + "=" + agentName);
-                source = agentName;
+                logger.info(agentProperty.getType().getDesc() + " " + agentProperty.getAgentNameKey() + "=" + agentName);
+                return agentName;
             }
         }
-        return source;
+        return "";
     }
 
     private String getApplicationName() {
-        String source = null;
-        for (AgentProperties agentProperty : agentPropertyList) {
+        for (AgentProperties agentProperty : reverseList) {
             final String applicationName = agentProperty.getApplicationName();
             if (StringUtils.isEmpty(applicationName)) {
                 continue;
             }
             if (idValidator.validateApplicationName(agentProperty.getType(), applicationName)) {
-                logger.info(agentProperty.getType() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
-                source = applicationName;
+                logger.info(agentProperty.getType().getDesc() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
+                return applicationName;
             }
         }
-        return source;
+        return "";
     }
 
 }

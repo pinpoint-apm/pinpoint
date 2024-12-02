@@ -179,7 +179,7 @@ class PinpointStarter {
         AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
         builder.addAgentArgument(agentArgs);
         builder.addEnvProperties(System.getenv());
-        builder.addSystemProperties(System.getProperties());
+        builder.addSystemProperties(AgentProperties.fromProperties(System.getProperties()));
         AgentIdResolver agentIdResolver = builder.build();
         return agentIdResolver.resolve();
     }
@@ -265,7 +265,7 @@ class PinpointStarter {
     }
 
     private void saveAgentIdForLog(AgentIds agentIds) {
-        systemProperty.setProperty(AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, agentIds.getAgentId());
+        systemProperty.setProperty(AgentIdSourceType.SYSTEM.getAgentId(), agentIds.getAgentId());
     }
 
     private void saveLogFilePath(Path agentLogFilePath) {

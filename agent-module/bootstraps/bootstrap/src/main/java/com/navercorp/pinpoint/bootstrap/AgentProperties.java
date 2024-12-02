@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -25,27 +27,20 @@ import java.util.Properties;
  */
 public class AgentProperties {
     private final AgentIdSourceType type;
-    private final Properties properties;
-    private final String agentIdKey;
-    private final String agentNameKey;
-    private final String applicationNameKey;
+    private final Map<String, String> properties;
 
-    public AgentProperties(AgentIdSourceType type, Properties properties, String agentIdKey, String agentNameKey, String applicationNameKey) {
+    public AgentProperties(AgentIdSourceType type, Map<String, String> properties) {
         this.type = Objects.requireNonNull(type, "type");
         this.properties = Objects.requireNonNull(properties, "properties");
-        this.agentIdKey = Objects.requireNonNull(agentIdKey, "agentIdKey");
-        this.agentNameKey = Objects.requireNonNull(agentNameKey, "agentNameKey");
-        this.applicationNameKey = Objects.requireNonNull(applicationNameKey, "applicationNameKey");
     }
 
-    public AgentProperties(AgentIdSourceType type, Map<String, String> properties, String agentIdKey, String agentNameKey, String applicationNameKey) {
-        this(type, toProperties(properties), agentIdKey, agentNameKey, applicationNameKey);
-    }
-
-    private static Properties toProperties(Map<String, String> properties) {
-        final Properties copy = new Properties();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            copy.setProperty(entry.getKey(), entry.getValue());
+    public static Map<String, String> fromProperties(Properties properties) {
+        final Map<String, String> copy = new LinkedHashMap<>();
+        final Enumeration<?> enumeration = properties.propertyNames();
+        while (enumeration.hasMoreElements()) {
+            String key = (String) enumeration.nextElement();
+            String value = properties.getProperty(key);
+            copy.put(key, value);
         }
         return copy;
     }
@@ -55,27 +50,27 @@ public class AgentProperties {
     }
 
     public String getAgentId() {
-        return trim(this.properties.getProperty(agentIdKey));
+        return trim(this.properties.get(type.getAgentId()));
     }
 
     public String getAgentName() {
-        return trim(this.properties.getProperty(agentNameKey));
+        return trim(this.properties.get(type.getAgentName()));
     }
 
     public String getAgentIdKey() {
-        return agentIdKey;
+        return type.getAgentId();
     }
 
     public String getAgentNameKey() {
-        return agentNameKey;
+        return type.getAgentName();
     }
 
     public String getApplicationName() {
-        return trim(this.properties.getProperty(applicationNameKey));
+        return trim(this.properties.get(type.getApplicationName()));
     }
 
     public String getApplicationNameKey() {
-        return applicationNameKey;
+        return type.getApplicationName();
     }
 
     private String trim(String string) {
@@ -87,13 +82,9 @@ public class AgentProperties {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentProperties{");
-        sb.append("type=").append(type);
-        sb.append(", properties=").append(properties);
-        sb.append(", agentIdKey='").append(agentIdKey).append('\'');
-        sb.append(", agentNameKey='").append(agentNameKey).append('\'');
-        sb.append(", applicationNameKey='").append(applicationNameKey).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "AgentProperties{" +
+                "type=" + type +
+                ", properties=" + properties +
+                '}';
     }
 }

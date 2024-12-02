@@ -20,42 +20,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class AgentIdResolverBuilder {
     private final List<AgentProperties> agentProperties = new ArrayList<>();
     
-    public void addSystemProperties(Properties system) {
+    public void addSystemProperties(Map<String, String> system) {
         Objects.requireNonNull(system, "system");
 
-        AgentProperties systemProperties = new AgentProperties(AgentIdSourceType.SYSTEM, system,
-                AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY,
-                AgentIdResolver.AGENT_NAME_SYSTEM_PROPERTY,
-                AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY);
-        this.agentProperties.add(systemProperties);
+        AgentProperties properties = new AgentProperties(AgentIdSourceType.SYSTEM, system);
+        this.agentProperties.add(properties);
     }
     
     public void addEnvProperties(Map<String, String> env) {
         Objects.requireNonNull(env, "env");
 
-        AgentProperties envProperties = new AgentProperties(AgentIdSourceType.SYSTEM_ENV, env,
-                AgentIdResolver.AGENT_ID_ENV_PROPERTY,
-                AgentIdResolver.AGENT_NAME_ENV_PROPERTY,
-                AgentIdResolver.APPLICATION_NAME_ENV_PROPERTY);
-        this.agentProperties.add(envProperties);
+        AgentProperties properties = new AgentProperties(AgentIdSourceType.SYSTEM_ENV, env);
+        this.agentProperties.add(properties);
     }
 
     public void addAgentArgument(Map<String, String> agentArguments) {
         Objects.requireNonNull(agentArguments, "agentArguments");
 
-        AgentProperties agentArgument = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArguments,
-                AgentIdResolver.AGENT_ID,
-                AgentIdResolver.AGENT_NAME,
-                AgentIdResolver.APPLICATION_NAME);
-        this.agentProperties.add(agentArgument);
+        AgentProperties properties = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArguments);
+        this.agentProperties.add(properties);
     }
 
 
