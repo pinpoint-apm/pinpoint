@@ -47,19 +47,19 @@ public class IdValidator {
     public boolean validateAgentId(AgentIdSourceType type, String agentId) {
         Objects.requireNonNull(agentId, "agentId");
 
-        return validate0(type + " agentId", agentId);
+        return validate0(type.getDesc() + " agentId", agentId);
     }
 
     public boolean validateApplicationName(AgentIdSourceType type, String applicationName) {
         Objects.requireNonNull(applicationName, "applicationName");
-        return validate0(type + " applicationName", applicationName);
+        return validate0(type.getDesc() + " applicationName", applicationName);
     }
 
     public boolean validateAgentName(AgentIdSourceType type, String agentName) {
         if (StringUtils.isEmpty(agentName)) {
             return false;
         }
-        return validate0(type + " agentName", agentName, MAX_NAME_LENGTH);
+        return validate0(type.getDesc() + " agentName", agentName, MAX_NAME_LENGTH);
     }
 
     private boolean validate0(String keyName, String keyValue) {
@@ -67,7 +67,7 @@ public class IdValidator {
     }
 
     private boolean validate0(String keyName, String keyValue, int maxSize) {
-        logger.info("check " + keyName + ":" + keyValue);
+        logger.info("check " + keyName + "=" + keyValue);
         if (!IdValidateUtils.validateId(keyValue, maxSize)) {
             logger.info("invalid Id. " + keyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + keyValue);
             return false;
