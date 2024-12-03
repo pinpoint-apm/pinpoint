@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import java.lang.instrument.Instrumentation;
+import java.util.function.Consumer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -25,7 +26,7 @@ public class ModuleSupportFactory {
     public ModuleSupportFactory() {
     }
 
-    public ModuleSupport newModuleSupport(Instrumentation instrumentation) {
-        return new ModuleSupport(instrumentation);
+    public ModuleSupport newModuleSupport(Instrumentation instrumentation, Consumer<String> logger) {
+        return new ModuleSupport(instrumentation, logger);
     }
 }

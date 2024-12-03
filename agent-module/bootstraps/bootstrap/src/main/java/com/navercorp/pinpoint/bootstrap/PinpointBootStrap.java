@@ -108,23 +108,10 @@ public class PinpointBootStrap {
         appendToBootstrapClassLoader(instrumentation, bootDir);
 
         ClassLoader parentClassLoader = getParentClassLoader();
-        final ModuleBootLoader moduleBootLoader = loadModuleBootLoader(instrumentation, parentClassLoader);
-        PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, agentDirectory, instrumentation, moduleBootLoader);
+        PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, agentDirectory, instrumentation);
         if (!bootStrap.start()) {
             logPinpointAgentLoadFail();
         }
-    }
-
-
-    private ModuleBootLoader loadModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
-        if (!ModuleUtils.isModuleSupported()) {
-            return null;
-        }
-        logger.info("java9 module detected");
-        logger.info("ModuleBootLoader start");
-        ModuleBootLoader moduleBootLoader = new ModuleBootLoader(instrumentation, parentClassLoader);
-        moduleBootLoader.loadModuleSupport();
-        return moduleBootLoader;
     }
 
     private AgentDirectory resolveAgentDir(ClassPathResolver classPathResolver) {

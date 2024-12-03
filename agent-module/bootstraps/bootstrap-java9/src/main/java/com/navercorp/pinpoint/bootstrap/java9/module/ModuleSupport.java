@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.util.JvmVersion;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,14 +33,15 @@ import java.util.Objects;
 public class ModuleSupport {
 
     private final Instrumentation instrumentation;
-
-    private final ModuleLogger logger = ModuleLogger.getLogger(this.getClass().getName());
+    private final Consumer<String> logger;
 
     private final JavaModule javaBaseModule;
     private final JavaModule bootstrapModule;
 
-    ModuleSupport(Instrumentation instrumentation) {
+    ModuleSupport(Instrumentation instrumentation, Consumer<String> logger) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.logger = Objects.requireNonNull(logger, "logger");
+
         this.javaBaseModule = wrapJavaModule(Object.class);
         this.bootstrapModule = wrapJavaModule(this.getClass());
     }
@@ -48,9 +50,9 @@ public class ModuleSupport {
     public void setup() {
         // pinpoint module name : unnamed
         JavaModule bootstrapModule = getBootstrapModule();
-        logger.info("pinpoint Module id:" + bootstrapModule);
-        logger.info("pinpoint Module.isNamed:" + bootstrapModule.isNamed());
-        logger.info("pinpoint Module.name:" + bootstrapModule.getName());
+        logger.accept("pinpoint Module id:" + bootstrapModule);
+        logger.accept("pinpoint Module.isNamed:" + bootstrapModule.isNamed());
+        logger.accept("pinpoint Module.name:" + bootstrapModule.getName());
 
         JavaModule baseModule = getJavaBaseModule();
         baseModule.addExports("jdk.internal.loader", bootstrapModule);
@@ -86,7 +88,7 @@ public class ModuleSupport {
     }
 
     private JavaModule newAgentModule(ClassLoader classLoader, URL[] jarFileList) {
-        ModuleBuilder moduleBuilder = new ModuleBuilder();
+        ModuleBuilder moduleBuilder = new ModuleBuilder(this.logger);
         final Module agentModule = moduleBuilder.defineModule(classLoader.getName(), classLoader, jarFileList);
         return wrapJavaModule(agentModule);
     }
@@ -143,7 +145,7 @@ public class ModuleSupport {
         if (agentModule.getPackages().contains(pinpointTestModule)) {
             agentModule.addExports(pinpointTestModule, bootstrapModule);
         } else {
-            logger.info(pinpointTestModule + " package not found");
+            logger.accept(pinpointTestModule + " package not found");
         }
 
         agentModule.addReads(bootstrapModule);
@@ -165,7 +167,7 @@ public class ModuleSupport {
             if (baseModule.getPackages().contains(internalAccessModule)) {
                 baseModule.addExports(internalAccessModule, agentModule);
             } else {
-                logger.info(internalAccessModule + " package not found");
+                logger.accept(internalAccessModule + " package not found");
             }
         }
 
@@ -231,7 +233,7 @@ public class ModuleSupport {
 
     private JavaModule loadModule(String moduleName) {
         // force base-module loading
-        logger.info("loadModule:" + moduleName);
+        logger.accept("loadModule:" + moduleName);
         final Module module = InternalModules.loadModule(moduleName);
         return wrapJavaModule(module);
 

@@ -64,12 +64,11 @@ class PinpointStarter {
     private final AgentDirectory agentDirectory;
     private final Instrumentation instrumentation;
     private final ClassLoader parentClassLoader;
-    private final ModuleBootLoader moduleBootLoader;
 
 
     public PinpointStarter(ClassLoader parentClassLoader, Map<String, String> agentArgs,
                            AgentDirectory agentDirectory,
-                           Instrumentation instrumentation, ModuleBootLoader moduleBootLoader) {
+                           Instrumentation instrumentation) {
         //        null == BootstrapClassLoader
 //        if (bootstrapClassLoader == null) {
 //            throw new NullPointerException("bootstrapClassLoader");
@@ -79,9 +78,22 @@ class PinpointStarter {
         this.parentClassLoader = parentClassLoader;
         this.agentDirectory = Objects.requireNonNull(agentDirectory, "agentDirectory");
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
-        this.moduleBootLoader = moduleBootLoader;
-
     }
+
+    private ModuleBootLoader loadModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
+        if (!ModuleUtils.isModuleSupported()) {
+            logger.info("no java-module detected");
+            return null;
+        }
+        BootLogger moduleLogger = BootLogger.getLogger(ModuleBootLoader.class);
+        moduleLogger.info("java-module detected");
+        moduleLogger.info("ModuleBootLoader start");
+
+        ModuleBootLoader moduleBootLoader = new ModuleBootLoader(instrumentation, parentClassLoader, moduleLogger::info);
+        moduleBootLoader.loadModuleSupport();
+        return moduleBootLoader;
+    }
+
 
     private AgentType getAgentType(Map<String, String> agentArgs) {
         final String agentTypeParameter = agentArgs.get(AgentParameter.AGENT_TYPE);
@@ -129,6 +141,7 @@ class PinpointStarter {
             URL[] urls = resolveLib(agentDirectory);
             List<String> agentClassloaderLibs = getAgentClassloaderLibs(profilerConfig);
             final ClassLoader agentClassLoader = createClassLoader("pinpoint.agent", urls, parentClassLoader, agentClassloaderLibs);
+            final ModuleBootLoader moduleBootLoader = loadModuleBootLoader(instrumentation, parentClassLoader);
             if (moduleBootLoader != null) {
                 this.logger.info("defineAgentModule");
                 moduleBootLoader.defineAgentModule(agentClassLoader, urls);
