@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.metric;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -15,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 public class DefaultChannelzScheduledReporter implements ChannelzScheduledReporter {
 
     private static final long REPORT_INITIAL_DELAY_MS = 1000;
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ConcurrentMap<Long, ChannelzReporter> reporterMap = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduledExecutorService = newScheduledExecutorService();
@@ -53,7 +57,9 @@ public class DefaultChannelzScheduledReporter implements ChannelzScheduledReport
 
     @Override
     public void stop() {
-        ExecutorUtils.shutdownExecutorService("ScheduledReporter", scheduledExecutorService);
+        if (!MoreExecutors.shutdownAndAwaitTermination(scheduledExecutorService, Duration.ofSeconds(3))) {
+            logger.warn("ScheduledReporter shutdown failed");
+        }
     }
 
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
@@ -25,12 +26,12 @@ import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
-import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -112,10 +113,14 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
         Stoppable.stopQuietly(metadataDataSender);
 
         if (dnsExecutorService != null) {
-            ExecutorUtils.shutdownExecutorService("dnsExecutor", dnsExecutorService);
+            if (!MoreExecutors.shutdownAndAwaitTermination(dnsExecutorService, Duration.ofSeconds(3))) {
+                logger.warn("dnsExecutor shutdown failed");
+            }
         }
         if (reconnectScheduledExecutorService != null) {
-            ExecutorUtils.shutdownExecutorService("reconnectScheduledExecutor", reconnectScheduledExecutorService);
+            if (!MoreExecutors.shutdownAndAwaitTermination(reconnectScheduledExecutorService, Duration.ofSeconds(3))) {
+                logger.warn("reconnectScheduledExecutor shutdown failed");
+            }
         }
         Stoppable.stopQuietly(reporter);
     }

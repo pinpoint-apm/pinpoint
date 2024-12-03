@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -120,7 +121,9 @@ public class GrpcStreamService implements AutoCloseable {
     public void close() {
         synchronized (lock) {
             if (scheduler != null) {
-                ExecutorUtils.shutdownExecutorService("GrpcStreamService", scheduler);
+                if (!MoreExecutors.shutdownAndAwaitTermination(scheduler, Duration.ofSeconds(3))) {
+                    logger.warn("GrpcStreamService shutdown failed");
+                }
             }
 
             ActiveThreadCountStreamSocket[] streamSockets = getStreamSocketList();

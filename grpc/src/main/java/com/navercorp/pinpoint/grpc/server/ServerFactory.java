@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import io.grpc.InternalWithLogId;
 import io.grpc.Server;
@@ -38,7 +38,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLException;
+import java.io.Closeable;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -51,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ServerFactory {
+public class ServerFactory implements Closeable {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String name;
@@ -222,14 +224,19 @@ public class ServerFactory {
         }
     }
 
+    @Override
     public void close() {
         final Future<?> workerShutdown = this.workerEventLoopGroup.shutdownGracefully();
         workerShutdown.awaitUninterruptibly();
-        ExecutorUtils.shutdownExecutorService(name + "-Channel-Worker", workerExecutor);
+        if (!MoreExecutors.shutdownAndAwaitTermination(workerExecutor, Duration.ofSeconds(3))) {
+            logger.warn("{}-Channel-Worker shutdown failed", name);
+        }
 
         final Future<?> bossShutdown = this.bossEventLoopGroup.shutdownGracefully();
         bossShutdown.awaitUninterruptibly();
-        ExecutorUtils.shutdownExecutorService(name + "-Channel-Boss", bossExecutor);
+        if (!MoreExecutors.shutdownAndAwaitTermination(bossExecutor, Duration.ofSeconds(3))) {
+            logger.warn("{}-Channel-Boss shutdown failed", name);
+        }
     }
 
     @Override

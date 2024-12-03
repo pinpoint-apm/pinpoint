@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
-import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import io.grpc.stub.StreamObserver;
 
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
@@ -137,8 +138,9 @@ public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> 
             return;
         }
         this.shutdown = true;
-
-        ExecutorUtils.shutdownExecutorService(name, executor);
+        if (!MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3))) {
+            logger.warn("{} executor shutdown failed", name);
+        }
         super.releaseChannel();
     }
 }
