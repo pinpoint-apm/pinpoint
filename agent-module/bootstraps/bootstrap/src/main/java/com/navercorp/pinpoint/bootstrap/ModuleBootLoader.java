@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,12 +31,14 @@ class ModuleBootLoader {
     private final Instrumentation instrumentation;
     // @Nullable
     private final ClassLoader parentClassLoader;
+    private final Consumer<String> logger;
 
     private Object moduleSupport;
 
-    ModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
+    ModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader, Consumer<String> logger) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.parentClassLoader = parentClassLoader;
+        this.logger = Objects.requireNonNull(logger, "logger");
     }
 
     void loadModuleSupport() {
@@ -43,8 +46,8 @@ class ModuleBootLoader {
             Class<?> bootStrapClass = getModuleSupportFactoryClass(parentClassLoader);
             Object moduleSupportFactory = newModuleSupportFactory(bootStrapClass);
 
-            Method newModuleSupportMethod = moduleSupportFactory.getClass().getMethod("newModuleSupport", Instrumentation.class);
-            this.moduleSupport = newModuleSupportMethod.invoke(moduleSupportFactory, instrumentation);
+            Method newModuleSupportMethod = moduleSupportFactory.getClass().getMethod("newModuleSupport", Instrumentation.class, Consumer.class);
+            this.moduleSupport = newModuleSupportMethod.invoke(moduleSupportFactory, instrumentation, logger);
 
             Class<?> moduleSupportSetup = moduleSupport.getClass();
             Method setupMethod = moduleSupportSetup.getMethod("setup");

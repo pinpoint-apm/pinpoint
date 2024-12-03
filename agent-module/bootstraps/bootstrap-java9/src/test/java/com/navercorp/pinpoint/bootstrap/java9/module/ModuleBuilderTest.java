@@ -90,7 +90,7 @@ public class ModuleBuilderTest {
         Java9ClassLoader classLoader = new Java9ClassLoader(moduleName, urls, this.getClass().getClassLoader(), new ArrayList<>(slf4j));
 
 
-        ModuleBuilder moduleBuilder = new ModuleBuilder();
+        ModuleBuilder moduleBuilder = new ModuleBuilder(logger::debug);
         Module module = moduleBuilder.defineModule(ModuleBuilderTest.class.getSimpleName(), classLoader, urls);
 
         classLoader.close();

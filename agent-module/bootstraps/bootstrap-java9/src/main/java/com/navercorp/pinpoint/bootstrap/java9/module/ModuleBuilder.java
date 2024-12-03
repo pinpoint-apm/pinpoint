@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.jar.JarFile;
 
 /**
@@ -41,7 +42,11 @@ import java.util.jar.JarFile;
  */
 class ModuleBuilder {
 
-    private final ModuleLogger logger = ModuleLogger.getLogger(getClass().getName());
+    private final Consumer<String> logger;
+
+    public ModuleBuilder(Consumer<String> logger) {
+        this.logger = Objects.requireNonNull(logger, "logger");
+    }
 
     Module defineModule(String moduleName, ClassLoader classLoader, URL[] urls) {
         Objects.requireNonNull(moduleName, "moduleName");
@@ -49,20 +54,20 @@ class ModuleBuilder {
         if (urls.length == 0) {
             throw new IllegalArgumentException("urls.length is 0");
         }
-        logger.info("bootstrap unnamedModule:" +  InternalModules.getUnnamedModule());
-        logger.info("platform unnamedModule:" + ClassLoader.getPlatformClassLoader().getUnnamedModule());
-        logger.info("system unnamedModule:" + ClassLoader.getSystemClassLoader().getUnnamedModule());
+        logger.accept("bootstrap unnamedModule:" +  InternalModules.getUnnamedModule());
+        logger.accept("platform unnamedModule:" + ClassLoader.getPlatformClassLoader().getUnnamedModule());
+        logger.accept("system unnamedModule:" + ClassLoader.getSystemClassLoader().getUnnamedModule());
 
         Module unnamedModule = classLoader.getUnnamedModule();
-        logger.info("defineModule classLoader: " + classLoader);
-        logger.info("defineModule classLoader-unnamedModule: " + unnamedModule);
+        logger.accept("defineModule classLoader: " + classLoader);
+        logger.accept("defineModule classLoader-unnamedModule: " + unnamedModule);
 
 
         List<PackageInfo> packageInfos = parsePackageInfo(urls);
         Set<String> packages = mergePackageInfo(packageInfos);
-        logger.info("packages:" + packages);
+        logger.accept("packages:" + packages);
         Map<String, Set<String>> serviceInfoMap = mergeServiceInfo(packageInfos);
-        logger.info("providers:" + serviceInfoMap);
+        logger.accept("providers:" + serviceInfoMap);
 
         ModuleDescriptor.Builder builder = ModuleDescriptor.newModule(moduleName);
         builder.packages(packages);
@@ -83,18 +88,18 @@ class ModuleBuilder {
 
         if (!oModule.isPresent()) {
             if (moduleLayer.modules().isEmpty()) {
-                logger.info("Attempt to create module " + moduleName + ", but nothing happened");
+                logger.accept("Attempt to create module " + moduleName + ", but nothing happened");
             } else {
                 Module unknownModule = moduleLayer.modules().iterator().next();
-                logger.info("Attempt to create module " + moduleName + ", but ignored -> " + unknownModule.getName());
+                logger.accept("Attempt to create module " + moduleName + ", but ignored -> " + unknownModule.getName());
             }
-            logger.info("module name: " + moduleDescriptor.name());
-            logger.info("  - packages: " + moduleDescriptor.packages());
-            logger.info("  - providers: " + moduleDescriptor.provides());
+            logger.accept("module name: " + moduleDescriptor.name());
+            logger.accept("  - packages: " + moduleDescriptor.packages());
+            logger.accept("  - providers: " + moduleDescriptor.provides());
             throw new IllegalStateException("Failed to create module-layer, module " + moduleName);
         }
 
-        logger.info("defineModule module:" + oModule.get());
+        logger.accept("defineModule module:" + oModule.get());
         return oModule.get();
     }
 
