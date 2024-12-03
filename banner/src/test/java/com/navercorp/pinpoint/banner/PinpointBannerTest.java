@@ -19,8 +19,12 @@ class PinpointBannerTest {
         properties.put("bbb", "222");
         List<String> dumpKeys = keyList(properties);
 
-        Banner banner = new PinpointBanner(Mode.LOG, dumpKeys,
-                properties::getProperty, logger::info);
+        PinpointBanner.Builder builder = PinpointBanner.newBuilder();
+        builder.setBannerMode(Mode.LOG);
+        builder.setDumpKeys(dumpKeys);
+        builder.setProperties(properties::getProperty);
+        builder.setLoggerWriter(logger::info);
+        Banner banner = builder.build();
         banner.printBanner();
     }
 

@@ -7,12 +7,23 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-class BannerUtils {
+public class BannerSupplier implements Supplier<String> {
+    private final String file;
+
+    public BannerSupplier() {
+        this("/pinpoint-banner/banner.txt");
+    }
+
+    public BannerSupplier(String file) {
+        this.file = Objects.requireNonNull(file, "file");
+    }
 
     static String readAllString(InputStream inputStream, Charset charset) throws IOException {
         try (Reader inputStreamReader = new InputStreamReader(inputStream, charset);
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
             StringBuilder buffer = new StringBuilder(64);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -23,13 +34,13 @@ class BannerUtils {
         }
     }
 
-    static String banner() {
-        return banner("/pinpoint-banner/banner.txt");
+    public String get() {
+        return banner(file);
     }
 
-    private static String banner(String bannerFile) {
-        try (InputStream inputStream = BannerUtils.class.getResourceAsStream(bannerFile)) {
-            return BannerUtils.readAllString(inputStream, StandardCharsets.UTF_8);
+    private String banner(String bannerFile) {
+        try (InputStream inputStream = getClass().getResourceAsStream(bannerFile)) {
+            return BannerSupplier.readAllString(inputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException("banner IO failed", e);
         }

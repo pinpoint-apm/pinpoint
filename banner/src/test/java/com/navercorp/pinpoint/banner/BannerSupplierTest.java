@@ -5,12 +5,12 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 
-class BannerUtilsTest {
+class BannerSupplierTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     void banner() {
-        String banner = BannerUtils.banner();
+        String banner = new BannerSupplier().get();
         logger.debug("--------");
         logger.debug(banner);
         logger.debug("--------");
