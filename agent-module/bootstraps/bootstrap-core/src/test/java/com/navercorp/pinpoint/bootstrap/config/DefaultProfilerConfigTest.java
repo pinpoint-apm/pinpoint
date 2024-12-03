@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -29,11 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author emeroad
  */
 public class DefaultProfilerConfigTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void readProperty() {
-        InputStream inputStream = DefaultProfilerConfig.class.getResourceAsStream("/com/navercorp/pinpoint/bootstrap/config/test.property");
+        InputStream inputStream = getClass().getResourceAsStream("/com/navercorp/pinpoint/bootstrap/config/test.property");
 
         ProfilerConfigLoader.load(inputStream);
     }

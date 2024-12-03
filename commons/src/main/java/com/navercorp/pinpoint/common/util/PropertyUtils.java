@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.common.util;
 
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +32,7 @@ import java.util.Properties;
  * @author emeroad
  */
 public final class PropertyUtils {
-    public static final String DEFAULT_ENCODING = StandardCharsets.UTF_8.name();
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     private static final ClassLoaderUtils.ClassLoaderCallable CLASS_LOADER_CALLABLE = new ClassLoaderUtils.ClassLoaderCallable() {
         @Override
@@ -57,21 +57,14 @@ public final class PropertyUtils {
                 return inputStream;
             }
         };
-        return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
-    }
-
-    public static Properties loadProperty(final String filePath) throws IOException {
-        Objects.requireNonNull(filePath, "filePath");
-
-        final InputStreamFactory inputStreamFactory = new FileInputStreamFactory(filePath);
-        return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
+        return loadProperty(new Properties(), inputStreamFactory, UTF_8);
     }
 
     public static Properties loadProperty(Properties properties, final Path filePath) throws IOException {
         Objects.requireNonNull(filePath, "filePath");
 
         InputStreamFactory streamFactory = new PathFactory(filePath);
-        return loadProperty(properties, streamFactory, DEFAULT_ENCODING);
+        return loadProperty(properties, streamFactory, UTF_8);
     }
 
 
@@ -84,7 +77,7 @@ public final class PropertyUtils {
                 return ClassLoaderUtils.getDefaultClassLoader(CLASS_LOADER_CALLABLE).getResourceAsStream(classPath);
             }
         };
-        return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
+        return loadProperty(new Properties(), inputStreamFactory, UTF_8);
     }
 
     public static Properties loadPropertyFromClassLoader(final ClassLoader classLoader, final String classPath) throws IOException {
@@ -96,11 +89,11 @@ public final class PropertyUtils {
                 return classLoader.getResourceAsStream(classPath);
             }
         };
-        return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
+        return loadProperty(new Properties(), inputStreamFactory, UTF_8);
     }
 
 
-    public static Properties loadProperty(Properties properties, InputStreamFactory inputStreamFactory, String encoding) throws IOException {
+    public static Properties loadProperty(Properties properties, InputStreamFactory inputStreamFactory, Charset encoding) throws IOException {
         Objects.requireNonNull(properties, "properties");
         Objects.requireNonNull(inputStreamFactory, "inputStreamFactory");
         Objects.requireNonNull(encoding, "encoding");
@@ -116,19 +109,6 @@ public final class PropertyUtils {
             IOUtils.closeQuietly(in);
         }
         return properties;
-    }
-
-    public static class FileInputStreamFactory implements InputStreamFactory {
-        private final String filePath;
-
-        public FileInputStreamFactory(String filePath) {
-            this.filePath = Objects.requireNonNull(filePath, "filePath");
-        }
-
-        @Override
-        public InputStream openInputStream() throws IOException {
-            return new FileInputStream(filePath);
-        }
     }
 
     public static class PathFactory implements InputStreamFactory {
