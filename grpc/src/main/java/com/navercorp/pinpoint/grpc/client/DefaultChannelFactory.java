@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
-import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.config.ClientRetryOption;
 import io.grpc.ClientInterceptor;
@@ -38,6 +38,7 @@ import io.netty.util.concurrent.Future;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -244,23 +245,25 @@ public class DefaultChannelFactory implements ChannelFactory {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        ExecutorUtils.shutdownExecutorService(factoryName + "-eventLoopExecutor", eventLoopExecutor);
-        ExecutorUtils.shutdownExecutorService(factoryName + "-executorService", executorService);
+        if (!MoreExecutors.shutdownAndAwaitTermination(eventLoopExecutor, Duration.ofSeconds(3))) {
+            logger.warn("{}-eventLoopExecutor shutdown failed", factoryName);
+        }
+        if (!MoreExecutors.shutdownAndAwaitTermination(executorService, Duration.ofSeconds(3))) {
+            logger.warn("{}-executorService shutdown failed", factoryName);
+        }
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultChannelFactory{");
-        sb.append("factoryName='").append(factoryName).append('\'');
-        sb.append(", executorQueueSize=").append(executorQueueSize);
-        sb.append(", headerFactory=").append(headerFactory);
-        sb.append(", clientOption=").append(clientOption);
-        sb.append(", clientInterceptorList=").append(clientInterceptorList);
-        sb.append(", nameResolverProvider=").append(nameResolverProvider);
-        sb.append(", eventLoopGroup=").append(eventLoopGroup);
-        sb.append(", eventLoopExecutor=").append(eventLoopExecutor);
-        sb.append(", executorService=").append(executorService);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultChannelFactory{" + "factoryName='" + factoryName + '\'' +
+                ", executorQueueSize=" + executorQueueSize +
+                ", headerFactory=" + headerFactory +
+                ", clientOption=" + clientOption +
+                ", clientInterceptorList=" + clientInterceptorList +
+                ", nameResolverProvider=" + nameResolverProvider +
+                ", eventLoopGroup=" + eventLoopGroup +
+                ", eventLoopExecutor=" + eventLoopExecutor +
+                ", executorService=" + executorService +
+                '}';
     }
 }

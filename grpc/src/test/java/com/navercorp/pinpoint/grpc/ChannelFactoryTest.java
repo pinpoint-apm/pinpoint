@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -55,6 +56,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLException;
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -97,9 +99,8 @@ public class ChannelFactoryTest {
             server.awaitTermination();
             serverFactory.close();
         }
-        ExecutorUtils.shutdownExecutorService("test-executor", executorService);
-
-        ExecutorUtils.shutdownExecutorService("dnsExecutor", dnsExecutorService);
+        MoreExecutors.shutdownAndAwaitTermination(executorService, Duration.ofSeconds(3));
+        MoreExecutors.shutdownAndAwaitTermination(dnsExecutorService, Duration.ofSeconds(3));
     }
 
     @Test
