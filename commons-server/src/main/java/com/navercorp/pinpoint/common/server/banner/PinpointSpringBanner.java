@@ -29,7 +29,12 @@ public class PinpointSpringBanner implements ApplicationListener<ApplicationStar
         String dumpKeys = environment.getProperty("pinpoint.banner.configs", "");
         List<String> config = List.of(dumpKeys.split(CONFIG_SEPARATOR));
 
-        Banner banner = new PinpointBanner(mode, config, environment::getProperty, logger::info);
+        PinpointBanner.Builder builder = PinpointBanner.newBuilder();
+        builder.setBannerMode(mode);
+        builder.setDumpKeys(config);
+        builder.setProperties(environment::getProperty);
+        builder.setLoggerWriter(logger::info);
+        Banner banner = builder.build();
         banner.printBanner();
     }
 

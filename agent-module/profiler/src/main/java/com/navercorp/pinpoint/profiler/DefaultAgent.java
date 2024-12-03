@@ -172,7 +172,13 @@ public class DefaultAgent implements Agent {
         List<String> dumpKeys = profilerConfig.readList("pinpoint.banner.configs");
         Mode mode = Mode.valueOf(profilerConfig.readString("pinpoint.banner.mode", "CONSOLE").toUpperCase());
         Properties properties = profilerConfig.getProperties();
-        final Banner banner = new PinpointBanner(mode, dumpKeys, properties::getProperty, logger::info);
+
+        PinpointBanner.Builder builder = PinpointBanner.newBuilder();
+        builder.setBannerMode(mode);
+        builder.setDumpKeys(dumpKeys);
+        builder.setProperties(properties::getProperty);
+        builder.setLoggerWriter(logger::info);
+        final Banner banner = builder.build();
         banner.printBanner();
     }
 
