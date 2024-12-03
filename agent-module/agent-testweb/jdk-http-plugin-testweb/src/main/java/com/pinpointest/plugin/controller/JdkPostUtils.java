@@ -23,10 +23,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class JdkPostUtils {
-    private static final String CHAR_SET = StandardCharsets.UTF_8.name();
+    private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     public static HttpURLConnection getHttpURLPostConnection(String postUrl) throws Exception {
         URL url = new URL(postUrl);
@@ -51,11 +52,11 @@ public class JdkPostUtils {
             StringBuilder postSb = new StringBuilder();
             postSb.append("{foo:bar}");
             writer = http.getOutputStream();
-            IOUtils.write(postSb, writer, CHAR_SET);
+            IOUtils.write(postSb, writer, UTF_8);
             IOUtils.closeQuietly(writer);
             http.connect();
             reader = http.getInputStream();
-            jsonResult = IOUtils.toString(reader, CHAR_SET);
+            jsonResult = IOUtils.toString(reader, UTF_8);
         } finally {
             if (http != null) {
                 http.disconnect();

@@ -16,31 +16,28 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Properties;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class PropertyUtilsTest {
 
     @Test
     public void testLoadProperty() throws Exception {
-        URL resource = PropertyUtils.class.getClassLoader().getResource("test.properties");
-        String path = resource.getPath();
+        InputStream inputStream = getClass().getResourceAsStream("/test.properties");
 
-        Properties properties = PropertyUtils.loadProperty(path);
-        assertProperty(properties);
+        Properties properties = PropertyUtils.loadProperty(inputStream);
+        assertThat(properties).contains(entry("test", "pinpoint"));
     }
 
     @Test
     public void testLoadPropertyFromClassPath() throws Exception {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("test.properties");
-        assertProperty(properties);
+        assertThat(properties).contains(entry("test", "pinpoint"));
     }
 
-    private void assertProperty(Properties properties) {
-        String test = properties.getProperty("test");
-        Assertions.assertEquals("pinpoint", test);
-    }
 }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.grpc.config;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,8 +32,8 @@ public class GrpcTransportConfigTest {
     @Test
     public void read() throws Exception {
         // Mock
-        String path = getClass().getResource("/pinpoint.config").getPath();
-        Properties properties = PropertyUtils.loadProperty(path);
+        InputStream inputStream = getClass().getResourceAsStream("/pinpoint.config");
+        Properties properties = PropertyUtils.loadProperty(inputStream);
 
         GrpcTransportConfig config = new GrpcTransportConfig();
         config.read(properties);
