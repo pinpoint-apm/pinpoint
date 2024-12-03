@@ -28,12 +28,11 @@ import { BiSolidSave } from 'react-icons/bi';
 import { RxPlusCircled } from 'react-icons/rx';
 import { useReactToastifyToast } from '../../../components/Toast';
 import { LoadingButton } from '../../../components/Button';
-import { Widget } from '../../Dashboard/Widget';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { DashBoard } from '../../Dashboard/DashBoard';
 import { MetricDefinitionSheet } from '../definition/MetricDefinitionSheet';
-import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
 import { OpenTelemetryAlertDialog } from './OpenTelemetryAlertDialog';
+import { OpenTelemetryWidget } from './OpenTelemetryWidget';
 import { isEqual, sortBy } from 'lodash';
 import { cn } from '../../../lib/utils';
 
@@ -224,24 +223,15 @@ export const OpenTelemetryDashboardFetcher = () => {
               </div>
             </div>
             <DashBoard layouts={state.layouts} onLayoutChange={onLayoutChange}>
-              {metrics.map((metric) => {
+              {metrics.map((metric, i) => {
                 return (
-                  <div key={metric?.id}>
-                    <Widget
-                      title={metric.title}
-                      onClickDelete={() => {
-                        setCurrentDeletingTarget(metric);
-                      }}
-                      onClickEdit={() => {
-                        setCurrentEditingTarget(metric);
-                      }}
-                    >
-                      <OpenTelemetryMetric
-                        metricDefinition={metric}
-                        dashboardId={applicationName}
-                      />
-                    </Widget>
-                  </div>
+                  <OpenTelemetryWidget
+                    key={i}
+                    metric={metric}
+                    applicationName={applicationName}
+                    onEdit={setCurrentEditingTarget}
+                    onDelete={setCurrentDeletingTarget}
+                  />
                 );
               })}
             </DashBoard>
