@@ -17,7 +17,7 @@ public class AgentIdResolverTest {
         properties.put(argument.getAgentId(), "agentId");
         properties.put(argument.getAgentName(), "agentName");
         properties.put(argument.getApplicationName(), "appName");
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties::get);
 
         AgentIdResolver resolver = new AgentIdResolver(Collections.singletonList(ap));
         AgentIds resolve = resolver.resolve();
@@ -34,7 +34,7 @@ public class AgentIdResolverTest {
         Map<String, String> properties = new HashMap<>();
         properties.put(argument.getAgentId(), "agentId");
         properties.put(argument.getApplicationName(), "appName");
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties::get);
 
         AgentIdResolver resolver = new AgentIdResolver(Collections.singletonList(ap));
         AgentIds resolve = resolver.resolve();
@@ -51,7 +51,7 @@ public class AgentIdResolverTest {
         Map<String, String> properties = new HashMap<>();
         properties.put(argument.getAgentId(), "agentId");
 
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties::get);
 
         AgentIdResolver resolver = new AgentIdResolver(Collections.singletonList(ap));
         AgentIds resolve = resolver.resolve();
@@ -65,12 +65,12 @@ public class AgentIdResolverTest {
         Map<String, String> properties1 = new HashMap<>();
         properties1.put(argument.getAgentId(), "agentId1");
         properties1.put(argument.getAgentName(), "agentName1");
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties1);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties1::get);
 
         AgentIdSourceType system = AgentIdSourceType.SYSTEM;
         Map<String, String> properties2 = new HashMap<>();
         properties2.put(system.getApplicationName(), "appName2");
-        AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2);
+        AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2::get);
 
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap, ap2));
         AgentIds resolve = resolver.resolve();
@@ -87,7 +87,7 @@ public class AgentIdResolverTest {
         Map<String, String> properties1 = new HashMap<>();
         properties1.put(argument.getAgentId(), "agentId1");
         properties1.put(argument.getAgentName(), "agentName1");
-        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties1);
+        AgentProperties ap = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, properties1::get);
 
         AgentIdSourceType system = AgentIdSourceType.SYSTEM;
         Map<String, String> properties2 = new HashMap<>();
@@ -95,7 +95,7 @@ public class AgentIdResolverTest {
         properties2.put(system.getAgentName(), "agentName2");
         properties2.put(system.getApplicationName(), "appName2");
 
-        AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2);
+        AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2::get);
 
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap, ap2));
         AgentIds resolve = resolver.resolve();

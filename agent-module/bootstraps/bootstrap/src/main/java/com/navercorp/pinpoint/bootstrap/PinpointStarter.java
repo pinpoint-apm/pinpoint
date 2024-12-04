@@ -170,9 +170,9 @@ class PinpointStarter {
 
     private AgentIds resolveAgentIds() {
         AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
-        builder.addAgentArgument(agentArgs);
-        builder.addEnvProperties(System.getenv());
-        builder.addSystemProperties(AgentProperties.fromProperties(System.getProperties()));
+        builder.addAgentArgument(agentArgs::get);
+        builder.addEnvProperties(System.getenv()::get);
+        builder.addSystemProperties(System.getProperties()::getProperty);
         AgentIdResolver agentIdResolver = builder.build();
         return agentIdResolver.resolve();
     }
