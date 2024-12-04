@@ -52,6 +52,7 @@ export class Guide extends Layer {
   private xAxis!: GuideOptions['xAxis'];
   private yAxis!: GuideOptions['yAxis'];
   private option;
+  private dragRectangle: GuideDragEndCallbackData = { x1: 0, y1: 0, x2: 0, y2: 0 }; // x1: dragStartX, y1: dragStartY, x2: dragEndX, y2: dragEndY
 
   constructor(wrapper: HTMLElement, props: GuideOptions) {
     super({ width: props.width, height: props.height });
@@ -79,6 +80,59 @@ export class Guide extends Layer {
       y >= padding.top + this.yAxis.innerPadding &&
       y <= height - padding.bottom - this.yAxis.innerPadding
     );
+  }
+
+  private handleMouseUp(event: MouseEvent) {
+    const width = this.canvas.width / this.dpr;
+    const height = this.canvas.height / this.dpr;
+
+    this.isMouseDown = false;
+
+    if (this.isCanvasEmpty() || !this.isDragging) {
+      return;
+    }
+
+    this.dragStartX = this.dragRectangle.x1;
+    this.dragStartY = this.dragRectangle.y1;
+    const offsetX = this.dragRectangle.x2;
+    const offsetY = this.dragRectangle.y2;
+
+    this.context.clearRect(0, 0, width, height);
+    this.dragRectangle = { x1: 0, y1: 0, x2: 0, y2: 0 };
+
+    this.isMouseInValidArea(offsetX, offsetY) && this.drawGuideText(offsetX, offsetY);
+    const minX = this.xAxis.min;
+    const maxY = this.yAxis.max;
+    const xPadding = this.padding.left + this.xAxis.innerPadding;
+    const yPadding = this.padding.top + this.yAxis.innerPadding;
+    const startX = (this.dragStartX - xPadding) / this.ratio.x + minX;
+    const startY = maxY - (this.dragStartY - yPadding) / this.ratio.y;
+    const endX = (offsetX - xPadding) / this.ratio.x + minX;
+    const endY = maxY - (offsetY - yPadding) / this.ratio.y;
+    let x1, x2, y1, y2;
+
+    if (startX > endX) {
+      x1 = endX;
+      x2 = startX;
+    } else {
+      x1 = startX;
+      x2 = endX;
+    }
+
+    if (startY > endY) {
+      y1 = startY;
+      y2 = endY;
+    } else {
+      y1 = endY;
+      y2 = startY;
+    }
+
+    this.eventHandlers['dragEnd']?.(event, {
+      x1,
+      y1,
+      x2,
+      y2,
+    });
   }
 
   private addEventListener() {
@@ -111,6 +165,14 @@ export class Guide extends Layer {
         }
         if (this.isMouseDown) {
           this.isDragging = true;
+
+          this.dragRectangle = {
+            x1: this.dragStartX,
+            y1: this.dragStartY,
+            x2: offsetX,
+            y2: offsetY,
+          };
+
           drawRect(
             this.context,
             this.dragStartX,
@@ -126,66 +188,7 @@ export class Guide extends Layer {
       },
       { signal },
     );
-
-    this.canvas.addEventListener(
-      'mouseout',
-      () => {
-        const width = this.canvas.width / this.dpr;
-        const height = this.canvas.height / this.dpr;
-        this.isMouseDown = false;
-        this.isDragging = false;
-        this.context.clearRect(0, 0, width, height);
-      },
-      { signal },
-    );
-
-    this.canvas.addEventListener(
-      'mouseup',
-      (event) => {
-        const width = this.canvas.width / this.dpr;
-        const height = this.canvas.height / this.dpr;
-        const { offsetX, offsetY } = event;
-        this.context.clearRect(0, 0, width, height);
-
-        if (this.isDragging) {
-          this.isMouseInValidArea(offsetX, offsetY) && this.drawGuideText(offsetX, offsetY);
-          const minX = this.xAxis.min;
-          const maxY = this.yAxis.max;
-          const xPadding = this.padding.left + this.xAxis.innerPadding;
-          const yPadding = this.padding.top + this.yAxis.innerPadding;
-          const startX = (this.dragStartX - xPadding) / this.ratio.x + minX;
-          const startY = maxY - (this.dragStartY - yPadding) / this.ratio.y;
-          const endX = (offsetX - xPadding) / this.ratio.x + minX;
-          const endY = maxY - (offsetY - yPadding) / this.ratio.y;
-          let x1, x2, y1, y2;
-
-          if (startX > endX) {
-            x1 = endX;
-            x2 = startX;
-          } else {
-            x1 = startX;
-            x2 = endX;
-          }
-
-          if (startY > endY) {
-            y1 = startY;
-            y2 = endY;
-          } else {
-            y1 = endY;
-            y2 = startY;
-          }
-
-          this.eventHandlers['dragEnd']?.(event, {
-            x1,
-            y1,
-            x2,
-            y2,
-          });
-        }
-        this.isMouseDown = false;
-      },
-      { signal },
-    );
+    document.addEventListener('mouseup', this.handleMouseUp.bind(this), { signal });
 
     this.canvas.addEventListener(
       'click',
@@ -267,6 +270,19 @@ export class Guide extends Layer {
     });
   }
 
+  private isCanvasEmpty() {
+    const { width, height } = this.canvas;
+    const imageData = this.context.getImageData(0, 0, width, height).data;
+
+    // Pixel data inspection
+    for (let i = 0; i < imageData.length; i += 4) {
+      if (imageData[i + 3] !== 0) {
+        return false; // Not empty if there are non-transparent pixels
+      }
+    }
+    return true; // Empty if only transparent pixels exist
+  }
+
   public setOptions({
     width = this.canvas.width / this.dpr,
     height = this.canvas.height / this.dpr,
@@ -302,5 +318,6 @@ export class Guide extends Layer {
     keys.forEach((key: GuideEventTypes) => {
       this.off(key);
     });
+    document.removeEventListener('mouseup', this.handleMouseUp);
   }
 }
