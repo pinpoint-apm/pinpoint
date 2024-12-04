@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
-import com.navercorp.pinpoint.common.util.PropertySnapshot;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.lang.instrument.Instrumentation;
@@ -185,8 +183,8 @@ class PinpointStarter {
         final Path profilesPath = agentDirectory.getProfilesPath();
         final String[] profileDirs = agentDirectory.getProfileDirs();
 
-        final SimpleProperty javaSystemProperty = copyJavaSystemProperty();
-        final SimpleProperty osEnvProperty = copyOSEnvVariables();
+        final Properties javaSystemProperty = copyJavaSystemProperty();
+        final Properties osEnvProperty = copyOSEnvVariables();
 
         final PropertyLoaderFactory factory = new PropertyLoaderFactory(javaSystemProperty, osEnvProperty,
                 agentDirPath, profilesPath, profileDirs);
@@ -202,14 +200,13 @@ class PinpointStarter {
         return properties;
     }
 
-    private SimpleProperty copyJavaSystemProperty() {
-        return new PropertySnapshot(System.getProperties());
+    private Properties copyJavaSystemProperty() {
+        return new Properties(System.getProperties());
     }
 
-    private SimpleProperty copyOSEnvVariables() {
-        return new OsEnvSimpleProperty(System.getenv());
+    private Properties copyOSEnvVariables() {
+        return OsEnvSimpleProperty.copy(System.getenv());
     }
-
 
     private ClassLoader createClassLoader(final String name, final URL[] urls, final ClassLoader parentClassLoader, List<String> libClass) {
         return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, libClass);

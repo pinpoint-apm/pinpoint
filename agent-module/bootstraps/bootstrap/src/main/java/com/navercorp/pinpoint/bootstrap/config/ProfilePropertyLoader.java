@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.io.IOException;
@@ -38,8 +37,8 @@ class ProfilePropertyLoader implements PropertyLoader {
 
     private final BootLogger logger = BootLogger.getLogger(getClass());
 
-    private final SimpleProperty javaSystemProperty;
-    private final SimpleProperty osEnvProperty;
+    private final Properties javaSystemProperty;
+    private final Properties osEnvProperty;
 
     private final Path agentRootPath;
     private final Path profilesPath;
@@ -48,7 +47,7 @@ class ProfilePropertyLoader implements PropertyLoader {
 
     public static final String[] ALLOWED_PROPERTY_PREFIX = new String[]{"bytecode.", "profiler.", "pinpoint."};
 
-    public ProfilePropertyLoader(SimpleProperty javaSystemProperty, SimpleProperty osEnvProperty, Path agentRootPath, Path profilesPath, String[] supportedProfiles) {
+    public ProfilePropertyLoader(Properties javaSystemProperty, Properties osEnvProperty, Path agentRootPath, Path profilesPath, String[] supportedProfiles) {
         this.javaSystemProperty = Objects.requireNonNull(javaSystemProperty, "javaSystemProperty");
         this.osEnvProperty = Objects.requireNonNull(osEnvProperty, "osEnvProperty");
 
@@ -162,7 +161,7 @@ class ProfilePropertyLoader implements PropertyLoader {
         }
     }
 
-    private void loadProperties(Properties dstProperties, SimpleProperty property) {
+    private void loadProperties(Properties dstProperties, Properties property) {
         Set<String> stringPropertyNames = property.stringPropertyNames();
         for (String propertyName : stringPropertyNames) {
             if (isAllowPinpointProperty(propertyName)) {

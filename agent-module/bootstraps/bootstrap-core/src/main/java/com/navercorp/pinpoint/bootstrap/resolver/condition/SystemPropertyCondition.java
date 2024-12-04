@@ -19,28 +19,28 @@ package com.navercorp.pinpoint.bootstrap.resolver.condition;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.common.util.SystemProperty;
+
+import java.util.Properties;
 
 /**
  * @author HyunGil Jeong
  * 
  */
-public class SystemPropertyCondition implements Condition<String>, ConditionValue<SystemProperty> {
+public class SystemPropertyCondition implements Condition<String>, ConditionValue<Properties> {
 
     public static final SystemPropertyCondition INSTANCE = new SystemPropertyCondition();
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass().getName());
 
-    private final SystemProperty property;
+    private final Properties property;
     
     private SystemPropertyCondition() {
-        this(SystemProperty.INSTANCE);
+        this(System.getProperties());
     }
 
     @VisibleForTesting
-    SystemPropertyCondition(SystemProperty property) {
+    SystemPropertyCondition(Properties property) {
         this.property = property;
     }
     
@@ -71,7 +71,7 @@ public class SystemPropertyCondition implements Condition<String>, ConditionValu
      * @return the {@link SimpleProperty} instance
      */
     @Override
-    public SystemProperty getValue() {
+    public Properties getValue() {
         return this.property;
     }
     

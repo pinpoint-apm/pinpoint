@@ -16,18 +16,18 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.common.util.SimpleProperty;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class PropertyLoaderFactory {
 
-    private final SimpleProperty javaSystemProperty;
-    private final SimpleProperty osEnvProperty;
+    private final Properties javaSystemProperty;
+    private final Properties osEnvProperty;
 
     private final Path agentRootPath;
 
@@ -36,7 +36,7 @@ public class PropertyLoaderFactory {
     // @Optional
     private final String[] supportedProfiles;
 
-    public PropertyLoaderFactory(SimpleProperty javaSystemProperty, SimpleProperty osEnvProperty,
+    public PropertyLoaderFactory(Properties javaSystemProperty, Properties osEnvProperty,
                                  Path agentRootPath, Path profilesPath, String[] supportedProfiles) {
         this.javaSystemProperty = Objects.requireNonNull(javaSystemProperty, "javaSystemProperty");
         this.osEnvProperty = Objects.requireNonNull(osEnvProperty, "osEnvProperty");

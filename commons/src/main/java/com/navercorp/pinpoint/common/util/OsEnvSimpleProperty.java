@@ -6,13 +6,12 @@ import java.util.Properties;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class OsEnvSimpleProperty extends PropertySnapshot {
+public class OsEnvSimpleProperty {
 
-    public OsEnvSimpleProperty(Map<String, String> envMap) {
-        super(copy(envMap));
+    private OsEnvSimpleProperty() {
     }
 
-    private static Properties copy(Map<String, String> envMap) {
+    public static Properties copy(Map<String, String> envMap) {
         Properties properties = new Properties();
         for (Map.Entry<String, String> entry : envMap.entrySet()) {
             String key = resolveKey(entry.getKey());

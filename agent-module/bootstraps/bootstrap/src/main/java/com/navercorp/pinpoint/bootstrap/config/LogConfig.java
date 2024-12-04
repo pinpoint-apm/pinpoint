@@ -3,18 +3,22 @@ package com.navercorp.pinpoint.bootstrap.config;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.agentdir.LogDirCleaner;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 
 import java.nio.file.Path;
+import java.util.Objects;
+import java.util.Properties;
 
 public class LogConfig {
     private final BootLogger logger = BootLogger.getLogger(getClass());
 
-    private final SimpleProperty systemProperty;
+    private final Properties systemProperty;
 
     public LogConfig() {
-        this.systemProperty = SystemProperty.INSTANCE;
+        this(System.getProperties());
+    }
+
+    public LogConfig(Properties properties) {
+        this.systemProperty = Objects.requireNonNull(properties, "properties");
     }
 
     public void saveLogFilePath(Path agentLogFilePath) {

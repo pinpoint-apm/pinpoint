@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
-import com.navercorp.pinpoint.common.util.SystemProperty;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,7 +33,7 @@ public class SystemPropertyConditionTest {
         // Given
         final String existingSystemProperty1 = "set.one.key.one";
         final String existingSystemProperty2 = "set.one.key.two";
-        SystemProperty property = createTestProperty(existingSystemProperty1, existingSystemProperty2);
+        Properties property = createTestProperty(existingSystemProperty1, existingSystemProperty2);
         SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
         // When
         boolean firstKeyExists = systemPropertyCondition.check(existingSystemProperty1);
@@ -49,7 +47,7 @@ public class SystemPropertyConditionTest {
     public void testNoMatch() {
         // Given
         final String existingSystemProperty = "existing.system.property";
-        SystemProperty property = createTestProperty(existingSystemProperty);
+        Properties property = createTestProperty(existingSystemProperty);
         SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
         // When
         boolean keyExists = systemPropertyCondition.check("some.other.property");
@@ -61,7 +59,7 @@ public class SystemPropertyConditionTest {
     public void emptyConditionShouldNotMatch() {
         // Given
         final String existingSystemProperty = "existing.system.property";
-        SystemProperty property = createTestProperty(existingSystemProperty);
+        Properties property = createTestProperty(existingSystemProperty);
         SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
         // When
         boolean matches = systemPropertyCondition.check("");
@@ -73,7 +71,7 @@ public class SystemPropertyConditionTest {
     public void nullConditionShouldNotMatch() {
         // Given
         final String existingSystemProperty = "existing.system.property";
-        SystemProperty property = createTestProperty(existingSystemProperty);
+        Properties property = createTestProperty(existingSystemProperty);
         SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
         // When
         boolean matches = systemPropertyCondition.check(null);
@@ -81,34 +79,12 @@ public class SystemPropertyConditionTest {
         assertFalse(matches);
     }
 
-    private static SystemProperty createTestProperty() {
-        return new SystemProperty() {
-
-            private final Map<String, String> properties = new HashMap<>();
-
-            @Override
-            public void setProperty(String key, String value) {
-                this.properties.put(key, value);
-            }
-
-            @Override
-            public String getProperty(String key) {
-                return this.properties.get(key);
-            }
-
-            @Override
-            public String getProperty(String key, String defaultValue) {
-                if (this.properties.containsKey(key)) {
-                    return this.properties.get(key);
-                } else {
-                    return defaultValue;
-                }
-            }
-        };
+    private static Properties createTestProperty() {
+        return new Properties();
     }
 
-    private static SystemProperty createTestProperty(String... keys) {
-        SystemProperty property = createTestProperty();
+    private static Properties createTestProperty(String... keys) {
+        Properties property = createTestProperty();
         if (keys == null) {
             return property;
         }
