@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,17 +37,11 @@ public class TraceDataFormatVersionProvider implements Provider<TraceDataFormatV
     }
 
     private TraceDataFormatVersion getVersion(ProfilerConfig profilerConfig) {
-        final TransportModule transportModule = profilerConfig.getTransportModule();
-        logger.info("TransportModule:{}", transportModule);
-        if (TransportModule.GRPC == transportModule) {
-            final String version = profilerConfig.readString(TraceDataFormatVersion.GRPC_TRACE_VERSION_KEY, "v2");
-            if ("v2".equalsIgnoreCase(version)) {
-                return TraceDataFormatVersion.V2;
-            }
-            throw new UnsupportedOperationException("unknown " + TraceDataFormatVersion.GRPC_TRACE_VERSION_KEY + ":" + version);
+        final String version = profilerConfig.readString(TraceDataFormatVersion.GRPC_TRACE_VERSION_KEY, "v2");
+        if ("v2".equalsIgnoreCase(version)) {
+            return TraceDataFormatVersion.V2;
         }
-
-        throw new UnsupportedOperationException("unknown transportModule:" + transportModule);
+        throw new UnsupportedOperationException("unknown " + TraceDataFormatVersion.GRPC_TRACE_VERSION_KEY + ":" + version);
     }
 
     @Override

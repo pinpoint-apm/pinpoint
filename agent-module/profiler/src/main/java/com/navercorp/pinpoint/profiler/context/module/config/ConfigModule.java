@@ -21,7 +21,6 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
@@ -121,8 +120,6 @@ public class ConfigModule extends AbstractModule {
         configurationLoader.load(micrometerConfig);
         logger.info("{}", micrometerConfig);
         bind(MicrometerConfig.class).toInstance(micrometerConfig);
-
-        bind(TransportModule.class).toInstance(profilerConfig.getTransportModule());
 
         bind(Instrumentation.class).toInstance(agentOption.getInstrumentation());
 

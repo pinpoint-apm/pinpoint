@@ -49,8 +49,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private final Properties properties;
 
-    private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.GRPC;
-
     @Value("${pinpoint.disable:false}")
     private String pinpointDisable = "false";
 
@@ -62,8 +60,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @VisibleForTesting
     private boolean staticResourceCleanup = false;
-
-    private TransportModule transportModule = DEFAULT_TRANSPORT_MODULE;
 
     @Value("${profiler.jdbc.sqlcachesize}")
     private int jdbcSqlCacheSize = 1024;
@@ -106,16 +102,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public String getActiveProfile() {
         return activeProfile;
-    }
-
-    @Override
-    public TransportModule getTransportModule() {
-        return transportModule;
-    }
-
-    @Value("${profiler.transport.module}")
-    public void setTransportModule(String transportModule) {
-        this.transportModule = TransportModule.parse(transportModule, DEFAULT_TRANSPORT_MODULE);
     }
 
     @Override
@@ -293,7 +279,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
                 ", logDirMaxBackupSize=" + logDirMaxBackupSize +
                 ", activeProfile='" + activeProfile + '\'' +
                 ", staticResourceCleanup=" + staticResourceCleanup +
-                ", transportModule=" + transportModule +
                 ", jdbcSqlCacheSize=" + jdbcSqlCacheSize +
                 ", traceSqlBindValue=" + traceSqlBindValue +
                 ", maxSqlBindValueSize=" + maxSqlBindValueSize +
