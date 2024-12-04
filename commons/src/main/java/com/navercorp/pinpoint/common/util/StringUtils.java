@@ -76,6 +76,10 @@ public final class StringUtils {
         return string.length();
     }
 
+    /**
+     * alternative to {@link String#valueOf(Object)}
+     */
+    @Deprecated
     public static String toString(final Object object) {
         if (object == null) {
             return NULL_STRING;

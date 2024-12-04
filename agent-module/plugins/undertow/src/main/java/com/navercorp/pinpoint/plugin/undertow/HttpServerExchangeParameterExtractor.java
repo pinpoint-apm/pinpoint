@@ -65,7 +65,7 @@ public class HttpServerExchangeParameterExtractor implements ParameterExtractor<
             }
             for (String value : values) {
                 if (value != null) {
-                    params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
+                    params.append(StringUtils.abbreviate(value, eachLimit));
                 }
             }
         }

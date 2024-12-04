@@ -59,7 +59,7 @@ public class HttpServerParameterExtractor implements ParameterExtractor<HttpServ
             params.append('=');
             Object value = entry.getValue();
             if (value != null) {
-                params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
+                params.append(StringUtils.abbreviate(String.valueOf(value), eachLimit));
             }
         }
         return params.toString();
