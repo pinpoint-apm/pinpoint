@@ -23,6 +23,5 @@ public final class AgentParameter {
     private AgentParameter() {
     }
 
-    public static final String AGENT_TYPE = "AGENT_TYPE";
     public static final String IMPORT_PLUGIN = "IMPORT_PLUGIN";
 }
