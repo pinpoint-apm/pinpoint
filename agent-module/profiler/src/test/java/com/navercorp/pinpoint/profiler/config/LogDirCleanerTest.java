@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.bootstrap.agentdir;
+package com.navercorp.pinpoint.profiler.config;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,7 +23,7 @@ public class LogDirCleanerTest {
     private long time = System.currentTimeMillis();
 
     private FileTime nextTime() {
-        return FileTime.from(time += 10000, TimeUnit.MILLISECONDS);
+        return FileTime.fromMillis(time += 10000);
     }
 
 //    private static File getRootDir(Class<?> clazz) {
@@ -75,6 +74,8 @@ public class LogDirCleanerTest {
         assertThat(files).hasSize(2)
                 .contains(Paths.get("agentDir2"))
                 .contains(Paths.get("agentDir3"));
+//                .contains("agentDir2")
+//                .contains("agentDir3");
     }
 
     @Test

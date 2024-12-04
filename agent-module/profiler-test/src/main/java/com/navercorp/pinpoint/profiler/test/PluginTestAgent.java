@@ -16,12 +16,24 @@
 
 package com.navercorp.pinpoint.profiler.test;
 
-import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
+import com.navercorp.pinpoint.profiler.AgentContextOptionBuilder;
+import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
+
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author emeroad
@@ -31,12 +43,13 @@ import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
  */
 public class PluginTestAgent extends DefaultAgent {
 
-    public PluginTestAgent(AgentOption agentOption) {
+    public PluginTestAgent(Map<String, Object> agentOption) {
         super(agentOption);
     }
 
     @Override
-    protected ApplicationContext newApplicationContext(AgentOption agentOption) {
+    protected ApplicationContext newApplicationContext(AgentContextOption agentOption) {
+
 
         PluginApplicationContextModule pluginApplicationContextModule = new PluginApplicationContextModule();
         ModuleFactory moduleFactory = new OverrideModuleFactory(pluginApplicationContextModule);
@@ -46,6 +59,32 @@ public class PluginTestAgent extends DefaultAgent {
 
         return applicationContext ;
 
+    }
+
+    protected Path getLogConfigPath(ProfilerConfig config, Path agentPath) {
+        if (agentPath == null) {
+            URL classPathRoot = getClass().getResource("/");
+            try {
+                Objects.requireNonNull(classPathRoot, "resource");
+                return Paths.get(classPathRoot.toURI());
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("Failed to get agentPath", e);
+            }
+        }
+        return agentPath;
+    }
+
+    @Override
+    protected AgentContextOption buildContextOption(AgentOption agentOption, ProfilerConfig profilerConfig) {
+        Properties properties = profilerConfig.getProperties();
+        properties.put(DefaultProfilerConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, "true");
+
+        String agentId = "mockAgentId";
+        String agentName = "mockAgentName";
+        String applicationName = "mockApplicationName";
+        return AgentContextOptionBuilder.build(agentOption,
+                agentId, agentName, applicationName,
+                profilerConfig);
     }
 
     private void exportVerifier(DefaultApplicationContext applicationContext) {

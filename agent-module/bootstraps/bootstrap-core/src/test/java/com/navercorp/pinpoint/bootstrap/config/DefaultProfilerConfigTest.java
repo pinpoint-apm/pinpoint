@@ -51,4 +51,14 @@ public class DefaultProfilerConfigTest {
         assertThat(profilerConfig.readList("profiler.test.list3")).contains("foo", "bar");
         assertThat(profilerConfig.readList("profiler.test.list4")).contains("foo", "bar");
     }
+
+    @Test
+    public void agentRootPath() {
+        Properties properties = new Properties();
+        properties.setProperty(DefaultProfilerConfig.AGENT_ROOT_PATH_KEY, "/test/agent");
+
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
+
+        assertThat(profilerConfig.getAgentRootPath()).contains("/test/agent");
+    }
 }

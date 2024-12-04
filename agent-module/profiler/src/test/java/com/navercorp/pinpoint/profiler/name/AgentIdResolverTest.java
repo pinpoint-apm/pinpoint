@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler.name;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

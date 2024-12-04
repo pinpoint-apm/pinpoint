@@ -17,15 +17,13 @@
 package com.navercorp.pinpoint.bootstrap;
 
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
 import java.util.Collections;
+import java.util.Properties;
 
 import static org.mockito.Mockito.mock;
 
@@ -43,32 +41,23 @@ public class AgentBootLoaderTest {
 
     @Test
     public void bootNoAgentName() {
-        boot("");
+        boot("testNoAgentName");
     }
 
     private void boot(String agentName) {
         ClassLoader classLoader = AgentBootLoaderTest.class.getClassLoader();
         AgentBootLoader agentBootLoader = new AgentBootLoader("com.navercorp.pinpoint.bootstrap.DummyAgent", classLoader);
         Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", agentName, "testCaseAppName",
-                new DefaultProfilerConfig(), Collections.emptyList(), Collections.emptyList());
-        Agent boot = agentBootLoader.boot(option);
-        boot.start();
-        boot.stop();
-    }
-
-    private String getProjectLibDir() {
-        // not really necessary, but useful for testing protectionDomain
-        URL location = CodeSourceUtils.getCodeLocation(AgentBootLoader.class);
-
-        logger.debug("lib location:{}", location);
-        String path = location.getPath();
-        // file:/D:/nhn_source/pinpoint_project/pinpoint-tomcat-profiler/target/classes/
-        int dirPath = path.lastIndexOf("target/classes/");
-        if (dirPath == -1) {
-            throw new RuntimeException("target/classes/ not found");
+        AgentOption option = new DefaultAgentOption(instrumentation,
+                new Properties(), Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
+        Object boot = agentBootLoader.boot(option);
+        try {
+            Class<?> agentClazz = boot.getClass();
+            agentClazz.getMethod("start").invoke(boot);
+            agentClazz.getMethod("close").invoke(boot);
+        } catch (Exception e) {
+            throw new RuntimeException("agent boot failed", e);
         }
-        String projectDir = path.substring(1, dirPath);
-        return projectDir + "src/test/lib";
     }
+
 }

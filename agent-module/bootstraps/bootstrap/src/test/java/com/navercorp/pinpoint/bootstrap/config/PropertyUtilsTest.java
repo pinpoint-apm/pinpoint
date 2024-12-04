@@ -16,30 +16,27 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Properties;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ProfilePropertyLoaderTest {
+public class PropertyUtilsTest {
 
 
     @Test
-    public void isAllowPinpointProperty(@TempDir Path temp) {
-        Properties properties = PropertySnapshot.copy(new Properties());
-
+    public void filterAllowedPrefix() {
+        Properties properties = new Properties();
         properties.setProperty("pinpoint.test", "a");
-        ProfilePropertyLoader loader = new ProfilePropertyLoader(properties, properties, temp, Paths.get("test"), new String[]{"test"});
-        Assertions.assertTrue(loader.isAllowPinpointProperty("pinpoint.test"));
+        properties.setProperty("unknown.test", "test");
 
-        Assertions.assertFalse(loader.isAllowPinpointProperty("unknown.test"));
+        Map<Object, Object> copy =  PropertyLoaderUtils.filterAllowedPrefix(properties);
+        Assertions.assertEquals("a", copy.get( "pinpoint.test"));
+        Assertions.assertNull(copy.get( "unknown.test"));
 
     }
 }

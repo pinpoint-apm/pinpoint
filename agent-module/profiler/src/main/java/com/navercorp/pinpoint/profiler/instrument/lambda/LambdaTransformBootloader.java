@@ -74,7 +74,7 @@ public class LambdaTransformBootloader {
     private LambdaBytecodeHandler newLambdaBytecodeHandler(ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
         final LambdaBytecodeHandler lambdaBytecodeHandler = new DefaultLambdaBytecodeHandler(classFileTransformer, javaModuleFactory);
         final Logger logger = LogManager.getLogger(lambdaBytecodeHandler.getClass());
-        if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
             return new LambdaBytecodeLogger(lambdaBytecodeHandler);
         }
         return lambdaBytecodeHandler;

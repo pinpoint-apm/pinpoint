@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler.name;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -35,30 +35,23 @@ public class AgentProperties {
         return type;
     }
 
-    public String getAgentId() {
-        return trimProperty(type.getAgentId());
-    }
-
-    public String getAgentIdKey() {
-        return type.getAgentId();
-    }
-
-
-    public String getAgentName() {
-        return trimProperty(type.getAgentName());
-    }
-
-    public String getAgentNameKey() {
-        return type.getAgentName();
+    public KeyValue getAgentId() {
+        String agentId = type.getAgentId();
+        String name = trimProperty(agentId);
+        return new KeyValue(agentId, name);
     }
 
 
-    public String getApplicationName() {
-        return trimProperty(type.getApplicationName());
+    public KeyValue getAgentName() {
+        String agentName = type.getAgentName();
+        String name = trimProperty(agentName);
+        return new KeyValue(agentName, name);
     }
 
-    public String getApplicationNameKey() {
-        return type.getApplicationName();
+    public KeyValue getApplicationName() {
+        String applicationName = type.getApplicationName();
+        String name = trimProperty(applicationName);
+        return new KeyValue(applicationName, name);
     }
 
     private String trimProperty(String key) {
@@ -70,6 +63,29 @@ public class AgentProperties {
             return null;
         }
         return string.trim();
+    }
+
+    public static class KeyValue {
+        private final String key;
+        private final String name;
+
+        public KeyValue(String key, String name) {
+            this.key = Objects.requireNonNull(key, "key");
+            this.name = name;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s=%s", key, name);
+        }
     }
 
     @Override

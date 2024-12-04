@@ -75,6 +75,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mapstruct.factory.Mappers;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -92,7 +93,13 @@ public class GrpcModule extends PrivateModule {
 
     public GrpcModule(ProfilerConfig profilerConfig) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
-        this.reporter = new ChannelzScheduledReporterBuilder().acceptConfig(this.profilerConfig).build();
+
+        String grpcStatLoggingPeriod = profilerConfig.getGrpcStatLoggingPeriod();
+        ChannelzScheduledReporterBuilder builder = new ChannelzScheduledReporterBuilder();
+        if (grpcStatLoggingPeriod != null) {
+            builder.acceptConfig(Duration.parse(grpcStatLoggingPeriod));
+        }
+        this.reporter = builder.build();
     }
 
     @Override

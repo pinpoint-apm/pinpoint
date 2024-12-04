@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author emeroad
@@ -29,23 +32,22 @@ public class DefaultAgentOption implements AgentOption {
 
     private final Instrumentation instrumentation;
 
-    private final String agentId;
-    private final String agentName;
-    private final String applicationName;
+    private final Properties properties;
+    private final Map<String, String> agentArgs;
 
-    private final ProfilerConfig profilerConfig;
-    private final List<String> pluginJars;
-    private final List<String> bootstrapJarPaths;
+    private final List<Path> pluginJars;
+    private final List<Path> bootstrapJarPaths;
 
     public DefaultAgentOption(final Instrumentation instrumentation,
-                              String agentId, String agentName, String applicationName,
-                              final ProfilerConfig profilerConfig, final List<String> pluginJars,
-                              final List<String> bootstrapJarPaths) {
+                              final Properties properties,
+                              final Map<String, String> agentArgs,
+                              final List<Path> pluginJars,
+                              final List<Path> bootstrapJarPaths) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentName = Objects.requireNonNull(agentName, "agentName");
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+
+        this.properties = Objects.requireNonNull(properties, "properties");
+        this.agentArgs = Objects.requireNonNull(agentArgs, "agentArgs");
+
         this.pluginJars = Objects.requireNonNull(pluginJars, "pluginJars");
         this.bootstrapJarPaths = Objects.requireNonNull(bootstrapJarPaths, "bootstrapJarPaths");
     }
@@ -56,46 +58,43 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public String getAgentName() {
-        return agentName;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    @Override
-    public List<String> getPluginJars() {
+    public List<Path> getPluginJars() {
         return this.pluginJars;
     }
 
     @Override
-    public List<String> getBootstrapJarPaths() {
+    public List<Path> getBootstrapJarPaths() {
         return this.bootstrapJarPaths;
     }
 
     @Override
-    public ProfilerConfig getProfilerConfig() {
-        return this.profilerConfig;
+    public Properties getProperties() {
+        return properties;
+    }
+
+    @Override
+    public Map<String, String> getAgentArgs() {
+        return agentArgs;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("instrumentation", instrumentation);
+        map.put("properties", properties);
+        map.put("agentArgs", agentArgs);
+        map.put("pluginJars", pluginJars);
+        map.put("bootstrapJarPaths", bootstrapJarPaths);
+        return map;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultAgentOption{");
-        sb.append("instrumentation=").append(instrumentation);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", agentName='").append(agentName).append('\'');
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", profilerConfig=").append(profilerConfig);
-        sb.append(", pluginJars=").append(pluginJars);
-        sb.append(", bootstrapJarPaths=").append(bootstrapJarPaths);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultAgentOption{" +
+                "instrumentation=" + instrumentation +
+                ", properties=" + properties +
+                ", agentArgs=" + agentArgs +
+                ", pluginJars=" + pluginJars +
+                ", bootstrapJarPaths=" + bootstrapJarPaths +
+                '}';
     }
 }

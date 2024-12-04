@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
-import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +42,7 @@ public class Java9ClassLoaderTest {
 
     @Test
     public void newClassLoader_bootstrap() throws ClassNotFoundException, IOException {
-        ClassLoader classLoader = new Java9ClassLoader("test", new URL[0], null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        ClassLoader classLoader = new Java9ClassLoader("test", new URL[0], null, Collections.emptyList());
         classLoader.loadClass("java.lang.String");
         close(classLoader);
     }
@@ -59,7 +60,7 @@ public class Java9ClassLoaderTest {
     private ClassLoader onLoadTest(Class<?> classLoaderType, Class<?> testClass) throws ClassNotFoundException {
         URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, new Properties());
         Assertions.assertSame(cl.getClass(), classLoaderType);
 
         Assertions.assertThrowsExactly(ClassNotFoundException.class, () -> {
@@ -78,7 +79,7 @@ public class Java9ClassLoaderTest {
     @Test
     public void loadClass_bootstrap() throws Exception {
 
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), new URL[]{}, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), new URL[]{}, null, new Properties());
         assertThat(cl).isInstanceOf(Java9ClassLoader.class);
 
         Class<?> stringClazz1 = cl.loadClass("java.lang.String");

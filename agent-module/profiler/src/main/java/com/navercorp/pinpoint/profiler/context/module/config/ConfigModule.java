@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.context.module.config;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.config.DefaultContextConfig;
@@ -58,6 +58,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -68,9 +69,9 @@ import java.util.Properties;
 public class ConfigModule extends AbstractModule {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final AgentOption agentOption;
+    private final AgentContextOption agentOption;
 
-    public ConfigModule(AgentOption agentOption) {
+    public ConfigModule(AgentContextOption agentOption) {
         this.agentOption = Objects.requireNonNull(agentOption, "profilerConfig");
         Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
     }
@@ -126,7 +127,7 @@ public class ConfigModule extends AbstractModule {
 
         bind(InterceptorRegistryBinder.class).toProvider(InterceptorRegistryBinderProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<List<String>> pluginJarFile = new TypeLiteral<List<String>>() {};
+        TypeLiteral<List<Path>> pluginJarFile = new TypeLiteral<List<Path>>() {};
         bind(pluginJarFile).annotatedWith(PluginJarPaths.class).toInstance(agentOption.getPluginJars());
         TypeLiteral<List<PluginJar>> pluginJars = new TypeLiteral<List<PluginJar>>() {};
         bind(pluginJars).annotatedWith(PluginJars.class).toProvider(PluginJarsProvider.class).in(Scopes.SINGLETON);
@@ -143,9 +144,9 @@ public class ConfigModule extends AbstractModule {
     }
 
     private void bindBootstrapCoreInformation() {
-        List<String> bootstrapJarPaths = agentOption.getBootstrapJarPaths();
+        List<Path> bootstrapJarPaths = agentOption.getBootstrapJarPaths();
 
-        TypeLiteral<List<String>> bootstrapJarFIle = new TypeLiteral<List<String>>() {};
+        TypeLiteral<List<Path>> bootstrapJarFIle = new TypeLiteral<List<Path>>() {};
         bind(bootstrapJarFIle).annotatedWith(BootstrapJarPaths.class).toInstance(bootstrapJarPaths);
 
         BootstrapCore bootstrapCore = new BootstrapCore(bootstrapJarPaths);

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.config.util.BypassResolver;
 import com.navercorp.pinpoint.common.config.util.ValueResolver;
@@ -38,6 +37,8 @@ import java.util.regex.Pattern;
  * @author netspider
  */
 public class DefaultProfilerConfig implements ProfilerConfig {
+    public static final String AGENT_ROOT_PATH_KEY = "pinpoint.agent.root.path";
+
     public static final String PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE = "profiler.interceptor.exception.propagate";
 
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(DefaultProfilerConfig.class.getName());
@@ -45,21 +46,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // TestAgent only
     public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
 
-    public static final String AGENT_CLASSLOADER_ADDITIONAL_LIBS = "profiler.agent.classloader.additional-libs";
-
     private final Properties properties;
-
-    @Value("${pinpoint.disable:false}")
-    private String pinpointDisable = "false";
-
-    @Value("${profiler.logdir.maxbackupsize}")
-    private int logDirMaxBackupSize = 5;
 
     @Value("${" + Profiles.ACTIVE_PROFILE_KEY + " }")
     private String activeProfile = "";
-
-    @VisibleForTesting
-    private boolean staticResourceCleanup = false;
 
     @Value("${profiler.jdbc.sqlcachesize}")
     private int jdbcSqlCacheSize = 1024;
@@ -83,9 +73,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.application.namespace}")
     private String applicationNamespace = "";
 
-    @Value("${" + AGENT_CLASSLOADER_ADDITIONAL_LIBS + "}")
-    private String agentClassloaderAdditionalLibs = "";
-
+    @Value("${" + AGENT_ROOT_PATH_KEY + "}")
+    private String agentRootPath;
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -102,11 +91,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public String getActiveProfile() {
         return activeProfile;
-    }
-
-    @Override
-    public String getPinpointDisable() {
-        return pinpointDisable;
     }
 
     @Override
@@ -140,11 +124,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public boolean getStaticResourceCleanup() {
-        return staticResourceCleanup;
-    }
-
-    @Override
     public HttpStatusCodeErrors getHttpStatusCodeErrors() {
         return httpStatusCodeErrors;
     }
@@ -165,15 +144,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return applicationNamespace;
     }
 
-
     @Override
-    public int getLogDirMaxBackupSize() {
-        return logDirMaxBackupSize;
-    }
-
-    @Override
-    public List<String> getAgentClassloaderAdditionalLibs() {
-        return StringUtils.tokenizeToStringList(agentClassloaderAdditionalLibs, ",");
+    public String getAgentRootPath() {
+        return agentRootPath;
     }
 
     @Override
@@ -275,10 +248,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public String toString() {
         return "DefaultProfilerConfig{" +
                 "properties=" + properties +
-                ", pinpointDisable='" + pinpointDisable + '\'' +
-                ", logDirMaxBackupSize=" + logDirMaxBackupSize +
                 ", activeProfile='" + activeProfile + '\'' +
-                ", staticResourceCleanup=" + staticResourceCleanup +
                 ", jdbcSqlCacheSize=" + jdbcSqlCacheSize +
                 ", traceSqlBindValue=" + traceSqlBindValue +
                 ", maxSqlBindValueSize=" + maxSqlBindValueSize +
@@ -288,7 +258,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
                 ", httpStatusCodeErrors=" + httpStatusCodeErrors +
                 ", injectionModuleFactoryClazzName='" + injectionModuleFactoryClazzName + '\'' +
                 ", applicationNamespace='" + applicationNamespace + '\'' +
-                ", agentClassloaderAdditionalLibs='" + agentClassloaderAdditionalLibs + '\'' +
+                ", agentRootPath='" + agentRootPath + '\'' +
                 '}';
     }
 }
