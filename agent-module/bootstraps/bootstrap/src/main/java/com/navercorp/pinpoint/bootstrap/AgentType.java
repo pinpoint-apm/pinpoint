@@ -16,25 +16,41 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public enum AgentType {
-    DEFAULT_AGENT( "com.navercorp.pinpoint.profiler.DefaultAgent"),
-    PLUGIN_TEST("com.navercorp.pinpoint.profiler.test.PluginTestAgent");
+    DEFAULT_AGENT("DEFAULT_AGENT", "com.navercorp.pinpoint.profiler.DefaultAgent"),
+    PLUGIN_TEST("PLUGIN_TEST", "com.navercorp.pinpoint.profiler.test.PluginTestAgent");
 
+    public static final String AGENT_TYPE_KEY = "AGENT_TYPE";
+
+    private final String type;
     private final String className;
 
-    AgentType(String className) {
+    AgentType(String type, String className) {
+        this.type = Objects.requireNonNull(type, "type");
         this.className = Objects.requireNonNull(className, "className");
+    }
+
+    public String getType() {
+        return type;
     }
 
     public String getClassName() {
         return className;
     }
 
+    @Override
+    public String toString() {
+        return "AgentType{" +
+                "type='" + type + '\'' +
+                ", className='" + className + '\'' +
+                '}';
+    }
 
     public static AgentType getAgentType(String agentTypeName) {
         if (agentTypeName == null) {
@@ -47,5 +63,10 @@ public enum AgentType {
             }
         }
         throw new IllegalArgumentException("Unknown AgentType:" + agentTypeName);
+    }
+
+    public static AgentType of(Map<String, String> agentArgs) {
+        String agentTypeString = agentArgs.get(AGENT_TYPE_KEY);
+        return getAgentType(agentTypeString);
     }
 }

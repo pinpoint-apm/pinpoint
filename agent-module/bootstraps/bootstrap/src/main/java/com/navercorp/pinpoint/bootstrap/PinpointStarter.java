@@ -16,10 +16,11 @@ package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
-import com.navercorp.pinpoint.bootstrap.agentdir.LogDirCleaner;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
+import com.navercorp.pinpoint.bootstrap.config.AgentSystemConfig;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.LogConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
@@ -29,7 +30,6 @@ import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
 import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -49,32 +49,24 @@ class PinpointStarter {
 
     private final BootLogger logger = BootLogger.getLogger(getClass());
 
-    public static final String AGENT_TYPE = "AGENT_TYPE";
-
-    public static final String DEFAULT_AGENT = "DEFAULT_AGENT";
-    public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
-
-    public static final String PLUGIN_TEST_AGENT = "PLUGIN_TEST";
-    public static final String PLUGIN_TEST_BOOT_CLASS = "com.navercorp.pinpoint.profiler.test.PluginTestAgent";
-
-    private SimpleProperty systemProperty = SystemProperty.INSTANCE;
+    private final Instrumentation instrumentation;
+    private final ClassLoader parentClassLoader;
 
     private final Map<String, String> agentArgs;
     private final AgentType agentType;
     private final AgentDirectory agentDirectory;
-    private final Instrumentation instrumentation;
-    private final ClassLoader parentClassLoader;
 
 
-    public PinpointStarter(ClassLoader parentClassLoader, Map<String, String> agentArgs,
-                           AgentDirectory agentDirectory,
-                           Instrumentation instrumentation) {
+    public PinpointStarter(Instrumentation instrumentation,
+                           ClassLoader parentClassLoader,
+                           Map<String, String> agentArgs,
+                           AgentDirectory agentDirectory) {
         //        null == BootstrapClassLoader
 //        if (bootstrapClassLoader == null) {
 //            throw new NullPointerException("bootstrapClassLoader");
 //        }
         this.agentArgs = Objects.requireNonNull(agentArgs, "agentArgs");
-        this.agentType = getAgentType(agentArgs);
+        this.agentType = AgentType.of(agentArgs);
         this.parentClassLoader = parentClassLoader;
         this.agentDirectory = Objects.requireNonNull(agentDirectory, "agentDirectory");
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
@@ -95,10 +87,6 @@ class PinpointStarter {
     }
 
 
-    private AgentType getAgentType(Map<String, String> agentArgs) {
-        final String agentTypeParameter = agentArgs.get(AgentParameter.AGENT_TYPE);
-        return AgentType.getAgentType(agentTypeParameter);
-    }
 
     boolean start() {
         final AgentIds agentIds = resolveAgentIds();
@@ -131,11 +119,13 @@ class PinpointStarter {
             }
 
             // set the path of log file as a system property
-            saveAgentIdForLog(agentIds);
-            saveLogFilePath(agentDirectory.getAgentLogFilePath());
-            savePinpointVersion();
+            AgentSystemConfig agentSystemConfig = new AgentSystemConfig();
+            agentSystemConfig.saveAgentIdForLog(agentIds.getAgentId());
+            agentSystemConfig.savePinpointVersion(Version.VERSION);
 
-            cleanLogDir(agentDirectory.getAgentLogFilePath(), profilerConfig);
+            LogConfig logConfig = new LogConfig();
+            logConfig.saveLogFilePath(agentDirectory.getAgentLogFilePath());
+            logConfig.cleanLogDir(agentDirectory.getAgentLogFilePath(), profilerConfig.getLogDirMaxBackupSize());
 
             // this is the library list that must be loaded
             URL[] urls = resolveLib(agentDirectory);
@@ -147,9 +137,8 @@ class PinpointStarter {
                 moduleBootLoader.defineAgentModule(agentClassLoader, urls);
             }
 
-            final String bootClass = getBootClass();
-            AgentBootLoader agentBootLoader = new AgentBootLoader(bootClass, agentClassLoader);
-            logger.info(String.format("pinpoint agent [%s] starting...", bootClass));
+            AgentBootLoader agentBootLoader = new AgentBootLoader(agentType.getClassName(), agentClassLoader);
+            logger.info(String.format("pinpoint agent [%s] starting...", agentType));
 
             final List<Path> pluginJars = agentDirectory.getPlugins();
             final String agentName = agentIds.getAgentName();
@@ -179,13 +168,6 @@ class PinpointStarter {
         List<String> copy = new ArrayList<>(libs);
         copy.sort(String.CASE_INSENSITIVE_ORDER);
         return copy;
-    }
-
-    private void cleanLogDir(Path agentLogFilePath, ProfilerConfig config) {
-        final int logDirMaxBackupSize = config.getLogDirMaxBackupSize();
-        logger.info("Log directory maxbackupsize=" + logDirMaxBackupSize);
-        LogDirCleaner logDirCleaner = new LogDirCleaner(agentLogFilePath, logDirMaxBackupSize);
-        logDirCleaner.clean();
     }
 
     private AgentIds resolveAgentIds() {
@@ -233,26 +215,6 @@ class PinpointStarter {
         return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, libClass);
     }
 
-    private String getBootClass() {
-        if (isTestAgent()) {
-            return PLUGIN_TEST_BOOT_CLASS;
-        }
-        return BOOT_CLASS;
-    }
-
-    private boolean isTestAgent() {
-        final String agentType = getAgentType();
-        return PLUGIN_TEST_AGENT.equalsIgnoreCase(agentType);
-    }
-
-    private String getAgentType() {
-        String agentType = agentArgs.get(AGENT_TYPE);
-        if (agentType == null) {
-            return DEFAULT_AGENT;
-        }
-        return agentType;
-
-    }
 
     private AgentOption createAgentOption(String agentId, String agentName, String applicationName, boolean isContainer,
                                           ProfilerConfig profilerConfig,
@@ -270,25 +232,6 @@ class PinpointStarter {
             list.add(path.toString());
         }
         return list;
-    }
-
-    // for test
-    void setSystemProperty(SimpleProperty systemProperty) {
-        this.systemProperty = systemProperty;
-    }
-
-    private void saveAgentIdForLog(AgentIds agentIds) {
-        systemProperty.setProperty(AgentIdSourceType.SYSTEM.getAgentId(), agentIds.getAgentId());
-    }
-
-    private void saveLogFilePath(Path agentLogFilePath) {
-        logger.info("logPath:" + agentLogFilePath);
-        systemProperty.setProperty(ProductInfo.NAME + ".log", agentLogFilePath.toString());
-    }
-
-    private void savePinpointVersion() {
-        logger.info(String.format("pinpoint version:%s", Version.VERSION));
-        systemProperty.setProperty(ProductInfo.NAME + ".version", Version.VERSION);
     }
 
     private URL[] resolveLib(AgentDirectory classPathResolver) {
@@ -312,11 +255,11 @@ class PinpointStarter {
     private static final String PINPOINT_PREFIX = "pinpoint-";
 
     private List<Path> resolveLib(List<Path> urlList) {
-        if (DEFAULT_AGENT.equalsIgnoreCase(getAgentType())) {
+        if (agentType == AgentType.DEFAULT_AGENT) {
             final List<Path> releaseLib = filterTest(urlList);
             return order(releaseLib);
         } else {
-            logger.info("load " + PLUGIN_TEST_AGENT + " lib");
+            logger.info("load " + AgentType.PLUGIN_TEST + " lib");
             // plugin test
             return order(urlList);
         }

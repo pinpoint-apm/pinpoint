@@ -108,7 +108,7 @@ public class PinpointBootStrap {
         appendToBootstrapClassLoader(instrumentation, bootDir);
 
         ClassLoader parentClassLoader = getParentClassLoader();
-        PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, agentDirectory, instrumentation);
+        PinpointStarter bootStrap = new PinpointStarter(instrumentation, parentClassLoader, agentArgsMap, agentDirectory);
         if (!bootStrap.start()) {
             logPinpointAgentLoadFail();
         }
@@ -116,8 +116,7 @@ public class PinpointBootStrap {
 
     private AgentDirectory resolveAgentDir(ClassPathResolver classPathResolver) {
         try {
-            AgentDirectory agentDir = classPathResolver.resolve();
-            return agentDir;
+            return classPathResolver.resolve();
         } catch (Exception e) {
             logger.warn("AgentDir resolve fail Caused by:" + e.getMessage(), e);
             return null;
