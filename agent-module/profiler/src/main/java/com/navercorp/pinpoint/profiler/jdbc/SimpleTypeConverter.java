@@ -55,6 +55,6 @@ public class SimpleTypeConverter implements Converter {
 
 
     private String abbreviate(Object arg) {
-        return StringUtils.abbreviate(StringUtils.toString(arg), this.maxWidth);
+        return StringUtils.abbreviate(String.valueOf(arg), this.maxWidth);
     }
 }

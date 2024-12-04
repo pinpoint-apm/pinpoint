@@ -62,7 +62,7 @@ public class ServletRequestImplParameterExtractor implements ParameterExtractor<
                 params.append('=');
                 final String value = attrs.getValue();
                 if (value != null) {
-                    params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
+                    params.append(StringUtils.abbreviate(value, eachLimit));
                 }
             }
         } catch (UnsupportedEncodingException ignored) {

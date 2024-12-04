@@ -60,7 +60,7 @@ public class IRequestParameterExtractor implements ParameterExtractor<IRequest> 
                 params.append('=');
                 String value = entry.getValue();
                 if (value != null) {
-                    params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
+                    params.append(StringUtils.abbreviate(value, eachLimit));
                 }
             }
         } catch (UnsupportedEncodingException ignored) {
