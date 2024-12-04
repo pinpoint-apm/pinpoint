@@ -33,7 +33,7 @@ public class ProfilePropertyLoaderTest {
 
     @Test
     public void isAllowPinpointProperty(@TempDir Path temp) {
-        PropertySnapshot properties = new PropertySnapshot(new Properties());
+        Properties properties = PropertySnapshot.copy(new Properties());
 
         properties.setProperty("pinpoint.test", "a");
         ProfilePropertyLoader loader = new ProfilePropertyLoader(properties, properties, temp, Paths.get("test"), new String[]{"test"});

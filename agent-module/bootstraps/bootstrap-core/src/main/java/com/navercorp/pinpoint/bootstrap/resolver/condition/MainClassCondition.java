@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.jar.JarFile;
 
 /**
@@ -41,10 +40,10 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
     private final String applicationMainClassName;
 
     public MainClassCondition() {
-        this(SystemProperty.INSTANCE);
+        this(System.getProperties());
     }
 
-    public MainClassCondition(SimpleProperty property) {
+    public MainClassCondition(Properties property) {
         if (property == null) {
             throw new IllegalArgumentException("properties should not be null");
         }
@@ -90,7 +89,7 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
         return this.applicationMainClassName;
     }
 
-    private String getMainClassName(SimpleProperty property) {
+    private String getMainClassName(Properties property) {
         String javaCommand = property.getProperty(SystemPropertyKey.SUN_JAVA_COMMAND.getKey(), "").split(" ")[0];
         if (javaCommand.isEmpty()) {
             String jreVersion = property.getProperty(SystemPropertyKey.JAVA_RUNTIME_VERSION.getKey());

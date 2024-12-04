@@ -23,14 +23,12 @@ import java.util.Set;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class PropertySnapshot implements SimpleProperty {
-    private final Properties properties;
+public class PropertySnapshot {
 
-    public PropertySnapshot(Properties properties) {
-        this.properties = copy(properties);
+    private PropertySnapshot() {
     }
 
-    private Properties copy(Properties properties) {
+    public static Properties copy(Properties properties) {
         Objects.requireNonNull(properties, "properties");
 
         final Set<String> keys = properties.stringPropertyNames();
@@ -41,23 +39,4 @@ public class PropertySnapshot implements SimpleProperty {
         return copy;
     }
 
-    @Override
-    public void setProperty(String key, String value) {
-        this.properties.setProperty(key, value);
-    }
-
-    @Override
-    public String getProperty(String key) {
-        return this.properties.getProperty(key);
-    }
-
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        return this.properties.getProperty(key, defaultValue);
-    }
-
-    @Override
-    public Set<String> stringPropertyNames() {
-        return this.properties.stringPropertyNames();
-    }
 }

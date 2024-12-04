@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
-import com.navercorp.pinpoint.common.util.PropertySnapshot;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +35,7 @@ public class MainClassConditionTest {
     @Test
     public void getValueShouldReturnBootstrapMainClass() {
         // Given
-        SimpleProperty property = createTestProperty(TEST_MAIN_CLASS);
+        Properties property = createTestProperty(TEST_MAIN_CLASS);
         MainClassCondition mainClassCondition = new MainClassCondition(property);
         // When
         String expectedMainClass = mainClassCondition.getValue();
@@ -48,7 +46,7 @@ public class MainClassConditionTest {
     @Test
     public void getValueShouldReturnEmptyStringWhenMainClassCannotBeResolved() {
         // Given
-        SimpleProperty property = createTestProperty();
+        Properties property = new Properties();
         MainClassCondition mainClassCondition = new MainClassCondition(property);
         // When
         String expectedMainClass = mainClassCondition.getValue();
@@ -59,7 +57,7 @@ public class MainClassConditionTest {
     @Test
     public void testMatch() {
         // Given
-        SimpleProperty property = createTestProperty(TEST_MAIN_CLASS);
+        Properties property = createTestProperty(TEST_MAIN_CLASS);
         MainClassCondition mainClassCondition = new MainClassCondition(property);
         // When
         boolean matches = mainClassCondition.check(TEST_MAIN_CLASS);
@@ -71,7 +69,7 @@ public class MainClassConditionTest {
     public void testNoMatch() {
         // Given
         String givenBootstrapMainClass = "some.other.main.class";
-        SimpleProperty property = createTestProperty(givenBootstrapMainClass);
+        Properties property = createTestProperty(givenBootstrapMainClass);
         MainClassCondition mainClassCondition = new MainClassCondition(property);
         // When
         boolean matches = mainClassCondition.check(TEST_MAIN_CLASS);
@@ -82,7 +80,7 @@ public class MainClassConditionTest {
     @Test
     public void nullConditionShouldNotMatch() {
         // Given
-        SimpleProperty property = createTestProperty(TEST_MAIN_CLASS);
+        Properties property = createTestProperty(TEST_MAIN_CLASS);
         MainClassCondition mainClassCondition = new MainClassCondition(property);
         // When
         boolean matches = mainClassCondition.check(null);
@@ -93,7 +91,7 @@ public class MainClassConditionTest {
     @Test
     public void shouldNotMatchWhenMainClassCannotBeResolved() {
         // Given
-        SimpleProperty property = createTestProperty();
+        Properties property = new Properties();
         MainClassCondition mainClassCondition = new MainClassCondition(property);
         // When
         boolean matches = mainClassCondition.check(null);
@@ -104,7 +102,7 @@ public class MainClassConditionTest {
     @Test
     public void shouldNotMatchWhenWhenJarFileCannotBeFound() {
         // Given
-        SimpleProperty property = createTestProperty("non-existent-test-jar.jar");
+        Properties property = createTestProperty("non-existent-test-jar.jar");
         MainClassCondition mainClassCondition = new MainClassCondition(property);
         // When
         boolean matches = mainClassCondition.check(null);
@@ -112,12 +110,9 @@ public class MainClassConditionTest {
         assertFalse(matches);
     }
 
-    private static SimpleProperty createTestProperty() {
-        return new PropertySnapshot(new Properties());
-    }
 
-    private static SimpleProperty createTestProperty(String testMainClass) {
-        SimpleProperty testProperty = createTestProperty();
+    private static Properties createTestProperty(String testMainClass) {
+        Properties testProperty = new Properties();
         testProperty.setProperty(SystemPropertyKey.SUN_JAVA_COMMAND.getKey(), testMainClass);
         return testProperty;
     }

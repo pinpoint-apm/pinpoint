@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -35,13 +34,13 @@ class SimplePropertyLoader implements PropertyLoader {
 //    private static final String SEPARATOR = File.separator;
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
-    private final SimpleProperty systemProperty;
+    private final Properties systemProperty;
 
     private final Path agentRootPath;
     private final Path profilesPath;
 
 
-    public SimplePropertyLoader(SimpleProperty systemProperty, Path agentRootPath, Path profilesPath) {
+    public SimplePropertyLoader(Properties systemProperty, Path agentRootPath, Path profilesPath) {
         this.systemProperty = Objects.requireNonNull(systemProperty, "systemProperty");
         this.agentRootPath = Objects.requireNonNull(agentRootPath, "agentRootPath");
         this.profilesPath = profilesPath;

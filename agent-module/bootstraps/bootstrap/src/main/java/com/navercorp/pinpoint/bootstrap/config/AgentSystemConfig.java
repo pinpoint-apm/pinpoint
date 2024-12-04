@@ -3,16 +3,21 @@ package com.navercorp.pinpoint.bootstrap.config;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.AgentIdSourceType;
 import com.navercorp.pinpoint.bootstrap.BootLogger;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
+
+import java.util.Objects;
+import java.util.Properties;
 
 public class AgentSystemConfig {
     private final BootLogger logger = BootLogger.getLogger(getClass());
 
-    private final SimpleProperty systemProperty;
+    private final Properties systemProperty;
 
     public AgentSystemConfig() {
-        this.systemProperty = SystemProperty.INSTANCE;
+        this(System.getProperties());
+    }
+
+    AgentSystemConfig(Properties properties) {
+        this.systemProperty = Objects.requireNonNull(properties, "properties");
     }
 
     public void saveAgentIdForLog(String agentId) {
