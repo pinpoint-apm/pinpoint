@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.profiler.logging;
 
-import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLoggerBinder;
@@ -42,14 +41,11 @@ public class Log4j2LoggingSystem implements LoggingSystem {
         Path configLocation = getConfigPath(profilePath);
         URI uri = configLocation.toUri();
 
-        BootLogger bootLogger = BootLogger.getLogger(this.getClass());
-        bootLogger.info("logPath:" + uri);
-
         this.loggerContext = getLoggerContext(uri);
 //        this.loggerContext = getLoggerContext2(uri);
 
         Logger logger = getLoggerContextLogger();
-        logger.info("{} start", this.getClass().getSimpleName());
+        logger.info("{} start logPath:{}", this.getClass().getSimpleName(), uri);
 
         logger.info("LoggerContextFactory:{} LoggerContext:{}", LogManager.getFactory().getClass().getName(), loggerContext.getClass().getName());
 
@@ -95,7 +91,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
                 return configLocation;
             }
         }
-        throw new IllegalStateException("log4j2.xml not found");
+        throw new IllegalStateException("log4j2.xml not found. agentPath:" + profilePath);
     }
 
     private LoggerContext getLoggerContext(URI uri) {
