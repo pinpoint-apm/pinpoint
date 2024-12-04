@@ -15,7 +15,7 @@ server:
     include-stacktrace: always
     whitelabel:
       enabled: true
-  max-http-request-header-size: 32KB
+  max-http-request-header-size: 32678
 
 pinpoint:
   modules:
