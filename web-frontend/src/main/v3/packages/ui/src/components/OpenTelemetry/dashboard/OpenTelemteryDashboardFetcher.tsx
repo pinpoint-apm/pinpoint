@@ -32,9 +32,10 @@ import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { DashBoard } from '../../Dashboard/DashBoard';
 import { MetricDefinitionSheet } from '../definition/MetricDefinitionSheet';
 import { OpenTelemetryAlertDialog } from './OpenTelemetryAlertDialog';
-import { OpenTelemetryWidget } from './OpenTelemetryWidget';
 import { isEqual, sortBy } from 'lodash';
 import { cn } from '../../../lib/utils';
+import { Widget } from '../../Dashboard/Widget';
+import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
 
 export interface OpenTelemetryDashboardFetcherProps {}
 
@@ -223,15 +224,25 @@ export const OpenTelemetryDashboardFetcher = () => {
               </div>
             </div>
             <DashBoard layouts={state.layouts} onLayoutChange={onLayoutChange}>
-              {metrics.map((metric, i) => {
+              {metrics.map((metric) => {
                 return (
-                  <OpenTelemetryWidget
-                    key={i}
-                    metric={metric}
-                    applicationName={applicationName}
-                    onEdit={setCurrentEditingTarget}
-                    onDelete={setCurrentDeletingTarget}
-                  />
+                  <div key={metric?.id}>
+                    <Widget
+                      title={metric.title}
+                      onClickDelete={() => {
+                        setCurrentDeletingTarget(metric);
+                      }}
+                      onClickEdit={() => {
+                        setCurrentEditingTarget(metric);
+                      }}
+                    >
+                      <OpenTelemetryMetric
+                        inView={true}
+                        metricDefinition={metric}
+                        dashboardId={applicationName}
+                      />
+                    </Widget>
+                  </div>
                 );
               })}
             </DashBoard>
