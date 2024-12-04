@@ -18,29 +18,30 @@ package com.navercorp.pinpoint.bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class AgentIdResolverBuilder {
     private final List<AgentProperties> agentProperties = new ArrayList<>();
     
-    public void addSystemProperties(Map<String, String> system) {
+    public void addSystemProperties(Function<String, String> system) {
         Objects.requireNonNull(system, "system");
 
         AgentProperties properties = new AgentProperties(AgentIdSourceType.SYSTEM, system);
         this.agentProperties.add(properties);
     }
     
-    public void addEnvProperties(Map<String, String> env) {
+    public void addEnvProperties(Function<String, String> env) {
         Objects.requireNonNull(env, "env");
 
         AgentProperties properties = new AgentProperties(AgentIdSourceType.SYSTEM_ENV, env);
         this.agentProperties.add(properties);
     }
 
-    public void addAgentArgument(Map<String, String> agentArguments) {
+    public void addAgentArgument(Function<String, String> agentArguments) {
         Objects.requireNonNull(agentArguments, "agentArguments");
 
         AgentProperties properties = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArguments);

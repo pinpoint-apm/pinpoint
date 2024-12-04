@@ -16,33 +16,19 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
+import java.util.function.Function;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class AgentProperties {
     private final AgentIdSourceType type;
-    private final Map<String, String> properties;
+    private final Function<String, String> properties;
 
-    public AgentProperties(AgentIdSourceType type, Map<String, String> properties) {
+    public AgentProperties(AgentIdSourceType type, Function<String, String> properties) {
         this.type = Objects.requireNonNull(type, "type");
         this.properties = Objects.requireNonNull(properties, "properties");
-    }
-
-    public static Map<String, String> fromProperties(Properties properties) {
-        final Map<String, String> copy = new LinkedHashMap<>();
-        final Enumeration<?> enumeration = properties.propertyNames();
-        while (enumeration.hasMoreElements()) {
-            String key = (String) enumeration.nextElement();
-            String value = properties.getProperty(key);
-            copy.put(key, value);
-        }
-        return copy;
     }
 
     public AgentIdSourceType getType() {
@@ -50,27 +36,33 @@ public class AgentProperties {
     }
 
     public String getAgentId() {
-        return trim(this.properties.get(type.getAgentId()));
-    }
-
-    public String getAgentName() {
-        return trim(this.properties.get(type.getAgentName()));
+        return trimProperty(type.getAgentId());
     }
 
     public String getAgentIdKey() {
         return type.getAgentId();
     }
 
+
+    public String getAgentName() {
+        return trimProperty(type.getAgentName());
+    }
+
     public String getAgentNameKey() {
         return type.getAgentName();
     }
 
+
     public String getApplicationName() {
-        return trim(this.properties.get(type.getApplicationName()));
+        return trimProperty(type.getApplicationName());
     }
 
     public String getApplicationNameKey() {
         return type.getApplicationName();
+    }
+
+    private String trimProperty(String key) {
+        return trim(this.properties.apply(key));
     }
 
     private String trim(String string) {
