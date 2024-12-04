@@ -16,27 +16,27 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public enum AgentIdSourceType {
-    SYSTEM("SystemProperties(-D)", SystemPropertiesKey.PREFIX, SystemPropertiesKey.AGENT_ID, SystemPropertiesKey.AGENT_NAME, SystemPropertiesKey.APPLICATION_NAME),
-    SYSTEM_ENV("EnvironmentVariable", SystemEnvKey.PREFIX, SystemEnvKey.AGENT_ID, SystemEnvKey.AGENT_NAME, SystemEnvKey.APPLICATION_NAME),
-    AGENT_ARGUMENT("AgentArgument", AgentArgumentKey.PREFIX, AgentArgumentKey.AGENT_ID, AgentArgumentKey.AGENT_NAME, AgentArgumentKey.APPLICATION_NAME);
+    SYSTEM("SystemProperties(-D)", "pinpoint.", "agentId", "agentName", "applicationName"),
+    SYSTEM_ENV("EnvironmentVariable", "PINPOINT_", "AGENT_ID", "AGENT_NAME", "APPLICATION_NAME"),
+    AGENT_ARGUMENT("AgentArgument", "", SYSTEM.agentId, SYSTEM.agentName, SYSTEM.applicationName);
 
     private final String desc;
 
-    private final String prefix;
     private final String agentId;
     private final String agentName;
     private final String applicationName;
 
     AgentIdSourceType(String desc, String prefix, String agentId, String agentName, String applicationName) {
-        this.desc = desc;
-        this.prefix = prefix;
-        this.agentId = agentId;
-        this.agentName = agentName;
-        this.applicationName = applicationName;
+        this.desc = Objects.requireNonNull(desc, "desc");
+        this.agentId = prefix + Objects.requireNonNull(agentId, "agentId");
+        this.agentName = prefix + Objects.requireNonNull(agentName, "agentName");
+        this.applicationName = prefix + Objects.requireNonNull(applicationName, "applicationName");
     }
 
     public String getDesc() {
@@ -44,49 +44,24 @@ public enum AgentIdSourceType {
     }
 
     public String getAgentId() {
-        return prefix + agentId;
+        return agentId;
     }
 
     public String getAgentName() {
-        return prefix + agentName;
+        return agentName;
     }
 
     public String getApplicationName() {
-        return prefix + applicationName;
+        return applicationName;
     }
 
     @Override
     public String toString() {
         return "AgentIdSourceType{" +
                 "desc='" + desc + '\'' +
-                ", agentId='" + getAgentId() + '\'' +
-                ", agentName='" + getAgentName() + '\'' +
-                ", applicationName='" + getAgentName() + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 '}';
     }
-
-    static class AgentArgumentKey {
-        public static final String PREFIX = "";
-
-        public static final String AGENT_ID = "agentId";
-        public static final String AGENT_NAME = "agentName";
-        public static final String APPLICATION_NAME = "applicationName";
-    }
-
-    static class SystemPropertiesKey {
-        public static final String PREFIX = "pinpoint.";
-
-        public static final String AGENT_ID = AgentArgumentKey.AGENT_ID;
-        public static final String AGENT_NAME = AgentArgumentKey.AGENT_NAME;
-        public static final String APPLICATION_NAME = AgentArgumentKey.APPLICATION_NAME;
-    }
-
-    static class SystemEnvKey {
-        public static final String PREFIX = "PINPOINT_";
-
-        public static final String AGENT_ID = "AGENT_ID";
-        public static final String AGENT_NAME = "AGENT_NAME";
-        public static final String APPLICATION_NAME = "APPLICATION_NAME";
-    }
-
 }
