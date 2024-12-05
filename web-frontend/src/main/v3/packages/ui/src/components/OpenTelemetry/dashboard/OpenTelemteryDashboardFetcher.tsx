@@ -224,27 +224,28 @@ export const OpenTelemetryDashboardFetcher = () => {
               </div>
             </div>
             <DashBoard layouts={state.layouts} onLayoutChange={onLayoutChange}>
-              {metrics.map((metric) => {
-                return (
-                  <div key={metric?.id}>
-                    <Widget
-                      title={metric.title}
-                      onClickDelete={() => {
-                        setCurrentDeletingTarget(metric);
-                      }}
-                      onClickEdit={() => {
-                        setCurrentEditingTarget(metric);
-                      }}
-                    >
-                      <OpenTelemetryMetric
-                        inView={true}
-                        metricDefinition={metric}
-                        dashboardId={applicationName}
-                      />
-                    </Widget>
-                  </div>
-                );
-              })}
+              {state.layouts.sm.length > 0 &&
+                metrics.map((metric) => {
+                  return (
+                    <div key={metric?.id}>
+                      <Widget
+                        title={metric.title}
+                        onClickDelete={() => {
+                          setCurrentDeletingTarget(metric);
+                        }}
+                        onClickEdit={() => {
+                          setCurrentEditingTarget(metric);
+                        }}
+                      >
+                        <OpenTelemetryMetric
+                          inView={true}
+                          metricDefinition={metric}
+                          dashboardId={applicationName}
+                        />
+                      </Widget>
+                    </div>
+                  );
+                })}
             </DashBoard>
           </div>
         ) : (
