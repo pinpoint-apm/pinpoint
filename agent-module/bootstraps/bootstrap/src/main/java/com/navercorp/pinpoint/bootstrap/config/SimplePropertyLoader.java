@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -55,10 +53,10 @@ class SimplePropertyLoader implements PropertyLoader {
         final String externalConfig = this.systemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
-            loadFileProperties(defaultProperties, Paths.get(externalConfig));
+            PropertyLoaderUtils.loadFileProperties(defaultProperties, Paths.get(externalConfig));
         } else {
             logger.info(String.format("load default config:%s", defaultConfigPath));
-            loadFileProperties(defaultProperties, defaultConfigPath);
+            PropertyLoaderUtils.loadFileProperties(defaultProperties, defaultConfigPath);
         }
         loadSystemProperties(defaultProperties);
         saveLogConfigLocation(defaultProperties);
@@ -77,17 +75,6 @@ class SimplePropertyLoader implements PropertyLoader {
 
         properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation.toString());
         logger.info(String.format("logConfig path:%s", log4jLocation));
-    }
-
-
-
-    private void loadFileProperties(Properties properties, Path filePath) {
-        try {
-            PropertyUtils.loadProperty(properties, filePath);
-        } catch (IOException e) {
-            logger.info(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
-            throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
-        }
     }
 
     private void loadSystemProperties(Properties dstProperties) {

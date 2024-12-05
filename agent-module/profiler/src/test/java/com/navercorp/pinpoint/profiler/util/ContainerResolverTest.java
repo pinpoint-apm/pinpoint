@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler.util;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

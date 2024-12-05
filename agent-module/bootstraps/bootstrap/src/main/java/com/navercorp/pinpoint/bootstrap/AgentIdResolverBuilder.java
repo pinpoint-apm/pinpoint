@@ -27,27 +27,14 @@ import java.util.function.Function;
 public class AgentIdResolverBuilder {
     private final List<AgentProperties> agentProperties = new ArrayList<>();
     
-    public void addSystemProperties(Function<String, String> system) {
-        Objects.requireNonNull(system, "system");
 
-        AgentProperties properties = new AgentProperties(AgentIdSourceType.SYSTEM, system);
-        this.agentProperties.add(properties);
-    }
-    
-    public void addEnvProperties(Function<String, String> env) {
+    public void addProperties(AgentIdSourceType sourceType, Function<String, String> env) {
+        Objects.requireNonNull(sourceType, "sourceType");
         Objects.requireNonNull(env, "env");
 
-        AgentProperties properties = new AgentProperties(AgentIdSourceType.SYSTEM_ENV, env);
+        AgentProperties properties = new AgentProperties(sourceType, env);
         this.agentProperties.add(properties);
     }
-
-    public void addAgentArgument(Function<String, String> agentArguments) {
-        Objects.requireNonNull(agentArguments, "agentArguments");
-
-        AgentProperties properties = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArguments);
-        this.agentProperties.add(properties);
-    }
-
 
     public AgentIdResolver build() {
         List<AgentProperties> copy = new ArrayList<>(this.agentProperties);

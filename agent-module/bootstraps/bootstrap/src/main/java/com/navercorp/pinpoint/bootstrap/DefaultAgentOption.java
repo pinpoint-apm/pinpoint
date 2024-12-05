@@ -32,20 +32,19 @@ public class DefaultAgentOption implements AgentOption {
     private final String agentId;
     private final String agentName;
     private final String applicationName;
-    private final boolean isContainer;
 
     private final ProfilerConfig profilerConfig;
     private final List<String> pluginJars;
     private final List<String> bootstrapJarPaths;
 
     public DefaultAgentOption(final Instrumentation instrumentation,
-                              String agentId, String agentName, String applicationName, final boolean isContainer,
-                              final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
+                              String agentId, String agentName, String applicationName,
+                              final ProfilerConfig profilerConfig, final List<String> pluginJars,
+                              final List<String> bootstrapJarPaths) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-        this.isContainer = isContainer;
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.pluginJars = Objects.requireNonNull(pluginJars, "pluginJars");
         this.bootstrapJarPaths = Objects.requireNonNull(bootstrapJarPaths, "bootstrapJarPaths");
@@ -72,11 +71,6 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
-    public boolean isContainer() {
-        return isContainer;
-    }
-
-    @Override
     public List<String> getPluginJars() {
         return this.pluginJars;
     }
@@ -98,7 +92,6 @@ public class DefaultAgentOption implements AgentOption {
         sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", agentName='").append(agentName).append('\'');
         sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", isContainer=").append(isContainer);
         sb.append(", profilerConfig=").append(profilerConfig);
         sb.append(", pluginJars=").append(pluginJars);
         sb.append(", bootstrapJarPaths=").append(bootstrapJarPaths);

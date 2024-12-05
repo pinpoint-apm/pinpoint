@@ -22,23 +22,13 @@ package com.navercorp.pinpoint.common.util;
 public final class Assert {
     private Assert() {}
 
-    /**
-     * @deprecated Since 2.3.0 Use {@link java.util.Objects#requireNonNull(Object, String)}
-     */
-    @Deprecated
-    public static <T> T requireNonNull(T object, String message) {
-        if (object == null) {
-            throw new NullPointerException(message);
-        }
-        return object;
-    }
-
     public static void isTrue(boolean condition, String message) {
         if (!condition) {
             throw new IllegalArgumentException(message);
         }
     }
 
+    @Deprecated
     public static void state(boolean state, String message) {
         if (!state) {
             throw new IllegalStateException(message);

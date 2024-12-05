@@ -16,13 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.common.util.CollectionUtils;
-
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,24 +38,12 @@ final class PathUtils {
     }
 
     public static URL[] toURLs(List<Path> pathList) {
-        if (CollectionUtils.isEmpty(pathList)) {
-            return new URL[0];
-        }
+        Objects.requireNonNull(pathList, "pathList");
 
         List<URL> list = new ArrayList<>(pathList.size());
         for (Path path : pathList) {
             list.add(PathUtils.toURL(path));
         }
         return list.toArray(new URL[0]);
-    }
-
-    public static Path toPath(URL url) {
-        Objects.requireNonNull(url, "url");
-
-        try {
-            return Paths.get(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("URISyntax error", e);
-        }
     }
 }

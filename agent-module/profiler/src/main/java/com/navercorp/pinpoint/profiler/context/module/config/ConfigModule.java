@@ -53,6 +53,7 @@ import com.navercorp.pinpoint.profiler.micrometer.config.MicrometerConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
 import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
+import com.navercorp.pinpoint.profiler.util.ContainerResolver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -133,7 +134,10 @@ public class ConfigModule extends AbstractModule {
 
         bindBootstrapCoreInformation();
 
-        bindAgentInformation(agentOption.getAgentId(), agentOption.getAgentName(), agentOption.getApplicationName(), agentOption.isContainer());
+        final ContainerResolver containerResolver = new ContainerResolver();
+        final boolean isContainer = containerResolver.isContainer();
+
+        bindAgentInformation(agentOption.getAgentId(), agentOption.getAgentName(), agentOption.getApplicationName(), isContainer);
 
         bindShutdownHook(contextConfig);
     }
@@ -162,6 +166,7 @@ public class ConfigModule extends AbstractModule {
         bind(String.class).annotatedWith(AgentId.class).toInstance(agentId);
         bind(String.class).annotatedWith(AgentName.class).toInstance(agentName);
         bind(String.class).annotatedWith(ApplicationName.class).toInstance(applicationName);
+
         bind(Boolean.class).annotatedWith(Container.class).toInstance(isContainer);
         bind(Long.class).annotatedWith(AgentStartTime.class).toProvider(AgentStartTimeProvider.class).in(Scopes.SINGLETON);
         bind(ServiceType.class).annotatedWith(ConfiguredApplicationType.class).toProvider(ConfiguredApplicationTypeProvider.class).in(Scopes.SINGLETON);
