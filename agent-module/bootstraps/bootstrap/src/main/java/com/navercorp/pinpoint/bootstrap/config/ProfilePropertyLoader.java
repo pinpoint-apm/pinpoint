@@ -18,11 +18,8 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -80,7 +77,7 @@ class ProfilePropertyLoader implements PropertyLoader {
         final Properties defaultProperties = new Properties();
         // 1. load default Properties
         logger.info(String.format("load default config:%s", defaultConfigPath));
-        loadFileProperties(defaultProperties, defaultConfigPath);
+        PropertyLoaderUtils.loadFileProperties(defaultProperties, defaultConfigPath);
 
         // 2. load profile
         final String activeProfile = getActiveProfile(defaultProperties);
@@ -88,7 +85,7 @@ class ProfilePropertyLoader implements PropertyLoader {
 
         final Path profilePath = Paths.get(profilesPath.toString(), activeProfile, Profiles.PROFILE_CONFIG_FILE_NAME);
         logger.info(String.format("load profile:%s", profilePath));
-        loadFileProperties(defaultProperties, profilePath);
+        PropertyLoaderUtils.loadFileProperties(defaultProperties, profilePath);
 
         defaultProperties.setProperty(Profiles.ACTIVE_PROFILE_KEY, activeProfile);
 
@@ -96,7 +93,7 @@ class ProfilePropertyLoader implements PropertyLoader {
         final String externalConfig = this.javaSystemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
-            loadFileProperties(defaultProperties, Paths.get(externalConfig));
+            PropertyLoaderUtils.loadFileProperties(defaultProperties, Paths.get(externalConfig));
         }
 
         // 4 OS environment variables
@@ -152,15 +149,6 @@ class ProfilePropertyLoader implements PropertyLoader {
         throw new IllegalStateException("unsupported profile:" + profile);
     }
 
-    private void loadFileProperties(Properties properties, Path filePath) {
-        try {
-            PropertyUtils.loadProperty(properties, filePath);
-        } catch (IOException e) {
-            logger.info(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
-            throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
-        }
-    }
-
     private void loadProperties(Properties dstProperties, Properties property) {
         Set<String> stringPropertyNames = property.stringPropertyNames();
         for (String propertyName : stringPropertyNames) {
@@ -171,7 +159,6 @@ class ProfilePropertyLoader implements PropertyLoader {
         }
     }
 
-    @VisibleForTesting
     boolean isAllowPinpointProperty(String propertyName) {
         for (String prefix : ALLOWED_PROPERTY_PREFIX) {
             if (propertyName.startsWith(prefix)) {

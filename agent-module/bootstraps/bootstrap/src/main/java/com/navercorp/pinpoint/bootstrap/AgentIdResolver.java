@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.util.AgentUuidUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,15 +29,12 @@ import java.util.UUID;
 public class AgentIdResolver {
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
-    private final List<AgentProperties> reverseList;
+    private final List<AgentProperties> agentPropertyList;
 
     private final IdValidator idValidator = new IdValidator();
 
     public AgentIdResolver(List<AgentProperties> agentPropertyList) {
-        Objects.requireNonNull(agentPropertyList, "agentPropertyList");
-
-        this.reverseList = new ArrayList<>(agentPropertyList);
-        Collections.reverse(reverseList);
+        this.agentPropertyList = Objects.requireNonNull(agentPropertyList, "agentPropertyList");
     }
 
     public AgentIds resolve() {
@@ -70,7 +65,7 @@ public class AgentIdResolver {
     }
 
     private String getAgentId() {
-        for (AgentProperties agentProperty : reverseList) {
+        for (AgentProperties agentProperty : agentPropertyList) {
             final String agentId = agentProperty.getAgentId();
             if (StringUtils.isEmpty(agentId)) {
                 continue;
@@ -84,7 +79,7 @@ public class AgentIdResolver {
     }
 
     private String getAgentName() {
-        for (AgentProperties agentProperty : reverseList) {
+        for (AgentProperties agentProperty : agentPropertyList) {
             final String agentName = agentProperty.getAgentName();
             if (idValidator.validateAgentName(agentProperty.getType(), agentName)) {
                 logger.info(agentProperty.getType().getDesc() + " " + agentProperty.getAgentNameKey() + "=" + agentName);
@@ -95,7 +90,7 @@ public class AgentIdResolver {
     }
 
     private String getApplicationName() {
-        for (AgentProperties agentProperty : reverseList) {
+        for (AgentProperties agentProperty : agentPropertyList) {
             final String applicationName = agentProperty.getApplicationName();
             if (StringUtils.isEmpty(applicationName)) {
                 continue;

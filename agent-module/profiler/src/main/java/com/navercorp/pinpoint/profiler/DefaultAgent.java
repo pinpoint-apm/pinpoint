@@ -94,7 +94,6 @@ public class DefaultAgent implements Agent {
         logger.info("- agentId:{}", agentOption.getAgentId());
         logger.info("- applicationName:{}", agentOption.getApplicationName());
         logger.info("- agentName:{}", agentOption.getAgentName());
-        logger.info("- isContainer:{}", agentOption.isContainer());
         logger.info("- instrumentation:{}", agentOption.getInstrumentation());
     }
 

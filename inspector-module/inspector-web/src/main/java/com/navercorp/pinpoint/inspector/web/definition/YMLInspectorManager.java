@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.inspector.web.definition;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
-import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Comparator;

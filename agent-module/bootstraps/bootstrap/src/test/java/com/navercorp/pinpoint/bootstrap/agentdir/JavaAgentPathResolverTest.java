@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
+import com.navercorp.pinpoint.bootstrap.Version;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver.ClassAgentPathFinder;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver.InputArgumentAgentPathFinder;
-import com.navercorp.pinpoint.common.Version;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;

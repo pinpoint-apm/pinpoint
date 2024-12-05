@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.BootLogger;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 
 import java.io.File;
 import java.util.Objects;

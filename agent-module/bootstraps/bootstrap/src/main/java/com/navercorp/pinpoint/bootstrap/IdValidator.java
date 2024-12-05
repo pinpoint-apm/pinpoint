@@ -17,9 +17,9 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Objects;
 

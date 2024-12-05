@@ -72,7 +72,7 @@ public class AgentIdResolverTest {
         properties2.put(system.getApplicationName(), "appName2");
         AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2::get);
 
-        AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap, ap2));
+        AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap2, ap));
         AgentIds resolve = resolver.resolve();
 
         Assertions.assertEquals("agentId1", resolve.getAgentId());
@@ -97,7 +97,7 @@ public class AgentIdResolverTest {
 
         AgentProperties ap2 = new AgentProperties(AgentIdSourceType.SYSTEM, properties2::get);
 
-        AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap, ap2));
+        AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap2, ap));
         AgentIds resolve = resolver.resolve();
 
         Assertions.assertEquals("agentId2", resolve.getAgentId());

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -88,7 +87,6 @@ public class JavaAgentPathResolver {
             return Paths.get(URI.create(jarLocation));
         }
 
-        @VisibleForTesting
         String getJarLocation(String className) {
             final String internalClassName = className.replace('.', '/') + ".class";
             final URL classURL = getResource(internalClassName);
@@ -137,7 +135,6 @@ public class JavaAgentPathResolver {
             return null;
         }
 
-        @VisibleForTesting
         List<String> getInputArguments() {
             RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
             return runtimeMXBean.getInputArguments();

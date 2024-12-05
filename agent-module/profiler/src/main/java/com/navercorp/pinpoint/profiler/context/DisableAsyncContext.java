@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import jakarta.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
@@ -57,8 +56,9 @@ public class DisableAsyncContext implements AsyncContext {
     }
 
     private void bind(Reference<Trace> reference, Trace asyncTrace) {
-        Assert.state(reference.get() == null, "traceReference is  null");
-
+        if (reference.get() != null) {
+            throw new IllegalStateException("traceReference is null");
+        }
         reference.set(asyncTrace);
     }
 

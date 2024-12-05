@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import jakarta.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
@@ -104,7 +103,9 @@ public class DefaultAsyncContext implements AsyncContext {
     }
 
     private void bind(Reference<Trace> reference, Trace asyncTrace) {
-        Assert.state(reference.get() == null, "traceReference is  null");
+        if (reference.get() != null) {
+            throw new IllegalStateException("traceReference is null");
+        }
 
         reference.set(asyncTrace);
     }

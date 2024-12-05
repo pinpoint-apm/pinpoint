@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.metric.web.service;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.metric.web.mapping.Mappings;
 import com.navercorp.pinpoint.metric.web.mapping.Metric;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;

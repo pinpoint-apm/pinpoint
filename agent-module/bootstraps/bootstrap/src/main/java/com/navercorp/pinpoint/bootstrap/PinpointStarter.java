@@ -21,13 +21,11 @@ import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.AgentSystemConfig;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.LogConfig;
+import com.navercorp.pinpoint.bootstrap.config.OsEnvSimpleProperty;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
-import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -64,7 +62,7 @@ class PinpointStarter {
 //            throw new NullPointerException("bootstrapClassLoader");
 //        }
         this.agentArgs = Objects.requireNonNull(agentArgs, "agentArgs");
-        this.agentType = AgentType.of(agentArgs);
+        this.agentType = AgentType.of(agentArgs::get);
         this.parentClassLoader = parentClassLoader;
         this.agentDirectory = Objects.requireNonNull(agentDirectory, "agentDirectory");
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
@@ -104,9 +102,6 @@ class PinpointStarter {
             return false;
         }
 
-        final ContainerResolver containerResolver = new ContainerResolver();
-        final boolean isContainer = containerResolver.isContainer();
-
         try {
             final Properties properties = loadProperties();
 
@@ -140,7 +135,7 @@ class PinpointStarter {
 
             final List<Path> pluginJars = agentDirectory.getPlugins();
             final String agentName = agentIds.getAgentName();
-            AgentOption option = createAgentOption(agentId, agentName, applicationName, isContainer,
+            AgentOption option = createAgentOption(agentId, agentName, applicationName,
                     profilerConfig,
                     instrumentation,
                     pluginJars,
@@ -170,9 +165,9 @@ class PinpointStarter {
 
     private AgentIds resolveAgentIds() {
         AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
-        builder.addAgentArgument(agentArgs::get);
-        builder.addEnvProperties(System.getenv()::get);
-        builder.addSystemProperties(System.getProperties()::getProperty);
+        builder.addProperties(AgentIdSourceType.SYSTEM, System.getProperties()::getProperty);
+        builder.addProperties(AgentIdSourceType.SYSTEM_ENV, System.getenv()::get);
+        builder.addProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArgs::get);
         AgentIdResolver agentIdResolver = builder.build();
         return agentIdResolver.resolve();
     }
@@ -194,7 +189,7 @@ class PinpointStarter {
         if (this.agentType == AgentType.PLUGIN_TEST) {
             properties.put(DefaultProfilerConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, "true");
         }
-        final String importPluginIds = StringUtils.defaultString(this.agentArgs.get(AgentParameter.IMPORT_PLUGIN), "");
+        final String importPluginIds = this.agentArgs.getOrDefault(AgentParameter.IMPORT_PLUGIN, "");
         properties.put(DefaultProfilerConfig.IMPORT_PLUGIN, importPluginIds);
 
         return properties;
@@ -205,7 +200,7 @@ class PinpointStarter {
     }
 
     private Properties copyOSEnvVariables() {
-        return OsEnvSimpleProperty.copy(System.getenv());
+        return new OsEnvSimpleProperty().toProperties(System.getenv());
     }
 
     private ClassLoader createClassLoader(final String name, final URL[] urls, final ClassLoader parentClassLoader, List<String> libClass) {
@@ -213,14 +208,14 @@ class PinpointStarter {
     }
 
 
-    private AgentOption createAgentOption(String agentId, String agentName, String applicationName, boolean isContainer,
+    private AgentOption createAgentOption(String agentId, String agentName, String applicationName,
                                           ProfilerConfig profilerConfig,
                                           Instrumentation instrumentation,
                                           List<Path> pluginJars,
                                           List<Path> bootstrapJarPaths) {
         List<String> pluginJarStrPath = toPathList(pluginJars);
         List<String> bootstrapJarPathStrPath = toPathList(bootstrapJarPaths);
-        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, isContainer, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
+        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
     }
 
     private List<String> toPathList(List<Path> paths) {

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.AgentDirGenerator;
-import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.bootstrap.Version;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
