@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -47,9 +48,12 @@ public class RequestTraceReader<T> {
     public RequestTraceReader(final TraceContext traceContext, RequestAdaptor<T> requestAdaptor, final boolean async) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
-         this.traceHeaderReader = new DefaultTraceHeaderReader<T>(requestAdaptor);
+
+        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        final boolean ignoreDisableSamplingFlag = profilerConfig.readBoolean("profiler.sampling.ignoreDisableSamplingFlag", false);
+        this.traceHeaderReader = new DefaultTraceHeaderReader<T>(requestAdaptor, ignoreDisableSamplingFlag);
         this.async = async;
-        String applicationNamespace = traceContext.getProfilerConfig().getApplicationNamespace();
+        String applicationNamespace = profilerConfig.getApplicationNamespace();
         this.nameSpaceChecker = NameSpaceCheckFactory.newNamespace(requestAdaptor, applicationNamespace);
     }
 
