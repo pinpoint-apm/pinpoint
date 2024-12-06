@@ -103,6 +103,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             if (httpRequest == null) {
                 return;
             }
+            this.requestTraceWriter.write(httpRequest, trace.getRequestId());
 
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             if (trace.canSampled()) {
