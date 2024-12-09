@@ -1,19 +1,20 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { END_POINTS } from '@pinpoint-fe/constants';
 
-type Response = {
-  result: 'SUCCESS';
+type deleteApplicationParams = {
+  applicationName: string;
+  password: string;
 };
 
 export const useDeleteApplication = (
-  options?: UseMutationOptions<Response, unknown, string, unknown>,
+  options?: UseMutationOptions<null, unknown, deleteApplicationParams, unknown>,
 ) => {
-  const deleteApplication = async (applicationName: string) => {
+  const deleteApplication = async (params: deleteApplicationParams) => {
     try {
       const response = await fetch(
-        `${END_POINTS.ADMIN_REMOVE_APPLICATION}?applicationName=${applicationName}`,
+        `${END_POINTS.ADMIN_REMOVE_APPLICATION}?applicationName=${params?.applicationName}&password=${params?.password}`,
         {
-          method: 'DELETE',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -25,9 +26,7 @@ export const useDeleteApplication = (
         throw new Error(errorData?.message);
       }
 
-      const data = await response.json();
-
-      return data;
+      return null;
     } catch (error) {
       throw error;
     }
@@ -42,17 +41,18 @@ export const useDeleteApplication = (
 type deleteAgentParams = {
   applicationName: string;
   agentId: string;
+  password: string;
 };
 
 export const useDeleteAgent = (
-  options?: UseMutationOptions<Response, unknown, deleteAgentParams, unknown>,
+  options?: UseMutationOptions<null, unknown, deleteAgentParams, unknown>,
 ) => {
   const deleteAgent = async (params: deleteAgentParams) => {
     try {
       const response = await fetch(
-        `${END_POINTS.ADMIN_REMOVE_AGENT}?applicationName=${params?.applicationName}&agentId=${params?.agentId}`,
+        `${END_POINTS.ADMIN_REMOVE_AGENT}?applicationName=${params?.applicationName}&agentId=${params?.agentId}&password=${params?.password}`,
         {
-          method: 'DELETE',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -64,9 +64,7 @@ export const useDeleteAgent = (
         throw new Error(errorData?.message);
       }
 
-      const data = await response.json();
-
-      return data;
+      return null;
     } catch (error) {
       throw error;
     }
