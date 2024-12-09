@@ -65,13 +65,18 @@ export const AgentManagementFetcher = ({ configuration }: AgentManagementFetcher
   }, [data]);
 
   function handleRemoveApplication(removeApplication?: ApplicationType) {
-    deleteApplication(removeApplication?.applicationName || '');
+    deleteApplication({
+      applicationName: removeApplication?.applicationName || '',
+      password: '',
+    });
   }
 
   function handleRemoveAgent(removeAgent?: SearchApplication.Instance) {
+    console.log('removeAgent', removeAgent, 'application', application);
     deleteAgent({
-      applicationName: application?.applicationName || '',
+      applicationName: removeAgent?.applicationName || '',
       agentId: removeAgent?.agentId || '',
+      password: '',
     });
   }
 
