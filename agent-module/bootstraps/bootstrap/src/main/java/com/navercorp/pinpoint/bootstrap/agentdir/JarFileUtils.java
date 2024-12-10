@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.jar.JarFile;
 
@@ -26,25 +27,25 @@ import java.util.jar.JarFile;
  */
 final class JarFileUtils {
 
-    public static JarFile openJarFile(File file) {
-        Objects.requireNonNull(file, "file");
+    public static JarFile openJarFile(Path path) {
+        Objects.requireNonNull(path, "path");
 
-        if (!file.exists()) {
-            throw new IllegalArgumentException(file + " not found");
+        if (!Files.exists(path)) {
+            throw new IllegalArgumentException(path + " not found");
         }
-        if (file.isDirectory()) {
-            throw new IllegalArgumentException(file + " is directory");
+        if (Files.isDirectory(path)) {
+            throw new IllegalArgumentException(path + " is directory");
         }
-        if (!(file.isFile())) {
-            throw new IllegalArgumentException(file + " not file");
+        if (!Files.isRegularFile(path)) {
+            throw new IllegalArgumentException(path + " not file");
         }
-        if (!file.canRead()) {
-            throw new IllegalArgumentException(file + " can read");
+        if (!Files.isReadable(path)) {
+            throw new IllegalArgumentException(path + " can read");
         }
         try {
-            return new JarFile(file);
+            return new JarFile(path.toFile());
         } catch (IOException e) {
-            throw new IllegalStateException(file + " create fail Caused by:" + e.getMessage(), e);
+            throw new IllegalStateException(path + " create fail Caused by:" + e.getMessage(), e);
         }
     }
 }

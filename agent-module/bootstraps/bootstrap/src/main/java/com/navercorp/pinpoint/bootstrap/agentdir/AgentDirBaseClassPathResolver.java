@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 
-import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     @Override
     public AgentDirectory resolve() {
-        if (!bootstrapJarPath.toFile().isFile()) {
+        if (!Files.isRegularFile(bootstrapJarPath)) {
             throw new IllegalStateException(bootstrapJarPath + " not found");
         }
 
@@ -134,7 +134,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private List<Path> resolveLib(Path agentLibPath) {
 
-        if (checkDirectory(agentLibPath.toFile())) {
+        if (checkDirectory(agentLibPath)) {
             return Collections.emptyList();
         }
 
@@ -150,7 +150,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private List<Path> resolvePlugins(Path agentPluginPath) {
 
-        if (checkDirectory(agentPluginPath.toFile())) {
+        if (checkDirectory(agentPluginPath)) {
             logger.warn(agentPluginPath + " is not a directory");
             return Collections.emptyList();
         }
@@ -167,12 +167,12 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         return pluginFileList;
     }
 
-    private boolean checkDirectory(File file) {
-        if (!file.exists()) {
+    private boolean checkDirectory(Path file) {
+        if (!Files.exists(file)) {
             logger.warn(file + " not found");
             return true;
         }
-        if (!file.isDirectory()) {
+        if (!Files.isDirectory(file)) {
             logger.warn(file + " is not a directory");
             return true;
         }
