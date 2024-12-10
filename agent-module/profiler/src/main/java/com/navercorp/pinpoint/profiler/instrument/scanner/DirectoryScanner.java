@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -27,20 +28,20 @@ import java.util.Objects;
  */
 public class DirectoryScanner implements Scanner {
 
-    private final File directory;
+    private final Path directory;
 
     public DirectoryScanner(String directory) {
         Objects.requireNonNull(directory, "directory");
-        this.directory = new File(directory);
+        this.directory = Paths.get(directory);
     }
 
     @Override
     public boolean exist(String fileName) {
         Objects.requireNonNull(fileName, "fileName");
 
-        final File file = new File(directory, fileName);
+        final Path file = directory.resolve(fileName);
 
-        return file.isFile();
+        return Files.isRegularFile(file);
     }
 
 
@@ -48,10 +49,10 @@ public class DirectoryScanner implements Scanner {
     public InputStream openStream(String fileName) {
         Objects.requireNonNull(fileName, "fileName");
 
-        final File fullPath = new File(directory, fileName);
+        final Path fullPath = directory.resolve(fileName);
         try {
-            return new FileInputStream(fullPath);
-        } catch (FileNotFoundException e) {
+            return Files.newInputStream(fullPath);
+        } catch (IOException e) {
             return null;
         }
     }

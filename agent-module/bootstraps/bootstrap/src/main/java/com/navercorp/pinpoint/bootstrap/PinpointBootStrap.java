@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
 
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +85,7 @@ public class PinpointBootStrap {
         final JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
         final Path agentPath = javaAgentPathResolver.resolveJavaAgentPath();
         logger.info("JavaAgentPath:" + agentPath);
-        if (!agentPath.toFile().exists()) {
+        if (!Files.exists(agentPath)) {
             logger.warn("AgentPath not found path:" + agentPath);
         }
 

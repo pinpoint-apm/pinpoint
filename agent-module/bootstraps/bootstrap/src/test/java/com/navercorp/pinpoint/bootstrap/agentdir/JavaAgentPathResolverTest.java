@@ -23,8 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -90,8 +90,11 @@ public class JavaAgentPathResolverTest {
     }
 
     private Path getPath(URL classLocation) {
-        File classFile = new File(classLocation.getFile());
-        return Paths.get(classFile.getPath());
+        try {
+            return Paths.get(classLocation.toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
