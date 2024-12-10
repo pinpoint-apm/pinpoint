@@ -110,7 +110,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("{} version range=[3.1.0.RELEASE, 3.3.0.RELEASE], config:{}", this.getClass().getSimpleName(), config);
+        logger.info("{}, config:{}", this.getClass().getSimpleName(), config);
 
         addFluxAndMono();
         addThreadingAndSchedulers();
@@ -205,6 +205,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addFluxOperatorTransform("reactor.core.publisher.FluxConcatMap");
         addFluxOperatorTransform("reactor.core.publisher.FluxConcatMapNoPrefetch");
         addFluxOperatorTransform("reactor.core.publisher.FluxContextWrite");
+        // FluxContextWriteRestoringThreadLocals
         addFluxTransform("reactor.core.publisher.FluxCreate");
         addFluxOperatorTransform("reactor.core.publisher.FluxDefaultIfEmpty");
         addFluxTransform("reactor.core.publisher.FluxDefer");
@@ -223,7 +224,8 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addFluxOperatorTransform("reactor.core.publisher.FluxDoOnEach");
         addFluxOperatorTransform("reactor.core.publisher.FluxDoOnEachFuseable");
         addFluxOperatorTransform("reactor.core.publisher.FluxElapsed");
-        addFluxOperatorTransform("reactor.core.publisher.FluxEmpty");
+        // empty
+        addFluxEmptyTransform("reactor.core.publisher.FluxEmpty");
         addFluxTransform("reactor.core.publisher.FluxError");
         addFluxTransform("reactor.core.publisher.FluxErrorOnRequest");
         addFluxTransform("reactor.core.publisher.FluxErrorSupplied");
@@ -375,7 +377,8 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addMonoOperatorTransform("reactor.core.publisher.MonoDoOnEachFuseable");
         addMonoOperatorTransform("reactor.core.publisher.MonoElapsed");
         addMonoOperatorTransform("reactor.core.publisher.MonoElementAt");
-        addMonoTransform("reactor.core.publisher.MonoEmpty");
+        // empty
+        addMonoEmptyTransform("reactor.core.publisher.MonoEmpty");
         addMonoTransform("reactor.core.publisher.MonoError");
         addMonoTransform("reactor.core.publisher.MonoErrorSupplied");
         addMonoOperatorTransform("reactor.core.publisher.MonoExpand");
@@ -428,6 +431,8 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addMonoOperatorTransform("reactor.core.publisher.MonoRunnable");
         addMonoTransform("reactor.core.publisher.MonoSequenceEqual");
         addMonoOperatorTransform("reactor.core.publisher.MonoSingle");
+        // MonoSingleOptional
+        // MonoSingleOptionalCallable
         addMonoOperatorTransform("reactor.core.publisher.MonoSingleCallable");
         addMonoOperatorTransform("reactor.core.publisher.MonoSingleMono");
         addMonoTransform("reactor.core.publisher.MonoSource");
@@ -439,8 +444,11 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addMonoOperatorTransform("reactor.core.publisher.MonoSwitchIfEmpty");
         addMonoOperatorTransform("reactor.core.publisher.MonoTakeLastOne");
         addMonoOperatorTransform("reactor.core.publisher.MonoTakeUntilOther");
+        // MonoTap
+        // MonoTapFuseable
         addMonoOperatorTransform("reactor.core.publisher.MonoTimed");
         addMonoOperatorTransform("reactor.core.publisher.MonoTimeout");
+        // MonoToCompletableFuture
         addMonoTransform("reactor.core.publisher.MonoUsing");
         addMonoTransform("reactor.core.publisher.MonoUsingWhen");
         addMonoTransform("reactor.core.publisher.MonoWhen");
@@ -670,6 +678,21 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         }
     }
 
+    void addFluxEmptyTransform(String className) {
+        transformTemplate.transform(className, FluxEmptyTransform.class);
+    }
+
+    public static class FluxEmptyTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            return target.toBytecode();
+        }
+    }
+
+
     void addRunnableCoreSubscriberTransform(String className) {
         transformTemplate.transform(className, RunnableCoreSubscriberTransform.class);
     }
@@ -855,6 +878,19 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             if (acceptMethod != null) {
                 acceptMethod.addInterceptor(MonoDelaySubscriptionSubscribeInterceptor.class, va(ReactorConstants.REACTOR));
             }
+
+            return target.toBytecode();
+        }
+    }
+
+    void addMonoEmptyTransform(String className) {
+        transformTemplate.transform(className, MonoEmptyTransform.class);
+    }
+
+    public static class MonoEmptyTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             return target.toBytecode();
         }
