@@ -104,7 +104,7 @@ public class BootDir {
     public List<JarFile> openJarFiles() {
         final List<JarFile> jarFileList = new ArrayList<>(jars.size());
         for (Path jarPath : jars) {
-            final JarFile jarFile = JarFileUtils.openJarFile(jarPath.toFile());
+            final JarFile jarFile = JarFileUtils.openJarFile(jarPath);
             jarFileList.add(jarFile);
         }
         return jarFileList;

@@ -3,11 +3,16 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.nio.file.attribute.FileTime;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LogDirCleaner {
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
@@ -21,55 +26,64 @@ public class LogDirCleaner {
     }
 
     public void clean() {
-        File file = logPath.toFile();
-        if (!file.exists()) {
+        if (!Files.exists(logPath)) {
             return;
         }
-        if (!file.isDirectory()) {
+        if (!Files.isDirectory(logPath)) {
             logger.warn(logPath + " is not directory");
             return;
         }
-        File[] agentDirectories = file.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
-            }
-        });
-        if (agentDirectories == null) {
+        List<Path> agentDirectories = directoryList();
+        if (agentDirectories.isEmpty()) {
             return;
         }
 
-        if (agentDirectories.length > maxSize) {
+        if (agentDirectories.size() > maxSize) {
             delete(agentDirectories);
         }
     }
 
-    private void delete(File[] agentDirectories) {
+    private List<Path> directoryList() {
+        try (Stream<Path> stream = Files.list(logPath)) {
+            return stream.filter(Files::isDirectory)
+                    .sorted(Comparator.comparing(Path::toFile))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            logger.warn("directoryList error:" + logPath + " " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
 
-        Arrays.sort(agentDirectories, Comparator.comparingLong(File::lastModified));
+    private void delete(List<Path> agentDirectories) {
+        agentDirectories.sort(Comparator.comparing(this::getLastModifiedTime));
 
-        int removeSize = agentDirectories.length - maxSize;
-        File[] deleteTargets = Arrays.copyOfRange(agentDirectories, 0, removeSize);
+        int removeSize = agentDirectories.size() - maxSize;
+        List<Path> deleteTargets = agentDirectories.subList(0, removeSize);
 
-        for (File file : deleteTargets) {
-            logger.info("delete agent dir:" + file.getAbsolutePath());
+        for (Path file : deleteTargets) {
+            logger.info("delete agent dir:" + file.toAbsolutePath());
             deleteAll(file);
         }
 
     }
 
-
-    private void deleteAll(File file) {
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            if (files != null) {
-                for (File curFile : files) {
-                    deleteAll(curFile);
-                }
-            }
+    private long getLastModifiedTime(Path path) {
+        try {
+            FileTime lastModifiedTime = Files.getLastModifiedTime(path);
+            return lastModifiedTime.toMillis();
+        } catch (IOException e) {
+            return 0;
         }
-        if (!file.delete()) {
-            logger.info("delete error :" + file.getPath());
+    }
+
+
+    private void deleteAll(Path file) {
+        try (Stream<Path> paths = Files.walk(file)) {
+            paths.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        } catch (IOException e) {
+            logger.info("delete error :" + file + " " + e.getMessage());
         }
     }
 

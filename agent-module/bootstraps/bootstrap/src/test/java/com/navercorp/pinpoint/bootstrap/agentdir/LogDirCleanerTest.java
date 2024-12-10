@@ -4,13 +4,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,8 +23,8 @@ public class LogDirCleanerTest {
 
     private long time = System.currentTimeMillis();
 
-    private long nextTime() {
-        return time += 10000;
+    private FileTime nextTime() {
+        return FileTime.from(time += 10000, TimeUnit.MILLISECONDS);
     }
 
 //    private static File getRootDir(Class<?> clazz) {
@@ -39,19 +41,19 @@ public class LogDirCleanerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        File agentDir1 = newFolder("agentDir1");
+        Path agentDir1 = newFolder("agentDir1");
 
-        Path temp = Paths.get(agentDir1.getPath(), "tempFile1.txt");
+        Path temp = agentDir1.resolve("tempFile1.txt");
         Files.createFile(temp);
 
-        File agentDir2 = newFolder("agentDir2");
-        File agentDir3 = newFolder("agentDir3");
+        Path agentDir2 = newFolder("agentDir2");
+        Path agentDir3 = newFolder("agentDir3");
     }
 
-    private File newFolder(String agentDir1) throws IOException {
-        File file = new File(temp.resolve(agentDir1).toString());
-        file.mkdir();
-        file.setLastModified(nextTime());
+    private Path newFolder(String agentDir1) throws IOException {
+        Path file = temp.resolve(agentDir1);
+        Files.createDirectory(file);
+        Files.setLastModifiedTime(file, nextTime());
         return file;
     }
 
@@ -65,22 +67,30 @@ public class LogDirCleanerTest {
     }
 
     @Test
-    public void clean2() {
+    public void clean2() throws IOException {
         LogDirCleaner logDirCleaner = new LogDirCleaner(temp, 2);
         logDirCleaner.clean();
 
-        List<String> files = Arrays.asList(temp.toFile().list());
+        List<Path> files = fileList(temp);
         assertThat(files).hasSize(2)
-                .contains("agentDir2")
-                .contains("agentDir3");
+                .contains(Paths.get("agentDir2"))
+                .contains(Paths.get("agentDir3"));
     }
 
     @Test
-    public void clean5() {
+    public void clean5() throws IOException {
         LogDirCleaner logDirCleaner = new LogDirCleaner(temp, 5);
         logDirCleaner.clean();
 
-        String[] files = temp.toFile().list();
+        List<Path> files = fileList(temp);
         assertThat(files).hasSize(3);
+    }
+
+    public List<Path> fileList(Path path) throws IOException {
+        try (Stream<Path> stream = Files.list(path)) {
+            return stream
+                    .map(Path::getFileName)
+                    .collect(Collectors.toList());
+        }
     }
 }

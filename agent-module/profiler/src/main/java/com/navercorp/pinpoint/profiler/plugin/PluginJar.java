@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
@@ -39,45 +41,44 @@ public class PluginJar {
     private final JarFile jarFile;
     private final PluginManifest manifest;
 
-    private PluginJar(File file) {
-        Objects.requireNonNull(file, "path");
+    private PluginJar(String filePath) {
+        Objects.requireNonNull(filePath, "filePath");
+        Path path = Paths.get(filePath);
+        this.url = toURL(path);
 
-        this.url = toURL(file);
-
-        this.jarFile = createJarFile(file);
+        this.jarFile = createJarFile(path);
         this.manifest = PluginManifest.of(jarFile);
     }
 
-    private URL toURL(File file) {
+    private URL toURL(Path file) {
         try {
-            return file.toURI().toURL();
+            return file.toUri().toURL();
         } catch (MalformedURLException e) {
-            throw new PluginException(file.getName() + " toURL error", e);
+            throw new PluginException(file + " toURL error", e);
         }
     }
 
-    private static JarFile createJarFile(File pluginJar) {
+    private static JarFile createJarFile(Path pluginJar) {
         try {
             verify(pluginJar);
-            return new JarFile(pluginJar);
+            return new JarFile(pluginJar.toFile());
         } catch (IOException e) {
-            throw new PluginException(pluginJar.getName() + " JarFile create error " + e.getCause(), e);
+            throw new PluginException(pluginJar + " JarFile create error " + e.getCause(), e);
         }
     }
 
     public static PluginJar fromFilePath(String filePath) {
-        File file = new File(filePath);
-        return new PluginJar(file);
+        return new PluginJar(filePath);
     }
 
-    private static void verify(File file) {
-        if (!file.exists()) {
+    private static void verify(Path file) {
+        if (!Files.exists(file)) {
             throw new PluginException(file + " File does not exist");
         }
-        if (!file.isFile()) {
+        if (!Files.isRegularFile(file)) {
             throw new PluginException(file + " is not a file");
         }
-        if (!file.canRead()) {
+        if (!Files.isReadable(file)) {
             throw new PluginException(file + " File cannot be read");
         }
     }
