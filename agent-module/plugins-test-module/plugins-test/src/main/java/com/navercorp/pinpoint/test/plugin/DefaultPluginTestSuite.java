@@ -109,7 +109,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         }
 
         final List<String> libs = new ArrayList<>();
-        libs.add(context.getTestClassLocation());
+        libs.add(context.getTestClassLocation().toString());
         libs.addAll(context.getSharedLibList());
 
         if (ArrayUtils.hasLength(sharedDependencies)) {

@@ -44,7 +44,7 @@ public class PluginTestInstanceFactory {
                                      List<String> transformIncludeList,
                                      ClassLoding classLoading) throws ClassNotFoundException {
         final String id = testId + ":" + classLoading;
-        PluginTestInstanceCallback instanceContext = startAgent(context.getConfigFile(), agentClassLoader);
+        PluginTestInstanceCallback instanceContext = startAgent(context.getConfigFile().toString(), agentClassLoader);
         final List<File> fileList = new ArrayList<>();
         for (String classPath : getClassPath(libs, classLoading)) {
             File file = new File(classPath);
@@ -64,7 +64,7 @@ public class PluginTestInstanceFactory {
     List<String> getClassPath(List<String> libs, ClassLoding classLoading) {
         final List<String> libList = new ArrayList<>(context.getJunitLibList());
         libList.addAll(libs);
-        libList.add(context.getTestClassLocation());
+        libList.add(context.getTestClassLocation().toString());
         return libList;
     }
 

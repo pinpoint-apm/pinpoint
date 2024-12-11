@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -21,10 +22,10 @@ import java.util.List;
  */
 public class PluginForkedTestContext {
 
-    private final String agentJar;
+    private final Path agentJar;
     private final String profile;
-    private final String configFile;
-    private final String logLocationConfig;
+    private final Path configFile;
+    private final Path logLocationConfig;
 
     private final List<String> requiredLibraries;
     private final List<String> mavenDependencyLibraries;
@@ -32,7 +33,7 @@ public class PluginForkedTestContext {
 
     private final List<String> repositoryUrls;
     private final Class<?> testClass;
-    private final String testClassLocation;
+    private final Path testClassLocation;
 
     private final List<String> jvmArguments;
     private final boolean debug;
@@ -45,16 +46,16 @@ public class PluginForkedTestContext {
     private final List<String> transformIncludeList;
     private final boolean manageTraceObject;
 
-    public PluginForkedTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
+    public PluginForkedTestContext(Path agentJar, String profile, Path configFile, Path logLocationConfig,
                                    List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> sharedLibraries, List<String> repositoryUrls,
-                                   Class<?> testClass, String testClassLocation, List<String> jvmArguments,
+                                   Class<?> testClass, Path testClassLocation, List<String> jvmArguments,
                                    boolean debug, List<String> importPluginIds, List<String> pluginLibList, boolean manageTraceObject, List<String> transformIncludeList) {
         this(agentJar, profile, configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, sharedLibraries, repositoryUrls, testClass, testClassLocation, jvmArguments, debug, -1, "", importPluginIds, pluginLibList, manageTraceObject, transformIncludeList);
     }
 
-    public PluginForkedTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
+    public PluginForkedTestContext(Path agentJar, String profile, Path configFile, Path logLocationConfig,
                                    List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> sharedLibraries, List<String> repositoryUrls,
-                                   Class<?> testClass, String testClassLocation, List<String> jvmArguments,
+                                   Class<?> testClass, Path testClassLocation, List<String> jvmArguments,
                                    boolean debug, int jvmVersion,
                                    String javaExecutable, List<String> importPluginIds, List<String> pluginLibList, boolean manageTraceObject, List<String> transformIncludeList) {
         this.agentJar = agentJar;
@@ -93,11 +94,11 @@ public class PluginForkedTestContext {
         return repositoryUrls;
     }
 
-    public String getTestClassLocation() {
-        return testClassLocation;
+    public String  getTestClassLocation() {
+        return testClassLocation.toString();
     }
 
-    public String getAgentJar() {
+    public Path getAgentJar() {
         return agentJar;
     }
 
@@ -105,11 +106,11 @@ public class PluginForkedTestContext {
         return profile;
     }
 
-    public String getConfigFile() {
+    public Path getConfigFile() {
         return configFile;
     }
 
-    public String getLogLocationConfig() {
+    public Path getLogLocationConfig() {
         return logLocationConfig;
     }
 

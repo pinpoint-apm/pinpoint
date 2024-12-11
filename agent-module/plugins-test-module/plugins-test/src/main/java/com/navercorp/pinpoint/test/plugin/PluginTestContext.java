@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -21,13 +22,13 @@ import java.util.List;
  */
 public class PluginTestContext {
 
-    private final String agentJar;
+    private final Path agentJar;
     private final String profile;
-    private final String configFile;
-    private final String logLocationConfig;
+    private final Path configFile;
+    private final Path logLocationConfig;
     private final List<String> repositoryUrls;
     private final Class<?> testClass;
-    private final String testClassLocation;
+    private final Path testClassLocation;
 
     private final List<String> jvmArguments;
     private final boolean debug;
@@ -39,9 +40,9 @@ public class PluginTestContext {
     private final List<String> junitLibList;
     private final boolean manageTraceObject;
 
-    public PluginTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
+    public PluginTestContext(Path agentJar, String profile, Path configFile, Path logLocationConfig,
                              List<String> repositoryUrls,
-                             Class<?> testClass, String testClassLocation, List<String> jvmArguments,
+                             Class<?> testClass, Path testClassLocation, List<String> jvmArguments,
                              boolean debug,
                              List<String> importPluginIds, boolean manageTraceObject, List<String> transformIncludeList, List<String> agentLibList, List<String> sharedLibList, List<String> junitLibList) {
         this.agentJar = agentJar;
@@ -65,11 +66,11 @@ public class PluginTestContext {
         return repositoryUrls;
     }
 
-    public String getTestClassLocation() {
+    public Path getTestClassLocation() {
         return testClassLocation;
     }
 
-    public String getAgentJar() {
+    public Path getAgentJar() {
         return agentJar;
     }
 
@@ -77,11 +78,11 @@ public class PluginTestContext {
         return profile;
     }
 
-    public String getConfigFile() {
+    public Path getConfigFile() {
         return configFile;
     }
 
-    public String getLogLocationConfig() {
+    public Path getLogLocationConfig() {
         return logLocationConfig;
     }
 

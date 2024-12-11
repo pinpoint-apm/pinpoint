@@ -23,6 +23,7 @@ import org.tinylog.TaggedLogger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -107,17 +108,13 @@ public class DefaultProcessManager implements ProcessManager {
         }
 
         if (context.getConfigFile() != null) {
-            option.addSystemProperty("pinpoint.config", context.getConfigFile());
+            option.addSystemProperty("pinpoint.config", context.getConfigFile().toString());
             option.addSystemProperty("pinpoint.config.load.mode", "simple");
         }
 
-        String logLocationConfig = context.getLogLocationConfig();
+        Path logLocationConfig = context.getLogLocationConfig();
         if (logLocationConfig != null) {
-            if (logLocationConfig.endsWith("/")) {
-                option.addSystemProperty(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig());
-            } else {
-                option.addSystemProperty(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig() + '/');
-            }
+            option.addSystemProperty(Profiles.LOG_CONFIG_LOCATION_KEY, logLocationConfig.toString());
         }
 
         option.addOptions(pluginTestInstance.getVmArgs());
