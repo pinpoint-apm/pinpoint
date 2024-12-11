@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc.config;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
@@ -227,7 +227,7 @@ public class GrpcTransportConfig {
     public SslOption readSslOption(final Properties properties) {
         final String sslPrefix = "profiler.transport.grpc.ssl.";
 
-        String agentRootPath = properties.getProperty(AgentDirectory.AGENT_ROOT_PATH_KEY);
+        String agentRootPath = properties.getProperty(DefaultProfilerConfig.AGENT_ROOT_PATH_KEY);
 
         final SslOption.Builder builder = new SslOption.Builder(agentRootPath);
 

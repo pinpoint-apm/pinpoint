@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
+import java.util.Properties;
 
 /**
  * @author emeroad
@@ -42,7 +43,7 @@ public class PinpointClassLoaderTest {
     private ClassLoader onLoadTest(Class<?> classLoaderType, Class<?> testClass) throws ClassNotFoundException {
         URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
-        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
+        ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, new Properties());
         Assertions.assertSame(cl.getClass(), classLoaderType);
 
         Assertions.assertThrowsExactly(ClassNotFoundException.class, () -> {

@@ -41,14 +41,14 @@ public class PluginJar {
     private final JarFile jarFile;
     private final PluginManifest manifest;
 
-    private PluginJar(String filePath) {
-        Objects.requireNonNull(filePath, "filePath");
-        Path path = Paths.get(filePath);
+    public PluginJar(Path path) {
+        Objects.requireNonNull(path, "path");
         this.url = toURL(path);
 
         this.jarFile = createJarFile(path);
         this.manifest = PluginManifest.of(jarFile);
     }
+
 
     private URL toURL(Path file) {
         try {
@@ -68,7 +68,8 @@ public class PluginJar {
     }
 
     public static PluginJar fromFilePath(String filePath) {
-        return new PluginJar(filePath);
+        Path path = Paths.get(filePath);
+        return new PluginJar(path);
     }
 
     private static void verify(Path file) {

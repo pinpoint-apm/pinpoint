@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Module;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +53,7 @@ public class ModuleFactoryResolverTest {
     public static class TestModuleFactory implements ModuleFactory {
 
         @Override
-        public Module newModule(AgentOption agentOption) {
+        public Module newModule(AgentContextOption agentOption) {
             return null;
         }
 

@@ -47,7 +47,7 @@ public class MockTraceContextFactory {
         ModuleFactory moduleFactory = new OverrideModuleFactory(loggingModule, interceptorRegistryModule);
 
         MockApplicationContextFactory factory = new MockApplicationContextFactory();
-        return factory.build(profilerConfig, moduleFactory);
+        return factory.build(profilerConfig.getProperties(), moduleFactory);
     }
 
     public static class LoggingModule extends AbstractModule {

@@ -17,7 +17,10 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 
+import com.navercorp.pinpoint.bootstrap.util.ProfileConstants;
+
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -34,10 +37,11 @@ public class PropertyLoaderFactory {
     // @Optional
     private final Path profilesPath;
     // @Optional
-    private final String[] supportedProfiles;
+    private final List<Path> supportedProfiles;
 
-    public PropertyLoaderFactory(Properties javaSystemProperty, Properties osEnvProperty,
-                                 Path agentRootPath, Path profilesPath, String[] supportedProfiles) {
+    public PropertyLoaderFactory(Properties javaSystemProperty,
+                                 Properties osEnvProperty,
+                                 Path agentRootPath, Path profilesPath, List<Path> supportedProfiles) {
         this.javaSystemProperty = Objects.requireNonNull(javaSystemProperty, "javaSystemProperty");
         this.osEnvProperty = Objects.requireNonNull(osEnvProperty, "osEnvProperty");
         this.agentRootPath = Objects.requireNonNull(agentRootPath, "agentRootPath");
@@ -47,7 +51,7 @@ public class PropertyLoaderFactory {
 
     public PropertyLoader newPropertyLoader() {
         if (isSimpleMode()) {
-            return new SimplePropertyLoader(javaSystemProperty, agentRootPath, profilesPath);
+            return new SimplePropertyLoader(javaSystemProperty, agentRootPath);
         }
         return new ProfilePropertyLoader(javaSystemProperty, osEnvProperty, agentRootPath, profilesPath, supportedProfiles);
     }
@@ -55,7 +59,7 @@ public class PropertyLoaderFactory {
 
 
     private boolean isSimpleMode() {
-        final String mode = javaSystemProperty.getProperty(Profiles.CONFIG_LOAD_MODE_KEY, Profiles.CONFIG_LOAD_MODE.PROFILE.toString());
-        return Profiles.CONFIG_LOAD_MODE.SIMPLE.toString().equalsIgnoreCase(mode);
+        final String mode = javaSystemProperty.getProperty(ProfileConstants.CONFIG_LOAD_MODE_KEY, ProfileConstants.CONFIG_LOAD_MODE.PROFILE.toString());
+        return ProfileConstants.CONFIG_LOAD_MODE.SIMPLE.toString().equalsIgnoreCase(mode);
     }
 }

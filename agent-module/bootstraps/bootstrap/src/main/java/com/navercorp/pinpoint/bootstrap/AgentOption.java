@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author emeroad
@@ -28,17 +29,13 @@ public interface AgentOption {
 
     Instrumentation getInstrumentation();
 
-    String getAgentId();
+    Properties getProperties();
 
-    String getAgentName();
+    Map<String, String> getAgentArgs();
 
-    String getApplicationName();
+    List<Path> getPluginJars();
 
+    List<Path> getBootstrapJarPaths();
 
-    ProfilerConfig getProfilerConfig();
-
-    List<String> getPluginJars();
-
-    List<String> getBootstrapJarPaths();
-
+    Map<String, Object> toMap();
 }

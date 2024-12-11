@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.config.util.ValueResolver;
 
 import java.util.List;
@@ -34,8 +32,6 @@ public interface ProfilerConfig {
 
     Properties getProperties();
 
-    String getPinpointDisable();
-
     int getJdbcSqlCacheSize();
 
     boolean isTraceSqlBindValue();
@@ -48,17 +44,13 @@ public interface ProfilerConfig {
 
     String getGrpcStatLoggingPeriod();
 
-    @InterfaceAudience.Private
-    @VisibleForTesting
-    boolean getStaticResourceCleanup();
-
     HttpStatusCodeErrors getHttpStatusCodeErrors();
 
     String getInjectionModuleFactoryClazzName();
 
     String getApplicationNamespace();
 
-    List<String> getAgentClassloaderAdditionalLibs();
+    String getAgentRootPath();
 
     String readString(String propertyName, String defaultValue);
 
@@ -75,7 +67,5 @@ public interface ProfilerConfig {
     boolean readBoolean(String propertyName, boolean defaultValue);
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
-
-    int getLogDirMaxBackupSize();
 
 }

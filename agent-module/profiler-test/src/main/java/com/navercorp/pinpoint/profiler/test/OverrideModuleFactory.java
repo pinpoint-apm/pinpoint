@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.test;
 
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.test.rpc.MockRpcModule;
@@ -40,11 +40,11 @@ public class OverrideModuleFactory implements ModuleFactory {
     }
 
     @Override
-    public Module newModule(AgentOption agentOption) {
+    public Module newModule(AgentContextOption agentOption) {
 
         ModuleFactory moduleFactory = new ApplicationContextModuleFactory() {
             @Override
-            protected Module newRpcModule(AgentOption agentOption) {
+            protected Module newRpcModule(AgentContextOption agentOption) {
                 logger.info("load {}", MockRpcModule.class.getName());
                 return new MockRpcModule();
             }
