@@ -23,13 +23,52 @@ export const FlameGraph = <T,>({
 }: FlameGraphProps<T>) => {
   const widthOffset = end - start || 1;
   const [config] = React.useState(flameGraphDefaultConfig);
+  const [zoom, setZoom] = React.useState(1);
 
   const prevDepth = React.useRef(0);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const svgRef = React.useRef<SVGSVGElement>(null);
-  const [containerWidth, setWidth] = React.useState(0);
+  const [width, setWidth] = React.useState(0);
   const containerHeight = getContainerHeight();
+  const containerWidth = width * zoom;
   const widthRatio = (containerWidth - config.padding.left - config.padding.right) / widthOffset;
+  const [scrollLeft, setScrollLeft] = React.useState(0);
+
+  React.useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      if (event.metaKey) {
+        event.preventDefault();
+
+        const container = containerRef.current;
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+
+        setZoom((prevZoom) => {
+          const newZoom = Math.max(1, prevZoom - event.deltaY * 0.01);
+
+          // Adjust the scroll position to keep the mouse position centered
+          const scaleChange = newZoom / prevZoom;
+          container.scrollLeft += mouseX * (scaleChange - 1) * prevZoom;
+
+          setScrollLeft(container.scrollLeft);
+
+          return newZoom;
+        });
+      }
+
+      setScrollLeft(containerRef.current?.scrollLeft || 0);
+    };
+
+    const container = containerRef.current;
+
+    container?.addEventListener('wheel', handleWheel);
+
+    return () => {
+      container?.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (containerRef.current) {
@@ -90,13 +129,13 @@ export const FlameGraph = <T,>({
 
   return (
     <FlameGraphConfigContext.Provider value={{ config }}>
-      <div className="relative w-full h-full overflow-x-hidden" ref={containerRef}>
+      <div className="relative w-full h-full overflow-x-auto" ref={containerRef}>
         <svg width={containerWidth} height={config.height.timeline} className="shadow-md">
-          <FlameTimeline width={containerWidth} start={start} end={end} />
+          <FlameTimeline width={containerWidth} start={start} end={end} zoom={zoom} />
         </svg>
-        <div className="w-full h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden">
+        <div className="w-fit h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden">
           <svg width={containerWidth} height={containerHeight} ref={svgRef}>
-            <FlameAxis width={containerWidth} />
+            <FlameAxis width={containerWidth} zoom={zoom} />
             {containerWidth &&
               // group별 렌더링
               data.map((group, i) => {
@@ -119,6 +158,7 @@ export const FlameGraph = <T,>({
                   return (
                     <React.Fragment key={node.id}>
                       <FlameNode
+                        scrollLeft={scrollLeft}
                         node={newNode}
                         svgRef={svgRef}
                         customNodeStyle={customNodeStyle}
