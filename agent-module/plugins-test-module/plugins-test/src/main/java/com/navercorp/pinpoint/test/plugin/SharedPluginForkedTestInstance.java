@@ -114,7 +114,7 @@ public class SharedPluginForkedTestInstance implements PluginForkedTestInstance 
 
     @Override
     public File getWorkingDirectory() {
-        return new File(".");
+        return ConfigResolver.workDir();
     }
 
 }

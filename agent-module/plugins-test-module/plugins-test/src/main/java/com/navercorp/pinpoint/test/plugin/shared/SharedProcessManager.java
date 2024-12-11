@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
+import com.navercorp.pinpoint.test.plugin.ConfigResolver;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTestContext;
 import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
@@ -32,6 +33,7 @@ import org.tinylog.TaggedLogger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -93,14 +95,13 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     public Process fork() throws IOException {
-        File workingDirectory = new File(".");
         List<String> commands = buildCommand();
 
         ProcessBuilder builder = new ProcessBuilder();
 
         builder.command(commands);
         builder.redirectErrorStream(true);
-        builder.directory(workingDirectory);
+        builder.directory(ConfigResolver.workDir());
 
         logger.info("Working directory: {}", System.getProperty("user.dir"));
         logger.info("Command: {}", builder.command());
@@ -177,17 +178,13 @@ public class SharedProcessManager implements ProcessManager {
         }
 
         if (context.getConfigFile() != null) {
-            option.addSystemProperty("pinpoint.config", context.getConfigFile());
+            option.addSystemProperty("pinpoint.config", context.getConfigFile().toString());
             option.addSystemProperty("pinpoint.config.load.mode", "simple");
         }
 
-        String logLocationConfig = context.getLogLocationConfig();
+        Path logLocationConfig = context.getLogLocationConfig();
         if (logLocationConfig != null) {
-            if (logLocationConfig.endsWith("/")) {
-                option.addSystemProperty(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig());
-            } else {
-                option.addSystemProperty(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig() + '/');
-            }
+            option.addSystemProperty(Profiles.LOG_CONFIG_LOCATION_KEY, logLocationConfig.toString());
         }
 
         option.addOptions(getVmArgs());
