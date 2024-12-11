@@ -50,9 +50,9 @@ export const TimelineDetail = ({ start, data, onClose }: TimelineDetailProps) =>
           <div>Duration </div>
           <div>{data.dur / 1000}ms</div>
           {data?.args &&
-            Object.entries(data.args).map(([key, value]) => {
+            Object.entries(data.args).map(([key, value], i) => {
               if (key === 'Application Name') {
-                return <></>;
+                return <React.Fragment key={i}></React.Fragment>;
               }
               return (
                 <React.Fragment key={key}>

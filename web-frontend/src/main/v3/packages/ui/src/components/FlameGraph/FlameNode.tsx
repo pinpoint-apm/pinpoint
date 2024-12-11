@@ -1,5 +1,6 @@
 import React from 'react';
 import { getRandomColor, getDarkenHexColor, getContrastingTextColor } from '../../lib/colors';
+import { flameGraphDefaultConfig } from './FlameGraphConfigContext';
 
 export interface FlameNodeType<T> {
   id: string;
@@ -29,6 +30,7 @@ export interface FlameNodeProps<T> {
   onClickNode: FlameNodeClickHandler<T>;
   customNodeStyle?: (node: FlameNodeType<T>, color: FlameNodeColorType) => React.CSSProperties;
   customTextStyle?: (node: FlameNodeType<T>, color: string) => React.CSSProperties;
+  scrollLeft?: number;
   // renderText?: (
   //   text: string,
   //   elementAttributes: React.SVGTextElementAttributes<SVGTextElement>,
@@ -41,14 +43,26 @@ const FlameNodeComponent = <T,>({
   onClickNode,
   customNodeStyle,
   customTextStyle,
+  scrollLeft = 0,
 }: FlameNodeProps<T>) => {
+  const [config] = React.useState(flameGraphDefaultConfig);
   const { x = 0, y = 0, width = 1, height = 1, name } = node;
   const colorMap = React.useRef<{ [key: string]: FlameNodeColorType }>({});
   const color = colorMap.current[name]?.color || getRandomColor();
   const hoverColor = colorMap.current[name]?.hoverColor || getDarkenHexColor(color);
+  const isFullyVisible =
+    scrollLeft + config?.padding?.left <= x || scrollLeft + config?.padding?.left >= x + width;
+
   const ellipsizedText = React.useMemo(
-    () => getEllipsizedText(name, width, svgRef),
-    [name, width, svgRef],
+    () =>
+      getEllipsizedText(
+        name,
+        isFullyVisible
+          ? width - config?.padding?.right - config?.padding?.left
+          : Math.max(x + width - scrollLeft - config?.padding?.left - config?.padding?.right, 0),
+        svgRef,
+      ),
+    [name, width, svgRef, scrollLeft],
   );
 
   const [isHover, setHover] = React.useState(false);
@@ -84,12 +98,16 @@ const FlameNodeComponent = <T,>({
           }}
         />
         <text
-          x={x + width / 2}
+          x={
+            isFullyVisible
+              ? x + config?.padding?.left
+              : Math.max(config?.padding?.left + scrollLeft, 0)
+          }
           y={y + height / 2}
           dy=".35em"
           fontSize="0.75rem"
           letterSpacing={-0.5}
-          textAnchor="middle"
+          textAnchor="start"
           fill={contrastringTextColor}
           style={textStyle}
         >
@@ -106,6 +124,7 @@ const FlameNodeComponent = <T,>({
               onClickNode={onClickNode}
               customNodeStyle={customNodeStyle}
               customTextStyle={customTextStyle}
+              scrollLeft={scrollLeft}
             />
           );
         })}

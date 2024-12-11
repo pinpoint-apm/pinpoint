@@ -6,31 +6,32 @@ export interface FlameTimelineProps {
   width: number;
   start: number;
   end: number;
+  zoom?: number;
 }
 
-export const FlameTimeline = ({ width, start, end }: FlameTimelineProps) => {
+export const FlameTimeline = ({ width, start, end, zoom = 1 }: FlameTimelineProps) => {
   const { config } = React.useContext(FlameGraphConfigContext);
   const { padding, yAxisCount } = config;
   const actualWidth = width - padding.left - padding.right;
   const timeGap = end - start;
-
+  const actualYAxisCount = Math.ceil(yAxisCount * zoom);
   return (
     <>
-      {Array.from(Array(yAxisCount)).map((_, i) => {
+      {Array.from(Array(actualYAxisCount)).map((_, i) => {
         return (
           <text
             key={i}
-            x={(actualWidth / yAxisCount) * i + 14}
+            x={(actualWidth / actualYAxisCount) * i + 14}
             y={12}
             fontSize={'0.625rem'}
             letterSpacing={-0.5}
             fill={config.color.time}
           >
-            +{((timeGap / yAxisCount) * i).toFixed(1)}ms
+            +{((timeGap / actualYAxisCount) * i).toFixed(1)}ms
           </text>
         );
       })}
-      <FlameAxis width={width} />;
+      <FlameAxis width={width} zoom={zoom} />;
     </>
   );
 };
