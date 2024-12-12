@@ -57,22 +57,9 @@ public class BytesUtilsTest {
         String s = BytesUtils.toStringAndRightTrim(bytes, 0, 10);
         assertEquals("123", s);
         long l = BytesUtils.bytesToLong(bytes, 10);
-        assertEquals(l, 1);
+        assertEquals(1, l);
         long l2 = BytesUtils.bytesToLong(bytes, 10 + BytesUtils.LONG_BYTE_LENGTH);
-        assertEquals(l2, 2);
-    }
-
-    @Test
-    public void testRightTrim() {
-        String trim = BytesUtils.rightTrim("test  ");
-        assertEquals("test", trim);
-
-        String trim1 = BytesUtils.rightTrim("test");
-        assertEquals("test", trim1);
-
-        String trim2 = BytesUtils.rightTrim("  test");
-        assertEquals("  test", trim2);
-
+        assertEquals(2, l2);
     }
 
     @Test
@@ -115,11 +102,11 @@ public class BytesUtilsTest {
     @Test
     public void testToFixedLengthBytes() {
         byte[] testValue = BytesUtils.toFixedLengthBytes("test", 10);
-        assertEquals(testValue.length, 10);
-        assertEquals(testValue[5], 0);
+        assertEquals(10, testValue.length);
+        assertEquals(0, testValue[5]);
 
         byte[] testValue2 = BytesUtils.toFixedLengthBytes(null, 10);
-        assertEquals(testValue2.length, 10);
+        assertEquals(10, testValue2.length);
 
     }
 
@@ -263,16 +250,6 @@ public class BytesUtilsTest {
     }
 
     @Test
-    public void testRightTrim2() {
-        // no space
-        String testStr = "0123456789 abc";
-        assertEquals("0123456789 abc", BytesUtils.rightTrim(testStr));
-        // right spaced
-        testStr = "0123456789 abcabc!       ";
-        assertEquals("0123456789 abcabc!", BytesUtils.rightTrim(testStr));
-    }
-
-    @Test
     public void testByteRightTrim1() {
         byte[] bytes = writeBytes(3, "123", 0, 3);
         assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, 3));
@@ -319,24 +296,6 @@ public class BytesUtilsTest {
     public void testRightTrimIndex3() {
         byte[] testBytes = new byte[0];
         assertEquals(0, BytesUtils.rightTrimIndex(testBytes, 0, testBytes.length));
-    }
-
-    @Test
-    public void toStringAndRightTrim_empty() {
-        assertEquals(BytesUtils.rightTrim(""), "");
-        assertEquals(BytesUtils.rightTrim(" "), "");
-        assertEquals(BytesUtils.rightTrim("  "), "");
-        assertEquals(BytesUtils.rightTrim("     "), "");
-    }
-
-    @Test
-    public void toStringAndRightTrim() {
-        assertEquals(BytesUtils.rightTrim("1"), "1");
-        assertEquals(BytesUtils.rightTrim("2 "), "2");
-        assertEquals(BytesUtils.rightTrim("3  "), "3");
-        assertEquals(BytesUtils.rightTrim("4     "), "4");
-
-        assertEquals(BytesUtils.rightTrim("5 1 "), "5 1");
     }
 
     /**
@@ -548,10 +507,10 @@ public class BytesUtilsTest {
 
     @Test
     public void testShortToUnsignedShort() {
-        assertEquals(BytesUtils.shortToUnsignedShort((short) 0), 0);
-        assertEquals(BytesUtils.shortToUnsignedShort(Short.MAX_VALUE), 32767);
+        assertEquals(0, BytesUtils.shortToUnsignedShort((short) 0));
+        assertEquals(32767, BytesUtils.shortToUnsignedShort(Short.MAX_VALUE));
         final short maxOver = (short) (Short.MAX_VALUE + 1);
-        assertEquals(BytesUtils.shortToUnsignedShort(maxOver), 32768);
-        assertEquals(BytesUtils.shortToUnsignedShort((short) -1), 65535);
+        assertEquals(32768, BytesUtils.shortToUnsignedShort(maxOver));
+        assertEquals(65535, BytesUtils.shortToUnsignedShort((short) -1));
     }
 }

@@ -566,13 +566,6 @@ public final class BytesUtils {
         return result;
     }
 
-    public static String safeTrim(final String string) {
-        if (string == null) {
-            return null;
-        }
-        return string.trim();
-    }
-
     public static String toString(final byte[] bytes) {
         if (bytes == null) {
             return null;
@@ -616,24 +609,4 @@ public final class BytesUtils {
         return index + 1;
     }
 
-    public static String rightTrim(final String string) {
-        if (string == null) {
-            return null;
-        }
-        if (string.isEmpty()) {
-            return "";
-        }
-        final int length = string.length();
-        int index = length - 1;
-        while (index >= 0 && string.charAt(index) <= ' ') {
-            index--;
-        }
-        index++;
-
-        if (index == length) {
-            return string;
-        } else {
-            return string.substring(0, index);
-        }
-    }
 }
