@@ -206,12 +206,10 @@ public class ModuleSupport {
         addUses("io.grpc.LoadBalancerProvider", classLoader, agentModule);
 
         addUses("org.apache.logging.log4j.spi.Provider", classLoader, agentModule);
-
         addUses("org.apache.logging.log4j.core.impl.Log4jProvider", classLoader, agentModule);
-
         addUses("org.apache.logging.log4j.core.util.ContextDataProvider", classLoader, agentModule);
-
         addUses("org.apache.logging.log4j.core.util.WatchEventService", classLoader, agentModule);
+        addUses("org.apache.logging.log4j.util.PropertySource", classLoader, agentModule);
 
         addUses("org.slf4j.spi.SLF4JServiceProvider", classLoader, agentModule);
 
