@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.batch.configuration;
+package com.navercorp.pinpoint.batch.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

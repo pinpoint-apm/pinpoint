@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.configuration;
+package com.navercorp.pinpoint.batch.config;
 
 import com.navercorp.pinpoint.batch.alarm.dao.model.BatchQueryParameter;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-
-import java.util.List;
 
 /**
  * @author minwoo-jung

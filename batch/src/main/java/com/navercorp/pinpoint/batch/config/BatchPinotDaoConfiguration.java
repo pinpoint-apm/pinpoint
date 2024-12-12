@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.configuration;
+package com.navercorp.pinpoint.batch.config;
 
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
@@ -47,7 +47,7 @@ public class BatchPinotDaoConfiguration {
     public FactoryBean<SqlSessionFactory> batchSessionFactory(
             @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
-            @Value("classpath*:/mapper/batch/*Mapper.xml") Resource[] mappers) { // mapper 객체 만들어주고
+            @Value("classpath*:/mapper/batch/*Mapper.xml") Resource[] mappers) {
 
         for (Resource mapper : mappers) {
             logger.info("Mapper location: {}", mapper.getDescription());

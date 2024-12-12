@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.batch.configuration;
+package com.navercorp.pinpoint.batch.config;
 
 import com.navercorp.pinpoint.batch.alarm.AlarmCheckerFactory;
 import com.navercorp.pinpoint.batch.alarm.CheckerRegistry;
@@ -38,7 +38,6 @@ import com.navercorp.pinpoint.batch.alarm.checker.SlowRateToCalleeChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SystemCpuUsageRateChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.TotalCountToCalleeChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;

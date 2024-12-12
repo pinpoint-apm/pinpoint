@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
-import com.navercorp.pinpoint.batch.configuration.AlarmCheckerConfiguration;
+import com.navercorp.pinpoint.batch.config.AlarmCheckerConfiguration;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
