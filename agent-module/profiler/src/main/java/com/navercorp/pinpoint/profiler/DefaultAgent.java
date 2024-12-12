@@ -220,7 +220,7 @@ public class DefaultAgent implements Agent {
 
         // for testcase
         if (profilerConfig.getStaticResourceCleanup()) {
-            this.loggingSystem.stop();
+            this.loggingSystem.close();
         }
     }
 
