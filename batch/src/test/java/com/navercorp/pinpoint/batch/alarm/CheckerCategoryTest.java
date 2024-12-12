@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.SlowCountChecker;
-import com.navercorp.pinpoint.batch.configuration.AlarmCheckerConfiguration;
+import com.navercorp.pinpoint.batch.config.AlarmCheckerConfiguration;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.junit.jupiter.api.Test;
