@@ -10,6 +10,7 @@ import org.apache.logging.log4j.core.LifeCycle;
 import org.apache.logging.log4j.spi.LoggerContext;
 
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.logging.Handler;
@@ -18,34 +19,34 @@ import java.util.logging.Level;
 public class Log4j2LoggingSystem implements LoggingSystem {
     public static final String CONTEXT_NAME = "pinpoint-agent-logging-context";
 
-    public static final String FACTORY_PROPERTY_NAME = "log4j2.loggerContextFactory";
-    public static final String NOLOOKUPS = "log4j2.formatMsgNoLookups";
-
     private static final String[] LOOKUP = {
             "log4j2-test.properties", "log4j2-test.xml",
             "log4j2-agent.properties", "log4j2-agent.xml",
     };
 
     private LoggerContext loggerContext;
-    private final Path profilePath;
+    private final Path configLocation;
 
     private PluginLoggerBinder binder;
 
 
-    public Log4j2LoggingSystem(Path profilePath) {
-        this.profilePath = Objects.requireNonNull(profilePath, "profilePath");
+    public Log4j2LoggingSystem(Path agentPath) {
+        Objects.requireNonNull(agentPath, "agentPath");
+        this.configLocation = getConfigPath(agentPath);
     }
 
+    public Path getConfigLocation() {
+        return configLocation;
+    }
+
+    @Override
     public void start() {
         // log4j init
-        Path configLocation = getConfigPath(profilePath);
-        URI uri = configLocation.toUri();
 
-        this.loggerContext = getLoggerContext(uri);
-//        this.loggerContext = getLoggerContext2(uri);
+        this.loggerContext = getLoggerContext();
 
         Logger logger = getLoggerContextLogger();
-        logger.info("{} start logPath:{}", this.getClass().getSimpleName(), uri);
+        logger.info("{} start logPath:{}", this.getClass().getSimpleName(), configLocation);
 
         logger.info("LoggerContextFactory:{} LoggerContext:{}", LogManager.getFactory().getClass().getName(), loggerContext.getClass().getName());
 
@@ -87,25 +88,22 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     private Path getConfigPath(Path profilePath) {
         for (String configFile : LOOKUP) {
             Path configLocation = profilePath.resolve(configFile);
-            if (configLocation.toFile().exists()) {
+            if (Files.exists(configLocation)) {
                 return configLocation;
             }
         }
-        throw new IllegalStateException("log4j2.xml not found. agentPath:" + profilePath);
+        throw new IllegalStateException("'log4j2-agent.xml' not found. agentPath:" + profilePath);
     }
 
-    private LoggerContext getLoggerContext(URI uri) {
-        // Prepare SystemProperties
-        final String factory = prepare(FACTORY_PROPERTY_NAME, Log4j2ContextFactory.class.getName());
-        // Log4j2 RCE CVE-2021-44228
-        // https://github.com/pinpoint-apm/pinpoint/issues/8489
-        final String nolookup = prepare(NOLOOKUPS, Boolean.TRUE.toString());
-        try {
-            return LogManager.getContext(this.getClass().getClassLoader(), false, null, uri, CONTEXT_NAME);
-        } finally {
-            rollback(NOLOOKUPS, nolookup);
-            rollback(FACTORY_PROPERTY_NAME, factory);
-        }
+    private LoggerContext getLoggerContext() {
+        ContextExecutor executor = new ContextExecutor();
+        return executor.call(this::newLoggerContext);
+    }
+
+    public LoggerContext newLoggerContext() {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        URI uri = configLocation.toUri();
+        return LogManager.getContext(classLoader, false, null, uri, CONTEXT_NAME);
     }
 
 //    private LoggerContext getLoggerContext2(URI uri) {
@@ -122,7 +120,8 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 //    }
 
 
-    public void stop() {
+    @Override
+    public void close() {
         if (loggerContext != null) {
             Logger logger = getLoggerContextLogger();
             logger.info("{} stop", this.getClass().getSimpleName());
@@ -133,20 +132,6 @@ public class Log4j2LoggingSystem implements LoggingSystem {
             }
         }
 
-    }
-
-    private String prepare(String key, String value) {
-        final String backup = System.getProperty(key);
-        System.setProperty(key, value);
-        return backup;
-    }
-
-    private void rollback(String key, String backup) {
-        if (backup != null) {
-            System.setProperty(key, backup);
-        } else {
-            System.clearProperty(key);
-        }
     }
 
 

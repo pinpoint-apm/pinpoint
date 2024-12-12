@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.profiler.logging;
 
-public interface LoggingSystem {
+import java.io.Closeable;
+
+public interface LoggingSystem extends Closeable {
     void start();
 
-    void stop();
+    void close();
 }
