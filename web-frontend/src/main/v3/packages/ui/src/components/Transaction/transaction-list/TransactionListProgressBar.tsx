@@ -4,7 +4,7 @@ import {
 } from '../../ProgressBar/ProgressBarWithControls';
 import { useAtomValue } from 'jotai';
 import { differenceInMinutes } from 'date-fns';
-import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { transactionListDatasAtom } from '@pinpoint-fe/atoms';
 import { cn } from '../../../lib';
 

@@ -26,7 +26,7 @@ import {
   getTransactionDetailPath,
   getTransactionDetailQueryString,
 } from '@pinpoint-fe/utils';
-import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/hooks';
+import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { ErrorAnalysisErrorList, BASE_PATH } from '@pinpoint-fe/constants';
 import { format } from 'date-fns';

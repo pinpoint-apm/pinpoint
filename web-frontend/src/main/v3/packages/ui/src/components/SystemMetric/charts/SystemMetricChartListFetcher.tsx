@@ -1,4 +1,4 @@
-import { useGetSystemMetricMetricInfoData } from '@pinpoint-fe/hooks';
+import { useGetSystemMetricMetricInfoData } from '@pinpoint-fe/ui/hooks';
 import { SystemMetricChart } from './SystemMetricChart';
 
 export interface SystemMetricChartListFetcherProps {

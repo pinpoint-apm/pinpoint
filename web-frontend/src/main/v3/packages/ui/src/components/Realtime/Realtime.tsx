@@ -18,7 +18,7 @@ import {
   ResizablePanelGroup,
   HelpPopover,
 } from '..';
-import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/hooks';
+import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/ui/hooks';
 import {
   CurrentTarget,
   serverMapCurrentTargetAtom,

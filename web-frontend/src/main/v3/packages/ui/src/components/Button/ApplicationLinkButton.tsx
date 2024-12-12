@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ApplicationType } from '@pinpoint-fe/constants';
-import { useSearchParameters } from '@pinpoint-fe/hooks';
+import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { Button } from '../ui';
 import { cn } from '../../lib';
 import { ServerIcon } from '../Application/ServerIcon';

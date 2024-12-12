@@ -1,7 +1,7 @@
 import { ErrorAnalysisGroupBy } from './ErrorAnalysisGroupBy';
 import { Separator } from '../../ui';
 import { AgentSearchList } from '../../Agent';
-import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/hooks';
+import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   getErrorAnalysisPath,
   convertParamsToQueryString,

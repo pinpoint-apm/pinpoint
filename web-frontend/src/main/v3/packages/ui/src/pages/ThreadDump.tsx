@@ -1,6 +1,6 @@
 import React from 'react';
 import { SiDatabricks } from 'react-icons/si';
-import { useSearchParameters } from '@pinpoint-fe/hooks';
+import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { MainHeader } from '../components/MainHeader';
 import { ApplicationCombinedList } from '../components/Application';
 import { ThreadDumpList } from '../components/ThreadDump/ThreadDumpList';

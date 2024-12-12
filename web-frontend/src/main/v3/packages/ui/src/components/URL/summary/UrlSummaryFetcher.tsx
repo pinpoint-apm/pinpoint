@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAtom } from 'jotai';
 import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/atoms';
-import { useGetUrlStatSummaryData } from '@pinpoint-fe/hooks';
+import { useGetUrlStatSummaryData } from '@pinpoint-fe/ui/hooks';
 import { summaryColumns } from './UrlSummaryColumns';
 import { DataTable, DataTableCountOfRows } from '../../DataTable';
 import { cn } from '../../../lib';

@@ -12,7 +12,7 @@ import {
   OpenTelemetryDashboard,
 } from '../components';
 import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/utils';
-import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/hooks';
+import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/hooks';
 import { SiOpentelemetry } from 'react-icons/si';
 
 export interface OpenTelemetryPageProps {

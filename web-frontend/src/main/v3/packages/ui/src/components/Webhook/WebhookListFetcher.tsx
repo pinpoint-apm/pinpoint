@@ -1,6 +1,6 @@
 import React from 'react';
 import { Webhook } from '@pinpoint-fe/constants';
-import { useGetWebhook } from '@pinpoint-fe/hooks';
+import { useGetWebhook } from '@pinpoint-fe/ui/hooks';
 
 export interface WebhookListFetcherProps extends Webhook.Parameters {
   disableFetch?: boolean;

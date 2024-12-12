@@ -6,7 +6,7 @@ import {
 } from 'react-resizable-panels';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '..';
-import { useLocalStorage } from '@pinpoint-fe/hooks';
+import { useLocalStorage } from '@pinpoint-fe/ui/hooks';
 import { cn } from '../../lib';
 
 interface SizeInfo {

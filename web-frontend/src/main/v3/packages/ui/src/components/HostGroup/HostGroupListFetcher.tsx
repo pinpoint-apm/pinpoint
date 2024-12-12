@@ -1,5 +1,5 @@
 import { VirtualList, VirtualListProps, ListItemSkeleton } from '../VirtualList';
-import { useGetSystemMetricHostGroupData } from '@pinpoint-fe/hooks';
+import { useGetSystemMetricHostGroupData } from '@pinpoint-fe/ui/hooks';
 import { Button } from '../ui';
 import { LuRotateCw } from 'react-icons/lu';
 

@@ -3,7 +3,7 @@ import { HiOutlineRefresh } from 'react-icons/hi';
 import { useTranslation } from 'react-i18next';
 import { Configuration } from '@pinpoint-fe/constants';
 import { Button, Separator } from '../../../components';
-import { useGetAgentsStatistics } from '@pinpoint-fe/hooks';
+import { useGetAgentsStatistics } from '@pinpoint-fe/ui/hooks';
 import { CgSpinner } from 'react-icons/cg';
 import { cn } from '../../../lib';
 import { AgentStatisticContainer } from './AgentStatisticChartContainer';

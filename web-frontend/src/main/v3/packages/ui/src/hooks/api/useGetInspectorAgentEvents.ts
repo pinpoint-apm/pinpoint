@@ -1,4 +1,3 @@
-import React from 'react';
 import useSWR from 'swr';
 import { END_POINTS, InspectorAgentEvents } from '@pinpoint-fe/constants';
 import { swrConfigs } from './swrConfigs';

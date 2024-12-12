@@ -9,7 +9,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '../../../components';
-import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { addMinutes, subMinutes } from 'date-fns';
 import { ChartCore } from '../../../components/Inspector/charts/ChartCore';
 import { useBreakpoint } from '../../../lib/useBreakpoint';

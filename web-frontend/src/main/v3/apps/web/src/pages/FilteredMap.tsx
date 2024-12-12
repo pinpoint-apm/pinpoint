@@ -11,7 +11,7 @@ import {
   getTransactionListPath,
   getTranscationListQueryString,
 } from '@pinpoint-fe/utils';
-import { useFilteredMapParameters } from '@pinpoint-fe/hooks';
+import { useFilteredMapParameters } from '@pinpoint-fe/ui/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@/components/ServerList/ServerList';
 import {

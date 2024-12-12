@@ -4,7 +4,7 @@ import { MainHeader, ApplicationCombinedList } from '../components';
 import { PiStackDuotone } from 'react-icons/pi';
 import { useAtomValue } from 'jotai';
 import { FaChevronRight } from 'react-icons/fa6';
-import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { transactionInfoDatasAtom } from '@pinpoint-fe/atoms';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
 import { TransactionCharts } from '../components/Transaction/charts/TransactionCharts';

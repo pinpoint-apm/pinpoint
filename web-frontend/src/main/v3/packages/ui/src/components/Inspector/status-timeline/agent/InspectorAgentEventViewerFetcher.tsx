@@ -1,4 +1,4 @@
-import { useGetInspectorAgentEvents } from '@pinpoint-fe/hooks';
+import { useGetInspectorAgentEvents } from '@pinpoint-fe/ui/hooks';
 import { format } from 'date-fns';
 import { DataTable } from '../../../DataTable';
 import { ColumnDef } from '@tanstack/react-table';

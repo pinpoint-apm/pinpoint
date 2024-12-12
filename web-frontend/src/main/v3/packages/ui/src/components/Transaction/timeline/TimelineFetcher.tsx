@@ -1,7 +1,7 @@
 import React from 'react';
 import Fuse from 'fuse.js';
 import { RxMagnifyingGlass } from 'react-icons/rx';
-import { useGetTraceViewerData, useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { useGetTraceViewerData, useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { TraceViewerData, TransactionInfo } from '@pinpoint-fe/constants';
 import { FlameGraph } from '../../FlameGraph';
 import { cn } from '../../../lib';

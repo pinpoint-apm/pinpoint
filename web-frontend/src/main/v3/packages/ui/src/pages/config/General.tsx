@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components';
-import { useLanguage, SupportLanguageType, useDateFormat } from '@pinpoint-fe/hooks';
+import { useLanguage, SupportLanguageType, useDateFormat } from '@pinpoint-fe/ui/hooks';
 import { format } from '@pinpoint-fe/utils';
 import { useTranslation } from 'react-i18next';
 

@@ -3,27 +3,23 @@
   "version": "0.0.0",
   "license": "Apache-2.0",
   "type": "module",
-  "main": "src/index.ts",
-  "author": {
-    "name": "NAVER Platform FE"
-  },
-  "files": [
-    "dist"
-  ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/pinpoint-fe-common-ui.es.js",
-      "require": "./dist/pinpoint-fe-common-ui.umd.cjs",
+      "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./tailwind.config.js": "./tailwind.config.js",
-    "./dist/pinpoint-fe-common-ui.css": "./dist/pinpoint-fe-common-ui.css"
+    "./**": "./dist/index.js",
+    "./dist/pinpoint-fe-common-ui.css": "./dist/index.css",
+    "./tailwind.config.js": "./tailwind.config.js"
   },
   "scripts": {
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx}\"",
     "dev": "tsup --config ./tsup.config.dev.ts --watch",
     "devBuild": "tsup --config ./tsup.config.dev.ts",
-    "build": "yarn format && yarn lint && tsc && vite build",
+    "build": "yarn format && yarn lint && tsc && tsup --config ./tsup.config.prod.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -34,13 +30,14 @@
   },
   "peerDependencies": {
     "@pinpoint-fe/atoms": "*",
-    "@pinpoint-fe/hooks": "*",
     "i18next": "^23.2.11",
     "jotai": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^13.0.2",
-    "react-router-dom": "^6.10.0"
+    "react-router-dom": "^6.10.0",
+    "@tanstack/react-query": "^5.17.19",
+    "swr": "^2.1.2"
   },
   "dependencies": {
     "@billboard.js/react": "^1.1.1",
@@ -85,6 +82,7 @@
     "fuse.js": "^7.0.0",
     "google-libphonenumber": "^3.2.34",
     "highlight.js": "^11.9.0",
+    "lodash": "^4.17.21",
     "lodash.clonedeep": "^4.5.0",
     "lodash.omit": "^4.5.0",
     "lucide-react": "^0.436.0",
@@ -112,6 +110,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@pinpoint-fe/configs": "*",
+    "@pinpoint-fe/tsconfig": "*",
     "@storybook/addon-essentials": "^7.4.0",
     "@storybook/addon-interactions": "^7.4.0",
     "@storybook/addon-links": "^7.4.0",
@@ -126,6 +126,8 @@
     "@types/lodash.omit": "^4.5.9",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/jest": "^28.1.4",
+    "@types/react-router-dom": "^5.3.3",
     "@types/react-grid-layout": "^1.3.5",
     "@types/react-resizable": "^3.0.3",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -146,6 +148,9 @@
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
+    "jest": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.2",
+    "ts-jest": "^28.0.5",
     "tsup": "7.2.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.5",

@@ -14,7 +14,7 @@ import {
 import { Input, Button } from '../../components';
 import { useReactToastifyToast } from '../../components/Toast';
 import { Optional } from '../../components/Form/Optional';
-import { useWebhookMutation } from '@pinpoint-fe/hooks';
+import { useWebhookMutation } from '@pinpoint-fe/ui/hooks';
 import { ErrorToast } from '../../components/Error/ErrorToast';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';

@@ -1,4 +1,4 @@
-import { useSearchParameters } from '@pinpoint-fe/hooks';
+import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { GroupMemberTable } from './GroupMemberTable';
 
 export interface GroupMemberProps {}

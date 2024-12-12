@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useInspectorSearchParameters } from '@pinpoint-fe/hooks';
+import { useInspectorSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import {
   DatetimePicker,

@@ -32,7 +32,7 @@ import {
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { ScrollArea } from '../../components/ui/scroll-area';
 import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
-import { useGetWebhook, useLocalStorage, useWebhookMutation } from '@pinpoint-fe/hooks';
+import { useGetWebhook, useLocalStorage, useWebhookMutation } from '@pinpoint-fe/ui/hooks';
 import { MdOutlineAdd } from 'react-icons/md';
 
 export interface WebhookPageProps {

@@ -9,7 +9,7 @@ import {
   PiTreeStructure,
 } from 'react-icons/pi';
 import { SiOpentelemetry } from 'react-icons/si';
-import { useSearchParameters } from '@pinpoint-fe/hooks';
+import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   getServerMapPath,
   getInspectorPath,

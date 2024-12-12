@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGetErrorAnalysisChartData } from '@pinpoint-fe/hooks';
+import { useGetErrorAnalysisChartData } from '@pinpoint-fe/ui/hooks';
 import bb, { ChartOptions, line } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

@@ -1,4 +1,4 @@
-import { useGetErrorAnalysisTransactionInfoData } from '@pinpoint-fe/hooks';
+import { useGetErrorAnalysisTransactionInfoData } from '@pinpoint-fe/ui/hooks';
 import { ErrorAnalysisTransactionInfo } from '@pinpoint-fe/constants';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../ui';
 import { ClipboardCopyButton } from '../../Button';

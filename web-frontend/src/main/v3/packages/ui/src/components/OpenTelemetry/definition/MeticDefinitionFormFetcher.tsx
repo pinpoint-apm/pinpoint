@@ -30,7 +30,7 @@ import {
   useOpenTelemetrySearchParameters,
   // useOpenTelemetrySearchParameters,
   usePatchOtlpMetricDefUserDefined,
-} from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/hooks';
 import { useReactToastifyToast } from '../../../components/Toast';
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
 import { Checkbox } from '../../ui/checkbox';

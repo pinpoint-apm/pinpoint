@@ -1,4 +1,3 @@
-import React from 'react';
 import useSWR from 'swr';
 import { END_POINTS, TransactionInfo } from '@pinpoint-fe/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/utils';

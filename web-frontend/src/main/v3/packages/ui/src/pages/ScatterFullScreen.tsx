@@ -6,7 +6,7 @@ import {
   getScatterFullScreenRealtimePath,
   getServerMapPath,
 } from '@pinpoint-fe/utils';
-import { useServerMapSearchParameters } from '@pinpoint-fe/hooks';
+import { useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { useNavigate } from 'react-router-dom';
 import {
   ApplicationCombinedList,

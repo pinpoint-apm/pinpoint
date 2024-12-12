@@ -9,7 +9,7 @@ import {
   getTransactionListPath,
   getTranscationListQueryString,
 } from '@pinpoint-fe/utils';
-import { useGetScatterRealtimeData, useServerMapSearchParameters } from '@pinpoint-fe/hooks';
+import { useGetScatterRealtimeData, useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './core';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
 

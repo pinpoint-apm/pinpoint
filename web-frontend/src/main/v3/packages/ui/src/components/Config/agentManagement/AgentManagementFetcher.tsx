@@ -8,7 +8,7 @@ import {
   useDeleteAgent,
   useDeleteApplication,
   useGetAgentsSearchApplication,
-} from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/hooks';
 import { FaRegTrashCan } from 'react-icons/fa6';
 import { AgentManagementRemovePopup } from './AgentManagementRemovePopup';
 

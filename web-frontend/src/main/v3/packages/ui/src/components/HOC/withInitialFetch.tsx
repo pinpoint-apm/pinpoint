@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useExperimentals, useGetConfiguration } from '@pinpoint-fe/hooks';
+import { useExperimentals, useGetConfiguration } from '@pinpoint-fe/ui/hooks';
 import { useSetAtom } from 'jotai';
 import { configurationAtom } from '@pinpoint-fe/atoms';
 import { APP_PATH, Configuration } from '@pinpoint-fe/constants';

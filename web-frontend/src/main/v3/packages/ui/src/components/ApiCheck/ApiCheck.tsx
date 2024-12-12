@@ -1,5 +1,5 @@
 import { ApiStatus } from '.';
-import { useGetServerTime, useGetConfiguration } from '@pinpoint-fe/hooks';
+import { useGetServerTime, useGetConfiguration } from '@pinpoint-fe/ui/hooks';
 import { END_POINTS } from '@pinpoint-fe/constants';
 
 export interface ApiCheckProps {

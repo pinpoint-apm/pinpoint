@@ -1,4 +1,3 @@
-import React from 'react';
 import useSWR from 'swr';
 import { ConfigAgentDuplicationCheck, END_POINTS } from '@pinpoint-fe/constants';
 import { swrConfigs } from './swrConfigs';

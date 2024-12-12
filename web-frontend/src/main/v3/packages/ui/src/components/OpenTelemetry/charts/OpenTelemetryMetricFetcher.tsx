@@ -1,5 +1,5 @@
 import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
-import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/hooks';
+import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/hooks';
 import React from 'react';
 import { assign } from 'lodash';
 import { ReChart } from '../../../components/ReChart';

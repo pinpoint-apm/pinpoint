@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { usePostBind } from '@pinpoint-fe/hooks';
+import { usePostBind } from '@pinpoint-fe/ui/hooks';
 import { useUpdateEffect } from 'usehooks-ts';
 import { IoMdClose } from 'react-icons/io';
 import { LuMoveUp, LuMoveDown } from 'react-icons/lu';

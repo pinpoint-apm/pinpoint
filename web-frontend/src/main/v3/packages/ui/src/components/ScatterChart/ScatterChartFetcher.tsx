@@ -7,7 +7,7 @@ import {
   getTransactionListPath,
   getTranscationListQueryString,
 } from '@pinpoint-fe/utils';
-import { useGetScatterData, useServerMapSearchParameters } from '@pinpoint-fe/hooks';
+import { useGetScatterData, useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { scatterDataAtom } from '@pinpoint-fe/atoms';
 import { useAtom } from 'jotai';
 import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './core';

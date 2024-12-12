@@ -11,7 +11,7 @@ import {
   useGetUserGroup,
   useGetWebhook,
   useWebhookIncludeMutaion,
-} from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/hooks';
 import {
   Form,
   FormControl,

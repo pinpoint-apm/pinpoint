@@ -18,7 +18,7 @@ import {
   ScatterChartCoreProps,
   ScatterChartHandle,
 } from './core/ScatterChartCore';
-import { useServerMapSearchParameters } from '@pinpoint-fe/hooks';
+import { useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
 
 export interface ScatterChartStaticProps

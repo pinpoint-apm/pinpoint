@@ -1,4 +1,4 @@
-import { useGetActiveThreadLightDump } from '@pinpoint-fe/hooks';
+import { useGetActiveThreadLightDump } from '@pinpoint-fe/ui/hooks';
 import { transactionListTableColumns } from './threadDumpColumns';
 import { VirtualizedDataTable } from '../../components/DataTable';
 import { ActiveThreadLightDump } from '@pinpoint-fe/constants';

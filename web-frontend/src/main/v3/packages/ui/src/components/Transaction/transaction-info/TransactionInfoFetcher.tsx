@@ -1,6 +1,6 @@
 import React from 'react';
 import { BASE_PATH } from '@pinpoint-fe/constants';
-import { useGetTransactionInfo } from '@pinpoint-fe/hooks';
+import { useGetTransactionInfo } from '@pinpoint-fe/ui/hooks';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa6';
@@ -20,7 +20,7 @@ import {
   getTransactionDetailPath,
   getTransactionDetailQueryString,
 } from '@pinpoint-fe/utils';
-import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { RxExternalLink } from 'react-icons/rx';
 import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/atoms';
 import { cn } from '../../../lib';

@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 import { cn } from '../../lib';
-import { useSearchParameters } from '@pinpoint-fe/hooks';
+import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { RxExternalLink, RxDrawingPinFilled, RxDrawingPin } from 'react-icons/rx';
 import { BASE_PATH } from '@pinpoint-fe/constants';
 

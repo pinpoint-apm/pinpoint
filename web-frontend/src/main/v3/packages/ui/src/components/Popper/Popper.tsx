@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCaptureKeydown } from '@pinpoint-fe/hooks';
+import { useCaptureKeydown } from '@pinpoint-fe/ui/hooks';
 import { Manager, Reference, Popper as PP, PopperProps as PPProps } from 'react-popper';
 import { useOnClickOutside } from 'usehooks-ts';
 import { cn } from '../../lib';
