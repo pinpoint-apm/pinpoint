@@ -97,21 +97,13 @@ final class MethodDescriptionUtils {
     }
 
     private static String extractParameterClass(String parameterType) {
-        parameterType = safeTrim(parameterType);
+        parameterType = StringUtils.trim(parameterType);
         final int classEndIndex = parameterType.indexOf(' ');
         if (classEndIndex != -1) {
             return parameterType.substring(0, classEndIndex);
         }
         return parameterType;
     }
-
-    private static String safeTrim(String parameterType) {
-        if (StringUtils.isEmpty(parameterType)) {
-            return parameterType;
-        }
-        return parameterType.trim();
-    }
-
 
     public static String getConstructorSimpleName(Constructor<?> constructor) {
         final String name = constructor.getName();

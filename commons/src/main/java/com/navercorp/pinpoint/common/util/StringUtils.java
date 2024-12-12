@@ -47,6 +47,45 @@ public final class StringUtils {
         return string == null || string.isEmpty();
     }
 
+
+    public static String trim(final String str) {
+        return str == null ? null : str.trim();
+    }
+
+    public static String trimToEmpty(final String str) {
+        return str == null ? EMPTY_STRING : str.trim();
+    }
+
+    public static String rightTrim(final String string) {
+        return rightTrim0(string, null);
+    }
+
+    public static String rightTrimToEmpty(final String string) {
+        return rightTrim0(string, "");
+    }
+
+    private static String rightTrim0(final String string, String defaultString) {
+        if (string == null) {
+            return defaultString;
+        }
+        if (string.isEmpty()) {
+            return "";
+        }
+        final int length = string.length();
+        int index = length - 1;
+        while (index >= 0 && string.charAt(index) <= ' ') {
+            index--;
+        }
+        index++;
+
+        if (index == length) {
+            return string;
+        } else {
+            return string.substring(0, index);
+        }
+    }
+
+
     public static boolean hasLength(final String string) {
         return string != null && !string.isEmpty();
     }
