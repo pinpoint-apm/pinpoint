@@ -1,7 +1,7 @@
 import { Transaction } from '@pinpoint-fe/constants';
 import { VirtualizedDataTable, VirtualizedDataTableProps } from '../../DataTable';
 import { transactionListTableColumns } from '.';
-import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   convertParamsToQueryString,
   getTransactionListPath,

@@ -14,7 +14,7 @@ import {
   getBaseNodeId,
 } from '@pinpoint-fe/utils';
 import { MergedNode, MergedEdge, Node, Edge } from '@pinpoint-fe/server-map';
-import { useFilteredMapParameters, useGetFilteredServerMapData } from '@pinpoint-fe/hooks';
+import { useFilteredMapParameters, useGetFilteredServerMapData } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { SERVERMAP_MENU_FUNCTION_TYPE, ServerMapCore, ServerMapCoreProps } from '..';
 

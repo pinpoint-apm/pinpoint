@@ -11,7 +11,7 @@ import { getFormattedDateRange, getParsedDateRange, isValidDateRange } from '@pi
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 import { useReactToastifyToast } from '../Toast';
-import { useDateFormat, useLanguage, useSearchParameters } from '@pinpoint-fe/hooks';
+import { useDateFormat, useLanguage, useSearchParameters } from '@pinpoint-fe/ui/hooks';
 
 export type DateState = {
   dates?: {

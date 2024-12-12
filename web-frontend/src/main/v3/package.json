@@ -18,8 +18,8 @@
     "deploy:storybook": "turbo run chromatic"
   },
   "devDependencies": {
-    "prettier": "latest",
-    "turbo": "latest"
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3"
   },
   "engines": {
     "npm": ">=7.0.0",

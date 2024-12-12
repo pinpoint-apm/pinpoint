@@ -12,7 +12,7 @@ import {
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { Button, ProgressBar } from '../..';
 import { addCommas, convertParamsToQueryString, getErrorAnalysisPath } from '@pinpoint-fe/utils';
-import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 
 export interface CallTreeTableColumnsProps {
   metaData: TransactionInfo.Response;

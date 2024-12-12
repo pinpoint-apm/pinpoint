@@ -1,5 +1,5 @@
 import { AgentSearchList } from '../../Agent';
-import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/hooks';
+import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   convertParamsToQueryString,
   getFormattedDateRange,

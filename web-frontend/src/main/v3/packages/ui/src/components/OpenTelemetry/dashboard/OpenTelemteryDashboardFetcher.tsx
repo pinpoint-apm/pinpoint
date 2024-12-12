@@ -23,7 +23,7 @@ import {
   useGetOtlpMetricDefUserDefined,
   useOpenTelemetrySearchParameters,
   usePatchOtlpMetricDefUserDefined,
-} from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/hooks';
 import { BiSolidSave } from 'react-icons/bi';
 import { RxPlusCircled } from 'react-icons/rx';
 import { useReactToastifyToast } from '../../../components/Toast';

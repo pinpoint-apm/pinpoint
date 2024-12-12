@@ -12,7 +12,7 @@ import { useUpdateEffect } from 'usehooks-ts';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { cn } from '../../lib';
-import { useHeightToBottom } from '@pinpoint-fe/hooks';
+import { useHeightToBottom } from '@pinpoint-fe/ui/hooks';
 
 export type RowFilterInfo = {
   columns?: string[];

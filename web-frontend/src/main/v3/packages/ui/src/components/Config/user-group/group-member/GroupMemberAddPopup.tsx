@@ -4,7 +4,7 @@ import { ConfigGroupMember, ConfigUsers } from '@pinpoint-fe/constants';
 import { MdOutlineAddCircleOutline } from 'react-icons/md';
 import { useReactToastifyToast } from '../../../Toast';
 import { useTranslation } from 'react-i18next';
-import { useGetConfigUsers, usePostConfigGroupMember } from '@pinpoint-fe/hooks';
+import { useGetConfigUsers, usePostConfigGroupMember } from '@pinpoint-fe/ui/hooks';
 import { UsersTable } from '../../users/UsersTable';
 
 export interface GroupMemberAddPopupProps {

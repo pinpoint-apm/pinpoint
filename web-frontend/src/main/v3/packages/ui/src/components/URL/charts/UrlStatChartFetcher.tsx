@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/atoms';
-import { useGetUrlStatChartData } from '@pinpoint-fe/hooks';
+import { useGetUrlStatChartData } from '@pinpoint-fe/ui/hooks';
 import { UrlStatTotalCountChart } from './UrlStatTotalCountChart';
 import { UrlStatFailureCountChart } from './UrlStatFailureCountChart';
 import { UrlStatApdexChart } from './UrlStatApdexChart';

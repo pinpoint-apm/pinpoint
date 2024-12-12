@@ -1,7 +1,7 @@
 import React from 'react';
 import { SWRConfiguration } from 'swr';
 import { useAtom } from 'jotai';
-import { useGetHeatmapDrag } from '@pinpoint-fe/hooks';
+import { useGetHeatmapDrag } from '@pinpoint-fe/ui/hooks';
 import { TransactionListTable, TransactionListTableProps } from '../..';
 import { transactionListDatasAtom } from '@pinpoint-fe/atoms';
 import { HeatmapDrag } from '@pinpoint-fe/constants';

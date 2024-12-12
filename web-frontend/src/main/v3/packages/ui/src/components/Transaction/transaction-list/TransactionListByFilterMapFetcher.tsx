@@ -2,7 +2,7 @@ import React from 'react';
 import { useAtom } from 'jotai';
 import { TransactionListTable, TransactionListTableProps } from './TransactionListTable';
 import { transactionListDatasAtom } from '@pinpoint-fe/atoms';
-import { usePostTransactionMetaData, useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { usePostTransactionMetaData, useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { APP_PATH, SCATTER_DATA_TOTAL_KEY, ScatterDataByAgent } from '@pinpoint-fe/constants';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../ui';
 import { useTranslation } from 'react-i18next';

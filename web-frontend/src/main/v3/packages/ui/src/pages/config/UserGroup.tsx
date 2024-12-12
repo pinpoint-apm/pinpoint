@@ -1,5 +1,5 @@
 import { APP_PATH, Configuration } from '@pinpoint-fe/constants';
-import { useSearchParameters } from '@pinpoint-fe/hooks';
+import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { MdArrowForwardIos } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { UserGroup, GroupMember } from '../../components/Config';

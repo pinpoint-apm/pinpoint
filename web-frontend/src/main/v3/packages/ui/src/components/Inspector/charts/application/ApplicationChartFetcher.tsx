@@ -1,4 +1,4 @@
-import { useGetInspectorApplicationChartData } from '@pinpoint-fe/hooks';
+import { useGetInspectorApplicationChartData } from '@pinpoint-fe/ui/hooks';
 import { useChartConfig } from '../../../../lib';
 import { colors } from '../../../../constant';
 import { ChartCoreProps } from '../ChartCore';

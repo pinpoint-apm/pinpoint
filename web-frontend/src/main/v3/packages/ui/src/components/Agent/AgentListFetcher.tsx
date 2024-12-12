@@ -2,7 +2,7 @@ import React from 'react';
 import Fuse from 'fuse.js';
 import { RxCheck } from 'react-icons/rx';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
-import { AGENT_LIST_SORT, useGetAgentList } from '@pinpoint-fe/hooks';
+import { AGENT_LIST_SORT, useGetAgentList } from '@pinpoint-fe/ui/hooks';
 import { SearchApplication } from '@pinpoint-fe/constants';
 import { cn } from '../../lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';

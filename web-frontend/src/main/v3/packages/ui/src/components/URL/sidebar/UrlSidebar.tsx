@@ -1,5 +1,5 @@
 import { AgentSearchList } from '../../Agent';
-import { useUrlStatSearchParameters } from '@pinpoint-fe/hooks';
+import { useUrlStatSearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   convertParamsToQueryString,
   getFormattedDateRange,

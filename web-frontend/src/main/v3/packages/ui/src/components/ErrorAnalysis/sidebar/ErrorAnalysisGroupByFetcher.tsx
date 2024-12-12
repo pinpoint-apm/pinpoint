@@ -1,7 +1,7 @@
 import {
   useErrorAnalysisSearchParameters,
   useGetErrorAnalysisGroupsData,
-} from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/hooks';
 import { cn } from '../../../lib';
 import { Checkbox } from '../../ui';
 import { Label } from '../../ui/label';

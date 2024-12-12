@@ -10,7 +10,7 @@ import {
   serverMapDataAtom,
 } from '@pinpoint-fe/atoms';
 import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
-import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/hooks';
+import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 
 export interface ServerChartsBoardFetcherProps extends ChartsBoardProps {

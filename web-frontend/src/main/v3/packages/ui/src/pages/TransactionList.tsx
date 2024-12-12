@@ -3,7 +3,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../compone
 import { TransactionInfo, TransactionInfoProps, TransactionList } from '../components/Transaction';
 import { MainHeader, ApplicationCombinedList, Separator } from '../components';
 import { useAtomValue } from 'jotai';
-import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { transactionListDatasAtom } from '@pinpoint-fe/atoms';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
 import { PiStackDuotone } from 'react-icons/pi';

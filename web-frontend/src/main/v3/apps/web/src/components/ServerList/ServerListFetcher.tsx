@@ -10,7 +10,7 @@ import {
 } from '@pinpoint-fe/atoms';
 import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/constants';
 import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
-import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/hooks';
+import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/hooks';
 import { getInspectorPath } from '@pinpoint-fe/utils';
 import { ServerList as SL, ServerListProps } from '@pinpoint-fe/ui';
 

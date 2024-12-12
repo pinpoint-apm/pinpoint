@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useSystemMetricSearchParameters } from '@pinpoint-fe/hooks';
+import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   getSystemMetricPath,
   convertParamsToQueryString,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Configuration } from '@pinpoint-fe/constants';
 import { DataTableSkeleton, ErrorBoundary } from '../../components';
-import { AgentManagementFetcher } from '../../components/Config/agentManagement';
+import { AgentManagementFetcher } from '@pinpoint-fe/ui/components/Config/agentManagement';
 
 export interface AgentManagementPageProps {
   configuration?: Configuration;

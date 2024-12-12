@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 import { Toaster } from '../ui/toaster';
 import { useToast } from '../../lib/use-toast';
 import { VirtualSearchList } from '../VirtualList';
-import { useLocalStorage } from '@pinpoint-fe/hooks';
+import { useLocalStorage } from '@pinpoint-fe/ui/hooks';
 import { RxCaretSort } from 'react-icons/rx';
 import { ServerIcon } from './ServerIcon';
 

@@ -18,7 +18,6 @@
   "dependencies": {
     "@pinpoint-fe/atoms": "*",
     "@pinpoint-fe/constants": "*",
-    "@pinpoint-fe/hooks": "*",
     "@pinpoint-fe/ui": "*",
     "@pinpoint-fe/utils": "*",
     "@tanstack/react-query": "^5.17.19",
