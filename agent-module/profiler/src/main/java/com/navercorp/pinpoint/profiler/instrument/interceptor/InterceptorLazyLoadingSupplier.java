@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.EmptyInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.interceptor.factory.InterceptorFactory;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.function.Supplier;
 
 public class InterceptorLazyLoadingSupplier implements Supplier<Interceptor> {
-    private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.LAZYLOADING");
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final InterceptorFactory factory;
@@ -55,7 +55,7 @@ public class InterceptorLazyLoadingSupplier implements Supplier<Interceptor> {
 
         if (interceptor == null) {
             // defense
-            return LOGGING_INTERCEPTOR;
+            return EmptyInterceptor.empty();
         }
         return interceptor;
 

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor.registry;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.EmptyInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
 
 /**
  * @author emeroad
@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
 public final class EmptyRegistryAdaptor implements InterceptorRegistryAdaptor {
 
     public static final InterceptorRegistryAdaptor EMPTY = new EmptyRegistryAdaptor();
-
-    private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.EMPTY");
 
     public EmptyRegistryAdaptor() {
     }
@@ -44,7 +42,7 @@ public final class EmptyRegistryAdaptor implements InterceptorRegistryAdaptor {
 
 
     public Interceptor getInterceptor(int key) {
-        return LOGGING_INTERCEPTOR;
+        return EmptyInterceptor.empty();
     }
 
     @Override

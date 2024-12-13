@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,34 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.Consumer;
-
 /**
  * @author emeroad
  */
-public class LoggingInterceptor implements StaticAroundInterceptor, AroundInterceptor, AroundInterceptor0, AroundInterceptor1, AroundInterceptor2, AroundInterceptor3, AroundInterceptor4, AroundInterceptor5, ApiIdAwareAroundInterceptor {
+public class EmptyInterceptor implements StaticAroundInterceptor, AroundInterceptor, AroundInterceptor0, AroundInterceptor1, AroundInterceptor2, AroundInterceptor3, AroundInterceptor4, AroundInterceptor5, ApiIdAwareAroundInterceptor {
 
-    private final Consumer<String> logger;
+    public static Interceptor EMPTY = new EmptyInterceptor();
 
+    public static Interceptor empty() {
+        return EMPTY;
+    }
 
-    public LoggingInterceptor(Consumer<String> logger) {
-        this.logger = Objects.requireNonNull(logger, "logger");
+    private EmptyInterceptor() {
     }
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        logger.accept("before " + defaultString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
     }
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        logger.accept("after " + defaultString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result + " Throwable:" + throwable);
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        logger.accept("before " + defaultString(target) + " args:" + Arrays.toString(args));
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        logger.accept("after " + defaultString(target) + " args:" + Arrays.toString(args) + " result:" + result + " Throwable:" + throwable);
     }
 
     public static String defaultString(final Object object) {

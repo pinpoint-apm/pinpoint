@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.bootstrap.interceptor.registry;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.EmptyInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author emeroad
  */
 public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegistryAdaptor {
-    private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.LOGGING_INTERCEPTOR");
 
     private final static int DEFAULT_MAX = 8192;
     private final int registrySize;
@@ -27,7 +26,7 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
             throw new IllegalArgumentException("negative maxRegistrySize:" + maxRegistrySize);
         }
         this.registrySize = maxRegistrySize;
-        this.index = new WeakAtomicReferenceArray<Interceptor>(maxRegistrySize, Interceptor.class);
+        this.index = new WeakAtomicReferenceArray<>(maxRegistrySize, Interceptor.class);
     }
 
     @Override
@@ -60,7 +59,7 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
     public Interceptor getInterceptor(int key) {
         final Interceptor interceptor = this.index.get(key);
         if (interceptor == null) {
-            return LOGGING_INTERCEPTOR;
+            return EmptyInterceptor.empty();
         } else {
             return interceptor;
         }
