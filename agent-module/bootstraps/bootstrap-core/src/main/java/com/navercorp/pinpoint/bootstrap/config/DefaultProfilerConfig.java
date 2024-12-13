@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.config.util.BypassResolver;
 import com.navercorp.pinpoint.common.config.util.ValueResolver;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.common.util.logger.CommonLogger;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,8 +37,6 @@ import java.util.regex.Pattern;
  */
 public class DefaultProfilerConfig implements ProfilerConfig {
     public static final String PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE = "profiler.interceptor.exception.propagate";
-
-    private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(DefaultProfilerConfig.class.getName());
 
     // TestAgent only
     public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
@@ -185,21 +181,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         Objects.requireNonNull(valueResolver, "valueResolver");
 
         String value = properties.getProperty(propertyName, defaultValue);
-        value = valueResolver.resolve(propertyName, value);
-        if (logger.isDebugEnabled()) {
-            logger.debug(propertyName + "=" + value);
-        }
-        return value;
+        return valueResolver.resolve(propertyName, value);
     }
 
     @Override
     public int readInt(String propertyName, int defaultValue) {
         String value = properties.getProperty(propertyName);
-        int result = NumberUtils.parseInteger(value, defaultValue);
-        if (logger.isDebugEnabled()) {
-            logger.debug(propertyName + "=" + result);
-        }
-        return result;
+        return NumberUtils.parseInteger(value, defaultValue);
     }
 
     @Override
@@ -215,20 +203,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         } catch (IllegalArgumentException e) {
             result = defaultDump;
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug(propertyName + "=" + result);
-        }
         return result;
     }
 
     @Override
     public long readLong(String propertyName, long defaultValue) {
         String value = properties.getProperty(propertyName);
-        long result = NumberUtils.parseLong(value, defaultValue);
-        if (logger.isDebugEnabled()) {
-            logger.debug(propertyName + "=" + result);
-        }
-        return result;
+        return NumberUtils.parseLong(value, defaultValue);
     }
 
     @Override
@@ -243,11 +224,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean readBoolean(String propertyName, boolean defaultValue) {
         String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
-        boolean result = Boolean.parseBoolean(value);
-        if (logger.isDebugEnabled()) {
-            logger.debug(propertyName + "=" + result);
-        }
-        return result;
+        return Boolean.parseBoolean(value);
     }
 
     @Override
@@ -263,11 +240,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
                 }
             }
         }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(propertyNamePatternRegex + "=" + result);
-        }
-
         return result;
     }
 

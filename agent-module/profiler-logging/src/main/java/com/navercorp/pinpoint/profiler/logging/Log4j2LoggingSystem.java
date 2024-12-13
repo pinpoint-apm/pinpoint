@@ -143,6 +143,8 @@ public class Log4j2LoggingSystem implements LoggingSystem {
         pluginLogger.info("PluginLogManager.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
         // Set binder to static PluginLogManager
         // Should we unset binder at shutdown hook or stop()?
-        PluginLogManager.initialize(binder);
+        if (!PluginLogManager.initialize(binder)) {
+            pluginLogger.warn("LoggerBinder is already initialized");
+        }
     }
 }

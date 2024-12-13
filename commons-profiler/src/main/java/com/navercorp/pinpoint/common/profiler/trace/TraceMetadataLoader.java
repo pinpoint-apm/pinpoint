@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
-import com.navercorp.pinpoint.common.util.logger.CommonLogger;
-import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 public class TraceMetadataLoader {
 
-    private final CommonLogger logger;
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final List<ServiceType> staticServiceTypes;
     private final List<AnnotationKey> staticAnnotationKeys;
@@ -51,10 +51,7 @@ public class TraceMetadataLoader {
     private final List<AnnotationKey> annotationKeys = new ArrayList<>();
     private final AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
 
-    public TraceMetadataLoader(CommonLoggerFactory loggerFactory) {
-        Objects.requireNonNull(loggerFactory, "loggerFactory");
-
-        this.logger = loggerFactory.getLogger(TraceMetadataLoader.class.getName());
+    public TraceMetadataLoader() {
         this.staticServiceTypes = staticFieldLookUp(ServiceType.class, ServiceType.class);
         this.staticAnnotationKeys = staticFieldLookUp(AnnotationKey.class, AnnotationKey.class);
         this.staticDisplayArgumentMatchers = staticFieldLookUp(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);

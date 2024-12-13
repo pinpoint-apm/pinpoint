@@ -15,15 +15,13 @@
  */
 package com.navercorp.pinpoint.common.config.util.spring;
 
-import com.navercorp.pinpoint.common.util.logger.CommonLogger;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Consumer;
 
 
 /**
@@ -40,7 +38,6 @@ import java.util.Set;
  */
 public class PropertyPlaceholderHelper {
 
-    private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(PropertyPlaceholderHelper.class.getName());
 
     private static final Map<String, String> wellKnownSimplePrefixes = new HashMap<>(4);
 
@@ -49,7 +46,6 @@ public class PropertyPlaceholderHelper {
         wellKnownSimplePrefixes.put("]", "[");
         wellKnownSimplePrefixes.put(")", "(");
     }
-
 
     private final String placeholderPrefix;
 
@@ -61,6 +57,7 @@ public class PropertyPlaceholderHelper {
 
     private final boolean ignoreUnresolvablePlaceholders;
 
+    private Consumer<String> logger;
 
     /**
      * Creates a new {@code PropertyPlaceholderHelper} that uses the supplied prefix and suffix.
@@ -70,6 +67,10 @@ public class PropertyPlaceholderHelper {
      */
     public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix) {
         this(placeholderPrefix, placeholderSuffix, null, true);
+    }
+
+    public void setLogger(Consumer<String> logger) {
+        this.logger = logger;
     }
 
     /**
@@ -165,8 +166,8 @@ public class PropertyPlaceholderHelper {
                     // previously resolved placeholder value.
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
                     buf.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Resolved placeholder '" + placeholder + "'");
+                    if (logger != null) {
+                        logger.accept("Resolved placeholder '" + placeholder + "'");
                     }
                     startIndex = buf.indexOf(this.placeholderPrefix, startIndex + propVal.length());
                 }

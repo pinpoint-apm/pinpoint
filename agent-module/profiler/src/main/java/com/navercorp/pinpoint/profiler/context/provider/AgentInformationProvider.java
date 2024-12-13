@@ -33,13 +33,17 @@ import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.module.Container;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class AgentInformationProvider implements Provider<AgentInformation> {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String agentId;
     private final String agentName;
@@ -70,14 +74,25 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
     public AgentInformation createAgentInformation() {
 
         final String machineName = NetworkUtils.getHostName();
-        final String hostIp = NetworkUtils.getRepresentationHostIp();
+        String hostIp = getHostIp();
 
         final int pid = RuntimeMXBeanUtils.getPid();
         final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
         return new DefaultAgentInformation(agentId, agentName, applicationName, isContainer, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
     }
 
-    private String checkId(String keyName,String id) {
+    private String getHostIp() {
+        String hostIp;
+        try {
+            hostIp = NetworkUtils.getHostIp();
+        } catch (UnknownHostException e) {
+            logger.info("Cannot resolve HostIp. HostIp is set to {}", NetworkUtils.LOOPBACK_ADDRESS_V4_1, e);
+            hostIp = NetworkUtils.LOOPBACK_ADDRESS_V4_1;
+        }
+        return NetworkUtils.getRepresentationHostIp(hostIp);
+    }
+
+    private String checkId(String keyName, String id) {
         if (!IdValidateUtils.validateId(id)) {
             throw new IllegalArgumentException("invalid " + keyName + "=" + id);
         }

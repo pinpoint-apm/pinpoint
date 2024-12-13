@@ -17,9 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.logging;
 
 
-import com.navercorp.pinpoint.common.util.logger.CommonLogger;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
-
 import java.util.Objects;
 
 /**
@@ -29,13 +26,12 @@ public class PluginLogManager {
 
     private static PluginLoggerBinder loggerBinder;
 
-    public static void initialize(PluginLoggerBinder loggerBinder) {
+    public static boolean initialize(PluginLoggerBinder loggerBinder) {
         if (PluginLogManager.loggerBinder == null) {
             PluginLogManager.loggerBinder = loggerBinder;
-        } else {
-            final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(PluginLogManager.class.getName());
-            logger.warn("loggerBinder is not null");
+            return true;
         }
+        return false;
     }
 
     public static void unregister(PluginLoggerBinder loggerBinder) {

@@ -5,8 +5,6 @@ import com.navercorp.pinpoint.common.config.ConfigurationException;
 import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.config.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.common.util.ModifierUtils;
-import com.navercorp.pinpoint.common.util.logger.CommonLogger;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -209,9 +207,7 @@ public class ValueAnnotationProcessor {
                 }
             }
         } catch (Exception ex) {
-            CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(this.getClass().getName());
-            logger.warn("injectField error field:" + field + " value:" + value);
-            throw new RuntimeException("injectField error", ex);
+            throw new RuntimeException("injectField error field:" + field + " value:" + value, ex);
         }
     }
 
