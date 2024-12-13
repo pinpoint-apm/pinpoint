@@ -1035,6 +1035,13 @@
                 <version>${log4j2.version}</version>
                 <scope>runtime</scope>
                 <optional>true</optional>
+                <exclusions>
+                    <exclusion>
+                        <!-- replace spring-jcl -->
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
