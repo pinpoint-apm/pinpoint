@@ -20,7 +20,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderLoader;
 import com.navercorp.pinpoint.profiler.context.module.PluginClassLoader;
 
@@ -32,12 +31,10 @@ import java.util.Objects;
  */
 public class TraceMetadataLoaderProvider implements Provider<TraceMetadataLoader> {
 
-    private final CommonLoggerFactory commonLoggerFactory;
     private final ClassLoader pluginClassLoader;
 
     @Inject
-    public TraceMetadataLoaderProvider(CommonLoggerFactory commonLoggerFactory, @PluginClassLoader ClassLoader pluginClassLoader) {
-        this.commonLoggerFactory = Objects.requireNonNull(commonLoggerFactory, "commonLogger");
+    public TraceMetadataLoaderProvider(@PluginClassLoader ClassLoader pluginClassLoader) {
         this.pluginClassLoader = Objects.requireNonNull(pluginClassLoader, "pluginClassLoader");
     }
 
@@ -45,7 +42,7 @@ public class TraceMetadataLoaderProvider implements Provider<TraceMetadataLoader
     public TraceMetadataLoader get() {
         TraceMetadataProviderLoader traceMetadataProviderLoader = new TraceMetadataProviderLoader();
         List<TraceMetadataProvider> traceMetadataProviders = traceMetadataProviderLoader.load(pluginClassLoader);
-        TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(commonLoggerFactory);
+        TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader();
         traceMetadataLoader.load(traceMetadataProviders);
         return traceMetadataLoader;
     }

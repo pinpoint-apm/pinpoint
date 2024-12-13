@@ -18,16 +18,12 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.common.util.logger.CommonLogger;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class ProfilerConfigLoader {
-
-    private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(DefaultProfilerConfig.class.getName());
 
     public static ProfilerConfig load(InputStream inputStream) {
         Properties properties = loadProperties(inputStream);
@@ -38,9 +34,6 @@ public class ProfilerConfigLoader {
         try {
             return PropertyUtils.loadProperty(inputStream);
         } catch (IOException ex) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("IO error. Error:" + ex.getMessage(), ex);
-            }
             throw new RuntimeException("IO error. Error:" + ex.getMessage(), ex);
         }
     }

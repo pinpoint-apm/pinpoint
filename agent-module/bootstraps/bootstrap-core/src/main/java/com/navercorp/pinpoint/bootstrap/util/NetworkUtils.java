@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.bootstrap.util;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.common.util.OsType;
 import com.navercorp.pinpoint.common.util.OsUtils;
-import com.navercorp.pinpoint.common.util.logger.CommonLogger;
-import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -40,9 +38,9 @@ public final class NetworkUtils {
 
     public static final String ERROR_HOST_NAME = "UNKNOWN-HOST";
 
-    private static final String LOOPBACK_ADDRESS_V4_1 = "127.0.0.1";
-    private static final String LOOPBACK_ADDRESS_V4_2 = "127.0.1.1";
-    private static final String LOOPBACK_ADDRESS_V6 = "0:0:0:0:0:0:0:1";
+    public static final String LOOPBACK_ADDRESS_V4_1 = "127.0.0.1";
+    public static final String LOOPBACK_ADDRESS_V4_2 = "127.0.1.1";
+    public static final String LOOPBACK_ADDRESS_V6 = "0:0:0:0:0:0:0:1";
 
     private static volatile String LOCAL_HOST_CACHE;
 
@@ -86,10 +84,9 @@ public final class NetworkUtils {
         }
     }
 
-    public static String getRepresentationHostIp() {
-        String ip = getHostIp();
-        if (!isLoopbackAddress(ip)) {
-            return ip;
+    public static String getRepresentationHostIp(String hostIp) {
+        if (!isLoopbackAddress(hostIp)) {
+            return hostIp;
         }
 
         List<String> ipList = getHostIpList();
@@ -100,17 +97,9 @@ public final class NetworkUtils {
         return LOOPBACK_ADDRESS_V4_1;
     }
 
-    public static String getHostIp() {
-        String hostIp;
-        try {
-            final InetAddress thisIp = InetAddress.getLocalHost();
-            hostIp = thisIp.getHostAddress();
-        } catch (UnknownHostException e) {
-            CommonLogger logger = getLogger();
-            logger.warn(e.getMessage());
-            hostIp = LOOPBACK_ADDRESS_V4_1;
-        }
-        return hostIp;
+    public static String getHostIp() throws UnknownHostException{
+        final InetAddress thisIp = InetAddress.getLocalHost();
+        return thisIp.getHostAddress();
     }
 
     public static List<String> getHostIpList() {
@@ -148,14 +137,6 @@ public final class NetworkUtils {
         }
 
         return result;
-    }
-
-    public static String getHostV4Ip() {
-        String hostIp = getHostIp();
-        if (validationIpV4FormatAddress(hostIp)) {
-            return hostIp;
-        }
-        return LOOPBACK_ADDRESS_V4_1;
     }
 
     public static List<String> getHostV4IpList() {
@@ -198,9 +179,6 @@ public final class NetworkUtils {
         return NetUtils.validationIpV4FormatAddress(address);
     }
 
-    private static CommonLogger getLogger() {
-        return StdoutCommonLoggerFactory.INSTANCE.getLogger(NetworkUtils.class.getName());
-    }
 
     public static String getHostFromURL(final String urlSpec) {
         if (urlSpec == null) {

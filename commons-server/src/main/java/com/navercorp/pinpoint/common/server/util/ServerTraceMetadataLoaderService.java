@@ -26,11 +26,10 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.Filter;
-import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderLoader;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -60,14 +59,13 @@ public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderServ
     private final AnnotationKeyRegistry annotationKeyRegistry;
     private final AnnotationKeyMatcherRegistry annotationKeyMatcherRegistry;
 
-    public ServerTraceMetadataLoaderService(CommonLoggerFactory commonLoggerFactory) {
-        this(ClassUtils.getDefaultClassLoader(), Collections.singletonList(DEFAULT_TYPE_PROVIDER_PATH), commonLoggerFactory);
+    public ServerTraceMetadataLoaderService() {
+        this(ClassUtils.getDefaultClassLoader(), Collections.singletonList(DEFAULT_TYPE_PROVIDER_PATH));
     }
 
-    public ServerTraceMetadataLoaderService(ClassLoader classLoader, Collection<String> typeProviderPaths, CommonLoggerFactory commonLoggerFactory) {
+    public ServerTraceMetadataLoaderService(ClassLoader classLoader, Collection<String> typeProviderPaths) {
         Objects.requireNonNull(classLoader, "classLoader");
         Objects.requireNonNull(typeProviderPaths, "typeProviderPaths");
-        Objects.requireNonNull(commonLoggerFactory, "commonLoggerFactory");
 
         logger.info("Loading additional type providers using : {}", typeProviderPaths);
         List<URL> typeProviderUrls = getTypeProviderUrls(classLoader, typeProviderPaths);
@@ -77,7 +75,7 @@ public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderServ
         TraceMetadataProviderLoader traceMetadataProviderLoader = new TraceMetadataProviderLoader(typeProviderUrls, pluginTypeProviderUrlFilter);
         List<TraceMetadataProvider> traceMetadataProviderList = traceMetadataProviderLoader.load(classLoader);
 
-        TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(commonLoggerFactory);
+        TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader();
         traceMetadataLoader.load(traceMetadataProviderList);
 
         this.serviceTypeRegistry = traceMetadataLoader.createServiceTypeRegistry();

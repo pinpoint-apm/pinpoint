@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLoggerBinder;
 import org.apache.logging.log4j.LogManager;
 
@@ -30,7 +31,10 @@ public class Log4j2LoggerBinderInitializer {
     private static final PluginLoggerBinder loggerBinder = new Log4j2Binder(LogManager.getContext());
 
     public static void beforeClass() {
-        PluginLogManager.initialize(loggerBinder);
+        if (!PluginLogManager.initialize(loggerBinder)) {
+            PluginLogger logger = loggerBinder.getLogger(Log4j2LoggerBinderInitializer.class.getName());
+            logger.warn("LoggerBinder is already initialized");
+        }
     }
 
     public static void afterClass() {
