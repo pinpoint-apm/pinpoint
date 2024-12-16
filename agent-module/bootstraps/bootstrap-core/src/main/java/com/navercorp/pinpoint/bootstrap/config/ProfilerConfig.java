@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.config.util.ValueResolver;
 
 import java.util.List;
 import java.util.Map;
@@ -61,8 +60,6 @@ public interface ProfilerConfig {
     List<String> getAgentClassloaderAdditionalLibs();
 
     String readString(String propertyName, String defaultValue);
-
-    String readString(String propertyName, String defaultValue, ValueResolver valueResolver);
 
     int readInt(String propertyName, int defaultValue);
 

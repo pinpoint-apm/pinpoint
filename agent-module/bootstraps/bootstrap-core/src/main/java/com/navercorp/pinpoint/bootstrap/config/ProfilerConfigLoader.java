@@ -45,7 +45,7 @@ public class ProfilerConfigLoader {
     }
 
     // for test
-    private static void loadPropertyValues(ProfilerConfig profilerConfig, Properties properties) {
+    private static void loadPropertyValues(Object profilerConfig, Properties properties) {
         ValueAnnotationProcessor processor = new ValueAnnotationProcessor();
         processor.process(profilerConfig, properties);
     }

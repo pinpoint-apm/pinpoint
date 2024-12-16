@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.function.Supplier;
 
 public class ClassLoaderUtilsTest {
 
@@ -32,12 +33,7 @@ public class ClassLoaderUtilsTest {
 
     private static final URLClassLoader FAKE_CLASS_LOADER = new URLClassLoader(new URL[0]);
 
-    private static final ClassLoaderUtils.ClassLoaderCallable FAKE_CLASS_LOADER_CALLABLE = new ClassLoaderUtils.ClassLoaderCallable() {
-        @Override
-        public ClassLoader getClassLoader() {
-            return FAKE_CLASS_LOADER;
-        }
-    };
+    private static final Supplier<ClassLoader> FAKE_CLASS_LOADER_CALLABLE = () -> FAKE_CLASS_LOADER;
 
     private ClassLoader beforeSetupClassLoader;
 
@@ -54,7 +50,7 @@ public class ClassLoaderUtilsTest {
     }
 
     @Test
-    public void testGetClassLoader1() throws Exception {
+    public void testGetClassLoader1() {
         final Thread thread = Thread.currentThread();
         final ClassLoader contextClassLoader = thread.getContextClassLoader();
 
@@ -64,24 +60,24 @@ public class ClassLoaderUtilsTest {
     }
 
     @Test
-    public void testGetClassLoader2() throws Exception {
+    public void testGetClassLoader2() {
         final Thread currentThread = Thread.currentThread();
 
         currentThread.setContextClassLoader(FAKE_CLASS_LOADER);
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
 
-        Assertions.assertSame(classLoader, FAKE_CLASS_LOADER);
+        Assertions.assertSame(FAKE_CLASS_LOADER, classLoader);
     }
 
     @Test
-    public void testGetClassLoader3() throws Exception {
+    public void testGetClassLoader3() {
         final Thread currentThread = Thread.currentThread();
 
         currentThread.setContextClassLoader(null);
 
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader(FAKE_CLASS_LOADER_CALLABLE);
 
-        Assertions.assertSame(classLoader, FAKE_CLASS_LOADER);
+        Assertions.assertSame(FAKE_CLASS_LOADER, classLoader);
 
     }
 

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Function;
 
 public class ValueAnnotationProcessor {
     private final static Map<Class<?>, ParameterParser> parameterMap = newFieldInjectorMap();
@@ -55,15 +56,10 @@ public class ValueAnnotationProcessor {
     public void process(Object instance, final Properties properties) throws ConfigurationException {
         Objects.requireNonNull(instance, "instance");
         Objects.requireNonNull(properties, "properties");
-        PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver = new PropertyPlaceholderHelper.PlaceholderResolver() {
-            public String resolvePlaceholder(String placeholderName) {
-                return properties.getProperty(placeholderName);
-            }
-        };
-        process(instance, placeholderResolver);
+        process(instance, properties::getProperty);
     }
 
-    public void process(Object instance, final PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver) throws ConfigurationException {
+    public void process(Object instance, final Function<String, String> placeholderResolver) throws ConfigurationException {
         Objects.requireNonNull(instance, "instance");
         Objects.requireNonNull(placeholderResolver, "placeholderResolver");
 
@@ -78,7 +74,7 @@ public class ValueAnnotationProcessor {
 
     }
 
-    private void handleFields(Class<?> aClass, Object instance, PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver) {
+    private void handleFields(Class<?> aClass, Object instance, Function<String, String> placeholderResolver) {
         for (Field field : aClass.getDeclaredFields()) {
             final String value = getValue(field, placeholderResolver);
             if (value != null) {
@@ -88,7 +84,7 @@ public class ValueAnnotationProcessor {
         }
     }
 
-    private void handleMethods(Class<?> aClass, Object instance, PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver) {
+    private void handleMethods(Class<?> aClass, Object instance, Function<String, String> placeholderResolver) {
         for (Method method : filterMethod(aClass)) {
             final String value = getValue(method, placeholderResolver);
             if (value != null) {
@@ -98,7 +94,7 @@ public class ValueAnnotationProcessor {
         }
     }
 
-    private String getValue(AccessibleObject accessibleObject, final PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver) {
+    private String getValue(AccessibleObject accessibleObject, final Function<String, String> placeholderResolver) {
         String rawKey = getValueFromAnnotation(accessibleObject);
         if (rawKey == null) {
             return null;
