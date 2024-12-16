@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -30,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -49,6 +52,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -74,7 +78,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        OracleConfig config = new OracleConfig(context.getConfig());
+        JdbcAutoCommitConfig config = OracleConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -83,25 +87,32 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
         context.addJdbcUrlParser(jdbcUrlParser);
 
-        addConnectionTransformer();
+        addConnectionTransformer(config);
         addDriverTransformer();
-        addPreparedStatementTransformer();
+        addPreparedStatementTransformer(config);
         addCallableStatementTransformer();
         addStatementTransformer();
     }
 
-    private void addConnectionTransformer() {
-        transformTemplate.transform("oracle.jdbc.driver.PhysicalConnection", PhysicalConnectionTransform.class);
+    private void addConnectionTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("oracle.jdbc.driver.PhysicalConnection", PhysicalConnectionTransform.class, parameters);
     }
 
     public static class PhysicalConnectionTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PhysicalConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(DatabaseInfoAccessor.class);
-
-            OracleConfig config = new OracleConfig(instrumentor.getProfilerConfig());
 
             // close
             InstrumentUtils.findMethod(target, "close")
@@ -155,7 +166,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
 
     private void addDriverTransformer() {
@@ -177,15 +188,24 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
 
-    private void addPreparedStatementTransformer() {
-        transformTemplate.transform(CLASS_PREPARED_STATEMENT, PreparedStatementTransformer.class);
-        transformTemplate.transform(CLASS_PREPARED_STATEMENT_WRAPPER, PreparedStatementTransformer.class);
+    private void addPreparedStatementTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform(CLASS_PREPARED_STATEMENT, PreparedStatementTransformer.class, parameters);
+        transformTemplate.transform(CLASS_PREPARED_STATEMENT_WRAPPER, PreparedStatementTransformer.class, parameters);
     }
 
     public static class PreparedStatementTransformer implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PreparedStatementTransformer(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -194,7 +214,6 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
                     return null;
                 }
             }
-            final OracleConfig config = new OracleConfig(instrumentor.getProfilerConfig());
 
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
@@ -222,7 +241,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
 
     private void addCallableStatementTransformer() {
@@ -256,7 +275,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
 
     private void addStatementTransformer() {
@@ -295,7 +314,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
 
     @Override

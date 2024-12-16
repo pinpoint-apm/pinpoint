@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -29,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor;
@@ -47,6 +50,7 @@ import com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSQLConne
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -64,7 +68,7 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        PostgreSqlConfig config = new PostgreSqlConfig(context.getConfig());
+        JdbcAutoCommitConfig config = PostgreSqlConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -74,13 +78,13 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         context.addJdbcUrlParser(new PostgreSqlJdbcUrlParser());
 
         addDriverTransformer();
-        addConnectionTransformers();
-        addStatementTransformers();
-        addPreparedStatementTransformers();
+        addConnectionTransformers(config);
+        addStatementTransformers(config);
+        addPreparedStatementTransformers(config);
 
         // pre 9.4.1207
-        addLegacyConnectionTransformers();
-        addLegacyStatementTransformers();
+        addLegacyConnectionTransformers(config);
+        addLegacyStatementTransformers(config);
     }
 
     private void addDriverTransformer() {
@@ -101,11 +105,21 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     }
 
-    private void addConnectionTransformers() {
-        transformTemplate.transform("org.postgresql.jdbc.PgConnection", PgConnectionTransform.class);
+    private void addConnectionTransformers(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("org.postgresql.jdbc.PgConnection", PgConnectionTransform.class, parameters);
     }
 
     public static class PgConnectionTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PgConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -154,7 +168,6 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
             InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String", "java.lang.String[]")
                     .addScopedInterceptor(preparedStatementCreate, POSTGRESQL_SCOPE);
 
-            PostgreSqlConfig config = new PostgreSqlConfig(instrumentor.getProfilerConfig());
             if (config.isProfileSetAutoCommit()) {
                 InstrumentUtils.findMethod(target, "setAutoCommit", "boolean")
                         .addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, POSTGRESQL_SCOPE);
@@ -174,12 +187,21 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     }
 
-    private void addStatementTransformers() {
+    private void addStatementTransformers(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
 
-        transformTemplate.transform("org.postgresql.jdbc.PgStatement", PgStatementTransform.class);
+        transformTemplate.transform("org.postgresql.jdbc.PgStatement", PgStatementTransform.class, parameters);
     }
 
     public static class PgStatementTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PgStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -205,7 +227,6 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
             InstrumentUtils.findMethod(target, "execute", "java.lang.String", "int")
                     .addScopedInterceptor(executeUpdateInterceptor, POSTGRESQL_SCOPE);
 
-            PostgreSqlConfig config = new PostgreSqlConfig(instrumentor.getProfilerConfig());
             // 9.4.1207 has setX methods in PgStatement
             final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
             final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(excludes);
@@ -234,14 +255,21 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     }
 
-    ;
 
-    private void addPreparedStatementTransformers() {
-
-        transformTemplate.transform("org.postgresql.jdbc.PgPreparedStatement", PgPreparedStatementTransform.class);
+    private void addPreparedStatementTransformers(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("org.postgresql.jdbc.PgPreparedStatement", PgPreparedStatementTransform.class, parameters);
     }
 
     public static class PgPreparedStatementTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PgPreparedStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -249,7 +277,6 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
             target.addField(DatabaseInfoAccessor.class);
 
-            PostgreSqlConfig config = new PostgreSqlConfig(instrumentor.getProfilerConfig());
             // 9.4.1207 has setX methods in PgStatement
             final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
             final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(excludes);
@@ -280,8 +307,11 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
     ;
 
-    private void addLegacyConnectionTransformers() {
-        transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Connection", AbstractJdbc2ConnectionTransform.class);
+    private void addLegacyConnectionTransformers(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Connection", AbstractJdbc2ConnectionTransform.class, parameters);
 
         transformTemplate.transform("org.postgresql.jdbc3.AbstractJdbc3Connection", AbstractJdbc3ConnectionTransform.class);
 
@@ -293,6 +323,12 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     public static class AbstractJdbc2ConnectionTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public AbstractJdbc2ConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -318,7 +354,6 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
             InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String")
                     .addScopedInterceptor(preparedStatementCreate, POSTGRESQL_SCOPE);
 
-            PostgreSqlConfig config = new PostgreSqlConfig(instrumentor.getProfilerConfig());
             if (config.isProfileSetAutoCommit()) {
                 InstrumentUtils.findMethod(target, "setAutoCommit", "boolean")
                         .addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, POSTGRESQL_SCOPE);
@@ -395,14 +430,20 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     }
 
-    ;
-
-    private void addLegacyStatementTransformers() {
-        transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Statement", AbstractJdbc2StatementTransform.class);
+    private void addLegacyStatementTransformers(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Statement", AbstractJdbc2StatementTransform.class, parameters);
         transformTemplate.transform("org.postgresql.jdbc3.AbstractJdbc3Statement", AbstractJdbc3StatementTransform.class);
     }
 
     public static class AbstractJdbc2StatementTransform implements TransformCallback {
+        private final JdbcAutoCommitConfig config;
+
+        public AbstractJdbc2StatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -412,7 +453,6 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
             target.addField(ParsingResultAccessor.class);
             target.addField(BindValueAccessor.class);
 
-            PostgreSqlConfig config = new PostgreSqlConfig(instrumentor.getProfilerConfig());
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> preparedStatementInterceptor = PreparedStatementExecuteQueryInterceptor.class;

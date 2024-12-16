@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -29,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -48,6 +51,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -66,7 +70,7 @@ public class MssqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        MssqlConfig config = new MssqlConfig(context.getConfig());
+        JdbcAutoCommitConfig config = MssqlConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -75,26 +79,33 @@ public class MssqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         context.addJdbcUrlParser(jdbcUrlParser);
 
-        addConnectionTransformer();
+        addConnectionTransformer(config);
         addDriverTransformer();
-        addPreparedStatementTransformer();
+        addPreparedStatementTransformer(config);
         addCallableStatementTransformer();
         addStatementTransformer();
 
     }
 
-    private void addConnectionTransformer() {
-        transformTemplate.transform("com.microsoft.sqlserver.jdbc.SQLServerConnection",
-                MssqlConnectionTransform.class);
+    private void addConnectionTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.microsoft.sqlserver.jdbc.SQLServerConnection", MssqlConnectionTransform.class, parameters);
     }
 
     public static class MssqlConnectionTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public MssqlConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
-            MssqlConfig config = new MssqlConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -187,19 +198,26 @@ public class MssqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addPreparedStatementTransformer() {
-        transformTemplate.transform("com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement",
-                PreparedStatementTransform.class);
+    private void addPreparedStatementTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement", PreparedStatementTransform.class, parameters);
     }
 
     public static class PreparedStatementTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PreparedStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
 
-            MssqlConfig config = new MssqlConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);

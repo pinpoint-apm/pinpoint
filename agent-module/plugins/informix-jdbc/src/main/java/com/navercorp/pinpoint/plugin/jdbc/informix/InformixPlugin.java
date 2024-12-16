@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -30,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -52,6 +55,7 @@ import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.Informix_4
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -69,7 +73,7 @@ public class InformixPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        InformixConfig config = new InformixConfig(context.getConfig());
+        JdbcAutoCommitConfig config = InformixConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -101,15 +105,23 @@ public class InformixPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     
-    private void addConnectionTransformer(final InformixConfig config) {
-        transformTemplate.transform("com.informix.jdbc.IfxSqliConnect", InformixConnectionTransformer.class);
+    private void addConnectionTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.informix.jdbc.IfxSqliConnect", InformixConnectionTransformer.class, parameters);
     }
 
     public static class InformixConnectionTransformer implements TransformCallback {
 
+        private final JdbcAutoCommitConfig config;
+
+        public InformixConnectionTransformer(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InformixConfig config = new InformixConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);
@@ -207,15 +219,23 @@ public class InformixPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
     
-    private void addPreparedStatementTransformer(final InformixConfig config) {
-        transformTemplate.transform("com.informix.jdbc.IfxPreparedStatement", InformixPreparedStatement.class);
+    private void addPreparedStatementTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.informix.jdbc.IfxPreparedStatement", InformixPreparedStatement.class, parameters);
     }
 
     public static class InformixPreparedStatement implements TransformCallback {
 
+        private final JdbcAutoCommitConfig config;
+
+        public InformixPreparedStatement(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InformixConfig config = new InformixConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);

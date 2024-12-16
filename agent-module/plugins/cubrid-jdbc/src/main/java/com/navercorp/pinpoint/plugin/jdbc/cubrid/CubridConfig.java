@@ -15,40 +15,14 @@
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 
 /**
  * @author Jongho Moon
  */
-public class CubridConfig extends JdbcConfig {
-    private final boolean profileSetAutoCommit;
-    private final boolean profileCommit;
-    private final boolean profileRollback;
+public class CubridConfig {
 
-    public CubridConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.cubrid", false),
-                config.readBoolean("profiler.jdbc.cubrid.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.cubrid.setautocommit", false);
-        this.profileCommit = config.readBoolean("profiler.jdbc.cubrid.commit", false);
-        this.profileRollback = config.readBoolean("profiler.jdbc.cubrid.rollback", false);
+    public static JdbcAutoCommitConfig of(ProfilerConfig config) {
+        return JdbcAutoCommitConfig.of("cubrid", config);
     }
-
-    public boolean isProfileSetAutoCommit() {
-        return profileSetAutoCommit;
-    }
-
-    public boolean isProfileCommit() {
-        return profileCommit;
-    }
-
-    public boolean isProfileRollback() {
-        return profileRollback;
-    }
-
-    @Override
-    public String toString() {
-        return "CubridConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
-    }
-
 }

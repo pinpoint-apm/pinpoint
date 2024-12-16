@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -30,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -53,6 +56,7 @@ import com.navercorp.pinpoint.plugin.jdbc.mariadb.interceptor.PreparedStatementC
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -71,7 +75,7 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        MariaDBConfig config = new MariaDBConfig(context.getConfig());
+        JdbcAutoCommitConfig config = MariaDBConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -80,25 +84,32 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         context.addJdbcUrlParser(jdbcUrlParser);
 
-        addConnectionTransformer();
+        addConnectionTransformer(config);
         addDriverTransformer();
-        addPreparedStatementTransformer();
-        addPreparedStatementBindVariableTransformer();
+        addPreparedStatementTransformer(config);
+        addPreparedStatementBindVariableTransformer(config);
         addCallableStatementTransformer();
         addStatementTransformer();
 
         // MariaDb 1.3.x's CallableStatements are completely separated from PreparedStatements (similar to MySQL)
         // Separate interceptors must be injected.
-        add_1_3_x_CallableStatementTransformer();
+        add_1_3_x_CallableStatementTransformer(config);
     }
 
-    private void addConnectionTransformer() {
-        transformTemplate.transform("org.mariadb.jdbc.MariaDbConnection", MariaDbConnectionTransform.class);
+    private void addConnectionTransformer(final JdbcAutoCommitConfig config) {
+
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbConnection", MariaDbConnectionTransform.class, va(config), va(JdbcAutoCommitConfig.class));
         // 3.x
-        transformTemplate.transform("org.mariadb.jdbc.Connection", MariaDbConnectionTransform.class);
+        transformTemplate.transform("org.mariadb.jdbc.Connection", MariaDbConnectionTransform.class, va(config), va(JdbcAutoCommitConfig.class));
     }
 
     public static class MariaDbConnectionTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public MariaDbConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -131,7 +142,6 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String", "int", "int").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
             InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String", "int", "int", "int").addScopedInterceptor(preparedStatementCreate, MARIADB_SCOPE);
 
-            MariaDBConfig config = new MariaDBConfig(instrumentor.getProfilerConfig());
             if (config.isProfileSetAutoCommit()) {
                 InstrumentUtils.findMethodOrIgnore(target, "setAutoCommit", "boolean").addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, MARIADB_SCOPE);
             }
@@ -166,28 +176,36 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addPreparedStatementTransformer() {
-        transformTemplate.transform("org.mariadb.jdbc.MariaDbServerPreparedStatement", PreparedStatementTransform.class);
-        transformTemplate.transform("org.mariadb.jdbc.MariaDbClientPreparedStatement", PreparedStatementTransform.class);
+    private void addPreparedStatementTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbServerPreparedStatement", PreparedStatementTransform.class, parameters);
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbClientPreparedStatement", PreparedStatementTransform.class, parameters);
         // [1.6.0,1.8.0), [2.0.0,2.4.0)
-        transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementServer", PreparedStatementTransform.class);
-        transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementClient", PreparedStatementTransform.class);
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementServer", PreparedStatementTransform.class, parameters);
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementClient", PreparedStatementTransform.class, parameters);
         // [1.8.0,2.0.0), [2.4.0,)
-        transformTemplate.transform("org.mariadb.jdbc.ServerSidePreparedStatement", PreparedStatementTransform.class);
-        transformTemplate.transform("org.mariadb.jdbc.ClientSidePreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("org.mariadb.jdbc.ServerSidePreparedStatement", PreparedStatementTransform.class, parameters);
+        transformTemplate.transform("org.mariadb.jdbc.ClientSidePreparedStatement", PreparedStatementTransform.class, parameters);
         // 3.x
-        transformTemplate.transform("org.mariadb.jdbc.ServerPreparedStatement", PreparedStatementTransform.class);
-        transformTemplate.transform("org.mariadb.jdbc.ClientPreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("org.mariadb.jdbc.ServerPreparedStatement", PreparedStatementTransform.class, parameters);
+        transformTemplate.transform("org.mariadb.jdbc.ClientPreparedStatement", PreparedStatementTransform.class, parameters);
     }
 
     public static class PreparedStatementTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PreparedStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
 
-            MariaDBConfig config = new MariaDBConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);
@@ -212,24 +230,33 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addPreparedStatementBindVariableTransformer() {
-        transformTemplate.transform("org.mariadb.jdbc.AbstractMariaDbPrepareStatement", PreparedStatementBindVariableTransformer.class);
+    private void addPreparedStatementBindVariableTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+
+        transformTemplate.transform("org.mariadb.jdbc.AbstractMariaDbPrepareStatement", PreparedStatementBindVariableTransformer.class, parameters);
         // Class renamed in 1.5.6 - https://github.com/MariaDB/mariadb-connector-j/commit/16c8313960cf4fbc6b2b83136504d1ba9e662919
-        transformTemplate.transform("org.mariadb.jdbc.AbstractPrepareStatement", PreparedStatementBindVariableTransformer.class);
+        transformTemplate.transform("org.mariadb.jdbc.AbstractPrepareStatement", PreparedStatementBindVariableTransformer.class, parameters);
         // 1.6.x
-        transformTemplate.transform("org.mariadb.jdbc.BasePrepareStatement", PreparedStatementBindVariableTransformer.class);
+        transformTemplate.transform("org.mariadb.jdbc.BasePrepareStatement", PreparedStatementBindVariableTransformer.class, parameters);
         // 3.x
-        transformTemplate.transform("org.mariadb.jdbc.BasePreparedStatement", PreparedStatementBindVariableTransformer.class);
+        transformTemplate.transform("org.mariadb.jdbc.BasePreparedStatement", PreparedStatementBindVariableTransformer.class, parameters);
     }
 
 
     public static class PreparedStatementBindVariableTransformer implements TransformCallback {
 
+        private final JdbcAutoCommitConfig config;
+
+        public PreparedStatementBindVariableTransformer(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
-            MariaDBConfig config = new MariaDBConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);
@@ -310,17 +337,24 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void add_1_3_x_CallableStatementTransformer() {
-        transformTemplate.transform("org.mariadb.jdbc.MariaDbCallableStatement", CallableStatement1_3_x_Transform.class);
+    private void add_1_3_x_CallableStatementTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config).toParameters();
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbCallableStatement", CallableStatement1_3_x_Transform.class, parameters);
         // 3.x
-        transformTemplate.transform("org.mariadb.jdbc.BaseCallableStatement", CallableStatement1_3_x_Transform.class);
+        transformTemplate.transform("org.mariadb.jdbc.BaseCallableStatement", CallableStatement1_3_x_Transform.class, parameters);
     }
 
     public static class CallableStatement1_3_x_Transform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public CallableStatement1_3_x_Transform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            MariaDBConfig config = new MariaDBConfig(instrumentor.getProfilerConfig());
-
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);

@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -29,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -48,6 +51,7 @@ import com.navercorp.pinpoint.plugin.jdbc.clickhouse.interceptor.ClickHouseConne
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -65,7 +69,7 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        ClickHouseConfig config = new ClickHouseConfig(context.getConfig());
+        JdbcAutoCommitConfig config = ClickHouseConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -81,17 +85,25 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
     }
 
-    private void addConnectionTransformer(final ClickHouseConfig config) {
-
+    private void addConnectionTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
         // before 0.3.2-patch11
-        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseConnectionImpl", ConnectionTransform.class);
+        transformTemplate.transform("ru.yandex.clickhouse.ClickHouseConnectionImpl", ConnectionTransform.class, parameters);
 
         // after 0.3.2
-        transformTemplate.transform("com.clickhouse.jdbc.internal.ClickHouseConnectionImpl", ConnectionTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.internal.ClickHouseConnectionImpl", ConnectionTransform.class, parameters);
 
     }
 
     public static class ConnectionTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public ConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -131,7 +143,6 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
             // prepareCall not implemented in ClickHouse
 
-            ClickHouseConfig config = new ClickHouseConfig(instrumentor.getProfilerConfig());
             if (config.isProfileSetAutoCommit()) {
                 InstrumentUtils.findMethod(target, "setAutoCommit", "boolean")
                         .addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, CLICK_HOUSE_SCOPE);
@@ -172,22 +183,29 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     }
 
-    private void addPreparedStatementTransformer(final ClickHouseConfig config) {
-
+    private void addPreparedStatementTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
         // before 0.3.2-patch11
-        transformTemplate.transform("ru.yandex.clickhouse.ClickHousePreparedStatementImpl", PreparedStatementTransform.class);
+        transformTemplate.transform("ru.yandex.clickhouse.ClickHousePreparedStatementImpl", PreparedStatementTransform.class, parameters);
 
         // after 0.3.2
         // added after 0.3.2-test1
-        transformTemplate.transform("com.clickhouse.jdbc.internal.SqlBasedPreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.internal.SqlBasedPreparedStatement", PreparedStatementTransform.class, parameters);
 
         // added after 0.3.2-test3
-        transformTemplate.transform("com.clickhouse.jdbc.internal.InputBasedPreparedStatement", PreparedStatementTransform.class);
-        transformTemplate.transform("com.clickhouse.jdbc.internal.TableBasedPreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("com.clickhouse.jdbc.internal.InputBasedPreparedStatement", PreparedStatementTransform.class, parameters);
+        transformTemplate.transform("com.clickhouse.jdbc.internal.TableBasedPreparedStatement", PreparedStatementTransform.class, parameters);
 
     }
 
     public static class PreparedStatementTransform implements TransformCallback {
+        private final JdbcAutoCommitConfig config;
+
+        public PreparedStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -197,7 +215,6 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
             target.addField(ParsingResultAccessor.class);
             target.addField(BindValueAccessor.class);
 
-            ClickHouseConfig config = new ClickHouseConfig(instrumentor.getProfilerConfig());
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> preparedStatementInterceptor = PreparedStatementExecuteQueryInterceptor.class;

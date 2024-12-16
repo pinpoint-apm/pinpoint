@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -30,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -49,6 +52,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -66,7 +70,7 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        CubridConfig config = new CubridConfig(context.getConfig());
+        JdbcAutoCommitConfig config = CubridConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -82,15 +86,23 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     
-    private void addCUBRIDConnectionTransformer(final CubridConfig config) {
-        transformTemplate.transform("cubrid.jdbc.driver.CUBRIDConnection", CUBRIDConnectionTransformer.class);
+    private void addCUBRIDConnectionTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("cubrid.jdbc.driver.CUBRIDConnection", CUBRIDConnectionTransformer.class, parameters);
     }
 
     public static class CUBRIDConnectionTransformer implements TransformCallback {
 
+        private final JdbcAutoCommitConfig config;
+
+        public CUBRIDConnectionTransformer(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            CubridConfig config = new CubridConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(DatabaseInfoAccessor.class);
 
@@ -163,15 +175,23 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
     
-    private void addCUBRIDPreparedStatementTransformer(final CubridConfig config) {
-        transformTemplate.transform("cubrid.jdbc.driver.CUBRIDPreparedStatement", CUBRIDPreparedStatement.class);
+    private void addCUBRIDPreparedStatementTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("cubrid.jdbc.driver.CUBRIDPreparedStatement", CUBRIDPreparedStatement.class, parameters);
     }
 
     public static class CUBRIDPreparedStatement implements TransformCallback {
 
+        private final JdbcAutoCommitConfig config;
+
+        public CUBRIDPreparedStatement(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            CubridConfig config = new CubridConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);

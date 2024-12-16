@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -30,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -49,6 +52,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -67,7 +71,7 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        JtdsConfig config = new JtdsConfig(context.getConfig());
+        JdbcAutoCommitConfig config = JtdsConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -83,17 +87,24 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
         addStatementTransformer();
     }
 
-    private void addConnectionTransformer(final JtdsConfig config) {
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.ConnectionJDBC2", ConnectionTransform.class);
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsConnection", ConnectionTransform.class);
+    private void addConnectionTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.ConnectionJDBC2", ConnectionTransform.class, parameters);
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsConnection", ConnectionTransform.class, parameters);
     }
 
     public static class ConnectionTransform implements TransformCallback {
 
+        private final JdbcAutoCommitConfig config;
+
+        public ConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-
-            JtdsConfig config = new JtdsConfig(instrumentor.getProfilerConfig());
 
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(DatabaseInfoAccessor.class);
@@ -169,16 +180,24 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addPreparedStatementTransformer(final JtdsConfig config) {
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsPreparedStatement", JtdsPreparedStatementTransform.class);
+    private void addPreparedStatementTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsPreparedStatement", JtdsPreparedStatementTransform.class, parameters);
     }
 
     public static class JtdsPreparedStatementTransform implements TransformCallback {
 
+        private final JdbcAutoCommitConfig config;
+
+        public JtdsPreparedStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-            JtdsConfig config = new JtdsConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);

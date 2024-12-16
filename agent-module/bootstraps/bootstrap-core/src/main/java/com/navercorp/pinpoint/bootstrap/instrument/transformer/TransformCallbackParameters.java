@@ -16,32 +16,35 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author youngjin.kim2
  */
 public class TransformCallbackParameters {
 
-    private final List<TransformCallbackParameter> params;
+    private final TransformCallbackParameter[] params;
 
     TransformCallbackParameters(List<TransformCallbackParameter> params) {
-        this.params = Collections.unmodifiableList(params);
+        Objects.requireNonNull(params, "params");
+        this.params = params.toArray(new TransformCallbackParameter[0]);
     }
 
-    public Object[] getParamValues() {
-        Object[] values = new Object[params.size()];
-        for (int i = 0; i < params.size(); i++) {
-            values[i] = params.get(i).getValue();
+    public Object[] values() {
+        final int size = params.length;
+        Object[] values = new Object[size];
+        for (int i = 0; i < size; i++) {
+            values[i] = params[i].getValue();
         }
         return values;
     }
 
-    public Class<?>[] getParamTypes() {
-        Class<?>[] types = new Class<?>[params.size()];
-        for (int i = 0; i < params.size(); i++) {
-            types[i] = params.get(i).getType().getJavaClass();
+    public Class<?>[] types() {
+        final int size = params.length;
+        Class<?>[] types = new Class<?>[size];
+        for (int i = 0; i < size; i++) {
+            types[i] = params[i].getType();
         }
         return types;
     }

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
@@ -28,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.cassandra4.interceptor.DefaultPreparedStatementInterceptor;
 import com.navercorp.pinpoint.plugin.cassandra4.interceptor.DefaultSessionCloseInterceptor;
@@ -38,6 +41,7 @@ import com.navercorp.pinpoint.plugin.cassandra4.interceptor.DefaultSimpleStateme
 import com.navercorp.pinpoint.plugin.cassandra4.interceptor.SettableByIndexSetInterceptor;
 
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -49,7 +53,7 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        CassandraConfig config = new CassandraConfig(context.getConfig());
+        JdbcConfig config = CassandraConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -57,7 +61,10 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // 4.x
-        transformTemplate.transform("com.datastax.oss.driver.internal.core.session.DefaultSession", DefaultSessionTransformer.class);
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.datastax.oss.driver.internal.core.session.DefaultSession", DefaultSessionTransformer.class, parameters);
         if (config.isTraceSqlBindValue()) {
             // Statement
             transformTemplate.transform("com.datastax.oss.driver.internal.core.cql.DefaultSimpleStatement", DefaultSimpleStatementTransformer.class);
@@ -73,6 +80,12 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     public static class DefaultSessionTransformer implements TransformCallback {
+
+        private final JdbcConfig config;
+
+        public DefaultSessionTransformer(JdbcConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -97,7 +110,6 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
             }
 
-            final CassandraConfig config = new CassandraConfig(instrumentor.getProfilerConfig());
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute", "com.datastax.oss.driver.api.core.session.Request", "com.datastax.oss.driver.api.core.type.reflect.GenericType");
             if (executeMethod != null) {
                 executeMethod.addInterceptor(DefaultSessionExecuteInterceptor.class, va(config.getMaxSqlBindValueSize()));

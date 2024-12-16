@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
@@ -28,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.cassandra.field.WrappedStatementGetter;
@@ -37,6 +40,7 @@ import com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraPreparedStat
 import com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraStatementExecuteQueryInterceptor;
 
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -55,7 +59,7 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        CassandraConfig config = new CassandraConfig(context.getConfig());
+        JdbcConfig config = CassandraConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -107,23 +111,29 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
-    private void addSessionTransformer(final CassandraConfig config) {
-        transformTemplate.transform(CLASS_SESSION_MANAGER, SessionTransformer.class);
-        transformTemplate.transform(CLASS_ABSTRACT_SESSION, SessionTransformer.class);
+    private void addSessionTransformer(final JdbcConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform(CLASS_SESSION_MANAGER, SessionTransformer.class, parameters);
+        transformTemplate.transform(CLASS_ABSTRACT_SESSION, SessionTransformer.class, parameters);
 
     }
 
     public static class SessionTransformer implements TransformCallback {
 
+        private final JdbcConfig config;
+
+        public SessionTransformer(JdbcConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
-
-            CassandraConfig config = new CassandraConfig(instrumentor.getProfilerConfig());
-
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -169,7 +179,7 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addClusterTransformer() {
         transformTemplate.transform("com.datastax.driver.core.Cluster", ClusterTransformer.class );
