@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.context.module.config;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.config.DefaultContextConfig;
@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.profiler.context.module.AgentName;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
+import com.navercorp.pinpoint.profiler.context.module.ClusterNamespace;
 import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.context.module.Container;
 import com.navercorp.pinpoint.profiler.context.module.PluginJarPaths;
@@ -58,6 +59,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -68,9 +70,9 @@ import java.util.Properties;
 public class ConfigModule extends AbstractModule {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final AgentOption agentOption;
+    private final AgentContextOption agentOption;
 
-    public ConfigModule(AgentOption agentOption) {
+    public ConfigModule(AgentContextOption agentOption) {
         this.agentOption = Objects.requireNonNull(agentOption, "profilerConfig");
         Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
     }
@@ -84,7 +86,6 @@ public class ConfigModule extends AbstractModule {
 
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
         bind(ProfilerConfig.class).toInstance(profilerConfig);
-
 
         Properties properties = profilerConfig.getProperties();
         ConfigurationLoader configurationLoader = new ConfigurationLoader(properties);
@@ -126,26 +127,23 @@ public class ConfigModule extends AbstractModule {
 
         bind(InterceptorRegistryBinder.class).toProvider(InterceptorRegistryBinderProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<List<String>> pluginJarFile = new TypeLiteral<List<String>>() {};
+        TypeLiteral<List<Path>> pluginJarFile = new TypeLiteral<List<Path>>() {};
         bind(pluginJarFile).annotatedWith(PluginJarPaths.class).toInstance(agentOption.getPluginJars());
         TypeLiteral<List<PluginJar>> pluginJars = new TypeLiteral<List<PluginJar>>() {};
         bind(pluginJars).annotatedWith(PluginJars.class).toProvider(PluginJarsProvider.class).in(Scopes.SINGLETON);
 
 
-        bindBootstrapCoreInformation();
+        bindBootstrapCoreInformation(agentOption);
 
-        final ContainerResolver containerResolver = new ContainerResolver();
-        final boolean isContainer = containerResolver.isContainer();
-
-        bindAgentInformation(agentOption.getAgentId(), agentOption.getAgentName(), agentOption.getApplicationName(), isContainer);
+        bindAgentInformation(agentOption);
 
         bindShutdownHook(contextConfig);
     }
 
-    private void bindBootstrapCoreInformation() {
-        List<String> bootstrapJarPaths = agentOption.getBootstrapJarPaths();
+    private void bindBootstrapCoreInformation(AgentContextOption agentOption) {
+        List<Path> bootstrapJarPaths = agentOption.getBootstrapJarPaths();
 
-        TypeLiteral<List<String>> bootstrapJarFIle = new TypeLiteral<List<String>>() {};
+        TypeLiteral<List<Path>> bootstrapJarFIle = new TypeLiteral<List<Path>>() {};
         bind(bootstrapJarFIle).annotatedWith(BootstrapJarPaths.class).toInstance(bootstrapJarPaths);
 
         BootstrapCore bootstrapCore = new BootstrapCore(bootstrapJarPaths);
@@ -161,15 +159,23 @@ public class ConfigModule extends AbstractModule {
         bindConstant().annotatedWith(DeadlockMonitorInterval.class).to(contextConfig.getDeadlockMonitorInterval());
     }
 
-    private void bindAgentInformation(String agentId, String agentName, String applicationName, boolean isContainer) {
+    private void bindAgentInformation(AgentContextOption agentOption) {
 
-        bind(String.class).annotatedWith(AgentId.class).toInstance(agentId);
-        bind(String.class).annotatedWith(AgentName.class).toInstance(agentName);
-        bind(String.class).annotatedWith(ApplicationName.class).toInstance(applicationName);
+        bind(String.class).annotatedWith(AgentId.class).toInstance(agentOption.getAgentId());
+        bind(String.class).annotatedWith(AgentName.class).toInstance(agentOption.getAgentName());
+        bind(String.class).annotatedWith(ApplicationName.class).toInstance(agentOption.getApplicationName());
 
+        final ContainerResolver containerResolver = new ContainerResolver();
+        final boolean isContainer = containerResolver.isContainer();
         bind(Boolean.class).annotatedWith(Container.class).toInstance(isContainer);
+
         bind(Long.class).annotatedWith(AgentStartTime.class).toProvider(AgentStartTimeProvider.class).in(Scopes.SINGLETON);
         bind(ServiceType.class).annotatedWith(ConfiguredApplicationType.class).toProvider(ConfiguredApplicationTypeProvider.class).in(Scopes.SINGLETON);
+
+        ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
+
+        String namespace = ClusterNamespaceProvider.getNamespace(profilerConfig::readString);
+        bind(String.class).annotatedWith(ClusterNamespace.class).toInstance(namespace);
     }
 
 

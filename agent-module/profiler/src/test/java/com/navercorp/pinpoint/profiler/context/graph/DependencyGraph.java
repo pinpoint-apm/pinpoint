@@ -21,11 +21,12 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.grapher.graphviz.GraphvizGrapher;
 import com.google.inject.grapher.graphviz.GraphvizModule;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
+import com.navercorp.pinpoint.profiler.AgentContextOptionBuilder;
+import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
@@ -34,7 +35,6 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -78,26 +77,27 @@ public class DependencyGraph {
     }
 
     private DefaultApplicationContext newApplicationContext() {
-        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
-        Mockito.when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
 
         Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgentId", "mockAgentName", "mockApplicationName",
-                profilerConfig, Collections.emptyList(), Collections.emptyList());
+
+        AgentOption agentOption = new AgentOption(instrumentation,
+                profilerConfig.getProperties(), Collections.emptyMap(), null,
+                Collections.emptyList(), Collections.emptyList(), false);
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
         Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
         ModuleFactory moduleFactory = new OverrideModuleFactory(testInterceptorRegistryModule);
 
-        return new DefaultApplicationContext(agentOption, moduleFactory);
+        AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption,
+                "mockAgentId", "mockAgentName", "mockApplicationName", profilerConfig);
+        return new DefaultApplicationContext(agentContextOption, moduleFactory);
     }
 
     private String currentWorkingDir() {
         URL location = CodeSourceUtils.getCodeLocation(Logger.class);
 
-        String dir = location.getPath();
-        return dir;
+        return location.getPath();
     }
 
     public static class Grapher {

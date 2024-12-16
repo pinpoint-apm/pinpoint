@@ -69,10 +69,6 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugins-loader</artifactId>
         </dependency>
         <dependency>
@@ -204,6 +200,10 @@
                         <!-- other annotation processors -->
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>templating-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

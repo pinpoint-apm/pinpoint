@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
 
-import com.navercorp.pinpoint.bootstrap.config.Profiles;
+import com.navercorp.pinpoint.bootstrap.util.ProfileConstants;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -33,11 +33,8 @@ import java.util.Objects;
  */
 public class AgentDirectory {
 
-    public static final String AGENT_ROOT_PATH_KEY = "pinpoint.agent.root.path";
-
     public static final Path LIB_DIR = Paths.get("lib");
     public static final Path PLUGIN_DIR = Paths.get("plugin");
-    public static final Path LOGS_DIR = Paths.get("logs");
     public static final Path PROFILES_DIR = Paths.get("profiles");
 
     private final Path agentJarName;
@@ -93,16 +90,12 @@ public class AgentDirectory {
         return appendAgentDirPath(LIB_DIR);
     }
 
-    public Path getAgentLogFilePath() {
-        return appendAgentDirPath(LOGS_DIR);
-    }
-
     public Path getAgentPluginPath() {
         return appendAgentDirPath(PLUGIN_DIR);
     }
 
     public Path getAgentConfigPath() {
-        return appendAgentDirPath(Paths.get(Profiles.CONFIG_FILE_NAME));
+        return appendAgentDirPath(Paths.get(ProfileConstants.CONFIG_FILE_NAME));
     }
 
     public Path getProfilesPath() {
@@ -113,8 +106,8 @@ public class AgentDirectory {
         return this.agentDirPath.resolve(fileName);
     }
 
-    public String[] getProfileDirs() {
-        List<String> fileList = new ArrayList<>();
+    public List<Path> getProfileDirs() {
+        List<Path> fileList = new ArrayList<>();
 
         final Path profilesPath = getProfilesPath();
 
@@ -123,14 +116,14 @@ public class AgentDirectory {
                 if (Files.isDirectory(path)) {
                     final Path fileName = path.getFileName();
                     if (fileName != null) {
-                        fileList.add(fileName.toString());
+                        fileList.add(fileName);
                     }
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException("profileDirs traverse error " + profilesPath, e);
         }
-        return fileList.toArray(new String[0]);
+        return fileList;
     }
 
 }

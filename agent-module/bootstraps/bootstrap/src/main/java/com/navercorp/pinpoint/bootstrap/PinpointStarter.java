@@ -14,29 +14,21 @@
  */
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
-import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
-import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
-import com.navercorp.pinpoint.bootstrap.config.AgentSystemConfig;
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.LogConfig;
+import com.navercorp.pinpoint.bootstrap.config.BootStrapOptions;
 import com.navercorp.pinpoint.bootstrap.config.OsEnvSimpleProperty;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author Jongho Moon
@@ -85,45 +77,19 @@ class PinpointStarter {
 
 
     boolean start() {
-        final AgentIds agentIds = resolveAgentIds();
-        if (agentIds == null) {
-            logger.warn("Failed to resolve AgentId and ApplicationId");
-            return false;
-        }
-
-        final String agentId = agentIds.getAgentId();
-        if (agentId == null) {
-            logger.warn("agentId is null");
-            return false;
-        }
-        final String applicationName = agentIds.getApplicationName();
-        if (applicationName == null) {
-            logger.warn("applicationName is null");
-            return false;
-        }
 
         try {
             final Properties properties = loadProperties();
 
-            ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
-            if (!profilerConfig.getPinpointDisable().equalsIgnoreCase("false")) {
-                this.logger.warn("value of disable property is not false, pinpoint.disable=" + profilerConfig.getPinpointDisable());
+            BootStrapOptions bootStrapOptions = new BootStrapOptions(properties);
+            if (bootStrapOptions.getPinpointDisable()) {
+                this.logger.warn("value of disable property is not false, pinpoint.disable=" + bootStrapOptions.getPinpointDisable());
                 return false;
             }
 
-            // set the path of log file as a system property
-            AgentSystemConfig agentSystemConfig = new AgentSystemConfig();
-            agentSystemConfig.saveAgentIdForLog(agentIds.getAgentId());
-            agentSystemConfig.savePinpointVersion(Version.VERSION);
-
-            LogConfig logConfig = new LogConfig();
-            logConfig.saveLogFilePath(agentDirectory.getAgentLogFilePath());
-            logConfig.cleanLogDir(agentDirectory.getAgentLogFilePath(), profilerConfig.getLogDirMaxBackupSize());
-
             // this is the library list that must be loaded
             URL[] urls = resolveLib(agentDirectory);
-            List<String> agentClassloaderLibs = getAgentClassloaderLibs(profilerConfig);
-            final ClassLoader agentClassLoader = createClassLoader("pinpoint.agent", urls, parentClassLoader, agentClassloaderLibs);
+            final ClassLoader agentClassLoader = createClassLoader("pinpoint.agent", urls, parentClassLoader, properties);
             final ModuleBootLoader moduleBootLoader = loadModuleBootLoader(instrumentation, parentClassLoader);
             if (moduleBootLoader != null) {
                 this.logger.info("defineAgentModule");
@@ -134,49 +100,35 @@ class PinpointStarter {
             logger.info(String.format("pinpoint agent [%s] starting...", agentType));
 
             final List<Path> pluginJars = agentDirectory.getPlugins();
-            final String agentName = agentIds.getAgentName();
-            AgentOption option = createAgentOption(agentId, agentName, applicationName,
-                    profilerConfig,
+            AgentOption option = createAgentOption(
                     instrumentation,
+                    properties,
+                    agentArgs,
+                    agentDirectory.getAgentDirPath(),
                     pluginJars,
                     agentDirectory.getBootDir().getJarPath());
-            Agent pinpointAgent = agentBootLoader.boot(option);
-            pinpointAgent.start();
-            pinpointAgent.registerStopHandler();
-
+            Object agent = agentBootLoader.boot(option);
+            Class<?> agentClazz = agent.getClass();
+            agentClazz.getMethod("start").invoke(agent);
+            agentClazz.getMethod("registerStopHandler").invoke(agent);
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {
             // unexpected exception that did not be checked above
-            logger.warn(ProductInfo.NAME + " start failed.", e);
+            logger.warn("pinpoint start failed.", e);
             return false;
         }
         return true;
     }
 
-    private List<String> getAgentClassloaderLibs(ProfilerConfig profilerConfig) {
-        Set<String> libs = new HashSet<>();
-        libs.addAll(ProfilerLibs.PINPOINT_PROFILER_CLASS);
-        libs.addAll(profilerConfig.getAgentClassloaderAdditionalLibs());
+    // TestAgent only
+    public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
 
-        List<String> copy = new ArrayList<>(libs);
-        copy.sort(String.CASE_INSENSITIVE_ORDER);
-        return copy;
-    }
-
-    private AgentIds resolveAgentIds() {
-        AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
-        builder.addProperties(AgentIdSourceType.SYSTEM, System.getProperties()::getProperty);
-        builder.addProperties(AgentIdSourceType.SYSTEM_ENV, System.getenv()::get);
-        builder.addProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArgs::get);
-        AgentIdResolver agentIdResolver = builder.build();
-        return agentIdResolver.resolve();
-    }
 
     private Properties loadProperties() {
 
         final Path agentDirPath = agentDirectory.getAgentDirPath();
         final Path profilesPath = agentDirectory.getProfilesPath();
-        final String[] profileDirs = agentDirectory.getProfileDirs();
+        final List<Path> profileDirs = agentDirectory.getProfileDirs();
 
         final Properties javaSystemProperty = copyJavaSystemProperty();
         final Properties osEnvProperty = copyOSEnvVariables();
@@ -186,11 +138,8 @@ class PinpointStarter {
         final PropertyLoader loader = factory.newPropertyLoader();
         final Properties properties = loader.load();
 
-        if (this.agentType == AgentType.PLUGIN_TEST) {
-            properties.put(DefaultProfilerConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, "true");
-        }
         final String importPluginIds = this.agentArgs.getOrDefault(AgentParameter.IMPORT_PLUGIN, "");
-        properties.put(DefaultProfilerConfig.IMPORT_PLUGIN, importPluginIds);
+        properties.put(IMPORT_PLUGIN, importPluginIds);
 
         return properties;
     }
@@ -203,27 +152,25 @@ class PinpointStarter {
         return new OsEnvSimpleProperty().toProperties(System.getenv());
     }
 
-    private ClassLoader createClassLoader(final String name, final URL[] urls, final ClassLoader parentClassLoader, List<String> libClass) {
-        return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, libClass);
+    private ClassLoader createClassLoader(final String name, final URL[] urls, final ClassLoader parentClassLoader, Properties properties) {
+        try {
+            Class<?> classLoaderFactory = Class.forName("com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory");
+            Method method = classLoaderFactory.getMethod("createClassLoader", String.class, URL[].class, ClassLoader.class, Properties.class);
+            return (ClassLoader) method.invoke(classLoaderFactory, name, urls, parentClassLoader, properties);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
-    private AgentOption createAgentOption(String agentId, String agentName, String applicationName,
-                                          ProfilerConfig profilerConfig,
-                                          Instrumentation instrumentation,
+    private AgentOption createAgentOption(Instrumentation instrumentation,
+                                          Properties profilerConfig,
+                                          Map<String, String> agentArgs,
+
+                                          Path agentPath,
                                           List<Path> pluginJars,
                                           List<Path> bootstrapJarPaths) {
-        List<String> pluginJarStrPath = toPathList(pluginJars);
-        List<String> bootstrapJarPathStrPath = toPathList(bootstrapJarPaths);
-        return new DefaultAgentOption(instrumentation, agentId, agentName, applicationName, profilerConfig, pluginJarStrPath, bootstrapJarPathStrPath);
-    }
-
-    private List<String> toPathList(List<Path> paths) {
-        List<String> list = new ArrayList<>(paths.size());
-        for (Path path : paths) {
-            list.add(path.toString());
-        }
-        return list;
+        return new DefaultAgentOption(instrumentation, profilerConfig, agentArgs, agentPath, pluginJars, bootstrapJarPaths);
     }
 
     private URL[] resolveLib(AgentDirectory classPathResolver) {

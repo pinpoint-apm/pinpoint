@@ -17,12 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
+import com.navercorp.pinpoint.bootstrap.util.ProfileConstants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,57 +36,37 @@ class SimplePropertyLoader implements PropertyLoader {
     private final Properties systemProperty;
 
     private final Path agentRootPath;
-    private final Path profilesPath;
 
 
-    public SimplePropertyLoader(Properties systemProperty, Path agentRootPath, Path profilesPath) {
+    public SimplePropertyLoader(Properties systemProperty, Path agentRootPath) {
         this.systemProperty = Objects.requireNonNull(systemProperty, "systemProperty");
         this.agentRootPath = Objects.requireNonNull(agentRootPath, "agentRootPath");
-        this.profilesPath = profilesPath;
     }
 
     @Override
     public Properties load() {
-        final Path defaultConfigPath = this.agentRootPath.resolve(Profiles.CONFIG_FILE_NAME);
+        final Path defaultConfigPath = this.agentRootPath.resolve(ProfileConstants.CONFIG_FILE_NAME);
 
         final Properties defaultProperties = new Properties();
 
-        final String externalConfig = this.systemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
+        final String externalConfig = this.systemProperty.getProperty(ProfileConstants.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
-            PropertyLoaderUtils.loadFileProperties(defaultProperties, Paths.get(externalConfig));
+            defaultProperties.putAll(PropertyLoaderUtils.loadFileProperties(Paths.get(externalConfig)));
         } else {
             logger.info(String.format("load default config:%s", defaultConfigPath));
-            PropertyLoaderUtils.loadFileProperties(defaultProperties, defaultConfigPath);
+            defaultProperties.putAll(PropertyLoaderUtils.loadFileProperties(defaultConfigPath));
         }
-        loadSystemProperties(defaultProperties);
-        saveLogConfigLocation(defaultProperties);
+        // systemProperty
+        loadProperties(defaultProperties, this.systemProperty);
         return defaultProperties;
     }
 
 
-    private void saveLogConfigLocation(Properties properties) {
-        String activeProfile = systemProperty.getProperty(Profiles.ACTIVE_PROFILE_KEY);
-        if (activeProfile == null) {
-            throw new RuntimeException("Failed to read " + Profiles.ACTIVE_PROFILE_KEY + " from systemProperty");
-        }
 
-        LogConfigResolver logConfigResolver = new SimpleLogConfigResolver(agentRootPath);
-        final Path log4jLocation = logConfigResolver.getLogPath();
-
-        properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation.toString());
-        logger.info(String.format("logConfig path:%s", log4jLocation));
-    }
-
-    private void loadSystemProperties(Properties dstProperties) {
-        Set<String> stringPropertyNames = this.systemProperty.stringPropertyNames();
-        for (String propertyName : stringPropertyNames) {
-            boolean isPinpointProperty = propertyName.startsWith("bytecode.") || propertyName.startsWith("profiler.") || propertyName.startsWith("pinpoint.");
-            if (isPinpointProperty) {
-                String val = this.systemProperty.getProperty(propertyName);
-                dstProperties.setProperty(propertyName, val);
-            }
-        }
+    private void loadProperties(Properties dstProperties, Properties property) {
+        Map<Object, Object> copy = PropertyLoaderUtils.filterAllowedPrefix(property);
+        dstProperties.putAll(copy);
     }
 
 }

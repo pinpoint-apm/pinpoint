@@ -38,6 +38,8 @@ public class DefaultAgentInformation implements AgentInformation {
     private final String jvmVersion;
     private final String agentVersion;
 
+    private final String clusterNamespace;
+
     public DefaultAgentInformation(
             String agentId,
             String agentName,
@@ -49,7 +51,8 @@ public class DefaultAgentInformation implements AgentInformation {
             String hostIp,
             ServiceType serverType,
             String jvmVersion,
-            String agentVersion) {
+            String agentVersion,
+            String clusterNamespace) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
@@ -61,6 +64,8 @@ public class DefaultAgentInformation implements AgentInformation {
         this.serverType = serverType;
         this.jvmVersion = jvmVersion;
         this.agentVersion = Objects.requireNonNull(agentVersion, "agentVersion");
+
+        this.clusterNamespace = clusterNamespace;
     }
 
     @Override
@@ -119,20 +124,24 @@ public class DefaultAgentInformation implements AgentInformation {
     }
 
     @Override
+    public String getClusterNamespace() {
+        return clusterNamespace;
+    }
+
+    @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", agentName='").append(agentName).append('\'');
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", isContainer=").append(isContainer);
-        sb.append(", startTime=").append(startTime);
-        sb.append(", pid=").append(pid);
-        sb.append(", machineName='").append(machineName).append('\'');
-        sb.append(", hostIp='").append(hostIp).append('\'');
-        sb.append(", serverType=").append(serverType);
-        sb.append(", jvmVersion='").append(jvmVersion).append('\'');
-        sb.append(", agentVersion='").append(agentVersion).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "{" + "agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", isContainer=" + isContainer +
+                ", startTime=" + startTime +
+                ", pid=" + pid +
+                ", machineName='" + machineName + '\'' +
+                ", hostIp='" + hostIp + '\'' +
+                ", serverType=" + serverType +
+                ", jvmVersion='" + jvmVersion + '\'' +
+                ", agentVersion='" + agentVersion + '\'' +
+                ", clusterNamespace='" + clusterNamespace + '\'' +
+                '}';
     }
 }

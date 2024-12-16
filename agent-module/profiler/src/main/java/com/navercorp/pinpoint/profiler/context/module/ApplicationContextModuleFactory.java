@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigurationLoader;
 import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultExceptionTraceConfig;
@@ -36,7 +36,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
-    public Module newModule(AgentOption agentOption) {
+    public Module newModule(AgentContextOption agentOption) {
         final Module config = new ConfigModule(agentOption);
         final Module pluginModule = new PluginModule();
         final Module applicationContextModule = new ApplicationContextModule();
@@ -68,7 +68,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         }
     }
 
-    protected Module newRpcModule(AgentOption agentOption) {
+    protected Module newRpcModule(AgentContextOption agentOption) {
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
         logger.info("load GrpcModule");
         return new GrpcModule(profilerConfig);

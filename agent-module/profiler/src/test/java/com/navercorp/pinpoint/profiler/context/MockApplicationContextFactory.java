@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
+import com.navercorp.pinpoint.profiler.AgentContextOptionBuilder;
+import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import org.mockito.Mockito;
@@ -40,9 +41,11 @@ public class MockApplicationContextFactory {
         String mockAgentId = "mockAgentId";
         String mockAgentName = "mockAgentName";
         String mockApplicationName = "mockApplicationName";
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgentId, mockAgentName, mockApplicationName,
-                config, Collections.emptyList(), Collections.emptyList());
-        return new DefaultApplicationContext(agentOption, moduleFactory);
+        AgentOption agentOption = new AgentOption(instrumentation, config.getProperties(),
+                Collections.emptyMap(), null,
+                Collections.emptyList(), Collections.emptyList(), false);
+        AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption, mockAgentId, mockAgentName, mockApplicationName, config);
+        return new DefaultApplicationContext(agentContextOption, moduleFactory);
     }
 
 }

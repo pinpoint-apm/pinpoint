@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
+import java.io.Closeable;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ApplicationContext {
+public interface ApplicationContext extends Closeable {
 
     void start();
 
+    @Override
     void close();
 }

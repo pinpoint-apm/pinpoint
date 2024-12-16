@@ -37,6 +37,7 @@ import java.util.Objects;
  */
 public class TraceContextProvider implements Provider<TraceContext> {
     private final ProfilerConfig profilerConfig;
+
     private final Provider<AgentInformation> agentInformationProvider;
 
     private final TraceIdFactory traceIdFactory;
@@ -76,6 +77,9 @@ public class TraceContextProvider implements Provider<TraceContext> {
     public TraceContext get() {
         AgentInformation agentInformation = this.agentInformationProvider.get();
         return new DefaultTraceContext(profilerConfig, agentInformation, traceIdFactory, traceFactory,
-                serverMetaDataHolder, apiMetaDataService, stringMetaDataService, sqlMetaDataService, jdbcContext);
+                serverMetaDataHolder, apiMetaDataService, stringMetaDataService, sqlMetaDataService,
+                jdbcContext);
     }
+
+
 }
