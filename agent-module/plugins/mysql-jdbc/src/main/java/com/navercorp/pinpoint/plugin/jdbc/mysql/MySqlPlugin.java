@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -29,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -55,6 +58,7 @@ import com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.getter.OrigPortToCon
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -72,7 +76,7 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        MySqlConfig config = new MySqlConfig(context.getConfig());
+        JdbcAutoCommitConfig config = MySqlConfig.of(context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -93,14 +97,23 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         addJDBC4CallableStatementTransformer(config);
     }
 
-    private void addConnectionTransformer(final MySqlConfig config) {
-        transformTemplate.transform("com.mysql.jdbc.Connection", ConnectionTransform.class);
-        transformTemplate.transform("com.mysql.jdbc.ConnectionImpl", ConnectionTransform.class);
+    private void addConnectionTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.mysql.jdbc.Connection", ConnectionTransform.class, parameters);
+        transformTemplate.transform("com.mysql.jdbc.ConnectionImpl", ConnectionTransform.class, parameters);
         // 6.x+
-        transformTemplate.transform("com.mysql.cj.jdbc.ConnectionImpl", ConnectionTransform.class);
+        transformTemplate.transform("com.mysql.cj.jdbc.ConnectionImpl", ConnectionTransform.class, parameters);
     }
 
     public static class ConnectionTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public ConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -156,7 +169,6 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String", "int", "int").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
             InstrumentUtils.findMethodOrIgnore(target, "prepareCall", "java.lang.String", "int", "int", "int").addScopedInterceptor(preparedStatementCreate, MYSQL_SCOPE);
 
-            MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
             if (config.isProfileSetAutoCommit()) {
                 InstrumentUtils.findMethodOrIgnore(target, "setAutoCommit", "boolean").addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, MYSQL_SCOPE);
             }
@@ -189,17 +201,26 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addPreparedStatementTransformer(final MySqlConfig config) {
-        transformTemplate.transform("com.mysql.jdbc.PreparedStatement", PreparedStatementTransform.class);
-        transformTemplate.transform("com.mysql.jdbc.ServerPreparedStatement", PreparedStatementTransform.class);
+    private void addPreparedStatementTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.mysql.jdbc.PreparedStatement", PreparedStatementTransform.class, parameters);
+        transformTemplate.transform("com.mysql.jdbc.ServerPreparedStatement", PreparedStatementTransform.class, parameters);
         // 6.x+
-        transformTemplate.transform("com.mysql.cj.jdbc.PreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("com.mysql.cj.jdbc.PreparedStatement", PreparedStatementTransform.class, parameters);
         // 8.0.11+
-        transformTemplate.transform("com.mysql.cj.jdbc.ClientPreparedStatement", PreparedStatementTransform.class);
-        transformTemplate.transform("com.mysql.cj.jdbc.ServerPreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("com.mysql.cj.jdbc.ClientPreparedStatement", PreparedStatementTransform.class, parameters);
+        transformTemplate.transform("com.mysql.cj.jdbc.ServerPreparedStatement", PreparedStatementTransform.class, parameters);
     }
 
     public static class PreparedStatementTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PreparedStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -209,7 +230,6 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(ParsingResultAccessor.class);
             target.addField(BindValueAccessor.class);
 
-            MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> preparedStatementInterceptor = PreparedStatementExecuteQueryInterceptor.class;
@@ -238,13 +258,22 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addCallableStatementTransformer(final MySqlConfig config) {
-        transformTemplate.transform("com.mysql.jdbc.CallableStatement", CallableStatementTransform.class);
+    private void addCallableStatementTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.mysql.jdbc.CallableStatement", CallableStatementTransform.class, parameters);
         // 6.x+
-        transformTemplate.transform("com.mysql.cj.jdbc.CallableStatement", CallableStatementTransform.class);
+        transformTemplate.transform("com.mysql.cj.jdbc.CallableStatement", CallableStatementTransform.class, parameters);
     }
 
     public static class CallableStatementTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public CallableStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -254,7 +283,6 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(ParsingResultAccessor.class);
             target.addField(BindValueAccessor.class);
 
-            MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> callableStatementExecuteQuery = CallableStatementExecuteQueryInterceptor.class;
@@ -279,17 +307,25 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addJDBC4PreparedStatementTransformer(final MySqlConfig config) {
-        transformTemplate.transform("com.mysql.jdbc.JDBC4PreparedStatement", JDBC4PreparedStatementTransform.class);
+    private void addJDBC4PreparedStatementTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.mysql.jdbc.JDBC4PreparedStatement", JDBC4PreparedStatementTransform.class, parameters);
     }
 
     public static class JDBC4PreparedStatementTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public JDBC4PreparedStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
             if (config.isTraceSqlBindValue()) {
                 final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
                 final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(includes);
@@ -302,17 +338,25 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addJDBC4CallableStatementTransformer(final MySqlConfig config) {
-        transformTemplate.transform("com.mysql.jdbc.JDBC4CallableStatement", JDBC4CallableStatement.class);
+    private void addJDBC4CallableStatementTransformer(final JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("com.mysql.jdbc.JDBC4CallableStatement", JDBC4CallableStatement.class, parameters);
     }
 
     public static class JDBC4CallableStatement implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public JDBC4CallableStatement(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            MySqlConfig config = new MySqlConfig(instrumentor.getProfilerConfig());
             if (config.isTraceSqlBindValue()) {
                 final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
                 final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(includes);

@@ -101,8 +101,8 @@ public class TransformTemplate implements TransformOperations {
 
     @Override
     public void transform(String className, Class<? extends TransformCallback> transformCallbackClass, TransformCallbackParameters params) {
-        Object[] parameters = params.getParamValues();
-        Class<?>[] parameterTypes = params.getParamTypes();
+        Object[] parameters = params.values();
+        Class<?>[] parameterTypes = params.types();
         this.transform(className, transformCallbackClass, parameters, parameterTypes);
     }
 }

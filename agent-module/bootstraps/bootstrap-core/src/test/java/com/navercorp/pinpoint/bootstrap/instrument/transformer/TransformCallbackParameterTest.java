@@ -38,7 +38,7 @@ public class TransformCallbackParameterTest {
                 .addStringArrayArray(new String[][]{{"test1", "test2"}, {"test3", "test4"}})
                 .toParameters();
 
-        Object[] values = parameters.getParamValues();
+        Object[] values = parameters.values();
         assertThat(values).hasSize(7);
         assertThat(values[0]).isInstanceOf(Boolean.class).isEqualTo(Boolean.TRUE);
         assertThat(values[1]).isInstanceOf(ServiceType.class).isEqualTo(ServiceType.STAND_ALONE);
@@ -48,7 +48,7 @@ public class TransformCallbackParameterTest {
         assertThat(values[5]).isInstanceOf(String[].class).isEqualTo(new String[]{"test1", "test2"});
         assertThat(values[6]).isInstanceOf(String[][].class).isEqualTo(new String[][]{{"test1", "test2"}, {"test3", "test4"}});
 
-        Class<?>[] types = parameters.getParamTypes();
+        Class<?>[] types = parameters.types();
         assertThat(types[0]).isEqualTo(Boolean.class);
         assertThat(types[1]).isEqualTo(ServiceType.class);
         assertThat(types[2]).isEqualTo(Long.class);

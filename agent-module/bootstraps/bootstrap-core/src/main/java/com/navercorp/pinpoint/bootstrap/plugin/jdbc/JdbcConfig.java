@@ -16,16 +16,29 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
 public class JdbcConfig {
-    private final boolean pluginEnable;
-    private final boolean traceSqlBindValue;
-    private final int maxSqlBindValueSize;
+    protected final String name;
+    protected final boolean pluginEnable;
+    protected final boolean traceSqlBindValue;
+    protected final int maxSqlBindValueSize;
 
+    public static JdbcConfig of(String name, ProfilerConfig config) {
+        return new JdbcConfig(name,
+                config.readBoolean(String.format("profiler.jdbc.%s", name), false),
+                config.readBoolean(String.format("profiler.jdbc.%s.tracesqlbindvalue", name), config.isTraceSqlBindValue()),
+                config.getMaxSqlBindValueSize()
+        );
+    }
 
-    protected JdbcConfig(boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
+    protected JdbcConfig(String name, boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
+        this.name = Objects.requireNonNull(name, "name");
         this.pluginEnable = pluginEnable;
         this.traceSqlBindValue = traceSqlBindValue;
         this.maxSqlBindValueSize = maxSqlBindValue;
@@ -45,6 +58,10 @@ public class JdbcConfig {
 
     @Override
     public String toString() {
-        return "pluginEnable=" + pluginEnable +", traceSqlBindValue=" + this.traceSqlBindValue + ", maxSqlBindValueSize=" + this.maxSqlBindValueSize;
+        return name +
+                "{pluginEnable=" + pluginEnable +
+                ", traceSqlBindValue=" + traceSqlBindValue +
+                ", maxSqlBindValueSize=" + maxSqlBindValueSize +
+                '}';
     }
 }

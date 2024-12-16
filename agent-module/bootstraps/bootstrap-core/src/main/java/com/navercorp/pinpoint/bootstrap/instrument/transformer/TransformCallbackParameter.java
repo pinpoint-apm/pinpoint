@@ -18,87 +18,60 @@ package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Objects;
+
 /**
  * @author youngjin.kim2
  */
 public class TransformCallbackParameter {
 
     private final Object value;
-    private final ParameterType type;
+    private final Class<?> type;
 
-    public TransformCallbackParameter(Boolean value) {
-        this.value = value;
-        this.type = ParameterType.BOOLEAN;
+    public static TransformCallbackParameter of(Boolean value) {
+        return new TransformCallbackParameter(value, Boolean.class);
     }
 
-    public TransformCallbackParameter(Long value) {
-        this.value = value;
-        this.type = ParameterType.LONG;
+    public static TransformCallbackParameter of(Long value) {
+        return new TransformCallbackParameter(value, Long.class);
     }
 
-    public TransformCallbackParameter(Double value) {
-        this.value = value;
-        this.type = ParameterType.DOUBLE;
+    public static TransformCallbackParameter of(Double value) {
+        return new TransformCallbackParameter(value, Double.class);
     }
 
-    public TransformCallbackParameter(String value) {
-        this.value = value;
-        this.type = ParameterType.STRING;
+    public static TransformCallbackParameter of(String value) {
+        return new TransformCallbackParameter(value, String.class);
     }
 
-    public TransformCallbackParameter(String[] value) {
-        this.value = value;
-        this.type = ParameterType.STRING_ARRAY;
+    public static TransformCallbackParameter of(String[] value) {
+        return new TransformCallbackParameter(value, String[].class);
     }
 
-    public TransformCallbackParameter(String[][] value) {
-        this.value = value;
-        this.type = ParameterType.STRING_ARRAY_ARRAY;
+    public static TransformCallbackParameter of(String[][] value) {
+        return new TransformCallbackParameter(value, String[][].class);
     }
 
-    public TransformCallbackParameter(ServiceType value) {
+    public static TransformCallbackParameter of(ServiceType value) {
+        return new TransformCallbackParameter(value, ServiceType.class);
+    }
+
+    public static TransformCallbackParameter of(Object value) {
+        Objects.requireNonNull(value, "value");
+        return new TransformCallbackParameter(value, value.getClass());
+    }
+
+    TransformCallbackParameter(Object value, Class<?> type) {
         this.value = value;
-        this.type = ParameterType.SERVICE_TYPE;
+        this.type = Objects.requireNonNull(type, "type");
     }
 
     Object getValue() {
         return value;
     }
 
-    ParameterType getType() {
+    Class<?> getType() {
         return type;
-    }
-
-    public enum ParameterType {
-        BOOLEAN,
-        LONG,
-        DOUBLE,
-        STRING,
-        STRING_ARRAY,
-        STRING_ARRAY_ARRAY,
-        SERVICE_TYPE,
-        ;
-
-        public Class<?> getJavaClass() {
-            switch (this) {
-                case BOOLEAN:
-                    return Boolean.class;
-                case SERVICE_TYPE:
-                    return ServiceType.class;
-                case LONG:
-                    return Long.class;
-                case DOUBLE:
-                    return Double.class;
-                case STRING:
-                    return String.class;
-                case STRING_ARRAY:
-                    return String[].class;
-                case STRING_ARRAY_ARRAY:
-                    return String[][].class;
-                default:
-                    throw new IllegalArgumentException("Unknown type: " + this);
-            }
-        }
     }
 
 }

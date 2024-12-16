@@ -15,39 +15,13 @@
 package com.navercorp.pinpoint.plugin.jdbc.clickhouse;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 
 /**
  * @author Jongho Moon
  */
-public class ClickHouseConfig extends JdbcConfig {
-    private final boolean profileSetAutoCommit;
-    private final boolean profileCommit;
-    private final boolean profileRollback;
-
-    public ClickHouseConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.clickhouse", false),
-                config.readBoolean("profiler.jdbc.clickhouse.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.clickhouse.setautocommit", false);
-        this.profileCommit = config.readBoolean("profiler.jdbc.clickhouse.commit", false);
-        this.profileRollback = config.readBoolean("profiler.jdbc.clickhouse.rollback", false);
-    }
-
-    public boolean isProfileSetAutoCommit() {
-        return profileSetAutoCommit;
-    }
-
-    public boolean isProfileCommit() {
-        return profileCommit;
-    }
-
-    public boolean isProfileRollback() {
-        return profileRollback;
-    }
-
-    @Override
-    public String toString() {
-        return "ClickHouseConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
+public class ClickHouseConfig {
+    public static JdbcAutoCommitConfig of(ProfilerConfig config) {
+        return JdbcAutoCommitConfig.of("clickhouse", config);
     }
 }

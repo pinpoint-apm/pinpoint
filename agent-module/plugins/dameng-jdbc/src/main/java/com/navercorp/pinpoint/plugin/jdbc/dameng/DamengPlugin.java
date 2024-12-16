@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -29,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -48,6 +51,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -66,7 +70,7 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        DamengConfig config = new DamengConfig(context.getConfig());
+        JdbcAutoCommitConfig config = JdbcAutoCommitConfig.of("dameng", context.getConfig());
         if (!config.isPluginEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -76,8 +80,8 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
         context.addJdbcUrlParser(jdbcUrlParser);
 
         addDriverTransformer();
-        addConnectionTransformer();
-        addPreparedStatementTransformer();
+        addConnectionTransformer(config);
+        addPreparedStatementTransformer(config);
         addCallableStatementTransformer();
         addStatementTransformer();
     }
@@ -104,17 +108,25 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addConnectionTransformer() {
-        transformTemplate.transform("dm.jdbc.driver.DmdbConnection", DamengConnectionTransform.class);
+    private void addConnectionTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("dm.jdbc.driver.DmdbConnection", DamengConnectionTransform.class, parameters);
     }
 
     public static class DamengConnectionTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public DamengConnectionTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
-            DamengConfig config = new DamengConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -176,20 +188,28 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
-    private void addPreparedStatementTransformer() {
-        transformTemplate.transform("dm.jdbc.driver.DmdbPreparedStatement", PreparedStatementTransform.class);
+    private void addPreparedStatementTransformer(JdbcAutoCommitConfig config) {
+        TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                .addJdbcConfig(config)
+                .build();
+        transformTemplate.transform("dm.jdbc.driver.DmdbPreparedStatement", PreparedStatementTransform.class, parameters);
     }
 
     public static class PreparedStatementTransform implements TransformCallback {
+
+        private final JdbcAutoCommitConfig config;
+
+        public PreparedStatementTransform(JdbcAutoCommitConfig config) {
+            this.config = Objects.requireNonNull(config, "config");
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
 
-            DamengConfig config = new DamengConfig(instrumentor.getProfilerConfig());
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);
@@ -202,7 +222,7 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
             return target.toBytecode();
         }
 
-        private void interceptExecute(InstrumentClass target, DamengConfig config) throws InstrumentException {
+        private void interceptExecute(InstrumentClass target, JdbcAutoCommitConfig config) throws InstrumentException {
             int maxBindValueSize = config.getMaxSqlBindValueSize();
 
             final Class<? extends Interceptor> preparedStatementInterceptor = PreparedStatementExecuteQueryInterceptor.class;
@@ -215,7 +235,7 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         }
 
-        private void interceptBindVariable(InstrumentClass target, DamengConfig config) throws InstrumentException {
+        private void interceptBindVariable(InstrumentClass target, JdbcAutoCommitConfig config) throws InstrumentException {
             if (config.isTraceSqlBindValue()) {
                 final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter
                         .excludes("setRowId", "setNClob", "setSQLXML");
@@ -227,7 +247,7 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
         }
 
-    };
+    }
 
     private void addStatementTransformer() {
         transformTemplate.transform("dm.jdbc.driver.DmdbStatement", DamengStatementTransform.class);
@@ -272,7 +292,7 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
     private void addCallableStatementTransformer() {
         transformTemplate.transform("dm.jdbc.driver.DmdbCallableStatement", CallableStatementTransformer.class);
@@ -320,7 +340,7 @@ public class DamengPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {
