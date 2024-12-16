@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.bootstrap.config;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.config.Value;
-import com.navercorp.pinpoint.common.config.util.BypassResolver;
-import com.navercorp.pinpoint.common.config.util.ValueResolver;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Collections;
@@ -174,19 +172,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public String readString(String propertyName, String defaultValue) {
-        return readString(propertyName, defaultValue, BypassResolver.RESOLVER);
-    }
-
-    public String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
-        Objects.requireNonNull(valueResolver, "valueResolver");
-
-        String value = properties.getProperty(propertyName, defaultValue);
-        return valueResolver.resolve(propertyName, value);
+        return properties.getProperty(propertyName, defaultValue);
     }
 
     @Override
     public int readInt(String propertyName, int defaultValue) {
-        String value = properties.getProperty(propertyName);
+        final String value = properties.getProperty(propertyName);
         return NumberUtils.parseInteger(value, defaultValue);
     }
 
@@ -208,13 +199,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public long readLong(String propertyName, long defaultValue) {
-        String value = properties.getProperty(propertyName);
+        final String value = properties.getProperty(propertyName);
         return NumberUtils.parseLong(value, defaultValue);
     }
 
     @Override
     public List<String> readList(String propertyName) {
-        String value = properties.getProperty(propertyName);
+        final String value = properties.getProperty(propertyName);
         if (StringUtils.isEmpty(value)) {
             return Collections.emptyList();
         }
@@ -223,7 +214,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public boolean readBoolean(String propertyName, boolean defaultValue) {
-        String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
+        final String value = properties.getProperty(propertyName);
+        if (value == null) {
+            return defaultValue;
+        }
         return Boolean.parseBoolean(value);
     }
 

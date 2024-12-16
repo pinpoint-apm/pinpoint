@@ -17,18 +17,12 @@
 package com.navercorp.pinpoint.common.util;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author emeroad
  */
 public final class ClassLoaderUtils {
-
-    public static final ClassLoaderCallable DEFAULT_CLASS_LOADER_CALLABLE = new ClassLoaderCallable() {
-        @Override
-        public ClassLoader getClassLoader() {
-            return ClassLoaderUtils.class.getClassLoader();
-        }
-    };
 
     private static final ClassLoader SYSTEM_CLASS_LOADER;
     private static final ClassLoader EXT_CLASS_LOADER;
@@ -65,10 +59,10 @@ public final class ClassLoaderUtils {
 //    }
 
     public static ClassLoader getDefaultClassLoader() {
-        return getDefaultClassLoader(DEFAULT_CLASS_LOADER_CALLABLE);
+        return getDefaultClassLoader(ClassLoaderUtils.class::getClassLoader);
     }
 
-    public static ClassLoader getDefaultClassLoader(ClassLoaderCallable defaultClassLoaderCallable) {
+    public static ClassLoader getDefaultClassLoader(Supplier<ClassLoader> defaultClassLoaderCallable) {
         Objects.requireNonNull(defaultClassLoaderCallable, "defaultClassLoaderCallable");
 
         try {
@@ -81,12 +75,9 @@ public final class ClassLoaderUtils {
             // skip
         }
         // Timing for security exceptions is different when the ClassLoader is received as an argument
-        return defaultClassLoaderCallable.getClassLoader();
+        return defaultClassLoaderCallable.get();
     }
 
-    public interface ClassLoaderCallable {
-        ClassLoader getClassLoader();
-    }
 
 
     public static boolean isJvmClassLoader(ClassLoader classLoader) {

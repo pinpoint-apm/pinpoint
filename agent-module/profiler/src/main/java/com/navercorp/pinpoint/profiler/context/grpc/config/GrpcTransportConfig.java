@@ -20,11 +20,11 @@ import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
-import com.navercorp.pinpoint.common.config.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.config.SslOption;
 
 import java.util.Properties;
+import java.util.function.Function;
 
 /**
  * NOTE module accessibility
@@ -214,9 +214,9 @@ public class GrpcTransportConfig {
         final ClientOption clientOption = new ClientOption();
 
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(clientOption, new PropertyPlaceholderHelper.PlaceholderResolver() {
+        reader.process(clientOption, new Function<String, String>() {
             @Override
-            public String resolvePlaceholder(String placeholderName) {
+            public String apply(String placeholderName) {
                 String prefix = transportName + placeholderName;
                 return properties.getProperty(prefix);
             }
@@ -232,9 +232,9 @@ public class GrpcTransportConfig {
         final SslOption.Builder builder = new SslOption.Builder(agentRootPath);
 
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(builder, new PropertyPlaceholderHelper.PlaceholderResolver() {
+        reader.process(builder, new Function<String, String>() {
             @Override
-            public String resolvePlaceholder(String placeholderName) {
+            public String apply(String placeholderName) {
                 String prefix = sslPrefix + placeholderName;
                 return properties.getProperty(prefix);
             }
