@@ -15,41 +15,14 @@
 package com.navercorp.pinpoint.plugin.jdbc.mariadb;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 
 /**
  * @author dawidmalina
  */
-public class MariaDBConfig extends JdbcConfig {
-    private final boolean profileSetAutoCommit;
-    private final boolean profileCommit;
-    private final boolean profileRollback;
+public class MariaDBConfig {
 
-    public MariaDBConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.mariadb", false),
-                config.readBoolean("profiler.jdbc.mariadb.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.mariadb.setautocommit", false);
-        this.profileCommit = config.readBoolean("profiler.jdbc.mariadb.commit", false);
-        this.profileRollback = config.readBoolean("profiler.jdbc.mariadb.rollback", false);
+    public static JdbcAutoCommitConfig of(ProfilerConfig config) {
+        return JdbcAutoCommitConfig.of("mariadb", config);
     }
-
-    public boolean isProfileSetAutoCommit() {
-        return profileSetAutoCommit;
-    }
-
-    public boolean isProfileCommit() {
-        return profileCommit;
-    }
-
-    public boolean isProfileRollback() {
-        return profileRollback;
-    }
-
-
-    @Override
-    public String toString() {
-        return "MariaDBConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
-    }
-
 }

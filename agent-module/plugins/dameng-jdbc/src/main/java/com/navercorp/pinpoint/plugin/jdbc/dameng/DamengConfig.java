@@ -15,41 +15,14 @@
 package com.navercorp.pinpoint.plugin.jdbc.dameng;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
 
 /**
  * @author yjqg6666
  */
-public class DamengConfig extends JdbcConfig {
-    private final boolean profileSetAutoCommit;
-    private final boolean profileCommit;
-    private final boolean profileRollback;
+public class DamengConfig {
 
-    public DamengConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.dameng", false),
-                config.readBoolean("profiler.jdbc.dameng.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.dameng.setautocommit", false);
-        this.profileCommit = config.readBoolean("profiler.jdbc.dameng.commit", false);
-        this.profileRollback = config.readBoolean("profiler.jdbc.dameng.rollback", false);
+    public static JdbcAutoCommitConfig of(ProfilerConfig config) {
+        return JdbcAutoCommitConfig.of("dameng", config);
     }
-
-    public boolean isProfileSetAutoCommit() {
-        return profileSetAutoCommit;
-    }
-
-    public boolean isProfileCommit() {
-        return profileCommit;
-    }
-
-    public boolean isProfileRollback() {
-        return profileRollback;
-    }
-
-
-    @Override
-    public String toString() {
-        return "DamengConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
-    }
-
 }

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.ArrayList;
@@ -41,34 +43,46 @@ public class TransformCallbackParametersBuilder {
     }
 
     public TransformCallbackParametersBuilder addBoolean(Boolean param) {
-        return this.addParameter(new TransformCallbackParameter(param));
+        return this.addParameter(TransformCallbackParameter.of(param));
     }
 
     public TransformCallbackParametersBuilder addServiceType(ServiceType param) {
-        return this.addParameter(new TransformCallbackParameter(param));
+        return this.addParameter(TransformCallbackParameter.of(param));
     }
 
     public TransformCallbackParametersBuilder addLong(Long param) {
-        return this.addParameter(new TransformCallbackParameter(param));
+        return this.addParameter(TransformCallbackParameter.of(param));
     }
 
     public TransformCallbackParametersBuilder addDouble(Double param) {
-        return this.addParameter(new TransformCallbackParameter(param));
+        return this.addParameter(TransformCallbackParameter.of(param));
     }
 
     public TransformCallbackParametersBuilder addString(String param) {
-        return this.addParameter(new TransformCallbackParameter(param));
+        return this.addParameter(TransformCallbackParameter.of(param));
     }
 
     public TransformCallbackParametersBuilder addStringArray(String[] param) {
-        return this.addParameter(new TransformCallbackParameter(param));
+        return this.addParameter(TransformCallbackParameter.of(param));
     }
 
     public TransformCallbackParametersBuilder addStringArrayArray(String[][] param) {
-        return this.addParameter(new TransformCallbackParameter(param));
+        return this.addParameter(TransformCallbackParameter.of(param));
+    }
+
+    public TransformCallbackParametersBuilder addJdbcConfig(JdbcConfig param) {
+        return this.addParameter(TransformCallbackParameter.of(param));
+    }
+
+    public TransformCallbackParametersBuilder addJdbcConfig(JdbcAutoCommitConfig param) {
+        return this.addParameter(TransformCallbackParameter.of(param));
     }
 
     public TransformCallbackParameters toParameters() {
+        return new TransformCallbackParameters(new ArrayList<>(this.params));
+    }
+
+    public TransformCallbackParameters build() {
         return new TransformCallbackParameters(new ArrayList<>(this.params));
     }
 

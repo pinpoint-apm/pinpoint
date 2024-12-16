@@ -23,4 +23,8 @@ public final class VarArgs {
     public static Object[] va(Object... args) {
         return args;
     }
+
+    public static Class<?>[] va(Class<?>... args) {
+        return args;
+    }
 }

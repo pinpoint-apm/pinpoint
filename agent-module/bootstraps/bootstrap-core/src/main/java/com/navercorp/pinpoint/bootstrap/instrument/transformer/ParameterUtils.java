@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcAutoCommitConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
@@ -69,6 +71,9 @@ public final class ParameterUtils {
             Long.class,
             Float.class,
             Double.class,
+            // Refactor Type detection
+            JdbcConfig.class,
+            JdbcAutoCommitConfig.class
     };
 
 

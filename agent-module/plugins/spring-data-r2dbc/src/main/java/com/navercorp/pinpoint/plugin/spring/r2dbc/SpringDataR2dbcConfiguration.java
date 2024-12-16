@@ -22,34 +22,22 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 public class SpringDataR2dbcConfiguration {
 
     private final boolean enabled;
-    private final MssqlConfig mssqlConfig;
-    private final OracleConfig oracleConfig;
-    private final MariadbConfig mariadbConfig;
-    private final MysqlConfig mysqlConfig;
-    private final H2Config h2Config;
-    private final PostgresqlConfig postgresqlConfig;
+    private final JdbcConfig mssqlConfig;
+    private final JdbcConfig oracleConfig;
+    private final JdbcConfig mariadbConfig;
+    private final JdbcConfig mysqlConfig;
+    private final JdbcConfig h2Config;
+    private final JdbcConfig postgresqlConfig;
 
     public SpringDataR2dbcConfiguration(ProfilerConfig config) {
         this.enabled = config.readBoolean("profiler.spring.data.r2dbc.enable", true);
 
-        this.mssqlConfig = new MssqlConfig(config.readBoolean("profiler.jdbc.mssql", false),
-                config.readBoolean("profiler.jdbc.mssql.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.oracleConfig = new OracleConfig(config.readBoolean("profiler.jdbc.oracle", false),
-                config.readBoolean("profiler.jdbc.oracle.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.mariadbConfig = new MariadbConfig(config.readBoolean("profiler.jdbc.mariadb", false),
-                config.readBoolean("profiler.jdbc.mariadb.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.mysqlConfig = new MysqlConfig(config.readBoolean("profiler.jdbc.mysql", false),
-                config.readBoolean("profiler.jdbc.mysql.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.h2Config = new H2Config(config.readBoolean("profiler.jdbc.h2", false),
-                config.readBoolean("profiler.jdbc.h2.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
-        this.postgresqlConfig = new PostgresqlConfig(config.readBoolean("profiler.jdbc.postgresql", false),
-                config.readBoolean("profiler.jdbc.postgresql.tracesqlbindvalue", config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize());
+        this.mssqlConfig = MssqlConfig.of(config);
+        this.oracleConfig = OracleConfig.of(config);
+        this.mariadbConfig = MariadbConfig.of(config);
+        this.mysqlConfig = MysqlConfig.of(config);
+        this.h2Config = H2Config.of(config);
+        this.postgresqlConfig = PostgresqlConfig.of(config);
     }
 
     public JdbcConfig getMssqlConfig() {
@@ -93,39 +81,39 @@ public class SpringDataR2dbcConfiguration {
                 '}';
     }
 
-    static class MssqlConfig extends JdbcConfig {
-        public MssqlConfig(boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
-            super(pluginEnable, traceSqlBindValue, maxSqlBindValue);
+    static class MssqlConfig {
+        public static JdbcConfig of(ProfilerConfig config) {
+            return JdbcConfig.of("mssql", config);
         }
     }
 
-    static class OracleConfig extends JdbcConfig {
-        public OracleConfig(boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
-            super(pluginEnable, traceSqlBindValue, maxSqlBindValue);
+    static class OracleConfig {
+        public static JdbcConfig of(ProfilerConfig config) {
+            return JdbcConfig.of("oracle", config);
         }
     }
 
-    static class MariadbConfig extends JdbcConfig {
-        public MariadbConfig(boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
-            super(pluginEnable, traceSqlBindValue, maxSqlBindValue);
+    static class MariadbConfig {
+        public static JdbcConfig of(ProfilerConfig config) {
+            return JdbcConfig.of("mariadb", config);
         }
     }
 
-    static class MysqlConfig extends JdbcConfig {
-        public MysqlConfig(boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
-            super(pluginEnable, traceSqlBindValue, maxSqlBindValue);
+    static class MysqlConfig {
+        public static JdbcConfig of(ProfilerConfig config) {
+            return JdbcConfig.of("mysql", config);
         }
     }
 
-    static class H2Config extends JdbcConfig {
-        public H2Config(boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
-            super(pluginEnable, traceSqlBindValue, maxSqlBindValue);
+    static class H2Config {
+        public static JdbcConfig of(ProfilerConfig config) {
+            return JdbcConfig.of("h2", config);
         }
     }
 
-    static class PostgresqlConfig extends JdbcConfig {
-        public PostgresqlConfig(boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
-            super(pluginEnable, traceSqlBindValue, maxSqlBindValue);
+    static class PostgresqlConfig {
+        public static JdbcConfig of(ProfilerConfig config) {
+            return JdbcConfig.of("postgresql", config);
         }
     }
 }
