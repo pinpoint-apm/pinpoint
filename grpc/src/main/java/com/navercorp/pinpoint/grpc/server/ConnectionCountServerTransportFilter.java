@@ -47,6 +47,10 @@ public class ConnectionCountServerTransportFilter extends ServerTransportFilter 
 
     @Override
     public void transportTerminated(Attributes transportAttrs) {
+        if (transportAttrs == null) {
+            // transportTerminated() can be called before transportReady()
+            return;
+        }
         final AtomicInteger terminated = transportAttrs.get(TERMINATED);
         if (terminated == null) {
             return;
