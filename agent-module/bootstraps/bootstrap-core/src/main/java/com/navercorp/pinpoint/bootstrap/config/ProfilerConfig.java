@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcOption;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
@@ -30,20 +31,11 @@ public interface ProfilerConfig {
 
     String getActiveProfile();
 
+    JdbcOption getJdbcOption();
 
     Properties getProperties();
 
     String getPinpointDisable();
-
-    int getJdbcSqlCacheSize();
-
-    boolean isTraceSqlBindValue();
-
-    int getMaxSqlBindValueSize();
-
-    int getMaxSqlCacheLength();
-
-    int getMaxSqlLength();
 
     String getGrpcStatLoggingPeriod();
 

@@ -21,8 +21,6 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
-import com.navercorp.pinpoint.profiler.cache.UidCache;
-import com.navercorp.pinpoint.profiler.cache.UidGenerator;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
@@ -55,7 +53,7 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
 
     @Override
     public SqlMetaDataService get() {
-        final int maxSqlLength = profilerConfig.getMaxSqlLength();
+        final int maxSqlLength = profilerConfig.getJdbcOption().getMaxSqlLength();
 
         if (monitorConfig.isSqlStatEnable()) {
             SimpleCache<String, byte[]> sqlCache = simpleCacheFactory.newSqlUidCache();
