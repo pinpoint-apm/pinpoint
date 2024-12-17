@@ -42,8 +42,8 @@ public class JdbcAutoCommitConfig extends JdbcConfig {
         return new JdbcAutoCommitConfig(
                 name,
                 config.readBoolean(String.format("%s.%s", prefix, name), false),
-                config.readBoolean(String.format("%s.%s.tracesqlbindvalue", prefix, name), config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize(),
+                config.readBoolean(String.format("%s.%s.tracesqlbindvalue", prefix, name), config.getJdbcOption().isTraceSqlBindValue()),
+                config.getJdbcOption().getMaxSqlBindValueSize(),
                 config.readBoolean(String.format("%s.%s.setautocommit", prefix, name), false),
                 config.readBoolean(String.format("%s.%s.commit", prefix, name), false),
                 config.readBoolean(String.format("%s.%s.rollback", prefix, name), false)

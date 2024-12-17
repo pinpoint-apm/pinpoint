@@ -35,6 +35,6 @@ public class SimpleCacheFactoryProvider implements Provider<SimpleCacheFactory> 
 
     @Override
     public SimpleCacheFactory get() {
-        return new SimpleCacheFactory(profilerConfig);
+        return new SimpleCacheFactory(profilerConfig.getJdbcOption());
     }
 }

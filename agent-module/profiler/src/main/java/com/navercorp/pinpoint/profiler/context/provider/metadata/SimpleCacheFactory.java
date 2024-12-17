@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcOption;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.cache.UidCache;
 import com.navercorp.pinpoint.profiler.cache.UidGenerator;
@@ -28,9 +28,9 @@ public class SimpleCacheFactory {
     private final int sqlCacheSize;
     private final int sqlCacheBypassLength;
 
-    public SimpleCacheFactory(ProfilerConfig profilerConfig) {
-        this.sqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        this.sqlCacheBypassLength = profilerConfig.getMaxSqlCacheLength();
+    public SimpleCacheFactory(JdbcOption jdbcOption) {
+        this.sqlCacheSize = jdbcOption.getJdbcSqlCacheSize();
+        this.sqlCacheBypassLength = jdbcOption.getMaxSqlCacheLength();
     }
 
     public <T> SimpleCache<T, Integer> newSimpleCache() {

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultJdbcOption;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcOption;
 import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 
@@ -39,14 +41,15 @@ public class ProfilerConfigLoader {
     }
 
     public static ProfilerConfig load(Properties properties) {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
-        loadPropertyValues(profilerConfig, properties);
+        ValueAnnotationProcessor processor = new ValueAnnotationProcessor();
+
+        JdbcOption jdbcOption = new DefaultJdbcOption();
+        processor.process(jdbcOption, properties::getProperty);
+
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties, jdbcOption);
+        processor.process(profilerConfig, properties::getProperty);
+
         return profilerConfig;
     }
 
-    // for test
-    private static void loadPropertyValues(Object profilerConfig, Properties properties) {
-        ValueAnnotationProcessor processor = new ValueAnnotationProcessor();
-        processor.process(profilerConfig, properties);
-    }
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcOption;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.config.Value;
@@ -43,6 +44,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private final Properties properties;
 
+    private final JdbcOption jdbcOption;
+
     @Value("${pinpoint.disable:false}")
     private String pinpointDisable = "false";
 
@@ -54,17 +57,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @VisibleForTesting
     private boolean staticResourceCleanup = false;
-
-    @Value("${profiler.jdbc.sqlcachesize}")
-    private int jdbcSqlCacheSize = 1024;
-    @Value("${profiler.jdbc.tracesqlbindvalue}")
-    private boolean traceSqlBindValue = false;
-    @Value("${profiler.jdbc.maxsqlbindvaluesize}")
-    private int maxSqlBindValueSize = 1024;
-    @Value("${profiler.jdbc.sqlcachelengthlimit}")
-    private int maxSqlCacheLength = 2048;
-    @Value("${profiler.jdbc.maxsqllength}")
-    private int maxSqlLength = 65536;
 
     @Value("${profiler.transport.grpc.stats.logging.period}")
     private String grpcStatLoggingPeriod = "PT1M";
@@ -83,14 +75,22 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
+        this.jdbcOption = JdbcOption.empty();
     }
 
-    DefaultProfilerConfig(Properties properties) {
+    DefaultProfilerConfig(Properties properties, JdbcOption jdbcOption) {
         this.properties = Objects.requireNonNull(properties, "properties");
+        this.jdbcOption = Objects.requireNonNull(jdbcOption, "jdbcOption");
     }
 
+    @Override
     public Properties getProperties() {
         return properties;
+    }
+
+    @Override
+    public JdbcOption getJdbcOption() {
+        return jdbcOption;
     }
 
     @Override
@@ -101,31 +101,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public String getPinpointDisable() {
         return pinpointDisable;
-    }
-
-    @Override
-    public int getJdbcSqlCacheSize() {
-        return jdbcSqlCacheSize;
-    }
-
-    @Override
-    public boolean isTraceSqlBindValue() {
-        return traceSqlBindValue;
-    }
-
-    @Override
-    public int getMaxSqlBindValueSize() {
-        return maxSqlBindValueSize;
-    }
-
-    @Override
-    public int getMaxSqlCacheLength() {
-        return maxSqlCacheLength;
-    }
-
-    @Override
-    public int getMaxSqlLength() {
-        return maxSqlLength;
     }
 
     @Override
@@ -215,7 +190,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean readBoolean(String propertyName, boolean defaultValue) {
         final String value = properties.getProperty(propertyName);
-        if (value == null) {
+        if (StringUtils.isEmpty(value)) {
             return defaultValue;
         }
         return Boolean.parseBoolean(value);
@@ -245,11 +220,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
                 ", logDirMaxBackupSize=" + logDirMaxBackupSize +
                 ", activeProfile='" + activeProfile + '\'' +
                 ", staticResourceCleanup=" + staticResourceCleanup +
-                ", jdbcSqlCacheSize=" + jdbcSqlCacheSize +
-                ", traceSqlBindValue=" + traceSqlBindValue +
-                ", maxSqlBindValueSize=" + maxSqlBindValueSize +
-                ", maxSqlCacheLength=" + maxSqlCacheLength +
-                ", maxSqlLength=" + maxSqlLength +
                 ", grpcStatLoggingPeriod='" + grpcStatLoggingPeriod + '\'' +
                 ", httpStatusCodeErrors=" + httpStatusCodeErrors +
                 ", injectionModuleFactoryClazzName='" + injectionModuleFactoryClazzName + '\'' +

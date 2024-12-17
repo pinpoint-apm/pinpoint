@@ -41,8 +41,8 @@ public class JdbcConfig {
         Objects.requireNonNull(config, "config");
         return new JdbcConfig(name,
                 config.readBoolean(String.format("%s.%s", prefix, name), false),
-                config.readBoolean(String.format("%s.%s.tracesqlbindvalue", prefix, name), config.isTraceSqlBindValue()),
-                config.getMaxSqlBindValueSize()
+                config.readBoolean(String.format("%s.%s.tracesqlbindvalue", prefix, name), config.getJdbcOption().isTraceSqlBindValue()),
+                config.getJdbcOption().getMaxSqlBindValueSize()
         );
     }
 
