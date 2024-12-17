@@ -31,15 +31,22 @@ public class JdbcAutoCommitConfig extends JdbcConfig {
     public static JdbcAutoCommitConfig of(String name, ProfilerConfig config) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(config, "config");
+        return of("profiler.jdbc", "jdbc",  config);
+    }
+
+    public static JdbcAutoCommitConfig of(String prefix, String name, ProfilerConfig config) {
+        Objects.requireNonNull(prefix, "prefix");
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(config, "config");
 
         return new JdbcAutoCommitConfig(
                 name,
-                config.readBoolean(String.format("profiler.jdbc.%s", name), false),
-                config.readBoolean(String.format("profiler.jdbc.%s.tracesqlbindvalue", name), config.isTraceSqlBindValue()),
+                config.readBoolean(String.format("%s.%s", prefix, name), false),
+                config.readBoolean(String.format("%s.%s.tracesqlbindvalue", prefix, name), config.isTraceSqlBindValue()),
                 config.getMaxSqlBindValueSize(),
-                config.readBoolean(String.format("profiler.jdbc.%s.setautocommit", name), false),
-                config.readBoolean(String.format("profiler.jdbc.%s.commit", name), false),
-                config.readBoolean(String.format("profiler.jdbc.%s.rollback", name), false)
+                config.readBoolean(String.format("%s.%s.setautocommit", prefix, name), false),
+                config.readBoolean(String.format("%s.%s.commit", prefix, name), false),
+                config.readBoolean(String.format("%s.%s.rollback", prefix, name), false)
         );
     }
 
