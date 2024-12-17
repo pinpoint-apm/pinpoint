@@ -78,7 +78,7 @@ public class AgentDirGenerator {
     private Path createDir(Path dirPath) {
         logger.debug("create dir:{}", dirPath);
 
-        if (!dirPath.toFile().exists()) {
+        if (!Files.exists(dirPath)) {
 
             try {
                 Files.createDirectory(dirPath);
