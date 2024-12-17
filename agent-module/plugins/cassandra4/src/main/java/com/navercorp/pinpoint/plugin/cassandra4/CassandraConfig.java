@@ -20,6 +20,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 public class CassandraConfig  {
 
     public static JdbcConfig of(ProfilerConfig config) {
-        return JdbcConfig.of("cassandra", config);
+        return JdbcConfig.of("profiler", "cassandra", config);
     }
 }

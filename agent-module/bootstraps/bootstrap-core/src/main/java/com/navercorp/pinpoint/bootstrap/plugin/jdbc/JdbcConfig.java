@@ -30,9 +30,18 @@ public class JdbcConfig {
     protected final int maxSqlBindValueSize;
 
     public static JdbcConfig of(String name, ProfilerConfig config) {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(config, "config");
+        return of("profiler.jdbc", name, config);
+    }
+
+    public static JdbcConfig of(String prefix, String name, ProfilerConfig config) {
+        Objects.requireNonNull(prefix, "prefix");
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(config, "config");
         return new JdbcConfig(name,
-                config.readBoolean(String.format("profiler.jdbc.%s", name), false),
-                config.readBoolean(String.format("profiler.jdbc.%s.tracesqlbindvalue", name), config.isTraceSqlBindValue()),
+                config.readBoolean(String.format("%s.%s", prefix, name), false),
+                config.readBoolean(String.format("%s.%s.tracesqlbindvalue", prefix, name), config.isTraceSqlBindValue()),
                 config.getMaxSqlBindValueSize()
         );
     }
