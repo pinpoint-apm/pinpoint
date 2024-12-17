@@ -120,9 +120,9 @@ public class AgentDirectory {
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(profilesPath)) {
             for (Path path : stream) {
-                if (path.toFile().isDirectory()) {
+                if (Files.isDirectory(path)) {
                     final Path fileName = path.getFileName();
-                    if(fileName != null) {
+                    if (fileName != null) {
                         fileList.add(fileName.toString());
                     }
                 }

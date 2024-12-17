@@ -114,7 +114,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     Path findBootstrapJar(Path bootstrapJarPath) {
         final Path fileName = bootstrapJarPath.getFileName();
-        if(fileName == null) {
+        if (fileName == null) {
             return null;
         }
         final Matcher matcher = bootstrap.getVersionPattern().matcher(fileName.toString());
@@ -182,7 +182,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     private List<Path> filterReadPermission(List<Path> jars) {
         List<Path> result = new ArrayList<>();
         for (Path pluginJar : jars) {
-            if (!pluginJar.toFile().canRead()) {
+            if (!Files.isReadable(pluginJar)) {
                 logger.info("File '" + pluginJar + "' cannot be read");
                 continue;
             }
