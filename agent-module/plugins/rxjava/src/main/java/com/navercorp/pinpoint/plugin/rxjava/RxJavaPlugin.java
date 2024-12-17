@@ -115,7 +115,7 @@ public class RxJavaPlugin implements ProfilerPlugin, TransformTemplateAware {
     private void transform(String className, Class<? extends TransformCallback> transformCallbackClass, String... constructorParameter) {
         TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
                 .addStringArray(constructorParameter)
-                .toParameters();
+                .build();
         transformTemplate.transform(className, transformCallbackClass, parameters);
     }
 
@@ -245,7 +245,7 @@ public class RxJavaPlugin implements ProfilerPlugin, TransformTemplateAware {
     private void transform(String className, Class<? extends TransformCallback> transformCallbackClass, ServiceType serviceType) {
         TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
                 .addServiceType(serviceType)
-                .toParameters();
+                .build();
         transformTemplate.transform(className, transformCallbackClass, parameters);
     }
 

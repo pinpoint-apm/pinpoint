@@ -141,7 +141,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                     TransformCallbackParametersBuilder.newBuilder()
                             .addBoolean(config.isUriStatUseUserInput())
                             .addBoolean(config.isUriStatCollectMethod())
-                            .toParameters());
+                            .build());
         }
     }
 
@@ -258,7 +258,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         transformTemplate.transform(className, RequestHandlerMethodTransform.class,
                 TransformCallbackParametersBuilder.newBuilder()
                         .addString(methodName)
-                        .toParameters());
+                        .build());
     }
 
     public static class RequestHandlerMethodTransform implements TransformCallback {

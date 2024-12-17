@@ -121,7 +121,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(className, transformCallbackClass,
                 TransformCallbackParametersBuilder.newBuilder()
                         .addStringArray(methodNameArray)
-                        .toParameters());
+                        .build());
     }
 
     public static class MessageQueueClientHandlerMethodsTransformer implements TransformCallback {
