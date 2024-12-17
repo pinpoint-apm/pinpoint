@@ -339,7 +339,7 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private void add_1_3_x_CallableStatementTransformer(JdbcAutoCommitConfig config) {
         TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
-                .addJdbcConfig(config).toParameters();
+                .addJdbcConfig(config).build();
         transformTemplate.transform("org.mariadb.jdbc.MariaDbCallableStatement", CallableStatement1_3_x_Transform.class, parameters);
         // 3.x
         transformTemplate.transform("org.mariadb.jdbc.BaseCallableStatement", CallableStatement1_3_x_Transform.class, parameters);

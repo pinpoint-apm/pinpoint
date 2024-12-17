@@ -36,7 +36,7 @@ public class TransformCallbackParameterTest {
                 .addString("test")
                 .addStringArray(new String[]{"test1", "test2"})
                 .addStringArrayArray(new String[][]{{"test1", "test2"}, {"test3", "test4"}})
-                .toParameters();
+                .build();
 
         Object[] values = parameters.values();
         assertThat(values).hasSize(7);

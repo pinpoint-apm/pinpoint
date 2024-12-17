@@ -406,7 +406,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                 TransformCallbackParametersBuilder.newBuilder()
                         .addString(tTransportInterceptorFqcn)
                         .addStringArrayArray(parameterTypeGroups)
-                        .toParameters());
+                        .build());
     }
 
     public static class BaseTTransportTransform implements TransformCallback {

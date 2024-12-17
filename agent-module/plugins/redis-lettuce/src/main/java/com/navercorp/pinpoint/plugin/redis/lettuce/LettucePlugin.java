@@ -188,7 +188,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
     private void addAbstractRedisCommands(final String className, Class<? extends TransformCallback> transformCallback, boolean getter) {
         TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
                 .addBoolean(getter)
-                .toParameters();
+                .build();
         transformTemplate.transform(className, transformCallback, parameters);
     }
 

@@ -67,7 +67,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
                 TransformCallbackParametersBuilder.newBuilder()
                         .addBoolean(config.isUriStatEnable())
                         .addBoolean(config.isUriStatUseUserInput())
-                        .toParameters());
+                        .build());
         final Matcher invokeMatcher = Matchers.newLambdaExpressionMatcher("org.springframework.web.reactive.DispatcherHandler", "java.util.function.Function");
         transformTemplate.transform(invokeMatcher, DispatchHandlerInvokeHandlerTransform.class);
 
@@ -87,11 +87,11 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             transformTemplate.transform("org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class,
                     TransformCallbackParametersBuilder.newBuilder()
                             .addBoolean(config.isUriStatCollectMethod())
-                            .toParameters());
+                            .build());
             transformTemplate.transform("org.springframework.web.reactive.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class,
                     TransformCallbackParametersBuilder.newBuilder()
                             .addBoolean(config.isUriStatCollectMethod())
-                            .toParameters());
+                            .build());
         }
     }
 
