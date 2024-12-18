@@ -24,15 +24,30 @@ import org.junit.jupiter.api.Test;
 /**
  * @author emeroad
  */
-public class DumpTypeTest {
+class DumpTypeTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    public void find() {
+    void find() {
         DumpType none = DumpType.valueOf("ALWAYS");
         logger.debug("type:{}", none);
         Assertions.assertThrows(Exception.class, () -> {
             DumpType.valueOf("error");
         });
+    }
+
+    @Test
+    void dumpType() {
+        DumpType always = DumpType.of("ALWAYS");
+        Assertions.assertEquals(DumpType.ALWAYS, always);
+
+        DumpType always2 = DumpType.of("always");
+        Assertions.assertEquals(DumpType.ALWAYS, always2);
+
+        DumpType nullType = DumpType.of(null);
+        Assertions.assertEquals(DumpType.EXCEPTION, nullType);
+
+        DumpType exception = DumpType.of("exception");
+        Assertions.assertEquals(DumpType.EXCEPTION, exception);
     }
 }

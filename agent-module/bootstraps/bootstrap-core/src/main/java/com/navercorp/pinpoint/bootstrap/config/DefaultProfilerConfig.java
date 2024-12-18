@@ -192,21 +192,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return NumberUtils.parseInteger(value, defaultValue);
     }
 
-    @Override
-    public DumpType readDumpType(String propertyName, DumpType defaultDump) {
-        String propertyValue = getProperty(propertyName);
-        if (propertyValue == null) {
-            propertyValue = defaultDump.name();
-        }
-        String value = propertyValue.toUpperCase();
-        DumpType result;
-        try {
-            result = DumpType.valueOf(value);
-        } catch (IllegalArgumentException e) {
-            result = defaultDump;
-        }
-        return result;
-    }
 
     @Override
     public long readLong(String propertyName, long defaultValue) {

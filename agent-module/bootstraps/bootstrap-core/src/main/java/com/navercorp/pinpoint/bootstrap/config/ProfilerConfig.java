@@ -57,8 +57,6 @@ public interface ProfilerConfig {
 
     int readInt(String propertyName, int defaultValue);
 
-    DumpType readDumpType(String propertyName, DumpType defaultDump);
-
     long readLong(String propertyName, long defaultValue);
 
     List<String> readList(String propertyName);

@@ -43,7 +43,7 @@ public class SpringWebFluxPluginConfig {
         this.clientEnable = config.readBoolean("profiler.spring.webflux.client.enable", false);
         this.param = config.readBoolean("profiler.spring.webflux.client.param", true);
         boolean cookie = config.readBoolean("profiler.spring.webflux.client.cookie", false);
-        DumpType cookieDumpType = config.readDumpType("profiler.spring.webflux.client.cookie.dumptype", DumpType.EXCEPTION);
+        DumpType cookieDumpType = DumpType.of(config.readString("profiler.spring.webflux.client.cookie.dumptype"));
         int cookieSamplingRate = config.readInt("profiler.spring.webflux.client.cookie.sampling.rate", 1);
         int cookieDumpSize = config.readInt("profiler.spring.webflux.client.cookie.dumpsize", 1024);
         this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, false, cookieDumpType, 1, 1024);

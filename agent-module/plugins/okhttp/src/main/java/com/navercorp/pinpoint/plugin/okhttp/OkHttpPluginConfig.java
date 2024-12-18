@@ -37,7 +37,7 @@ public class OkHttpPluginConfig {
 
     public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
         boolean cookie = config.readBoolean("profiler.okhttp.cookie", false);
-        DumpType cookieDumpType = config.readDumpType("profiler.okhttp.cookie.dumptype", DumpType.EXCEPTION);
+        DumpType cookieDumpType = DumpType.of(config.readString("profiler.okhttp.cookie.dumptype"));
         int cookieSamplingRate = config.readInt("profiler.okhttp.cookie.sampling.rate", 1);
         int cookieDumpSize = config.readInt("profiler.okhttp.cookie.dumpsize", 1024);
         return HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, false, cookieDumpType, 1, 1024);
