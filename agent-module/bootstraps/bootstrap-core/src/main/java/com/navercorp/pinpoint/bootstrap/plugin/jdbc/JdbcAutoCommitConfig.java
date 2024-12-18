@@ -31,7 +31,7 @@ public class JdbcAutoCommitConfig extends JdbcConfig {
     public static JdbcAutoCommitConfig of(String name, ProfilerConfig config) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(config, "config");
-        return of("profiler.jdbc", "jdbc",  config);
+        return of(DEFAULT_PREFIX, name,  config);
     }
 
     public static JdbcAutoCommitConfig of(String prefix, String name, ProfilerConfig config) {

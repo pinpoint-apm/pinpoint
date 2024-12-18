@@ -24,6 +24,9 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 public class JdbcConfig {
+
+    protected static final String DEFAULT_PREFIX = "profiler.jdbc";
+
     protected final String name;
     protected final boolean pluginEnable;
     protected final boolean traceSqlBindValue;
@@ -32,7 +35,7 @@ public class JdbcConfig {
     public static JdbcConfig of(String name, ProfilerConfig config) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(config, "config");
-        return of("profiler.jdbc", name, config);
+        return of(DEFAULT_PREFIX, name, config);
     }
 
     public static JdbcConfig of(String prefix, String name, ProfilerConfig config) {
