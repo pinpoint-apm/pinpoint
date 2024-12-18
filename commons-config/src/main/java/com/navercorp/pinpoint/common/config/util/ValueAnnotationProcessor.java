@@ -16,7 +16,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.function.Function;
 
 public class ValueAnnotationProcessor {
@@ -51,12 +50,6 @@ public class ValueAnnotationProcessor {
     }
 
     public ValueAnnotationProcessor() {
-    }
-
-    public void process(Object instance, final Properties properties) throws ConfigurationException {
-        Objects.requireNonNull(instance, "instance");
-        Objects.requireNonNull(properties, "properties");
-        process(instance, properties::getProperty);
     }
 
     public void process(Object instance, final Function<String, String> placeholderResolver) throws ConfigurationException {

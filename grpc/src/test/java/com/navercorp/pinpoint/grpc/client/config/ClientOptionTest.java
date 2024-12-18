@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ClientOptionTest {
 
@@ -44,11 +45,11 @@ public class ClientOptionTest {
 
         ClientOption clientOption = new ClientOption();
         ValueAnnotationProcessor processor = new ValueAnnotationProcessor();
-        processor.process(clientOption, properties);
+        processor.process(clientOption, properties::getProperty);
 
         assertEquals(1, clientOption.getKeepAliveTime());
         assertEquals(2, clientOption.getKeepAliveTimeout());
-        assertEquals(false, clientOption.isKeepAliveWithoutCalls());
+        assertFalse(clientOption.isKeepAliveWithoutCalls());
         assertEquals(TimeUnit.DAYS.toMillis(30), clientOption.getIdleTimeoutMillis());
         assertEquals(65535, clientOption.getFlowControlWindow());
         assertEquals(4, clientOption.getMaxHeaderListSize());

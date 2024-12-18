@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.config.SslOption;
 
-import java.util.Properties;
 import java.util.function.Function;
 
 /**
@@ -174,7 +173,7 @@ public class GrpcTransportConfig {
     private boolean nettySystemPropertyTryReflectiveSetAccessible = DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE;
 
 
-    public void read(Properties properties) {
+    public void read(Function<String, String> properties) {
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(this, properties);
 
@@ -194,23 +193,23 @@ public class GrpcTransportConfig {
         this.sslOption = readSslOption(properties);
     }
 
-    private ClientOption readAgentClientOption(final Properties properties) {
+    private ClientOption readAgentClientOption(final Function<String, String> properties) {
         return readClientOption(properties, "profiler.transport.grpc.agent.sender.");
     }
 
-    private ClientOption readMetadataClientOption(final Properties properties) {
+    private ClientOption readMetadataClientOption(final Function<String, String> properties) {
         return readClientOption(properties, "profiler.transport.grpc.metadata.sender.");
     }
 
-    private ClientOption readStatClientOption(final Properties properties) {
+    private ClientOption readStatClientOption(final Function<String, String> properties) {
         return readClientOption(properties, "profiler.transport.grpc.stat.sender.");
     }
 
-    private ClientOption readSpanClientOption(final Properties properties) {
+    private ClientOption readSpanClientOption(final Function<String, String> properties) {
         return readClientOption(properties, "profiler.transport.grpc.span.sender.");
     }
 
-    private ClientOption readClientOption(final Properties properties, final String transportName) {
+    private ClientOption readClientOption(final Function<String, String> properties, final String transportName) {
         final ClientOption clientOption = new ClientOption();
 
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
@@ -218,16 +217,16 @@ public class GrpcTransportConfig {
             @Override
             public String apply(String placeholderName) {
                 String prefix = transportName + placeholderName;
-                return properties.getProperty(prefix);
+                return properties.apply(prefix);
             }
         });
         return clientOption;
     }
 
-    public SslOption readSslOption(final Properties properties) {
+    public SslOption readSslOption(final Function<String, String> properties) {
         final String sslPrefix = "profiler.transport.grpc.ssl.";
 
-        String agentRootPath = properties.getProperty(AgentDirectory.AGENT_ROOT_PATH_KEY);
+        String agentRootPath = properties.apply(AgentDirectory.AGENT_ROOT_PATH_KEY);
 
         final SslOption.Builder builder = new SslOption.Builder(agentRootPath);
 
@@ -236,7 +235,7 @@ public class GrpcTransportConfig {
             @Override
             public String apply(String placeholderName) {
                 String prefix = sslPrefix + placeholderName;
-                return properties.getProperty(prefix);
+                return properties.apply(prefix);
             }
         });
         return builder.build();
@@ -420,42 +419,40 @@ public class GrpcTransportConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GrpcTransportConfig{");
-        sb.append("agentCollectorIp='").append(agentCollectorIp).append('\'');
-        sb.append(", agentCollectorPort=").append(agentCollectorPort);
-        sb.append(", agentSslEnable=").append(agentSslEnable);
-        sb.append(", metadataCollectorIp='").append(metadataCollectorIp).append('\'');
-        sb.append(", metadataCollectorPort=").append(metadataCollectorPort);
-        sb.append(", metadataSslEnable=").append(metadataSslEnable);
-        sb.append(", statCollectorIp='").append(statCollectorIp).append('\'');
-        sb.append(", statCollectorPort=").append(statCollectorPort);
-        sb.append(", statSslEnable=").append(statSslEnable);
-        sb.append(", spanCollectorIp='").append(spanCollectorIp).append('\'');
-        sb.append(", spanCollectorPort=").append(spanCollectorPort);
-        sb.append(", spanSslEnable=").append(spanSslEnable);
-        sb.append(", agentClientOption=").append(agentClientOption);
-        sb.append(", metadataClientOption=").append(metadataClientOption);
-        sb.append(", statClientOption=").append(statClientOption);
-        sb.append(", spanClientOption=").append(spanClientOption);
-        sb.append(", sslOption=").append(sslOption);
-        sb.append(", agentSenderExecutorQueueSize=").append(agentSenderExecutorQueueSize);
-        sb.append(", metadataSenderExecutorQueueSize=").append(metadataSenderExecutorQueueSize);
-        sb.append(", spanSenderExecutorQueueSize=").append(spanSenderExecutorQueueSize);
-        sb.append(", statSenderExecutorQueueSize=").append(statSenderExecutorQueueSize);
-        sb.append(", agentChannelExecutorQueueSize=").append(agentChannelExecutorQueueSize);
-        sb.append(", metadataChannelExecutorQueueSize=").append(metadataChannelExecutorQueueSize);
-        sb.append(", statChannelExecutorQueueSize=").append(statChannelExecutorQueueSize);
-        sb.append(", spanChannelExecutorQueueSize=").append(spanChannelExecutorQueueSize);
-        sb.append(", agentRequestTimeout=").append(agentRequestTimeout);
-        sb.append(", metadataRequestTimeout=").append(metadataRequestTimeout);
-        sb.append(", spanRequestTimeout=").append(spanRequestTimeout);
-        sb.append(", statRequestTimeout=").append(statRequestTimeout);
-        sb.append(", metadataRetryMaxCount=").append(metadataRetryMaxCount);
-        sb.append(", metadataRetryDelayMillis=").append(metadataRetryDelayMillis);
-        sb.append(", nettySystemPropertyTryReflectiveSetAccessible=").append(nettySystemPropertyTryReflectiveSetAccessible);
-        sb.append(", spanDiscardLogRateLimit=").append(spanDiscardLogRateLimit);
-        sb.append(", spanDiscardMaxPendingThreshold=").append(spanDiscardMaxPendingThreshold);
-        sb.append('}');
-        return sb.toString();
+        return "GrpcTransportConfig{" + "agentCollectorIp='" + agentCollectorIp + '\'' +
+                ", agentCollectorPort=" + agentCollectorPort +
+                ", agentSslEnable=" + agentSslEnable +
+                ", metadataCollectorIp='" + metadataCollectorIp + '\'' +
+                ", metadataCollectorPort=" + metadataCollectorPort +
+                ", metadataSslEnable=" + metadataSslEnable +
+                ", statCollectorIp='" + statCollectorIp + '\'' +
+                ", statCollectorPort=" + statCollectorPort +
+                ", statSslEnable=" + statSslEnable +
+                ", spanCollectorIp='" + spanCollectorIp + '\'' +
+                ", spanCollectorPort=" + spanCollectorPort +
+                ", spanSslEnable=" + spanSslEnable +
+                ", agentClientOption=" + agentClientOption +
+                ", metadataClientOption=" + metadataClientOption +
+                ", statClientOption=" + statClientOption +
+                ", spanClientOption=" + spanClientOption +
+                ", sslOption=" + sslOption +
+                ", agentSenderExecutorQueueSize=" + agentSenderExecutorQueueSize +
+                ", metadataSenderExecutorQueueSize=" + metadataSenderExecutorQueueSize +
+                ", spanSenderExecutorQueueSize=" + spanSenderExecutorQueueSize +
+                ", statSenderExecutorQueueSize=" + statSenderExecutorQueueSize +
+                ", agentChannelExecutorQueueSize=" + agentChannelExecutorQueueSize +
+                ", metadataChannelExecutorQueueSize=" + metadataChannelExecutorQueueSize +
+                ", statChannelExecutorQueueSize=" + statChannelExecutorQueueSize +
+                ", spanChannelExecutorQueueSize=" + spanChannelExecutorQueueSize +
+                ", agentRequestTimeout=" + agentRequestTimeout +
+                ", metadataRequestTimeout=" + metadataRequestTimeout +
+                ", spanRequestTimeout=" + spanRequestTimeout +
+                ", statRequestTimeout=" + statRequestTimeout +
+                ", metadataRetryMaxCount=" + metadataRetryMaxCount +
+                ", metadataRetryDelayMillis=" + metadataRetryDelayMillis +
+                ", nettySystemPropertyTryReflectiveSetAccessible=" + nettySystemPropertyTryReflectiveSetAccessible +
+                ", spanDiscardLogRateLimit=" + spanDiscardLogRateLimit +
+                ", spanDiscardMaxPendingThreshold=" + spanDiscardMaxPendingThreshold +
+                '}';
     }
 }

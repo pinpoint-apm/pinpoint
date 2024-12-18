@@ -40,22 +40,22 @@ public class DefaultInstrumentConfigTest {
 
         // Read
         InstrumentConfig instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
 
-        Assertions.assertEquals(instrumentConfig.getCallStackMaxDepth(), 64);
+        Assertions.assertEquals(64, instrumentConfig.getCallStackMaxDepth());
 
         // Unlimited
         properties.setProperty("profiler.callstack.max.depth", "-1");
         instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assertions.assertEquals(instrumentConfig.getCallStackMaxDepth(), -1);
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
+        Assertions.assertEquals(-1, instrumentConfig.getCallStackMaxDepth());
 
         // Minimum calibration
         properties.setProperty("profiler.callstack.max.depth", "0");
         instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
 
-        Assertions.assertEquals(instrumentConfig.getCallStackMaxDepth(), 2);
+        Assertions.assertEquals(2, instrumentConfig.getCallStackMaxDepth());
     }
 
     @Test
@@ -65,33 +65,33 @@ public class DefaultInstrumentConfigTest {
 
         // Read
         InstrumentConfig instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
 
-        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 5000);
+        Assertions.assertEquals(5000, instrumentConfig.getCallStackMaxSequence());
 
         // Unlimited
         properties.setProperty("profiler.callstack.max.sequence", "-1");
         instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
+        Assertions.assertEquals(32767, instrumentConfig.getCallStackMaxSequence());
 
         properties.setProperty("profiler.callstack.max.sequence", "-73");
         instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
+        Assertions.assertEquals(32767, instrumentConfig.getCallStackMaxSequence());
 
         // short overflow
         properties.setProperty("profiler.callstack.max.sequence", "1048576");
         instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
+        Assertions.assertEquals(32767, instrumentConfig.getCallStackMaxSequence());
 
         // Minimum calibration
         properties.setProperty("profiler.callstack.max.sequence", "0");
         instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
 
-        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 4);
+        Assertions.assertEquals(4, instrumentConfig.getCallStackMaxSequence());
     }
 
 }

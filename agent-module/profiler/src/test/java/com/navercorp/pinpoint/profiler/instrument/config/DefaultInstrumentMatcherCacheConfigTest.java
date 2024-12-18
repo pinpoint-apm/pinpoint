@@ -57,7 +57,7 @@ public class DefaultInstrumentMatcherCacheConfigTest {
 
         InstrumentMatcherCacheConfig config = new DefaultInstrumentMatcherCacheConfig();
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(config, properties);
+        reader.process(config, properties::getProperty);
 
         assertEquals(1, config.getInterfaceCacheSize());
         assertEquals(2, config.getInterfaceCacheEntrySize());

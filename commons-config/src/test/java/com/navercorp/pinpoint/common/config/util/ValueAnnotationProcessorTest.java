@@ -23,11 +23,11 @@ public class ValueAnnotationProcessorTest {
         properties.setProperty("char", "a");
 
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(config, properties);
+        reader.process(config, properties::getProperty);
 
         Assertions.assertEquals(1, config.intValue);
         Assertions.assertEquals(2, config.longValue);
-        Assertions.assertEquals(true, config.booleanValue);
+        Assertions.assertTrue(config.booleanValue);
         Assertions.assertEquals(3, config.doubleValue, 0);
         Assertions.assertEquals(4, config.flotValue, 0);
         Assertions.assertEquals(5, config.shortValue);
@@ -74,7 +74,7 @@ public class ValueAnnotationProcessorTest {
 
 
         ValueAnnotationProcessor processor = new ValueAnnotationProcessor();
-        processor.process(config, properties);
+        processor.process(config, properties::getProperty);
 
         Assertions.assertEquals(Integer.valueOf(1), config.integerValue);
         Assertions.assertEquals(Long.valueOf(2), config.longValue);
@@ -110,7 +110,7 @@ public class ValueAnnotationProcessorTest {
         properties.setProperty("type.enum", "B");
 
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(config, properties);
+        reader.process(config, properties::getProperty);
 
         Assertions.assertEquals(TYPE.B, config.test);
 
@@ -128,7 +128,7 @@ public class ValueAnnotationProcessorTest {
         properties.setProperty("b", "B");
 
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(config, properties);
+        reader.process(config, properties::getProperty);
 
         Assertions.assertEquals("p-A", config.a);
         Assertions.assertEquals("prefix-B", config.b);
@@ -151,7 +151,7 @@ public class ValueAnnotationProcessorTest {
         properties.setProperty("a", "A");
 
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(config, properties);
+        reader.process(config, properties::getProperty);
 
         Assertions.assertEquals("A", config.a);
     }
@@ -182,7 +182,7 @@ public class ValueAnnotationProcessorTest {
 
 
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
-        reader.process(config, properties);
+        reader.process(config, properties::getProperty);
 
         Assertions.assertEquals(-1, config.intValue);
         Assertions.assertEquals(-2, config.longValue);
