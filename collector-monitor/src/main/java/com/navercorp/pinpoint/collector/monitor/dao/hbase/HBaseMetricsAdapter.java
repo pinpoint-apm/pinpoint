@@ -67,7 +67,7 @@ public class HBaseMetricsAdapter {
     }
 
     private void registerHistogramMetric(String name, Histogram histogram) {
-        DistributionSummary.builder(extractName(name))
+        DistributionSummary.builder(extractName(name) + ".DistributionSummary")
                 .tags(extractTags(name))
                 .register(meterRegistry);
     }
