@@ -40,8 +40,8 @@ public enum AgentType {
 
     @Override
     public String toString() {
-        return "AgentType{" +
-                ", className='" + className + '\'' +
+        return "AgentType{"
+                + className +
                 '}';
     }
 

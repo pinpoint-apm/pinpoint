@@ -6,7 +6,6 @@ public class Log4jEnvExecutor {
 
     public static final String FACTORY_PROPERTY_NAME = "log4j2.loggerContextFactory";
 
-
     public <V> V call(Supplier<V> supplier) {
         final String factory = prepare(FACTORY_PROPERTY_NAME, Log4j2ContextFactory.class.getName());
         try {

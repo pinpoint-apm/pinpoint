@@ -78,7 +78,7 @@ public class ClassScannerFactory {
             final String path = cleanupPath(codeLocation.getPath());
             final boolean isJarFile = isJarExtension(path);
             if (isJarFile) {
-                return new JarFileScanner(path);
+                return JarFileScanner.of(path);
             }
             final boolean isDirectory = path.endsWith("/");
             if (isDirectory) {
