@@ -17,16 +17,21 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author jaehong.kim
  */
 public class HttpStatusCodeErrors {
+
+    public static String HTTP_STATUS_CODE_ERROR_KEY = "profiler.http.status.code.errors";
+
     private static final StatusCode ALL_STATUS_CODES = new StatusCode() {
         @Override
         public boolean isCode(int statusCode) {
@@ -36,6 +41,19 @@ public class HttpStatusCodeErrors {
     private static final List<String> DEFAULT_ERROR_CODES = Collections.singletonList("5xx");
 
     private final StatusCode[] errors;
+
+    public static HttpStatusCodeErrors of(final Function<String, String> properties) {
+        String httpStatus = properties.apply(HTTP_STATUS_CODE_ERROR_KEY);
+        return HttpStatusCodeErrors.of(httpStatus);
+    }
+
+    public static HttpStatusCodeErrors of(final String httpStatusCodeErrors) {
+        if (StringUtils.isEmpty(httpStatusCodeErrors)) {
+            return new HttpStatusCodeErrors();
+        }
+        List<String> httpStatusCodeErrorList = StringUtils.tokenizeToStringList(httpStatusCodeErrors, ",");
+        return new HttpStatusCodeErrors(httpStatusCodeErrorList);
+    }
 
     public HttpStatusCodeErrors() {
         this(DEFAULT_ERROR_CODES);
@@ -181,9 +199,8 @@ public class HttpStatusCodeErrors {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("HttpStatusCodeErrors{");
-        sb.append("errors=").append(Arrays.toString(errors));
-        sb.append('}');
-        return sb.toString();
+        return "HttpStatusCodeErrors{" +
+                "errors=" + Arrays.toString(errors) +
+                '}';
     }
 }

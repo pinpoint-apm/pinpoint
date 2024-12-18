@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.undertow.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
@@ -71,7 +72,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements ApiIdAwareAround
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         reqBuilder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        reqBuilder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        reqBuilder.setHttpStatusCodeRecorder(HttpStatusCodeErrors.of(profilerConfig::readString));
         reqBuilder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
         reqBuilder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
 

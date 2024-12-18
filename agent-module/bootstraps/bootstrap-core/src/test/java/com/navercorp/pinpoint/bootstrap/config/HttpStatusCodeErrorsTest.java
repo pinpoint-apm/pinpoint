@@ -19,13 +19,14 @@ package com.navercorp.pinpoint.bootstrap.config;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HttpStatusCodeErrorsTest {
+class HttpStatusCodeErrorsTest {
     @Test
-    public void isErrorCode() {
+    void isErrorCode() {
         // default 5xx
         HttpStatusCodeErrors defaultHttpStatusCodeErrors = new HttpStatusCodeErrors();
         assertTrue(defaultHttpStatusCodeErrors.isErrorCode(500));
@@ -50,7 +51,7 @@ public class HttpStatusCodeErrorsTest {
     }
 
     @Test
-    public void isHttpStatusCode() {
+    void isHttpStatusCode() {
         HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors();
         assertTrue(httpStatusCodeErrors.isHttpStatusCode(200));
         assertTrue(httpStatusCodeErrors.isHttpStatusCode(300));
@@ -58,5 +59,18 @@ public class HttpStatusCodeErrorsTest {
 
         assertFalse(httpStatusCodeErrors.isHttpStatusCode(0));
         assertFalse(httpStatusCodeErrors.isHttpStatusCode(600));
+    }
+
+    @Test
+    void isHttpStatusCode_properties() {
+        Properties properties = new Properties();
+        properties.setProperty("profiler.http.status.code.errors", "400");
+
+        HttpStatusCodeErrors httpStatusCodeErrors = HttpStatusCodeErrors.of(properties::getProperty);
+        assertTrue(httpStatusCodeErrors.isErrorCode(400));
+
+
+        assertFalse(httpStatusCodeErrors.isErrorCode(0));
+        assertFalse(httpStatusCodeErrors.isErrorCode(100));
     }
 }
