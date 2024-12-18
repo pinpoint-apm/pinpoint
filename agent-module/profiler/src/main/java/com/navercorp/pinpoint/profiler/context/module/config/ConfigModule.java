@@ -87,7 +87,7 @@ public class ConfigModule extends AbstractModule {
 
 
         Properties properties = profilerConfig.getProperties();
-        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties::getProperty);
+        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties);
 
         ContextConfig contextConfig = new DefaultContextConfig();
         configurationLoader.load(contextConfig);
