@@ -213,7 +213,7 @@ public class GrpcModule extends PrivateModule {
 
     private GrpcTransportConfig loadGrpcTransportConfig() {
         GrpcTransportConfig grpcTransportConfig = new GrpcTransportConfig();
-        grpcTransportConfig.read(profilerConfig.getProperties());
+        grpcTransportConfig.read(profilerConfig.getProperties()::getProperty);
         logger.info("{}", grpcTransportConfig);
         return grpcTransportConfig;
     }

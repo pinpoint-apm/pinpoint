@@ -36,7 +36,7 @@ public class GrpcTransportConfigTest {
         Properties properties = PropertyUtils.loadProperty(inputStream);
 
         GrpcTransportConfig config = new GrpcTransportConfig();
-        config.read(properties);
+        config.read(properties::getProperty);
 
         // Agent
         assertEquals("127.0.0.1", config.getAgentCollectorIp());

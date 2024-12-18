@@ -3,13 +3,13 @@ package com.navercorp.pinpoint.profiler.context.module.config;
 import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
 
 import java.util.Objects;
-import java.util.Properties;
+import java.util.function.Function;
 
 public class ConfigurationLoader {
     private final ValueAnnotationProcessor process = new ValueAnnotationProcessor();
-    private final Properties properties;
+    private final Function<String, String> properties;
 
-    public ConfigurationLoader(Properties properties) {
+    public ConfigurationLoader(Function<String, String> properties) {
         this.properties = Objects.requireNonNull(properties, "properties");
     }
 

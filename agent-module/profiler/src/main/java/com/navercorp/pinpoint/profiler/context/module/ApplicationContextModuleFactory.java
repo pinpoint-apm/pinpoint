@@ -54,7 +54,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
     }
 
     protected Module newExceptionTraceModule(Properties properties) {
-        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties);
+        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties::getProperty);
         ExceptionTraceConfig exceptionTraceConfig = new DefaultExceptionTraceConfig();
         configurationLoader.load(exceptionTraceConfig);
         logger.info("{}", exceptionTraceConfig);
