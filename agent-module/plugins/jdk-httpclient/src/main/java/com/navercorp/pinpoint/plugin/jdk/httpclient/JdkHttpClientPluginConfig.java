@@ -33,11 +33,11 @@ public class JdkHttpClientPluginConfig {
 
     public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
         boolean cookie = config.readBoolean("profiler.jdk.httpclient.cookie", false);
-        DumpType cookieDumpType = config.readDumpType("profiler.jdk.httpclient.cookie.dumptype", DumpType.EXCEPTION);
+        DumpType cookieDumpType = DumpType.of(config.readString("profiler.jdk.httpclient.cookie.dumptype"));
         int cookieSamplingRate = config.readInt("profiler.jdk.httpclient.cookie.sampling.rate", 1);
         int cookieDumpSize = config.readInt("profiler.jdk.httpclient.cookie.dumpsize", 1024);
         boolean entity = config.readBoolean("profiler.jdk.httpclient.entity", false);
-        DumpType entityDumpType = config.readDumpType("profiler.jdk.httpclient.entity.dumptype", DumpType.EXCEPTION);
+        DumpType entityDumpType = DumpType.of(config.readString("profiler.jdk.httpclient.entity.dumptype"));
         int entitySamplingRate = config.readInt("profiler.jdk.httpclient.entity.sampling.rate", 1);
         int entityDumpSize = config.readInt("profiler.jdk.httpclient.entity.dumpsize", 1024);
         return HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, entity, entityDumpType, entitySamplingRate, entityDumpSize);

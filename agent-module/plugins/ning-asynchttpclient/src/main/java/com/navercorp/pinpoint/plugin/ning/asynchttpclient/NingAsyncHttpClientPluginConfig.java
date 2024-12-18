@@ -34,11 +34,11 @@ public class NingAsyncHttpClientPluginConfig {
 
     public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
         boolean profileCookie = config.readBoolean("profiler.ning.asynchttpclient.cookie", false);
-        DumpType cookieDumpType = config.readDumpType("profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
+        DumpType cookieDumpType = DumpType.of(config.readString("profiler.ning.asynchttpclient.cookie.dumptype"));
         int cookieDumpSize = config.readInt("profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
         int cookieSamplingRate = config.readInt("profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
         boolean profileEntity = config.readBoolean("profiler.ning.asynchttpclient.entity", false);
-        DumpType entityDumpType = config.readDumpType("profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
+        DumpType entityDumpType = DumpType.of(config.readString("profiler.ning.asynchttpclient.entity.dumptype"));
         int entityDumpSize = config.readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
         int entitySamplingRate = config.readInt("profiler.ning.asynchttpclient.entity.sampling.rate", 1);
         return HttpDumpConfig.get(profileCookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, profileEntity, entityDumpType, entitySamplingRate, entityDumpSize);

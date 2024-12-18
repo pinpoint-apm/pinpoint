@@ -32,5 +32,11 @@ public enum DumpType {
         return code;
     }
 
+    public static DumpType of(String dumpType) {
+        if (ALWAYS.name().equalsIgnoreCase(dumpType)) {
+            return ALWAYS;
+        }
+        return EXCEPTION;
+    }
 
 }

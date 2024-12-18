@@ -34,11 +34,11 @@ public class HttpClient5PluginConfig {
 
     public static HttpDumpConfig getHttpDumpConfig(ProfilerConfig config) {
         boolean cookie = config.readBoolean("profiler.apache.httpclient5.cookie", false);
-        DumpType cookieDumpType = config.readDumpType("profiler.apache.httpclient5.cookie.dumptype", DumpType.EXCEPTION);
+        DumpType cookieDumpType = DumpType.of(config.readString("profiler.apache.httpclient5.cookie.dumptype"));
         int cookieSamplingRate = config.readInt("profiler.apache.httpclient5.cookie.sampling.rate", 1);
         int cookieDumpSize = config.readInt("profiler.apache.httpclient5.cookie.dumpsize", 1024);
         boolean entity = config.readBoolean("profiler.apache.httpclient5.entity", false);
-        DumpType entityDumpType = config.readDumpType("profiler.apache.httpclient5.entity.dumptype", DumpType.EXCEPTION);
+        DumpType entityDumpType = DumpType.of(config.readString("profiler.apache.httpclient5.entity.dumptype"));
         int entitySamplingRate = config.readInt("profiler.apache.httpclient5.entity.sampling.rate", 1);
         int entityDumpSize = config.readInt("profiler.apache.httpclient5.entity.dumpsize", 1024);
 

@@ -32,7 +32,7 @@ public class VertxHttpClientConfig {
     public VertxHttpClientConfig(ProfilerConfig config) {
         this.param = config.readBoolean("profiler.vertx.http.client.param", true);
         boolean cookie = config.readBoolean("profiler.vertx.http.client.cookie", false);
-        DumpType cookieDumpType = config.readDumpType("profiler.vertx.http.client.cookie.dumptype", DumpType.EXCEPTION);
+        DumpType cookieDumpType = DumpType.of(config.readString("profiler.vertx.http.client.cookie.dumptype"));
         int cookieSamplingRate = config.readInt("profiler.vertx.http.client.cookie.sampling.rate", 1);
         int cookieDumpSize = config.readInt("profiler.vertx.http.client.cookie.dumpsize", 1024);
         this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, false, cookieDumpType, 1, 1024);
