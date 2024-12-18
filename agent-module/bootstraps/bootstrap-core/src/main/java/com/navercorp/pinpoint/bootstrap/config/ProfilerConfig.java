@@ -43,8 +43,6 @@ public interface ProfilerConfig {
     @VisibleForTesting
     boolean getStaticResourceCleanup();
 
-    HttpStatusCodeErrors getHttpStatusCodeErrors();
-
     String getInjectionModuleFactoryClazzName();
 
     String getApplicationNamespace();

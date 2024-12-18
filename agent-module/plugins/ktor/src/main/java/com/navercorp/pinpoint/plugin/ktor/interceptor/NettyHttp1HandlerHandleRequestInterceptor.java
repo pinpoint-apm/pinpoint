@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.ktor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -62,7 +63,7 @@ public class NettyHttp1HandlerHandleRequestInterceptor implements ApiIdAwareArou
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         reqBuilder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        reqBuilder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        reqBuilder.setHttpStatusCodeRecorder(HttpStatusCodeErrors.of(profilerConfig::readString));
         reqBuilder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
         reqBuilder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
 

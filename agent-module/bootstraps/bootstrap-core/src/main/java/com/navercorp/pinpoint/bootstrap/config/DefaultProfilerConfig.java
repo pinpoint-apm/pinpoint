@@ -65,9 +65,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.transport.grpc.stats.logging.period}")
     private String grpcStatLoggingPeriod = "PT1M";
 
-
-    private HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors();
-
     @Value("${profiler.guice.module.factory}")
     private String injectionModuleFactoryClazzName = null;
     @Value("${profiler.application.namespace}")
@@ -122,17 +119,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean getStaticResourceCleanup() {
         return staticResourceCleanup;
-    }
-
-    @Override
-    public HttpStatusCodeErrors getHttpStatusCodeErrors() {
-        return httpStatusCodeErrors;
-    }
-
-    @Value("${profiler.http.status.code.errors}")
-    void setHttpStatusCodeErrors(String httpStatusCodeErrors) {
-        List<String> httpStatusCodeErrorList = StringUtils.tokenizeToStringList(httpStatusCodeErrors, ",");
-        this.httpStatusCodeErrors = new HttpStatusCodeErrors(httpStatusCodeErrorList);
     }
 
     @Override
@@ -242,7 +228,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
                 ", activeProfile='" + activeProfile + '\'' +
                 ", staticResourceCleanup=" + staticResourceCleanup +
                 ", grpcStatLoggingPeriod='" + grpcStatLoggingPeriod + '\'' +
-                ", httpStatusCodeErrors=" + httpStatusCodeErrors +
                 ", injectionModuleFactoryClazzName='" + injectionModuleFactoryClazzName + '\'' +
                 ", applicationNamespace='" + applicationNamespace + '\'' +
                 ", agentClassloaderAdditionalLibs='" + agentClassloaderAdditionalLibs + '\'' +

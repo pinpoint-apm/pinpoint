@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -50,7 +52,8 @@ public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor 
     public AsyncListenerInterceptorHelper(final TraceContext traceContext, final AsyncContext asyncContext) {
         Objects.requireNonNull(traceContext, "traceContext");
         this.asyncContext = Objects.requireNonNull(asyncContext, "asyncContext");
-        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
+        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(HttpStatusCodeErrors.of(profilerConfig::readString));
 
         traceContext.cacheApi(ASYNC_LISTENER_ON_COMPLETE_METHOD_DESCRIPTOR);
         traceContext.cacheApi(ASYNC_LISTENER_ON_ERROR_METHOD_DESCRIPTOR);

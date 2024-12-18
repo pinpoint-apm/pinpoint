@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
@@ -34,7 +36,8 @@ public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndP
 
     public HttpServerResponseImplInterceptor(TraceContext traceContext) {
         super(traceContext);
-        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
+        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(HttpStatusCodeErrors.of(profilerConfig::readString));
     }
 
     @Override

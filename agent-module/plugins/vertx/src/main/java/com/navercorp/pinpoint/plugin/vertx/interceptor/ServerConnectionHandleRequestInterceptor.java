@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
@@ -73,7 +75,8 @@ public class ServerConnectionHandleRequestInterceptor implements ApiIdAwareAroun
     public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext, final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
 
-        final VertxHttpServerConfig config = new VertxHttpServerConfig(traceContext.getProfilerConfig());
+        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        final VertxHttpServerConfig config = new VertxHttpServerConfig(profilerConfig);
         this.excludeUrlFilter = config.getExcludeUrlFilter();
         this.traceExcludeMethodFilter = config.getTraceExcludeMethodFilter();
 
@@ -86,7 +89,7 @@ public class ServerConnectionHandleRequestInterceptor implements ApiIdAwareAroun
         this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, true);
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
 
-        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(HttpStatusCodeErrors.of(profilerConfig::readString));
     }
 
     @Override

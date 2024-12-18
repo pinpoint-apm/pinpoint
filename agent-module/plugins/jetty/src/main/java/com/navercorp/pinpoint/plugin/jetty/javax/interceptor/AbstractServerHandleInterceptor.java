@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.jetty.javax.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
@@ -71,7 +72,7 @@ public abstract class AbstractServerHandleInterceptor implements ApiIdAwareAroun
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         reqBuilder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        reqBuilder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        reqBuilder.setHttpStatusCodeRecorder(HttpStatusCodeErrors.of(profilerConfig::readString));
         reqBuilder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
         reqBuilder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
 

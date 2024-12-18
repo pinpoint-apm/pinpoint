@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -38,7 +39,7 @@ public class ChannelOperationsInterceptor extends AsyncContextSpanEventEndPointA
     public ChannelOperationsInterceptor(TraceContext traceContext) {
         super(traceContext);
         final ProfilerConfig config = traceContext.getProfilerConfig();
-        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(config.getHttpStatusCodeErrors());
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(HttpStatusCodeErrors.of(config::readString));
     }
 
     @Override

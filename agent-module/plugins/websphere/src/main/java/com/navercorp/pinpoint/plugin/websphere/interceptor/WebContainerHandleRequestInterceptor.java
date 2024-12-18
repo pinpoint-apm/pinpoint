@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.websphere.interceptor;
 import com.ibm.websphere.servlet.request.IRequest;
 import com.ibm.websphere.servlet.response.IResponse;
 import com.ibm.ws.webcontainer.channel.WCCResponseImpl;
+import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
@@ -65,8 +66,7 @@ public class WebContainerHandleRequestInterceptor implements ApiIdAwareAroundInt
         builder.setRequestRecorderFactory(requestRecorderFactory);
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        builder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        builder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        builder.setHttpStatusCodeRecorder(HttpStatusCodeErrors.of(profilerConfig::readString));
         builder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
         builder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
         this.servletRequestListener = builder.build();
